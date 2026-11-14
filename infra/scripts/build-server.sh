@@ -36,7 +36,11 @@ else
   rm -f infra/server/vendor/claude
 fi
 
-digest() { docker buildx imagetools inspect "$1" --format '{{json .Manifest}}' | sed -E 's/.*"digest":"([^"]+)".*/\1/'; }
+# Repo digest of a base image (the multi-arch index digest), from the registry via a pull.
+digest() {
+  docker pull -q "$1" >/dev/null
+  docker image inspect --format '{{index .RepoDigests 0}}' "$1" | sed 's/.*@//'
+}
 toolchain="$(sed -nE 's/^channel = "([^"]+)"/\1/p' rust-toolchain.toml)"
 rust_ref="rust:${toolchain}-bookworm"
 rust_img="rust@$(digest "$rust_ref")"
