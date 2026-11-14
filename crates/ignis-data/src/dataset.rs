@@ -40,6 +40,7 @@ use ignis_core::contracts::{
     ExecutionScope, Family, Origin, Partition, Producer, Quantity, RawValue, RetryPolicy,
     ScopeRole, Split, Timestamp,
 };
+use ignis_core::contracts::{ConditionsQuery, ConditionsTable, RunId};
 use ignis_core::services::{DatasetService, ServiceResult};
 use parquet::arrow::ArrowWriter;
 use parquet::basic::Compression;
@@ -977,6 +978,42 @@ impl DatasetService for DatasetStore {
             scope.require_partition(*p)?;
         }
         Ok(b)
+    }
+
+    /// Conditions of the flight investigations (inputs, never outcomes). A run in a frozen split
+    /// partition the scope does not hold is withheld, like every other run-level answer.
+    fn conditions(
+        &self,
+        scope: &ExecutionScope,
+        q: &ConditionsQuery,
+    ) -> ServiceResult<ConditionsTable> {
+        scope
+            .validate()
+            .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
+        scope.require(Capability::ReadData)?;
+        let p = crate::conditions::table_path();
+        let text = std::fs::read_to_string(&p).map_err(|_| {
+            err(
+                ErrorCode::CapabilityUnavailable,
+                format!("{} is not built; run `ignis data conditions`", p.display()),
+            )
+        })?;
+        let full: ConditionsTable = serde_json::from_str(&text)
+            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+        let splits: Vec<Split> = crate::cohort::split_files()
+            .iter()
+            .map(|f| {
+                crate::cohort::load_split_with_cohort(&f.display().to_string()).map(|(s, _)| s)
+            })
+            .collect::<anyhow::Result<_>>()
+            .map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?;
+        let visible = |id: &RunId| {
+            splits.iter().all(|s| {
+                s.partition_of(id.as_str())
+                    .is_none_or(|part| scope.require_partition(part).is_ok())
+            })
+        };
+        crate::conditions::query(&full, q, visible).map_err(|e| err(ErrorCode::InvalidRequest, e))
     }
 }
 

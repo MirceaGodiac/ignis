@@ -131,6 +131,10 @@ pub enum DataCmd {
         #[arg(long)]
         evaluator: bool,
     },
+    /// Build the conditions table of the 19 flight investigations (R9a) from the experimental
+    /// tables and family records; validated against `ConditionsTable`, written to
+    /// data/work/conditions/conditions_table.json, coverage per investigation and key on stdout.
+    Conditions,
     /// List the builder bundles in the store (ids, partitions, content digest).
     Bundles,
     /// Write the array views for a cohort as Parquet (physical SI scaling only).
@@ -1021,6 +1025,27 @@ pub fn run_data(cmd: DataCmd) -> anyhow::Result<()> {
                 out["quality"] = built.quality.clone();
             }
             println!("{}", serde_json::to_string_pretty(&out)?);
+        }
+        DataCmd::Conditions => {
+            let t = crate::conditions::build()?;
+            let out = paths::work(&["conditions"]).join("conditions_table.json");
+            std::fs::create_dir_all(out.parent().unwrap())?;
+            std::fs::write(&out, serde_json::to_string(&t)? + "\n")?;
+            let mut per: BTreeMap<String, (usize, BTreeMap<String, usize>)> = BTreeMap::new();
+            for r in &t.rows {
+                let e = per.entry(r.investigation_id.clone()).or_default();
+                e.0 += 1;
+                for c in &r.cells {
+                    if matches!(c, ignis_core::contracts::ConditionCell::Value { .. }) {
+                        *e.1.entry(format!("{:?}", c.key())).or_default() += 1;
+                    }
+                }
+            }
+            println!(
+                "{}",
+                json!({"out": out.display().to_string(), "rows": t.rows.len(),
+                       "investigations": t.envelopes.len(), "values_per_investigation": per})
+            );
         }
         DataCmd::Bundles => {
             use ignis_core::services::DatasetService;
