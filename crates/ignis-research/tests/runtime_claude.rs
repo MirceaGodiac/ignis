@@ -246,6 +246,7 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     let mut cfg = ClaudeConfig::new(bin, dir.path().join("claude"));
     cfg.pass_env = vec![];
     cfg.login_home = Some(login);
+    cfg.harness = Some(ignis_research::runtime::HarnessBundle::embedded(&[]));
     let manifest = claude_preflight(&cfg).expect("preflight of the real binary");
     println!("build: {}", manifest.runtime_build_id);
     let h = H {
@@ -268,4 +269,106 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
         !why.contains("unknown option") && !why.contains("error: "),
         "{why}"
     );
+}
+
+#[test]
+fn the_harness_bundle_is_appended_identically_every_turn_and_pinned() {
+    use ignis_research::runtime::{HarnessBundle, HarnessSource};
+    let dir = tempfile::tempdir().unwrap();
+    let tools: Vec<String> = vec!["sources_search".into(), "answer_submit".into()];
+    let h1 = HarnessBundle::embedded(&tools);
+    let with = |b: &HarnessBundle| {
+        let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
+        let artifacts = Arc::new(LocalArtifactStore::open(dir.path().join("artifacts")).unwrap());
+        let mut cfg = config(dir.path());
+        cfg.harness = Some(b.clone());
+        let manifest = claude_preflight(&cfg).unwrap();
+        H {
+            store: store.clone(),
+            bridge: ClaudeBridge::new(
+                cfg,
+                manifest,
+                store,
+                artifacts,
+                Arc::new(|_: &EpisodeId, _| {}),
+            ),
+        }
+    };
+    let running = |evs: &[ResearchEvent]| -> Vec<String> {
+        evs.iter()
+            .filter_map(|e| match &e.body {
+                EventBody::StatusChanged { to, reason, .. } if *to == EpisodeStatus::Running => {
+                    Some(reason.clone().unwrap_or_default())
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    let sc = scope("ws-hc", false);
+    let h = with(&h1);
+    let ep = h.episode(&sc, "harness");
+    h.say(&sc, &ep, "first question");
+    h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    h.say(&sc, &ep, "second question");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    check_event_log(&evs).unwrap();
+    let reasons = running(&evs);
+    assert!(
+        reasons[0].contains(&format!("harness {} injected", h1.short())),
+        "{reasons:?}"
+    );
+    assert!(!reasons[1].contains("harness"), "{reasons:?}");
+    let rec = h.store.episode(&sc, &ep).unwrap();
+    rec.validate().unwrap();
+    let pin = rec.pins.harness.expect("harness pin");
+    assert_eq!(&pin.digest, h1.digest());
+    assert_eq!(
+        pin.model, "fake-claude-model",
+        "the model Claude Code reported"
+    );
+    assert_eq!(pin.runtime_build, h.bridge.manifest().runtime_build_id);
+    // Both turns got exactly the bundle's bytes.
+    let cfg_dir = std::fs::read_dir(dir.path().join("claude"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path()
+        .join("config");
+    let logged: Vec<serde_json::Value> =
+        std::fs::read_to_string(cfg_dir.join("system-prompts.jsonl"))
+            .unwrap()
+            .lines()
+            .map(|l| serde_json::from_str(l).unwrap())
+            .collect();
+    assert_eq!(logged.len(), 2);
+    assert!(logged.iter().all(|v| v["append"] == h1.text()));
+    let argv = std::fs::read_to_string(cfg_dir.join("argv.log")).unwrap();
+    assert!(argv.contains("--exclude-dynamic-system-prompt-sections"));
+    drop(h);
+
+    // Another bundle on the host: the resumed session keeps the prompt it started with, so the
+    // pin stays and the log says why; a new episode starts with the new bundle.
+    let mut src = HarnessSource::embedded();
+    src.investigator.push_str(
+        "
+An extra rule for this variant.
+",
+    );
+    let h2 = HarnessBundle::render("h2", &src, &tools).unwrap();
+    let h = with(&h2);
+    h.say(&sc, &ep, "third question");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 3);
+    let reasons = running(&evs);
+    assert!(
+        reasons[2].contains(&format!("stays on {}", h1.short())),
+        "{reasons:?}"
+    );
+    let pin = h.store.episode(&sc, &ep).unwrap().pins.harness.unwrap();
+    assert_eq!(&pin.digest, h1.digest());
+    let ep2 = h.episode(&sc, "fresh");
+    h.say(&sc, &ep2, "a question");
+    h.idle(&sc, &ep2, EpisodeStatus::Completed, 1);
+    let pin = h.store.episode(&sc, &ep2).unwrap().pins.harness.unwrap();
+    assert_eq!(&pin.digest, h2.digest());
 }
