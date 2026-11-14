@@ -142,10 +142,10 @@ export const IconSystem = (p: P) => (
 
 export const IconConditions = (p: P) => (
   <svg {...base(p)}>
-    <path d="M2.25 11.75a5.75 5.75 0 1 1 11.5 0" />
-    <path d="M8 11.75 10.6 8.4" />
-    <circle cx="8" cy="11.75" r="1" />
-    <path d="M4.15 7.9l.75.6M8 6v.95M11.85 7.9l-.75.6" />
+    <path d="M2.5 4.5h6M11.5 4.5h2M2.5 8h2M7.5 8h6M2.5 11.5h7.5M13 11.5h.5" />
+    <circle cx="10" cy="4.5" r="1.5" />
+    <circle cx="6" cy="8" r="1.5" />
+    <circle cx="11.5" cy="11.5" r="1.5" />
   </svg>
 );
 
