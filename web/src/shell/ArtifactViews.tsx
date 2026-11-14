@@ -2,7 +2,8 @@
 // rules visible: exit code is not a result, units are never assumed, coverage sits beside quality,
 // and model output is never presented as a measurement. Raw JSON stays one click away in the panel.
 import { Fragment } from "react";
-import type { AnalysisArtifact, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease } from "../contracts/generated";
+import type { AnalysisArtifact, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease, VisualObservationBundle } from "../contracts/generated";
+import { ContourVideo } from "./ContourVideo";
 import { checkSummary, columnUnit, durationS, evaluationSummary, exposureRows, fmtMetric, limitRows, outcomeText, UNCERTAINTY_TEXT, type TypedArtifact } from "../research/artifactViews";
 import { Caution, fmtBytes, ReleaseState, shortId, words } from "../ui/common";
 import { usePanel } from "./inspector";
@@ -18,6 +19,8 @@ export function TypedArtifactBody({ contract, data }: { contract: TypedArtifact;
       return <EvaluationResultView r={data as EvaluationResult} />;
     case "AnalysisArtifact":
       return <AnalysisArtifactView a={data as AnalysisArtifact} />;
+    case "VisualObservationBundle":
+      return <VisualBundleView b={data as VisualObservationBundle} />;
   }
 }
 
@@ -412,6 +415,40 @@ export function ReleaseConstruction({ release }: { release: ModelRelease }) {
             ))}
         </dl>
       </details>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------- VisualObservationBundle
+
+function VisualBundleView({ b }: { b: VisualObservationBundle }) {
+  return (
+    <>
+      <dl className="kv">
+        <dt>units</dt>
+        <dd>{b.units_status === "metric" ? "metric" : <span className="tag tag-warn">{words(b.units_status)}: not metres</span>}</dd>
+        <dt>camera</dt>
+        <dd>
+          <code>{b.camera_id}</code>
+        </dd>
+        <dt>time origin</dt>
+        <dd>
+          <code>{b.time_origin}</code>
+        </dd>
+        <dt>time basis</dt>
+        <dd>{words(b.timestamp_basis)}</dd>
+        <dt>run</dt>
+        <dd>{b.run.run_id ? <code>{b.run.run_id}</code> : <span className="tag tag-line">identity {words(b.run.resolution)}</span>}</dd>
+        <dt>method</dt>
+        <dd>
+          <code>{b.method}</code>
+        </dd>
+        <dt>contours</dt>
+        <dd>
+          <ArtifactLink artifact={b.contours} label={fmtBytes(b.contours.byte_length)} />
+        </dd>
+      </dl>
+      <ContourVideo bundle={b} />
     </>
   );
 }

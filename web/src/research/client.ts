@@ -109,6 +109,10 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
       const typed = FIXTURES.typedArtifacts.find((t) => t.ref.artifact_id === id);
       return typed ? ok(typed.payload) : fail(notInFixtures(`artifact ${id} payload`), 404);
     },
+    getArtifactText: (id) =>
+      id === FIXTURES.visualBundle.contours.artifact_id
+        ? ok(FIXTURES.imageContours.map((r) => JSON.stringify(r)).join("\n"))
+        : fail(notInFixtures(`artifact ${id} text`), 404),
     readArtifactValue: (id, pointer) => {
       if (id !== FIXTURES.answerArtifactId) return fail(notInFixtures(`artifact ${id} payload`), 404);
       const v = resolvePointer(FIXTURES.answer, pointer);
