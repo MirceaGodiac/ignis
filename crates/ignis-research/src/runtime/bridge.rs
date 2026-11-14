@@ -26,7 +26,9 @@ use ignis_core::services::{ArtifactStore, ServiceResult};
 use serde_json::{json, Value};
 
 use super::grants::{McpLease, MCP_TOKEN_ENV};
-use super::mapping::{self, map_item, map_notification, map_turn_completed, Mapped, StopReason};
+use super::mapping::{
+    self, map_item, map_notification, map_turn_completed, Mapped, Preamble, StopReason,
+};
 use super::preflight::{
     ApprovalKind, ApprovalRule, CodexConfig, ProfilePolicy, RuntimeBuildManifest, LIVE,
 };
@@ -121,6 +123,8 @@ struct Slot {
     stop: Option<StopReason>,
     /// Said in the next turn's status change (e.g. that the runtime thread was replaced).
     note: Option<String>,
+    /// Links the live turn's messages to the tool calls they introduce (`step.rationale`).
+    preamble: Preamble,
 }
 
 impl Slot {
@@ -136,6 +140,7 @@ impl Slot {
             generation: 0,
             stop: None,
             note: None,
+            preamble: Preamble::default(),
         }
     }
 }
@@ -427,6 +432,7 @@ impl Inner {
                 slot.runtime_turn_id = None;
                 slot.thread_id = Some(thread_id.clone());
                 slot.stop = None;
+                slot.preamble = Preamble::default();
             }
         }
         let input: Vec<Value> = ts
@@ -704,6 +710,7 @@ impl Inner {
                 .flatten()
                 .flat_map(|item| map_item(turn_id, item, true))
                 .collect();
+            let mapped = Preamble::default().link(mapped);
             self.commit(scope, ep, origin, mapped);
         }
     }
@@ -1024,8 +1031,16 @@ impl Inner {
                 self.send_interrupt(live, &thread, &t);
             }
         }
-        let stop = self.lock().slots.get(&ep).and_then(|s| s.stop);
-        let mapped = map_notification(method, &params, stop);
+        let (stop, mapped) = {
+            let mut st = self.lock();
+            let slot = st.slots.get_mut(&ep);
+            let stop = slot.as_ref().and_then(|s| s.stop);
+            let mapped = map_notification(method, &params, stop);
+            match slot {
+                Some(s) => (stop, s.preamble.link(mapped)),
+                None => (stop, mapped),
+            }
+        };
         self.commit(&scope, &ep, origin, mapped);
         if method == "turn/completed" {
             if let Some(t) = params.get("turn") {

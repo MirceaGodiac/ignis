@@ -10,7 +10,9 @@
 //! - Threads persist in `$CODEX_HOME/fake-threads.json`; on start, turns left in progress by a killed
 //!   process become `interrupted` (what a reloaded thread looks like).
 //! - The turn scenario is chosen by words in the user input: `tool`, `approval`, `shell`,
-//!   `permissions`, `opaque`, `hang` (wait for `turn/interrupt`), `fail`; plain text just answers.
+//!   `permissions`, `opaque`, `hang` (wait for `turn/interrupt`), `fail`, `explain` (a message, then
+//!   an `analysis_execute` call it introduces, with arguments larger than an event inlines, and
+//!   a secret-like member); plain text just answers.
 //!   `hang` also persists the items produced so far, so a restart can replay them.
 //! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`.
 
@@ -473,6 +475,46 @@ fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
         done["result"] = json!({"content": [{"type": "text", "text": "1 hit"}], "structuredContent": tool_result});
         persist_item(&done);
         sh.out.send_all(&[
+            n(
+                "item/started",
+                base(json!({"item": started, "startedAtMs": 0})),
+            ),
+            n(
+                "item/completed",
+                base(json!({"item": done, "completedAtMs": 0})),
+            ),
+        ]);
+    }
+    if has("explain") {
+        let msg = json!({"type": "agentMessage", "id": sh.id("msg"),
+                         "text": "Computing the spread rate from the cited table."});
+        persist_item(&msg);
+        let call = sh.id("call");
+        let source = format!(
+            "print(1)
+{}",
+            "# padding
+"
+            .repeat(10_000)
+        );
+        let started = json!({"type": "mcpToolCall", "id": call, "server": "ignis", "tool": "analysis_execute",
+                             "status": "inProgress",
+                             "arguments": {"language": "python", "source": source, "api_key": "sk-not-logged"}});
+        let tool_result = json!({
+            "schema_version": "tools.v1", "call_id": call, "tool": "analysis_execute",
+            "execution_status": "completed", "scientific_status": "not_assessed",
+            "result": {"value": {"ok": true}, "partial": false}, "artifact_refs": [], "origin": "synthetic_fixture"
+        });
+        let mut done = started.clone();
+        done["status"] = json!("completed");
+        done["result"] = json!({"content": [], "structuredContent": tool_result});
+        persist_item(&done);
+        sh.out.send_all(&[
+            n("item/started", base(json!({"item": msg, "startedAtMs": 0}))),
+            n(
+                "item/completed",
+                base(json!({"item": msg, "completedAtMs": 0})),
+            ),
             n(
                 "item/started",
                 base(json!({"item": started, "startedAtMs": 0})),

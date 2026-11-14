@@ -36,6 +36,7 @@ fn config(dir: &Path) -> ClaudeConfig {
 
 struct H {
     store: Arc<ResearchStore>,
+    artifacts: Arc<LocalArtifactStore>,
     bridge: ClaudeBridge,
 }
 
@@ -48,10 +49,14 @@ fn harness(dir: &Path) -> H {
         cfg,
         manifest,
         store.clone(),
-        artifacts,
+        artifacts.clone(),
         Arc::new(|_: &EpisodeId, _| {}),
     );
-    H { store, bridge }
+    H {
+        store,
+        artifacts,
+        bridge,
+    }
 }
 
 impl H {
@@ -117,6 +122,18 @@ fn reason(evs: &[ResearchEvent]) -> String {
             _ => None,
         })
         .unwrap_or_default()
+}
+
+#[test]
+fn a_tool_call_records_its_arguments_and_the_message_that_introduced_it() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness(dir.path());
+    let sc = scope("ws-c", false);
+    let ep = h.episode(&sc, "explain");
+    h.say(&sc, &ep, "explain then compute");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    check_event_log(&evs).unwrap();
+    assert_explained_call(&evs, h.artifacts.as_ref(), &sc, &[]);
 }
 
 #[test]
@@ -250,6 +267,7 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     println!("build: {}", manifest.runtime_build_id);
     let h = H {
         store: store.clone(),
+        artifacts: artifacts.clone(),
         bridge: ClaudeBridge::new(
             cfg,
             manifest,
