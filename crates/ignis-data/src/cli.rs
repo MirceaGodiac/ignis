@@ -60,6 +60,9 @@ pub enum SourcesCmd {
         name: Option<String>,
         #[arg(long, default_value_t = 100)]
         page_size: u32,
+        /// Query NTRS and write files; without it, only print what would run.
+        #[arg(long)]
+        execute: bool,
     },
     /// International microgravity-combustion sources (separate investigations, never NASA cohorts).
     #[command(subcommand)]
@@ -263,7 +266,6 @@ fn families_of(f: &str) -> Vec<String> {
     }
 }
 
-/// `datetime.now(UTC).isoformat()`.
 fn slug(s: &str) -> String {
     let mut out = String::new();
     for ch in s.chars() {
@@ -276,10 +278,23 @@ fn slug(s: &str) -> String {
     out.trim_matches('-').to_string()
 }
 
-fn run_ntrs(query: &str, name: Option<&str>, page_size: u32) -> anyhow::Result<()> {
+fn run_ntrs(query: &str, name: Option<&str>, page_size: u32, execute: bool) -> anyhow::Result<()> {
     use crate::sources::ntrs;
     let stem = name.map(String::from).unwrap_or_else(|| slug(query));
     anyhow::ensure!(!stem.is_empty(), "empty manifest name");
+    if !execute {
+        let out = paths::manifests()
+            .join("ntrs")
+            .join(format!("{stem}.jsonl"));
+        println!(
+            "{}",
+            json!({
+                "query": query, "manifest": out.display().to_string(), "page_size": page_size,
+                "dry_run": true, "next": "add --execute to query NTRS and write the manifest",
+            })
+        );
+        return Ok(());
+    }
     let mut c = ntrs::NtrsClient::new(120);
     let records = c.search_all(query, page_size)?;
     let entries = ntrs::entries(query, &records, &now_iso_offset())?;
@@ -314,6 +329,7 @@ fn run_ntrs(query: &str, name: Option<&str>, page_size: u32) -> anyhow::Result<(
     Ok(())
 }
 
+/// `datetime.now(UTC).isoformat()`.
 fn now_iso_offset() -> String {
     chrono::Utc::now()
         .format("%Y-%m-%dT%H:%M:%S%.6f+00:00")
@@ -592,7 +608,8 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             query,
             name,
             page_size,
-        } => run_ntrs(&query, name.as_deref(), page_size)?,
+            execute,
+        } => run_ntrs(&query, name.as_deref(), page_size, execute)?,
         SourcesCmd::Intl(c) => run_intl(c)?,
     }
     Ok(())
