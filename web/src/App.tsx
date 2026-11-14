@@ -5,8 +5,10 @@ import { SCHEMA_VERSION } from "./contracts/generated";
 import { Explore } from "./workspaces/Explore";
 import { Compare } from "./workspaces/Compare";
 import { Lab } from "./workspaces/Lab";
+import { Research } from "./workspaces/Research";
 
 const TABS = [
+  ["research", "Research"],
   ["explore", "Explore"],
   ["compare", "Compare"],
   ["lab", "Experiment Lab"],
@@ -15,7 +17,7 @@ type Tab = (typeof TABS)[number][0];
 
 export function App() {
   const [origin, setOrigin] = useState<Origin>("registry");
-  const [tab, setTab] = useState<Tab>("explore");
+  const [tab, setTab] = useState<Tab>("research");
   const [compareSet, setCompareSet] = useState<string[]>([]);
   const [runId, setRunId] = useState<string | null>(null);
   const health = useQuery({ queryKey: [origin, "health"], queryFn: () => call<Health>(origin, "/health"), retry: false });
@@ -76,7 +78,7 @@ export function App() {
         ))}
       </nav>
       <main id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
-        {health.error && (
+        {health.error && tab !== "research" && (
           <div className="refusal refusal-unavailable" role="status">
             <strong>Server unavailable.</strong> Start it with <code>cargo run -p ignis-server -- --dev</code>.
           </div>
@@ -92,6 +94,7 @@ export function App() {
             }}
           />
         )}
+        {tab === "research" && <Research />}
         {tab === "compare" && <Compare origin={origin} runIds={compareSet} clear={() => setCompareSet([])} />}
         {tab === "lab" && <Lab origin={origin} runId={runId} setRunId={setRunId} />}
       </main>
