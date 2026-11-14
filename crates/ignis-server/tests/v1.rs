@@ -41,6 +41,7 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
         mcp_port: 0,
+        runner: Default::default(),
     }
 }
 
@@ -322,6 +323,14 @@ async fn unconfigured_services_are_capability_status_not_results() {
         .find(|t| t["name"] == "artifacts_read")
         .unwrap();
     assert_eq!(artifacts_read["available"], true);
+    // No runner configured: no code execution anywhere, and the reason is visible.
+    assert_eq!(caps["analysis_runner"]["available"], false);
+    let analysis = tools
+        .iter()
+        .find(|t| t["name"] == "analysis_execute")
+        .unwrap();
+    assert_eq!(analysis["available"], false);
+    assert!(caps.get("runner_environment").is_none());
 
     let crate_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let search: Value = serde_json::from_str(

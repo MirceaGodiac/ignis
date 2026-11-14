@@ -16,4 +16,4 @@ pub mod schemas;
 pub mod tools;
 
 pub use http::{router, IgnisMcp};
-pub use tools::{catalog, ToolAvailability, ToolHost, ToolServices, FORECAST_JOB};
+pub use tools::{catalog, ToolAvailability, ToolHost, ToolServices, ANALYSIS_JOB, FORECAST_JOB};

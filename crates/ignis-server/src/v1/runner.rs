@@ -9,8 +9,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use ignis_core::contracts::{
-    ArtifactRef, EntityRef, ErrorCode, ErrorEnvelope, ForecastRequest, Origin, Producer,
-    RetryPolicy,
+    AnalysisExecuteRequest, ArtifactRef, EntityRef, ErrorCode, ErrorEnvelope, ForecastRequest,
+    Origin, Producer, RetryPolicy,
 };
 use ignis_core::services::ArtifactDraft;
 use ignis_research::store::{ClaimedJob, JobOutcome, JobPriority};
@@ -19,6 +19,7 @@ use tokio::sync::Semaphore;
 use super::V1;
 
 pub const FORECAST: &str = ignis_mcp::FORECAST_JOB;
+pub const ANALYSIS: &str = ignis_mcp::ANALYSIS_JOB;
 
 const LEASE: Duration = Duration::from_secs(30);
 const HEARTBEAT: Duration = Duration::from_secs(10);
@@ -31,7 +32,7 @@ const SLOTS: usize = 3;
 /// slot (master design §17: interactive > evaluations > ingestion).
 pub fn priority_of(kind: &str) -> JobPriority {
     match kind {
-        FORECAST => JobPriority::Interactive,
+        FORECAST | ANALYSIS => JobPriority::Interactive,
         k if k.starts_with("evaluation_") => JobPriority::Evaluation,
         _ => JobPriority::Ingestion,
     }
@@ -57,6 +58,9 @@ fn kinds(v: &V1) -> Vec<&'static str> {
     let mut k = Vec::new();
     if v.services.models.is_some() {
         k.push(FORECAST);
+    }
+    if v.services.sandbox.is_some() {
+        k.push(ANALYSIS);
     }
     k
 }
@@ -160,9 +164,11 @@ async fn execute(v: Arc<V1>, job: ClaimedJob) {
             }
         })
     };
-    let (v2, job2) = (v.clone(), job.clone());
+    let (v2, job2, cancel2) = (v.clone(), job.clone(), cancel.clone());
     let result = tokio::task::spawn_blocking(move || {
-        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| handle(&v2, &job2)))
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            handle(&v2, &job2, &cancel2)
+        }))
     })
     .await;
     hb.abort();
@@ -204,8 +210,32 @@ async fn execute(v: Arc<V1>, job: ClaimedJob) {
     wake_episode(&v, &job).await;
 }
 
-fn handle(v: &V1, job: &ClaimedJob) -> Result<Vec<ArtifactRef>, ErrorEnvelope> {
+fn handle(
+    v: &V1,
+    job: &ClaimedJob,
+    cancel: &AtomicBool,
+) -> Result<Vec<ArtifactRef>, ErrorEnvelope> {
     match job.kind.as_str() {
+        ANALYSIS => {
+            let sandbox = v.services.sandbox.clone().ok_or_else(|| {
+                ErrorEnvelope::new(
+                    ErrorCode::CapabilityUnavailable,
+                    "isolated runner not configured",
+                    RetryPolicy::Never,
+                )
+            })?;
+            let req: AnalysisExecuteRequest =
+                serde_json::from_value(job.input.clone()).map_err(|e| {
+                    ErrorEnvelope::new(ErrorCode::InvalidRequest, e.to_string(), RetryPolicy::Never)
+                })?;
+            let producer = Producer {
+                episode_id: job.episode_id.clone(),
+                job_id: Some(job.job_id.clone()),
+                tool_call_id: None,
+                release_id: None,
+            };
+            sandbox.execute(&job.scope, &req, v.artifacts.as_ref(), producer, cancel)
+        }
         FORECAST => {
             let models = v.services.models.clone().ok_or_else(|| {
                 ErrorEnvelope::new(

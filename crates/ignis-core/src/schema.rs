@@ -51,6 +51,8 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<DatasetRef>("DatasetRef"),
         one::<ReleaseRef>("ReleaseRef"),
         one::<JobLookup>("JobLookup"),
+        one::<AnalysisExecuteRequest>("AnalysisExecuteRequest"),
+        one::<ExecutionRecord>("ExecutionRecord"),
         // C0: evidence (evidence.v1)
         one::<EvidenceRef>("EvidenceRef"),
         one::<SearchRequest>("SearchRequest"),

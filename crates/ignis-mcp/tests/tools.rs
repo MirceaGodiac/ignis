@@ -67,6 +67,22 @@ fn only_tools_with_a_configured_service_are_registered() {
     // DatasetService is not configured and the wiki has no service: not tools, not negative results.
     assert!(!names.contains(&"datasets_inspect"));
     assert!(!names.contains(&"wiki_patch"));
+    // No runner passed preflight: code execution is not offered at all (and never on the host).
+    assert!(!names.contains(&"analysis_execute"));
+    let why = ignis_mcp::catalog(&Default::default())
+        .into_iter()
+        .find(|t| t.descriptor.name == "analysis_execute")
+        .and_then(|t| t.unavailable);
+    assert_eq!(
+        why,
+        Some("isolated runner not configured or failed preflight")
+    );
+    let r = h.host.call(
+        &scope("ws_a"),
+        "analysis_execute",
+        json!({"language": "python", "source": "print(1)"}),
+    );
+    refused(&r, ErrorCode::NotFound);
     let r = h.host.call(
         &scope("ws_a"),
         "datasets_inspect",

@@ -34,6 +34,8 @@
     "DatasetRef",
     "ReleaseRef",
     "JobLookup",
+    "AnalysisExecuteRequest",
+    "ExecutionRecord",
     "EvidenceRef",
     "SearchRequest",
     "SearchPage",
