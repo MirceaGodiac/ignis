@@ -1,0 +1,21 @@
+[package]
+name = "ignis-train"
+description = "Generic fit driver (`ignis fit`) and observation-value decisions (`ignis decide`) over any collected experts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-science = { path = "../ignis-science" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+toml.workspace = true
+clap.workspace = true
+chrono.workspace = true
+rand = "0.10"
+
+[dev-dependencies]
+ignis-flex = { path = "../ignis-flex" }
