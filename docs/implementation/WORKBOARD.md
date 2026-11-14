@@ -28,6 +28,32 @@ până la livrarea dependenței se lucrează pe fixture-urile din `fixtures/cont
 | T4 | Tudor | scoring WSP; harness H0/H1, rezultate pereche | T2 + I3 + M5 | de făcut (după I3) |
 | T5 | Tudor | demo bundle, deck/video, export verificabil | T3 + rezultate admise | pornit: animația Stageshow pentru deck |
 
+### Faza 2 — trei lane-uri paralele (detalii, motivare și surse: [LANES_V2](LANES_V2.md))
+
+Lane-ul lui Iancu (I1–I5) nu se schimbă. Contractele noi intră întâi, ca val **K1** (un PR per
+familie, cu fixture, fără implementare), în ordinea din `LANES_V2.md` §5.3.
+
+| ID | Owner | Livrabil | Dependență | Stare |
+|---|---|---|---|---|
+| K1 | Raul → Mircea → Tudor | val de contracte: `evidence.v2` + `dataset.v2` (Raul), `research.v2` (Mircea), `evaluation.v2` (Tudor); o singură creștere de versiune per familie, reader pentru datele v1 durabile | — | de făcut |
+| M6 | Mircea | harness bundle v1 (`harness/`): instrucțiuni operaționale, skills (agentskills.io), secțiunea de tool-uri generată din tool-urile înregistrate; injectat în Codex și Claude Code; digest în `EpisodePins.harness` | K1 | de făcut |
+| M7 | Mircea | `answer_submit`: `AnswerSubmission` → validare pe host (evidence întoarsă în episod, pointeri rezolvați, release-uri pin-uite) → `answer.completed`; blocuri `View` | K1, M6 | de făcut |
+| M8 | Mircea | ergonomia tool-urilor: argumente în `tool.started`, `step.rationale`, tipuri server mutate în core, `response_format` + paginare, audit descrieri; înregistrarea tool-urilor noi ale lui Raul | K1 | de făcut |
+| M9 | Mircea | context în mediu (artefacte montate în `analysis_execute` prin ref), delegare depth-1 prin subagenții runtime-ului, scope derivat per copil | M6 | de făcut |
+| M10 | Mircea | `TraceBundle` + `ignis harness run --variant`; optimizare offline doar pe dev (stretch) | K1, T10 | de făcut |
+| M11 | Mircea | rute v1 pentru runs/datasets/conditions, ca UI-ul să renunțe la `/api/experiments*` | K1, R9 | de făcut |
+| R6 | Raul | catalog PSI pentru toate cele 26 de investigații de combustie + NTRS, drepturi per document, media leneșă | — | de făcut |
+| R7 | Raul | parsare cu coordonate: Docling + GROBID, bbox normalizat top-left, parse views versionate | R6 | de făcut |
+| R8 | Raul | `SourceLabel`: clasificare în batch, două treceri, gold set de ~100 documente; Muse Spark Contributor doar pe documente publice | R7, K1 | de făcut |
+| R9 | Raul | graf tipizat de combustie (SQLite, `ProvenanceLink`), seed din CSV-urile PSI; servicii `conditions_query` și `graph_neighbors` | R6, R8, K1 | de făcut |
+| R10 | Raul | upgrade-uri de retrieval doar pe baza benchmark-ului (Tantivy, ColQwen, PPR); calibrare BASS; bundle-ul de evaluator | T10 | de făcut |
+| T6 | Tudor | Runs/Lab/Compare/Atmosphere pe rute v1; fără DTO-uri scrise de mână | M11 | de făcut |
+| T7 | Tudor | viewere: PDF.js la bbox, video BASS cu contur, artefacte tipizate, release + calificare, wiki, graf | K1, R7 | de făcut |
+| T8 | Tudor | UI generativ din catalog închis (`ViewSpec`), vederi legate pe timp/selecție | K1, M7 | de făcut |
+| T9 | Tudor | matricea de condiții și clasamentul de relevanță pentru habitate (Lună, costum, ISS) | R9, M8 | de făcut |
+| T10 | Tudor | benchmark (T3 partea 2): `GoldTask`, pilot ~30, set dev + hold-out privat ~20 %, sub-benchmark de retrieval | K1 | de făcut |
+| T11 | Tudor | H0/H1 + ablații (skills, wiki, graf, subagenți), ≥ 3 seed-uri, costuri, harness declarat | M10, T10 | de făcut |
+
 R5 și I5 se pot dezvolta pe fixture înaintea calibrării reale, dar nu se declară `metric` / calificate
 până nu există. Un WSP slab nu blochează documente/calcul; schimbă doar verdictul și partea de demo.
 

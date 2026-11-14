@@ -48,6 +48,9 @@ merge. Nu se țin patru versiuni de `main` până la final. Niciun agent nu lucr
 | `schemas/*.json`, `web/src/contracts/generated.ts` | **generate** | doar `ignis schemas export` + `npm run gen:types` |
 | `fixtures/contracts/<familie>/` | ownerul familiei | `manifest.json`: PR cu review comun |
 | `docs/implementation/HANDOFF_<NUME>.md` | persoana respectivă | |
+| `harness/` (nou: instrucțiuni, `skills/`, `agents/`) | Mircea | conținutul skill-urilor: review Raul (semantica datelor, citări), Iancu (calificarea modelelor) |
+| `benchmarks/` (set dev) | Tudor | hold-out-ul privat stă în vault-ul evaluatorului, niciodată în repo sau în bundle-uri de builder |
+| `docs/implementation/LANES_V2.md` | Mircea (integrator), review din fiecare lane | planul fazei 2; contractele val K1 în §5 |
 | `AGENTS.md`, `docs/implementation/{ARCHITECTURE,CONTRACTS,INTEGRATION,WORKBOARD}.md`, `docs/TEAM.md`, `docs/REPOMAP.md` | Mircea (integrator), review Iancu | se actualizează în PR-ul care schimbă realitatea descrisă |
 
 ## Zonele care se suprapun — rezolvate
