@@ -1,0 +1,62 @@
+{
+  "schema_version": "research.v1",
+  "answer_id": "fixture-answer-01",
+  "episode_id": "fixture-episode-01",
+  "status": "partial",
+  "blocks": [
+    {"type": "text", "text": "Synthetic fixture: the cited (fixture) passage reports a trend; the fixture run's diameter was measured; the experimental handwritten release predicts a value.", "claim_ids": ["fixture-claim-01", "fixture-claim-02", "fixture-claim-03"]},
+    {"type": "artifact", "artifact_id": "fixture-artifact-forecast-01", "caption": "Synthetic fixture: prediction versus observation (experimental release, not qualified)."},
+    {"type": "text", "text": "Synthetic fixture: the full protocol could not be read (source not materialized).", "claim_ids": ["fixture-claim-04"]}
+  ],
+  "claims": [
+    {"claim_id": "fixture-claim-01", "kind": "source_reports", "text": "Synthetic fixture: the passage reports a trend.", "support": [{"kind": "evidence", "evidence_id": "fixture-evidence-01"}]},
+    {"claim_id": "fixture-claim-02", "kind": "observed", "text": "Synthetic fixture: measured liquid diameter at the cutoff.", "support": [{"kind": "evidence", "evidence_id": "fixture-evidence-02"}]},
+    {"claim_id": "fixture-claim-03", "kind": "predicted", "text": "Synthetic fixture: predicted liquid diameter at the horizon.", "support": [{"kind": "artifact_value", "artifact_id": "fixture-artifact-forecast-01", "pointer": "/mean/3"}]},
+    {"claim_id": "fixture-claim-04", "kind": "interpretation", "text": "Synthetic fixture: the comparison stays inconclusive until the protocol is read.", "support": []}
+  ],
+  "evidence": [
+    {
+      "evidence_id": "fixture-evidence-01",
+      "source_id": "fixture-source-v1",
+      "parse_view_id": "fixture-parse-v1",
+      "locator": {
+        "asset_sha256": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+        "path": null, "row": null, "column": null, "page": 3, "frame": null, "pts_s": null, "char_start": null, "char_end": null,
+        "page_label": "2",
+        "bbox": [0.12, 0.21, 0.88, 0.44]
+      },
+      "evidence_class": "source_derived",
+      "origin": "synthetic_fixture"
+    },
+    {
+      "evidence_id": "fixture-evidence-02",
+      "source_id": "fixture-dataset-file-v1",
+      "locator": {
+        "asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+        "path": "fixture/run-01.csv", "row": 41, "column": "diameter_mm", "page": null, "frame": null, "pts_s": null, "char_start": null, "char_end": null
+      },
+      "evidence_class": "original_observation",
+      "origin": "synthetic_fixture"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "fixture-artifact-forecast-01",
+      "sha256": "sha256:f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0",
+      "media_type": "application/json",
+      "byte_length": 2048,
+      "contract": "AnalysisArtifact",
+      "produced_by": {"episode_id": "fixture-episode-01", "job_id": "fixture-job-02", "release_id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"},
+      "inputs": [{"kind": "run", "id": "fixture-run-01"}, {"kind": "release", "id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"}],
+      "origin": "synthetic_fixture",
+      "created_at": "2026-11-12T18:00:08Z"
+    }
+  ],
+  "model_releases": ["sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"],
+  "limitations": [
+    "Synthetic fixture: the release is experimental (not qualified by any evaluation).",
+    "Synthetic fixture: dense retrieval was unavailable; lexical-only ranking."
+  ],
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-12T18:00:14Z"
+}

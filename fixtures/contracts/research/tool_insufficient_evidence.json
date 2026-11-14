@@ -1,0 +1,17 @@
+{
+  "schema_version": "tools.v1",
+  "call_id": "fixture-call-04",
+  "tool": "models_forecast",
+  "execution_status": "completed",
+  "scientific_status": "insufficient_evidence",
+  "result": {
+    "value": {
+      "reason": "Synthetic fixture: the admitted prefix holds 1 liquid-diameter observation; the release's forward needs 2. No prediction was produced and no fallback ran.",
+      "admitted_observations": 1,
+      "required_observations": 2
+    },
+    "partial": false
+  },
+  "artifact_refs": [],
+  "origin": "synthetic_fixture"
+}

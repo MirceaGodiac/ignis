@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-26",
+  "title": "Burning and Suppression of Solids",
+  "acronym": "BASS",
+  "investigation_version": "4",
+  "version_reason": "Additional documentation release",
+  "modified": "19-Mar-2025",
+  "doi": "10.60555/58h4-dy80",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Microgravity Science Glovebox",
+  "total_file_size_bytes": 163551372412.0,
+  "metadata_url_sha256": "9dee45d44bb736178db270a07c9ee8f98ac02ee810189ab518271fd4720c0533",
+  "retrieved_at": "2026-11-07T19:45:03.414096+00:00"
+}

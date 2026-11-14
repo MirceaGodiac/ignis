@@ -1,0 +1,21 @@
+{
+  "schema_version": "dataset.v1",
+  "bundle_id": "fixture-visual-bundle-01",
+  "video_source_id": "fixture-video-source-v1",
+  "run": {"resolution": "unknown"},
+  "camera_id": "fixture-camera-side",
+  "timestamp_basis": "container_pts",
+  "time_origin": "first_luminous_frame",
+  "units_status": "pixel_only",
+  "method": "vision.segment.classical_otsu@fixture + contour.k32@fixture",
+  "contours": {
+    "artifact_id": "fixture-artifact-pixel-contours",
+    "sha256": "sha256:c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+    "media_type": "application/x-ndjson",
+    "byte_length": 8192,
+    "origin": "synthetic_fixture",
+    "created_at": "2026-11-12T17:30:00Z"
+  },
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-12T17:30:00Z"
+}

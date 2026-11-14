@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-159",
+  "title": "Advanced Combustion via Microgravity Experiments / Cool Flames Investigation with Gases",
+  "acronym": "ACME CFI-G",
+  "investigation_version": "1",
+  "version_reason": "New data release",
+  "modified": "20-Nov-2025",
+  "doi": "10.60555/cyt1-kh64",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "ACME, Combustion Integrated Rack (CIR)",
+  "total_file_size_bytes": 2085592429259,
+  "metadata_url_sha256": "e01abe2caa309753a9bee1b0c3c79dec194a2a7300d0d13541e0dcf25e3b0ea5",
+  "retrieved_at": "2026-11-07T19:44:48.164696+00:00"
+}

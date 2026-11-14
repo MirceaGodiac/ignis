@@ -1,0 +1,20 @@
+{
+  "schema_version": "evaluation.v1",
+  "request_id": "fixture-eval-request-01",
+  "purpose": "development_feedback",
+  "protocol": {"protocol_id": "fixture-protocol", "version": "0"},
+  "target": "liquid_diameter",
+  "unit": "m",
+  "dataset_id": "fixture-dataset-flex",
+  "dataset_hash": "sha256:41326e471e92414c6f7e79ecc1d75b60cdd39635f98767d37027e254accc8e40",
+  "split_id": "fixture-split",
+  "partition": "validation",
+  "candidate": {
+    "release_id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9",
+    "forward_hash": "sha256:b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+    "settings": {"seed": 0, "quantile_levels": null, "horizon_s": null, "n_points": null}
+  },
+  "baselines": [],
+  "cutoffs_s": [1.0, 3.0],
+  "metrics": [{"metric": "crps", "version": "1"}]
+}

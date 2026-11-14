@@ -1,0 +1,7 @@
+{
+  "schema_version": "evidence.v1",
+  "query": "ambient oxygen fraction effect on droplet burning rate (synthetic fixture query)",
+  "mode": "hybrid",
+  "filters": {"families": ["flex"], "source_kinds": ["publication", "protocol"]},
+  "page_size": 10
+}

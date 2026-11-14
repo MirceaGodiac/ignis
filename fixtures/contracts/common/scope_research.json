@@ -1,0 +1,9 @@
+{
+  "scope_id": "fixture-scope-01",
+  "workspace_id": "fixture-workspace",
+  "principal": "fixture-user",
+  "role": "research",
+  "partitions": ["train", "validation"],
+  "capabilities": ["read_sources", "read_data", "run_models", "wiki_write"],
+  "corpus_snapshot": "fixture-corpus-snapshot-01"
+}

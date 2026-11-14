@@ -1,0 +1,18 @@
+{
+  "schema_version": "tools.v1",
+  "call_id": "fixture-call-03",
+  "tool": "sources_read",
+  "execution_status": "failed",
+  "scientific_status": "not_assessed",
+  "artifact_refs": [],
+  "error": {
+    "code": "upstream_unavailable",
+    "message": "Synthetic fixture: the parse-view store did not answer; nothing was read.",
+    "retry": {
+      "kind": "after_delay",
+      "seconds": 30
+    },
+    "log_ref": "fixture-artifact-log-03"
+  },
+  "origin": "synthetic_fixture"
+}

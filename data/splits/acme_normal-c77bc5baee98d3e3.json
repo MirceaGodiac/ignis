@@ -1,0 +1,504 @@
+{
+  "split": {
+    "id": "sha256:c77bc5baee98d3e3494de144fa3f98ce0dee904efa35d5f7c0b48b91dbc82d14",
+    "cohort_id": "sha256:92fb4728e88ed5175bd47da77707d042a0f046abca1bd8df351fd1d69fea4701",
+    "group_key": "session",
+    "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+    "seed": 20261107,
+    "run_to_group": {
+      "PSI-159:acme_normal:21088A1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088B1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088D1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088F1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088G1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088H1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088H2": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088J1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088K1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088L1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088M4": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088N1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21088P1": "session:PSI-159:day:2021-03-29",
+      "PSI-159:acme_normal:21102B1": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21102C2": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21102C3": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21102C5": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21102C7": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21102M1": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21102M2": "session:PSI-159:day:2021-04-12",
+      "PSI-159:acme_normal:21106A4": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106B1": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106C1": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106D1": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106F1": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106F3": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106G6": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106G7": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21106G9": "session:PSI-159:day:2021-04-16",
+      "PSI-159:acme_normal:21112A1": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112A2": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112A3": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112A4": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112A5": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112A6": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112C1": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112C2": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112F2": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112F3": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112F4": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112H1": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21112H2": "session:PSI-159:day:2021-04-22",
+      "PSI-159:acme_normal:21125A2": "session:PSI-159:day:2021-05-05",
+      "PSI-159:acme_normal:21125D1": "session:PSI-159:day:2021-05-05",
+      "PSI-159:acme_normal:21125D2": "session:PSI-159:day:2021-05-05",
+      "PSI-159:acme_normal:21125K1": "session:PSI-159:day:2021-05-05",
+      "PSI-159:acme_normal:21125K2": "session:PSI-159:day:2021-05-05",
+      "PSI-159:acme_normal:21125K3": "session:PSI-159:day:2021-05-05",
+      "PSI-159:acme_normal:21130A1": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130A2": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130A5": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130A9": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130G2": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130G3": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130G6": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130G7": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130M1": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130M2": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130M3": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130N1": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130N2": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130N3": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21130N4": "session:PSI-159:day:2021-05-10",
+      "PSI-159:acme_normal:21137A1": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137A2": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137A3": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137A4": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137A5": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137A6": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137A7": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137B1": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137B2": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137C1": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137D1": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21137D2": "session:PSI-159:day:2021-05-17",
+      "PSI-159:acme_normal:21153A1": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153A2": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153A3": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153A4": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153A5": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C1": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C2": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C3": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C4": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C5": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C6": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153C7": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153F1": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21153G1": "session:PSI-159:day:2021-06-02",
+      "PSI-159:acme_normal:21162A1": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162A2": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162A3": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162A4": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162B1": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162C1": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162C2": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162C3": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162C4": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162C5": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162D1": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21162F2": "session:PSI-159:day:2021-06-11",
+      "PSI-159:acme_normal:21174A1": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174A2": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174A3": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174A4": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174B1": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174C1": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174C2": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174C3": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174C4": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174C5": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174C6": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174D1": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174F1": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174F2": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174F3": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21174F4": "session:PSI-159:day:2021-06-23",
+      "PSI-159:acme_normal:21291A1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291B1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291C1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291C2": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291D1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291G1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291G2": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291H1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291H2": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291J1": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291J2": "session:PSI-159:day:2021-10-18",
+      "PSI-159:acme_normal:21291J3": "session:PSI-159:day:2021-10-18"
+    },
+    "train": [
+      "session:PSI-159:day:2021-03-29",
+      "session:PSI-159:day:2021-04-16",
+      "session:PSI-159:day:2021-05-05",
+      "session:PSI-159:day:2021-05-10",
+      "session:PSI-159:day:2021-06-02",
+      "session:PSI-159:day:2021-06-11",
+      "session:PSI-159:day:2021-10-18"
+    ],
+    "validation": [
+      "session:PSI-159:day:2021-05-17",
+      "session:PSI-159:day:2021-06-23"
+    ],
+    "test": [
+      "session:PSI-159:day:2021-04-12",
+      "session:PSI-159:day:2021-04-22"
+    ],
+    "frozen_at": "2026-11-07T19:59:09.854203Z"
+  },
+  "cohort": {
+    "id": "sha256:92fb4728e88ed5175bd47da77707d042a0f046abca1bd8df351fd1d69fea4701",
+    "family": "acme_normal",
+    "version": "1",
+    "criteria": {
+      "population": "established hot flame: Hot ignition == yes (case-insensitive); 'flash'/'no' excluded",
+      "endpoint": "SE/FT label present; unresolved SE-vs-intervention conflicts excluded from the event likelihood until adjudicated (kept in records)",
+      "conditions": "pressure, injected mass flow, role O2 and role fuel fractions all present (no imputation)",
+      "configuration": "normal and inverse never pooled"
+    },
+    "run_ids": [
+      "PSI-159:acme_normal:21088A1",
+      "PSI-159:acme_normal:21088B1",
+      "PSI-159:acme_normal:21088D1",
+      "PSI-159:acme_normal:21088F1",
+      "PSI-159:acme_normal:21088G1",
+      "PSI-159:acme_normal:21088H1",
+      "PSI-159:acme_normal:21088H2",
+      "PSI-159:acme_normal:21088J1",
+      "PSI-159:acme_normal:21088K1",
+      "PSI-159:acme_normal:21088L1",
+      "PSI-159:acme_normal:21088M4",
+      "PSI-159:acme_normal:21088N1",
+      "PSI-159:acme_normal:21088P1",
+      "PSI-159:acme_normal:21102B1",
+      "PSI-159:acme_normal:21102C2",
+      "PSI-159:acme_normal:21102C3",
+      "PSI-159:acme_normal:21102C5",
+      "PSI-159:acme_normal:21102C7",
+      "PSI-159:acme_normal:21102M1",
+      "PSI-159:acme_normal:21102M2",
+      "PSI-159:acme_normal:21106A4",
+      "PSI-159:acme_normal:21106B1",
+      "PSI-159:acme_normal:21106C1",
+      "PSI-159:acme_normal:21106D1",
+      "PSI-159:acme_normal:21106F1",
+      "PSI-159:acme_normal:21106F3",
+      "PSI-159:acme_normal:21106G6",
+      "PSI-159:acme_normal:21106G7",
+      "PSI-159:acme_normal:21106G9",
+      "PSI-159:acme_normal:21112A1",
+      "PSI-159:acme_normal:21112A2",
+      "PSI-159:acme_normal:21112A3",
+      "PSI-159:acme_normal:21112A4",
+      "PSI-159:acme_normal:21112A5",
+      "PSI-159:acme_normal:21112A6",
+      "PSI-159:acme_normal:21112C1",
+      "PSI-159:acme_normal:21112C2",
+      "PSI-159:acme_normal:21112F2",
+      "PSI-159:acme_normal:21112F3",
+      "PSI-159:acme_normal:21112F4",
+      "PSI-159:acme_normal:21112H1",
+      "PSI-159:acme_normal:21112H2",
+      "PSI-159:acme_normal:21125A2",
+      "PSI-159:acme_normal:21125D1",
+      "PSI-159:acme_normal:21125D2",
+      "PSI-159:acme_normal:21125K1",
+      "PSI-159:acme_normal:21125K2",
+      "PSI-159:acme_normal:21125K3",
+      "PSI-159:acme_normal:21130A1",
+      "PSI-159:acme_normal:21130A2",
+      "PSI-159:acme_normal:21130A5",
+      "PSI-159:acme_normal:21130A9",
+      "PSI-159:acme_normal:21130G2",
+      "PSI-159:acme_normal:21130G3",
+      "PSI-159:acme_normal:21130G6",
+      "PSI-159:acme_normal:21130G7",
+      "PSI-159:acme_normal:21130M1",
+      "PSI-159:acme_normal:21130M2",
+      "PSI-159:acme_normal:21130M3",
+      "PSI-159:acme_normal:21130N1",
+      "PSI-159:acme_normal:21130N2",
+      "PSI-159:acme_normal:21130N3",
+      "PSI-159:acme_normal:21130N4",
+      "PSI-159:acme_normal:21137A1",
+      "PSI-159:acme_normal:21137A2",
+      "PSI-159:acme_normal:21137A3",
+      "PSI-159:acme_normal:21137A4",
+      "PSI-159:acme_normal:21137A5",
+      "PSI-159:acme_normal:21137A6",
+      "PSI-159:acme_normal:21137A7",
+      "PSI-159:acme_normal:21137B1",
+      "PSI-159:acme_normal:21137B2",
+      "PSI-159:acme_normal:21137C1",
+      "PSI-159:acme_normal:21137D1",
+      "PSI-159:acme_normal:21137D2",
+      "PSI-159:acme_normal:21153A1",
+      "PSI-159:acme_normal:21153A2",
+      "PSI-159:acme_normal:21153A3",
+      "PSI-159:acme_normal:21153A4",
+      "PSI-159:acme_normal:21153A5",
+      "PSI-159:acme_normal:21153C1",
+      "PSI-159:acme_normal:21153C2",
+      "PSI-159:acme_normal:21153C3",
+      "PSI-159:acme_normal:21153C4",
+      "PSI-159:acme_normal:21153C5",
+      "PSI-159:acme_normal:21153C6",
+      "PSI-159:acme_normal:21153C7",
+      "PSI-159:acme_normal:21153F1",
+      "PSI-159:acme_normal:21153G1",
+      "PSI-159:acme_normal:21162A1",
+      "PSI-159:acme_normal:21162A2",
+      "PSI-159:acme_normal:21162A3",
+      "PSI-159:acme_normal:21162A4",
+      "PSI-159:acme_normal:21162B1",
+      "PSI-159:acme_normal:21162C1",
+      "PSI-159:acme_normal:21162C2",
+      "PSI-159:acme_normal:21162C3",
+      "PSI-159:acme_normal:21162C4",
+      "PSI-159:acme_normal:21162C5",
+      "PSI-159:acme_normal:21162D1",
+      "PSI-159:acme_normal:21162F2",
+      "PSI-159:acme_normal:21174A1",
+      "PSI-159:acme_normal:21174A2",
+      "PSI-159:acme_normal:21174A3",
+      "PSI-159:acme_normal:21174A4",
+      "PSI-159:acme_normal:21174B1",
+      "PSI-159:acme_normal:21174C1",
+      "PSI-159:acme_normal:21174C2",
+      "PSI-159:acme_normal:21174C3",
+      "PSI-159:acme_normal:21174C4",
+      "PSI-159:acme_normal:21174C5",
+      "PSI-159:acme_normal:21174C6",
+      "PSI-159:acme_normal:21174D1",
+      "PSI-159:acme_normal:21174F1",
+      "PSI-159:acme_normal:21174F2",
+      "PSI-159:acme_normal:21174F3",
+      "PSI-159:acme_normal:21174F4",
+      "PSI-159:acme_normal:21291A1",
+      "PSI-159:acme_normal:21291B1",
+      "PSI-159:acme_normal:21291C1",
+      "PSI-159:acme_normal:21291C2",
+      "PSI-159:acme_normal:21291D1",
+      "PSI-159:acme_normal:21291G1",
+      "PSI-159:acme_normal:21291G2",
+      "PSI-159:acme_normal:21291H1",
+      "PSI-159:acme_normal:21291H2",
+      "PSI-159:acme_normal:21291J1",
+      "PSI-159:acme_normal:21291J2",
+      "PSI-159:acme_normal:21291J3"
+    ],
+    "excluded": [
+      {
+        "run_id": "PSI-159:acme_normal:21088C1",
+        "reason": "endpoint unresolved_conflict"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102A1",
+        "reason": "endpoint unresolved_conflict"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102C1",
+        "reason": "endpoint unresolved_conflict"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102C4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102C6",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102C8",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102M3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102M4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102M5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21102M6",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21106F2",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21106F4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21106F5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21106H1",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21106H2",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112C3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112C4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112C5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112C6",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112F1",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112F5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21112H3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A1",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A6",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A7",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A8",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125A9",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125D3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125D4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125D5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125D6",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125H1",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125H2",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125H3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125H4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125H5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21125J1",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130A3",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130A4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130A6",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130A7",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130A8",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130G1",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130G4",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130G5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21130N5",
+        "reason": "hot ignition = no"
+      },
+      {
+        "run_id": "PSI-159:acme_normal:21162F1",
+        "reason": "hot ignition = no"
+      }
+    ],
+    "source_manifest_hash": "sha256:11a1bdbd4bdbda6e3731309deeabe7e6996fa8fa8c43f84c9aae2e4bc793e126"
+  },
+  "content_hash": "sha256:77c712b9aebdc9cd3e7e80be909f08618be40b1ec85e14d01aff59608d7e24b8"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "fixture-patch-w0",
+  "spec_hash": "sha256:2b6e266cc26886104db24b5036b3dc294e63e96cfd121642d1586d0002536635",
+  "author": {"provider": "fixture", "model_id": "record-the-exact-provider-model-id"},
+  "exposure": {"sources": ["fixture-source-v1"], "datasets": [], "development_feedback": [], "prior_candidates": []},
+  "ops": [
+    {"op": "set_box", "tensor": "residual.W1", "start": [0, 0], "shape": [2, 2], "values": [0.25, -0.1, 0.05, 0.08]},
+    {"op": "set", "tensor": "residual.a1", "index": [1], "value": 0.02},
+    {"op": "set", "tensor": "physics.k0", "index": [], "value": 8e-7}
+  ],
+  "rationale": "Synthetic fixture: illustrative numbers in the literal patch format; not physical parameters.",
+  "origin": "synthetic_fixture"
+}

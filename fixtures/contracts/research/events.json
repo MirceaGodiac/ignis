@@ -1,0 +1,221 @@
+[
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0001",
+    "episode_id": "fixture-episode-01",
+    "seq": 1,
+    "occurred_at": "2026-11-12T18:00:01Z",
+    "causation": {"client_request_id": "fixture-client-req-01"},
+    "body": {"kind": "message.user", "payload": {"message_id": "fixture-msg-01", "text": "Synthetic fixture question about ambient atmosphere and diameter decrease."}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0002",
+    "episode_id": "fixture-episode-01",
+    "seq": 2,
+    "occurred_at": "2026-11-12T18:00:02Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01"},
+    "body": {"kind": "episode.status_changed", "payload": {"from": "ready", "to": "running"}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0003",
+    "episode_id": "fixture-episode-01",
+    "seq": 3,
+    "occurred_at": "2026-11-12T18:00:03Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01", "runtime_item_id": "fixture-item-01", "tool_call_id": "fixture-call-01"},
+    "body": {"kind": "tool.started", "payload": {"call_id": "fixture-call-01", "tool": "sources_search"}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0004",
+    "episode_id": "fixture-episode-01",
+    "seq": 4,
+    "occurred_at": "2026-11-12T18:00:04Z",
+    "causation": {"tool_call_id": "fixture-call-01"},
+    "body": {"kind": "tool.finished", "payload": {"result": {
+      "schema_version": "tools.v1",
+      "call_id": "fixture-call-01",
+      "tool": "sources_search",
+      "execution_status": "completed",
+      "scientific_status": "conclusive",
+      "result": {
+        "value": {"hits": 1, "first_evidence_id": "fixture-evidence-01", "degraded": true},
+        "partial": true,
+        "full": {
+          "artifact_id": "fixture-artifact-search-01",
+          "sha256": "sha256:5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+          "media_type": "application/json",
+          "byte_length": 4096,
+          "contract": "SearchPage",
+          "produced_by": {"episode_id": "fixture-episode-01", "tool_call_id": "fixture-call-01"},
+          "origin": "synthetic_fixture",
+          "created_at": "2026-11-12T18:00:04Z"
+        }
+      },
+      "artifact_refs": [],
+      "origin": "synthetic_fixture"
+    }}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0005",
+    "episode_id": "fixture-episode-01",
+    "seq": 5,
+    "occurred_at": "2026-11-12T18:00:05Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01", "tool_call_id": "fixture-call-02"},
+    "body": {"kind": "tool.started", "payload": {"call_id": "fixture-call-02", "tool": "models_forecast"}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0006",
+    "episode_id": "fixture-episode-01",
+    "seq": 6,
+    "occurred_at": "2026-11-12T18:00:06Z",
+    "causation": {"tool_call_id": "fixture-call-02", "job_id": "fixture-job-02"},
+    "body": {"kind": "tool.finished", "payload": {"result": {
+      "schema_version": "tools.v1",
+      "call_id": "fixture-call-02",
+      "tool": "models_forecast",
+      "execution_status": "accepted",
+      "scientific_status": "not_assessed",
+      "job": {"job_id": "fixture-job-02", "kind": "models_forecast", "status": "queued", "outputs": [], "submitted_at": "2026-11-12T18:00:06Z", "updated_at": "2026-11-12T18:00:06Z"},
+      "artifact_refs": [],
+      "origin": "synthetic_fixture"
+    }}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0007",
+    "episode_id": "fixture-episode-01",
+    "seq": 7,
+    "occurred_at": "2026-11-12T18:00:07Z",
+    "causation": {"job_id": "fixture-job-02"},
+    "body": {"kind": "job.updated", "payload": {"job": {"job_id": "fixture-job-02", "kind": "models_forecast", "status": "running", "progress": {"completed": 0, "unit": "cases"}, "outputs": [], "submitted_at": "2026-11-12T18:00:06Z", "updated_at": "2026-11-12T18:00:07Z"}}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0008",
+    "episode_id": "fixture-episode-01",
+    "seq": 8,
+    "occurred_at": "2026-11-12T18:00:08Z",
+    "causation": {"job_id": "fixture-job-02"},
+    "body": {"kind": "artifact.created", "payload": {"artifact": {
+      "artifact_id": "fixture-artifact-forecast-01",
+      "sha256": "sha256:f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0",
+      "media_type": "application/json",
+      "byte_length": 2048,
+      "contract": "AnalysisArtifact",
+      "produced_by": {"episode_id": "fixture-episode-01", "job_id": "fixture-job-02", "release_id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"},
+      "inputs": [{"kind": "run", "id": "fixture-run-01"}, {"kind": "release", "id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"}],
+      "origin": "synthetic_fixture",
+      "created_at": "2026-11-12T18:00:08Z"
+    }}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0009",
+    "episode_id": "fixture-episode-01",
+    "seq": 9,
+    "occurred_at": "2026-11-12T18:00:09Z",
+    "causation": {"job_id": "fixture-job-02"},
+    "body": {"kind": "job.updated", "payload": {"job": {"job_id": "fixture-job-02", "kind": "models_forecast", "status": "succeeded", "progress": {"completed": 1, "total": 1, "unit": "cases"}, "outputs": [{
+      "artifact_id": "fixture-artifact-forecast-01",
+      "sha256": "sha256:f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0",
+      "media_type": "application/json",
+      "byte_length": 2048,
+      "contract": "AnalysisArtifact",
+      "produced_by": {"episode_id": "fixture-episode-01", "job_id": "fixture-job-02", "release_id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"},
+      "inputs": [{"kind": "run", "id": "fixture-run-01"}, {"kind": "release", "id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"}],
+      "origin": "synthetic_fixture",
+      "created_at": "2026-11-12T18:00:08Z"
+    }], "submitted_at": "2026-11-12T18:00:06Z", "updated_at": "2026-11-12T18:00:09Z"}}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0010",
+    "episode_id": "fixture-episode-01",
+    "seq": 10,
+    "occurred_at": "2026-11-12T18:00:10Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01", "tool_call_id": "fixture-call-03"},
+    "body": {"kind": "tool.started", "payload": {"call_id": "fixture-call-03", "tool": "sources_read"}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0011",
+    "episode_id": "fixture-episode-01",
+    "seq": 11,
+    "occurred_at": "2026-11-12T18:00:11Z",
+    "causation": {"tool_call_id": "fixture-call-03"},
+    "body": {"kind": "tool.finished", "payload": {"result": {
+      "schema_version": "tools.v1",
+      "call_id": "fixture-call-03",
+      "tool": "sources_read",
+      "execution_status": "failed",
+      "scientific_status": "not_assessed",
+      "artifact_refs": [],
+      "error": {"code": "source_missing", "message": "Synthetic fixture: the source version is a listing; its bytes are not materialized.", "retry": {"kind": "after_user_action"}},
+      "origin": "synthetic_fixture"
+    }}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0012",
+    "episode_id": "fixture-episode-01",
+    "seq": 12,
+    "occurred_at": "2026-11-12T18:00:12Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01", "runtime_item_id": "fixture-item-09"},
+    "body": {"kind": "message.delta", "payload": {"message_id": "fixture-msg-02", "text": "Synthetic fixture answer, "}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0013",
+    "episode_id": "fixture-episode-01",
+    "seq": 13,
+    "occurred_at": "2026-11-12T18:00:13Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01", "runtime_item_id": "fixture-item-09"},
+    "body": {"kind": "message.completed", "payload": {"message_id": "fixture-msg-02", "text": "Synthetic fixture answer, complete text snapshot."}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0014",
+    "episode_id": "fixture-episode-01",
+    "seq": 14,
+    "occurred_at": "2026-11-12T18:00:14Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01"},
+    "body": {"kind": "answer.completed", "payload": {"answer_id": "fixture-answer-01", "status": "partial", "answer": {
+      "artifact_id": "fixture-artifact-answer-01",
+      "sha256": "sha256:a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0",
+      "media_type": "application/json",
+      "byte_length": 3072,
+      "contract": "ResearchAnswer",
+      "produced_by": {"episode_id": "fixture-episode-01"},
+      "origin": "synthetic_fixture",
+      "created_at": "2026-11-12T18:00:14Z"
+    }}},
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v1",
+    "event_id": "fixture-event-0015",
+    "episode_id": "fixture-episode-01",
+    "seq": 15,
+    "occurred_at": "2026-11-12T18:00:15Z",
+    "causation": {"runtime_turn_id": "fixture-turn-01"},
+    "body": {"kind": "episode.status_changed", "payload": {"from": "running", "to": "completed"}},
+    "origin": "synthetic_fixture"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "fixture-spec-flex-toy",
+  "family": "flex",
+  "model_name": "flex.toy.wsp",
+  "target": {
+    "quantity": "liquid_diameter",
+    "unit": "m",
+    "description": "Synthetic fixture target: liquid droplet diameter at the forecast times.",
+    "excludes": ["flame diameter", "extinction time"]
+  },
+  "features": [
+    {"name": "log_pressure_ratio", "unit": "1", "source": "condition:pressure", "transform": "log_ratio_101325Pa@1"},
+    {"name": "d_last", "unit": "m", "source": "observation:liquid_diameter@prefix_last", "transform": "identity@1"}
+  ],
+  "domain": [
+    {"feature": "log_pressure_ratio", "min": -1.0, "max": 1.0}
+  ],
+  "tensors": [
+    {"name": "residual.W1", "shape": [2, 2], "role": "weight", "fill": {"rule": "author_writes_all"}, "description": "Synthetic fixture: input-to-hidden weights; every element is written by the author."},
+    {"name": "residual.a1", "shape": [2], "role": "bias", "fill": {"rule": "structural_zero"}, "description": "Synthetic fixture: hidden biases; unwritten elements are zero by declaration."},
+    {"name": "physics.k0", "shape": [], "role": "physical_parameter", "fill": {"rule": "author_writes_all"}, "unit": "m2/s", "bounds": {"min": 0.0, "max": 1e-5}, "description": "Synthetic fixture: burning-rate constant; must be written, never filled tacitly."},
+    {"name": "physics.time_scale", "shape": [], "role": "constant", "fill": {"rule": "fixed", "values": [1.0]}, "unit": "s", "description": "Synthetic fixture: constant fixed by the spec; the author cannot write it."}
+  ],
+  "forward": {"entry_point": "ignis_wsp::fixture::forward", "version": "fixture", "profile": "strict_no_fitting"},
+  "notes": "Synthetic fixture: illustrative layout only. Not a physical model and not validated values."
+}

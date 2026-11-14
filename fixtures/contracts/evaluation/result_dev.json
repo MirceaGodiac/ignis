@@ -1,0 +1,37 @@
+{
+  "schema_version": "evaluation.v1",
+  "result_id": "fixture-eval-result-01",
+  "request": {
+    "schema_version": "evaluation.v1",
+    "request_id": "fixture-eval-request-01",
+    "purpose": "development_feedback",
+    "protocol": {"protocol_id": "fixture-protocol", "version": "0"},
+    "target": "liquid_diameter",
+    "unit": "m",
+    "dataset_id": "fixture-dataset-flex",
+    "dataset_hash": "sha256:41326e471e92414c6f7e79ecc1d75b60cdd39635f98767d37027e254accc8e40",
+    "split_id": "fixture-split",
+    "partition": "validation",
+    "candidate": {
+      "release_id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9",
+      "forward_hash": "sha256:b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+      "settings": {"seed": 0, "quantile_levels": null, "horizon_s": null, "n_points": null}
+    },
+    "baselines": [],
+    "cutoffs_s": [1.0, 3.0],
+    "metrics": [{"metric": "crps", "version": "1"}]
+  },
+  "request_hash": "sha256:203c627d7b1362edc5c545b94bcc5a5ad9d319b1b95a0cce803cee552bfd7112",
+  "cases": {"total": 4, "scored": 3, "refused": 1, "failed": 0},
+  "coverage": 0.75,
+  "metrics": [
+    {"metric": "crps", "version": "1", "subject": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9", "population": "scored_cases", "value": 0.00004, "unit": "m", "n": 3}
+  ],
+  "failures": [
+    {"case_id": "fixture-run-03@1.0", "subject": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9", "kind": "refused", "reason": "Synthetic fixture: prefix holds fewer observations than the forward requires."}
+  ],
+  "verdict": "not_assessed",
+  "compute": {"wall_time_s": 0.5},
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-12T18:30:00Z"
+}

@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-25",
+  "title": "Burning and Suppression of Solids - II",
+  "acronym": "BASS-II",
+  "investigation_version": "4",
+  "version_reason": "Metadata update",
+  "modified": "24-Nov-2025",
+  "doi": "10.60555/4qc4-de67",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Microgravity Science Glovebox (MSG)",
+  "total_file_size_bytes": 274631106141.0,
+  "metadata_url_sha256": "b9234754db5da651ad27d888af082b889d07210b018e543369662f065b4ec2da",
+  "retrieved_at": "2026-11-07T19:44:53.286210+00:00"
+}

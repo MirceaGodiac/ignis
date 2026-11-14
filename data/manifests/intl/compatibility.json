@@ -1,0 +1,83 @@
+{
+  "status": "declared, unvalidated: statements by the international sources lane from source metadata; no cross-dataset comparison has been run",
+  "policy": "Each dataset is a separate investigation with Family.OTHER. None enters NASA FLEX/ACME/BASS cohorts, splits or training; 'at_most' is the furthest use allowed before a dedicated qualification study.",
+  "declared_at": "2026-11-07",
+  "datasets": {
+    "JAXA-GCEM": {
+      "phenomenon": "flame spread and group-combustion excitation across fiber-supported fuel-droplet clouds; type 2 runs study movable droplets",
+      "fuel_or_material": null,
+      "fuel_reason": "not stated in the DARTS documents inspected; the cited literature uses n-decane, unverified per run",
+      "geometry": "droplets on a 30x30 SiC fiber lattice (14 um fibers) plus a single 78 um SiC fiber; 4 Fe-Cr wire igniters",
+      "platform": "ISS Kibo JEM-PM, Chamber for Combustion Experiment / Group Combustion Experiment Module, 2017-02-16 to 2017-07-04",
+      "measured_quantities": ["chamber pressure x4 [kPa]", "temperature x2 [degC]", "constant-current circuit voltage [V]", "igniter 1-4 on/off", "digital camera video", "high-speed camera video (25 runs)"],
+      "per_run_parameters_source": "documents/gc_parameter.pdf: droplet size, droplet number, ignition-line droplet number, O2 concentration (17-21%), igniter (not yet parsed)",
+      "at_most": "new expert candidate: JAXA group combustion",
+      "not": "FLEX comparison of single-droplet D^2 histories (no droplet-diameter time series in telemetry; interacting droplet arrays)"
+    },
+    "ZARM-FLARE": {
+      "register_ref": "D20",
+      "phenomenon": "opposed-flow flame spread over thin PMMA, continuous strips and strips interrupted by metal (Al / stainless steel) barriers",
+      "fuel_or_material": "PMMA, 0.075 mm thick",
+      "geometry": "thin flat strips ('full samples') or fuel segments separated by 2-6 mm metal gaps ('gap samples')",
+      "platform": "ZARM drop tower (Bremen), 2022-03 to 2024-02",
+      "measured_quantities": ["IR temperature field (x, y, t) [degC], distortion- and temperature-corrected", "O2 mole fraction", "pressure [kPa]", "opposed flow velocity [mm/s]", "propagation rate [mm/s] (full samples only)", "sample/fuel/barrier outlines in pixels"],
+      "at_most": "separate thermal expert: ZARM IR",
+      "secondary": "BASS validation only as an external sanity check of thin-PMMA opposed-flow spread rate trends, never pooled",
+      "rights": "CC BY-NC 4.0 (noncommercial)"
+    },
+    "ESA-HREDA-DropletCombustion_DROP": {
+      "phenomenon": "mixture formation and ignition in two-phase (droplet) combustion",
+      "fuel_or_material": null, "fuel_reason": "registry metadata does not state it",
+      "geometry": null, "geometry_reason": "registry metadata does not state it",
+      "platform": "Drop Tower Bremen, 1995",
+      "measured_quantities": null, "measured_reason": "data login-gated; not inspected",
+      "at_most": "FLEX comparison (literature-level, after access and a matched-case study)",
+      "access": "login_required"
+    },
+    "ESA-HREDA-FlameSpreading_SR": {
+      "phenomenon": "initiation and spread of fires in spacecraft under forced flow",
+      "fuel_or_material": null, "fuel_reason": "registry metadata does not state it",
+      "geometry": null, "geometry_reason": "registry metadata does not state it",
+      "platform": "Sounding rocket TEXUS 38, 2000-04-02",
+      "measured_quantities": null, "measured_reason": "data login-gated; not inspected",
+      "at_most": "BASS validation (external, after access)",
+      "access": "login_required"
+    },
+    "ESA-HREDA-FlameSpreading_SolidFuels_SR": {
+      "phenomenon": "ignition and flame spread over solid fuels at zero and small convective flow velocities",
+      "fuel_or_material": null, "fuel_reason": "registry metadata does not state it",
+      "geometry": null, "geometry_reason": "registry metadata does not state it",
+      "platform": "Sounding rocket MINITEXUS 3, 1995-05-02",
+      "measured_quantities": null, "measured_reason": "data login-gated; not inspected",
+      "at_most": "BASS validation (external, after access)",
+      "access": "login_required"
+    },
+    "ESA-HREDA-CombustionPMMA_Samples2_PARA": {
+      "phenomenon": "heterogeneous combustion of PMMA samples",
+      "fuel_or_material": "PMMA (from investigation name)",
+      "geometry": null, "geometry_reason": "registry metadata does not state it; description is 'not known'",
+      "platform": "Parabolic aircraft, 4th ESA parabolic flight campaign, 1987-04-21 to 1987-04-24",
+      "measured_quantities": null, "measured_reason": "data login-gated; not inspected",
+      "at_most": "BASS validation (external, after access)",
+      "access": "login_required"
+    },
+    "ESA-HREDA-SOOT_LII_DROP": {
+      "phenomenon": "soot concentration and primary particle size in microgravity flames (laser-induced incandescence)",
+      "fuel_or_material": null, "fuel_reason": "registry metadata does not state it",
+      "geometry": null, "geometry_reason": "registry metadata does not state it",
+      "platform": "Drop Tower Bremen 2002, 2003, 2005, 2006",
+      "measured_quantities": ["soot concentration (image-based LII)", "primary particle size (LII)"],
+      "at_most": "evidence only (no IGNIS expert covers soot; nearest NASA analogue SPICE is evidence-only too)",
+      "access": "login_required"
+    },
+    "MENDELEY-2GW4PJHKXZ": {
+      "phenomenon": "bibliographic classification of solid-material combustion studies in microgravity (ignition, flame spread, extinction, smouldering, soot/smoke, molten formation)",
+      "fuel_or_material": "many (PMMA, polyethylene, cellulose, wires, fabrics ...)",
+      "geometry": "many",
+      "platform": "parabolic flights, sounding rockets, drop towers, spacecraft",
+      "measured_quantities": null, "measured_reason": "literature index, no measurements",
+      "at_most": "evidence index for the evidence lane (candidate studies); not a dataset for any expert",
+      "rights": "CC BY-NC 3.0 (noncommercial)"
+    }
+  }
+}

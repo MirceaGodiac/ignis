@@ -1,0 +1,46 @@
+{
+  "schema_version": "evidence.v1",
+  "corpus_snapshot": "fixture-corpus-snapshot-01",
+  "mode": "hybrid",
+  "hits": [
+    {
+      "rank": 1,
+      "evidence": {
+        "evidence_id": "fixture-evidence-01",
+        "source_id": "fixture-source-v1",
+        "parse_view_id": "fixture-parse-v1",
+        "locator": {
+          "asset_sha256": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "path": null,
+          "row": null,
+          "column": null,
+          "page": 3,
+          "frame": null,
+          "pts_s": null,
+          "char_start": 1840,
+          "char_end": 2115,
+          "page_label": "2",
+          "parse_view_id": "fixture-parse-v1",
+          "offset_unit": "unicode_scalar",
+          "bbox": [0.12, 0.21, 0.88, 0.44]
+        },
+        "evidence_class": "source_derived",
+        "quote": "Synthetic fixture passage: this text stands in for a cited paragraph and reports nothing.",
+        "origin": "synthetic_fixture"
+      },
+      "title": "Synthetic fixture publication (not a real paper)",
+      "snippet": "Synthetic fixture snippet; read the passage with sources_read.",
+      "scores": [
+        {"kind": "bm25", "value": 11.4},
+        {"kind": "rrf", "value": 0.0164}
+      ]
+    }
+  ],
+  "next_cursor": "fixture-cursor-02",
+  "backends": [
+    {"backend": "lexical", "status": "used"},
+    {"backend": "dense", "status": "unavailable", "detail": "Synthetic fixture: embedding endpoint not configured; lexical-only ranking."},
+    {"backend": "rerank", "status": "not_requested"}
+  ],
+  "origin": "synthetic_fixture"
+}

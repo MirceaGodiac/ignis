@@ -1,0 +1,24 @@
+{
+  "origin": "synthetic_fixture",
+  "notice": "Hand-made C0 contract examples. They are not NASA data, not measurements, not results and not validated parameters. Every payload carries origin=synthetic_fixture; nothing computed from them may be presented as a NASA result or qualify a model.",
+  "checked_by": "cargo test -p ignis-core --test contracts",
+  "fixtures": [
+    {"path": "common/scope_research.json", "contract": "ExecutionScope", "shows": "host-derived research scope: train+validation only, no code execution"},
+    {"path": "research/episode.json", "contract": "ResearchEpisode", "shows": "episode mapped to a Codex thread, pinned corpus snapshot and release"},
+    {"path": "research/events.json", "contract": "ResearchEvent[]", "shows": "ordered, gap-free log: search, accepted forecast job, artifact, tool failure, streamed answer"},
+    {"path": "research/tool_accepted.json", "contract": "ToolResult", "shows": "long call accepted with a job handle, nothing assessed yet"},
+    {"path": "research/tool_failed.json", "contract": "ToolResult", "shows": "technical failure: error envelope, no result, not assessed"},
+    {"path": "research/tool_insufficient_evidence.json", "contract": "ToolResult", "shows": "completed execution whose scientific outcome is insufficient evidence"},
+    {"path": "research/answer.json", "contract": "ResearchAnswer", "shows": "claims bound to evidence and artifact values; prediction kept apart from observation"},
+    {"path": "evidence/search_request.json", "contract": "SearchRequest", "shows": "hybrid search with filters; no scope in the body"},
+    {"path": "evidence/search_page.json", "contract": "SearchPage", "shows": "one hit with a PDF region locator; dense backend unavailable (degraded); total unknown"},
+    {"path": "evidence/read_result.json", "contract": "ReadResult", "shows": "partial read of a page range with the continuation"},
+    {"path": "data/dataset_bundle.json", "contract": "DatasetBundle", "shows": "builder bundle (train+validation), Parquet view with SI units and time origin"},
+    {"path": "data/visual_bundle_pixel_only.json", "contract": "VisualObservationBundle", "shows": "uncalibrated contours: pixel_only, identity unresolved, not usable as metres"},
+    {"path": "models/model_spec.json", "contract": "ModelSpec", "shows": "toy spec: author-written, structural-zero, physical and fixed tensors"},
+    {"path": "models/patch_w0.json", "contract": "HandwrittenWeightPatch", "shows": "W0 literal patch: box, element and scalar assignments"},
+    {"path": "models/release_w0.json", "contract": "ModelRelease", "shows": "literal release: not_trained, experimental, manifest bound to tensors"},
+    {"path": "evaluation/request_dev.json", "contract": "EvaluationRequest", "shows": "development feedback on validation"},
+    {"path": "evaluation/result_dev.json", "contract": "EvaluationResult", "shows": "accounting with a refused case kept in the denominator; not assessed for qualification"}
+  ]
+}
