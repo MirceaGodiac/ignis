@@ -240,3 +240,25 @@ fn term_stats_count_chunks_and_publications_and_go_stale_with_the_catalog() {
         "a table of another generation is not read"
     );
 }
+
+#[test]
+fn expected_terms_need_v2() {
+    use ignis_core::contracts::{EvidenceSchema, ExpectedTerm, SearchRequest, TermImportance};
+    let mut r: SearchRequest =
+        serde_json::from_value(json!({"schema_version": "evidence.v1", "query": "flame spread"})).unwrap();
+    r.expected_terms = vec![ExpectedTerm {
+        term: "limiting oxygen index".into(),
+        importance: Some(TermImportance::High),
+    }];
+    assert!(
+        r.validate().is_err(),
+        "a v1 request may not carry expected_terms"
+    );
+    r.schema_version = EvidenceSchema::V2;
+    assert!(r.validate().is_ok());
+    r.expected_terms.push(ExpectedTerm {
+        term: "  ".into(),
+        importance: None,
+    });
+    assert!(r.validate().is_err(), "an empty term is refused");
+}

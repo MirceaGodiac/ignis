@@ -665,7 +665,7 @@ pub fn tool_catalog() -> Vec<ToolDescriptor> {
         domain_owner: owner,
     };
     vec![
-        t("sources_search", "Hybrid search over the pinned corpus snapshot; returns a page of evidence hits, not documents.", E::Read, true, &[C::ReadSources], "SearchRequest", "SearchPage", false, Lane::Raul),
+        t("sources_search", "Hybrid search over the pinned corpus snapshot; returns a page of evidence hits, not documents. To widen recall, add expected_terms (schema evidence.v2, the default): 3 to 8 concepts, equivalent phrasings, abbreviations, instruments or materials a relevant passage would contain, each with importance high, medium or low (e.g. {\"term\": \"limiting oxygen index\", \"importance\": \"high\"}, {\"term\": \"LOI\"}); never the answer you expect. Terms the corpus does not hold are ignored.", E::Read, true, &[C::ReadSources], "SearchRequest", "SearchPage", false, Lane::Raul),
         t("sources_read", "Read a page range, passage or table of one source version; says how to continue.", E::Read, true, &[C::ReadSources], "ReadRequest", "ReadResult", false, Lane::Raul),
         t("datasets_inspect", "Describe a dataset bundle: views, columns, units, time origin, partitions.", E::Read, true, &[C::ReadData], "DatasetRef", "DatasetBundle", false, Lane::Raul),
         t("models_inspect", "A model release with its construction manifest, domain and state.", E::Read, true, &[C::RunModels], "ReleaseRef", "ModelRelease", false, Lane::Iancu),
