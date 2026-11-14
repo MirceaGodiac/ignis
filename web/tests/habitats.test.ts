@@ -69,7 +69,15 @@ test("a gap shows the table's own text; flags stay on the cell, burner-stream O2
   assert.equal(quotedText("impossible value “3400%”: spreadsheet slip"), "3400%");
   assert.equal(quotedText("no row of the experimental table states it"), null);
   assert.deepEqual(
-    flagTags(["approximate", "oxidizer_stream:burner", "new_flag"]).map((f) => [f.label, f.notAtmosphere]),
-    [["~", false], ["burner stream", true], ["new flag", false]],
+    flagTags(["approximate", "oxidizer_stream:burner", "composition_sum=0.980", "testsheet_agrees", "original_header:O", "new_flag"]).map((f) => [f.label, f.inline, f.notAtmosphere]),
+    [
+      ["~", true, false],
+      ["burner stream", true, true],
+      ["Σ 0.980", true, false],
+      ["test sheet agrees", false, false],
+      ["header reconciled", false, false],
+      ["new flag", false, false],
+    ],
+    "meaning-changing flags on the cell, provenance notes in the detail, unknown flags kept by name",
   );
 });

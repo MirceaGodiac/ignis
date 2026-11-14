@@ -231,7 +231,8 @@ function cellText(c: ConditionCell): string {
 }
 
 function measuredText(m: Measured): string {
-  return typeof m.raw_value === "number" ? `${m.raw_value}${m.raw_unit ? ` ${m.raw_unit}` : ""}` : m.raw_value;
+  // A dimensionless raw unit ("1") is not printed: "0.21", not "0.21 1".
+  return typeof m.raw_value === "number" ? `${m.raw_value}${m.raw_unit && m.raw_unit !== "1" ? ` ${m.raw_unit}` : ""}` : m.raw_value;
 }
 
 function locText(l: SourceLocator | null | undefined): string {
@@ -265,7 +266,7 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
           <tbody>
             {t.rows.map((r, i) => {
               // A run whose identity is not resolved has no id; it is listed, never merged with another.
-              const run = r.run.run_id ?? `unresolved #${i + 1}`;
+              const run = r.run.run_id ?? `unresolved run (row ${i + 1})`;
               return <MatrixRow key={`${r.investigation_id}/${run}`} row={r} run={run} keys={t.keys} pickedKey={picked?.run === run ? picked.cell.key : null} onPick={pick} />;
             })}
           </tbody>
@@ -299,8 +300,10 @@ const MatrixRow = memo(function MatrixRow({ row: r, run, keys, pickedKey, onPick
             >
               {cellText(c)}
               {c.status === "value" &&
-                flagTags(c.value.flags).map((f) => (
-                  <span key={f.label} className={`tag ${f.notAtmosphere ? "tag-warn" : "tag-line"}`} title={f.title} style={{ marginLeft: 4, height: 16 }}>
+                flagTags(c.value.flags)
+                  .filter((f) => f.inline)
+                  .map((f, i) => (
+                  <span key={i} className={`tag ${f.notAtmosphere ? "tag-warn" : "tag-line"}`} title={f.title} style={{ marginLeft: 4, height: 16 }}>
                     {f.label}
                   </span>
                 ))}
@@ -356,8 +359,8 @@ function CellDetail({ p }: { p: Picked }) {
             <>
               <dt>flags</dt>
               <dd>
-                {flagTags(m.flags).map((f) => (
-                  <div key={f.label}>{f.title}</div>
+                {flagTags(m.flags).map((f, i) => (
+                  <div key={i}>{f.title}</div>
                 ))}
               </dd>
             </>
