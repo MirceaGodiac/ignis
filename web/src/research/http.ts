@@ -1,16 +1,7 @@
 // The HTTP transport of the research client: `/api/fixtures/v1` and `/api/v1` (crates/ignis-server
 // README). Pure of runtime imports except types, so it runs under node --test with an injected fetch.
 
-import type {
-  ErrorEnvelope,
-  InlinePayload,
-  ModelRelease,
-  Origin,
-  ReadResult,
-  ResearchEpisode,
-  SearchPage,
-  SearchRequest,
-} from "../contracts/generated";
+import type { ErrorEnvelope, InlinePayload, ModelRelease, Origin, ReadResult, ResearchEpisode, SearchPage, SearchRequest, SourceAccess } from "../contracts/generated";
 import type { Capabilities, CreateEpisode, EpisodeAction, HostDecision, MessageAccepted, PostMessage } from "./serverTypes";
 import type { StreamTransport } from "./stream";
 
@@ -46,6 +37,8 @@ export interface ResearchClient extends StreamTransport {
   readArtifactValue(artifactId: string, pointer: string): Promise<InlinePayload>;
   search(req: SearchRequest): Promise<SearchPage>;
   readSource(sourceId: string, page: number): Promise<ReadResult>;
+  /** How to open the original (LANES_V2 M12, K1.18). The URL is short-lived; never store or cite it. */
+  sourceAccess(sourceId: string): Promise<SourceAccess>;
   listModels(): Promise<ModelRelease[]>;
   postMessage(episodeId: string, text: string, clientRequestId: string): Promise<MessageAccepted>;
 }
@@ -101,6 +94,7 @@ export function httpClient(mode: Exclude<Mode, "mock">, fetchImpl: typeof fetch 
     readArtifactValue: (id, pointer) => call<InlinePayload>(`/artifacts/${enc(id)}?pointer=${enc(pointer)}`),
     search: (req) => post<SearchPage>(`/search`, req),
     readSource: (id, page) => call<ReadResult>(`/sources/${enc(id)}/pages/${page}`),
+    sourceAccess: (id) => call<SourceAccess>(`/sources/${enc(id)}/content`),
     listModels: () => call<ModelRelease[]>(`/models`),
     postMessage: (id, text, client_request_id) => post<MessageAccepted>(`/episodes/${enc(id)}/messages`, { text, client_request_id } satisfies PostMessage),
   };
