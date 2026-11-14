@@ -10,11 +10,13 @@ use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use ignis_core::contracts::*;
 use ignis_core::services::{ModelService, ServiceResult};
-use ignis_server::v1::io::{AuthMode, ACCESS_HEADER};
+use ignis_server::v1::io::AuthMode;
 use ignis_server::v1::ResearchServices;
 use ignis_server::{app, fixture, ServeArgs, Services};
 use serde_json::{json, Value};
 use tower::ServiceExt;
+
+mod support;
 
 const RELEASE: &str = "sha256:db4ebefdf4b70e96202de6c51e1b9f7690005302cc73374ef03644abdd51e6cc";
 
@@ -42,7 +44,16 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        access: support::access().args.clone(),
     }
+}
+
+/// The two Access assertions the Worker forwards for `user`.
+fn as_user(mut req: axum::http::request::Builder, user: &str) -> axum::http::request::Builder {
+    for (k, v) in support::access().headers(user) {
+        req = req.header(k, v);
+    }
+    req
 }
 
 fn router(dir: &Path, auth: AuthMode, models: Option<Arc<dyn ModelService>>) -> axum::Router {
@@ -69,7 +80,7 @@ async fn call(
 ) -> (StatusCode, Value) {
     let mut req = Request::builder().method(method).uri(path);
     if let Some(u) = user {
-        req = req.header(ACCESS_HEADER, u);
+        req = as_user(req, u);
     }
     let req = match body {
         Some(b) => req
@@ -552,7 +563,7 @@ async fn put_bytes(
 ) -> (StatusCode, Value) {
     let mut req = Request::put(path);
     if let Some(u) = user {
-        req = req.header(ACCESS_HEADER, u);
+        req = as_user(req, u);
     }
     let resp = r
         .clone()
@@ -642,10 +653,12 @@ async fn uploads_are_verified_then_published_as_artifacts() {
         "completed uploads take no more bytes"
     );
 
-    let req = Request::get(format!("/api/v1/artifacts/{}", art.artifact_id))
-        .header(ACCESS_HEADER, "ana@example.org")
-        .body(Body::empty())
-        .unwrap();
+    let req = as_user(
+        Request::get(format!("/api/v1/artifacts/{}", art.artifact_id)),
+        "ana@example.org",
+    )
+    .body(Body::empty())
+    .unwrap();
     let got = axum::body::to_bytes(r.clone().oneshot(req).await.unwrap().into_body(), 1 << 20)
         .await
         .unwrap();

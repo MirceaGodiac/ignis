@@ -42,6 +42,7 @@ async fn cli_and_server_produce_the_same_artifact() {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        access: Default::default(),
     };
     let router = app(
         args,

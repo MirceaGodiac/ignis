@@ -35,6 +35,7 @@ fn router(dir: &Path, internal_routes: bool) -> axum::Router {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        access: Default::default(),
     };
     app(args, Services::default())
 }

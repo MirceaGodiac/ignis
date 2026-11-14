@@ -1974,6 +1974,7 @@ dependencies = [
  "aide",
  "anyhow",
  "axum",
+ "base64 0.23.1",
  "chrono",
  "clap",
  "futures-util",
@@ -1985,6 +1986,7 @@ dependencies = [
  "indexmap",
  "moka",
  "rayon",
+ "ring",
  "rusqlite",
  "schemars",
  "serde",
@@ -1997,6 +1999,7 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "ureq",
 ]
 
 [[package]]
