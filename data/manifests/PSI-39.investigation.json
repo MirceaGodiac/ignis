@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-39",
+  "title": "Cool Flames Investigation",
+  "acronym": "CFI",
+  "investigation_version": "4",
+  "version_reason": "Additional documentation release",
+  "modified": "03-Jun-2025",
+  "doi": "10.60555/m6pj-a914",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Multi-User Droplet Combustion Apparatus (MDCA), Combustion Integrated Rack (CIR)",
+  "total_file_size_bytes": 718889568684.0,
+  "metadata_url_sha256": "ab2501bbe6200dabd012e7bf199e79426f8d19eb484c2af421183bb61b558d35",
+  "retrieved_at": "2026-11-14T18:22:54.184211+00:00"
+}

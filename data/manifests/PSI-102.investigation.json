@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-102",
+  "title": "Smoke and Aerosol Measurement Experiment",
+  "acronym": "SAME",
+  "investigation_version": "4",
+  "version_reason": "Additional documentation release",
+  "modified": "02-Jun-2025",
+  "doi": "10.60555/gd4k-8h62",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Comparitive Soot Diagnostic Hardware",
+  "total_file_size_bytes": 657608178.0,
+  "metadata_url_sha256": "fe221f1380ad3317f70b559a3213c4e00ef3676b40838a49cb5b3cba89dea5ba",
+  "retrieved_at": "2026-11-14T18:24:35.741966+00:00"
+}

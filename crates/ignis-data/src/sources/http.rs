@@ -15,6 +15,17 @@ pub struct Http {
 pub struct Got {
     pub bytes: Vec<u8>,
     pub content_type: Option<String>,
+    /// Response headers, names lower-cased (e.g. a provider's `x-ratelimit-*`).
+    pub headers: Vec<(String, String)>,
+}
+
+impl Got {
+    pub fn header(&self, name: &str) -> Option<&str> {
+        self.headers
+            .iter()
+            .find(|(k, _)| k == name)
+            .map(|(_, v)| v.as_str())
+    }
 }
 
 pub struct Streamed {
@@ -34,6 +45,17 @@ impl Http {
         Http { agent }
     }
 
+    fn headers(h: &ureq::http::HeaderMap) -> Vec<(String, String)> {
+        h.iter()
+            .filter_map(|(k, v)| {
+                Some((
+                    k.as_str().to_ascii_lowercase(),
+                    v.to_str().ok()?.to_string(),
+                ))
+            })
+            .collect()
+    }
+
     fn ctype(h: &ureq::http::HeaderMap) -> Option<String> {
         h.get("content-type")
             .and_then(|v| v.to_str().ok())
@@ -47,10 +69,12 @@ impl Http {
         }
         let mut r = req.call().with_context(|| format!("GET {url}"))?;
         let content_type = Self::ctype(r.headers());
+        let headers = Self::headers(r.headers());
         let bytes = r.body_mut().with_config().limit(u64::MAX).read_to_vec()?;
         Ok(Got {
             bytes,
             content_type,
+            headers,
         })
     }
 
@@ -62,10 +86,12 @@ impl Http {
             .send(serde_json::to_string(body)?)
             .with_context(|| format!("POST {url}"))?;
         let content_type = Self::ctype(r.headers());
+        let headers = Self::headers(r.headers());
         let bytes = r.body_mut().with_config().limit(u64::MAX).read_to_vec()?;
         Ok(Got {
             bytes,
             content_type,
+            headers,
         })
     }
 

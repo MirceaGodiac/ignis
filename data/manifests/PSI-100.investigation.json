@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-100",
+  "title": "Spacecraft Fire Experiment-III",
+  "acronym": "SAFFIRE-III",
+  "investigation_version": "4",
+  "version_reason": "Metadata update",
+  "modified": "05-Jun-2025",
+  "doi": "10.60555/040q-4h36",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Saffire III enclosure in Cygnus",
+  "total_file_size_bytes": 35210765052.0,
+  "metadata_url_sha256": "9c836955a28ff129b2f239f9499e06f4ca52ba58f7a03d384a7bd0528c8bbe10",
+  "retrieved_at": "2026-11-14T18:24:33.974214+00:00"
+}

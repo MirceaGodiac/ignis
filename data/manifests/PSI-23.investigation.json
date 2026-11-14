@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-23",
+  "title": "Advanced Combustion via Microgravity Experiments-Structure and Response of Spherical Diffusion Flames",
+  "acronym": "ACME s-Flame",
+  "investigation_version": "4",
+  "version_reason": "Additional documentation release",
+  "modified": "05-Jun-2025",
+  "doi": "10.60555/k57n-p030",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Combustion Integrated Rack (CIR), ACME",
+  "total_file_size_bytes": 782172126062.0,
+  "metadata_url_sha256": "a89bd634a661e724b9bc766a8f217bc0c76c816f0db973991847bce6b53802d7",
+  "retrieved_at": "2026-11-14T18:23:20.642870+00:00"
+}
