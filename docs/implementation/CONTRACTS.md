@@ -113,3 +113,11 @@ C0 — nu a fost necesar; dacă devine necesar, Mircea servește aceleași fiși
    durabile (ex. `registry::parse_release`). Un câmp opțional nou omis când lipsește e compatibil pentru
    scriitori, dar cititorii vechi stricți îl refuză — coordonează cu consumatorul înainte de deploy.
 4. Hash-urile vechi nu se recalculează sub o schemă nouă; obiectele content-addressed nu se rescriu.
+
+## Valuri de contracte (faza 2)
+
+Schimbările planificate pentru faza 2 sunt grupate în valul **K1**: o singură creștere de versiune per
+familie (`evidence.v2`, `dataset.v2`, `research.v2`, `evaluation.v2`), referințe între familii doar prin
+id-uri/`ArtifactRef`/`EvidenceRef`, fixture întâi, metode noi pe trait-uri cu corp implicit
+`capability_unavailable`, ordinea de merge Raul → Mircea → Tudor. Lista tipurilor, producători,
+consumatori și fixture-uri: [LANES_V2](LANES_V2.md) §5.

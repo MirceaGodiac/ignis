@@ -17,6 +17,12 @@ Ownership pe fișiere, zonele comune și regulile de merge: [INTEGRATION](implem
 Task-urile și dependențele: [WORKBOARD](implementation/WORKBOARD.md). Contractele:
 [CONTRACTS](implementation/CONTRACTS.md).
 
+**Faza 2** ([LANES_V2](implementation/LANES_V2.md)): Mircea preia și harness-ul (instrucțiuni, skills,
+subagenți, `answer_submit`, trace-uri, H0/H1 de partea runtime-ului); Raul acoperă toate cele 26 de
+investigații PSI de combustie, clasificarea documentelor și graful de combustie; Tudor face viewerele,
+UI-ul generativ din catalog, vederile cerute de challenge și benchmark-ul independent. Contractele
+comune ale fazei (val K1) și ordinea de merge sunt în `LANES_V2.md` §5.
+
 ## Prezentarea
 
 | Cine | Ce |
