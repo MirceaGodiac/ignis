@@ -1,0 +1,149 @@
+{
+  "status": "partial",
+  "blocks": [
+    {
+      "type": "text",
+      "text": "Synthetic fixture: the cited (fixture) passage reports a trend; the fixture run's diameter was measured; the experimental handwritten release predicts a value.",
+      "claim_ids": [
+        "fixture-claim-01",
+        "fixture-claim-02",
+        "fixture-claim-03"
+      ]
+    },
+    {
+      "type": "view",
+      "view": {
+        "kind": "source_excerpt",
+        "evidence_id": "fixture-evidence-01"
+      },
+      "caption": "Synthetic fixture: the cited passage at its locator.",
+      "claim_ids": [
+        "fixture-claim-01"
+      ]
+    },
+    {
+      "type": "view",
+      "view": {
+        "kind": "series_comparison",
+        "series": [
+          {
+            "artifact_id": "fixture-artifact-observed-01",
+            "role": "observed",
+            "time_pointer": "/times_s",
+            "value_pointer": "/values",
+            "unit_pointer": "/unit",
+            "time_origin_pointer": "/time_origin",
+            "label": "Synthetic fixture run (observed)"
+          },
+          {
+            "artifact_id": "fixture-artifact-forecast-01",
+            "role": "predicted",
+            "time_pointer": "/times_s",
+            "value_pointer": "/mean",
+            "unit_pointer": "/unit",
+            "time_origin_pointer": "/time_origin",
+            "band": {
+              "lower_pointer": "/quantiles/0",
+              "upper_pointer": "/quantiles/2"
+            },
+            "label": "Experimental handwritten release (not qualified)"
+          }
+        ]
+      },
+      "caption": "Synthetic fixture: observation versus prediction on one time axis.",
+      "claim_ids": [
+        "fixture-claim-02",
+        "fixture-claim-03",
+        "fixture-claim-05"
+      ]
+    },
+    {
+      "type": "view",
+      "view": {
+        "kind": "conditions_matrix",
+        "table": "fixture-artifact-conditions-01"
+      },
+      "caption": "Synthetic fixture: tested conditions with gaps explicit.",
+      "claim_ids": []
+    },
+    {
+      "type": "view",
+      "view": {
+        "kind": "release_card",
+        "release_id": "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"
+      },
+      "claim_ids": [
+        "fixture-claim-03"
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Synthetic fixture: the full protocol could not be read (source not materialized).",
+      "claim_ids": [
+        "fixture-claim-04"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "fixture-claim-01",
+      "kind": "source_reports",
+      "text": "Synthetic fixture: the passage reports a trend.",
+      "support": [
+        {
+          "kind": "evidence",
+          "evidence_id": "fixture-evidence-01"
+        }
+      ]
+    },
+    {
+      "claim_id": "fixture-claim-02",
+      "kind": "observed",
+      "text": "Synthetic fixture: measured liquid diameter at the cutoff.",
+      "support": [
+        {
+          "kind": "evidence",
+          "evidence_id": "fixture-evidence-02"
+        }
+      ]
+    },
+    {
+      "claim_id": "fixture-claim-03",
+      "kind": "predicted",
+      "text": "Synthetic fixture: predicted liquid diameter at the horizon.",
+      "support": [
+        {
+          "kind": "artifact_value",
+          "artifact_id": "fixture-artifact-forecast-01",
+          "pointer": "/mean/3"
+        }
+      ]
+    },
+    {
+      "claim_id": "fixture-claim-04",
+      "kind": "interpretation",
+      "text": "Synthetic fixture: the comparison stays inconclusive until the protocol is read.",
+      "support": []
+    },
+    {
+      "claim_id": "fixture-claim-05",
+      "kind": "computed",
+      "text": "Synthetic fixture: the observed diameter series extracted from the fixture run.",
+      "support": [
+        {
+          "kind": "artifact_value",
+          "artifact_id": "fixture-artifact-observed-01",
+          "pointer": "/values"
+        }
+      ]
+    }
+  ],
+  "model_releases": [
+    "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"
+  ],
+  "limitations": [
+    "Synthetic fixture: the release is experimental (not qualified by any evaluation).",
+    "Synthetic fixture: dense retrieval was unavailable; lexical-only ranking."
+  ],
+  "client_request_id": "fixture-client-req-12"
+}

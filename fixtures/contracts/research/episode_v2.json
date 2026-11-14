@@ -1,0 +1,31 @@
+{
+  "schema_version": "research.v2",
+  "episode_id": "fixture-episode-02",
+  "workspace_id": "fixture-workspace",
+  "goal": "Synthetic fixture: what do the (fixture) studies report about ambient atmosphere and droplet diameter decrease, and how does the handwritten model compare on the selected (fixture) run?",
+  "status": "completed",
+  "runtime": {
+    "runtime": "codex_app_server",
+    "runtime_build_id": "fixture-runtime-build",
+    "thread_id": "fixture-thread-02"
+  },
+  "pins": {
+    "corpus_snapshot": "fixture-corpus-snapshot-01",
+    "model_releases": [
+      "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"
+    ],
+    "harness": {
+      "digest": "sha256:4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a",
+      "label": "h1",
+      "runtime_build": "fixture-runtime-build",
+      "model": "fixture-model",
+      "effort": "medium"
+    }
+  },
+  "scope_id": "fixture-scope-01",
+  "revision": 3,
+  "last_seq": 10,
+  "created_at": "2026-11-12T19:00:00Z",
+  "updated_at": "2026-11-12T19:00:10Z",
+  "origin": "synthetic_fixture"
+}
