@@ -205,6 +205,11 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
 .quote { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin: 0; padding: 8px 10px; border-radius: 6px; background: var(--wash); }
 .page-frame { position: relative; border: 1px solid var(--rule); border-radius: 6px; background: var(--rail); padding: 12px; min-height: 140px; font-size: 12.5px; line-height: 1.55; color: var(--ink-2); }
+.cond { border: 0; background: none; padding: 2px 6px; margin: 0 -6px; border-radius: 4px; font: inherit; color: var(--ink); cursor: pointer; white-space: nowrap; }
+.cond:hover { background: var(--hover); }
+.cond[aria-pressed="true"] { background: var(--flame-wash); color: var(--flame); }
+.cond-missing, .cond-not_applicable { color: var(--ink-3); }
+.cond-conflicting { box-shadow: inset 0 0 0 1px var(--ink-3); }
 .bbox { position: absolute; border: 1.5px solid var(--flame); background: color-mix(in srgb, var(--flame) 8%, transparent); border-radius: 3px; pointer-events: none; }
 .json { font: 11.5px/1.5 var(--font-data); background: var(--wash); border-radius: 6px; padding: 10px; overflow: auto; max-height: 320px; margin: 6px 0 0; }
 .trail-btn { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); text-align: left; cursor: pointer; font-size: 12.5px; color: var(--ink); }

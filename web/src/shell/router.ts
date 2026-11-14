@@ -2,11 +2,12 @@
 //   #/                          home (ask, recent work, shortcuts)
 //   #/research[/<episode>]      investigations; ?tab=thread|evidence|route
 //   #/map                       atmosphere map       #/runs   run index
+//   #/conditions                conditions matrix and habitat relevance (T9)
 //   #/compare                   comparison           #/lab[/<run>]  forecast lab
 //   #/sources[?q=…]             source search        #/models model releases
 import { useEffect, useState } from "react";
 
-export type View = "home" | "research" | "map" | "runs" | "compare" | "lab" | "sources" | "models";
+export type View = "home" | "research" | "map" | "conditions" | "runs" | "compare" | "lab" | "sources" | "models";
 
 export interface Route {
   view: View;
@@ -15,7 +16,7 @@ export interface Route {
   params: URLSearchParams;
 }
 
-const VIEWS: View[] = ["home", "research", "map", "runs", "compare", "lab", "sources", "models"];
+const VIEWS: View[] = ["home", "research", "map", "conditions", "runs", "compare", "lab", "sources", "models"];
 
 export function parse(hash: string): Route {
   const raw = hash.replace(/^#\/?/, "");
@@ -52,6 +53,7 @@ export const VIEW_TITLE: Record<View, string> = {
   home: "Home",
   research: "Investigations",
   map: "Atmosphere map",
+  conditions: "Conditions",
   runs: "Runs",
   compare: "Compare",
   lab: "Forecast lab",

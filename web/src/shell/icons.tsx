@@ -12,6 +12,13 @@ export const IconMap = (p: P) => (
     <rect x="9.5" y="9" width="3" height="3" rx="0.5" strokeDasharray="1.5 1.2" />
   </svg>
 );
+export const IconMatrix = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="2.5" y="2.5" width="11" height="11" rx="1" />
+    <path d="M2.5 6.5h11M6.5 2.5v11" />
+    <path d="M9 9.5h2.5M9 11.5h1.5" strokeDasharray="1.5 1.2" />
+  </svg>
+);
 export const IconRuns = (p: P) => (
   <svg {...base(p)}>
     <path d="M5.5 4h8M5.5 8h8M5.5 12h8" />
