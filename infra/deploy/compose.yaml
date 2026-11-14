@@ -61,7 +61,9 @@ services:
 
   cloudflared:
     image: ${CLOUDFLARED_IMAGE:?set CLOUDFLARED_IMAGE (cloudflare/cloudflared@sha256:…)}
-    command: ["tunnel", "--no-autoupdate", "--metrics", "127.0.0.1:20241", "run"]
+    # Locally-managed tunnel (created on the host with `cloudflared tunnel create`, infra/README.md
+    # step 4): its one route is the ignis service, given here.
+    command: ["tunnel", "--no-autoupdate", "--metrics", "127.0.0.1:20241", "run", "--url", "http://ignis:8787"]
     # TUNNEL_TOKEN only (root 0600 on the host). The tunnel's public hostname routes to
     # http://ignis:8787 (configured in the Cloudflare dashboard / API; see infra/README.md).
     env_file:
