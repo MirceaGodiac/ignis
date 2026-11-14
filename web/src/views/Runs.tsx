@@ -47,8 +47,8 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
   }, [runs, family, text, sort]);
   const selectedRun = panel.current?.kind === "run" ? panel.current.id : null;
 
-  const Th = ({ col, children, r }: { col: Col; children: string; r?: boolean }) => (
-    <th className={r ? "r" : undefined} aria-sort={sort.col === col ? (sort.dir === 1 ? "ascending" : "descending") : "none"}>
+  const Th = ({ col, children, r, hide }: { col: Col; children: string; r?: boolean; hide?: boolean }) => (
+    <th className={[r ? "r" : "", hide ? "narrow-hide" : ""].join(" ").trim() || undefined} aria-sort={sort.col === col ? (sort.dir === 1 ? "ascending" : "descending") : "none"}>
       <button className={`sort${sort.col === col ? " on" : ""}`} onClick={() => setSort((s) => ({ col, dir: s.col === col ? (-s.dir as 1 | -1) : 1 }))}>
         {children}
         {sort.col === col ? (sort.dir === 1 ? " ↑" : " ↓") : ""}
@@ -79,20 +79,22 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
               </th>
               <Th col="id">Run</Th>
               <Th col="family">Family</Th>
-              <Th col="fuel">Fuel or material</Th>
+              <Th col="fuel" hide>
+                Fuel or material
+              </Th>
               <Th col="o2" r>
                 O₂ %
               </Th>
               <Th col="pressure" r>
                 Pressure kPa
               </Th>
-              <Th col="flow" r>
+              <Th col="flow" r hide>
                 Flow
               </Th>
-              <Th col="obs" r>
+              <Th col="obs" r hide>
                 Points
               </Th>
-              <Th col="endpoint">Endpoint</Th>
+              <Th col="endpoint" hide>Endpoint</Th>
             </tr>
           </thead>
           <tbody>
@@ -115,17 +117,17 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
                   </td>
                   <td>
                     <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                      <FamilyMark family={r.family} size={9} /> {r.family.replace("_", " ")}
+                      <FamilyMark family={r.family} size={9} /> <span className="narrow-hide">{r.family.replace("_", " ")}</span>
                     </span>
                   </td>
-                  <td>{r.fuel_or_material ?? <span className="dim">unknown</span>}</td>
+                  <td className="narrow-hide">{r.fuel_or_material ?? <span className="dim">unknown</span>}</td>
                   <td className="r num">{num(cond(r, "oxygen_mole_fraction"), 100, 0)}</td>
                   <td className="r num">{num(cond(r, "pressure"), 0.001, 1)}</td>
-                  <td className="r num">
+                  <td className="r num narrow-hide">
                     {flow != null ? `${fmtNum(flow)} m/s` : fuelFlow != null ? `${fmtNum(fuelFlow * 6e7)} mL/min` : <span className="dim">—</span>}
                   </td>
-                  <td className="r num">{r.n_observations}</td>
-                  <td>{r.has_endpoint ? "recorded" : <span className="dim">missing</span>}</td>
+                  <td className="r num narrow-hide">{r.n_observations}</td>
+                  <td className="narrow-hide">{r.has_endpoint ? "recorded" : <span className="dim">missing</span>}</td>
                 </tr>
               );
             })}

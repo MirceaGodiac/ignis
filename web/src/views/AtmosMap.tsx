@@ -61,7 +61,7 @@ export function AtmosMap({
     const top = Math.max(110, ...placed.map((p) => p.kpa * 1.08));
     return Math.ceil(top / 20) * 20;
   }, [placed]);
-  const x = (o2: number) => M.l + ((o2 - 0.1) / 0.9) * (W - M.l - M.r);
+  const x = (o2: number) => M.l + ((o2 - 0.1) / 0.93) * (W - M.l - M.r); // domain padded to 103 % so the 100 % marker is not clipped
   const y = (kpa: number) => H - M.b - (kpa / yMax) * (H - M.t - M.b);
   const [hover, setHover] = useState<{ p: Placed; cx: number; cy: number } | null>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -127,10 +127,11 @@ export function AtmosMap({
 
         {/* planned Moon base / rover envelope */}
         <rect className="moon" x={x(m.o2Min)} y={y(m.kpaMax)} width={x(1) - x(m.o2Min)} height={y(m.kpaMin) - y(m.kpaMax)} />
-        <text className="moon-label" x={x(m.o2Min) + 8} y={y(m.kpaMax) + 16}>
+        {/* anchored at the top-right corner, where no run sits (runs cluster at 15–40 % O₂) */}
+        <text className="moon-label" x={x(1) - 8} y={y(m.kpaMax) + 16} textAnchor="end">
           {m.label}
         </text>
-        <text className="moon-label" x={x(m.o2Min) + 8} y={y(m.kpaMax) + 31} style={{ fontWeight: 400 }}>
+        <text className="moon-label" x={x(1) - 8} y={y(m.kpaMax) + 31} textAnchor="end" style={{ fontWeight: 400 }}>
           {m.sub}
         </text>
 
@@ -174,10 +175,10 @@ export function AtmosMap({
         <g className="ref">
           <circle className="ring" cx={x(HABITATS.earth.o2)} cy={y(HABITATS.earth.kpa)} r={8} />
           <path d={`M${x(HABITATS.earth.o2) - 4} ${y(HABITATS.earth.kpa)}h8M${x(HABITATS.earth.o2)} ${y(HABITATS.earth.kpa) - 4}v8`} stroke="var(--ink)" strokeWidth={1.5} />
-          <text className="lbl" x={x(HABITATS.earth.o2) + 13} y={y(HABITATS.earth.kpa) - 6}>
+          <text className="lbl" x={x(HABITATS.earth.o2) + 13} y={y(HABITATS.earth.kpa) - 32}>
             {HABITATS.earth.label}
           </text>
-          <text className="sub" x={x(HABITATS.earth.o2) + 13} y={y(HABITATS.earth.kpa) + 8}>
+          <text className="sub" x={x(HABITATS.earth.o2) + 13} y={y(HABITATS.earth.kpa) - 19}>
             {HABITATS.earth.sub}
           </text>
         </g>

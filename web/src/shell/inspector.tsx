@@ -1,6 +1,6 @@
 // The side panel's own navigation: a stack of items, so a scientist can go claim → evidence →
 // source → run and come back the same way. Items hold contract objects, not copies.
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
 import type { ArtifactRef, Claim, EvidenceRef, ModelRelease } from "../contracts/generated";
 import type { ToolCallState } from "../research/eventLog";
 
@@ -45,10 +45,24 @@ const Ctx = createContext<PanelCtx | null>(null);
 
 export function PanelProvider({ children }: { children: ReactNode }) {
   const [stack, setStack] = useState<PanelItem[]>([]);
-  const open = useCallback((i: PanelItem) => setStack([i]), []);
+  // The control that opened the trail gets focus back when the panel closes.
+  const opener = useRef<HTMLElement | null>(null);
+  const open = useCallback((i: PanelItem) => {
+    if (document.activeElement instanceof HTMLElement && !document.activeElement.closest(".panel")) opener.current = document.activeElement;
+    setStack([i]);
+  }, []);
   const push = useCallback((i: PanelItem) => setStack((s) => (s.length && itemKey(s[s.length - 1]) === itemKey(i) ? s : [...s, i])), []);
   const back = useCallback(() => setStack((s) => s.slice(0, -1)), []);
-  const close = useCallback(() => setStack([]), []);
+  const close = useCallback(() => {
+    setStack((s) => {
+      if (s.length) {
+        const el = opener.current;
+        opener.current = null;
+        if (el?.isConnected) requestAnimationFrame(() => el.focus());
+      }
+      return [];
+    });
+  }, []);
   const current = stack[stack.length - 1] ?? null;
   const isOpen = (key: string) => !!current && itemKey(current) === key;
   return <Ctx.Provider value={{ stack, current, open, push, back, close, isOpen }}>{children}</Ctx.Provider>;

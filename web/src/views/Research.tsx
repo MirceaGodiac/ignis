@@ -196,7 +196,7 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
     <div className="page">
       <div className="page-main">
         <header className="page-head">
-          <h1>{episode.data?.goal ?? (episode.isPending ? "Loading…" : "Investigation")}</h1>
+          <h1 title={episode.data?.goal}>{episode.data?.goal ?? (episode.isPending ? "Loading…" : "Investigation")}</h1>
           <nav className="tabs" aria-label="Investigation views">
             <a href={tabHref("thread")} aria-current={tab === "thread" ? "page" : undefined}>
               Thread
@@ -320,12 +320,6 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
               <dd>
                 <span className={`tag ${statusTag}`}>{status ? words(status) : "connecting"}</span>
               </dd>
-              <dt>Stream</dt>
-              <dd>{following ? "live" : "closed"}</dd>
-              <dt>Events</dt>
-              <dd className="num">{state.cursor}</dd>
-              <dt>Answers</dt>
-              <dd className="num">{state.answers.length}</dd>
               {episode.data && (
                 <>
                   <dt>Created</dt>
@@ -334,16 +328,29 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
                   <dd>
                     <code>{episode.data.pins.corpus_snapshot ?? "not pinned"}</code>
                   </dd>
-                  <dt>Runtime</dt>
-                  <dd>{episode.data.runtime ? words(episode.data.runtime.runtime) : "not attached"}</dd>
-                  <dt>Releases</dt>
-                  <dd>{episode.data.pins.model_releases?.length ? episode.data.pins.model_releases.map((r) => <code key={r}>{shortId(r, 16)} </code>) : "none pinned"}</dd>
                   <dt>Origin</dt>
                   <dd>{episode.data.origin === "synthetic_fixture" ? <Synthetic /> : "system"}</dd>
                 </>
               )}
             </dl>
           </div>
+          <details>
+            <summary className="muted small" style={{ cursor: "pointer" }}>
+              Details
+            </summary>
+            <dl className="kv" style={{ marginTop: 8 }}>
+              <dt>Stream</dt>
+              <dd>{following ? "live" : "closed"}</dd>
+              <dt>Events</dt>
+              <dd className="num">{state.cursor}</dd>
+              <dt>Answers</dt>
+              <dd className="num">{state.answers.length}</dd>
+              <dt>Runtime</dt>
+              <dd>{episode.data?.runtime ? words(episode.data.runtime.runtime) : "not attached"}</dd>
+              <dt>Releases</dt>
+              <dd>{episode.data?.pins.model_releases?.length ? episode.data.pins.model_releases.map((r) => <code key={r}>{shortId(r, 16)} </code>) : "none pinned"}</dd>
+            </dl>
+          </details>
           {canWrite && availableActions(status).length > 0 && (
             <div className="toolbar">
               {(["pause", "resume", "cancel"] as EpisodeAction[])
@@ -525,7 +532,7 @@ function RouteSummary({ stops, turn, open }: { stops: Stop[]; turn: Turn; open: 
   return (
     <details className="route" open={open || undefined}>
       <summary>
-        <b>Research route</b>
+        <b>Route</b>
         <span>
           {tools} tool call{tools === 1 ? "" : "s"}
           {issues > 0 && ` · ${issues} to check`}

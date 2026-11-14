@@ -36,8 +36,11 @@ function itemTitle(i: PanelItem): string {
 export function Panel() {
   const { current, stack, back, close } = usePanel();
   const body = useRef<HTMLDivElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     body.current?.scrollTo({ top: 0 });
+    // Keyboard users land on what they opened, not where they clicked.
+    if (current) heading.current?.focus({ preventScroll: true });
   }, [current]);
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
@@ -55,7 +58,9 @@ export function Panel() {
             <IconBack />
           </button>
         )}
-        <h2>{itemTitle(current)}</h2>
+        <h2 ref={heading} tabIndex={-1} style={{ outline: "none" }}>
+          {itemTitle(current)}
+        </h2>
         <button className="btn btn-quiet btn-icon" onClick={close} aria-label="Close the panel" title="Close (Esc)">
           <IconClose />
         </button>

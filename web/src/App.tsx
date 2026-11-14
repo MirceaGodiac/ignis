@@ -66,11 +66,9 @@ function Shell() {
           <header className="topbar">
             <nav className="crumbs" aria-label="Breadcrumb">
               {route.view === "research" && route.id ? (
-                <>
-                  <a href={href("research")}>Investigations</a>
-                  <IconChevron width={12} height={12} />
-                  <span className="here">{goal ?? route.id}</span>
-                </>
+                <a href={href("research")} className="here">
+                  Investigations
+                </a>
               ) : route.view === "lab" && route.id ? (
                 <>
                   <a href={href("lab")}>Forecast lab</a>

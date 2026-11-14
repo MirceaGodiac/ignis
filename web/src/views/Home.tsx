@@ -12,15 +12,8 @@ export function Home() {
   const recent = episodes.data?.slice(0, 4) ?? [];
   return (
     <div className="home">
-      <div style={{ display: "grid", gap: 10, justifyItems: "start" }}>
-        {synthetic && (
-          <span className="pill-synth" title="Development fixtures: generated data, not NASA results">
-            Synthetic data
-          </span>
-        )}
-        <h1>What do you want to find out?</h1>
-      </div>
-      <AskBox onAsk={ask} autoFocus />
+      <h1>What do you want to find out?</h1>
+      <AskBox onAsk={ask} autoFocus synthetic={synthetic} />
       <section className="list-sec" aria-labelledby="h-start">
         <h2 id="h-start">Start from</h2>
         <div className="suggestions">

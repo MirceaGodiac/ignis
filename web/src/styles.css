@@ -126,6 +126,8 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .tag-ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, transparent); }
 .tag-bad { color: var(--bad); background: var(--bad-wash); }
 .tag-line { background: transparent; box-shadow: inset 0 0 0 1px var(--rule-2); }
+/* caution is ink, never yellow: an outlined tag that reads "not qualified / to check" */
+.tag-warn { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink-3); }
 .tag-synthetic { background: transparent; box-shadow: inset 0 0 0 1px var(--rule-2); color: var(--ink-3); }
 .tag-synthetic::before { content: ""; width: 6px; height: 6px; border-radius: 50%; border: 1.5px dashed var(--ink-3); }
 .glyph { display: inline-block; flex: none; width: 8px; height: 8px; }
@@ -185,6 +187,7 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .topbar .spacer { flex: 1; }
 .search-btn { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 6px 0 10px; border: 1px solid var(--rule-2); border-radius: 6px; background: var(--sheet); color: var(--ink-3); font-size: 12.5px; cursor: pointer; min-width: 200px; }
 .search-btn kbd { margin-left: auto; }
+.search-btn svg { flex: none; }
 .view { padding: 16px 24px 40px; display: grid; gap: 14px; align-content: start; }
 .view-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; min-height: 28px; }
 .view-head h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
@@ -200,7 +203,7 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .kv { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 5px 10px; font-size: 12.5px; margin: 0; }
 .kv dt { color: var(--ink-3); }
 .kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
-.quote { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin: 0; padding-left: 10px; border-left: 2px solid var(--rule-2); }
+.quote { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin: 0; padding: 8px 10px; border-radius: 6px; background: var(--wash); }
 .page-frame { position: relative; border: 1px solid var(--rule); border-radius: 6px; background: var(--rail); padding: 12px; min-height: 140px; font-size: 12.5px; line-height: 1.55; color: var(--ink-2); }
 .bbox { position: absolute; border: 1.5px solid var(--flame); background: color-mix(in srgb, var(--flame) 8%, transparent); border-radius: 3px; pointer-events: none; }
 .json { font: 11.5px/1.5 var(--font-data); background: var(--wash); border-radius: 6px; padding: 10px; overflow: auto; max-height: 320px; margin: 6px 0 0; }
@@ -239,7 +242,7 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .atmos { width: 100%; height: auto; display: block; overflow: visible; }
 .atmos .frame { fill: none; stroke: var(--rule-2); }
 .atmos .gridline { stroke: var(--grid); }
-.atmos text { fill: var(--ink-3); font: 400 10.5px var(--font-ui); }
+.atmos text { fill: var(--ink-3); font: 400 10.5px var(--font-ui); paint-order: stroke; stroke: var(--sheet); stroke-width: 3px; stroke-linejoin: round; }
 .atmos .axis-title { fill: var(--ink-2); font-weight: 500; font-size: 11px; }
 .atmos .ref .ring { stroke: var(--ink); fill: var(--sheet); stroke-width: 1.5; }
 .atmos .ref .lbl { fill: var(--ink); font-weight: 600; font-size: 11px; }
@@ -338,7 +341,7 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 /* ------------------------------------------------------------------ overflow guards: long titles never widen a grid */
 .tree, .tree > div, .home > *, .list-sec, .page-main > *, .thread > * { min-width: 0; }
 .home, .list-sec, .suggestions { grid-template-columns: minmax(0, 1fr); }
-.suggestions button { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suggestions button svg { margin-top: 2px; }
 .rank .cell-id { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid-ev td { white-space: normal; }
 
@@ -424,11 +427,12 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 /* next steps proposed by the harness under each answer */
 .next { display: grid; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
 .next h3 { font-size: 11.5px; font-weight: 550; color: var(--ink-3); padding: 9px 12px 5px; }
-.next button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 36px; padding: 0 12px; border: 0; border-top: 1px solid var(--rule); background: var(--sheet); text-align: left; cursor: pointer; font-size: 13px; color: var(--ink); }
+.next button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; min-height: 36px; padding: 9px 12px; border: 0; border-top: 1px solid var(--rule); background: var(--sheet); text-align: left; cursor: pointer; font-size: 13px; color: var(--ink); }
 .next button:hover { background: var(--hover); }
 .next button:hover svg { transform: translateX(2px); color: var(--ink); }
 .next .l { font-weight: 550; white-space: nowrap; }
-.next .d { color: var(--ink-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.next .d { color: var(--ink-3); font-size: 12px; line-height: 1.45; }
+.next svg { align-self: center; }
 .next svg { color: var(--ink-3); transition: transform 140ms var(--ease); }
 
 /* ------------------------------------------------------------------ home */
@@ -443,7 +447,7 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .chip:hover { background: var(--hover); color: var(--ink); }
 .prompt-foot .send { margin-left: auto; width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 8px; }
 .suggestions { display: grid; }
-.suggestions button { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 8px; margin: 0 -8px; border: 0; border-radius: 7px; background: none; text-align: left; cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.suggestions button { display: flex; align-items: flex-start; gap: 10px; min-height: 34px; padding: 7px 8px; margin: 0 -8px; border: 0; border-radius: 7px; background: none; text-align: left; cursor: pointer; font-size: 13px; line-height: 1.45; color: var(--ink-2); min-width: 0; }
 .suggestions button:hover { background: var(--hover); color: var(--ink); }
 .suggestions svg { color: var(--ink-3); flex: none; }
 .home-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
@@ -488,8 +492,11 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
   .only-narrow { display: inline-flex; }
   .view { padding: 12px 14px 32px; }
   .topbar { padding: 0 12px; }
-  .search-btn { min-width: 0; }
-  .search-btn .lbl, .search-btn kbd, .crumbs a, .crumbs svg { display: none; }
+  .search-btn { min-width: 0; flex: none; }
+  .page-head h1 { font-size: 17px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .tbl .narrow-hide { display: none; }
+  .tbl th, .tbl td { padding: 0 6px; }
+  .search-btn .lbl, .search-btn kbd, .crumbs a:not(.here), .crumbs svg { display: none; }
   .pill-synth { padding: 0 6px; }
   .kv { grid-template-columns: minmax(0, 1fr); }
   .cutoff-row { grid-template-columns: minmax(0, 1fr) 80px; }
