@@ -34,6 +34,7 @@ fn router(dir: &Path, internal_routes: bool) -> axum::Router {
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
         mcp_port: 0,
+        runner: Default::default(),
     };
     app(args, Services::default())
 }

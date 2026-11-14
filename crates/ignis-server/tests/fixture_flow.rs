@@ -38,6 +38,7 @@ fn router(tag: &str) -> (axum::Router, PathBuf) {
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
         mcp_port: 0,
+        runner: Default::default(),
     };
     let services = Services {
         experts: Vec::new(),
@@ -171,6 +172,7 @@ async fn acquisition_scoring_never_reads_hidden_values() {
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
         mcp_port: 0,
+        runner: Default::default(),
     };
     // A scorer that records what it was given.
     let seen: Arc<std::sync::Mutex<Option<(Vec<String>, Vec<Value>)>>> = Default::default();

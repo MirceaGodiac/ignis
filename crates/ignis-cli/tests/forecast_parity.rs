@@ -41,6 +41,7 @@ async fn cli_and_server_produce_the_same_artifact() {
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
         mcp_port: 0,
+        runner: Default::default(),
     };
     let router = app(
         args,

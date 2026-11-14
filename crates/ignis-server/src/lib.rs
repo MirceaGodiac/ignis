@@ -136,6 +136,9 @@ pub struct ServeArgs {
     /// 127.0.0.1; 0 picks a free port.
     #[arg(long, env = "IGNIS_MCP_PORT", default_value_t = 0)]
     pub mcp_port: u16,
+    /// Isolated analysis runner (`analysis_execute`); unset image = not configured.
+    #[command(flatten)]
+    pub runner: v1::sandbox::RunnerArgs,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -189,7 +192,7 @@ fn origin(
             .build(),
         jobs: RwLock::new(Default::default()),
         pool,
-        public_scope: v1::io::research_scope("local"),
+        public_scope: v1::io::research_scope("local", false),
         internal_routes: args.internal_routes || kind == DataOrigin::DevelopmentFixture,
         reveal_log,
     })
@@ -255,6 +258,13 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     let codex = blocking_startup(|| {
         v1::agent::Preflighted::run(&args.codex, &state_dir.join("codex"), args.auth)
     });
+    // One runner per process, shared by the instances (each run is scoped by its caller).
+    let (sandbox, runner_report) =
+        blocking_startup(|| v1::sandbox::preflight(&args.runner, &state_dir, args.auth));
+    let research = v1::ResearchServices {
+        sandbox: sandbox.clone(),
+        ..research
+    };
     // The IGNIS tools reach the runtime over a loopback-only MCP listener, never through `/api`.
     let mut mcp = McpListener::bind(&args, &codex);
     let registry_v1 = v1_instance(
@@ -266,6 +276,7 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
         None,
         "registry",
         mcp.as_mut(),
+        runner_report.clone(),
     );
     app = app.nest("/v1", v1::build(registry_v1));
     if args.dev {
@@ -276,11 +287,15 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
                     &args,
                     &codex,
                     &state_dir.join("dev-fixture"),
-                    fx.services.clone(),
+                    v1::ResearchServices {
+                        sandbox: sandbox.clone(),
+                        ..fx.services.clone()
+                    },
                     ignis_core::contracts::Origin::SyntheticFixture,
                     Some(fx),
                     "fixture",
                     mcp.as_mut(),
+                    runner_report.clone(),
                 );
                 tracing::warn!("serving C0 CONTRACT FIXTURES (synthetic) under /api/fixtures/v1");
                 app = app.nest("/fixtures/v1", v1::build(fixture_v1));
@@ -317,6 +332,7 @@ fn v1_instance(
     fixture: Option<v1::fixture::Fixture>,
     name: &str,
     mcp: Option<&mut McpListener>,
+    runner_report: v1::sandbox::RunnerReport,
 ) -> Arc<v1::V1> {
     let (store, inner) = open_state(dir);
     let (artifacts, seed): (Arc<dyn ignis_core::services::ArtifactStore>, _) = match fixture {
@@ -359,6 +375,7 @@ fn v1_instance(
         fixture: seed,
         runtime,
         runtime_report,
+        runner_report,
         mcp_url,
     })
 }

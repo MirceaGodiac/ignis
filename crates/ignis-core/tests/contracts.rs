@@ -117,6 +117,7 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "ResearchEpisode" => drop(check::<ResearchEpisode>(&v, |_| Ok(()))),
             "ResearchEvent[]" => drop(check::<Vec<ResearchEvent>>(&v, |e| check_event_log(e))),
             "ToolResult" => drop(check::<ToolResult>(&v, ToolResult::validate)),
+            "ExecutionRecord" => drop(check::<ExecutionRecord>(&v, ExecutionRecord::validate)),
             "ResearchAnswer" => drop(check::<ResearchAnswer>(&v, ResearchAnswer::validate)),
             "SearchRequest" => drop(check::<SearchRequest>(&v, SearchRequest::validate)),
             "SearchPage" => drop(check::<SearchPage>(&v, SearchPage::validate)),
@@ -698,6 +699,57 @@ fn data_bundles_keep_test_outcomes_and_pixels_apart() {
     metric.calibration_id = Some("cal".into());
     metric.validate().unwrap();
     assert!(metric.require_metric().is_err(), "unresolved run identity");
+}
+
+#[test]
+fn analysis_runs_cannot_escape_their_mounts_or_hide_truncation() {
+    let req = |names: &[&str]| AnalysisExecuteRequest {
+        language: AnalysisLanguage::Python,
+        source: "print(1)".into(),
+        inputs: names
+            .iter()
+            .map(|n| AnalysisInput {
+                name: n.to_string(),
+                artifact_id: ArtifactId::new("art_1").unwrap(),
+            })
+            .collect(),
+        client_request_id: None,
+    };
+    assert!(req(&["series.parquet", "notes_v2.txt"]).validate().is_ok());
+    for bad in ["../etc/passwd", "a/b", "..", ".env", "", r"a\b", "x y"] {
+        assert!(req(&[bad]).validate().is_err(), "input name {bad:?}");
+    }
+    assert!(
+        req(&["a", "a"]).validate().is_err(),
+        "one name mounted twice"
+    );
+
+    let record = fixture("research/execution_record.json");
+    let broken = |pointer: &str, x: Value| {
+        let mut v = record.clone();
+        *v.pointer_mut(pointer).unwrap() = x;
+        typed::<ExecutionRecord>(&v).validate().is_err()
+    };
+    assert!(
+        broken("/stdout/total_bytes", json!(1u64 << 40)),
+        "a stream beyond the budget must say it was truncated"
+    );
+    assert!(
+        broken("/stdout/truncated", json!(true)),
+        "truncated without exceeding the budget"
+    );
+    assert!(
+        broken("/outputs/0/path", json!("../escape.json")),
+        "output outside /out"
+    );
+    assert!(
+        broken("/outputs/0/path", json!("/abs.json")),
+        "absolute output path"
+    );
+    assert!(
+        broken("/limits/output_bytes", json!(1)),
+        "outputs over budget"
+    );
 }
 
 #[test]

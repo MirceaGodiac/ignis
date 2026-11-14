@@ -8,6 +8,7 @@
 //! - [`artifacts::LocalArtifactStore`]: content-addressed bytes with atomic publication
 //!   (staging → hash verified → immutable object → manifest), implementing
 //!   [`ignis_core::services::ArtifactStore`].
+//! - [`sandbox::Sandbox`]: the isolated analysis runner behind `analysis_execute` (M3).
 //! - [`runtime`]: the agent runtime (M1): [`runtime::AgentRuntime`] and the Codex App Server bridge
 //!   (pinned binary, preflight, private stdio JSON-RPC, approvals, thread/turn/item → events).
 //!
@@ -18,6 +19,7 @@
 
 pub mod artifacts;
 pub mod runtime;
+pub mod sandbox;
 pub mod store;
 
 use std::time::{SystemTime, UNIX_EPOCH};

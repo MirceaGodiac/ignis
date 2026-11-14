@@ -660,6 +660,50 @@ export type ClaimSupport =
  */
 export type ParseViewId = string;
 /**
+ * Language of an `analysis_execute` program. Closed: a new value needs a runner image that
+ * provides it (and a preflight that proves it).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnalysisLanguage".
+ */
+export type AnalysisLanguage = "python";
+/**
+ * Image id (`sha256:` of the image config), pinned by the host.
+ */
+export type Digest3 = string;
+/**
+ * Isolation the runner actually provided. Recorded on every execution and in capability status;
+ * never inferred from configuration alone (the preflight probe proves it).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RunnerIsolation".
+ */
+export type RunnerIsolation = "gvisor" | "container";
+/**
+ * Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and
+ * anything computed from them) can never be presented as NASA results or qualify a model.
+ * Produced-by-the-system payloads are `system` even when their *data* is synthetic (that is
+ * `EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).
+ */
+export type Origin1 = "system" | "synthetic_fixture";
+/**
+ * How the program ended.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ExecutionOutcome".
+ */
+export type ExecutionOutcome =
+  | {
+      exit_code: number;
+      kind: "exited";
+    }
+  | {
+      kind: "timed_out";
+    }
+  | {
+      kind: "out_of_memory";
+    };
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "PageCursor".
  */
@@ -841,7 +885,7 @@ export type ForecastInput =
 /**
  * `DatasetBundle::content_digest` of the bundle evaluated.
  */
-export type Digest3 = string;
+export type Digest4 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
@@ -940,6 +984,8 @@ export interface IgnisContracts {
   DatasetRef?: DatasetRef;
   ReleaseRef?: ReleaseRef;
   JobLookup?: JobLookup;
+  AnalysisExecuteRequest?: AnalysisExecuteRequest;
+  ExecutionRecord?: ExecutionRecord;
   EvidenceRef?: EvidenceRef;
   SearchRequest?: SearchRequest;
   SearchPage?: SearchPage;
@@ -1919,6 +1965,185 @@ export interface JobLookup {
   job_id: JobId;
 }
 /**
+ * Argument of `analysis_execute`: a program run once in the isolated runner (no network, read-only
+ * root, separate uid, no host secrets). Its stdout, stderr and the regular files it writes under
+ * `/out` become artifacts of an [`ExecutionRecord`].
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnalysisExecuteRequest".
+ */
+export interface AnalysisExecuteRequest {
+  /**
+   * Idempotency key: a retry with the same key returns the same job.
+   */
+  client_request_id?: ClientRequestId | null;
+  inputs?: AnalysisInput[];
+  language: AnalysisLanguage;
+  /**
+   * The program, executed as written.
+   */
+  source: string;
+}
+/**
+ * One input of an analysis: an artifact of the caller's workspace, mounted read-only at
+ * `/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnalysisInput".
+ */
+export interface AnalysisInput {
+  artifact_id: ArtifactId;
+  /**
+   * File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).
+   */
+  name: string;
+}
+/**
+ * The record of one `analysis_execute` run (the job's first output artifact): code identity,
+ * environment, inputs, budget, outcome and the artifacts produced. A computed value cited in an
+ * answer points into one of `outputs` (or `stdout`), and this record says how it was computed.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ExecutionRecord".
+ */
+export interface ExecutionRecord {
+  environment: RunnerEnvironment;
+  finished_at: Timestamp;
+  /**
+   * Inputs as mounted.
+   */
+  inputs?: MountedInput[];
+  language: AnalysisLanguage;
+  limits: RunnerLimits;
+  origin: Origin1;
+  outcome: ExecutionOutcome;
+  outputs?: AnalysisOutput[];
+  program: ArtifactRef1;
+  rejected_outputs?: RejectedOutput[];
+  schema_version: ToolsSchema;
+  started_at: Timestamp;
+  stderr: CapturedStream;
+  stdout: CapturedStream;
+}
+/**
+ * What a program ran in: the content address of the image, the OCI runtime and its isolation.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RunnerEnvironment".
+ */
+export interface RunnerEnvironment {
+  image_id: Digest3;
+  /**
+   * Interpreter version reported by the image during preflight.
+   */
+  interpreter: string;
+  isolation: RunnerIsolation;
+  /**
+   * OCI runtime name as the container engine reports it (`runsc`, `runc`).
+   */
+  oci_runtime: string;
+}
+/**
+ * An input as the program saw it: `/in/<name>` held exactly these bytes.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "MountedInput".
+ */
+export interface MountedInput {
+  artifact: ArtifactRef;
+  name: string;
+}
+/**
+ * Resource budget of one execution, set by the host (never by the request).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RunnerLimits".
+ */
+export interface RunnerLimits {
+  /**
+   * CPU quota in thousandths of a core.
+   */
+  cpu_millis: number;
+  memory_bytes: number;
+  /**
+   * Total bytes of `/out` files kept as artifacts.
+   */
+  output_bytes: number;
+  pids: number;
+  /**
+   * Bytes of stdout and of stderr each kept as an artifact (the rest is counted, not stored).
+   */
+  stream_bytes: number;
+  /**
+   * Scratch space (`/tmp`, in memory).
+   */
+  tmp_bytes: number;
+  wall_seconds: number;
+}
+/**
+ * A file the program wrote under `/out`, kept as an artifact.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnalysisOutput".
+ */
+export interface AnalysisOutput {
+  artifact: ArtifactRef;
+  /**
+   * Path relative to `/out`, `/`-separated.
+   */
+  path: string;
+}
+/**
+ * Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download
+ * link is resolved through the access service, may expire, and does not change the artifact.
+ */
+export interface ArtifactRef1 {
+  artifact_id: ArtifactId;
+  byte_length: number;
+  /**
+   * Exported contract type of the content when it is a JSON/JSONL contract document
+   * (`"AnalysisArtifact"`, `"ResearchAnswer"`, ...). Consumers dispatch on it.
+   */
+  contract?: string | null;
+  created_at: Timestamp;
+  /**
+   * Entities this artifact was computed from (lineage, not access grants).
+   */
+  inputs?: EntityRef[];
+  /**
+   * IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.
+   */
+  media_type: string;
+  origin: Origin;
+  produced_by?: Producer;
+  sha256: Digest1;
+}
+/**
+ * A path under `/out` that was not kept, and why (symbolic link, special file, budget).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RejectedOutput".
+ */
+export interface RejectedOutput {
+  path: string;
+  reason: string;
+}
+/**
+ * A captured output stream. `truncated` means the stream exceeded the budget: `total_bytes` were
+ * written, only the first `stream_bytes` are in `artifact`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CapturedStream".
+ */
+export interface CapturedStream {
+  /**
+   * Absent when the stream was empty.
+   */
+  artifact?: ArtifactRef | null;
+  total_bytes: number;
+  truncated: boolean;
+}
+/**
  * A search. The access scope is not here: the host passes it to the service separately.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -2328,7 +2553,7 @@ export interface EvaluationRequest {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest3;
+  dataset_hash: Digest4;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -2482,7 +2707,7 @@ export interface EvaluationRequest1 {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest3;
+  dataset_hash: Digest4;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
