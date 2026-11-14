@@ -1,0 +1,27 @@
+{
+  "schema_version": "evidence.v1",
+  "source_id": "fixture-source-v1",
+  "parse_view_id": "fixture-parse-v1",
+  "segments": [
+    {
+      "locator": {
+        "asset_sha256": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+        "path": null,
+        "row": null,
+        "column": null,
+        "page": 3,
+        "frame": null,
+        "pts_s": null,
+        "char_start": 0,
+        "char_end": 2970,
+        "page_label": "2",
+        "parse_view_id": "fixture-parse-v1",
+        "offset_unit": "unicode_scalar"
+      },
+      "text": "Synthetic fixture page text. It stands in for page 3 of a parse view and reports nothing."
+    }
+  ],
+  "complete": false,
+  "next": {"kind": "pages", "first": 4, "last": 5},
+  "origin": "synthetic_fixture"
+}

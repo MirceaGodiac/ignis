@@ -1,0 +1,36 @@
+{
+  "schema_version": "dataset.v1",
+  "dataset_id": "fixture-dataset-flex",
+  "family": "flex",
+  "audience": "builder",
+  "cohort_id": "fixture-cohort",
+  "split_id": "fixture-split",
+  "partitions": ["train", "validation"],
+  "source_manifest_hash": "fixture-source-manifest",
+  "time_origin": "igniter_retracted",
+  "views": [
+    {
+      "name": "observations",
+      "artifact": {
+        "artifact_id": "fixture-artifact-flex-observations",
+        "sha256": "sha256:d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 65536,
+        "origin": "synthetic_fixture",
+        "created_at": "2026-11-14T17:00:00Z"
+      },
+      "columns": [
+        {"name": "run_id", "role": "run_id", "nullable": false},
+        {"name": "time_s", "role": "time", "unit": "s", "nullable": false},
+        {"name": "available_at_s", "role": "available_at", "unit": "s", "nullable": false},
+        {"name": "liquid_diameter_m", "role": "value", "quantity": "liquid_diameter", "unit": "m", "nullable": true},
+        {"name": "liquid_diameter_unc_m", "role": "uncertainty", "quantity": "liquid_diameter", "unit": "m", "nullable": true},
+        {"name": "locator", "role": "locator", "nullable": false}
+      ],
+      "row_count": 120
+    }
+  ],
+  "inclusion_criteria": {"fuel": "synthetic-fixture", "identity_resolution": "resolved"},
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-14T17:00:00Z"
+}

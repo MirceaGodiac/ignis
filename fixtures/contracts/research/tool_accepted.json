@@ -1,0 +1,17 @@
+{
+  "schema_version": "tools.v1",
+  "call_id": "fixture-call-02",
+  "tool": "models_forecast",
+  "execution_status": "accepted",
+  "scientific_status": "not_assessed",
+  "job": {
+    "job_id": "fixture-job-02",
+    "kind": "models_forecast",
+    "status": "queued",
+    "outputs": [],
+    "submitted_at": "2026-11-14T18:00:06Z",
+    "updated_at": "2026-11-14T18:00:06Z"
+  },
+  "artifact_refs": [],
+  "origin": "synthetic_fixture"
+}

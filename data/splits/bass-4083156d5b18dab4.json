@@ -1,0 +1,992 @@
+{
+  "split": {
+    "id": "sha256:4083156d5b18dab45889b274812d12fa9c144dec5880fb3a8906e380468b043a",
+    "cohort_id": "sha256:f66dc826dc830db0efeec395ef4f2f57c6fe3b0b15853c6cc2fb9d2afc06b278",
+    "group_key": "session+specimen_reuse_group",
+    "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+    "seed": 20261107,
+    "run_to_group": {
+      "PSI-25:T1": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T10": "session:PSI-25:day:2014-06-24+1",
+      "PSI-25:T11": "session:PSI-25:day:2014-06-27+4",
+      "PSI-25:T12": "session:PSI-25:day:2014-06-27+4",
+      "PSI-25:T14": "session:PSI-25:day:2014-06-27+4",
+      "PSI-25:T15": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T16": "session:PSI-25:day:2014-04-10+3",
+      "PSI-25:T17": "session:PSI-25:day:2014-06-27+4",
+      "PSI-25:T18": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T19": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T2": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T21": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T22": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T23": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T24": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T25": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T26": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T27": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T28a": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T28b": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T29": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T4": "session:PSI-25:day:2014-02-14+14",
+      "PSI-25:T5": "session:PSI-25:day:2014-04-10+3",
+      "PSI-25:T6": "session:PSI-25:day:2014-04-10+3",
+      "PSI-25:T9": "session:PSI-25:day:2014-02-14+14"
+    },
+    "train": [
+      "session:PSI-25:day:2014-04-10+3",
+      "session:PSI-25:day:2014-06-24+1"
+    ],
+    "validation": [
+      "session:PSI-25:day:2014-02-14+14"
+    ],
+    "test": [
+      "session:PSI-25:day:2014-06-27+4"
+    ]
+  },
+  "cohort": {
+    "id": "sha256:f66dc826dc830db0efeec395ef4f2f57c6fe3b0b15853c6cc2fb9d2afc06b278",
+    "family": "bass",
+    "version": "1",
+    "criteria": {
+      "investigation": "PSI-25 (BASS-II) only; PSI-26 is a related but different protocol, never pooled",
+      "material": "SIBAL (75/25 cotton/fiberglass fabric), planar_fabric geometry",
+      "qualification": "DECLARED CANDIDATE, NOT QUALIFIED: pixel->m calibration, plane validity, phase and flow history are not established; the vision lane must qualify each run",
+      "video": "at least one resolved main-view MP4 mapped to the run"
+    },
+    "run_ids": [
+      "PSI-25:T1",
+      "PSI-25:T10",
+      "PSI-25:T11",
+      "PSI-25:T12",
+      "PSI-25:T14",
+      "PSI-25:T15",
+      "PSI-25:T16",
+      "PSI-25:T17",
+      "PSI-25:T18",
+      "PSI-25:T19",
+      "PSI-25:T2",
+      "PSI-25:T21",
+      "PSI-25:T22",
+      "PSI-25:T23",
+      "PSI-25:T24",
+      "PSI-25:T25",
+      "PSI-25:T26",
+      "PSI-25:T27",
+      "PSI-25:T28a",
+      "PSI-25:T28b",
+      "PSI-25:T29",
+      "PSI-25:T4",
+      "PSI-25:T5",
+      "PSI-25:T6",
+      "PSI-25:T9"
+    ],
+    "excluded": [
+      {
+        "run_id": "PSI-25:B1",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B10",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B11",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B12",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B13",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B14",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B15",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B16",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B17",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B18",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B19",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B2",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B20",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B21",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B22",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B3",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B4",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B5",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B6",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B7",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B8",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:B9",
+        "reason": "material/geometry planar_film: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:F1",
+        "reason": "material/geometry planar_fabric: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:F2",
+        "reason": "material/geometry planar_fabric: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:F3",
+        "reason": "material/geometry planar_fabric: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:F4",
+        "reason": "material/geometry candle: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M1",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M10",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M11",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M12",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M13",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M14",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M15",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M16",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M17",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M18",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M19",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M2",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M20",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M3",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M4",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M5",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M6",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M7",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M8",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:M9",
+        "reason": "material/geometry planar_slab: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O1",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O10",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O11",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O12",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O13a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O13b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O14",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O15a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O15b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O16",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O17",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O18",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O19",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O2",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O20",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O21",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O22",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O3a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O3b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O4",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O5a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O5b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O6",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O7",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O8a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O8b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:O9",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P1",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P10",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P12",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P13a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P13b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P14",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P15",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P16",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P17",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P18",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P19",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P2",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P20",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P21a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P21b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P22a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P22b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P23",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P24",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P25",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P3a",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P3b",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P4",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P5",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P6",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P8",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:P9",
+        "reason": "material/geometry rod: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:T13",
+        "reason": "no resolved main-view video"
+      },
+      {
+        "run_id": "PSI-25:T20",
+        "reason": "no resolved main-view video"
+      },
+      {
+        "run_id": "PSI-25:T3",
+        "reason": "material/geometry sphere: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-25:T7",
+        "reason": "material/geometry sphere: not planar SIBAL"
+      },
+      {
+        "run_id": "PSI-26:asrun100:test89",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun101:test95",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun102:test92",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun103:test78",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun104:test50",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun105:test51",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun106:test52",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun107:test53",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun108:test106",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun109:test107",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun10:test20",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun110:test108",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun111:test109",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun112:test79",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun113:test80",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun114:test75",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun115:test53",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun116:test53a",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun11:test21",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun12:test4",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun13:test10",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun14:test12",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun15:test54",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun16:test55",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun17:test56",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun18:test57",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun19:test110",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun1:test1",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun20:test30",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun21:test31",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun22:test32",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun23:test33",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun24:test12-R",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun24:test12-R2",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun25:test46",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun26:test47",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun27:test48",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun28:test49",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun29:test22",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun2:test42",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun30:test23",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun31:test24",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun32:test25",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun33:test58",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun34:test59",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun35:test60",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun36:test61",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun37:test5",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun38:test14",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun39:test66",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun3:test18",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun40:test67",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun41:test34",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun42:test35",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun43:test16",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun44:test5b",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun45:test6",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun46:test82",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun47:test82a",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun48:test82b",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun49:test68",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun4:test7",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun50:test69",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun51:test111",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun52:test112",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun53:test113",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun54:test2",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun55:test3",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun56:test15",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun57:test13",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun58:test17",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun59:test114",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun5:test8",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun60:test62",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun61:test63",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun62:test64",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun63:test65",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun64:test118",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun65:test11",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun66:test9",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun67:test102",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun68:test83a",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun69:test83b",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun6:test43",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun70:test83c",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun71:test84a",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun72:test84b",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun73:test86a",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun74:test86b",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun75:test86c",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun76:test70",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun77:test71",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun78:test74",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun79:test75",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun7:test44",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun80:test98",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun81:test99",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun82:test114",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun83:test115",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun84:test116",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun85:test117",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun85:test117a",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun86:test100",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun87:test85",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun88:test93",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun89:test26",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun89:test87",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun8:test45",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun90:test103",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun90:test27",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun91:test104",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun91:test28",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun92:test105",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun93:test38",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun94:test39",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun95:test40",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun96:test72",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun97:test73",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun98:test118",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun99:test119",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun9:test19",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      },
+      {
+        "run_id": "PSI-26:asrun:test",
+        "reason": "PSI-26 protocol not pooled with BASS-II"
+      }
+    ],
+    "source_manifest_hash": "sha256:405c774caa6926ecb5fa6c79969b092e713fffea79df3d724b6d19ac08ca48aa"
+  },
+  "content_hash": "sha256:79ffe77768a8d1e3435d522ddd235cbbb1fd0442bcb917775eeaee50a04df5e8"
+}
