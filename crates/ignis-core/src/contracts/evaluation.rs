@@ -334,37 +334,59 @@ impl GoldTask {
         Ok(())
     }
 
-    /// What the agent under test receives: the question and, for a documentary task, the choices
-    /// with the "insufficient evidence" option. Never the answer key.
+    /// What the agent under test receives: everything it needs to do the task, nothing that grades
+    /// it. Documentary: the choices plus the "insufficient evidence" option. Citation: the statement
+    /// to support. Analytical: the input artifacts (the check program and expected values stay
+    /// hidden). Predictive: the target quantity (the protocol scores it).
     pub fn prompt(&self) -> GoldPrompt {
-        GoldPrompt {
+        let mut p = GoldPrompt {
             task_id: self.task_id.clone(),
             class: self.class,
             question: self.question.clone(),
-            choices: match &self.answer {
-                AnswerKey::Documentary { choices, .. } => choices
+            choices: vec![],
+            statement: None,
+            inputs: vec![],
+            target: None,
+        };
+        match &self.answer {
+            AnswerKey::Documentary { choices, .. } => {
+                p.choices = choices
                     .iter()
                     .cloned()
                     .chain([INSUFFICIENT.to_string()])
-                    .collect(),
-                _ => vec![],
-            },
+                    .collect()
+            }
+            AnswerKey::Citation { statement, .. } => p.statement = Some(statement.clone()),
+            AnswerKey::Analytical { inputs, .. } => p.inputs = inputs.clone(),
+            AnswerKey::Predictive { target, .. } => p.target = Some(*target),
         }
+        p
     }
 }
 
 /// The option every documentary task offers, last.
 pub const INSUFFICIENT: &str = "Insufficient evidence to answer";
 
-/// The runner-facing form of a gold task: no answer key, no supporting evidence, no reviewers.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+/// The runner-facing form of a gold task: the task material only; no answer key, no supporting
+/// evidence, no check program, no expected values, no reviewers.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GoldPrompt {
     pub task_id: GoldTaskId,
     pub class: GoldTaskClass,
     pub question: String,
+    /// Documentary: the choices, the last one "insufficient evidence".
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub choices: Vec<String>,
+    /// Citation: the statement to support with a cited locator.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub statement: Option<String>,
+    /// Analytical: the artifacts to compute on.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub inputs: Vec<ArtifactRef>,
+    /// Predictive: the quantity to forecast.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<Quantity>,
 }
 
 /// A frozen set of gold tasks. `set_hash` is the digest of `tasks` and is what a benchmark request
@@ -493,7 +515,8 @@ pub enum ClusterBy {
 #[serde(deny_unknown_fields)]
 pub struct HarnessBenchmark {
     pub gold_set: GoldSetRef,
-    /// At least two arms; same runtime build, model and effort, so only the harness differs.
+    /// One arm measures a harness; two or more compare harnesses. All arms share the runtime
+    /// build, model and effort, so only the harness differs.
     pub variants: Vec<HarnessVariant>,
     /// The arm deltas are measured against (H0).
     pub baseline: String,
@@ -505,10 +528,12 @@ pub struct HarnessBenchmark {
 impl HarnessBenchmark {
     fn validate(&self, c: &'static str) -> Result<(), ContractError> {
         let names: BTreeSet<&str> = self.variants.iter().map(|v| v.name.as_str()).collect();
+        // One arm is a measurement of one harness (the T10 pilot, R10 retrieval numbers); a
+        // comparison needs two or more, and deltas only exist then.
         ensure(
-            self.variants.len() >= 2 && names.len() == self.variants.len(),
+            !self.variants.is_empty() && names.len() == self.variants.len(),
             c,
-            || "at least two arms with unique names".into(),
+            || "at least one arm, with unique names".into(),
         )?;
         ensure(
             self.variants
@@ -944,7 +969,11 @@ impl EvaluationResult {
                 ContractError::new(c, "a harness benchmark result needs its comparison")
             })?;
             let spec = self.request.harness.as_ref().expect("validated request");
-            return validate_comparison(c, h, spec, &self.request.metrics, k);
+            validate_comparison(c, h, spec, &self.request.metrics, k)?;
+            ensure(spec.variants.len() >= 2 || h.deltas.is_empty(), c, || {
+                "a one-arm measurement has no deltas".into()
+            })?;
+            return self.per_case.as_ref().map_or(Ok(()), ArtifactRef::validate);
         }
         ensure(self.harness.is_none(), c, || {
             "only a harness benchmark has a comparison".into()

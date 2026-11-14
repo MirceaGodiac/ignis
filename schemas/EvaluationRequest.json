@@ -181,7 +181,7 @@
           "type": "integer"
         },
         "variants": {
-          "description": "At least two arms; same runtime build, model and effort, so only the harness differs.",
+          "description": "One arm measures a harness; two or more compare harnesses. All arms share the runtime\nbuild, model and effort, so only the harness differs.",
           "items": {
             "$ref": "#/$defs/HarnessVariant"
           },
