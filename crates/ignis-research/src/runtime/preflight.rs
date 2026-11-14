@@ -200,6 +200,20 @@ impl CodexConfig {
         }
     }
 
+    /// The API key each app-server process is logged in with (`account/login/start`), when no
+    /// signed-in login home is configured: the first non-empty of `CODEX_API_KEY`,
+    /// `OPENAI_API_KEY`. The app-server does not read either from its environment.
+    pub fn api_key(&self) -> Option<String> {
+        if self.login_home.is_some() {
+            return None;
+        }
+        ["CODEX_API_KEY", "OPENAI_API_KEY"]
+            .iter()
+            .filter_map(|k| std::env::var(k).ok())
+            .find(|v| !v.trim().is_empty())
+            .map(|v| v.trim().to_string())
+    }
+
     /// The `codex app-server` command for one `CODEX_HOME`: private stdio transport, profile
     /// overrides, cleared environment.
     pub fn command(&self, codex_home: &Path) -> Command {
