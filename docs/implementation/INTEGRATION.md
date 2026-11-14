@@ -133,7 +133,9 @@ reload, seal/reveal și authoring nu sunt publice implicit.
 
 ## Gate-uri de merge
 
-Rulate în CI (`.github/workflows/ci.yml`, la fiecare PR) și local înainte de push:
+**CI e oprit momentan** (din 2026-11-14, până decide integratorul): workflow-ul `ci` e dezactivat pe
+GitHub și nu se reactivează, nu se adaugă și nu se modifică workflow-uri (regula din `AGENTS.md`).
+Gate-urile se rulează local înainte de push, iar PR-ul listează comenzile rulate efectiv:
 
 ```bash
 cargo fmt --all -- --check
