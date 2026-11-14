@@ -52,7 +52,7 @@ din `main` (`feat/<lane>-<task>`), șters la merge.
 | P0 | T10 | Tudor | pilot gold set ~30 (documentar cu abținere, citare, analitic, predictiv prin protocol), set dev + hold-out privat ~20 %, toate cele 19 investigații | K1-evaluation | de făcut |
 | P1 | M10 | Mircea | `TraceBundle` + `ignis harness run --variant` | K1-research, T10 | de făcut |
 | P1 | M8 | Mircea | argumente în `tool.started`, `step.rationale`, `response_format`, audit descrieri, înregistrarea tool-urilor lui Raul | K1 | de făcut |
-| P1 | M11 | Mircea | rute v1 pentru runs/datasets/conditions | K1-dataset, R9a | de făcut |
+| P1 | M11 | Mircea | rute v1 pentru runs/datasets/conditions | K1-dataset, R9a | **în review** (`feat/mircea-m11`): `GET /datasets` (paginat), `/datasets/{id}`, `/datasets/{id}/views/{view}` (Parquet în flux, `offset`/`len`), `GET /runs`, `/runs/{id}`, `POST /conditions`; scope derivat de host, partițiile reținute nu ajung la scope-ul de research (test de integrare); echivalente în `/api/fixtures/v1`; `DatasetService::datasets` + `open_view` + `conditions_snapshot` (metode noi cu default, implementate în `DatasetStore`, review Raul); răspunsuri citabile pentru o verificare numerică ulterioară pe host: `x-ignis-snapshot`/`ETag` pe fiecare răspuns, rânduri adresate prin identitate (`row_identity`), nume necunoscute refuzate cu lista celor permise |
 | P1 | R7b | Raul | arbore de secțiuni (`SourceOutline`, `sources_outline`), rezumate etichetate ca generate | R7a | de făcut |
 | P1 | R8 | Raul | `SourceLabel` cu două treceri și gold set de ~100 documente; model ales prin măsurători (Jev sau model mic cu output structurat) | R7a | de făcut |
 | P1 | R2b | Raul | fișierele text de senzori → `DatasetBundle` Parquet pentru investigațiile noi | R6 | de făcut |
