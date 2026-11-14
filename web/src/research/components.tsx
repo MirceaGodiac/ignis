@@ -1,6 +1,7 @@
 // Presentational pieces of the Research workspace. Everything renders discriminated on contract
 // fields (`body.kind`, `execution_status` x `scientific_status`, `Claim.kind`, `units_status`).
 
+import { createContext, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type {
   ArtifactRef,
@@ -23,8 +24,13 @@ import { bboxStyle, locatorKind, pageCaption, sliceSpan, spatialAxis } from "./u
 
 // ------------------------------------------------------------------------------------------ small
 
+/** Origin of the page as a whole; mock mode says "synthetic" once, in its banner. */
+export const PageOrigin = createContext<Origin>("system");
+
+/** Shown only when an item's origin differs from the page's (a synthetic item in live mode). */
 export function OriginBadge({ origin }: { origin: Origin }) {
-  return origin === "synthetic_fixture" ? (
+  const page = useContext(PageOrigin);
+  return origin === "synthetic_fixture" && page !== origin ? (
     <span className="badge badge-synthetic" title="Hand-made contract example: not NASA data, not a result">
       synthetic fixture
     </span>
@@ -95,18 +101,24 @@ const SCI_LABEL: Record<ToolResult["scientific_status"], string> = {
 export function ToolResultCard({ result, tool, onArtifact }: { result: ToolResult | null; tool: string; onArtifact?: (a: ArtifactRef) => void }) {
   if (!result)
     return (
-      <div className="tool tool-running">
-        <b>{tool}</b> <span className="badge">started — no result yet</span>
+      <div className="rs-tool">
+        <b>{tool}</b> <span className="muted">started — no result yet</span>
       </div>
     );
   const exec = result.execution_status;
-  const cls = exec === "failed" || exec === "refused" ? "refused" : exec === "completed" ? "ok" : "";
+  const execTone = exec === "failed" || exec === "refused" ? "bad" : exec === "completed" ? "ok" : "";
+  const sci = result.scientific_status;
+  const sciTone = sci === "conclusive" ? "ok" : sci === "not_assessed" ? "" : "warn";
   return (
-    <div className={`tool card-inner ${cls}`}>
-      <div className="exp-head">
+    <div className="rs-tool">
+      <div className="rs-tool-head">
         <b>{result.tool}</b>
-        <span className={`badge ${cls ? `badge-${cls}` : ""}`}>execution: {EXEC_LABEL[exec]}</span>
-        <span className={`badge ${result.scientific_status === "conclusive" ? "badge-ok" : ""}`}>science: {SCI_LABEL[result.scientific_status]}</span>
+        <span className="rs-axis">
+          Execution <span className={`rs-status ${execTone}`}>{EXEC_LABEL[exec]}</span>
+        </span>
+        <span className="rs-axis">
+          Science <span className={`rs-status ${sciTone}`}>{SCI_LABEL[sci]}</span>
+        </span>
         <OriginBadge origin={result.origin} />
       </div>
       {result.job && <JobLine job={result.job} />}
@@ -139,8 +151,38 @@ function InlineResult({ payload, onArtifact }: { payload: InlinePayload; onArtif
           )}
         </p>
       )}
-      <pre className="json">{JSON.stringify(payload.value, null, 2)}</pre>
+      <PayloadValue value={payload.value} />
     </div>
+  );
+}
+
+function isFlat(v: unknown): v is Record<string, string | number | boolean | null> {
+  return (
+    !!v &&
+    typeof v === "object" &&
+    !Array.isArray(v) &&
+    Object.values(v as object).every((x) => x === null || ["string", "number", "boolean"].includes(typeof x))
+  );
+}
+
+/** A flat object reads as key/value pairs; anything nested stays JSON, behind a disclosure. */
+function PayloadValue({ value }: { value: unknown }) {
+  if (isFlat(value))
+    return (
+      <dl className="kv rs-kv">
+        {Object.entries(value).map(([k, v]) => (
+          <div key={k}>
+            <dt>{k.replace(/_/g, " ")}</dt>
+            <dd className={typeof v === "number" ? "num" : undefined}>{String(v)}</dd>
+          </div>
+        ))}
+      </dl>
+    );
+  return (
+    <details className="rs-json">
+      <summary>Payload (JSON)</summary>
+      <pre className="json">{JSON.stringify(value, null, 2)}</pre>
+    </details>
   );
 }
 
@@ -218,10 +260,7 @@ export function AnswerView({
   const artifacts = new Map((answer.artifacts ?? []).map((a) => [a.artifact_id, a]));
   return (
     <div>
-      <div className="exp-head">
-        <span className={`badge ${answer.status === "complete" ? "badge-ok" : "badge-refused"}`}>answer {answer.status.replace("_", " ")}</span>
-        <OriginBadge origin={answer.origin} />
-      </div>
+      <OriginBadge origin={answer.origin} />
       {answer.blocks.map((b, i) =>
         b.type === "text" ? (
           <p key={i}>
@@ -245,10 +284,10 @@ export function AnswerView({
           </div>
         ),
       )}
-      <h3>Claims</h3>
+      <h3 className="rs-sub">Claims</h3>
       <ol className="claims">
         {(answer.claims ?? []).map((c) => (
-          <li key={c.claim_id} id={`claim-${c.claim_id}`} className={`claim claim-${c.kind}`}>
+          <li key={c.claim_id} id={`claim-${c.claim_id}`} className="claim">
             <span className={`claim-chip claim-${c.kind}`}>{CLAIM_LABEL[c.kind]}</span> {c.text}
             <SupportList client={client} claim={c} evidence={evidence} onEvidence={onEvidence} />
           </li>
@@ -256,7 +295,7 @@ export function AnswerView({
       </ol>
       {(answer.limitations ?? []).length > 0 && (
         <>
-          <h3>Limitations</h3>
+          <h3 className="rs-sub">Limitations</h3>
           <ul>
             {answer.limitations!.map((l, i) => (
               <li key={i}>{l}</li>
@@ -339,7 +378,7 @@ function ArtifactValue({ client, artifactId, pointer }: { client: ResearchClient
 
 export function ArtifactCard({ artifact, caption, onOpen }: { artifact: ArtifactRef; caption?: string; onOpen?: (a: ArtifactRef) => void }) {
   return (
-    <div className="card-inner">
+    <figure className="rs-figure">
       <div className="exp-head">
         <b>{artifact.contract ?? artifact.media_type}</b>
         <code>{short(artifact.artifact_id)}</code>
@@ -355,7 +394,7 @@ export function ArtifactCard({ artifact, caption, onOpen }: { artifact: Artifact
         <p className="muted">Inputs: {artifact.inputs!.map((i) => `${i.kind} ${short(String(i.id))}`).join(", ")}</p>
       )}
       {onOpen && <button onClick={() => onOpen(artifact)}>Inspect payload</button>}
-    </div>
+    </figure>
   );
 }
 
@@ -528,12 +567,12 @@ export function ReleaseCard({ release }: { release: ModelRelease }) {
   const state = release.state ?? "unknown";
   const qualified = QUALIFIED.includes(state);
   return (
-    <div className="card-inner">
+    <div className="rs-release">
       <div className="exp-head">
         <b>{release.model_name}</b>
-        <span className="badge">{release.family}</span>
-        <span className={`badge ${qualified ? "badge-ok" : "badge-refused"}`}>{state.replace(/_/g, " ")}</span>
-        {release.is_baseline && <span className="badge">baseline</span>}
+        <span className="muted">{release.family}</span>
+        <span className={`rs-status ${qualified ? "ok" : "warn"}`}>{state.replace(/_/g, " ")}</span>
+        {release.is_baseline && <span className="muted">baseline</span>}
       </div>
       <p>
         {trained} · lineage {release.lineage}
@@ -552,10 +591,10 @@ export function ReleaseCard({ release }: { release: ModelRelease }) {
 export function VisualBundleCard({ bundle }: { bundle: VisualObservationBundle }) {
   const axis = spatialAxis(bundle.units_status);
   return (
-    <div className="card-inner">
+    <div>
       <div className="exp-head">
         <b>Visual observation bundle</b> <code>{bundle.bundle_id}</code>
-        <span className={`badge ${bundle.units_status === "metric" ? "badge-ok" : "badge-refused"}`}>units: {bundle.units_status}</span>
+        <span className={`rs-status ${bundle.units_status === "metric" ? "ok" : "warn"}`}>units: {bundle.units_status}</span>
         <OriginBadge origin={bundle.origin} />
       </div>
       <p>

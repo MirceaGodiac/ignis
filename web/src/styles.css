@@ -130,38 +130,10 @@ footer { margin-top: 24px; font-size: 13px; }
   .top h1 .muted { display: block; }
 }
 
-/* Research workspace (T1). Claim kinds differ by colour AND by label text; prediction never looks like observation. */
-.research .fixture-banner { position: static; margin: 0 0 12px; }
-.card-inner { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin: 6px 0; background: var(--panel); }
-.card-inner.ok { border-left: 4px solid var(--ok); }
-.card-inner.refused { border-left: 4px solid var(--refused); }
+/* Research helpers shared by its components. */
 button.link { border: none; background: none; padding: 0 4px; color: var(--accent); text-decoration: underline; }
 pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px; overflow-x: auto; max-height: 260px; margin: 6px 0; }
-.faults { border: 1px dashed var(--border); border-radius: 8px; padding: 6px 10px; margin: 8px 0 0; }
-.faults input[type="number"] { width: 80px; }
-.timeline { list-style: none; padding: 0; margin: 0; font-size: 14px; }
-.timeline li { border-bottom: 1px solid var(--grid); padding: 4px 0; }
-.timeline .seq { font: 12px ui-monospace, Consolas, monospace; color: var(--fg-muted); }
-.ev-runtime-opaque { color: var(--fg-muted); font-style: italic; }
 .notices { font-size: 13px; padding-left: 18px; max-height: 220px; overflow-y: auto; margin: 0; }
-.msg { border-left: 3px solid var(--border); padding: 2px 10px; margin: 6px 0; }
-.msg-user { border-left-color: var(--fg-muted); }
-.msg-assistant { border-left-color: var(--accent); }
-.msg p { margin: 2px 0; }
-.msg-role { font-size: 12px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.steering { margin-top: 10px; }
-.claims { padding-left: 20px; }
-.claim { margin-bottom: 8px; }
-.claim-chip { display: inline-block; font-size: 12px; padding: 0 7px; border-radius: 999px; border: 1px solid currentColor; margin-right: 4px; text-decoration: none; white-space: nowrap; }
-.claim-source_reports { color: var(--ev1); }
-.claim-observed { color: var(--observed); background: color-mix(in srgb, var(--observed) 8%, transparent); }
-.claim-computed { color: var(--ev3); }
-.claim-predicted { color: var(--model); border-style: dashed; }
-.claim-interpretation { color: var(--fg-muted); font-style: italic; }
-.claim-missing { color: var(--refused); }
-.support-list { margin: 2px 0 0; padding-left: 18px; font-size: 14px; }
-.unsupported { margin: 2px 0 0; color: var(--refused); font-size: 14px; }
-.quote { margin: 6px 0; padding: 4px 10px; border-left: 3px solid var(--ev1); color: var(--fg); }
 .kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; }
 .kv dt { color: var(--fg-muted); font-size: 13px; }
 .kv dd { margin: 0; }
@@ -169,5 +141,128 @@ pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); 
 .page-text { padding: 6% 7%; font-size: 12px; color: var(--fg-muted); }
 .bbox { position: absolute; border: 2px solid var(--ev2); background: color-mix(in srgb, var(--ev2) 18%, transparent); border-radius: 2px; pointer-events: none; }
 .backends { font-size: 13px; padding-left: 18px; margin: 4px 0; }
-.status-completed { color: var(--ok); border-color: var(--ok); }
-.status-failed, .status-cancelled { color: var(--refused); border-color: var(--refused); }
+
+/* Research workspace (T1). Operate surface: the answer and its sources lead; diagnostics wait below.
+   Scoped under .research so the other tabs keep their look. Claim kinds differ by label AND colour;
+   a prediction (dashed) never looks like an observation (solid). No coloured side borders: state is
+   carried by text labels and tinted grounds. */
+.research {
+  --claim-source: #4f46e5;
+  --claim-computed: #047857;
+  --warn-fg: #92400e;
+  --tint-bad: color-mix(in srgb, var(--refused) 9%, var(--panel));
+  --tint-quote: color-mix(in srgb, var(--ev1) 8%, var(--panel));
+  font-variant-numeric: tabular-nums;
+  scrollbar-color: var(--border) transparent;
+}
+@media (prefers-color-scheme: dark) {
+  .research {
+    --claim-source: #a5b4fc;
+    --claim-computed: #6ee7b7;
+    --warn-fg: #fcd34d;
+  }
+}
+.research ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.research .fixture-banner { position: static; margin: 0 0 4px; }
+.research .num { font-variant-numeric: tabular-nums; }
+.research .warn { color: var(--warn-fg); font-weight: 600; }
+
+/* Toolbar: one line of connection controls; the fault injector is a disclosure. */
+.rs-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.rs-seg { display: inline-flex; }
+.rs-seg button { border-radius: 0; }
+.rs-seg button:first-child { border-radius: 8px 0 0 8px; }
+.rs-seg button:last-child { border-radius: 0 8px 8px 0; margin-left: -1px; }
+.rs-episode { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--fg-muted); }
+.rs-episode input { width: 22ch; color: var(--fg); }
+.rs-stream-state { margin-left: auto; font-size: 13px; color: var(--fg-muted); }
+.rs-faults { flex-basis: 100%; font-size: 14px; }
+.rs-faults summary { cursor: pointer; color: var(--fg-muted); width: max-content; }
+.rs-faults-body { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 8px 0 2px; }
+.rs-faults-body input[type="number"] { width: 80px; }
+.rs-faults-body p { margin: 0; flex-basis: 100%; font-size: 13px; }
+
+/* Layout: the work column and a sticky rail where opened sources appear next to the claims. */
+.rs-grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 4px; }
+.rs-rail { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 2px; }
+@media (max-width: 960px) {
+  .rs-grid { grid-template-columns: minmax(0, 1fr); }
+  .rs-rail { position: static; max-height: none; overflow: visible; }
+}
+
+.rs-goal { padding: 18px 0 10px; }
+.rs-goal-meta { margin: 0 0 6px; font-size: 13px; color: var(--fg-muted); }
+.rs-goal-text { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; max-width: 62ch; text-wrap: balance; }
+
+.rs-section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+.rs-section > h2 { margin: 0 0 12px; font-size: 18px; font-weight: 650; letter-spacing: -0.005em; display: flex; align-items: baseline; gap: 10px; }
+.rs-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.rs-head h2 { margin: 0 0 10px; font-size: 18px; font-weight: 650; }
+.rs-sub { margin: 20px 0 6px; font-size: 15px; font-weight: 650; }
+.rs-section p { max-width: 75ch; }
+
+/* Status as a coloured word, not a pill. */
+.rs-status { font-size: 13px; font-weight: 600; color: var(--fg-muted); text-transform: none; }
+.rs-status.ok { color: var(--ok); }
+.rs-status.bad { color: var(--refused); }
+.rs-status.warn { color: var(--warn-fg); }
+
+/* Errors and refusals: a tinted ground, no side stripe. */
+.research .refusal { border-left: none; background: var(--tint-bad); border-radius: 8px; padding: 8px 12px; }
+
+/* Conversation */
+.research .msg { border-left: none; padding: 8px 0; margin: 0; border-top: 1px solid var(--grid); }
+.research .msg:first-of-type { border-top: none; }
+.research .msg-role { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; color: var(--fg-muted); }
+.research .msg-assistant .msg-role { color: var(--accent); }
+.research .steering { margin-top: 12px; }
+
+/* Answer and claims */
+.research .claims { padding-left: 22px; margin: 0; }
+.research .claim { margin-bottom: 10px; }
+.research .claim-chip { font-size: 12px; padding: 0 7px; border-radius: 999px; border: 1px solid currentColor; margin-right: 6px; text-decoration: none; white-space: nowrap; }
+.research .claim-chip.claim-source_reports { color: var(--claim-source); }
+.research .claim-chip.claim-observed { color: var(--observed); }
+.research .claim-chip.claim-computed { color: var(--claim-computed); }
+.research .claim-chip.claim-predicted { color: var(--model); border-style: dashed; }
+.research .claim-chip.claim-interpretation { color: var(--fg-muted); font-style: italic; }
+.research .claim-chip.claim-missing { color: var(--refused); }
+.research .support-list { margin: 4px 0 0; padding-left: 18px; font-size: 14px; }
+.research .unsupported { margin: 4px 0 0; color: var(--warn-fg); font-size: 14px; }
+.research .quote { border-left: none; margin: 8px 0; padding: 8px 12px; background: var(--tint-quote); border-radius: 6px; }
+
+/* Figures, releases and tool results: one level of containment. */
+.rs-figure { margin: 12px 0; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.rs-figure p { margin: 4px 0; }
+.rs-release { padding: 8px 0; border-top: 1px solid var(--grid); }
+.rs-release:first-of-type { border-top: none; padding-top: 0; }
+.rs-release p { margin: 4px 0; font-size: 14px; }
+.rs-tool { margin: 6px 0 2px; font-size: 14px; }
+.rs-tool-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
+.rs-axis { font-size: 13px; color: var(--fg-muted); }
+.rs-kv { grid-template-columns: max-content minmax(0, 1fr); margin: 6px 0; font-size: 13px; }
+.rs-kv > div { display: contents; }
+.rs-json summary, .rs-diagnostics summary { cursor: pointer; color: var(--fg-muted); }
+.rs-json { margin: 6px 0; font-size: 13px; }
+
+/* Activity: flat rows with hairline dividers. */
+.research .timeline { list-style: none; padding: 0; margin: 0; font-size: 14px; }
+.research .timeline > li { border-bottom: 1px solid var(--grid); padding: 6px 0; }
+.research .timeline > li:last-child { border-bottom: none; }
+.ev-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.research .seq, .ev-time { font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--fg-muted); }
+.ev-text { flex: 1 1 12rem; min-width: 0; overflow-wrap: anywhere; }
+.research .ev-runtime-opaque .ev-text { color: var(--fg-muted); font-style: italic; }
+.research .status-line { margin: 4px 0 0; }
+
+/* Diagnostics: developer views, closed by default. */
+.rs-diagnostics { margin: 6px 0 24px; padding: 12px 0; border-top: 1px solid var(--border); }
+.rs-diagnostics summary { font-weight: 600; font-size: 15px; }
+.rs-diagnostics h3 { margin: 16px 0 6px; font-size: 15px; }
+.rs-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 12px; }
+.rs-tile { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--panel); min-width: 0; }
+.research .notices { max-height: 240px; }
+@media (max-width: 480px) {
+  .rs-goal-text { font-size: 19px; }
+  .rs-section { padding: 14px; }
+}
