@@ -11,7 +11,7 @@ import { go } from "../shell/router";
 import { ErrorNote, Synthetic } from "../ui/common";
 import { FamilyLegend } from "./AtmosMap";
 
-type Col = "id" | "inv" | "family" | "fuel" | "o2" | "pressure" | "flow";
+type Col = "id" | "inv" | "date" | "family" | "fuel" | "o2" | "pressure" | "flow";
 const cond = (r: ExperimentSummary, k: string) => r.conditions[k]?.value_si ?? null;
 
 /**
@@ -35,12 +35,24 @@ function flow(r: ExperimentSummary): { v: number; text: string } | null {
   return null;
 }
 
-/** The run's own id inside its investigation ("PSI-159:acme_inverse:21196A1" → "21196A1"). */
-const shortRun = (id: string) => id.split(":").pop() ?? id;
+/**
+ * The run's own name inside its investigation: the id without the investigation, the family token
+ * and the day ("PSI-69:20CAL08:2009-03-05" → "20CAL08", "PSI-159:acme_inverse:21196A1" → "21196A1").
+ */
+const shortRun = (r: ExperimentSummary) =>
+  r.id
+    .split(":")
+    .slice(1)
+    .filter((p) => p !== r.family && !/^\d{4}-\d{2}-\d{2}$/.test(p))
+    .join(" ") || r.id;
+
+/** The test day from the run's session ("PSI-69:day:2009-03-05"). */
+const testDate = (r: ExperimentSummary) => r.session_id?.match(/(\d{4}-\d{2}-\d{2})$/)?.[1] ?? null;
 
 const val: Record<Col, (r: ExperimentSummary) => string | number | null> = {
-  id: (r) => shortRun(r.id),
+  id: (r) => shortRun(r),
   inv: (r) => r.investigation_id,
+  date: (r) => testDate(r),
   family: (r) => r.family,
   fuel: (r) => r.fuel_or_material,
   o2: (r) => oxygen(r).v,
@@ -54,19 +66,24 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
   const cmp = useCompare();
   const [family, setFamily] = useState<string | null>(initialFamily);
   const [text, setText] = useState("");
-  const [sort, setSort] = useState<{ col: Col; dir: 1 | -1 }>({ col: "id", dir: 1 });
+  const [sort, setSort] = useState<{ col: Col; dir: 1 | -1 }>({ col: "family", dir: 1 });
   const runs = experiments.data?.experiments ?? [];
   const counts = useMemo(() => runs.reduce<Record<string, number>>((m, r) => ((m[r.family] = (m[r.family] ?? 0) + 1), m), {}), [runs]);
   const rows = useMemo(() => {
     const t = text.trim().toLowerCase();
     const f = runs.filter((r) => (!family || r.family === family) && (!t || `${r.id} ${r.fuel_or_material ?? ""} ${r.configuration ?? ""} ${r.investigation_id}`.toLowerCase().includes(t)));
+    // The chosen column first, then family, investigation, day and run, so equal values keep a reading order.
+    const keys: Col[] = [sort.col, ...(["family", "inv", "date", "id"] as Col[]).filter((c) => c !== sort.col)];
     return [...f].sort((a, b) => {
-      const x = val[sort.col](a);
-      const y = val[sort.col](b);
-      if (x == null && y == null) return 0;
-      if (x == null) return 1; // missing values sort last, whatever the direction
-      if (y == null) return -1;
-      return (x < y ? -1 : x > y ? 1 : 0) * sort.dir;
+      for (const [i, k] of keys.entries()) {
+        const x = val[k](a);
+        const y = val[k](b);
+        if (x === y || (x == null && y == null)) continue;
+        if (x == null) return 1; // missing values sort last, whatever the direction
+        if (y == null) return -1;
+        return (x < y ? -1 : 1) * (i === 0 ? sort.dir : 1);
+      }
+      return 0;
     });
   }, [runs, family, text, sort]);
   const selectedRun = panel.current?.kind === "run" ? panel.current.id : null;
@@ -104,14 +121,15 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
               <th style={{ width: 36 }}>
                 <span className="sr-only">Compare</span>
               </th>
-              <Th col="id">Run</Th>
+              <Th col="family">Family</Th>
               <Th col="inv" hide>
                 Investigation
               </Th>
-              <Th col="family">Family</Th>
+              <Th col="date">Date</Th>
               <Th col="fuel" hide>
                 Fuel or material
               </Th>
+              <Th col="id">Run</Th>
               <Th col="o2" r>
                 O₂ %
               </Th>
@@ -139,21 +157,22 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
                     />
                   </td>
                   <td>
-                    <span className="cell-id" title={r.id}>
-                      {shortRun(r.id)}
-                    </span>{" "}
-                    {r.synthetic && !synthetic && <Synthetic />}
+                    <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                      <FamilyMark family={r.family} size={9} /> {r.family.replace("_", " ").replace("acme ", "ACME ").replace("flex", "FLEX").replace("bass", "BASS")}
+                    </span>
                   </td>
                   <td className="narrow-hide dim">
                     {r.investigation_id}
                     {r.configuration ? ` · ${r.configuration.replace(/_/g, " ")}` : ""}
                   </td>
-                  <td>
-                    <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                      <FamilyMark family={r.family} size={9} /> <span className="narrow-hide">{r.family.replace("_", " ").replace("acme ", "ACME ").replace("flex", "FLEX").replace("bass", "BASS")}</span>
-                    </span>
-                  </td>
+                  <td className="num">{testDate(r) ?? <span className="dim">—</span>}</td>
                   <td className="narrow-hide">{r.fuel_or_material ?? <span className="dim">unknown</span>}</td>
+                  <td>
+                    <span className="cell-id" title={r.id}>
+                      {shortRun(r)}
+                    </span>{" "}
+                    {r.synthetic && !synthetic && <Synthetic />}
+                  </td>
                   <td className="r num" title={o2.burner ? "Oxygen of the burner stream; the atmosphere is the fuel" : undefined}>
                     {o2.burner && <span className="dim small">burner </span>}
                     {num(o2.v, 100, 1)}
@@ -165,14 +184,14 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
             })}
             {rows.length === 0 && runs.length > 0 && (
               <tr>
-                <td colSpan={8} className="dim">
+                <td colSpan={9} className="dim">
                   No run matches. <button className="linkish" onClick={() => (setText(""), setFamily(null))}>Clear the filters</button>
                 </td>
               </tr>
             )}
             {experiments.data && runs.length === 0 && (
               <tr>
-                <td colSpan={8} className="dim">
+                <td colSpan={9} className="dim">
                   No runs on this server yet.
                 </td>
               </tr>
