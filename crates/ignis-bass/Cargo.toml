@@ -1,0 +1,21 @@
+[package]
+name = "ignis-bass"
+description = "BASS visible-front cosine neural operator (5-member group-bootstrap MAP ensemble) and baselines"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-science = { path = "../ignis-science" }
+ignis-acme = { path = "../ignis-acme" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+libm.workspace = true
+rand = { version = "0.10", features = ["chacha"] }
+rand_distr = "0.6"
+
+[dev-dependencies]
+toml.workspace = true
