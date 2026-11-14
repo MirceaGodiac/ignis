@@ -1,0 +1,14 @@
+{
+  "investigation": "PSI-106",
+  "title": "Structure and Liftoff In Combustion Experiment",
+  "acronym": "SLICE",
+  "investigation_version": "3",
+  "version_reason": "Additional documentation release",
+  "modified": "06-Feb-2025",
+  "doi": "10.60555/pm12-rg61",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "",
+  "total_file_size_bytes": 72914598688.0,
+  "metadata_url_sha256": "f705b2e04bd00d05f3c74ae55391c340b5a08d60efa8193e66b7c4e2518d9d5d"
+}

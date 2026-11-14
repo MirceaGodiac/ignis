@@ -1,0 +1,14 @@
+{
+  "investigation": "PSI-107",
+  "title": "Smoke Point In Co-flow Experiment",
+  "acronym": "SPICE",
+  "investigation_version": "4",
+  "version_reason": "Additional documentation release",
+  "modified": "02-Jun-2025",
+  "doi": "10.60555/9kbh-e962",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Microgravity Science Glovebox (MSG)",
+  "total_file_size_bytes": 6946864573.0,
+  "metadata_url_sha256": "f31081deb2b079373a0cbc98ad8483d87856aeca1aa6946ce31acff6cefcfbf2"
+}

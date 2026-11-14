@@ -1,0 +1,14 @@
+{
+  "investigation": "PSI-20",
+  "title": "Advanced Combustion via Microgravity Experiments - Burning Rate Emulator",
+  "acronym": "ACME BRE",
+  "investigation_version": "4",
+  "version_reason": "Metadata update",
+  "modified": "05-Jun-2025",
+  "doi": "10.60555/vb93-3y72",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Combustion Integrated Rack (CIR), ACME",
+  "total_file_size_bytes": 2035568427496.0,
+  "metadata_url_sha256": "ea118e19d02785f54d246406aacea93878053ff95ddd5bdca44bd29c09a753d1"
+}
