@@ -41,7 +41,7 @@ Raul          Raul              Iancu                             Tudor
 | 06 | WSP literal: autorul scrie numerele; assemblerul aplică și serializează | generator de coeficienți, training ascuns, „start from NASA-trained” |
 | 07 | Forward strict separat (fără optimizer la request); evaluator independent | local MAP/Laplace în serving pentru releases WSP |
 | 08 | Catalog relevant + materializare selectivă, buget de stocare | mirror 3,45 TB sau plafon arbitrar de PDF-uri |
-| 09 | Un singur serviciu hybrid de retrieval (lexical + dense + rerank) pentru CLI/HTTP/MCP; query numeric separat | trei implementări, embeddings ca dovadă |
+| 09 | Un singur serviciu de retrieval pentru CLI/HTTP/MCP; query numeric separat. **Revizuit 2026-11-14:** BM25 cu expansiune de vocabular în stil SIRA (arXiv 2605.06647), fără embeddings, reranker sau DeepInfra (`LANES_V2.md` R12) | trei implementări, embeddings ca dovadă |
 | 10 | Proveniență comună, artefacte imutabile content-addressed | citări doar cu URL |
 | 11 | Cloudflare + o VM Google Compute Engine (oferta Space Apps; înlocuiește Netcup), Compose + systemd, fără Nginx; host-ul de origin e interschimbabil (orice Linux cu Docker) | stack distribuit „de prestigiu” |
 | 12 | Limite reale de resurse + continuare (paginare, checkpoint); fără `max_steps/sources/tokens` semantice | trunchiere ireversibilă |
