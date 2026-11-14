@@ -1,0 +1,27 @@
+[package]
+name = "ignis-data"
+description = "IGNIS sources (NASA PSI + international adapters) and curation: ingest, rules, cohorts, frozen splits, views, review"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+chrono.workspace = true
+sha2.workspace = true
+hex.workspace = true
+zip.workspace = true
+regex = "1"
+indexmap = { version = "2", features = ["serde"] }
+percent-encoding = "2"
+md-5 = "0.10"
+ureq = "3"
+calamine = { version = "0.38", features = ["dates"] }
+parquet = { version = "60", default-features = false, features = ["arrow", "snap"] }
+arrow-array = "60"
+arrow-schema = "60"
+arrow-buffer = "60"

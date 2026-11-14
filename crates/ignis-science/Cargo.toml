@@ -1,0 +1,19 @@
+[package]
+name = "ignis-science"
+description = "Shared numerics for the IGNIS experts: autodiff, transforms, Student-t process, quadrature, hazards, flows, NUTS, optimizers, diagnostics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+libm.workspace = true
+thiserror.workspace = true
+nuts-rs = { version = "0.19.1", default-features = false }
+rand = "0.10"
+faer = { version = "0.24", default-features = false, features = ["std", "linalg"] }
+rand_distr = "0.6"
