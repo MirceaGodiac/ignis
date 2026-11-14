@@ -483,6 +483,41 @@ fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
             ),
         ]);
     }
+    if has("refusal") {
+        // A host refusal travels as an MCP error result: the item is `failed`, has no error message
+        // and keeps the IGNIS `ToolResult` (as structured content, or only as text content).
+        for structured in [true, false] {
+            let call = sh.id("call");
+            let started = json!({"type": "mcpToolCall", "id": call, "server": "ignis", "tool": "answer_submit",
+                                 "status": "inProgress", "arguments": {}});
+            let refused = json!({
+                "schema_version": "tools.v1", "call_id": call, "tool": "answer_submit",
+                "execution_status": "refused", "scientific_status": "not_assessed",
+                "artifact_refs": [], "origin": "synthetic_fixture",
+                "error": {"code": "invalid_request", "retry": {"kind": "never"},
+                          "message": "answer refused: 1 problem(s). unknown_evidence: claim c1 cites ev-fake"}
+            });
+            let mut done = started.clone();
+            done["status"] = json!("failed");
+            done["error"] = Value::Null;
+            done["result"] = if structured {
+                json!({"content": [{"type": "text", "text": refused.to_string()}], "structuredContent": refused})
+            } else {
+                json!({"content": [{"type": "text", "text": refused.to_string()}]})
+            };
+            persist_item(&done);
+            sh.out.send_all(&[
+                n(
+                    "item/started",
+                    base(json!({"item": started, "startedAtMs": 0})),
+                ),
+                n(
+                    "item/completed",
+                    base(json!({"item": done, "completedAtMs": 0})),
+                ),
+            ]);
+        }
+    }
     for (word, method, extra) in [
         (
             "approval",
