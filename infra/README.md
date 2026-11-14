@@ -167,8 +167,22 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 4. **Cloudflare** (one CLI: Wrangler; dashboard for Zero Trust):
    - R2 bucket `ignis-artifacts` + an R2 API token for it. Lifecycle rule on `backups/` for
      retention (e.g. 30 days); none on `<instance>/objects|manifests` (immutable, referenced).
-   - Tunnel → token in `/etc/ignis/cloudflared.env`; public hostname `<origin-hostname>` →
-     `http://ignis:8787`; tunnel settings: no chunked encoding issues for SSE (default ok).
+   - Tunnel, created on the VM so its credentials never leave it (the pinned `cloudflared` image,
+     state in `/srv/ignis/cloudflared`, owner 65532, mode 700):
+
+     ```bash
+     CF="$(sudo sed -n 's/^CLOUDFLARED_IMAGE=//p' /etc/ignis/release.env)"
+     C="sudo docker run --rm -v /srv/ignis/cloudflared:/home/nonroot/.cloudflared $CF"
+     $C tunnel login                      # prints a URL: authorize it for the zone in the dashboard
+     $C tunnel create ignis-origin
+     $C tunnel route dns ignis-origin <origin-hostname>
+     printf 'TUNNEL_TOKEN=%s
+' "$($C tunnel token ignis-origin)" | sudo tee /etc/ignis/cloudflared.env >/dev/null
+     sudo chmod 600 /etc/ignis/cloudflared.env
+     ```
+
+     The tunnel is locally managed: its single route (`http://ignis:8787`) is the `--url` in
+     `compose.yaml`, not a dashboard setting. SSE works through it unchanged.
    - Access app **origin** on `<origin-hostname>`: policy *Service Auth* allowing only the new
      service token. Note its AUD.
    - Access app **UI** on `<ui-hostname>`: policy for the team's identities. Note its AUD.
