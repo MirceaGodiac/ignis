@@ -100,7 +100,7 @@ from offline tests and need explicit authorization.
 
 ## Delivering a PR
 
-One task id from the workboard per PR, on your lane's branch. The description lists: task id,
+One task id from the workboard per PR, on a short-lived branch from `main` named `feat/<lane>-<task>` (deleted on merge). Phase 2 lanes, priorities and shared contracts: `docs/implementation/LANES_V2.md`. The description lists: task id,
 contracts and versions touched, paths changed, behaviour added, fixtures/artifacts proving it, the
 commands you actually ran with their results, limitations, and the reproduce command. Never write
 PASS for something you did not run. A contract change follows `docs/implementation/CONTRACTS.md`
