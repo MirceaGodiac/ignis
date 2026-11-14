@@ -1,7 +1,35 @@
 # Handoff — Tudor: Research Workspace & Independent Evaluation
 
 Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
-`docs/design/IGNIS_MASTER_V2.md` §16–§18 și §22–§26. Branch: `feat/research-product`.
+`docs/design/IGNIS_MASTER_V2.md` §16–§18 și §22–§26. Branch: unul scurt per task din `main` (`feat/research-product-<task>`).
+
+## 0. Faza 2 (citește întâi) — workspace & evaluare independentă
+
+Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §6 (lane-ul tău), §9 (contracte), §10 (testele de
+acces și de browser, cu cifre).
+
+**Misiune:** orice contract pe care îl întâlnește un utilizator are o vedere fidelă, originalele NASA se
+deschid la locul citat direct de la NASA, agentul compune răspunsuri dintr-un catalog închis de
+componente, întrebările challenge-ului au vederi directe, iar harness-ul e măsurat independent.
+
+**P0, în ordine:** (1) PR-ul `evaluation.v2` (`GoldTask`, `HarnessComparison`), scris în paralel, intră
+al treilea; co-design `ViewSpec` cu Mircea; (2) **T7** partea 1 e în PR #24; partea 2: PDF.js cu
+**transport de range propriu** (mărimea din manifest; măsurat: pagina 100 dintr-un PDF de 49 MB din
+1,26 MB în 6,2 s), highlight la bbox, MP4 direct din S3, `.ts` prin hls.js pe playlistul lui Mircea,
+contur BASS ca strat sincronizat; (3) **T10** pilot de ~30 de task-uri pe toate cele 19 investigații,
+set dev partajat + hold-out privat ~20 % în vault, rulat o singură dată cu echipa. **P1:** T9 matricea
+de condiții și clasamentul pentru habitate, T8 catalogul `ViewSpec`, T11 H0/H1, T6 rute v1, T4/T5.
+
+**Cum alegi singur:** metoda din LANES_V2 §3. Prototipezi fiecare viewer pe un URL NASA semnat real în
+browser înainte de UI (ca în §10). Citești LitQA2 (abținere), ALCE (citări), LAB-Bench (split privat) și
+lucrarea despre declararea harness-ului înainte de a scrie task-uri; pilot, analiza eșecurilor, apoi
+scalare.
+
+**Eficiență:** PDF.js cu `rangeChunkSize` 256 KiB, `disableAutoFetch`, doar paginile vizibile,
+încărcat leneș; `.ts` doar pe segmente aliniate la cadre-cheie (segmentele egale pe bytes au picat la
+seek); uPlot cu decimare min/max la ~2 puncte/pixel; liste virtualizate; artefactele content-addressed
+cu `staleTime: Infinity`; benchmark concurent până la limitele providerului; raportezi mărimea
+bundle-ului per rută, timpul până la prima pagină, latența de seek.
 
 ## 1. Obiectiv
 

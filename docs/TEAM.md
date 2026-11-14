@@ -6,23 +6,24 @@ fit-peste-noapte → test sigilat. Decizia curentă: `docs/design/IGNIS_MASTER_V
 
 ## Cine ce face
 
-| Cine | Lane | Branch | Handoff |
+| Cine | Lane | Prefix de branch (unul scurt per task) | Handoff |
 |---|---|---|---|
-| **Iancu** | C0 (contracte comune), apoi Scientific Models & literal WSP: FLEX/ACME/BASS, `ignis-wsp`, specificații, assembler, forward strict, releases fără parent NASA-trained | `feat/handwritten-science` | [HANDOFF_IANCU](implementation/HANDOFF_IANCU.md) |
-| **Mircea** | Codex App Server, backend Rust/Axum, SSE, joburi, artefacte, MCP, runner, Cloudflare/GCE; integratorul composition root-ului | `feat/agent-backend` | [HANDOFF_MIRCEA](implementation/HANDOFF_MIRCEA.md) |
-| **Raul** | date NASA, corpus, retrieval hibrid, reader, web, wiki, `DatasetBundle`, observații BASS | `feat/scientific-data` | [HANDOFF_RAUL](implementation/HANDOFF_RAUL.md) |
-| **Tudor** | Research Workspace (frontend) și evaluarea independentă (vault, scorecards, benchmark) | `feat/research-product` | [HANDOFF_TUDOR](implementation/HANDOFF_TUDOR.md) |
+| **Iancu** | C0 (contracte comune), apoi Scientific Models & literal WSP: FLEX/ACME/BASS, `ignis-wsp`, specificații, assembler, forward strict, releases fără parent NASA-trained | `feat/handwritten-science-<task>` | [HANDOFF_IANCU](implementation/HANDOFF_IANCU.md) |
+| **Mircea** | harness & platformă: runtime-uri (Codex, Claude Code), instrucțiuni, skills, `answer_submit`, trace-uri, backend Rust/Axum, SSE, joburi, artefacte, MCP, runner, acces la surse fără copie, Cloudflare/GCE; integratorul | `feat/agent-backend-<task>` | [HANDOFF_MIRCEA](implementation/HANDOFF_MIRCEA.md) |
+| **Raul** | cunoaștere & date NASA: corpusul celor 19 investigații, parsare cu coordonate, arbore de secțiuni, etichete, `ConditionsTable`, graf, retrieval hibrid, wiki, web, `DatasetBundle`, observații BASS, indexuri media | `feat/scientific-data-<task>` | [HANDOFF_RAUL](implementation/HANDOFF_RAUL.md) |
+| **Tudor** | Research Workspace (viewere direct de la NASA, UI generativ din catalog, vederile challenge-ului) și evaluarea independentă (gold set, H0/H1, vault, scorecards) | `feat/research-product-<task>` | [HANDOFF_TUDOR](implementation/HANDOFF_TUDOR.md) |
 
 Ownership pe fișiere, zonele comune și regulile de merge: [INTEGRATION](implementation/INTEGRATION.md).
 Task-urile și dependențele: [WORKBOARD](implementation/WORKBOARD.md). Contractele:
 [CONTRACTS](implementation/CONTRACTS.md).
 
-**Faza 2** ([LANES_V2](implementation/LANES_V2.md)): Mircea preia și harness-ul (instrucțiuni, skills,
-subagenți, `answer_submit`, trace-uri, H0/H1 de partea runtime-ului, accesul la surse fără copie); Raul
-acoperă cele 19 investigații PSI de zbor (~14,1 GB pe server, media rămâne la NASA), clasificarea
-documentelor și graful de combustie; Tudor face viewerele (originalele citite direct de la NASA),
-UI-ul generativ din catalog, vederile cerute de challenge și benchmark-ul independent. Contractele
-comune ale fazei (val K1) și ordinea de merge sunt în `LANES_V2.md` §5.
+**Faza 2** ([LANES_V2](implementation/LANES_V2.md)): împărțirea pornește de la ce trebuie demonstrat
+(§1 acolo): date citabile (Raul), agent care leagă răspunsurile (Mircea), cercetător care verifică
+(Tudor), prognoze cu stare onestă (Iancu), dovada măsurată (Tudor, evaluator independent). Drumul
+critic: răspuns legat live, condițiile pentru toate cele 19 investigații, harness măsurat. Serverul
+ține ~13,9 GB; media NASA (13,44 TB) se citește direct de la NASA. Fiecare lane are în `LANES_V2.md`
+prioritățile P0/P1/P2, metoda de a-și alege singur opțiunile (măsurat pe datele noastre) și regulile
+de eficiență. Contractele comune (val K1) și ordinea de merge: §9.
 
 ## Prezentarea
 
@@ -35,7 +36,8 @@ comune ale fazei (val K1) și ordinea de merge sunt în `LANES_V2.md` §5.
 
 ## Cum pornește fiecare
 
-1. După merge-ul C0: `git worktree add -b <branch> ../ignis-<nume> origin/main` (vezi INTEGRATION).
+1. Pentru fiecare task: `git worktree add -b feat/<lane>-<task> ../ignis-<nume> origin/main` (sau un
+   branch nou în worktree-ul tău, din `origin/main` proaspăt); branch-ul se șterge la merge.
 2. Pornești sesiunea agentului în worktree-ul tău, cu `AGENTS.md` + handoff-ul tău.
 3. Lucrezi pe fixture-urile din `fixtures/contracts/` până livrează colegul de care depinzi.
 4. PR mic per task; schimbările de contract în PR separat, cu review de la consumator.
