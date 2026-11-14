@@ -123,7 +123,7 @@ impl Preflighted {
         };
         match &outcome {
             Ok(m) => {
-                tracing::info!(build = %m.runtime_build_id, credentials = m.credentials, "agent runtime preflight passed")
+                tracing::info!(build = %m.runtime_build_id, credentials = %m.credentials, "agent runtime preflight passed")
             }
             Err(e) => {
                 tracing::error!(reason = %e, "agent runtime preflight failed; the agent runtime is unavailable")
