@@ -1,0 +1,68 @@
+[
+  {
+    "id": "fixture-image-contour-0001",
+    "frame": 1485,
+    "pts_s": 49.5495,
+    "time_s": 0.0,
+    "available_at_s": 0.0,
+    "units": "pixel_only",
+    "s": [300.0, 310.0, 320.0],
+    "f": [655.0, null, 648.5],
+    "status": "single_valued",
+    "mask_dependency_frames": [1485],
+    "evidence_class": "ignis_derived",
+    "locator": {
+      "asset_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+      "path": null,
+      "row": null,
+      "column": null,
+      "page": null,
+      "frame": 1485,
+      "pts_s": 49.5495,
+      "char_start": null,
+      "char_end": null
+    },
+    "derivation": {
+      "method": "numerical",
+      "method_id": "vision.segment.classical_otsu",
+      "method_version": "fixture",
+      "inputs": [],
+      "agent": null,
+      "notes": "Synthetic fixture: image coordinates in pixels, not a NASA measurement."
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "id": "fixture-image-contour-0002",
+    "frame": 1488,
+    "pts_s": 49.6496,
+    "time_s": 0.1001,
+    "available_at_s": 0.1001,
+    "units": "pixel_only",
+    "s": [300.0, 310.0, 320.0],
+    "f": [null, null, null],
+    "status": "out_of_field",
+    "mask_dependency_frames": [1488],
+    "evidence_class": "ignis_derived",
+    "locator": {
+      "asset_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+      "path": null,
+      "row": null,
+      "column": null,
+      "page": null,
+      "frame": 1488,
+      "pts_s": 49.6496,
+      "char_start": null,
+      "char_end": null
+    },
+    "derivation": {
+      "method": "numerical",
+      "method_id": "vision.segment.classical_otsu",
+      "method_version": "fixture",
+      "inputs": [],
+      "agent": null,
+      "notes": "Synthetic fixture: no luminous edge in the field of view."
+    },
+    "origin": "synthetic_fixture"
+  }
+]

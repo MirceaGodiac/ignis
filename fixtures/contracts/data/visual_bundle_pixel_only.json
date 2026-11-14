@@ -13,6 +13,7 @@
     "sha256": "sha256:c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
     "media_type": "application/x-ndjson",
     "byte_length": 8192,
+    "contract": "ImageContourObservation",
     "origin": "synthetic_fixture",
     "created_at": "2026-11-14T17:30:00Z"
   },
