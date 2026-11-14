@@ -250,7 +250,13 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     println!("build: {}", manifest.runtime_build_id);
     let h = H {
         store: store.clone(),
-        bridge: ClaudeBridge::new(cfg, manifest, store, artifacts, Arc::new(|_: &EpisodeId, _| {})),
+        bridge: ClaudeBridge::new(
+            cfg,
+            manifest,
+            store,
+            artifacts,
+            Arc::new(|_: &EpisodeId, _| {}),
+        ),
     };
     let sc = scope("ws-live", false);
     let ep = h.episode(&sc, "live");
@@ -258,5 +264,8 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     let evs = h.idle(&sc, &ep, EpisodeStatus::Failed, 1);
     let why = reason(&evs);
     println!("reason: {why}");
-    assert!(!why.contains("unknown option") && !why.contains("error: "), "{why}");
+    assert!(
+        !why.contains("unknown option") && !why.contains("error: "),
+        "{why}"
+    );
 }
