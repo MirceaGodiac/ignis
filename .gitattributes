@@ -2,3 +2,5 @@ data/manifests/** -text
 # Shell scripts run on Linux pods: keep LF on every platform.
 tools/runpod/*.sh text eol=lf
 tools/runner/*.sh text eol=lf
+# Scripts run on Linux (image entrypoint, host scripts): never CRLF, whatever the checkout.
+*.sh text eol=lf

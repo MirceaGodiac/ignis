@@ -13,8 +13,8 @@ limits that change the interpretation. Read this file fully; follow the links on
 | Backend | Rust + Axum + Tokio: API, SSE events, jobs, artifacts, scope, MCP transport (`rmcp`) | `crates/ignis-server` (`/api/v1`), `crates/ignis-research` (state store, jobs, artifacts), planned `ignis-mcp` |
 | Scientific services | knowledge (search/read/wiki), datasets, models (FLEX/ACME/BASS, literal WSP), evaluation | `ignis-evidence`, `ignis-data`, `ignis-vision`, `ignis-flex/acme/bass`, planned `ignis-wsp`, `ignis-lab/src/eval` |
 | Shared contracts | the single source of truth for every cross-lane type | `crates/ignis-core` (`contracts.rs` + `contracts/*.rs`) |
-| Frontend / edge | React + TypeScript + Vite; Cloudflare static assets, a small Worker, R2, Access, Tunnel | `web/`, planned `infra/` |
-| Hosting | Netcup Linux origin (Compose + systemd, `cloudflared` → Axum; no Nginx) | planned `infra/` |
+| Frontend / edge | React + TypeScript + Vite; Cloudflare static assets, a small Worker, R2, Access, Tunnel | `web/`, `infra/worker` |
+| Hosting | Netcup Linux origin (Compose + systemd, `cloudflared` → Axum; no Nginx) | `infra/` (runbook: `infra/README.md`; not provisioned yet) |
 
 ## Where does my change go?
 

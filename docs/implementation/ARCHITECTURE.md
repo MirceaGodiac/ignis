@@ -5,7 +5,7 @@
 ```text
 Browser: React / TypeScript / Vite                         web/  (Tudor)
    │  HTTPS, SSE
-Cloudflare: Static Assets + Worker mic + Access + R2       infra/ (Mircea, planificat)
+Cloudflare: Static Assets + Worker mic + Access + R2       infra/ (Mircea; neprovizionat)
    │  Tunnel privat
 Netcup: IGNIS Rust / Axum                                   ignis-server + ignis-research (store, joburi, artefacte)
    API · auth · scope · episoade · evenimente · joburi · artefacte

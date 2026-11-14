@@ -83,10 +83,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: shellcheck
-        run: shellcheck infra/scripts/*.sh tools/runner/build.sh
+        run: shellcheck infra/scripts/*.sh infra/server/entrypoint.sh tools/runner/build.sh
       - name: compose config
         run: |
-          cp infra/deploy/ignis.env.example /tmp/ignis.env
-          IGNIS_ENV_FILE=/tmp/ignis.env docker compose -f infra/deploy/compose.yaml config -q
+          d=$(mktemp -d)
+          cp infra/deploy/ignis.env.example "$d/ignis.env"
+          echo "TUNNEL_TOKEN=x" > "$d/cloudflared.env"
+          mkdir "$d/secrets" && touch "$d/secrets/CODEX_API_KEY" "$d/secrets/IGNIS_R2_SECRET_ACCESS_KEY"
+          IGNIS_IMAGE=ignis-server@sha256:0000 CLOUDFLARED_IMAGE=cloudflare/cloudflared@sha256:0000 DOCKER_GID=999           IGNIS_ENV_FILE="$d/ignis.env" CLOUDFLARED_ENV_FILE="$d/cloudflared.env" IGNIS_SECRETS_DIR="$d/secrets"             docker compose -f infra/deploy/compose.yaml config -q
       - name: systemd units
-        run: systemd-analyze verify --man=no infra/deploy/systemd/*.service || true
+        run: |
+          # Only the unit syntax; the referenced paths exist on the deployed host, not here.
+          for u in infra/deploy/systemd/*.service infra/deploy/systemd/*.timer; do
+            systemd-analyze verify --man=no "$u" 2>&1 | grep -viE "not executable|No such file|Failed to prepare|is not a directory|Unit .* not found|docker.service" | tee /tmp/sa.txt
+            if grep -qiE "unknown|invalid|failed to parse" /tmp/sa.txt; then exit 1; fi
+          done
