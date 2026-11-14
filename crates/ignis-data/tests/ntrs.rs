@@ -6,8 +6,8 @@ use std::time::Duration;
 
 use ignis_core::contracts::{AccessMode, IdBasis, RightsStatus};
 use ignis_data::sources::ntrs::{
-    entries, ntrs_id_in, parse_record, record_id, rights, source_record, wait_before_next,
-    MIN_INTERVAL,
+    entries, ntrs_id_in, page_total, parse_record, record_id, rights, source_record,
+    wait_before_next, MIN_INTERVAL,
 };
 use serde_json::{json, Value};
 
@@ -135,4 +135,17 @@ fn psi_names_flag_duplicate_candidates_only() {
     ] {
         assert_eq!(ntrs_id_in(no), None, "{no}");
     }
+}
+
+#[test]
+fn a_page_total_that_is_absent_estimated_or_over_the_cap_is_refused() {
+    use serde_json::json;
+    assert_eq!(
+        page_total(&json!({"stats": {"total": 18, "estimate": false}})).unwrap(),
+        18
+    );
+    // Absent is not zero: paging on it would stop after one page and truncate the listing.
+    assert!(page_total(&json!({"stats": {}})).is_err());
+    assert!(page_total(&json!({"stats": {"total": 18, "estimate": true}})).is_err());
+    assert!(page_total(&json!({"stats": {"total": 10_001, "estimate": false}})).is_err());
 }
