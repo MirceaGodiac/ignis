@@ -140,7 +140,17 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
       const a = FIXTURES.sourceAccess.find((x) => x.source_id === id);
       return a ? ok(a) : fail(notInFixtures(`access to source ${id}`), 404);
     },
-    conditions: () => ok(FIXTURES.conditionsTable),
+    conditions: (q) => {
+      // The conditions service applies filters (with rules such as "a burner-stream O2 is never the
+      // atmosphere"); mock mode does not re-implement them, it says so. Paging is plain slicing.
+      if ((q.filters ?? []).length > 0) return fail({ code: "unsupported", message: "Mock mode cannot apply condition filters: the conditions service does. Use a server.", retry: { kind: "never" } }, 501);
+      const t = FIXTURES.conditionsTable;
+      const from = q.cursor?.startsWith("mock:") ? Number(q.cursor.slice(5)) || 0 : 0;
+      const size = q.page_size ?? 1000;
+      const rows = t.rows.slice(from, from + size);
+      const next = from + rows.length;
+      return ok({ ...t, rows, envelopes: q.include_envelopes ? t.envelopes : [], total_count: t.rows.length, next_cursor: next < t.rows.length ? `mock:${next}` : null });
+    },
     listModels: () => ok(FIXTURES.releases),
     postMessage: () => fail(MOCK_ONLY, 501),
   };

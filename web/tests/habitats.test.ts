@@ -5,7 +5,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { ConditionsTable, InvestigationEnvelope } from "../src/contracts/generated";
-import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFit, PSI_PA, rankFor } from "../src/research/habitats.ts";
+import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, habitatFit, PSI_PA, rankFor } from "../src/research/habitats.ts";
+import { flagTags, quotedText } from "../src/research/conditionCells.ts";
 
 const fixture = <T>(p: string): T => JSON.parse(readFileSync(fileURLToPath(new URL(`../../fixtures/contracts/${p}`, import.meta.url)), "utf8")) as T;
 const [moon, suit, iss] = ["moon", "suit", "iss"].map((id) => HABITAT_LIST.find((h) => h.id === id)!);
@@ -52,4 +53,31 @@ test("partial gravity: only a tested level between 0.1 g and 0.5 g counts", () =
   assert.equal(gravityStatus(axesOf(env("micro", [0.21, 0.21], [14.7, 14.7], [1e-6, 1e-3]))).status, "no_partial_data");
   assert.equal(gravityStatus(axesOf(env("lunar", [0.21, 0.21], [14.7, 14.7], [0.16, 0.17]))).status, "partial_tested");
   assert.equal(gravityStatus(axesOf(env("ground", [0.21, 0.21], [14.7, 14.7], [1, 1]))).status, "no_partial_data");
+});
+
+test("habitat filters select the same region the ranking calls within, with its tolerance", () => {
+  const [o2, pa] = habitatFilters(moon);
+  assert.deepEqual([o2.key, o2.min_si, o2.max_si], ["oxygen_mole_fraction", 0.295, 1]);
+  assert.equal(pa.key, "pressure");
+  assert.ok(Math.abs(pa.max_si! / PSI_PA - 10.2 * 1.01) < 1e-9 && Math.abs(pa.min_si! / PSI_PA - 4.3 * 0.99) < 1e-9);
+  const [o2Iss] = habitatFilters(iss);
+  assert.deepEqual([o2Iss.min_si, +o2Iss.max_si!.toFixed(3)], [0.205, 0.215]);
+});
+
+test("a gap shows the table's own text; flags stay on the cell, burner-stream O2 marked as not the atmosphere", () => {
+  assert.equal(quotedText('several values in one cell: "21; 26.5; 34"'), "21; 26.5; 34");
+  assert.equal(quotedText("impossible value “3400%”: spreadsheet slip"), "3400%");
+  assert.equal(quotedText("no row of the experimental table states it"), null);
+  assert.deepEqual(
+    flagTags(["approximate", "oxidizer_stream:burner", "composition_sum=0.980", "testsheet_agrees", "original_header:O", "new_flag"]).map((f) => [f.label, f.inline, f.notAtmosphere]),
+    [
+      ["~", true, false],
+      ["burner stream", true, true],
+      ["Σ 0.980", true, false],
+      ["test sheet agrees", false, false],
+      ["header reconciled", false, false],
+      ["new flag", false, false],
+    ],
+    "meaning-changing flags on the cell, provenance notes in the detail, unknown flags kept by name",
+  );
 });
