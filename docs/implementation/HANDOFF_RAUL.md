@@ -20,13 +20,18 @@ deja scris; intră primul); (2) **R6** corpusul după atlas: 636 documente (1,63
 **test de lockbox** pentru fiecare document nou din FLEX, CFI-G, BASS-II, BASS; (3) **R9a**
 `ConditionsTable` pentru toate cele 19, din cele 21 de CSV-uri „Experimental table” (cel mai mare câștig
 pentru challenge, cost mic); (4) **R7a** parse views cu bbox, parser ales prin măsurători (unele
-rapoarte PSI sunt scanate). **P1:** R7b arbore de secțiuni, R8 etichete (gold set ~100), R2b senzori →
+rapoarte PSI sunt scanate); (5) **R12a** retrieval în stil SIRA (arXiv 2605.06647, cod MIT
+`facebookresearch/sira`): **embeddings dense eliminate**, schița de termeni a agentului + filtru DF +
+BM25 ponderat; PR-ul de contract K2 (`evidence.v3`: `expected_terms`). **P1:** R12b expansiunea de
+vocabular la indexare (în aceeași trecere LLM cu R7b/R8), R7b arbore de secțiuni, R8 etichete (gold set ~100), R2b senzori →
 Parquet, R9b graf, R11 indexuri media (`.ts`, ZIP, TIFF → PNG). **P2:** R4 wiki/web, R10.
 
 **Cum alegi singur:** metoda din LANES_V2 §3. Parsere: 10 PDF-uri PSI (2 scanate, 2 cu tabele, 2 lungi,
 2 prezentări, 2 documente inginerești), comparat pe acuratețea bbox, a celulelor de tabel, secunde CPU
-pe pagină și licență. Etichete: Jev vs model mic cu output structurat pe gold set. Graf/PPR/ColQwen:
-doar când întrebările multi-hop sau cu figuri din benchmark-ul lui Tudor arată un gol.
+pe pagină și licență. Etichete: Jev vs model mic cu output structurat pe gold set. SIRA: BM25 simplu vs
+expansiune de query vs query + document pe întrebările de retrieval din T10 (nDCG@10, recall@10, p95);
+τ și w se aleg acolo, nu din lucrare (domeniul nostru e de nișă). Graf/PPR: doar când întrebările
+multi-hop din benchmark-ul lui Tudor arată un gol; fără indexuri de embeddings.
 
 **Eficiență:** ingestie incrementală pe (investigație, fișier, versiune, mărime); parsare o dată per
 (hash, parser, versiune); embeddings în batch, cache pe (hash chunk, model); senzori în Parquet zstd

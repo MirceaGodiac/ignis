@@ -56,7 +56,8 @@ says it pays.
   `ResearchAnswer`** (only `message.completed` text; `answer.completed` exists only in the fixture
   server). No tool arguments in events, no wiki service, no delegation, no traces.
 - **Knowledge:** 6 indexed documents, datasets of 4 investigations, FTS5 + dense + RRF + rerank, MuPDF
-  parsing. Iancu's atlas (`docs/wsp/atlas/`) lists every NASA file of the 19 flight investigations and
+  parsing. **Decision 2026-11-14: dense embeddings are removed; retrieval moves to SIRA-style BM25
+  with LLM vocabulary expansion (R12).** Iancu's atlas (`docs/wsp/atlas/`) lists every NASA file of the 19 flight investigations and
   the storage rule (§10). **Raul's K1 contract wave is merged** (PR #26:
   `evidence.v2` + `dataset.v2`: `SourceAccess`, `SourceLabel`, `SourceOutline`, wiki read/patch, web
   search/fetch, `ConditionsQuery`/`ConditionsTable`, `ResponseFormat`).
@@ -173,11 +174,13 @@ graph the agent can query, with NASA's media left at NASA.
 | P0 | **R7a** | **Parse views with coordinates** for the stored PDFs: page, bbox normalized `[0,1]` top-left, char spans, tables, figures; versioned; old citations still resolve. Candidates: Docling, GROBID (headers/references), MuPDF baseline; choose by the research method (several PSI reports are scanned: OCR quality matters). | R6 | a passage, a table cell and a figure open at the right place in T7 |
 | P1 | **R7b** | **Section tree** (`SourceOutline`): the document's heading hierarchy with page ranges and generated summaries (labelled generated, never evidence), exposed as `sources_outline` so the agent walks long reports and then reads the passage. PageIndex-style *(lit.)*, but the agent is the navigator, so no extra LLM call per step. | R7a | the FLEX TP (314 pp) and BASS-II summary (144 pp) are navigable |
 | P1 | **R8** | **Labels** (`SourceLabel`): closed-enum document type, investigation, runs, conditions mentioned; two passes, escalation on disagreement, gold set of ~100 hand-labelled documents before use. A typed decision model (Jev) or a small model with structured output; choose by the research method. | R7a | labels with measured accuracy; conflicts visible |
+| P0 | **R12a** | **SIRA retrieval, query side; dense removed** *(lit.: SIRA)*. Delete the dense branch (embedding calls, vector file, embedding set) and RRF over it. `sources_search` accepts the agent's **expected-response sketch** (`expected_terms`: concepts and discriminative terms a relevant passage would contain, never a guessed answer); the service keeps terms with `0 < DF <= tau*N` (DF from FTS5's `fts5vocab`) and scores `BM25(query) + w*BM25(expansion)` in one call. The agent is the LLM, so no extra model call; a search without a sketch is plain BM25. `SearchPage` reports the surviving expansion terms and the stages that ran. Reranker: kept optional and switched off unless T10 shows it helps (SIRA uses none). | K2-evidence | dense code gone; T10 retrieval questions answered with expansion, numbers vs plain BM25 in the PR |
+| P1 | **R12b** | **SIRA retrieval, index side.** For each chunk an LLM proposes vocabulary users would type but the text lacks (synonyms, abbreviations, aliases, unit spellings: "LOI" / "limiting oxygen index", "MDCA", "n-heptane" / "heptane"), DF-filtered, stored in a **separate FTS5 column** with its own weight. Generated in the **same LLM pass** as the R7b summaries and R8 labels (one read per chunk). Expansion text is never shown as a snippet, quote or citation; it is recorded with model id, prompt hash, tau and w in the index generation. Tune tau and w on the T10 dev set. | R7a, R12a | before/after nDCG@10 and recall@10 on T10 retrieval questions |
 | P1 | **R2b** | **Sensor text → datasets** for the investigations taken up beyond the first four: Parquet with `ColumnSpec`, units, `time_origin`, quality report | R6 | `datasets_inspect` works for a fifth investigation |
 | P1 | **R9b** | **Graph** (`ProvenanceLink` edges in SQLite): investigation, run, fuel, hardware, condition, diagnostic, observable, source, passage, figure, table; `graph_neighbors`. For joins and filters, not community summaries *(lit.: GraphRAG-Bench)*. | R8, R9a | "investigations sharing MDCA", "runs with O2 ≥ 30 %" answered with evidence |
 | P1 | **R11** | **Media indexes for streaming** (§10): keyframe index per CFI-G `.ts` file (byte offset ↔ PTS of each IDR) and cached ZIP central directories for archives that viewers need frames from; frames converted TIFF → PNG/WebP on demand and cached as artifacts | R6 | M12 serves seekable `.ts` playback; a BASS frame opens from its archive |
 | P2 | R4 | wiki (CAS, itemized deltas, never whole-page rewrites *(lit.: ACE)*), `wiki_read`, web discovery with snapshot and rights | R3 | `wiki_patch` registered |
-| P2 | R10 | retrieval upgrades only where T10 shows a gap: Tantivy, ColQwen figure index, PPR multi-hop *(lit.)*; BASS metric calibration; evaluator dataset bundle | T10 | before/after numbers |
+| P2 | R10 | retrieval upgrades only where T10 shows a gap: Tantivy (BM25 with native DF), PPR multi-hop over the graph *(lit.)*; no embedding indexes (dense and ColQwen are out by decision); BASS metric calibration; evaluator dataset bundle | T10 | before/after numbers |
 
 **Research tips (Raul)**
 - **Parsers:** take 10 PSI PDFs (2 scanned, 2 table-heavy, 2 long, 2 slide decks, 2 engineering docs)
@@ -189,8 +192,13 @@ graph the agent can query, with NASA's media left at NASA.
   Jev's versions and prices differ between listings: confirm on TypeSafe's own docs.
 - **Graph or not:** read GraphRAG-Bench and "RAG vs GraphRAG" *(lit.)* for when graphs help; build the
   table and edges, then let T10's multi-hop questions decide whether PPR is worth it.
-- **Retrieval:** for any backend change (Tantivy, ColQwen), measure recall@k, p95 latency and memory on
-  the T10 retrieval questions against the current FTS5 + dense + rerank.
+- **Retrieval (SIRA):** read arXiv 2605.06647 and the `facebookresearch/sira` code (MIT): the expansion
+  prompts, the DF filter and the weighting. SIRA assumes the LLM knows the field; microgravity combustion
+  is niche, so measure on our T10 retrieval questions: plain BM25 vs query expansion vs query + document
+  expansion, nDCG@10, recall@10, p95 latency. Choose tau and w there, not from the paper.
+- **Efficiency:** no vector file in memory, no embedding call per query, one BM25 call; DF lookups from
+  `fts5vocab` (cache per index generation); document expansion runs once per chunk in the shared LLM pass,
+  batched, cached by `(chunk hash, model, prompt hash)`.
 
 **Efficiency and performance (Raul)**
 - **Incremental ingest:** skip a file when `(investigation, file name, file version, size)` is unchanged;
@@ -324,8 +332,13 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 | K1.19 | `SourceOutline` (section tree; summaries labelled generated) | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.20 | wiki read/patch and web search/fetch request/response types | `evidence.rs` | Raul | Mircea | **merged** (#26) |
 
-**K2 candidates** (not in this wave): a `SourceAccess` mode for byte-range playlists and the media
-keyframe index (R11/M12), if the playlist cannot stay server-internal.
+**Wave K2** (same rules as K1):
+- **K2-evidence (Raul, `evidence.v3`):** `SearchRequest.expected_terms` (optional list); `SearchPage`
+  reports `query_expansion` / `doc_expansion` stages and the expansion terms that survived the DF filter;
+  the dense stage is retired (v2 documents that mention it still read). Mircea updates the
+  `sources_search` description and the `source-grounding` skill so the agent writes the sketch (M8, M6).
+- Candidate: a `SourceAccess` mode for byte-range playlists and the media keyframe index (R11/M12), if
+  the playlist cannot stay server-internal.
 
 ### 9.3 Merge order
 
@@ -413,7 +426,13 @@ summary only.
 **Knowledge**
 - GraphRAG 2404.16130; LightRAG 2410.05779; HippoRAG 2 2502.14802; RAPTOR 2401.18059; KAG 2409.13731;
   GraphRAG-Bench 2506.05690; RAG vs GraphRAG 2502.11371 (secondary cost figures).
-- ColPali 2407.01449; ColBERTv2 2112.01488; PLAID 2205.09707.
+- **SIRA** (SuperIntelligent Retrieval Agent), Meta Superintelligence Labs + Rice, arXiv 2605.06647
+  (May 2026); code `facebookresearch/sira` (MIT). BM25 only, no embeddings: LLM document expansion at
+  index time, an expected-response sketch at query time, DF filter, one weighted BM25 call. BEIR nDCG@10
+  average .5723 vs E5 .5434, SPLADE .5223, BM25 .4247; **SciFact .7866** (recall@10 .9216) vs E5 .7156,
+  SPLADE .7025, BM25 .6791. Backbone Qwen3.6-35B-A3B. Stated limitation: corpora far from the LLM's
+  pretraining are untested. No latency or cost figures reported.
+- ColPali 2407.01449; ColBERTv2 2112.01488; PLAID 2205.09707 (embedding-based; not used by decision).
 - PageIndex (VectifyAI): section tree + LLM tree search; 98.7 % FinanceBench is a vendor claim
   (*unverified*); pages/sections, not bboxes.
 - Jev (TypeSafe): typed decision model with confidence; versions and prices differ across listings
