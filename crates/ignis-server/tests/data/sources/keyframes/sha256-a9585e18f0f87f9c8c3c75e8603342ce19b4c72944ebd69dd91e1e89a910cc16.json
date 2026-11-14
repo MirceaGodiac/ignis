@@ -1,6 +1,7 @@
 {
  "source_id": "sha256:a9585e18f0f87f9c8c3c75e8603342ce19b4c72944ebd69dd91e1e89a910cc16",
  "size_bytes": 14767400,
+ "init_bytes": 376,
  "end_pts_s": 63.462,
  "keyframes": [
   {
@@ -128,5 +129,5 @@
    "pts_s": 61.46
   }
  ],
- "note": "synthetic_fixture: evenly spaced offsets and 2.002 s GOPs, not measured from the file (R11 pending)"
+ "note": "synthetic_fixture: PAT+PMT in the first two packets, evenly spaced packet-aligned keyframe offsets and 2.002 s GOPs; not measured from the file (R11 pending)"
 }

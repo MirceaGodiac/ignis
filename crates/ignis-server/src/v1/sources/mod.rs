@@ -75,6 +75,9 @@ pub struct SourceArgs {
     /// geode calls in flight at once (politeness to an undocumented endpoint).
     #[arg(long = "geode-concurrency", default_value_t = 2)]
     pub geode_concurrency: usize,
+    /// One geode call fails as `upstream_unavailable` after this long.
+    #[arg(long = "geode-timeout-s", default_value_t = 20)]
+    pub geode_timeout_s: u64,
 }
 
 impl Default for SourceArgs {
@@ -86,6 +89,7 @@ impl Default for SourceArgs {
             geode_url: ignis_data::sources::psi::BASE.into(),
             margin_s: 300,
             geode_concurrency: 2,
+            geode_timeout_s: 20,
         }
     }
 }
@@ -110,7 +114,10 @@ fn envelope(code: ErrorCode, msg: impl Into<String>) -> ErrorEnvelope {
 impl SourceDelivery {
     /// Production wiring: geode signer, paths resolved against `root`.
     pub fn new(args: &SourceArgs, root: &Path, origin: Origin) -> Self {
-        let signer = Arc::new(GeodeSigner::new(&args.geode_url, Duration::from_secs(20)));
+        let signer = Arc::new(GeodeSigner::new(
+            &args.geode_url,
+            Duration::from_secs(args.geode_timeout_s),
+        ));
         Self::with_signer(args, root, origin, signer)
     }
 
@@ -318,7 +325,13 @@ impl SourceDelivery {
                 format!("no valid keyframe index for {id} (task R11)"),
             )
         })?;
-        let signed = self.urls.get(file, false).await?;
+        // A VOD playlist is loaded once; its ranges must stay valid for the whole video. The cache
+        // guarantees at least the margin; when that is shorter than the video, re-sign once.
+        let mut signed = self.urls.get(file, false).await?;
+        let left = (signed.expires_at - chrono::Utc::now()).num_milliseconds() as f64 / 1000.0;
+        if left < index.duration_s() {
+            signed = self.urls.get(file, true).await?;
+        }
         hls::playlist(&index, &signed.url, hls::DEFAULT_TARGET_S)
             .map_err(|r| envelope(ErrorCode::Internal, r))
     }

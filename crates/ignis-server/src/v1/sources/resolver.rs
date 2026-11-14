@@ -144,14 +144,16 @@ impl Signer for GeodeSigner {
         let status = resp.status().as_u16();
         match status {
             200 => {}
+            // The id is known (it is in the manifests); NASA not serving it now is an upstream
+            // condition, never `not_found`.
             404 => {
                 return Err(ErrorEnvelope::new(
-                    ErrorCode::SourceMissing,
+                    ErrorCode::UpstreamUnavailable,
                     format!(
-                        "PSI has no file {:?} version {:?}",
+                        "PSI does not serve file {:?} version {:?} now (geode 404)",
                         f.file_name, f.file_version
                     ),
-                    RetryPolicy::Never,
+                    RetryPolicy::AfterUserAction,
                 ))
             }
             429 => {
@@ -191,6 +193,17 @@ impl Expiry<PsiFile, Arc<Signed>> for UntilExpiry {
                 .unwrap_or(Duration::ZERO),
         )
     }
+}
+
+/// A URL past its expiry is never handed out (nor cached): the caller gets `upstream_unavailable`.
+fn live(s: Arc<Signed>) -> Result<Arc<Signed>, ErrorEnvelope> {
+    if s.expires_at <= Utc::now() {
+        return Err(upstream(format!(
+            "signed URL already expired at {}",
+            s.expires_at.to_rfc3339()
+        )));
+    }
+    Ok(s)
 }
 
 /// Single-flight, TTL-bounded cache of signed URLs.
@@ -242,10 +255,11 @@ impl SignedUrls {
                             RetryPolicy::Never,
                         )
                     })?
-                    .map(Arc::new)
+                    .and_then(|s| live(Arc::new(s)))
             })
             .await
             .map_err(|e: Arc<ErrorEnvelope>| (*e).clone())
+            .and_then(live)
     }
 }
 

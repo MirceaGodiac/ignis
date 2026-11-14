@@ -43,8 +43,21 @@ fn now() -> i64 {
     chrono::Utc::now().timestamp()
 }
 
-/// geode stand-in: counts calls, records request targets, answers with the measured body (fresh
-/// `Expires`); a file named `…Engineering…` gets a URL outside the PSI buckets.
+/// How the geode stand-in answers.
+#[derive(Clone, Copy)]
+enum Answer {
+    /// The measured body with a fresh `Expires`; a file named `…Engineering…` gets a URL outside
+    /// the PSI buckets.
+    Normal,
+    /// This HTTP status, no URL.
+    Status(u16),
+    /// A PSI URL that expired a minute ago.
+    Expired,
+    /// Never answers in time (timeout).
+    Hang,
+}
+
+/// geode stand-in: counts calls, records request targets, answers per [`Answer`].
 struct Geode {
     url: String,
     calls: Arc<AtomicUsize>,
@@ -52,6 +65,10 @@ struct Geode {
 }
 
 fn geode() -> Geode {
+    geode_answering(Answer::Normal)
+}
+
+fn geode_answering(answer: Answer) -> Geode {
     let sample = std::fs::read_to_string(data().join("geode_redirect_false.txt")).unwrap();
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     let port = listener.local_addr().unwrap().port();
@@ -71,14 +88,24 @@ fn geode() -> Geode {
             c.fetch_add(1, Ordering::SeqCst);
             t.lock().unwrap().push(target.clone());
             let fresh = format!("Expires={}", now() + 3600);
-            let body = if target.contains("Engineering") {
-                format!("https://evil.example.org/x?{fresh}")
-            } else {
-                sample.replace("Expires=1794698040", &fresh)
+            let (status, body) = match answer {
+                Answer::Hang => {
+                    std::thread::sleep(Duration::from_secs(5));
+                    continue;
+                }
+                Answer::Status(code) => (code, "<html>error</html>".to_string()),
+                Answer::Expired => (
+                    200,
+                    sample.replace("Expires=1794698040", &format!("Expires={}", now() - 60)),
+                ),
+                Answer::Normal if target.contains("Engineering") => {
+                    (200, format!("https://evil.example.org/x?{fresh}"))
+                }
+                Answer::Normal => (200, sample.replace("Expires=1794698040", &fresh)),
             };
             let _ = write!(
                 s,
-                "HTTP/1.1 200 OK\r\ncontent-type: text/html; charset=utf-8\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+                "HTTP/1.1 {status} X\r\ncontent-type: text/html; charset=utf-8\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
                 body.len()
             );
         }
@@ -98,6 +125,7 @@ fn source_args(geode: &str, public: Option<&str>) -> SourceArgs {
         geode_url: geode.into(),
         margin_s: 300,
         geode_concurrency: 2,
+        geode_timeout_s: 1,
     }
 }
 
@@ -252,11 +280,19 @@ async fn ts_video_plays_from_a_keyframe_aligned_byte_range_playlist() {
         && l.contains("Expires=")));
 }
 
-/// RFC 8216 media-playlist properties hls.js relies on to seek.
-fn check_playlist(m3u8: &str, index: &KeyframeIndex) {
+/// A parsed byte range of the playlist.
+#[derive(Debug, Clone, Copy)]
+struct Range {
+    offset: u64,
+    length: u64,
+}
+
+/// RFC 8216 properties hls.js relies on to seek; returns the init range and the media ranges.
+fn check_playlist(m3u8: &str, index: &KeyframeIndex) -> (Range, Vec<Range>) {
     let lines: Vec<&str> = m3u8.lines().collect();
     assert_eq!(lines[0], "#EXTM3U");
-    assert!(lines.contains(&"#EXT-X-VERSION:4"));
+    // EXT-X-MAP outside an I-frames-only playlist needs version 6 (§4.3.1.2).
+    assert!(lines.contains(&"#EXT-X-VERSION:6"));
     assert!(lines.contains(&"#EXT-X-PLAYLIST-TYPE:VOD"));
     assert_eq!(*lines.last().unwrap(), "#EXT-X-ENDLIST");
     let target: f64 = lines
@@ -265,40 +301,99 @@ fn check_playlist(m3u8: &str, index: &KeyframeIndex) {
         .unwrap()
         .parse()
         .unwrap();
+    // §3.2: the init section is the file's leading PAT + PMT packets, from byte 0.
+    let maps: Vec<&str> = lines
+        .iter()
+        .filter_map(|l| l.strip_prefix("#EXT-X-MAP:"))
+        .collect();
+    assert_eq!(maps.len(), 1, "one EXT-X-MAP");
+    let (uri, br) = maps[0]
+        .strip_prefix("URI=\"")
+        .unwrap()
+        .split_once("\",BYTERANGE=\"")
+        .unwrap();
+    let (ilen, ioff) = br.trim_end_matches('"').split_once('@').unwrap();
+    let init = Range {
+        offset: ioff.parse().unwrap(),
+        length: ilen.parse().unwrap(),
+    };
+    assert_eq!((init.offset, init.length), (0, index.init_bytes));
     let offsets: BTreeSet<u64> = index.keyframes.iter().map(|k| k.offset).collect();
-    let (mut next_byte, mut total) = (0u64, 0.0);
-    let mut segs = 0;
+    let (mut next_byte, mut total, mut longest) = (index.init_bytes, 0.0, 0.0f64);
+    let mut ranges = Vec::new();
     for w in lines.windows(3) {
         let Some(d) = w[0].strip_prefix("#EXTINF:") else {
             continue;
         };
         let d: f64 = d.trim_end_matches(',').parse().unwrap();
+        // §4.3.2.2: always the explicit `@offset`.
         let (len, off) = w[1]
             .strip_prefix("#EXT-X-BYTERANGE:")
             .unwrap()
             .split_once('@')
-            .unwrap();
-        let (len, off): (u64, u64) = (len.parse().unwrap(), off.parse().unwrap());
-        assert_eq!(off, next_byte, "segments are contiguous");
-        assert!(
-            off == 0 || offsets.contains(&off),
-            "segment {segs} starts on a keyframe"
+            .expect("explicit @offset");
+        let r = Range {
+            offset: off.parse().unwrap(),
+            length: len.parse().unwrap(),
+        };
+        assert_eq!(
+            w[2], uri,
+            "every range is the same resource as the init section"
         );
-        assert!(d.round() <= target && d > 0.0);
-        next_byte = off + len;
+        assert_eq!(r.offset, next_byte, "no gap, no overlap");
+        assert!(r.length > 0);
+        assert_eq!(r.offset % 188, 0, "range starts on a packet");
+        assert_eq!(r.length % 188, 0, "range is whole packets");
+        assert!(
+            (ranges.is_empty() && r.offset == index.init_bytes) || offsets.contains(&r.offset),
+            "segment {} starts on a keyframe",
+            ranges.len()
+        );
+        assert!(d > 0.0);
+        longest = longest.max(d);
+        next_byte = r.offset + r.length;
         total += d;
-        segs += 1;
+        ranges.push(r);
     }
-    assert_eq!(
-        next_byte, index.size_bytes,
-        "the playlist covers the whole object"
+    assert!(
+        target >= longest.ceil(),
+        "TARGETDURATION {target} < ceil({longest})"
     );
+    assert_eq!(
+        next_byte,
+        index.media_end(),
+        "the playlist covers the stream to its last whole packet"
+    );
+    // EXTINF comes from keyframe PTS differences: they add up to the PTS span exactly.
     let span = index.end_pts_s - index.keyframes[0].pts_s;
     assert!(
         (total - span).abs() < 1e-3,
         "durations add up to the PTS span: {total} vs {span}"
     );
-    assert!(segs > 1);
+    assert!(ranges.len() > 1);
+    (init, ranges)
+}
+
+/// A synthetic MPEG-TS byte stream: every packet starts with the sync byte; PAT (PID 0) and PMT
+/// (PID 0x1000) first, then video packets, the IDR ones at `idr` packet numbers.
+fn synthetic_ts(packets: usize, idr: &[usize], tail: usize) -> Vec<u8> {
+    let mut b = vec![0xFFu8; packets * 188 + tail];
+    for p in 0..packets {
+        let o = p * 188;
+        let pid: u16 = match p {
+            0 => 0,
+            1 => 0x1000,
+            _ => 0x100,
+        };
+        b[o] = 0x47;
+        b[o + 1] = 0x40 | (pid >> 8) as u8; // payload unit start
+        b[o + 2] = pid as u8;
+        b[o + 3] = 0x10;
+        if idr.contains(&p) {
+            b[o + 4..o + 8].copy_from_slice(&[0, 0, 1, 0xE0]); // video PES start
+        }
+    }
+    b
 }
 
 #[test]
@@ -337,6 +432,15 @@ fn playlist_builder_segments_on_keyframes_and_refuses_bad_indexes() {
     assert!(bad(&|ix| ix.keyframes[4].pts_s = f64::NAN).is_err());
     assert!(bad(&|ix| ix.keyframes.clear()).is_err());
     assert!(bad(&|ix| ix.end_pts_s = ix.keyframes.last().unwrap().pts_s).is_err());
+    assert!(bad(&|ix| ix.init_bytes = 0).is_err(), "no init section");
+    assert!(
+        bad(&|ix| ix.init_bytes = 200).is_err(),
+        "init not whole packets"
+    );
+    assert!(
+        bad(&|ix| ix.init_bytes = 564).is_err(),
+        "first keyframe inside init"
+    );
     assert!(index.validate(&id, TS_SIZE + 188).is_err(), "stale index");
     assert!(index
         .validate(&SourceId::new(PDF).unwrap(), TS_SIZE)
@@ -593,6 +697,178 @@ async fn scope_is_host_derived_and_lockbox_originals_stay_closed_to_authoring() 
     let e = d.access(&none, &pdf, false).await.unwrap_err();
     assert_eq!(e.code, ErrorCode::ScopeDenied);
     assert_eq!(fake.calls.load(Ordering::SeqCst), 2);
+}
+
+#[test]
+fn playlist_ranges_are_whole_packets_starting_on_sync_bytes_and_idrs() {
+    // 2 s GOPs of 58 packets after PAT + PMT, a 100-byte partial packet at the end.
+    let idr: Vec<usize> = (0..7).map(|g| 2 + 58 * g).collect();
+    let packets = 2 + 58 * 7;
+    let bytes = synthetic_ts(packets, &idr, 100);
+    let index = KeyframeIndex {
+        source_id: SourceId::new(TS).unwrap(),
+        size_bytes: bytes.len() as u64,
+        init_bytes: 2 * 188,
+        end_pts_s: 10.0 + 2.0 * 7.0,
+        keyframes: idr
+            .iter()
+            .enumerate()
+            .map(|(g, &p)| hls::Keyframe {
+                offset: (p * 188) as u64,
+                pts_s: 10.0 + 2.0 * g as f64,
+            })
+            .collect(),
+        note: Some("synthetic_fixture".into()),
+    };
+    index
+        .validate(&index.source_id, bytes.len() as u64)
+        .unwrap();
+    let m = hls::playlist(
+        &index,
+        "https://psi-repo-prod.s3.amazonaws.com/k.ts?Expires=1",
+        4.0,
+    )
+    .unwrap();
+    let (init, ranges) = check_playlist(&m, &index);
+    let pid = |o: usize| (u16::from(bytes[o + 1] & 0x1F) << 8) | u16::from(bytes[o + 2]);
+    // The init section is exactly PAT then PMT.
+    assert_eq!(init.length, 376);
+    assert_eq!((pid(0), pid(188)), (0, 0x1000));
+    for r in std::iter::once(init).chain(ranges.iter().copied()) {
+        for p in (r.offset..r.offset + r.length).step_by(188) {
+            assert_eq!(
+                bytes[p as usize], 0x47,
+                "packet at {p} starts with the sync byte"
+            );
+        }
+    }
+    // Every media range opens with an IDR (the first keyframe follows the init section here).
+    for r in &ranges {
+        let o = r.offset as usize;
+        assert_eq!(
+            &bytes[o + 4..o + 8],
+            &[0, 0, 1, 0xE0],
+            "range at {o} starts on an IDR"
+        );
+    }
+    assert_eq!(
+        ranges.len(),
+        4,
+        "4 s target over 2 s GOPs: two GOPs per segment, 7 GOPs"
+    );
+    // The partial trailing packet is not in any range.
+    let end = ranges.last().map(|r| r.offset + r.length).unwrap();
+    assert_eq!(bytes.len() as u64 - end, 100);
+}
+
+#[tokio::test]
+async fn each_failure_outcome_is_distinct_and_never_a_url() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = format!("/api/v1/sources/{PDF}/content");
+    let outcome = |body: &str| -> (String, String) {
+        let v: Value = serde_json::from_str(body).unwrap();
+        assert!(v.get("url").is_none(), "no URL in an error: {body}");
+        assert!(
+            !body.contains("psi-repo-prod.s3"),
+            "no signed URL leaks: {body}"
+        );
+        (
+            v["code"].as_str().unwrap().to_string(),
+            v["retry"]["kind"].as_str().unwrap().to_string(),
+        )
+    };
+
+    // Unknown id: not_found, fail closed, no upstream call.
+    let g = geode();
+    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let unknown = "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+    let (st, _, body) = get(&r, &format!("/api/v1/sources/{unknown}/content")).await;
+    assert_eq!(st, StatusCode::NOT_FOUND);
+    assert_eq!(outcome(&body).0, "not_found");
+    assert_eq!(g.calls.load(Ordering::SeqCst), 0);
+
+    // Upstream 5xx: unavailable with a retry hint, never not_found.
+    let g = geode_answering(Answer::Status(503));
+    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let (st, _, body) = get(&r, &path).await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(
+        outcome(&body),
+        ("upstream_unavailable".into(), "after_delay".into())
+    );
+    assert!(
+        body.contains("503"),
+        "the reason names the upstream status: {body}"
+    );
+
+    // NASA answers 404 for a file the manifests know: still unavailable, not not_found.
+    let g = geode_answering(Answer::Status(404));
+    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let (st, _, body) = get(&r, &path).await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(outcome(&body).0, "upstream_unavailable");
+
+    // Upstream timeout: unavailable with a retry hint.
+    let g = geode_answering(Answer::Hang);
+    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let t0 = std::time::Instant::now();
+    let (st, _, body) = get(&r, &path).await;
+    assert!(
+        t0.elapsed() < Duration::from_secs(4),
+        "bounded by the geode timeout"
+    );
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(
+        outcome(&body),
+        ("upstream_unavailable".into(), "after_delay".into())
+    );
+
+    // Signing failure (an already expired URL): unavailable, the URL is neither returned nor
+    // cached (the next request asks geode again).
+    let g = geode_answering(Answer::Expired);
+    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let (st, _, body) = get(&r, &path).await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(outcome(&body).0, "upstream_unavailable");
+    assert!(body.contains("expired"), "{body}");
+    let (st, _, _) = get(&r, &path).await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(g.calls.load(Ordering::SeqCst), 2);
+}
+
+#[tokio::test]
+async fn playlist_urls_outlive_the_video_or_are_re_signed() {
+    let id = SourceId::new(TS).unwrap();
+    let scope = research_scope("alice@example.org", false);
+    let mut args = source_args("http://unused", Some(PUBLIC));
+    args.margin_s = 0;
+    let delivery = |valid_s| {
+        let fake = Arc::new(Fake {
+            calls: AtomicUsize::new(0),
+            delay: Duration::ZERO,
+            valid_s,
+            fail_first: false,
+        });
+        let d = SourceDelivery::with_signer(&args, Path::new("/"), Origin::System, fake.clone());
+        (d, fake)
+    };
+    // The fixture video lasts 62 s. A cached URL with 40 s left is re-signed once.
+    let (d, fake) = delivery(40);
+    let m = d.playlist(&scope, &id).await.unwrap();
+    assert_eq!(
+        fake.calls.load(Ordering::SeqCst),
+        2,
+        "40 s URL, then one re-sign"
+    );
+    assert!(
+        m.contains("?n=1") && !m.contains("?n=0"),
+        "the playlist carries the re-signed URL"
+    );
+    // A URL with an hour left is used as cached.
+    let (d, fake) = delivery(3600);
+    d.playlist(&scope, &id).await.unwrap();
+    d.playlist(&scope, &id).await.unwrap();
+    assert_eq!(fake.calls.load(Ordering::SeqCst), 1);
 }
 
 /// The committed R6 manifests read completely: every line has an address or is refused loudly.

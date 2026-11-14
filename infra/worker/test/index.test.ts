@@ -194,6 +194,23 @@ describe("ntrs proxy", () => {
     expect(seen).toHaveLength(0);
   });
 
+  it("reports an NTRS outage as unavailable with a retry hint, never not found", async () => {
+    captureFetch(new Response("<html>bad gateway</html>", { status: 502 }));
+    const res = await worker.fetch(new Request(PDF, { headers: signedIn() }), env());
+    expect(res.status).toBe(503);
+    const body = (await res.json()) as { code: string; message: string; retry: { kind: string } };
+    expect(body.code).toBe("upstream_unavailable");
+    expect(body.retry.kind).toBe("after_delay");
+    expect(body.message).toContain("502");
+  });
+
+  it("reports an unreachable NTRS as unavailable", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("network down"); }));
+    const res = await worker.fetch(new Request(PDF, { headers: signedIn() }), env());
+    expect(res.status).toBe(502);
+    expect(((await res.json()) as { code: string }).code).toBe("upstream_unavailable");
+  });
+
   it("does not follow a redirect off the allow-listed host", async () => {
     captureFetch(new Response(null, { status: 302, headers: { location: "https://evil.example.org/x.pdf" } }));
     const res = await worker.fetch(new Request(PDF, { headers: signedIn() }), env());
