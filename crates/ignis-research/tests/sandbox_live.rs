@@ -316,7 +316,9 @@ fn budgets_end_runaway_programs_and_say_how() {
     assert_eq!(rec.stdout.total_bytes, 5001);
     assert_eq!(rec.stdout.artifact.as_ref().unwrap().byte_length, 1000);
 
-    // Fork bomb: stopped by the pids budget, the host is untouched.
+    // Fork bomb: stopped by the pids budget, or by the memory budget first (gVisor accounts the
+    // children's memory to the sandbox and reaches 96 MiB before the pids limit); the host is
+    // untouched either way.
     let (rec, _) = l
         .exec(
             &sc,
@@ -328,7 +330,9 @@ fn budgets_end_runaway_programs_and_say_how() {
     assert!(
         matches!(
             rec.outcome,
-            ExecutionOutcome::Exited { .. } | ExecutionOutcome::TimedOut
+            ExecutionOutcome::Exited { .. }
+                | ExecutionOutcome::TimedOut
+                | ExecutionOutcome::OutOfMemory
         ),
         "{:?}",
         rec.outcome
