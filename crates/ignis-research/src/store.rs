@@ -12,15 +12,16 @@
 //! re-queues it; for a non-idempotent job the effect is uncertain and it goes to `reconciling`
 //! (never re-run blindly).
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
 
 use ignis_core::contracts::{
     check_event_log, ArtifactRef, Causation, ClientRequestId, EpisodeId, EpisodePins,
-    EpisodeStatus, ErrorCode, ErrorEnvelope, EventBody, EventId, ExecutionScope, JobId,
-    JobProgress, JobRef, JobStatus, MessageId, Origin, ResearchEpisode, ResearchEvent,
-    ResearchSchema, RetryPolicy, RuntimeThreadRef, Timestamp,
+    EpisodeStatus, ErrorCode, ErrorEnvelope, EventBody, EventId, EvidenceId, EvidenceRef,
+    ExecutionScope, JobId, JobProgress, JobRef, JobStatus, MessageId, Origin, ResearchEpisode,
+    ResearchEvent, ResearchSchema, RetryPolicy, RuntimeThreadRef, Timestamp,
 };
 use ignis_core::hashing::sha256_hex;
 use ignis_core::services::ServiceResult;
@@ -106,6 +107,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS runtime_turns_active ON runtime_turns (episode
     WHERE state IN ('starting', 'running');
 -- Runtime facts already recorded in an episode log (e.g. `item:<id>:completed`), so replaying a
 -- runtime thread after a restart never appends the same event twice.
+-- Evidence a tool call returned in an episode (M7): `answer_submit` resolves the answer's citations
+-- against exactly this set, so an answer cannot cite what its episode never saw.
+CREATE TABLE IF NOT EXISTS episode_evidence (
+    episode_id  TEXT NOT NULL REFERENCES episodes (episode_id),
+    evidence_id TEXT NOT NULL,
+    record      TEXT NOT NULL,
+    PRIMARY KEY (episode_id, evidence_id)
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS runtime_marks (
     episode_id TEXT NOT NULL,
     mark       TEXT NOT NULL,
@@ -115,12 +124,13 @@ CREATE TABLE IF NOT EXISTS runtime_marks (
 "#;
 
 /// 1 -> 2: `jobs.priority`, `uploads`. 2 -> 3: `runtime_turns`, `runtime_marks`.
-const SCHEMA_VERSION: &str = "3";
+/// 3 -> 4: `episode_evidence`.
+const SCHEMA_VERSION: &str = "4";
 
 /// Upgrade an older store in place (additive changes only; new tables come from `SCHEMA`).
 fn migrate(conn: &Connection, from: &str) -> ServiceResult<()> {
     match from {
-        "1" | "2" => {}
+        "1" | "2" | "3" => {}
         _ => {
             return Err(internal(
                 "state store",
@@ -473,15 +483,7 @@ impl ResearchStore {
         self.write(|tx| {
             let mut ep = load_episode(tx, scope, id)?;
             if let Some(prev) = prior_request(tx, scope, client_request_id, &op, &fp)? {
-                let ev: ResearchEvent = tx
-                    .query_row(
-                        "SELECT record FROM events WHERE event_id = ?1",
-                        [prev],
-                        |r| r.get::<_, String>(0),
-                    )
-                    .map_err(db("load prior message"))
-                    .and_then(|s| from_json(&s))?;
-                return Ok((ev, false));
+                return Ok((load_event(tx, &prev)?, false));
             }
             if matches!(ep.status, EpisodeStatus::Cancelled | EpisodeStatus::Failed) {
                 return Err(conflict(format!(
@@ -605,6 +607,117 @@ impl ResearchStore {
                 events,
                 last_seq: ep.last_seq,
             })
+        })
+    }
+
+    // ------------------------------------------------------------------------ answers (M7)
+
+    /// Remember the evidence a tool call returned in episode `id` (idempotent; the first record of
+    /// an id is kept).
+    pub fn record_episode_evidence(
+        &self,
+        scope: &ExecutionScope,
+        id: &EpisodeId,
+        evidence: &[EvidenceRef],
+    ) -> ServiceResult<()> {
+        if evidence.is_empty() {
+            return Ok(());
+        }
+        self.write(|tx| {
+            load_episode(tx, scope, id)?;
+            let mut st = tx
+                .prepare_cached(
+                    "INSERT OR IGNORE INTO episode_evidence (episode_id, evidence_id, record) VALUES (?1, ?2, ?3)",
+                )
+                .map_err(db("record evidence"))?;
+            for e in evidence {
+                st.execute(params![id.as_str(), e.evidence_id.as_str(), to_json(e)?])
+                    .map_err(db("record evidence"))?;
+            }
+            Ok(())
+        })
+    }
+
+    /// The evidence among `ids` that a tool returned in episode `id`; ids it never returned are
+    /// absent from the map.
+    pub fn episode_evidence<'a>(
+        &self,
+        scope: &ExecutionScope,
+        id: &EpisodeId,
+        ids: impl IntoIterator<Item = &'a EvidenceId>,
+    ) -> ServiceResult<BTreeMap<EvidenceId, EvidenceRef>> {
+        self.read(|c| {
+            load_episode(c, scope, id)?;
+            let mut st = c
+                .prepare_cached(
+                    "SELECT record FROM episode_evidence WHERE episode_id = ?1 AND evidence_id = ?2",
+                )
+                .map_err(db("episode evidence"))?;
+            let mut out = BTreeMap::new();
+            for e in ids {
+                let rec: Option<String> = st
+                    .query_row(params![id.as_str(), e.as_str()], |r| r.get(0))
+                    .optional()
+                    .map_err(db("episode evidence"))?;
+                if let Some(rec) = rec {
+                    out.insert(e.clone(), from_json(&rec)?);
+                }
+            }
+            Ok(out)
+        })
+    }
+
+    /// The `answer.completed` event an earlier submission with the same idempotency key appended,
+    /// if any (a different submission under the same key is a conflict).
+    pub fn prior_answer(
+        &self,
+        scope: &ExecutionScope,
+        id: &EpisodeId,
+        crid: &ClientRequestId,
+        fingerprint: &str,
+    ) -> ServiceResult<Option<ResearchEvent>> {
+        let op = format!("answer:{id}");
+        self.write(|tx| {
+            load_episode(tx, scope, id)?;
+            match prior_request(tx, scope, crid, &op, fingerprint)? {
+                Some(ev) => load_event(tx, &ev).map(Some),
+                None => Ok(None),
+            }
+        })
+    }
+
+    /// Append the `answer.completed` event of a validated answer. With an idempotency key, a
+    /// concurrent duplicate returns the event appended first (`false`: nothing new was appended).
+    pub fn complete_answer(
+        &self,
+        scope: &ExecutionScope,
+        id: &EpisodeId,
+        idempotency: Option<(&ClientRequestId, &str)>,
+        causation: Causation,
+        body: EventBody,
+    ) -> ServiceResult<(ResearchEvent, bool)> {
+        if !matches!(body, EventBody::AnswerCompleted { .. }) {
+            return Err(internal("complete_answer", "not an answer.completed event"));
+        }
+        let op = format!("answer:{id}");
+        self.write(|tx| {
+            let mut ep = load_episode(tx, scope, id)?;
+            if let Some((crid, fp)) = idempotency {
+                if let Some(prev) = prior_request(tx, scope, crid, &op, fp)? {
+                    return Ok((load_event(tx, &prev)?, false));
+                }
+            }
+            if matches!(ep.status, EpisodeStatus::Cancelled | EpisodeStatus::Failed) {
+                return Err(conflict(format!(
+                    "episode {id} is {}; its answer can no longer change",
+                    wire(&ep.status)
+                )));
+            }
+            let ev = append_tx(tx, &mut ep, vec![(causation, body)])?.remove(0);
+            if let Some((crid, fp)) = idempotency {
+                record_request(tx, scope, crid, &op, fp, ev.event_id.as_str())?;
+            }
+            Ok((ev, true))
         })
     }
 
@@ -1435,6 +1548,16 @@ fn append_tx(
         .map_err(db("update episode"))?;
     }
     Ok(out)
+}
+
+fn load_event(c: &Connection, event_id: &str) -> ServiceResult<ResearchEvent> {
+    c.query_row(
+        "SELECT record FROM events WHERE event_id = ?1",
+        [event_id],
+        |r| r.get::<_, String>(0),
+    )
+    .map_err(db("load event"))
+    .and_then(|s| from_json(&s))
 }
 
 fn prior_request(

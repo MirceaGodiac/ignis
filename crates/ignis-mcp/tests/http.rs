@@ -17,6 +17,8 @@ const PROTOCOL: &str = "2025-06-18";
 struct Client {
     router: axum::Router,
     token: Option<String>,
+    /// An episode grant sent per request, as Codex does per thread.
+    episode_grant: Option<String>,
     session: Option<String>,
     next_id: u64,
 }
@@ -39,6 +41,7 @@ impl Client {
         Client {
             router: router.clone(),
             token: token.map(str::to_string),
+            episode_grant: None,
             session: None,
             next_id: 1,
         }
@@ -52,6 +55,9 @@ impl Client {
             .header("mcp-protocol-version", PROTOCOL);
         if let Some(t) = &self.token {
             req = req.header(header::AUTHORIZATION, format!("Bearer {t}"));
+        }
+        if let Some(g) = &self.episode_grant {
+            req = req.header(ignis_research::runtime::MCP_EPISODE_HEADER, g);
         }
         if let Some(s) = &self.session {
             req = req.header("mcp-session-id", s);
@@ -243,4 +249,70 @@ async fn a_refused_call_is_an_mcp_tool_error_with_the_envelope() {
         serde_json::from_str::<Value>(text).unwrap(),
         result["structuredContent"]
     );
+}
+
+/// Codex serves every episode of a workspace from one process: the process token gives the scope,
+/// the per-thread episode header says which episode a call (here `answer_submit`) belongs to, and
+/// an episode grant of another scope is rejected before MCP sees the request.
+#[tokio::test]
+async fn the_episode_header_binds_answer_submit_to_its_episode() {
+    use ignis_core::contracts::{ClientRequestId, EpisodePins, EventBody, Origin};
+    let h = host();
+    let grants = McpGrants::new();
+    let router = ignis_mcp::router(h.host.clone(), grants.clone());
+    let (sc, other) = (scope("ws_a"), scope("ws_b"));
+    let new_episode = |s: &ignis_core::contracts::ExecutionScope, crid: &str| {
+        h.store
+            .create_episode(
+                s,
+                "Synthetic fixture goal",
+                &ClientRequestId::new(crid).unwrap(),
+                EpisodePins::default(),
+                Origin::SyntheticFixture,
+            )
+            .unwrap()
+            .0
+            .episode_id
+    };
+    let ep = new_episode(&sc, "crid-a");
+    let foreign = new_episode(&other, "crid-b");
+    let process = grants.lease(&sc);
+    let episode = grants.lease_for_episode(&sc, &ep);
+    let foreign_grant = grants.lease_for_episode(&other, &foreign);
+
+    let mut forged = Client::new(&router, Some(process.token().expose()));
+    forged.episode_grant = Some(foreign_grant.token().expose().to_string());
+    assert_eq!(forged.initialize().await, StatusCode::UNAUTHORIZED);
+
+    let submission = json!({
+        "status": "complete",
+        "blocks": [{"type": "text", "text": "Synthetic fixture.", "claim_ids": ["c1"]}],
+        "claims": [{"claim_id": "c1", "kind": "source_reports", "text": "Synthetic fixture.",
+                    "support": [{"kind": "evidence", "evidence_id": "fixture-evidence-01"}]}],
+    });
+
+    // Without an episode the tool refuses (it would not know where the answer belongs).
+    let mut plain = Client::new(&router, Some(process.token().expose()));
+    assert_eq!(plain.initialize().await, StatusCode::OK);
+    let r = plain.call("answer_submit", submission.clone()).await;
+    assert_eq!(r["execution_status"], "refused");
+
+    let mut c = Client::new(&router, Some(process.token().expose()));
+    c.episode_grant = Some(episode.token().expose().to_string());
+    assert_eq!(c.initialize().await, StatusCode::OK);
+    assert_eq!(
+        c.call("sources_search", search_args()).await["execution_status"],
+        "completed"
+    );
+    let r = c.call("answer_submit", submission).await;
+    assert_eq!(r["execution_status"], "completed", "{r:#}");
+    let ignis_research::store::Replay::Events { events, .. } =
+        h.store.replay(&sc, &ep, 0, 100).unwrap()
+    else {
+        panic!("log gone")
+    };
+    assert!(matches!(
+        events.last().unwrap().body,
+        EventBody::AnswerCompleted { .. }
+    ));
 }

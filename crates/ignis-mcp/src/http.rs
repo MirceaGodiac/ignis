@@ -6,6 +6,9 @@
 //! - Every request carries a bearer token the host issued to one runtime process
 //!   ([`McpGrants`]); the token resolves to that process's [`ExecutionScope`]. A request without a
 //!   live token is rejected before MCP sees it. Tool arguments never carry a scope.
+//! - The episode a call serves comes from the grant too: the token itself (one Claude process per
+//!   turn) or an episode grant in the [`MCP_EPISODE_HEADER`] header that Codex sends per thread,
+//!   accepted only for the same scope as the process token. A bad episode grant is rejected.
 //! - `tools/list` serves the tools whose service is configured, with input schemas generated from
 //!   the contract types (inlined, without `$ref`, so clients that flatten schemas keep the shape).
 //! - `tools/call` runs [`ToolHost::call`] on the blocking pool and returns the [`ToolResult`] as
@@ -18,8 +21,10 @@ use axum::http::{header, StatusCode};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use axum::Router;
-use ignis_core::contracts::{ExecutionScope, ExecutionStatus, ToolDescriptor, ToolEffect};
-use ignis_research::runtime::McpGrants;
+use ignis_core::contracts::{
+    EpisodeId, ExecutionScope, ExecutionStatus, ToolDescriptor, ToolEffect,
+};
+use ignis_research::runtime::{McpGrants, MCP_EPISODE_HEADER};
 use rmcp::model::{
     CallToolRequestParams, CallToolResponse, CallToolResult, ContentBlock, Implementation,
     InitializeResult, ListToolsResult, PaginatedRequestParams, ServerCapabilities, Tool,
@@ -40,6 +45,10 @@ scientific_status is never assessed by the tool itself. Long work (models_foreca
 `accepted` with a job: follow it with jobs_get, then read its output artifacts with artifacts_read. \
 A partial result points at the full artifact; read more of it instead of treating the preview as \
 the whole answer.";
+
+/// The episode a request's grant is bound to (absent: workspace-only grant).
+#[derive(Debug, Clone)]
+struct GrantedEpisode(Option<EpisodeId>);
 
 /// One MCP session's handler. Cheap to clone; every session shares the host.
 #[derive(Clone)]
@@ -105,19 +114,23 @@ impl ServerHandler for IgnisMcp {
         request: CallToolRequestParams,
         context: RequestContext<RoleServer>,
     ) -> Result<CallToolResponse, McpError> {
-        // Put there by `require_grant` from the request's bearer token; never from the call.
-        let scope = context
-            .extensions
-            .get::<axum::http::request::Parts>()
+        // Put there by `require_grant` from the request's grants; never from the call.
+        let parts = context.extensions.get::<axum::http::request::Parts>();
+        let scope = parts
             .and_then(|p| p.extensions.get::<ExecutionScope>())
             .cloned()
             .ok_or_else(|| McpError::invalid_request("no granted scope on this request", None))?;
+        let episode = parts
+            .and_then(|p| p.extensions.get::<GrantedEpisode>())
+            .and_then(|g| g.0.clone());
         let host = self.host.clone();
         let name = request.name.to_string();
         let args = Value::Object(request.arguments.unwrap_or_else(Map::new));
-        let result = tokio::task::spawn_blocking(move || host.call(&scope, &name, args))
-            .await
-            .map_err(|e| McpError::internal_error(format!("tool task: {e}"), None))?;
+        let result = tokio::task::spawn_blocking(move || {
+            host.call_in(&scope, episode.as_ref(), &name, args)
+        })
+        .await
+        .map_err(|e| McpError::internal_error(format!("tool task: {e}"), None))?;
         let value = serde_json::to_value(&result)
             .map_err(|e| McpError::internal_error(e.to_string(), None))?;
         let is_error = matches!(
@@ -146,18 +159,34 @@ async fn require_grant(
         .and_then(|v| v.to_str().ok())
         .and_then(|v| v.strip_prefix("Bearer "))
         .map(str::trim);
-    match token.and_then(|t| grants.resolve(t)) {
-        Some(scope) => {
-            req.extensions_mut().insert(scope);
-            next.run(req).await
+    let Some(grant) = token.and_then(|t| grants.resolve_grant(t)) else {
+        return unauthorized("no live IGNIS MCP grant for this request");
+    };
+    let mut episode = grant.episode;
+    if let Some(h) = req.headers().get(MCP_EPISODE_HEADER) {
+        let bound = h
+            .to_str()
+            .ok()
+            .and_then(|t| grants.resolve_grant(t.trim()))
+            .filter(|g| g.scope == grant.scope && g.episode.is_some());
+        match (bound, &episode) {
+            (Some(g), None) => episode = g.episode,
+            (Some(g), Some(e)) if g.episode.as_ref() == Some(e) => {}
+            _ => return unauthorized("the episode grant is not live for this scope"),
         }
-        None => (
-            StatusCode::UNAUTHORIZED,
-            [(header::WWW_AUTHENTICATE, "Bearer")],
-            "no live IGNIS MCP grant for this request",
-        )
-            .into_response(),
     }
+    req.extensions_mut().insert(grant.scope);
+    req.extensions_mut().insert(GrantedEpisode(episode));
+    next.run(req).await
+}
+
+fn unauthorized(msg: &'static str) -> Response {
+    (
+        StatusCode::UNAUTHORIZED,
+        [(header::WWW_AUTHENTICATE, "Bearer")],
+        msg,
+    )
+        .into_response()
 }
 
 /// The MCP endpoint as a router (mount it at a path of a loopback-only listener).

@@ -32,7 +32,7 @@ use ignis_core::services::ServiceResult;
 
 pub use bridge::{CodexBridge, CommitHook};
 pub use claude::{claude_preflight, turn_snapshot, ClaudeBridge, ClaudeConfig, Translator};
-pub use grants::{McpAttachment, McpGrants, MCP_TOKEN_ENV};
+pub use grants::{McpAttachment, McpGrant, McpGrants, MCP_EPISODE_HEADER, MCP_TOKEN_ENV};
 pub use mapping::StopReason;
 pub use preflight::{
     preflight, CodexConfig, RuntimeBuildManifest, RuntimeProfile, PINNED_CODEX_VERSION,
