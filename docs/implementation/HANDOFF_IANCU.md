@@ -5,6 +5,8 @@ Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§7), `AGE
 
 ## 0. Faza 2 — lane-ul tău nu se schimbă; punctele de contact
 
+**Acces:** [ACCESS](ACCESS.md). Ai nevoie doar de GitHub și de toolchain-ul local; niciun secret de deployment.
+
 Planul celorlalți: [LANES_V2](LANES_V2.md) (§7 pentru tine). Continui I1–I5. În faza 2: review pentru
 semantica seriilor de predicție din `ViewSpec` (K1.4) și pentru unitățile din `ConditionsTable`;
 conținutul skill-ului `model-qualification`; lockbox-ul pentru celelalte 15 investigații când li se

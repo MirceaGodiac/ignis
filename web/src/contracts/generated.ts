@@ -413,6 +413,15 @@ export type RetryPolicy =
       kind: "reconcile";
     };
 /**
+ * Digest of the harness bundle (`harness/`: instructions, skills, agents) as injected.
+ */
+export type Digest3 = string;
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RuntimeBuildId".
+ */
+export type RuntimeBuildId = string;
+/**
  * Agent runtime hosting an episode (ADR 17): the pinned Codex App Server, or Claude Code in
  * headless mode. Each owns its own model/tool loop; IGNIS maps, stores and audits both the same way.
  *
@@ -421,17 +430,15 @@ export type RetryPolicy =
  */
 export type RuntimeKind = "codex_app_server" | "claude_code";
 /**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "RuntimeBuildId".
- */
-export type RuntimeBuildId = string;
-/**
- * Wire tag of episodes, events and answers.
+ * Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`
+ * (C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a
+ * support check, a harness pin) is refused under the v1 tag, so a v1 reader never receives a
+ * document it would misread.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ResearchSchema".
  */
-export type ResearchSchema = "research.v1";
+export type ResearchSchema = "research.v2" | "research.v1";
 /**
  * Operational state of an episode. It constrains actions, not reasoning: inside `running` the agent
  * decides whether to read, compute, ask or answer.
@@ -481,8 +488,20 @@ export type EventBody =
   | {
       kind: "tool.started";
       payload: {
+        /**
+         * v2: the call's arguments, redacted by scope (absent in v1 logs).
+         */
+        arguments?: ToolArguments | null;
         call_id: ToolCallId;
         tool: string;
+      };
+    }
+  | {
+      kind: "step.rationale";
+      payload: {
+        call_id?: ToolCallId | null;
+        source: RationaleSource;
+        text: string;
       };
     }
   | {
@@ -538,6 +557,14 @@ export type EventBody =
  * via the `definition` "MessageId".
  */
 export type MessageId = string;
+/**
+ * Where a step rationale comes from. Closed on purpose: only the model's own explanation, written
+ * for the user, is shown; hidden chain-of-thought is never recorded as a rationale.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RationaleSource".
+ */
+export type RationaleSource = "model_explanation";
 /**
  * Did the call run? Independent of what it found.
  *
@@ -627,12 +654,80 @@ export type AnswerBlock =
       artifact_id: ArtifactId;
       caption?: string | null;
       type: "artifact";
+    }
+  | {
+      caption?: string | null;
+      claim_ids?: ClaimId[];
+      type: "view";
+      view: ViewSpec;
     };
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ClaimId".
  */
 export type ClaimId = string;
+/**
+ * The closed catalog of answer views (K1.4, co-designed with the workspace). The agent places a
+ * component by naming it with references; it never sends markup. Every reference must be one the
+ * answer lists (evidence, artifacts, releases), so a view cannot show what the answer does not cite.
+ * A new kind is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ViewSpec".
+ */
+export type ViewSpec =
+  | {
+      evidence_id: EvidenceId;
+      kind: "source_excerpt";
+    }
+  | {
+      kind: "series_comparison";
+      series: SeriesRef[];
+    }
+  | {
+      kind: "conditions_matrix";
+      table: ArtifactId;
+    }
+  | {
+      kind: "atmosphere_map";
+      table: ArtifactId;
+    }
+  | {
+      bundle: ArtifactId;
+      kind: "video_overlay";
+      source_id: SourceId;
+    }
+  | {
+      kind: "release_card";
+      release_id: ReleaseId;
+    }
+  | {
+      artifact_id: ArtifactId;
+      kind: "artifact_table";
+      pointer: string;
+    };
+/**
+ * What a plotted series is. Fixed against the artifact it reads: a predicted series comes only from
+ * an `AnalysisArtifact`, and an observed or computed one never does.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SeriesRole".
+ */
+export type SeriesRole = "observed" | "computed" | "predicted";
+/**
+ * How a claim's support was checked (K1.5).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SupportCheckMethod".
+ */
+export type SupportCheckMethod = "host_rule" | "nli_model" | "llm_judge" | "human";
+/**
+ * Does the cited support carry the claim's statement?
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SupportVerdict".
+ */
+export type SupportVerdict = ("supported" | "partially_supported" | "not_supported") | "unverifiable";
 /**
  * What a claim asserts. The kind fixes what may support it, so a prediction cannot be reported as
  * a measurement and a computed value cannot be cited to prose.
@@ -671,7 +766,7 @@ export type AnalysisLanguage = "python";
 /**
  * Image id (`sha256:` of the image config), pinned by the host.
  */
-export type Digest3 = string;
+export type Digest4 = string;
 /**
  * Isolation the runner actually provided. Recorded on every execution and in capability status;
  * never inferred from configuration alone (the preflight probe proves it).
@@ -704,6 +799,68 @@ export type ExecutionOutcome =
   | {
       kind: "out_of_memory";
     };
+/**
+ * Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerProblemKind".
+ */
+export type AnswerProblemKind =
+  | "unknown_evidence"
+  | "unknown_artifact"
+  | "unresolved_pointer"
+  | "kind_support_mismatch"
+  | "unpinned_release"
+  | "unknown_claim"
+  | "view_contract_mismatch"
+  | "invalid_structure";
+/**
+ * Where a cost figure comes from.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostBasis".
+ */
+export type CostBasis = "provider_reported" | "price_list";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TraceId".
+ */
+export type TraceId = string;
+/**
+ * Idempotency key: retrying the same request returns the same episode.
+ */
+export type ClientRequestId1 = string;
+/**
+ * A host decision on an approval the runtime requested: the subset of [`ApprovalDecision`] a
+ * person may send (`expired` and `cancelled` are the host's own).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HostDecision".
+ */
+export type HostDecision = "approved" | "denied";
+/**
+ * `POST /api/v1/episodes/{id}/{action}`: the status changes a person may request. The runtime
+ * bridge drives the others.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EpisodeAction".
+ */
+export type EpisodeAction = "pause" | "resume" | "cancel";
+/**
+ * How the agent runtime authenticates (never the credential itself).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RuntimeCredentials".
+ */
+export type RuntimeCredentials = "environment" | "shared_login_home" | "none";
+/**
+ * Tool and sandbox profile of the agent runtime. Closed: a wider profile (shell, web search) needs
+ * demonstrated isolation first (master design §6.4).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RuntimeProfile".
+ */
+export type RuntimeProfile = "public";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "PageCursor".
@@ -906,7 +1063,7 @@ export type AuthorKind = "agent" | "human";
 /**
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
-export type Digest4 = string;
+export type Digest5 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1120,7 +1277,7 @@ export type ForecastInput =
 /**
  * `DatasetBundle::content_digest` of the bundle evaluated.
  */
-export type Digest5 = string;
+export type Digest6 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
@@ -1226,6 +1383,16 @@ export interface IgnisContracts {
   JobLookup?: JobLookup;
   AnalysisExecuteRequest?: AnalysisExecuteRequest;
   ExecutionRecord?: ExecutionRecord;
+  AnswerSubmission?: AnswerSubmission;
+  AnswerRefusal?: AnswerRefusal;
+  TraceBundle?: TraceBundle;
+  CreateEpisode?: CreateEpisode;
+  PostMessage?: PostMessage;
+  MessageAccepted?: MessageAccepted;
+  ResolveApproval?: ResolveApproval;
+  ApprovalAccepted?: ApprovalAccepted;
+  EpisodeAction?: EpisodeAction;
+  Capabilities?: Capabilities;
   EvidenceRef?: EvidenceRef;
   SearchRequest?: SearchRequest;
   SearchPage?: SearchPage;
@@ -2011,13 +2178,38 @@ export interface EpisodeBranchPoint {
 /**
  * Versions an episode is pinned to; switching is an explicit, visible event.
  *
+ * v2 replaces C0's `skills_version` (never written: it was always absent) with `harness`.
+ *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EpisodePins".
  */
 export interface EpisodePins {
   corpus_snapshot?: CorpusSnapshotId | null;
+  harness?: HarnessRef | null;
   model_releases?: ReleaseId[];
-  skills_version?: string | null;
+}
+/**
+ * The harness an episode runs with (K1.6): the instruction/skill bundle by digest plus the runtime
+ * build, model and effort it was injected into. Every benchmark number is reported with this.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HarnessRef".
+ */
+export interface HarnessRef {
+  digest: Digest3;
+  /**
+   * Reasoning effort as the runtime names it, when it has one.
+   */
+  effort?: string | null;
+  /**
+   * Human label of the bundle or variant (`h1`, `h1-no-wiki`); not an identity.
+   */
+  label: string;
+  /**
+   * Model id as the runtime reports it.
+   */
+  model: string;
+  runtime_build: RuntimeBuildId;
 }
 /**
  * Mapping of an episode to its runtime thread. Turn/item ids travel in `Causation`.
@@ -2047,6 +2239,22 @@ export interface ResearchEvent {
   origin: Origin;
   schema_version: ResearchSchema;
   seq: number;
+}
+/**
+ * The arguments of a tool call as shown in the log (K1.1). The host redacts what the viewer's
+ * scope may not see before the event is written; the pointers say what was removed, so a missing
+ * field is never mistaken for an argument the agent did not send. Large arguments (a program's
+ * source) are a partial preview pointing at the full artifact.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ToolArguments".
+ */
+export interface ToolArguments {
+  /**
+   * RFC 6901 JSON Pointers of the members removed by redaction.
+   */
+  redacted?: string[];
+  value: InlinePayload;
 }
 /**
  * Result envelope of every IGNIS tool (MCP or internal).
@@ -2163,14 +2371,77 @@ export interface ResearchAnswer {
   status: AnswerStatus;
 }
 /**
+ * One series of a `series_comparison` view, read from one JSON artifact by pointers. Times are
+ * seconds since the time origin the artifact itself states; the view checks that every series shares
+ * it. Values are SI in the unit the artifact states; display conversion happens in the chart only.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SeriesRef".
+ */
+export interface SeriesRef {
+  artifact_id: ArtifactId;
+  band?: SeriesBand | null;
+  label?: string | null;
+  role: SeriesRole;
+  /**
+   * The time origin string, e.g. `/time_origin`.
+   */
+  time_origin_pointer: string;
+  /**
+   * Array of times (s since the time origin), e.g. `/times_s`.
+   */
+  time_pointer: string;
+  /**
+   * The SI unit string, e.g. `/unit`.
+   */
+  unit_pointer: string;
+  /**
+   * Array of values, same length as the times, e.g. `/mean`.
+   */
+  value_pointer: string;
+}
+/**
+ * An uncertainty band around a series (e.g. two quantile rows of an `AnalysisArtifact`).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SeriesBand".
+ */
+export interface SeriesBand {
+  lower_pointer: string;
+  upper_pointer: string;
+}
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "Claim".
  */
 export interface Claim {
+  /**
+   * v2: how the support was checked, when it was.
+   */
+  checked_by?: SupportCheck | null;
   claim_id: ClaimId;
   kind: ClaimKind;
   support?: ClaimSupport[];
   text: string;
+}
+/**
+ * The result of checking a claim against its cited support. Set by the host or the evaluator, never
+ * by the agent that wrote the claim.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SupportCheck".
+ */
+export interface SupportCheck {
+  /**
+   * The checker's own confidence in [0, 1], when it reports one; never invented.
+   */
+  confidence?: number | null;
+  method: SupportCheckMethod;
+  /**
+   * The checking model; present exactly for the model methods.
+   */
+  model_id?: string | null;
+  verdict: SupportVerdict;
 }
 /**
  * A citable pointer into one source version. Verifiable only against that version's asset and
@@ -2289,7 +2560,7 @@ export interface ExecutionRecord {
  * via the `definition` "RunnerEnvironment".
  */
 export interface RunnerEnvironment {
-  image_id: Digest3;
+  image_id: Digest4;
   /**
    * Interpreter version reported by the image during preflight.
    */
@@ -2399,6 +2670,334 @@ export interface CapturedStream {
   artifact?: ArtifactRef | null;
   total_bytes: number;
   truncated: boolean;
+}
+/**
+ * What the agent submits through `answer_submit` (K1.3). It names evidence, artifacts and releases
+ * only by id: the host resolves them against what tool results returned in this episode and the
+ * episode's pins, builds the `ResearchAnswer` (ids, timestamps, origin, full references) and stores
+ * it. The agent cannot write a support check or a reference the host did not issue.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerSubmission".
+ */
+export interface AnswerSubmission {
+  blocks: AnswerBlock[];
+  claims?: Claim[];
+  /**
+   * Idempotency key: a retry with the same key returns the same answer.
+   */
+  client_request_id?: ClientRequestId | null;
+  /**
+   * Required for `partial` and `insufficient_evidence`: what is missing.
+   */
+  limitations?: string[];
+  model_releases?: ReleaseId[];
+  status: AnswerStatus;
+}
+/**
+ * The structured refusal of `answer_submit`: every problem found, so the agent fixes all of them in
+ * one resubmission. Stored as an artifact (contract `AnswerRefusal`) referenced by the refused
+ * `ToolResult`, whose `error.message` renders the same list.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerRefusal".
+ */
+export interface AnswerRefusal {
+  origin: Origin;
+  problems: AnswerProblem[];
+  schema_version: ResearchSchema;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerProblem".
+ */
+export interface AnswerProblem {
+  /**
+   * 0-based index into `blocks`.
+   */
+  block?: number | null;
+  claim_id?: ClaimId | null;
+  detail: string;
+  kind: AnswerProblemKind;
+}
+/**
+ * Everything needed to audit, cost and compare one episode (K1.8): the harness it ran with, its
+ * event range, every tool call's input and output, measured usage and cost, and the partitions it
+ * touched. Benchmark scorecards read traces; they never re-run an episode to learn its cost.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TraceBundle".
+ */
+export interface TraceBundle {
+  /**
+   * The `ResearchAnswer` the range ended with, if any.
+   */
+  answer?: ArtifactRef | null;
+  /**
+   * Absent when no cost could be established; never a guess.
+   */
+  cost?: CostFigure | null;
+  episode_id: EpisodeId;
+  /**
+   * The traced events as JSONL (`ResearchEvent` per line).
+   */
+  event_log?: ArtifactRef | null;
+  events: EventRange;
+  finished_at: Timestamp;
+  harness: HarnessRef;
+  origin: Origin;
+  /**
+   * Data partitions any tool call of the range read.
+   */
+  partitions_touched?: Partition[];
+  run?: HarnessRun | null;
+  runtime?: RuntimeThreadRef | null;
+  schema_version: ResearchSchema;
+  started_at: Timestamp;
+  tool_calls?: TraceToolCall[];
+  trace_id: TraceId;
+  usage?: TokenUsage[];
+  wall_time_s: number;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostFigure".
+ */
+export interface CostFigure {
+  amount: number;
+  basis: CostBasis;
+  /**
+   * ISO 4217 code, e.g. `USD`.
+   */
+  currency: string;
+  /**
+   * Identity of the price list (provider page and date); present exactly for `price_list`.
+   */
+  price_list?: string | null;
+}
+/**
+ * A contiguous range of one episode's log, both ends included.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EventRange".
+ */
+export interface EventRange {
+  first_seq: number;
+  last_seq: number;
+}
+/**
+ * Which benchmark run an episode belongs to (`ignis harness run --variant <v> --tasks <set>`).
+ * `task_id` names a gold task of the evaluator's set; the trace never carries the task's answer.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HarnessRun".
+ */
+export interface HarnessRun {
+  /**
+   * 0-based repetition of the same task under the same variant.
+   */
+  repetition: number;
+  task_id: string;
+  variant: string;
+}
+/**
+ * One tool call as traced: where it sits in the log and its full input and output as artifacts.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TraceToolCall".
+ */
+export interface TraceToolCall {
+  /**
+   * The arguments as the tool received them.
+   */
+  arguments?: ArtifactRef | null;
+  call_id: ToolCallId;
+  execution_status?: ExecutionStatus | null;
+  /**
+   * Absent when the call had not finished when the trace was cut.
+   */
+  finished_seq?: number | null;
+  /**
+   * The `ToolResult` as returned.
+   */
+  result?: ArtifactRef | null;
+  started_seq: number;
+  tool: string;
+}
+/**
+ * Token usage of one model over the traced range, as the runtime reported it (measured, not
+ * estimated). Unknown counts stay absent.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TokenUsage".
+ */
+export interface TokenUsage {
+  cached_input_tokens?: number | null;
+  input_tokens: number;
+  model: string;
+  output_tokens: number;
+  reasoning_tokens?: number | null;
+}
+/**
+ * `POST /api/v1/episodes`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CreateEpisode".
+ */
+export interface CreateEpisode {
+  client_request_id: ClientRequestId1;
+  goal: string;
+  /**
+   * Model releases to pin (verified against the `ModelService`). The corpus snapshot is pinned by
+   * the host from the caller's scope, never taken from the client.
+   */
+  model_releases?: ReleaseId[];
+}
+/**
+ * `POST /api/v1/episodes/{id}/messages`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "PostMessage".
+ */
+export interface PostMessage {
+  client_request_id: ClientRequestId;
+  text: string;
+}
+/**
+ * Answer of `POST /api/v1/episodes/{id}/messages` (202).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "MessageAccepted".
+ */
+export interface MessageAccepted {
+  /**
+   * The key was seen before; nothing new was appended.
+   */
+  duplicate: boolean;
+  episode_id: EpisodeId;
+  event_id: EventId;
+  seq: number;
+}
+/**
+ * `POST /api/v1/episodes/{id}/approvals/{approval_id}`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResolveApproval".
+ */
+export interface ResolveApproval {
+  decision: HostDecision;
+}
+/**
+ * Answer of `POST /api/v1/episodes/{id}/approvals/{approval_id}` (202).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ApprovalAccepted".
+ */
+export interface ApprovalAccepted {
+  approval_id: ApprovalId;
+  decision: HostDecision;
+  episode_id: EpisodeId;
+}
+/**
+ * `GET /api/v1/capabilities`: what this deployment can serve and why not when it cannot.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "Capabilities".
+ */
+export interface Capabilities {
+  agent_runtime: ServiceStatus;
+  analysis_runner: ServiceStatus1;
+  artifact_store: ServiceStatus;
+  datasets: ServiceStatus;
+  knowledge: ServiceStatus;
+  mcp: ServiceStatus2;
+  models: ServiceStatus;
+  /**
+   * What programs run in, when the runner passed preflight.
+   */
+  runner_environment?: RunnerEnvironment | null;
+  /**
+   * Identity of the pinned runtime build when the runtime is available.
+   */
+  runtime_build?: RuntimeBuildManifest | null;
+  /**
+   * The tool catalog with what this deployment can actually serve.
+   */
+  tools: ToolStatus[];
+}
+/**
+ * Whether a service is configured in this deployment, and why not when it is not.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ServiceStatus".
+ */
+export interface ServiceStatus {
+  available: boolean;
+  detail: string;
+}
+/**
+ * Whether a service is configured in this deployment, and why not when it is not.
+ */
+export interface ServiceStatus1 {
+  available: boolean;
+  detail: string;
+}
+/**
+ * Whether a service is configured in this deployment, and why not when it is not.
+ */
+export interface ServiceStatus2 {
+  available: boolean;
+  detail: string;
+}
+/**
+ * Identity and configuration of the runtime build that hosts episodes (no secrets), produced by the
+ * runtime preflight.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RuntimeBuildManifest".
+ */
+export interface RuntimeBuildManifest {
+  /**
+   * The binary hash was checked against a configured pin (otherwise only recorded).
+   */
+  binary_hash_pinned: boolean;
+  /**
+   * Hex sha256 of the runtime binary.
+   */
+  binary_sha256: string;
+  config_overrides: string[];
+  credentials: RuntimeCredentials;
+  /**
+   * Names (never values) of the environment variables forwarded to the runtime.
+   */
+  forwarded_env: string[];
+  model?: string | null;
+  preflight_at: Timestamp;
+  profile: RuntimeProfile;
+  /**
+   * Hex sha256 over the protocol schema bundle generated by this binary.
+   */
+  protocol_schema_sha256: string;
+  runtime: RuntimeKind;
+  runtime_build_id: RuntimeBuildId;
+  transport: string;
+  user_agent: string;
+  version: string;
+}
+/**
+ * A catalog tool and whether this deployment serves it.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ToolStatus".
+ */
+export interface ToolStatus {
+  available: boolean;
+  effect: ToolEffect;
+  name: string;
+  /**
+   * Why it is not served; present exactly when `available` is false.
+   */
+  reason?: string | null;
 }
 /**
  * A search. The access scope is not here: the host passes it to the service separately.
@@ -2825,7 +3424,7 @@ export interface WikiItem {
  */
 export interface WikiRevision {
   author: Author;
-  content_digest: Digest4;
+  content_digest: Digest5;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
   items: WikiEntry[];
@@ -3345,7 +3944,7 @@ export interface EvaluationRequest {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest5;
+  dataset_hash: Digest6;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -3499,7 +4098,7 @@ export interface EvaluationRequest1 {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest5;
+  dataset_hash: Digest6;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;

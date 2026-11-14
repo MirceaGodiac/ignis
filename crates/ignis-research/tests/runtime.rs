@@ -534,7 +534,10 @@ fn a_signed_in_login_home_is_shared_and_required() {
     // What `codex login` leaves behind (the content is the runtime's business, never read here).
     std::fs::write(home.join("auth.json"), "{}").unwrap();
     let h = Harness::with_config(dir.path(), cfg);
-    assert_eq!(h.bridge.manifest().credentials, "shared_login_home");
+    assert_eq!(
+        h.bridge.manifest().credentials.as_str(),
+        "shared_login_home"
+    );
     let (a, b) = (scope("ws-l1", false), scope("ws-l2", false));
     let (ea, eb) = (h.episode(&a, "l1"), h.episode(&b, "l2"));
     h.say(&a, &ea, "one");

@@ -31,6 +31,7 @@ govern WSP, ownership or the runtime.
 
 1. Find your lane in `docs/implementation/WORKBOARD.md` and read your `HANDOFF_<NAME>.md`; the
    current phase (lanes, priorities, shared contracts, NASA data access) is `docs/implementation/LANES_V2.md`.
+   Repo, machines, where secrets live and where data lives: `docs/implementation/ACCESS.md`.
 2. Ownership of every directory and shared file: `docs/implementation/INTEGRATION.md`. Edit only what
    your lane owns. Shared files (`ignis-core`, root `Cargo.toml`, `Cargo.lock`, `ignis-cli/src/main.rs`,
    `schemas/`, `web/src/contracts/generated.ts`) change only by the rules there.

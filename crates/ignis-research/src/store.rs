@@ -170,13 +170,9 @@ fn fingerprint<T: Serialize>(v: &T) -> String {
     sha256_hex(serde_json::to_string(v).unwrap_or_default().as_bytes())
 }
 
-/// Status changes a host action may request. The runtime bridge (M1) drives the others.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EpisodeAction {
-    Pause,
-    Resume,
-    Cancel,
-}
+/// Status changes a host action may request (a contract: `POST /api/v1/episodes/{id}/{action}`).
+/// The runtime bridge (M1) drives the others.
+pub use ignis_core::contracts::EpisodeAction;
 
 /// Result of a replay request.
 #[derive(Debug, Clone, PartialEq)]

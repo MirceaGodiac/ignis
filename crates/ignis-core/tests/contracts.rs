@@ -108,18 +108,24 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 || base == "ExecutionScope"
                 || base.ends_with("Request")
                 || base == "ModelSpec"
-                || base == "WikiPatch",
+                || base == "WikiPatch"
+                || base == "AnswerSubmission"
+                || base == "Capabilities",
             "{path}: no origin label"
         );
 
         // 3. Rust parses it, its invariants hold, and it round-trips exactly.
         match contract {
             "ExecutionScope" => drop(check::<ExecutionScope>(&v, ExecutionScope::validate)),
-            "ResearchEpisode" => drop(check::<ResearchEpisode>(&v, |_| Ok(()))),
+            "ResearchEpisode" => drop(check::<ResearchEpisode>(&v, ResearchEpisode::validate)),
             "ResearchEvent[]" => drop(check::<Vec<ResearchEvent>>(&v, |e| check_event_log(e))),
             "ToolResult" => drop(check::<ToolResult>(&v, ToolResult::validate)),
             "ExecutionRecord" => drop(check::<ExecutionRecord>(&v, ExecutionRecord::validate)),
             "ResearchAnswer" => drop(check::<ResearchAnswer>(&v, ResearchAnswer::validate)),
+            "AnswerSubmission" => drop(check::<AnswerSubmission>(&v, AnswerSubmission::validate)),
+            "AnswerRefusal" => drop(check::<AnswerRefusal>(&v, AnswerRefusal::validate)),
+            "TraceBundle" => drop(check::<TraceBundle>(&v, TraceBundle::validate)),
+            "Capabilities" => drop(check::<Capabilities>(&v, Capabilities::validate)),
             "SearchRequest" => drop(check::<SearchRequest>(&v, SearchRequest::validate)),
             "SearchPage" => drop(check::<SearchPage>(&v, SearchPage::validate)),
             "ReadResult" => drop(check::<ReadResult>(&v, ReadResult::validate)),
@@ -899,4 +905,126 @@ fn k1_knowledge_contracts_keep_identity_gaps_and_versions_honest() {
     let mut link_out = fixture("evidence/source_access_link_out.json");
     link_out["range"] = json!(true);
     assert!(typed::<SourceAccess>(&link_out).validate().is_err());
+}
+
+#[test]
+fn k1_research_contracts_bind_views_and_keep_versions_honest() {
+    // v1 documents still read; a v2 addition under the v1 tag is refused.
+    let v1_log: Vec<ResearchEvent> = typed(&fixture("research/events.json"));
+    check_event_log(&v1_log).unwrap();
+    let mut rationale = fixture("research/events_v2.json")[2].clone();
+    typed::<ResearchEvent>(&rationale).validate().unwrap();
+    rationale["schema_version"] = json!("research.v1");
+    assert!(typed::<ResearchEvent>(&rationale).validate().is_err());
+    let mut episode = fixture("research/episode_v2.json");
+    episode["schema_version"] = json!("research.v1");
+    assert!(typed::<ResearchEpisode>(&episode).validate().is_err());
+    let mut skills = fixture("research/episode.json");
+    skills["pins"]["skills_version"] = json!("x");
+    assert!(
+        serde_json::from_value::<ResearchEpisode>(skills).is_err(),
+        "skills_version is replaced by harness"
+    );
+
+    // A view shows only what the answer cites, and a series keeps prediction and observation apart.
+    let base = fixture("research/answer_v2.json");
+    typed::<ResearchAnswer>(&base).validate().unwrap();
+    let refused = |f: &dyn Fn(&mut Value)| {
+        let mut v = base.clone();
+        f(&mut v);
+        typed::<ResearchAnswer>(&v).validate().is_err()
+    };
+    assert!(refused(&|v| v["schema_version"] = json!("research.v1")));
+    assert!(
+        refused(&|v| v["blocks"][2]["view"]["series"][0]["role"] = json!("predicted")),
+        "a predicted series read from a non-model artifact"
+    );
+    assert!(
+        refused(&|v| v["blocks"][2]["view"]["series"][1]["role"] = json!("observed")),
+        "a model output plotted as an observation"
+    );
+    assert!(
+        refused(&|v| v["blocks"][1]["view"]["evidence_id"] = json!("not-cited")),
+        "an excerpt of evidence the answer does not list"
+    );
+    assert!(
+        refused(&|v| v["blocks"][3]["view"]["table"] = json!("fixture-artifact-observed-01")),
+        "a conditions matrix over a non-ConditionsTable artifact"
+    );
+    assert!(
+        refused(&|v| v["model_releases"] = json!([])),
+        "a release card and a prediction from an unlisted release"
+    );
+    assert!(refused(
+        &|v| v["blocks"][2]["view"]["series"][0]["unit_pointer"] = json!("unit")
+    ));
+    assert!(
+        refused(&|v| v["claims"][0]["checked_by"]["model_id"] = Value::Null),
+        "a model check names its model"
+    );
+
+    // The submission names ids only; the agent cannot check its own claims.
+    let sub: AnswerSubmission = typed(&fixture("research/answer_submission.json"));
+    assert!(sub.problems().is_empty());
+    assert!(sub.cited_evidence().len() == 2 && sub.cited_artifacts().len() == 3);
+    let mut own_check = fixture("research/answer_submission.json");
+    own_check["claims"][0]["checked_by"] = json!({"method": "human", "verdict": "supported"});
+    let mut no_limit = fixture("research/answer_submission.json");
+    no_limit["limitations"] = json!([]);
+    let mut bad = fixture("research/answer_submission.json");
+    bad["claims"][1]["support"] = json!([{"kind": "artifact_value", "artifact_id": "fixture-artifact-forecast-01", "pointer": "/mean/3"}]);
+    bad["blocks"][0]["claim_ids"] = json!(["no-such-claim"]);
+    for v in [own_check, no_limit] {
+        assert!(typed::<AnswerSubmission>(&v).validate().is_err());
+    }
+    let kinds: BTreeSet<AnswerProblemKind> = typed::<AnswerSubmission>(&bad)
+        .problems()
+        .into_iter()
+        .map(|p| p.kind)
+        .collect();
+    assert_eq!(
+        kinds,
+        BTreeSet::from([
+            AnswerProblemKind::KindSupportMismatch,
+            AnswerProblemKind::UnknownClaim
+        ]),
+        "every problem is reported at once"
+    );
+
+    // Tool arguments are redacted by pointer; traces stay inside their range and never guess cost.
+    let mut args = fixture("research/events_v2.json")[3].clone();
+    args["body"]["payload"]["arguments"]["redacted"] = json!(["filters"]);
+    assert!(typed::<ResearchEvent>(&args).validate().is_err());
+    let trace = fixture("research/trace_bundle.json");
+    let trace_refused = |f: &dyn Fn(&mut Value)| {
+        let mut v = trace.clone();
+        f(&mut v);
+        typed::<TraceBundle>(&v).validate().is_err()
+    };
+    assert!(trace_refused(
+        &|v| v["tool_calls"][0]["finished_seq"] = json!(11)
+    ));
+    assert!(trace_refused(&|v| v["cost"]["price_list"] = Value::Null));
+    assert!(trace_refused(
+        &|v| v["partitions_touched"] = json!(["train", "train"])
+    ));
+
+    // Capabilities give a reason exactly for what is unavailable.
+    let mut caps = fixture("research/capabilities.json");
+    caps["tools"][0]["reason"] = json!("x");
+    assert!(typed::<Capabilities>(&caps).validate().is_err());
+
+    // The new catalog entries name exported contracts (also checked for every tool above).
+    let names: BTreeSet<String> = tool_catalog().into_iter().map(|t| t.name).collect();
+    for n in [
+        "answer_submit",
+        "sources_outline",
+        "conditions_query",
+        "graph_neighbors",
+        "wiki_read",
+        "web_search",
+        "web_fetch",
+    ] {
+        assert!(names.contains(n), "{n}");
+    }
 }
