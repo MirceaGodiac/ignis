@@ -1,15 +1,19 @@
-//! Scientific retrieval (V3.1 §18): PDF parsing with page/char locators (MuPDF), SQLite/FTS5
-//! catalog, dense Qwen3 embeddings and bounded Qwen3 reranking served by the DeepInfra API, RRF
-//! fusion, and the leak firewall.
+//! Scientific retrieval and knowledge (workboard R1/R3): PDF parse views with verifiable locators
+//! (MuPDF), the corpus manifest and snapshots, a SQLite/FTS5 catalog, dense Qwen3 embeddings and
+//! bounded Qwen3 reranking served by the DeepInfra API, RRF fusion, the leak firewall, and
+//! [`service::EvidenceService`], the one `KnowledgeService` implementation.
 //!
 //! Evidence content is explanation, never a predictor input: [`firewall::scan`] proves from the
-//! cargo dependency graph that the scientific crates do not depend on this crate, and
-//! [`firewall::strip_for_sealed`] strips outcome-bearing chunks for runs under sealed evaluation.
+//! cargo dependency graph that the scientific crates do not depend on this crate, and the service
+//! withholds outcome-bearing passages the scope's partitions do not grant ([`service::Lockbox`]).
 //!
-//! Commands (`ignis evidence ...`, JSON on stdout): `ingest`, `embed [--execute] [--force]`,
-//! `search`, `firewall`. The API key is read only from `DEEPINFRA_API_KEY`.
+//! Commands (`ignis evidence ...`, JSON on stdout): `corpus status|fetch|ingest|snapshot`, `ingest`,
+//! `verify`, `embed [--execute] [--force]`, `search`, `read`, `resolve`, `firewall`. `search`, `read`
+//! and `resolve` print the contract documents (`SearchPage`, `ReadResult`, `EvidenceRef`) of the same
+//! service the HTTP API and MCP tools use. The API key is read only from `DEEPINFRA_API_KEY`.
 
 pub mod catalog;
+pub mod corpus;
 pub mod deepinfra;
 pub mod dense;
 pub mod firewall;
@@ -17,22 +21,65 @@ pub mod firewall;
 pub mod pdf;
 pub mod records;
 pub mod search;
-
-use std::collections::HashMap;
-use std::path::PathBuf;
+pub mod service;
 #[cfg(feature = "pdf")]
-use std::time::Instant;
+pub mod verify;
+
+use std::collections::BTreeSet;
+use std::path::PathBuf;
 
 use anyhow::{bail, Context, Result};
 use clap::Subcommand;
+use ignis_core::contracts::{
+    Capability, EvidenceId, EvidenceSchema, ExecutionScope, Family, PageCursor, Partition,
+    PrincipalId, ReadRange, ReadRequest, ScopeId, ScopeRole, SearchFilters, SearchMode,
+    SearchRequest, SourceId, WorkspaceId,
+};
 use ignis_core::resources::{guard, load_profile, Guard, Job};
+use ignis_core::services::KnowledgeService;
 use serde_json::{json, Value};
 
-pub const PARSER_VERSION: &str = "0.2.0-mupdf";
+/// Version of the parse view definition (page text, chunking, locator fields). 0.3.0 adds the
+/// parse view id, the offset unit and normalized bboxes to every locator and stores page texts.
+pub const PARSER_VERSION: &str = "0.3.0-mupdf";
+
+#[derive(Debug, Subcommand)]
+pub enum CorpusCmd {
+    /// Derive the status of every seed (configs/evidence/corpus.toml) and write data/corpus/manifest.jsonl.
+    Status {
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// print only; do not rewrite the manifest
+        #[arg(long)]
+        no_write: bool,
+    },
+    /// Fetch NTRS citation records and PDFs of the seeds (network: dry-run plan unless --execute).
+    Fetch {
+        #[arg(long)]
+        execute: bool,
+    },
+    /// Parse and index every downloaded, non-rejected, non-restricted seed (needs the `pdf` feature).
+    Ingest {
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// Per publication: passages, and how many the local research scope (train + validation) cannot read.
+    Lockbox {
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// Write the catalog's snapshot (members + id) to data/corpus/snapshots/<id>.json.
+    Snapshot {
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+}
 
 #[derive(Debug, Subcommand)]
 pub enum EvidenceCmd {
-    /// Parse PDFs (page, char spans, captions) and upsert publications + chunks into the catalog.
+    #[command(subcommand)]
+    Corpus(CorpusCmd),
+    /// Parse PDFs (page texts, char spans, bboxes, captions) and upsert their parse views into the catalog.
     Ingest {
         /// a PDF or a directory of PDFs (NTRS `<stem>.json` sidecars are read)
         path: PathBuf,
@@ -41,6 +88,11 @@ pub enum EvidenceCmd {
         /// investigation ids to attach, e.g. PSI-25
         #[arg(long)]
         investigation: Vec<String>,
+    },
+    /// Re-derive every stored parse view from the original bytes (hash, page texts, chunk spans, locators).
+    Verify {
+        #[arg(long)]
+        db: Option<PathBuf>,
     },
     /// Embed every chunk via DeepInfra to vectors.f32 + vectors.ids.json next to the catalog
     /// (dry-run with token/USD estimate unless --execute; an existing set is replaced only with --force).
@@ -55,40 +107,49 @@ pub enum EvidenceCmd {
         #[arg(long)]
         force: bool,
     },
-    /// FTS5 + dense (if embedded and a key is set) -> RRF k=60 -> API rerank top-30 (fallback RRF). Prints locators.
+    /// Hybrid search through the KnowledgeService; prints a SearchPage (evidence refs + snippets).
     Search {
         query: String,
         #[arg(long)]
         db: Option<PathBuf>,
-        #[arg(long, default_value_t = 5)]
-        limit: usize,
+        /// hybrid | lexical | dense
+        #[arg(long, default_value = "hybrid")]
+        mode: String,
         #[arg(long)]
-        family: Option<String>,
+        page_size: Option<u32>,
+        /// continue a previous page (its `next_cursor`)
         #[arg(long)]
-        investigation: Option<String>,
+        cursor: Option<String>,
+        /// flex | acme_normal | acme_inverse | bass (repeatable)
         #[arg(long)]
-        publication_id: Option<String>,
+        family: Vec<String>,
         #[arg(long)]
-        kind: Option<String>,
+        investigation: Vec<String>,
+        /// source id (`sha256:<hex>`), repeatable
         #[arg(long)]
-        year_min: Option<i64>,
+        source: Vec<String>,
+        /// declare the provider unavailable (no network); degradation is reported
         #[arg(long)]
-        year_max: Option<i64>,
+        offline: bool,
+    },
+    /// Read a source through the KnowledgeService; prints a ReadResult.
+    Read {
+        /// source id (`sha256:<hex>`)
+        source: String,
+        /// physical pages, `3` or `3-5`
+        #[arg(long, conflicts_with = "passage")]
+        pages: Option<String>,
+        /// the passage of an evidence id, with its neighbours
         #[arg(long)]
-        no_dense: bool,
+        passage: Option<String>,
         #[arg(long)]
-        no_rerank: bool,
-        /// override reranker top_n (default 30)
+        db: Option<PathBuf>,
+    },
+    /// Resolve an evidence id to its EvidenceRef (with the exact quote).
+    Resolve {
+        evidence_id: String,
         #[arg(long)]
-        rerank_top: Option<usize>,
-        /// seconds; on timeout the order stays RRF
-        #[arg(long)]
-        rerank_timeout: Option<f64>,
-        /// strip outcome-bearing evidence for these sealed runs
-        #[arg(long)]
-        sealed_run: Vec<String>,
-        #[arg(long)]
-        full_text: bool,
+        db: Option<PathBuf>,
     },
     /// Dependency-graph check: protected scientific crates must not depend on ignis-evidence.
     Firewall {
@@ -106,11 +167,96 @@ fn cfg() -> Result<dense::RetrievalCfg> {
     dense::RetrievalCfg::load(&dense::RetrievalCfg::default_path())
 }
 
+/// The scope of a local researcher at this terminal: research role, train + validation outcomes,
+/// read-only sources. The CLI never grants the test partition (only an evaluation scope may).
+pub fn local_research_scope() -> ExecutionScope {
+    ExecutionScope {
+        scope_id: ScopeId::new("local-cli").expect("id"),
+        workspace_id: WorkspaceId::new("local").expect("id"),
+        principal: PrincipalId::new("local-researcher").expect("id"),
+        role: ScopeRole::Research,
+        partitions: BTreeSet::from([Partition::Train, Partition::Validation]),
+        capabilities: BTreeSet::from([Capability::ReadSources]),
+        corpus_snapshot: None,
+        parent_scope_id: None,
+    }
+}
+
+fn open_service(db: Option<PathBuf>, offline: bool) -> Result<service::EvidenceService> {
+    let db = db.unwrap_or_else(catalog::default_db);
+    if !db.exists() {
+        bail!(
+            "no catalog at {} (run `ignis evidence corpus ingest`)",
+            db.display()
+        );
+    }
+    let s = service::EvidenceService::open(&db, cfg()?, service::Lockbox::load()?)?;
+    Ok(if offline { s.offline() } else { s })
+}
+
+/// Service errors keep their typed envelope on stdout and fail the command.
+fn emit<T: serde::Serialize>(r: Result<T, ignis_core::contracts::ErrorEnvelope>) -> Result<()> {
+    match r {
+        Ok(v) => print(&serde_json::to_value(v)?),
+        Err(e) => {
+            print(&json!({"error": e}))?;
+            bail!("{:?}: {}", e.code, e.message)
+        }
+    }
+}
+
+fn parse_pages(s: &str) -> Result<(u32, u32)> {
+    let (a, b) = s.split_once('-').unwrap_or((s, s));
+    Ok((
+        a.trim().parse().context("--pages")?,
+        b.trim().parse().context("--pages")?,
+    ))
+}
+
+#[cfg(feature = "pdf")]
+fn ingest_one(
+    con: &mut rusqlite::Connection,
+    path: &std::path::Path,
+    opts: &pdf::ParseOptions,
+    rp: &pdf::RunPatterns,
+    families: Option<&[String]>,
+    outcome_free: Option<&str>,
+) -> Result<Value> {
+    let t = std::time::Instant::now();
+    let mut parsed = pdf::parse_pdf(path, opts, rp)?;
+    if let Some(f) = families.filter(|f| !f.is_empty()) {
+        parsed.publication.families = f.to_vec(); // the corpus seed is the authority, not keyword hints
+    }
+    if let Some(why) = outcome_free {
+        parsed.publication.outcome_bearing = false;
+        parsed
+            .chunks
+            .iter_mut()
+            .for_each(|c| c.outcome_bearing = false);
+        parsed.report["outcome_free"] = json!(why);
+    }
+    let publ = &parsed.publication;
+    let n = catalog::upsert_parse_view(
+        con,
+        publ,
+        &parsed.chunks,
+        &parsed.pages,
+        Some(&path.display().to_string()),
+    )?;
+    Ok(
+        json!({"file": publ.file_name, "source_id": format!("sha256:{}", publ.source_sha256),
+        "publication_id": publ.id, "title": publ.title, "pages": publ.n_pages, "chunks": n,
+        "families": publ.families, "report": parsed.report, "seconds": t.elapsed().as_secs_f64()}),
+    )
+}
+
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
+        EvidenceCmd::Corpus(c) => run_corpus(c),
         #[cfg(not(feature = "pdf"))]
-        EvidenceCmd::Ingest { .. } => anyhow::bail!(
-            "PDF ingest needs the `pdf` feature (MuPDF): cargo build -p ignis-cli --features pdf              (on Windows set CLANG_PATH to LLVM's clang.exe and build from a VS vcvars64 shell)"
+        EvidenceCmd::Ingest { .. } | EvidenceCmd::Verify { .. } => anyhow::bail!(
+            "PDF ingest/verify needs the `pdf` feature (MuPDF): cargo build -p ignis-cli --features pdf \
+             (on Windows set CLANG_PATH to LLVM's clang.exe and build from a VS vcvars64 shell)"
         ),
         #[cfg(feature = "pdf")]
         EvidenceCmd::Ingest { path, db, investigation } => {
@@ -128,13 +274,37 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             let mut con = catalog::connect(&db, false)?;
             let mut out = Vec::new();
             for p in &pdfs {
-                let t = Instant::now();
-                let (publ, chunks, rep) = pdf::parse_pdf(p, &opts, &rp)?;
-                let n = catalog::upsert_publication(&mut con, &publ, &chunks)?;
-                out.push(json!({"file": publ.file_name, "publication_id": publ.id, "title": publ.title, "pages": publ.n_pages,
-                    "chunks": n, "families": publ.families, "report": rep, "seconds": t.elapsed().as_secs_f64()}));
+                out.push(ingest_one(&mut con, p, &opts, &rp, None, None)?);
             }
             print(&json!({"db": db.display().to_string(), "ingested": out}))
+        }
+        #[cfg(feature = "pdf")]
+        EvidenceCmd::Verify { db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let mut out = Vec::new();
+            let mut failed = 0;
+            for p in catalog::publications(&con)? {
+                let Some(rel) = catalog::asset_location(&con, &p.source_sha256)? else {
+                    failed += 1;
+                    out.push(json!({"publication_id": p.id, "passed": false, "error": "no recorded location of the bytes"}));
+                    continue;
+                };
+                let bytes = std::fs::read(&rel).with_context(|| format!("read {rel}"))?;
+                let r = verify::verify_view(&con, &p, &bytes)?;
+                if !r.passed() {
+                    failed += 1;
+                }
+                let mut v = serde_json::to_value(&r)?;
+                v["passed"] = json!(r.passed());
+                out.push(v);
+            }
+            print(&json!({"db": db.display().to_string(), "parser_version": PARSER_VERSION, "views": out,
+                "failed": failed}))?;
+            if failed > 0 {
+                bail!("{failed} parse view(s) failed verification");
+            }
+            Ok(())
         }
         EvidenceCmd::Embed { db, profile, execute, force } => {
             let db = db.unwrap_or_else(catalog::default_db);
@@ -191,39 +361,45 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             job.finish(out.clone());
             print(&out)
         }
-        EvidenceCmd::Search {
-            query, db, limit, family, investigation, publication_id, kind, year_min, year_max, no_dense, no_rerank,
-            rerank_top, rerank_timeout, sealed_run, full_text,
-        } => {
-            let db = db.unwrap_or_else(catalog::default_db);
-            let filters = catalog::Filters { family, investigation, publication_id, kind, year_min, year_max, ..Default::default() };
-            let mut r = search::Retriever::open(&db, cfg()?)?;
-            let opts = search::SearchOpts { limit, use_dense: !no_dense, use_rerank: !no_rerank, rerank_top, rerank_timeout_s: rerank_timeout };
-            let mut res = r.search(&query, &filters, &opts)?;
-            // API calls made by this search go to the cost ledger
-            if res["usage"].as_object().is_some_and(|u| !u.is_empty()) {
-                let prof = load_profile("cpu-local")?;
-                let mut job = Job::start("evidence.search", &prof, json!({"query_chars": query.chars().count(), "limit": limit}))?;
-                let sum = |k: &str| res["usage"].as_object().map(|u| u.values().filter_map(|x| x[k].as_f64()).sum::<f64>()).unwrap_or(0.0);
-                job.set_api_cost(sum("estimated_usd"), sum("billed_usd"));
-                res["job"] = json!(job.id());
-                job.finish(json!({"stages": res["stages"], "usage": res["usage"], "timings": res["timings"]}));
-            }
-            if !sealed_run.is_empty() {
-                let items: Vec<Value> = res["results"].as_array().cloned().unwrap_or_default();
-                let (kept, stripped) = firewall::strip_for_sealed(items, &sealed_run, &HashMap::new(), true);
-                res["results"] = json!(kept);
-                res["stripped_for_sealed"] = json!(stripped);
-            }
-            if !full_text {
-                for r in res["results"].as_array_mut().into_iter().flatten() {
-                    let t = r["text"].as_str().unwrap_or_default();
-                    let short: String = t.chars().take(280).collect::<String>().replace('\n', " ");
-                    let more = t.chars().count() > 280;
-                    r["text"] = json!(if more { format!("{short}...") } else { short });
+        EvidenceCmd::Search { query, db, mode, page_size, cursor, family, investigation, source, offline } => {
+            let svc = open_service(db, offline)?;
+            let mode: SearchMode = serde_json::from_value(json!(mode)).context("--mode hybrid|lexical|dense")?;
+            let families = family
+                .iter()
+                .map(|f| serde_json::from_value::<Family>(json!(f)).with_context(|| format!("--family {f}")))
+                .collect::<Result<Vec<_>>>()?;
+            let req = SearchRequest {
+                schema_version: EvidenceSchema::V1,
+                query,
+                mode,
+                filters: SearchFilters {
+                    families,
+                    source_kinds: Vec::new(),
+                    investigation_ids: investigation,
+                    source_ids: source.into_iter().map(SourceId::new).collect::<Result<_, _>>()?,
+                },
+                corpus_snapshot: None,
+                page_size,
+                cursor: cursor.map(PageCursor::new).transpose()?,
+            };
+            emit(svc.search(&local_research_scope(), &req))
+        }
+        EvidenceCmd::Read { source, pages, passage, db } => {
+            let svc = open_service(db, true)?;
+            let range = match (pages, passage) {
+                (Some(p), _) => {
+                    let (first, last) = parse_pages(&p)?;
+                    ReadRange::Pages { first, last }
                 }
-            }
-            print(&res)
+                (None, Some(e)) => ReadRange::Passage { evidence_id: EvidenceId::new(e)? },
+                (None, None) => bail!("give --pages or --passage"),
+            };
+            let req = ReadRequest { schema_version: EvidenceSchema::V1, source_id: SourceId::new(source)?, parse_view_id: None, range };
+            emit(svc.read(&local_research_scope(), &req))
+        }
+        EvidenceCmd::Resolve { evidence_id, db } => {
+            let svc = open_service(db, true)?;
+            emit(svc.resolve_evidence(&local_research_scope(), &EvidenceId::new(evidence_id)?))
         }
         EvidenceCmd::Firewall { manifest } => {
             let protected = firewall::protected_from_config(&ignis_core::resources::configs_dir().join("evidence").join("firewall.toml"))?;
@@ -233,6 +409,108 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 bail!("firewall: {} protected crate(s) reach {}", r.violations.len(), firewall::EVIDENCE_CRATE);
             }
             Ok(())
+        }
+    }
+}
+
+fn run_corpus(cmd: CorpusCmd) -> Result<()> {
+    let seeds = corpus::load_seeds(&corpus::default_seeds_path())?;
+    match cmd {
+        CorpusCmd::Status { db, no_write } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = if db.exists() { Some(catalog::connect(&db, true)?) } else { None };
+            let rows = corpus::status(&seeds, con.as_ref())?;
+            let path = corpus::corpus_dir().join("manifest.jsonl");
+            if !no_write {
+                corpus::write_manifest(&path, &rows)?;
+            }
+            let mut counts = std::collections::BTreeMap::<String, usize>::new();
+            for r in &rows {
+                *counts.entry(serde_json::to_value(r.status)?.as_str().unwrap_or("?").to_string()).or_default() += 1;
+            }
+            print(&json!({"manifest": (!no_write).then(|| path.display().to_string()), "counts": counts, "entries": rows}))
+        }
+        CorpusCmd::Fetch { execute } => {
+            let todo: Vec<&corpus::Seed> = seeds
+                .iter()
+                .filter(|s| s.ntrs_id.is_some() && s.rejected.is_none())
+                .filter(|s| !corpus::local_path(s).exists())
+                .collect();
+            let plan: Vec<Value> = todo
+                .iter()
+                .map(|s| {
+                    let n = s.ntrs_id.as_deref().unwrap_or_default();
+                    json!({"seed": s.id, "citation": format!("{}/api/citations/{n}", corpus::NTRS_API),
+                        "pdf": corpus::ntrs_pdf(n).display().to_string()})
+                })
+                .collect();
+            let psi_missing: Vec<&str> = seeds
+                .iter()
+                .filter(|s| s.psi_file.is_some() && s.rejected.is_none() && !corpus::local_path(s).exists())
+                .map(|s| s.id.as_str())
+                .collect();
+            if !execute {
+                return print(&json!({"dry_run": true, "network": "ntrs.nasa.gov (GET, public records)", "fetch": plan,
+                    "psi_not_local": psi_missing, "hint": "re-run with --execute"}));
+            }
+            let http = ignis_data::sources::http::Http::new(corpus::USER_AGENT, 300);
+            let mut out = Vec::new();
+            for s in todo {
+                let n = s.ntrs_id.as_deref().unwrap_or_default();
+                out.push(match corpus::fetch_ntrs(&http, n) {
+                    Ok(v) => v,
+                    Err(e) => json!({"ntrs_id": n, "error": format!("{e:#}")}),
+                });
+            }
+            print(&json!({"fetched": out, "psi_not_local": psi_missing}))
+        }
+        #[cfg(not(feature = "pdf"))]
+        CorpusCmd::Ingest { .. } => bail!("corpus ingest needs the `pdf` feature: cargo run -p ignis-cli --features pdf -- evidence corpus ingest"),
+        #[cfg(feature = "pdf")]
+        CorpusCmd::Ingest { db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let rp = pdf::RunPatterns::load(&pdf::RunPatterns::default_path())?;
+            let mut con = catalog::connect(&db, false)?;
+            let rows = corpus::status(&seeds, Some(&con))?;
+            let mut out = Vec::new();
+            for (s, r) in seeds.iter().zip(&rows) {
+                use corpus::CorpusStatus as S;
+                match r.status {
+                    S::Downloaded | S::Parsed | S::Indexed => {}
+                    st => {
+                        out.push(json!({"seed": s.id, "skipped": st, "note": r.note}));
+                        continue;
+                    }
+                }
+                let opts = pdf::ParseOptions { investigation_ids: s.investigations.clone(), ..Default::default() };
+                let mut v = ingest_one(&mut con, &corpus::local_path(s), &opts, &rp, Some(&s.families), s.outcome_free.as_deref())?;
+                v["seed"] = json!(s.id);
+                out.push(v);
+            }
+            print(&json!({"db": db.display().to_string(), "ingested": out}))
+        }
+        CorpusCmd::Lockbox { db } => {
+            let svc = open_service(db, true)?;
+            let scope = local_research_scope();
+            let rows = service::withheld_by_publication(&svc, &scope)?;
+            let titles: std::collections::HashMap<String, Option<String>> =
+                svc.snapshot().members.iter().map(|m| (m.publication_id.clone(), m.title.clone())).collect();
+            let out: Vec<Value> = rows
+                .iter()
+                .map(|(p, (n, w))| json!({"publication_id": p, "title": titles.get(p).cloned().flatten(),
+                    "passages": n, "withheld": w, "readable": n - w}))
+                .collect();
+            print(&json!({"scope": scope.scope_id, "partitions": scope.partitions, "publications": out}))
+        }
+        CorpusCmd::Snapshot { db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let snap = corpus::snapshot(&con)?;
+            let path = corpus::corpus_dir().join("snapshots").join(format!("{}.json", snap.snapshot_id));
+            std::fs::create_dir_all(path.parent().unwrap())?;
+            std::fs::write(&path, serde_json::to_string_pretty(&snap)? + "\n")?;
+            print(&json!({"snapshot": path.display().to_string(), "snapshot_id": snap.snapshot_id,
+                "members": snap.members.len(), "embedding_set": snap.embedding_set}))
         }
     }
 }

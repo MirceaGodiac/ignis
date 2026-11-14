@@ -1,0 +1,69 @@
+# IGNIS corpus seeds (IGNIS_MASTER_V2 §10.3–10.4). The corpus is selective: a work is listed because it
+# brings results, a method, a calibration, a definition or a contradiction; a rejected work keeps its
+# reason. The status of each entry (discovered | metadata_only | downloaded | parsed | indexed | rejected |
+# restricted) is computed by `ignis evidence corpus status` from the bytes and the catalog, never typed here.
+#
+# collection: science_results | experimental_methods | measurements | ignis_methods
+# outcome_free: a reviewed declaration (with its evidence) that no passage can reveal how a run ended,
+# e.g. a document written before the flights. Without it, the section heuristics and the lockbox decide.
+# Bytes: `ntrs_id` -> data/raw/evidence/ntrs/NTRS-<id>.pdf (+ citation JSON), fetched by
+# `ignis evidence corpus fetch --execute`; `psi_file` -> data/raw/samples/<investigation>/<file>, fetched by
+# the PSI connector (`ignis sources ...`) and identified by data/manifests/<investigation>.jsonl.
+
+[[seed]]
+id = "ntrs-20150023456"
+ntrs_id = "20150023456"
+collection = "science_results"
+families = ["flex"]
+investigations = ["PSI-69"]
+reason = "FLEX primary report NASA/TP-2015-216046 (NTRS record and page headers; design doc S25 misprints it as 218946): droplet burning, radiative and diffusive extinction"
+
+[[seed]]
+id = "ntrs-20210021781"
+ntrs_id = "20210021781"
+collection = "science_results"
+families = ["acme"]
+investigations = ["PSI-159"]
+reason = "Recent Research on Flames of Gaseous Fuel Aboard the ISS (ACME overview, design doc S26)"
+
+[[seed]]
+id = "ntrs-20150008962"
+ntrs_id = "20150008962"
+collection = "science_results"
+families = ["bass"]
+investigations = ["PSI-25", "PSI-26"]
+reason = "BASS/SIBAL primary document named in the design doc (§10.3)"
+
+[[seed]]
+id = "ntrs-20240002981"
+ntrs_id = "20240002981"
+collection = "science_results"
+families = ["saffire"]
+reason = "Saffire VI: large-scale spacecraft fire results; cross-cutting scale and flame-spread evidence (§10.3)"
+
+[[seed]]
+id = "psi25-bass2-summary-report"
+psi_file = "PSI-25_Reports_BASS-II Summary Report.pdf"
+collection = "science_results"
+families = ["bass"]
+investigations = ["PSI-25"]
+reason = "BASS-II summary report: test-by-test conditions and outcomes (outcome-bearing: inherits the lockbox)"
+
+[[seed]]
+id = "psi25-bass2-srd"
+psi_file = "PSI-25_Science Documents_BASS-II_SRD.pdf"
+collection = "experimental_methods"
+families = ["bass"]
+investigations = ["PSI-25"]
+reason = "BASS-II Science Requirements Document: test matrix, hardware and measurement requirements"
+# Pre-flight document: dated 10/28/2013 (page 6), before the 2014 BASS-II sessions of the frozen split;
+# planned matrices ("tbd", "find low velocity limit"), future tense. Its passages cannot reveal outcomes.
+outcome_free = "pre-flight requirements dated 2013-10-28 (page 6); planned test matrix, no results"
+
+[[seed]]
+id = "psi25-proofsheet-t5"
+psi_file = "PSI-25_Raw Data_GMT2014_100_BASS_S131M_TPT5_ProofSheet.pdf"
+collection = "measurements"
+families = ["bass"]
+investigations = ["PSI-25"]
+rejected = "photo proof sheet: thumbnails without a text layer; raw data for the vision lane, not a corpus document"

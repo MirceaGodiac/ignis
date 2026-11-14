@@ -1,4 +1,4 @@
--- IGNIS evidence catalog, layout version 1 (crates/ignis-evidence, compiled in by catalog.rs; read by
+-- IGNIS evidence catalog, layout version 2 (crates/ignis-evidence, compiled in by catalog.rs; read by
 -- crates/ignis-server). All JSON columns hold UTF-8 JSON text. Pages are 1-based. Char spans index the page
 -- text defined in ignis_evidence::pdf::page_text (concatenated MuPDF text blocks, counted in Unicode scalar
 -- values); NULL spans for table chunks.
@@ -46,9 +46,26 @@ CREATE TABLE IF NOT EXISTS chunks (
   locator_json      TEXT NOT NULL,          -- SourceLocator (asset_sha256, path, page, char_start, char_end)
   describes_runs_json TEXT NOT NULL DEFAULT '[]',
   outcome_bearing   INTEGER NOT NULL DEFAULT 1,
-  evidence_class    TEXT NOT NULL
+  evidence_class    TEXT NOT NULL,
+  continues_runs_json TEXT NOT NULL DEFAULT '[]'  -- last run named before the chunk (withhold-only)
 );
 CREATE INDEX IF NOT EXISTS chunks_pub_page ON chunks(publication_id, page);
+
+-- Parse view: the exact text of every physical page (1-based) of a publication, as defined by the
+-- publication's parser_version. Chunk char spans index these texts. The view id is
+-- 'pv-<sha16>@<parser_version>' (ignis_evidence::records::parse_view_id). Pages without text are ''.
+CREATE TABLE IF NOT EXISTS pages (
+  publication_id    TEXT NOT NULL REFERENCES publications(id) ON DELETE CASCADE,
+  page              INTEGER NOT NULL,
+  text              TEXT NOT NULL,
+  PRIMARY KEY (publication_id, page)
+);
+
+-- Where this host keeps the bytes of an asset (a cache hint, not an identity: readers re-hash).
+CREATE TABLE IF NOT EXISTS asset_locations (
+  sha256            TEXT PRIMARY KEY,
+  rel_path          TEXT NOT NULL           -- relative to the working directory of the ingest
+);
 
 -- External-content FTS5 index over chunks; kept in sync by triggers.
 CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(

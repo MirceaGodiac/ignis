@@ -1,6 +1,7 @@
 //! Test double for `claude -p` (built as `ignis-fake-claude`, selected with `IGNIS_CLAUDE_BIN`).
 //! The behaviour is taken from the item id in the prompt (`agree`, `disagree`, `fabricate`, `recover`,
-//! `ratelimit`); every call is counted in `<IGNIS_FAKE_DIR>/calls.log`.
+//! `ratelimit`); every call is counted in `<IGNIS_FAKE_DIR>/calls.log`. `recover` fabricates on the
+//! first attempt of each pass and is valid on its retry.
 
 use std::io::{Read, Write};
 
@@ -61,7 +62,11 @@ fn main() {
     } else {
         candidates[0].clone()
     };
-    let fabricated = id.contains("fabricate") || (id.contains("recover") && calls == 1);
+    // `recover` fabricates on the first attempt of every pass and answers correctly on the retry.
+    // Keyed on the retry prompt, not on a global call count: passes run concurrently, so "the
+    // first call" may belong to either pass (the flaky `attempts == 1` of the old fixture).
+    let is_retry = prompt.contains("Your previous answer was rejected by the validator.");
+    let fabricated = id.contains("fabricate") || (id.contains("recover") && !is_retry);
     let line_id = if fabricated { "L9999" } else { "L0001" };
     let answer = serde_json::json!({"value": value, "rationale": "fixture", "evidence": [{"id": line_id, "quote": quote}]});
     println!("{}", result(&answer.to_string(), false));

@@ -18,14 +18,14 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use anyhow::{Context, Result};
-use ignis_core::contracts::SourceLocator;
+use ignis_core::contracts::{OffsetUnit, SourceLocator};
 use ignis_core::hashing::sha256_hex;
 use mupdf::text_page::TextBlockType;
 use mupdf::{Document, MetadataName, TextPageFlags};
 use regex::Regex;
 use serde_json::{json, Value};
 
-use crate::records::{Chunk, Publication};
+use crate::records::{parse_view_id, Chunk, Publication};
 use crate::PARSER_VERSION;
 
 fn caption_rx() -> &'static Regex {
@@ -71,17 +71,59 @@ pub fn text_flags() -> TextPageFlags {
         | TextPageFlags::USE_CID_FOR_UNKNOWN_UNICODE
 }
 
-/// One text block of a page, as PyMuPDF `get_text("blocks")` renders it.
-pub fn page_blocks(doc: &Document, page_no: usize) -> Result<Vec<String>> {
+/// Text blocks of one page plus the box of every character of their concatenation.
+///
+/// `rects[i]` is the box of the i-th Unicode scalar of `blocks.concat()` in page coordinates
+/// (`None` for the line breaks the block text adds and for glyphs with an empty box). `bounds` is
+/// the displayed page (after /Rotate), so a box divided by it is the locator's normalized `bbox`.
+pub struct PageLayout {
+    pub blocks: Vec<String>,
+    pub rects: Vec<Option<[f32; 4]>>,
+    pub bounds: [f32; 4],
+}
+
+impl PageLayout {
+    /// Normalized `[x0, y0, x1, y1]` (origin top-left, y down) of the characters `[a, b)`, or `None`
+    /// when none of them has a box.
+    pub fn bbox(&self, a: usize, b: usize) -> Option<[f64; 4]> {
+        let mut u: Option<[f32; 4]> = None;
+        for r in self.rects.get(a..b.min(self.rects.len()))?.iter().flatten() {
+            u = Some(match u {
+                None => *r,
+                Some(l) => [
+                    l[0].min(r[0]),
+                    l[1].min(r[1]),
+                    l[2].max(r[2]),
+                    l[3].max(r[3]),
+                ],
+            });
+        }
+        let [bx0, by0, bx1, by1] = self.bounds;
+        let (w, h) = ((bx1 - bx0) as f64, (by1 - by0) as f64);
+        let u = u?;
+        if w <= 0.0 || h <= 0.0 {
+            return None;
+        }
+        let nx = |x: f32| ((x - bx0) as f64 / w).clamp(0.0, 1.0);
+        let ny = |y: f32| ((y - by0) as f64 / h).clamp(0.0, 1.0);
+        let b = [nx(u[0]), ny(u[1]), nx(u[2]), ny(u[3])];
+        (b[0] < b[2] && b[1] < b[3]).then_some(b)
+    }
+}
+
+/// One page as PyMuPDF `get_text("blocks")` renders it, with character boxes.
+pub fn page_layout(doc: &Document, page_no: usize) -> Result<PageLayout> {
     let page = doc.load_page(page_no as i32 - 1)?;
     let b = page.bounds()?;
     let tp = page.to_text_page(text_flags())?;
-    let mut out = Vec::new();
+    let mut blocks = Vec::new();
+    let mut rects = Vec::new();
     for block in tp.blocks() {
         if block.r#type() != TextBlockType::Text {
             continue;
         }
         let mut text = String::new();
+        let mut block_rects: Vec<Option<[f32; 4]>> = Vec::new();
         let mut last_char: u32 = 0;
         let mut block_nonempty = false;
         for line in block.lines() {
@@ -104,7 +146,9 @@ pub fn page_blocks(doc: &Document, page_no: usize) -> Result<Vec<String>> {
                 text.push(c);
                 last_char = c as u32;
                 // fz_union_rect: an empty rect is the identity
-                if r[0] < r[2] && r[1] < r[3] {
+                let nonempty = r[0] < r[2] && r[1] < r[3];
+                block_rects.push(nonempty.then_some(r));
+                if nonempty {
                     line_rect = Some(match line_rect {
                         None => r,
                         Some(l) => [
@@ -120,14 +164,25 @@ pub fn page_blocks(doc: &Document, page_no: usize) -> Result<Vec<String>> {
                 block_nonempty = true;
                 if last_char != 10 {
                     text.push('\n');
+                    block_rects.push(None);
                 }
             }
         }
         if block_nonempty {
-            out.push(text);
+            blocks.push(text);
+            rects.extend(block_rects);
         }
     }
-    Ok(out)
+    Ok(PageLayout {
+        blocks,
+        rects,
+        bounds: [b.x0, b.y0, b.x1, b.y1],
+    })
+}
+
+/// One text block of a page, as PyMuPDF `get_text("blocks")` renders it.
+pub fn page_blocks(doc: &Document, page_no: usize) -> Result<Vec<String>> {
+    Ok(page_layout(doc, page_no)?.blocks)
 }
 
 /// Text of 1-based `page_no` in the char-span coordinate system used by every locator.
@@ -181,6 +236,29 @@ impl RunPatterns {
         ignis_core::resources::configs_dir()
             .join("evidence")
             .join("run_patterns.toml")
+    }
+
+    /// Alias of the match that starts last in `text` (the run a following chunk could continue).
+    pub fn last(&self, text: &str) -> Option<String> {
+        let mut best: Option<(usize, String)> = None;
+        for (rx, alias) in &self.patterns {
+            for caps in rx.captures_iter(text) {
+                let start = caps.get(0).map_or(0, |m| m.start());
+                if best.as_ref().is_some_and(|(b, _)| *b > start) {
+                    continue;
+                }
+                let mut s = alias.clone();
+                for i in 1..caps.len() {
+                    let g = caps
+                        .get(i)
+                        .map(|m| m.as_str().to_uppercase())
+                        .unwrap_or_default();
+                    s = s.replace(&format!("{{{}}}", i - 1), &g);
+                }
+                best = Some((start, s));
+            }
+        }
+        best.map(|(_, s)| s)
     }
 
     pub fn find(&self, text: &str) -> Vec<String> {
@@ -324,11 +402,18 @@ impl Default for ParseOptions {
     }
 }
 
-pub fn parse_pdf(
-    path: &Path,
-    opts: &ParseOptions,
-    rp: &RunPatterns,
-) -> Result<(Publication, Vec<Chunk>, Value)> {
+/// The parse view of one PDF: the publication record, its chunks and the exact text of every
+/// physical page (index 0 = page 1; empty for a page without text), the coordinate system of the
+/// chunks' character offsets.
+#[derive(Debug, Clone)]
+pub struct ParsedPdf {
+    pub publication: Publication,
+    pub chunks: Vec<Chunk>,
+    pub pages: Vec<String>,
+    pub report: Value,
+}
+
+pub fn parse_pdf(path: &Path, opts: &ParseOptions, rp: &RunPatterns) -> Result<ParsedPdf> {
     let (doc, bytes) = open_pdf(path)?;
     let sha = sha256_hex(&bytes);
     let side = sidecar(path)?;
@@ -337,6 +422,8 @@ pub fn parse_pdf(
         .map(|s| s.to_string_lossy().to_string())
         .unwrap_or_default();
     let pub_id = format!("pub-{}", &sha[..16]);
+    let view_id = parse_view_id(&pub_id, PARSER_VERSION);
+    let mut pages: Vec<String> = Vec::new();
     let n_pages = doc.page_count()? as usize;
     let mut chunks: Vec<Chunk> = Vec::new();
     let mut pages_without_text = Vec::new();
@@ -344,6 +431,8 @@ pub fn parse_pdf(
     let mut section: Option<String> = None;
     let mut all_runs = BTreeSet::new();
     let mut family_text: Vec<String> = Vec::new();
+    // last run named so far in reading order (carried across chunks and pages)
+    let mut carry: Option<String> = None;
 
     let mut add = |chunks: &mut Vec<Chunk>,
                    section: &Option<String>,
@@ -351,10 +440,15 @@ pub fn parse_pdf(
                    page: usize,
                    cs: usize,
                    ce: usize,
+                   bbox: Option<[f64; 4]>,
                    text: String,
                    ctx: Value| {
         let runs = rp.find(&text);
         all_runs.extend(runs.iter().cloned());
+        let continues_runs: Vec<String> = carry.iter().cloned().collect();
+        if let Some(l) = rp.last(&text) {
+            carry = Some(l);
+        }
         let outcome = !section
             .as_deref()
             .is_some_and(|s| !s.is_empty() && non_outcome_rx().is_match(s));
@@ -368,11 +462,14 @@ pub fn parse_pdf(
             pts_s: None,
             char_start: Some(cs as i64),
             char_end: Some(ce as i64),
+            parse_view_id: Some(view_id.clone()),
+            offset_unit: Some(OffsetUnit::UnicodeScalar),
+            bbox,
             ..Default::default()
         };
         let ordinal = chunks.len();
         chunks.push(Chunk {
-            id: format!("{pub_id}:p{page}:{ordinal:05}"),
+            id: format!("{view_id}:p{page}:{ordinal:05}"),
             publication_id: pub_id.clone(),
             ordinal: ordinal as i64,
             kind: kind.into(),
@@ -384,14 +481,17 @@ pub fn parse_pdf(
             context: ctx,
             locator,
             describes_runs: runs,
+            continues_runs,
             outcome_bearing: outcome,
             evidence_class: "source_derived".into(),
         });
     };
 
     for pno in 1..=n_pages {
-        let blocks = page_blocks(&doc, pno)?;
+        let layout = page_layout(&doc, pno)?;
+        let blocks = &layout.blocks;
         let full_s = blocks.concat();
+        pages.push(full_s.clone());
         if full_s.trim_matches(py_space).is_empty() {
             pages_without_text.push(pno);
             continue;
@@ -426,6 +526,7 @@ pub fn parse_pdf(
                         pno,
                         a,
                         b,
+                        layout.bbox(a, b),
                         full[a..b].iter().collect(),
                         ctx.clone(),
                     );
@@ -433,7 +534,7 @@ pub fn parse_pdf(
             };
         }
 
-        for t in &blocks {
+        for t in blocks {
             let len = t.chars().count();
             let (a, e) = (offset, offset + len);
             offset = e;
@@ -461,6 +562,7 @@ pub fn parse_pdf(
                     pno,
                     a,
                     e,
+                    layout.bbox(a, e),
                     t.clone(),
                     json!({"captions": [], "tables": []}),
                 );
@@ -515,6 +617,12 @@ pub fn parse_pdf(
         ingested_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Micros, false),
         parser_version: PARSER_VERSION.into(),
     };
-    let report = json!({"pages_without_text": pages_without_text, "tables": 0, "captions": n_captions, "chunks": chunks.len()});
-    Ok((publication, chunks, report))
+    let report = json!({"parse_view_id": view_id, "pages_without_text": pages_without_text, "tables": 0,
+        "captions": n_captions, "chunks": chunks.len()});
+    Ok(ParsedPdf {
+        publication,
+        chunks,
+        pages,
+        report,
+    })
 }
