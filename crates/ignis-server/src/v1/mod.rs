@@ -19,6 +19,7 @@ pub mod agent;
 pub mod fixture;
 pub mod io;
 mod runner;
+pub mod sandbox;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -103,6 +104,8 @@ pub struct V1 {
     /// The agent runtime (absent when not configured or preflight failed; see `runtime_report`).
     pub runtime: Option<Arc<dyn AgentRuntime>>,
     pub runtime_report: agent::RuntimeReport,
+    /// The isolated analysis runner's preflight (the runner itself is `services.sandbox`).
+    pub runner_report: sandbox::RunnerReport,
     /// Loopback URL of this instance's MCP endpoint, when it is served.
     pub mcp_url: Option<String>,
 }
@@ -125,6 +128,9 @@ impl V1 {
 impl HasAuth for Arc<V1> {
     fn auth(&self) -> AuthMode {
         self.auth
+    }
+    fn execute_code(&self) -> bool {
+        self.services.sandbox.is_some()
     }
 }
 
@@ -360,6 +366,11 @@ pub struct Capabilities {
     pub artifact_store: ServiceStatus,
     /// The IGNIS MCP endpoint the agent runtime reaches the tools through (loopback only).
     pub mcp: ServiceStatus,
+    /// The isolated runner behind `analysis_execute`.
+    pub analysis_runner: ServiceStatus,
+    /// What programs run in, when the runner passed preflight.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runner_environment: Option<ignis_core::contracts::RunnerEnvironment>,
     /// The C0 tool catalog with what this deployment can actually serve.
     pub tools: Vec<ToolStatus>,
 }
@@ -597,6 +608,11 @@ async fn capabilities(State(v): St, _c: Caller) -> Json<Capabilities> {
                 detail: "not served: the agent runtime is unavailable".into(),
             },
         },
+        analysis_runner: ServiceStatus {
+            available: v.runner_report.available,
+            detail: v.runner_report.detail.clone(),
+        },
+        runner_environment: v.runner_report.environment.clone(),
         tools,
     })
 }

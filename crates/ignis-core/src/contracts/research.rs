@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 
 use super::common::{
     ensure, schema_tag, AnswerId, ApprovalId, ArtifactId, ArtifactRef, Capability, ClaimId,
-    ClientRequestId, ContractError, CorpusSnapshotId, EpisodeId, ErrorEnvelope, EventId,
+    ClientRequestId, ContractError, CorpusSnapshotId, Digest, EpisodeId, ErrorEnvelope, EventId,
     InlinePayload, JobId, MessageId, Origin, ReleaseId, RuntimeBuildId, ScopeId, Timestamp,
     ToolCallId, WorkspaceId,
 };
@@ -531,6 +531,7 @@ pub fn tool_catalog() -> Vec<ToolDescriptor> {
         t("datasets_inspect", "Describe a dataset bundle: views, columns, units, time origin, partitions.", E::Read, true, &[C::ReadData], "DatasetRef", "DatasetBundle", false, Lane::Raul),
         t("models_inspect", "A model release with its construction manifest, domain and state.", E::Read, true, &[C::RunModels], "ReleaseRef", "ModelRelease", false, Lane::Iancu),
         t("models_forecast", "Strict forward of a pinned release on an admitted prefix.", E::Compute, true, &[C::RunModels, C::ReadData], "ForecastRequest", "AnalysisArtifact", true, Lane::Iancu),
+        t("analysis_execute", "Run a Python program once in the isolated runner (no network, read-only inputs from workspace artifacts); stdout, stderr and files written under /out become artifacts of an ExecutionRecord. Returns a job; follow it with jobs_get.", E::Compute, true, &[C::ExecuteCode], "AnalysisExecuteRequest", "ExecutionRecord", true, Lane::Mircea),
         t("artifacts_read", "Read a byte range or JSON Pointer of a stored artifact.", E::Read, true, &[], "ArtifactReadRequest", "InlinePayload", false, Lane::Mircea),
         t("jobs_get", "State of a job this workspace submitted (e.g. by models_forecast): status, progress, output artifacts or error.", E::Read, true, &[], "JobLookup", "JobRef", false, Lane::Mircea),
         t("wiki_patch", "Write a wiki revision against a base revision (compare-and-swap).", E::WorkspaceWrite, false, &[C::WikiWrite], "WikiPatch", "WikiRevision", false, Lane::Raul),
@@ -549,6 +550,263 @@ pub struct DatasetRef {
 #[serde(deny_unknown_fields)]
 pub struct JobLookup {
     pub job_id: JobId,
+}
+
+// ---------------------------------------------------------------- analysis execution
+
+/// Language of an `analysis_execute` program. Closed: a new value needs a runner image that
+/// provides it (and a preflight that proves it).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AnalysisLanguage {
+    /// CPython of the pinned runner image, run isolated (`python -I`).
+    Python,
+}
+
+/// One input of an analysis: an artifact of the caller's workspace, mounted read-only at
+/// `/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct AnalysisInput {
+    /// File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).
+    pub name: String,
+    pub artifact_id: ArtifactId,
+}
+
+/// Argument of `analysis_execute`: a program run once in the isolated runner (no network, read-only
+/// root, separate uid, no host secrets). Its stdout, stderr and the regular files it writes under
+/// `/out` become artifacts of an [`ExecutionRecord`].
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct AnalysisExecuteRequest {
+    pub language: AnalysisLanguage,
+    /// The program, executed as written.
+    pub source: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub inputs: Vec<AnalysisInput>,
+    /// Idempotency key: a retry with the same key returns the same job.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub client_request_id: Option<ClientRequestId>,
+}
+
+/// Whether `name` is a plain file name the runner may create: no separators, no `.`/`..`, no hidden
+/// or empty names, at most 255 bytes (the file-system limit).
+pub fn is_plain_file_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= 255
+        && !name.starts_with('.')
+        && name
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-'))
+}
+
+impl AnalysisExecuteRequest {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        ensure(
+            !self.source.trim().is_empty(),
+            "AnalysisExecuteRequest",
+            || "source is empty".into(),
+        )?;
+        let mut seen = BTreeSet::new();
+        for i in &self.inputs {
+            ensure(
+                is_plain_file_name(&i.name),
+                "AnalysisExecuteRequest",
+                || {
+                    format!(
+                        "input name {:?} is not a plain file name ([A-Za-z0-9._-], not starting with '.')",
+                        i.name
+                    )
+                },
+            )?;
+            ensure(
+                seen.insert(i.name.as_str()),
+                "AnalysisExecuteRequest",
+                || format!("input name {:?} is used twice", i.name),
+            )?;
+        }
+        Ok(())
+    }
+}
+
+/// Isolation the runner actually provided. Recorded on every execution and in capability status;
+/// never inferred from configuration alone (the preflight probe proves it).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum RunnerIsolation {
+    /// OCI container under gVisor (`runsc`): a user-space kernel between the program and the host.
+    Gvisor,
+    /// OCI container under the host kernel (namespaces, seccomp, no capabilities). Development
+    /// isolation; the public deployment uses `gvisor`.
+    Container,
+}
+
+/// What a program ran in: the content address of the image, the OCI runtime and its isolation.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct RunnerEnvironment {
+    /// Image id (`sha256:` of the image config), pinned by the host.
+    pub image_id: Digest,
+    /// OCI runtime name as the container engine reports it (`runsc`, `runc`).
+    pub oci_runtime: String,
+    pub isolation: RunnerIsolation,
+    /// Interpreter version reported by the image during preflight.
+    pub interpreter: String,
+}
+
+/// Resource budget of one execution, set by the host (never by the request).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct RunnerLimits {
+    pub wall_seconds: u64,
+    pub memory_bytes: u64,
+    /// CPU quota in thousandths of a core.
+    pub cpu_millis: u64,
+    pub pids: u64,
+    /// Scratch space (`/tmp`, in memory).
+    pub tmp_bytes: u64,
+    /// Total bytes of `/out` files kept as artifacts.
+    pub output_bytes: u64,
+    /// Bytes of stdout and of stderr each kept as an artifact (the rest is counted, not stored).
+    pub stream_bytes: u64,
+}
+
+/// How the program ended.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ExecutionOutcome {
+    /// The process exited by itself (any code; non-zero is the program's failure, not the host's).
+    Exited { exit_code: i64 },
+    /// Killed at the wall-clock budget.
+    TimedOut,
+    /// Killed by the memory budget.
+    OutOfMemory,
+}
+
+/// A captured output stream. `truncated` means the stream exceeded the budget: `total_bytes` were
+/// written, only the first `stream_bytes` are in `artifact`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct CapturedStream {
+    pub total_bytes: u64,
+    pub truncated: bool,
+    /// Absent when the stream was empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub artifact: Option<ArtifactRef>,
+}
+
+/// A file the program wrote under `/out`, kept as an artifact.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct AnalysisOutput {
+    /// Path relative to `/out`, `/`-separated.
+    pub path: String,
+    pub artifact: ArtifactRef,
+}
+
+/// An input as the program saw it: `/in/<name>` held exactly these bytes.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct MountedInput {
+    pub name: String,
+    pub artifact: ArtifactRef,
+}
+
+/// A path under `/out` that was not kept, and why (symbolic link, special file, budget).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct RejectedOutput {
+    pub path: String,
+    pub reason: String,
+}
+
+/// The record of one `analysis_execute` run (the job's first output artifact): code identity,
+/// environment, inputs, budget, outcome and the artifacts produced. A computed value cited in an
+/// answer points into one of `outputs` (or `stdout`), and this record says how it was computed.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ExecutionRecord {
+    pub schema_version: ToolsSchema,
+    pub language: AnalysisLanguage,
+    /// The program exactly as executed.
+    pub program: ArtifactRef,
+    pub environment: RunnerEnvironment,
+    /// Inputs as mounted.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub inputs: Vec<MountedInput>,
+    pub limits: RunnerLimits,
+    pub outcome: ExecutionOutcome,
+    pub stdout: CapturedStream,
+    pub stderr: CapturedStream,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub outputs: Vec<AnalysisOutput>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub rejected_outputs: Vec<RejectedOutput>,
+    pub started_at: Timestamp,
+    pub finished_at: Timestamp,
+    /// `synthetic_fixture` when any input is.
+    pub origin: Origin,
+}
+
+fn is_relative_out_path(p: &str) -> bool {
+    !p.is_empty()
+        && !p.starts_with('/')
+        && p.split('/')
+            .all(|seg| !seg.is_empty() && seg != "." && seg != ".." && !seg.contains('\\'))
+}
+
+impl ExecutionRecord {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let l = &self.limits;
+        ensure(
+            [l.wall_seconds, l.memory_bytes, l.cpu_millis, l.pids]
+                .iter()
+                .all(|v| *v > 0),
+            "ExecutionRecord",
+            || "a runner budget of zero cannot run anything".into(),
+        )?;
+        for s in [&self.stdout, &self.stderr] {
+            ensure(
+                s.truncated == (s.total_bytes > l.stream_bytes),
+                "ExecutionRecord",
+                || "a stream is truncated exactly when it exceeded stream_bytes".into(),
+            )?;
+            ensure(
+                s.artifact.as_ref().map_or(0, |a| a.byte_length)
+                    == s.total_bytes.min(l.stream_bytes),
+                "ExecutionRecord",
+                || "a stream artifact holds the kept prefix of the stream".into(),
+            )?;
+        }
+        for i in &self.inputs {
+            ensure(is_plain_file_name(&i.name), "ExecutionRecord", || {
+                format!("input {:?} is not a plain file name", i.name)
+            })?;
+        }
+        let mut seen = BTreeSet::new();
+        for o in &self.outputs {
+            ensure(is_relative_out_path(&o.path), "ExecutionRecord", || {
+                format!("output path {:?} is not relative to /out", o.path)
+            })?;
+            ensure(seen.insert(o.path.as_str()), "ExecutionRecord", || {
+                format!("output path {:?} listed twice", o.path)
+            })?;
+        }
+        ensure(
+            self.outputs
+                .iter()
+                .map(|o| o.artifact.byte_length)
+                .sum::<u64>()
+                <= l.output_bytes,
+            "ExecutionRecord",
+            || "kept outputs exceed the output budget".into(),
+        )?;
+        ensure(
+            self.started_at.as_str() <= self.finished_at.as_str(),
+            "ExecutionRecord",
+            || "finished before it started".into(),
+        )
+    }
 }
 
 /// Argument of `models_inspect`.

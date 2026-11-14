@@ -16,14 +16,16 @@
 use std::sync::Arc;
 
 use ignis_core::contracts::{
-    tool_catalog, ArtifactReadRequest, Causation, ClientRequestId, DatasetRef, EntityRef,
-    EpisodeId, ErrorCode, ErrorEnvelope, ExecutionScope, ExecutionStatus, ForecastRequest,
-    InlinePayload, JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, RetryPolicy,
-    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
+    tool_catalog, AnalysisExecuteRequest, ArtifactReadRequest, Causation, ClientRequestId,
+    DatasetRef, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope, ExecutionScope, ExecutionStatus,
+    ForecastRequest, InlinePayload, JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef,
+    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
+    ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
 };
+use ignis_research::sandbox::Sandbox;
 use ignis_research::store::{JobPriority, NewJob};
 use ignis_research::ResearchStore;
 use serde::de::DeserializeOwned;
@@ -31,6 +33,9 @@ use serde_json::{json, Value};
 
 /// Job kind of a strict forecast (the job runner executes it).
 pub const FORECAST_JOB: &str = "models_forecast";
+
+/// Job kind of an isolated analysis run (the job runner hands it to the [`Sandbox`]).
+pub const ANALYSIS_JOB: &str = "analysis_execute";
 
 /// Results larger than this (serialized) are stored as an artifact; the tool result carries a
 /// preview that points at it, so a model context never receives an unbounded payload.
@@ -42,6 +47,8 @@ pub struct ToolServices {
     pub knowledge: Option<Arc<dyn KnowledgeService>>,
     pub datasets: Option<Arc<dyn DatasetService>>,
     pub models: Option<Arc<dyn ModelService>>,
+    /// The isolated analysis runner; present only when it passed preflight.
+    pub sandbox: Option<Arc<Sandbox>>,
 }
 
 /// A catalog entry and whether this deployment can serve it.
@@ -68,9 +75,12 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 "models_inspect" | "models_forecast" if services.models.is_none() => {
                     Some("ModelService not configured")
                 }
+                "analysis_execute" if services.sandbox.is_none() => {
+                    Some("isolated runner not configured or failed preflight")
+                }
                 "wiki_patch" => Some("wiki service not implemented"),
                 "sources_search" | "sources_read" | "datasets_inspect" | "models_inspect"
-                | "models_forecast" | "artifacts_read" | "jobs_get" => None,
+                | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get" => None,
                 _ => Some("no adapter for this tool"),
             };
             ToolAvailability {
@@ -223,6 +233,13 @@ impl ToolHost {
                 let job = self.submit_forecast(scope, &req, None, None, call_id)?;
                 Ok(Outcome::Job(job))
             }
+            "analysis_execute" => {
+                let req: AnalysisExecuteRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                self.sandbox()?;
+                let job = self.submit_analysis(scope, &req, call_id)?;
+                Ok(Outcome::Job(job))
+            }
             "artifacts_read" => {
                 let req: ArtifactReadRequest = decode(contract, args)?;
                 ignis_research::artifacts::read_for_tool(self.artifacts.as_ref(), scope, &req)
@@ -269,6 +286,46 @@ impl ToolHost {
         )?;
         (self.wake_jobs)();
         Ok(job)
+    }
+
+    /// Queue an isolated analysis run. Idempotent on the request's `client_request_id`. Inputs are
+    /// checked when the job runs, with the same scope (an artifact of another workspace is not
+    /// found there).
+    pub fn submit_analysis(
+        &self,
+        scope: &ExecutionScope,
+        req: &AnalysisExecuteRequest,
+        call_id: &ToolCallId,
+    ) -> ServiceResult<JobRef> {
+        let input =
+            serde_json::to_value(req).map_err(|e| envelope(ErrorCode::Internal, e.to_string()))?;
+        let job = self.store.submit_job(
+            scope,
+            NewJob {
+                kind: ANALYSIS_JOB.into(),
+                input,
+                episode_id: None,
+                client_request_id: req.client_request_id.clone(),
+                // No effect outside its own artifacts: a lost lease re-runs it.
+                idempotent: true,
+                priority: JobPriority::Interactive,
+                causation: Causation {
+                    tool_call_id: Some(call_id.clone()),
+                    ..Default::default()
+                },
+            },
+        )?;
+        (self.wake_jobs)();
+        Ok(job)
+    }
+
+    fn sandbox(&self) -> ServiceResult<&Arc<Sandbox>> {
+        self.services.sandbox.as_ref().ok_or_else(|| {
+            envelope(
+                ErrorCode::CapabilityUnavailable,
+                "isolated runner not configured",
+            )
+        })
     }
 
     fn knowledge(&self) -> ServiceResult<&Arc<dyn KnowledgeService>> {

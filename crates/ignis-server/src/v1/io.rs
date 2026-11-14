@@ -153,8 +153,9 @@ pub struct Caller {
 
 /// The research scope of a principal: its own workspace, outcomes of the training partition only
 /// (validation is opened through seal → reveal, test never in this runtime), and the research
-/// capabilities. No code execution on the host.
-pub fn research_scope(principal_key: &str) -> ExecutionScope {
+/// capabilities. No code execution on the host: `execute_code` grants `ExecuteCode`, which only the
+/// isolated runner serves, and the host passes it only when that runner passed preflight.
+pub fn research_scope(principal_key: &str, execute_code: bool) -> ExecutionScope {
     let h = &sha256_hex(principal_key.as_bytes())[..16];
     ExecutionScope {
         scope_id: ScopeId::new(format!("scope_{h}_research")).expect("generated id"),
@@ -167,7 +168,10 @@ pub fn research_scope(principal_key: &str) -> ExecutionScope {
             Capability::ReadData,
             Capability::RunModels,
             Capability::WorkspaceWrite,
-        ]),
+        ])
+        .into_iter()
+        .chain(execute_code.then_some(Capability::ExecuteCode))
+        .collect(),
         corpus_snapshot: None,
         parent_scope_id: None,
     }
@@ -175,6 +179,10 @@ pub fn research_scope(principal_key: &str) -> ExecutionScope {
 
 pub trait HasAuth {
     fn auth(&self) -> AuthMode;
+    /// Whether callers may run code (only in the isolated runner).
+    fn execute_code(&self) -> bool {
+        false
+    }
 }
 
 impl<S: HasAuth + Send + Sync> FromRequestParts<S> for Caller {
@@ -198,7 +206,7 @@ impl<S: HasAuth + Send + Sync> FromRequestParts<S> for Caller {
                 })?,
         };
         Ok(Caller {
-            scope: research_scope(&key),
+            scope: research_scope(&key, state.execute_code()),
         })
     }
 }

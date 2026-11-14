@@ -37,6 +37,7 @@ fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
         contract_fixtures: "fixtures/contracts".into(),
         codex,
         mcp_port: 0,
+        runner: Default::default(),
     }
 }
 

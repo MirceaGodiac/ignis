@@ -92,8 +92,13 @@ pub struct Host {
     pub wakes: Arc<AtomicUsize>,
 }
 
-/// A host with knowledge and models configured (datasets not).
+/// A host with knowledge and models configured (datasets not, no analysis runner).
 pub fn host() -> Host {
+    host_with(None)
+}
+
+/// [`host`] with an analysis runner (a sandbox that passed preflight).
+pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host {
     let dir = tempfile::tempdir().unwrap();
     let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
     let artifacts = Arc::new(LocalArtifactStore::open(dir.path().join("artifacts")).unwrap());
@@ -105,6 +110,7 @@ pub fn host() -> Host {
             knowledge: Some(knowledge.clone()),
             datasets: None,
             models: Some(Arc::new(FakeModels)),
+            sandbox,
         },
         store.clone(),
         artifacts.clone(),

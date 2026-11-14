@@ -210,6 +210,7 @@ impl Fixture {
                 })),
                 datasets: None,
                 models: Some(Arc::new(FixtureModels { release })),
+                sandbox: None,
             },
             known,
         })
