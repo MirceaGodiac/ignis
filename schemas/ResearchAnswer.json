@@ -48,6 +48,37 @@
             "artifact_id"
           ],
           "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "v2: a component from the closed view catalog, bound to the claims it illustrates.",
+          "properties": {
+            "caption": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "claim_ids": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ClaimId"
+              },
+              "type": "array"
+            },
+            "type": {
+              "const": "view",
+              "type": "string"
+            },
+            "view": {
+              "$ref": "#/$defs/ViewSpec"
+            }
+          },
+          "required": [
+            "type",
+            "view"
+          ],
+          "type": "object"
         }
       ]
     },
@@ -134,6 +165,17 @@
     "Claim": {
       "additionalProperties": false,
       "properties": {
+        "checked_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SupportCheck"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "v2: how the support was checked, when it was."
+        },
         "claim_id": {
           "$ref": "#/$defs/ClaimId"
         },
@@ -552,15 +594,103 @@
       "type": "string"
     },
     "ResearchSchema": {
-      "description": "Wire tag of episodes, events and answers.",
-      "enum": [
-        "research.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`\n(C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a\nsupport check, a harness pin) is refused under the v1 tag, so a v1 reader never receives a\ndocument it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "research.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "research.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "RunId": {
       "minLength": 1,
       "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SeriesBand": {
+      "additionalProperties": false,
+      "description": "An uncertainty band around a series (e.g. two quantile rows of an `AnalysisArtifact`).",
+      "properties": {
+        "lower_pointer": {
+          "type": "string"
+        },
+        "upper_pointer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lower_pointer",
+        "upper_pointer"
+      ],
+      "type": "object"
+    },
+    "SeriesRef": {
+      "additionalProperties": false,
+      "description": "One series of a `series_comparison` view, read from one JSON artifact by pointers. Times are\nseconds since the time origin the artifact itself states; the view checks that every series shares\nit. Values are SI in the unit the artifact states; display conversion happens in the chart only.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "band": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SeriesBand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "role": {
+          "$ref": "#/$defs/SeriesRole"
+        },
+        "time_origin_pointer": {
+          "description": "The time origin string, e.g. `/time_origin`.",
+          "type": "string"
+        },
+        "time_pointer": {
+          "description": "Array of times (s since the time origin), e.g. `/times_s`.",
+          "type": "string"
+        },
+        "unit_pointer": {
+          "description": "The SI unit string, e.g. `/unit`.",
+          "type": "string"
+        },
+        "value_pointer": {
+          "description": "Array of values, same length as the times, e.g. `/mean`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "role",
+        "time_pointer",
+        "value_pointer",
+        "unit_pointer",
+        "time_origin_pointer"
+      ],
+      "type": "object"
+    },
+    "SeriesRole": {
+      "description": "What a plotted series is. Fixed against the artifact it reads: a predicted series comes only from\nan `AnalysisArtifact`, and an observed or computed one never does.",
+      "enum": [
+        "observed",
+        "computed",
+        "predicted"
+      ],
       "type": "string"
     },
     "SourceId": {
@@ -683,6 +813,80 @@
       ],
       "type": "object"
     },
+    "SupportCheck": {
+      "additionalProperties": false,
+      "description": "The result of checking a claim against its cited support. Set by the host or the evaluator, never\nby the agent that wrote the claim.",
+      "properties": {
+        "confidence": {
+          "description": "The checker's own confidence in [0, 1], when it reports one; never invented.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "method": {
+          "$ref": "#/$defs/SupportCheckMethod"
+        },
+        "model_id": {
+          "description": "The checking model; present exactly for the model methods.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verdict": {
+          "$ref": "#/$defs/SupportVerdict"
+        }
+      },
+      "required": [
+        "method",
+        "verdict"
+      ],
+      "type": "object"
+    },
+    "SupportCheckMethod": {
+      "description": "How a claim's support was checked (K1.5).",
+      "oneOf": [
+        {
+          "const": "host_rule",
+          "description": "A deterministic host rule (the cited value resolves, the quote occurs at the locator).",
+          "type": "string"
+        },
+        {
+          "const": "nli_model",
+          "description": "An entailment (NLI) model over the cited passage.",
+          "type": "string"
+        },
+        {
+          "const": "llm_judge",
+          "description": "A language model judging the cited passage.",
+          "type": "string"
+        },
+        {
+          "const": "human",
+          "description": "A person.",
+          "type": "string"
+        }
+      ]
+    },
+    "SupportVerdict": {
+      "description": "Does the cited support carry the claim's statement?",
+      "oneOf": [
+        {
+          "enum": [
+            "supported",
+            "partially_supported",
+            "not_supported"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "unverifiable",
+          "description": "The check could not decide (support unreadable, out of the checker's reach).",
+          "type": "string"
+        }
+      ]
+    },
     "Timestamp": {
       "format": "date-time",
       "pattern": "Z$",
@@ -692,6 +896,148 @@
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "ViewSpec": {
+      "description": "The closed catalog of answer views (K1.4, co-designed with the workspace). The agent places a\ncomponent by naming it with references; it never sends markup. Every reference must be one the\nanswer lists (evidence, artifacts, releases), so a view cannot show what the answer does not cite.\nA new kind is a contract change.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The cited passage, opened at its locator in the original.",
+          "properties": {
+            "evidence_id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "source_excerpt",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "evidence_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Observation versus prediction (or any series) on one time axis.",
+          "properties": {
+            "kind": {
+              "const": "series_comparison",
+              "type": "string"
+            },
+            "series": {
+              "items": {
+                "$ref": "#/$defs/SeriesRef"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "series"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Conditions per run with gaps explicit (a `ConditionsTable` artifact).",
+          "properties": {
+            "kind": {
+              "const": "conditions_matrix",
+              "type": "string"
+            },
+            "table": {
+              "$ref": "#/$defs/ArtifactId"
+            }
+          },
+          "required": [
+            "kind",
+            "table"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Tested O2/pressure envelope against habitat atmospheres (a `ConditionsTable` artifact).",
+          "properties": {
+            "kind": {
+              "const": "atmosphere_map",
+              "type": "string"
+            },
+            "table": {
+              "$ref": "#/$defs/ArtifactId"
+            }
+          },
+          "required": [
+            "kind",
+            "table"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A source's video with our extracted contour drawn over it (a `VisualObservationBundle`).",
+          "properties": {
+            "bundle": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "video_overlay",
+              "type": "string"
+            },
+            "source_id": {
+              "$ref": "#/$defs/SourceId"
+            }
+          },
+          "required": [
+            "kind",
+            "source_id",
+            "bundle"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A model release with its construction and qualification state.",
+          "properties": {
+            "kind": {
+              "const": "release_card",
+              "type": "string"
+            },
+            "release_id": {
+              "$ref": "#/$defs/ReleaseId"
+            }
+          },
+          "required": [
+            "kind",
+            "release_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A table (array of rows or object) inside a JSON artifact.",
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact_table",
+              "type": "string"
+            },
+            "pointer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "artifact_id",
+            "pointer"
+          ],
+          "type": "object"
+        }
+      ]
     },
     "WikiPageId": {
       "minLength": 1,
