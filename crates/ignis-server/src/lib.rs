@@ -469,6 +469,7 @@ fn v1_instance(
         runtime_report,
         runner_report,
         mcp_url,
+        artifact_backend: args.artifact_backend,
     })
 }
 
