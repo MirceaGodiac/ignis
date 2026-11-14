@@ -113,7 +113,7 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
 
       <div className="side-scroll">
         <div className="tree">
-          {TOOLS.filter((t) => t.view !== "compare" || compareCount > 0 || route.view === "compare").map(({ view, label, Icon }) => (
+          {TOOLS.map(({ view, label, Icon }) => (
             <a key={view} className="nav-item" href={href(view)} aria-current={route.view === view ? "page" : undefined} onClick={close}>
               <Icon />
               <span className="grow">{label}</span>
@@ -148,7 +148,7 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
                         [
                           ["thread", "Thread", IconThread],
                           ["evidence", "Evidence", IconEvidence],
-                          ["route", "Research route", IconRoute],
+                          ["route", "Route", IconRoute],
                         ] as const
                       ).map(([t, label, I]) => (
                         <a key={t} className="nav-item" href={href("research", e.episode_id, t === "thread" ? undefined : { tab: t })} aria-current={tab === t ? "page" : undefined} onClick={close}>

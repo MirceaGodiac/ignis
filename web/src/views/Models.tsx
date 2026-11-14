@@ -13,8 +13,13 @@ export function Models() {
   const experts = health.data?.experts ?? [];
   return (
     <div className="view">
-      {caps.data?.models.available === false && <Gap title="The model service is not configured here">{caps.data.models.detail}</Gap>}
-      {releases.error && <ErrorNote error={releases.error} title="Releases could not be loaded" />}
+      {caps.data?.models.available === false ? (
+        <Gap title="The model service is not configured here">
+          <code>capability_unavailable</code> · {caps.data.models.detail}
+        </Gap>
+      ) : (
+        releases.error && <ErrorNote error={releases.error} title="Releases could not be loaded" />
+      )}
       {releases.data && (
         <div className="tbl-wrap">
           <table className="tbl">

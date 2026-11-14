@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "title": "Design System: IGNIS",
+  "extensions": {
+    "colorMeta": {"paper":{"role":"neutral","displayName":"Sheet White","canonical":"#ffffff","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"rail":{"role":"neutral","displayName":"Rail Grey","canonical":"#fafafa","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"sheet":{"role":"neutral","displayName":"Sheet","canonical":"#ffffff","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"ink":{"role":"neutral","displayName":"Biro Black","canonical":"#111111","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"ink-2":{"role":"neutral","displayName":"Graphite","canonical":"#3a3a3a","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"ink-3":{"role":"neutral","displayName":"Pencil Grey","canonical":"#6b6b6b","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"rule":{"role":"neutral","displayName":"Hairline","canonical":"#ededed","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"rule-2":{"role":"neutral","displayName":"Control Hairline","canonical":"#dedede","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"wash":{"role":"neutral","displayName":"Wash","canonical":"#f4f4f4","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"hover":{"role":"neutral","displayName":"Hover Tint","canonical":"#f2f2f2","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"flame":{"role":"primary","displayName":"Biro Blue","canonical":"#1a4be0","tonalRamp":["#010826","#03165e","#05249d","#1544d9","#3d73fe","#7ca5ff","#bbd1fe","#e7effe"]},"flame-wash":{"role":"primary","displayName":"Biro Blue Wash","canonical":"#eef2fd","tonalRamp":["#0a0b0d","#202126","#383a41","#575b64","#7c808a","#a4a7b1","#cfd1d6","#edeef1"]},"soot":{"role":"secondary","displayName":"Reveal Orange","canonical":"#c2410c","tonalRamp":["#1b0300","#400e00","#681e01","#9d3001","#d25022","#f8815a","#fec0ad","#fee9e3"]},"ok":{"role":"tertiary","displayName":"Qualified Green","canonical":"#167a45","tonalRamp":["#010f05","#012a13","#014724","#046d3b","#39955e","#6ebc88","#b1debe","#def6e4"]},"bad":{"role":"tertiary","displayName":"Refusal Red","canonical":"#c62828","tonalRamp":["#1d0101","#460103","#730008","#ac0413","#dc403b","#ff796e","#ffbfb7","#ffe9e6"]},"bad-wash":{"role":"tertiary","displayName":"Refusal Wash","canonical":"#fdf1f1","tonalRamp":["#0d0b0b","#252020","#403838","#625858","#887d7d","#afa5a5","#d5cfcf","#f1eded"]},"grid":{"role":"neutral","displayName":"Chart Grid","canonical":"#f1f1f1","tonalRamp":["#0b0b0b","#222222","#3a3a3a","#5b5b5b","#808080","#a8a8a8","#d1d1d1","#eeeeee"]},"ev2":{"role":"primary","displayName":"Evidence Blue 2","canonical":"#5b7fe9","tonalRamp":["#04091e","#0e1c4d","#1b3081","#3350b6","#5578e1","#81a3fe","#bdd0fe","#e8eefe"]},"ev3":{"role":"primary","displayName":"Evidence Blue 3","canonical":"#9db2f1","tonalRamp":["#070a16","#18203b","#2b3763","#46578f","#6a7db9","#93a6dd","#c4d0f3","#e8eefe"]},"ev4":{"role":"primary","displayName":"Evidence Blue 4","canonical":"#d6e0fb","tonalRamp":["#090b10","#1d212c","#343a4c","#525a71","#778098","#9fa7be","#cbd1df","#ebeef6"]},"paper-dark":{"role":"neutral","displayName":"Night","canonical":"#0a0d14","tonalRamp":["#0a0b0d","#202226","#373a42","#575b64","#7c808a","#a4a8b1","#ced1d7","#edeef1"]},"rail-dark":{"role":"neutral","displayName":"Night Rail","canonical":"#0d1119","tonalRamp":["#0a0b0d","#1f2227","#373b43","#565b65","#7b808b","#a3a8b2","#ced1d7","#edeef2"]},"sheet-dark":{"role":"neutral","displayName":"Night Sheet","canonical":"#131824","tonalRamp":["#0a0b0e","#1f2229","#353a46","#545b69","#798090","#a1a8b6","#cdd1da","#eceef3"]},"ink-dark":{"role":"neutral","displayName":"Night Ink","canonical":"#e9edf3","tonalRamp":["#0a0b0c","#202224","#383b3f","#585b60","#7d8086","#a5a8ad","#cfd1d4","#edeef0"]},"ink-2-dark":{"role":"neutral","displayName":"Night Graphite","canonical":"#c3cad6","tonalRamp":["#0a0b0d","#1f2227","#363b43","#555b65","#7a818c","#a2a8b2","#cdd1d8","#eceef2"]},"ink-3-dark":{"role":"neutral","displayName":"Night Pencil","canonical":"#8891a1","tonalRamp":["#090b0e","#1e2229","#343b46","#535b6a","#788190","#a0a8b7","#ccd1da","#eceff3"]},"rule-dark":{"role":"neutral","displayName":"Night Hairline","canonical":"#1d2331","tonalRamp":["#0a0b0f","#1e2229","#353a47","#545b6b","#788092","#a0a8b8","#ccd1db","#eceef4"]},"rule-2-dark":{"role":"neutral","displayName":"Night Control Hairline","canonical":"#2a3142","tonalRamp":["#090b0f","#1e212a","#343a49","#535b6d","#788094","#a0a8ba","#ccd1dd","#eceef5"]},"wash-dark":{"role":"neutral","displayName":"Night Wash","canonical":"#171d2a","tonalRamp":["#0a0b0e","#1e2229","#353b47","#535b6a","#788091","#a0a8b7","#ccd1db","#eceef4"]},"hover-dark":{"role":"neutral","displayName":"Night Hover","canonical":"#1a2130","tonalRamp":["#090b0f","#1e222a","#343b48","#525b6c","#778093","#9fa8b9","#ccd1dc","#eceef4"]},"flame-dark":{"role":"primary","displayName":"Sky Blue","canonical":"#5ab9fc","tonalRamp":["#000c18","#01243b","#013e62","#056093","#1f88c8","#5eb0ec","#a9d7fc","#e1f1fe"]},"flame-wash-dark":{"role":"primary","displayName":"Sky Blue Wash","canonical":"#12263a","tonalRamp":["#070c10","#18232e","#2b3c4e","#475d74","#6c839b","#95aac1","#c5d3e1","#e8eff7"]},"soot-dark":{"role":"secondary","displayName":"Night Reveal Orange","canonical":"#fb923c","tonalRamp":["#160700","#371800","#5b2c00","#8a4600","#c06400","#ea8d45","#fdc39b","#feeadd"]},"ok-dark":{"role":"tertiary","displayName":"Night Qualified Green","canonical":"#4ade80","tonalRamp":["#001004","#002a10","#024721","#016e35","#039a4d","#44c472","#a1e4b2","#d6f9de"]},"bad-dark":{"role":"tertiary","displayName":"Night Refusal Red","canonical":"#f87171","tonalRamp":["#1b0304","#44050b","#720215","#a4202c","#d14e51","#f77e7c","#febebb","#ffe8e7"]},"bad-wash-dark":{"role":"tertiary","displayName":"Night Refusal Wash","canonical":"#2a1416","tonalRamp":["#0f090a","#2b1e1f","#493435","#6e5354","#957879","#bba0a1","#ddcccd","#f5ecec"]},"grid-dark":{"role":"neutral","displayName":"Night Chart Grid","canonical":"#1a2030","tonalRamp":["#090b0f","#1e212a","#343a49","#535a6d","#788094","#a0a7ba","#ccd1dd","#eceef5"]},"ev2-dark":{"role":"primary","displayName":"Night Evidence Blue 2","canonical":"#3b8fd0","tonalRamp":["#010c19","#00243e","#003d65","#005f98","#3186c7","#67afeb","#add6fb","#e2f1fe"]},"ev3-dark":{"role":"primary","displayName":"Night Evidence Blue 3","canonical":"#2a6698","tonalRamp":["#030c16","#06233b","#093d64","#225f90","#4a85b9","#78adde","#b5d5f3","#e2f1fe"]},"ev4-dark":{"role":"primary","displayName":"Night Evidence Blue 4","canonical":"#1d4466","tonalRamp":["#050c13","#102334","#1e3d59","#375e82","#5c84aa","#87accf","#bdd4ea","#e4f0fc"]}},
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The Home question only." },
+      "headline": { "displayName": "Headline", "purpose": "Object page title (an investigation); 17px and 3-line clamp at 820px and below." },
+      "title": { "displayName": "Title", "purpose": "The thread goal." },
+      "title-sm": { "displayName": "Title small", "purpose": "View heading on list views." },
+      "heading": { "displayName": "Heading", "purpose": "Card, sheet and panel headings." },
+      "reading": { "displayName": "Reading", "purpose": "Answer text, 66ch measure." },
+      "body": { "displayName": "Body", "purpose": "Default UI text; tabular numerals on." },
+      "body-sm": { "displayName": "Body small", "purpose": "Tables, key-value lists, notes, side panel." },
+      "label": { "displayName": "Label", "purpose": "Section labels over lists, the properties heading, panel section headings; pencil grey, sentence case. Source writes 550; Geist as loaded renders 600. Table headers use 500, captions and legends 400, same size." },
+      "data": { "displayName": "Data", "purpose": "Run ids, hashes, file paths, times, JSON." }
+    },
+    "shadows": [
+      { "name": "float", "value": "0 1px 2px rgb(0 0 0 / 0.05), 0 8px 24px rgb(0 0 0 / 0.08)", "purpose": "Layers above the content: popovers, menus, tooltip, tray, overlay panel. Token --shadow." },
+      { "name": "float-dark", "value": "0 1px 2px rgb(0 0 0 / 0.5), 0 12px 32px rgb(0 0 0 / 0.5)", "purpose": "The float shadow in the dark scheme." },
+      { "name": "prompt-rest", "value": "0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px rgb(0 0 0 / 0.04)", "purpose": "The Home prompt at rest." },
+      { "name": "segment-pressed", "value": "0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--rule)", "purpose": "The pressed button in a segmented control." },
+      { "name": "focus-glow", "value": "0 0 0 3px color-mix(in srgb, var(--flame) 15%, transparent)", "purpose": "Thread composer with focus inside, with a blue border." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Token --ease: transforms, popover rise, disclosure chevron, map run scale." },
+      { "name": "state", "value": "120ms", "purpose": "Background, border and shadow changes on controls and inputs." },
+      { "name": "rise", "value": "120-140ms var(--ease), translateY(3px) to 0 with opacity", "purpose": "Hovercard and command menu entrance." },
+      { "name": "fade", "value": "100ms", "purpose": "Command menu scrim." },
+      { "name": "disclosure", "value": "160ms var(--ease)", "purpose": "Route summary chevron rotation." },
+      { "name": "pulse", "value": "1.6s var(--ease) infinite, opacity to 0.3", "purpose": "A running status dot." },
+      { "name": "reduced-motion", "value": "1ms", "purpose": "All animations and transitions under prefers-reduced-motion: reduce." }
+    ],
+    "breakpoints": [
+      { "name": "wide", "value": "1280px", "purpose": "At or below: claims margin moves under the answer." },
+      { "name": "medium", "value": "1100px", "purpose": "At or below: side panel overlays, properties below the page, map and lab one column." },
+      { "name": "narrow", "value": "820px", "purpose": "At or below: one-column shell, rail becomes a header with a toggle." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid ink action; one per view at most.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Ask</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--rule-2); background: var(--sheet); color: var(--ink); font: 500 13px/1 var(--font-ui); cursor: pointer; white-space: nowrap; transition: background 120ms, border-color 120ms; } .ds-btn-primary { background: var(--ink); border-color: var(--ink); color: var(--paper); } .ds-btn-primary:hover { background: color-mix(in srgb, var(--ink) 85%, var(--paper)); } .ds-btn:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; } .ds-btn:disabled { opacity: 0.45; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Default button: sheet fill and control hairline.",
+      "html": "<button class=\"ds-btn-secondary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 3v10M3 8h10\"/></svg>New investigation</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--rule-2); background: var(--sheet); color: var(--ink); font: 500 13px/1 var(--font-ui); cursor: pointer; transition: background 120ms, border-color 120ms; } .ds-btn-secondary:hover { background: var(--hover); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "No border, no fill; for toolbar and panel actions.",
+      "html": "<button class=\"ds-btn-quiet\">Back</button>",
+      "css": ".ds-btn-quiet { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--ink-2); font: 500 13px/1 var(--font-ui); cursor: pointer; transition: background 120ms; } .ds-btn-quiet:hover { background: var(--hover); color: var(--ink); } .ds-btn-quiet:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }"
+    },
+    {
+      "name": "Composer",
+      "kind": "input",
+      "refersTo": "composer",
+      "description": "The follow-up input under a thread; border turns blue with a soft glow when focus is inside.",
+      "html": "<form class=\"ds-composer\"><textarea rows=\"1\" placeholder=\"Ask a follow-up\"></textarea><button type=\"submit\" class=\"ds-send\" aria-label=\"Send\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 13V3M3.5 7.5 8 3l4.5 4.5\"/></svg></button></form>",
+      "css": ".ds-composer { display: flex; gap: 6px; align-items: flex-end; padding: 6px; border: 1px solid var(--rule-2); border-radius: 10px; background: var(--sheet); transition: border-color 120ms, box-shadow 120ms; } .ds-composer:focus-within { border-color: var(--flame); box-shadow: 0 0 0 3px color-mix(in srgb, var(--flame) 15%, transparent); } .ds-composer textarea { flex: 1; border: 0; background: transparent; resize: none; outline: none; font: 400 13px/1.45 var(--font-ui); color: var(--ink); min-height: 20px; padding: 4px 6px; } .ds-send { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border-radius: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; } .ds-send:hover { background: color-mix(in srgb, var(--ink) 85%, var(--paper)); } .ds-send:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }"
+    },
+    {
+      "name": "Rail Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Left rail tools; current item is a wash fill with ink text, never blue.",
+      "html": "<nav class=\"ds-rail\"><a class=\"ds-nav\" aria-current=\"page\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.5 7 8 2.5 13.5 7v6.5h-11Z\"/></svg><span class=\"ds-grow\">Home</span></a><a class=\"ds-nav\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5.5 4h8M5.5 8h8M5.5 12h8\"/><circle cx=\"2.75\" cy=\"4\" r=\"0.6\" fill=\"currentColor\"/><circle cx=\"2.75\" cy=\"8\" r=\"0.6\" fill=\"currentColor\"/><circle cx=\"2.75\" cy=\"12\" r=\"0.6\" fill=\"currentColor\"/></svg><span class=\"ds-grow\">Runs</span><span class=\"ds-count\">35</span></a></nav>",
+      "css": ".ds-rail { width: 232px; padding: 8px; background: var(--rail); border-right: 1px solid var(--rule); display: grid; gap: 1px; } .ds-nav { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 8px; border-radius: 6px; color: var(--ink-2); font: 400 13px var(--font-ui); text-decoration: none; } .ds-nav svg { color: var(--ink-3); flex: none; } .ds-nav:hover { background: var(--hover); color: var(--ink); } .ds-nav:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; } .ds-nav[aria-current=\"page\"] { background: var(--wash); color: var(--ink); font-weight: 600; } .ds-nav[aria-current=\"page\"] svg { color: var(--ink); } .ds-grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-count { color: var(--ink-3); font-size: 11.5px; }"
+    },
+    {
+      "name": "Tags and Synthetic Pill",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Status and evidence tags; colour only where the tag means model output, ok or refusal. Synthetic origin is one outlined pill.",
+      "html": "<div class=\"ds-tags\"><span class=\"ds-tag\">partial</span><span class=\"ds-tag ds-tag-model\"><span class=\"ds-g ds-g-pred\"></span>model output</span><span class=\"ds-tag ds-tag-ok\">completed</span><span class=\"ds-tag ds-tag-bad\">failed</span><span class=\"ds-pill-synth\">Synthetic data</span></div>",
+      "css": ".ds-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .ds-tag { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 7px; border-radius: 5px; font: 500 11.5px var(--font-ui); color: var(--ink-2); background: var(--wash); white-space: nowrap; } .ds-tag-model { color: var(--flame); background: var(--flame-wash); } .ds-tag-ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, transparent); } .ds-tag-bad { color: var(--bad); background: var(--bad-wash); } .ds-g-pred { width: 12px; height: 7px; border-top: 1.5px dashed var(--flame); border-bottom: 1.5px dashed var(--flame); background: color-mix(in srgb, var(--flame) 20%, transparent); } .ds-pill-synth { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 999px; font: 400 11.5px var(--font-ui); color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--rule-2); } .ds-pill-synth::before { content: \"\"; width: 6px; height: 6px; border-radius: 50%; border: 1.5px dashed var(--ink-3); }"
+    },
+    {
+      "name": "Notes",
+      "kind": "card",
+      "refersTo": "note",
+      "description": "Neutral by default; red only for a typed refusal; outlined for a gap.",
+      "html": "<div class=\"ds-notes\"><div class=\"ds-note ds-note-refusal\" role=\"status\"><b>Models are off <code>capability_unavailable</code></b><span>Start the server with --enable-models to register the model tools.</span></div><div class=\"ds-note ds-note-caution\"><b>Approval needed</b><span>The agent asks to run a job on the fixture corpus.</span></div><div class=\"ds-note ds-note-gap\"><b>Arguments</b><span>Tool-call arguments are not in the contracts yet.</span></div></div>",
+      "css": ".ds-notes { display: grid; gap: 8px; } .ds-note { border-radius: 8px; padding: 9px 11px; background: var(--wash); font: 400 12.5px/1.5 var(--font-ui); color: var(--ink-2); display: grid; gap: 2px; } .ds-note > b { color: var(--ink); font-weight: 600; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; } .ds-note code { font: 400 11.5px var(--font-data); color: var(--ink-2); } .ds-note-refusal { background: var(--bad-wash); } .ds-note-refusal > b { color: var(--bad); } .ds-note-caution > b::before { content: \"\"; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); flex: none; } .ds-note-gap { background: transparent; box-shadow: inset 0 0 0 1px var(--rule); color: var(--ink-3); } .ds-note-gap > b { color: var(--ink-2); }"
+    },
+    {
+      "name": "Evidence Glyphs",
+      "kind": "custom",
+      "refersTo": "tag",
+      "description": "Signature: each evidence class is a CSS shape that reads without colour.",
+      "html": "<ul class=\"ds-legend\"><li><span class=\"ds-gl ds-obs\"></span>Observed</li><li><span class=\"ds-gl ds-src\"></span>Source reports</li><li><span class=\"ds-gl ds-cmp\"></span>Computed</li><li><span class=\"ds-gl ds-prd\"></span>Predicted</li><li><span class=\"ds-gl ds-rev\"></span>Revealed</li><li><span class=\"ds-gl ds-int\"></span>Interpretation</li><li><span class=\"ds-gl ds-cut\"></span>Cutoff</li></ul>",
+      "css": ".ds-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; font: 400 11.5px var(--font-ui); color: var(--ink-3); } .ds-legend li { list-style: none; display: inline-flex; align-items: center; gap: 6px; } .ds-gl { display: inline-block; flex: none; width: 8px; height: 8px; color: var(--ink); } .ds-obs { border-radius: 50%; background: currentColor; } .ds-src { background: currentColor; border-radius: 1px; } .ds-cmp { background: currentColor; transform: rotate(45deg) scale(0.8); } .ds-prd { width: 12px; height: 7px; border-top: 1.5px dashed var(--flame); border-bottom: 1.5px dashed var(--flame); background: color-mix(in srgb, var(--flame) 20%, transparent); } .ds-rev { border-radius: 50%; border: 1.5px solid var(--soot); } .ds-int { border-radius: 50%; border: 1.5px dashed var(--ink-3); } .ds-cut { width: 2px; height: 12px; background: var(--ink); } .ds-legend li:hover { color: var(--ink); }"
+    },
+    {
+      "name": "Claim Key",
+      "kind": "custom",
+      "refersTo": "claim-key",
+      "description": "Signature: inline key in the answer text that links a sentence to its claim; blue when active.",
+      "html": "<p class=\"ds-answer\">The droplet diameter falls with time at 21% O₂ <button class=\"ds-key\"><span class=\"ds-gl-obs\"></span>2</button> and the forecast tracks it to the horizon <button class=\"ds-key\"><span class=\"ds-gl-prd\"></span>3</button>.</p>",
+      "css": ".ds-answer { font: 400 14px/1.65 var(--font-ui); color: var(--ink); max-width: 66ch; margin: 0; } .ds-key { display: inline-flex; align-items: center; gap: 3px; height: 17px; padding: 0 4px; margin: 0 1px; border: 0; border-radius: 4px; background: var(--wash); color: var(--ink-2); font: 600 10.5px/1 var(--font-ui); vertical-align: 1px; cursor: pointer; } .ds-key:hover, .ds-key:focus-visible { background: var(--flame-wash); color: var(--flame); } .ds-key:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; } .ds-gl-obs { width: 6px; height: 6px; border-radius: 50%; background: currentColor; } .ds-gl-prd { width: 9px; height: 6px; border-top: 1.5px dashed var(--flame); border-bottom: 1.5px dashed var(--flame); }"
+    },
+    {
+      "name": "Route Stops",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Signature: the agent's route as a vertical timeline; node shape and fill show the state.",
+      "html": "<div class=\"ds-stops\"><button class=\"ds-stop\"><span class=\"ds-node ds-ok\"></span><span>search_knowledge</span><span class=\"ds-when\">00:02</span></button><button class=\"ds-stop\"><span class=\"ds-node ds-warn\"></span><span>read_passage</span><span class=\"ds-when\">00:05</span></button><button class=\"ds-stop\"><span class=\"ds-node ds-run\"></span><span>forecast</span><span class=\"ds-when\">00:09</span></button><button class=\"ds-stop\"><span class=\"ds-node ds-ans\"></span><span>Answer</span><span class=\"ds-when\">00:14</span></button></div>",
+      "css": ".ds-stops { display: grid; padding: 0 6px 8px; } .ds-stop { position: relative; display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 0 8px; align-items: center; min-height: 30px; padding: 4px 8px 4px 0; border: 0; border-radius: 6px; background: none; text-align: left; cursor: pointer; font: 400 12.5px var(--font-ui); color: var(--ink); } .ds-stop::before { content: \"\"; position: absolute; left: 9px; top: 0; bottom: 0; width: 1.5px; background: var(--rule-2); } .ds-stop:first-child::before { top: 50%; } .ds-stop:last-child::before { bottom: 50%; } .ds-stop:hover { background: var(--hover); } .ds-stop:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; } .ds-node { position: relative; z-index: 1; width: 9px; height: 9px; margin-left: 5px; border-radius: 50%; background: var(--sheet); border: 1.5px solid var(--ink-3); } .ds-ok { border-color: var(--ok); background: var(--ok); } .ds-warn { border-color: var(--ink); border-style: dashed; } .ds-run { border-color: var(--flame); } .ds-ans { border-radius: 2px; border-color: var(--ink); background: var(--ink); } .ds-when { color: var(--ink-3); font: 400 11px var(--font-data); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Sheet and Biro",
+    "overview": "IGNIS is a research harness, not a dashboard. The page is a white sheet with black type, one grey family and one biro-blue ink. In dark mode the same system becomes \"Night and Sky Blue\": a blue-black ground with a sky-blue accent. The agent does the work and the researcher reads, checks and decides, so the chrome stays quiet and the evidence gets the colour.\n\nThe density is compact. Body text is 13px, controls are 28px high, and hairlines (1px) divide the surfaces. The layout follows the Linear, Harvey, Legora and Hebbia mould: a left rail, a centre object with tabs, a properties column and a right side panel with a back trail. The system refuses tile dashboards, decorative colour and pages that the researcher must drive step by step.\n\nColour has a meaning or it does not appear. Blue is model output, the current data selection and a running state, orange is revealed data, red is a refusal or a failure, and green is a complete or qualified status. Shape carries the evidence class, so colour is never the only signal.",
+    "keyCharacteristics": [
+      "White sheet, black ink, one grey family, one blue accent (light); blue-black night and sky blue (dark).",
+      "One sans family (Geist) for all text; Geist Mono only for ids, hashes, paths, times and code.",
+      "Compact: 13px body, 28px controls, 1px hairlines, 8px surface radius.",
+      "Flat at rest; shadow only on layers that float above the content.",
+      "Evidence classes drawn as CSS shapes: disc, square, diamond, dashed band, hollow ring, dashed ring.",
+      "Synthetic origin is one neutral outlined pill, never a coloured banner."
+    ],
+    "rules": [
+      { "name": "The Colour Is Data Rule", "body": "The chrome is ink and grey. Blue, orange, red and green appear only when they mean model output, selection, a running state, a cited region or the target atmosphere; revealed data; refusal, failure or a wait on the researcher; and complete or qualified status.", "section": "colors" },
+      { "name": "The No Yellow Rule", "body": "Caution has no hue. A caution note carries an ink dot, a warn route stop is a dashed ink ring, and a \"not qualified\" tag stays neutral grey.", "section": "colors" },
+      { "name": "The Ink Navigation Rule", "body": "Navigation state is ink, not blue. The current nav item is a wash fill, the active tab is a 2px ink underline, and the primary button is solid ink.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Geist sets all text. Geist Mono sets only ids, hashes, paths, times and code, never a heading or a label for effect.", "section": "typography" },
+      { "name": "The 20px Ceiling Rule", "body": "Inside the workspace no heading is above 20px. The Home question (26px) is the only exception.", "section": "typography" },
+      { "name": "The Flat At Rest Rule", "body": "A card, table, sheet or note has no shadow. Use the float shadow only for a layer that sits above the content.", "section": "elevation" },
+      { "name": "The Shape Carries Evidence Rule", "body": "Each evidence class has a CSS shape that reads without colour: observed is a filled disc, source is a filled square, computed is a diamond, predicted is a dashed blue band, revealed is a hollow orange ring, interpretation is a dashed grey ring, and the cutoff is a 2px ink bar.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do use biro blue (#1a4be0; dark #5ab9fc) only for model output, the current data selection, a running state, a cited region, the target atmosphere region, focus and inline links.",
+      "Do keep every surface flat at rest with a 1px hairline (#ededed), and keep the float shadow for layers above the content.",
+      "Do mark every evidence class with its CSS shape (disc, square, diamond, dashed band, hollow ring, dashed ring), so the class reads without colour.",
+      "Do show synthetic origin as one outlined pill with a dashed ring in the topbar, and as the inline synthetic tag on fixture values.",
+      "Do show a refusal as a red-headed note on refusal wash, with the typed code and the next action; show a gap as an outlined neutral note.",
+      "Do set controls at 28px (24px small) with a 6px radius, and surfaces at an 8px radius.",
+      "Do set ids, hashes, paths and times in Geist Mono 12px, and everything else in Geist.",
+      "Do keep reading text at 66 to 72ch, and keep tabular numerals on.",
+      "Do theme the browser surfaces: selection at 22% blue, a 2px blue focus outline at 1px offset, thin scrollbars in the control hairline tone.",
+      "Do draw icons from the authored set: 16px grid, 1.5px stroke, round joins."
+    ],
+    "donts": [
+      "Don't use yellow or amber for caution or warnings; caution is ink.",
+      "Don't use blue for navigation state; the current nav item is a wash fill and the active tab is an ink underline.",
+      "Don't use orange for anything except revealed data.",
+      "Don't show synthetic origin as a coloured banner.",
+      "Don't put a label, tag or pill above a heading as an eyebrow.",
+      "Don't build a view from same-size stat tiles or a hero metric; the system is a harness, not a tile dashboard.",
+      "Don't add a shadow to a card, table, sheet or note at rest.",
+      "Don't use Unicode characters or emoji as icons or as evidence marks.",
+      "Don't use a coloured left or right border on notes or cards; notes use a fill."
+    ]
+  }
+}

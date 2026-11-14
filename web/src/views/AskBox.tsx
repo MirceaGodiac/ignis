@@ -2,7 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { IconArrow } from "../shell/icons";
 
-export function AskBox({ onAsk, busy = false, initial = "", autoFocus = false }: { onAsk: (q: string) => void; busy?: boolean; initial?: string; autoFocus?: boolean }) {
+export function AskBox({ onAsk, busy = false, initial = "", autoFocus = false, synthetic = false }: { onAsk: (q: string) => void; busy?: boolean; initial?: string; autoFocus?: boolean; synthetic?: boolean }) {
   const [q, setQ] = useState(initial);
   const submit = (e?: FormEvent) => {
     e?.preventDefault();
@@ -29,6 +29,11 @@ export function AskBox({ onAsk, busy = false, initial = "", autoFocus = false }:
       />
       <div className="prompt-foot">
         <span className="muted small">The agent searches the sources and data, then answers with citations.</span>
+        {synthetic && (
+          <span className="pill-synth" style={{ marginLeft: "auto" }} title="Development fixtures: generated data, not NASA results">
+            Synthetic data
+          </span>
+        )}
         <button className="btn btn-primary send" type="submit" disabled={!q.trim() || busy} aria-label="Ask">
           <IconArrow />
         </button>

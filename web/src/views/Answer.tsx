@@ -108,16 +108,6 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
             </p>
           );
         })}
-        {(answer.limitations ?? []).length > 0 && (
-          <div className="limits" role="note">
-            <b>Limits that change the interpretation</b>
-            <ul>
-              {answer.limitations!.map((l, i) => (
-                <li key={i}>{l}</li>
-              ))}
-            </ul>
-          </div>
-        )}
         <NextSteps answer={answer} keyOf={keyOf} evidence={evidence} />
       </div>
 
@@ -185,7 +175,8 @@ function NextSteps({ answer, keyOf, evidence }: { answer: ResearchAnswer; keyOf:
         go("compare");
       },
     });
-  for (const l of (answer.limitations ?? []).slice(0, 2)) steps.push({ label: "Resolve a stated limit", detail: l, run: () => draftFollowUp(`Can you resolve this limitation: ${l}`) });
+  // Every stated limit is listed here in full: it changes how the answer reads, and each has an action.
+  for (const l of answer.limitations ?? []) steps.push({ label: "Resolve limit", detail: l, run: () => draftFollowUp(`Can you resolve this limitation: ${l}`) });
   for (const c of unsupported.slice(0, 2)) steps.push({ label: `Support claim ${keyOf(c.claim_id)}`, detail: c.text, run: () => draftFollowUp(`Claim ${keyOf(c.claim_id)} has no support. Find a source or computation for it, or withdraw it.`) });
   if (answer.status === "partial" || answer.status === "insufficient_evidence")
     steps.push({ label: "Ask what evidence is missing", detail: `the answer is ${words(answer.status)}`, run: () => draftFollowUp("Which data or sources are missing to make this answer complete, and where could they come from?") });
@@ -193,7 +184,7 @@ function NextSteps({ answer, keyOf, evidence }: { answer: ResearchAnswer; keyOf:
   return (
     <section className="next" aria-label="Suggested next steps">
       <h3>Next steps</h3>
-      {steps.slice(0, 5).map((s) => (
+      {steps.slice(0, 7).map((s) => (
         <button key={s.label + s.detail} onClick={s.run}>
           <span className="l">{s.label}</span>
           <span className="d">{s.detail}</span>
