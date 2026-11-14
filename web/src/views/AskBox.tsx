@@ -37,8 +37,8 @@ export function AskBox({ onAsk, busy = false, initial = "", autoFocus = false }:
 }
 
 export const EXAMPLES = [
-  "Which investigations are closest to a 30 % O₂, 10.2 psi Moon-base atmosphere?",
-  "How does ambient oxygen change droplet burning rate in FLEX?",
-  "What do BASS results say about flame spread at low airflow?",
-  "Which data could support a predictive flammability model?",
+  "Which tests come closest to Moon-base air?",
+  "How does oxygen change FLEX burning rates?",
+  "What did BASS find about flame spread at low airflow?",
+  "Which data could feed a flammability model?",
 ];

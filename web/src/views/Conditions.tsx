@@ -39,7 +39,7 @@ const TABS: [ConditionsTab, string][] = [
 ];
 
 /** One page for the conditions table (K1.13): its three readings share one service and one header. */
-export function ConditionsPage({ tab }: { tab: ConditionsTab }) {
+export function ConditionsPage({ tab, habitat }: { tab: ConditionsTab; habitat?: string | null }) {
   return (
     <div className="view">
       <div className="page-title">
@@ -52,14 +52,14 @@ export function ConditionsPage({ tab }: { tab: ConditionsTab }) {
           ))}
         </nav>
       </div>
-      {tab === "map" ? <MapView /> : <Conditions tab={tab} />}
+      {tab === "map" ? <MapView /> : <Conditions tab={tab} initialPreset={habitat} />}
     </div>
   );
 }
 
-function Conditions({ tab }: { tab: "habitats" | "runs" }) {
+function Conditions({ tab, initialPreset }: { tab: "habitats" | "runs"; initialPreset?: string | null }) {
   const { client, researchMode } = useData();
-  const [preset, setPreset] = useState<Preset>("all");
+  const [preset, setPreset] = useState<Preset>(() => (initialPreset && initialPreset in PRESET_LABEL ? (initialPreset as Preset) : "all"));
   const [includeUnknown, setIncludeUnknown] = useState(false);
   const habitat = HABITAT_LIST.find((h) => h.id === preset);
   const filters = habitat ? habitatFilters(habitat) : [];

@@ -2,12 +2,12 @@
 // or release, with a back trail. Every link inside it pushes onto the trail; Escape closes it.
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnswerRefusal, ArtifactRef, EvidenceRef, InlinePayload } from "../contracts/generated";
+import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ResearchAnswer } from "../contracts/generated";
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
 import { fmtGravity, fmtMeasured } from "../format";
-import { ArtifactValue, EvidenceSummary, locatorText } from "../views/Answer";
+import { ArtifactValue, EvidenceSummary, locatorText, placeShort } from "../views/Answer";
 import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, RefusalNote, ReleaseState, shortId, Synthetic, words } from "../ui/common";
 import { useCompare } from "./compare";
 import { useData } from "./data";
@@ -19,7 +19,7 @@ import { isTypedArtifact } from "../research/artifactViews";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 import { SourceOriginal } from "./SourceOriginal";
 
-const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Route step", release: "Model release" };
+const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources" };
 
 const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer", AnswerRefusal: "Refused answer", VisualObservationBundle: "Video contours" };
 
@@ -79,8 +79,48 @@ export function Panel() {
         {current.kind === "artifact" && <ArtifactItem artifact={current.artifact} caption={current.caption} />}
         {current.kind === "step" && <StepItem item={current} />}
         {current.kind === "release" && <ReleaseItem item={current} />}
+        {current.kind === "sources" && <SourcesItem answers={current.answers} />}
       </div>
     </aside>
+  );
+}
+
+// ---------------------------------------------------------------- sources of a question
+
+/**
+ * Every source the question's answers cite, numbered in order of first citation across answers, with
+ * the claims each passage supports. A passage opens its original at the cited place.
+ */
+function SourcesItem({ answers }: { answers: ResearchAnswer[] }) {
+  const { push } = usePanel();
+  const rows = new Map<string, { n: number; cites: { e: EvidenceRef; claims: Claim[] }[] }>();
+  for (const a of answers) {
+    const claimsOf = new Map<string, Claim[]>();
+    for (const c of a.claims ?? []) for (const s of c.support ?? []) if (s.kind === "evidence") claimsOf.set(s.evidence_id, [...(claimsOf.get(s.evidence_id) ?? []), c]);
+    for (const e of a.evidence ?? []) {
+      const r = rows.get(e.source_id) ?? { n: rows.size + 1, cites: [] };
+      r.cites.push({ e, claims: claimsOf.get(e.evidence_id) ?? [] });
+      rows.set(e.source_id, r);
+    }
+  }
+  if (!rows.size) return <Gap title="No sources yet">Sources appear when an answer cites them.</Gap>;
+  return (
+    <ol className="src-panel">
+      {[...rows.entries()].map(([id, r]) => (
+        <li key={id}>
+          <div className="src-panel-head">
+            <span className="src-no">{r.n}</span>
+            <code>{shortId(id, 30)}</code>
+          </div>
+          {r.cites.map(({ e, claims }) => (
+            <button key={e.evidence_id} className="src-cite" onClick={() => push({ kind: "evidence", evidence: e, claim: claims[0] })}>
+              <span className="place">{placeShort(e)}</span>
+              <span className="txt">{e.quote ?? claims[0]?.text ?? locatorText(e)}</span>
+            </button>
+          ))}
+        </li>
+      ))}
+    </ol>
   );
 }
 

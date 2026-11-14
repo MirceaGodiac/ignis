@@ -67,7 +67,7 @@ function Shell() {
     <div className={`shell${panel.current ? " has-panel" : ""}`}>
       <Sidebar route={route} compareCount={cmp.ids.length} onCommand={() => setCmd(true)} />
       <main className="main" id="main">
-        {route.view !== "home" && (
+        {route.view !== "home" && !(route.view === "research" && route.id) && (
           <header className="topbar">
             <nav className="crumbs" aria-label="Breadcrumb">
               {VIEW_SECTION[route.view] && (
@@ -97,8 +97,8 @@ function Shell() {
           </header>
         )}
         {route.view === "home" && <Home />}
-        {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} tab={route.params.get("tab")} />}
-        {route.view === "conditions" && <ConditionsPage tab={(["map", "runs"].includes(route.params.get("tab") ?? "") ? route.params.get("tab") : "habitats") as ConditionsTab} />}
+        {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} />}
+        {route.view === "conditions" && <ConditionsPage habitat={route.params.get("habitat")} tab={(["map", "runs"].includes(route.params.get("tab") ?? "") ? route.params.get("tab") : "habitats") as ConditionsTab} />}
         {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
         {route.view === "compare" && <Compare />}
         {route.view === "lab" && <Lab runId={route.id} />}

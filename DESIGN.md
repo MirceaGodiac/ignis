@@ -298,6 +298,18 @@ footer and no global server banner. Every page opens with its title (24px), then
 then its content: no explanatory sentence under a title, no helper copy under a field. The data source
 is live; fixtures are a development choice (command menu or `?source=synthetic`).
 
+A question is a conversation, not an object page: the researcher's message (right, wash bubble), the
+agent's steps collapsed to one line ("3 steps · 0:12"), the answer, and a composer pinned at the
+bottom. The header holds the breadcrumb, "Sources" (every cited source of the question, in the side
+panel) and a "…" menu (pause, resume, cancel, copy link, details). No tabs, no properties column.
+
+Citations: after each claim, a chip names its source by number (in order of first citation) and the
+place: "1 · p. 14", "2 · row 41", "+1" for more supports; "computed" for a value read from an artifact;
+a dashed "interpretation" chip for the agent's own reading. Hover shows the quoted passage with 1/N
+across supports and "Open", which shows the original at that place in the side panel. Under the
+answer: a "Sources" line (stacked numbers, counts) that expands to every passage, copy, and follow-ups.
+The evidence contract carries no source title yet, so sources are numbered, not named.
+
 Spacing: 6-10px inside a group, 16-22px between blocks (20px view gap), 32-36px between sections. View padding 12px 32px 56px. Control heights 26 (small), 32 (default), 38 (rail items), 40 (rail actions), 42 (table rows, tabs, list rows), 60 (topbar, panel head).
 
 Responsive behaviour is unchanged: at 1280px the claims margin moves under the answer; at 1100px the side panel overlays and the properties column moves under the page; at 820px the shell is one column with a menu toggle.
