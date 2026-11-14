@@ -3,14 +3,15 @@
 //      atmospheres? (reached, outside by how much, or not decidable; never extrapolated)
 //   2. Which conditions did each run record? (value with its original's locator, or an explicit gap)
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
-import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, PSI_PA, rankFor, type HabitatId, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
+import { HABITAT_LIST, habitatFilters, type HabitatId } from "../research/habitats";
 import { flagTags, quotedText } from "../research/conditionCells";
 import { rowWindow } from "../research/windowing";
 import { useData } from "../shell/data";
 import { href } from "../shell/router";
 import { MapView } from "./MapView";
+import { ByAtmosphere } from "./ByAtmosphere";
 import { ErrorNote, EvidenceClassTag, Gap, words } from "../ui/common";
 
 const KEY_LABEL: Record<ConditionKey, string> = {
@@ -33,13 +34,13 @@ const PRESET_LABEL: Record<Preset, string> = { all: "All runs", moon: "Moon base
 
 export type ConditionsTab = "habitats" | "map" | "runs";
 const TABS: [ConditionsTab, string][] = [
-  ["habitats", "Habitats"],
+  ["habitats", "By atmosphere"],
   ["map", "Atmosphere map"],
-  ["runs", "Runs"],
+  ["runs", "Runs table"],
 ];
 
 /** One page for the conditions table (K1.13): its three readings share one service and one header. */
-export function ConditionsPage({ tab, habitat }: { tab: ConditionsTab; habitat?: string | null }) {
+export function ConditionsPage({ tab, habitat, inv }: { tab: ConditionsTab; habitat?: string | null; inv?: string | null }) {
   return (
     <div className="view">
       <div className="page-title">
@@ -52,23 +53,17 @@ export function ConditionsPage({ tab, habitat }: { tab: ConditionsTab; habitat?:
           ))}
         </nav>
       </div>
-      {tab === "map" ? <MapView /> : <Conditions tab={tab} initialPreset={habitat} />}
+      {tab === "map" ? <MapView focus={inv} /> : tab === "habitats" ? <ByAtmosphere initial={habitat} /> : <Conditions initialPreset={habitat} />}
     </div>
   );
 }
 
-function Conditions({ tab, initialPreset }: { tab: "habitats" | "runs"; initialPreset?: string | null }) {
+function Conditions({ initialPreset }: { initialPreset?: string | null }) {
   const { client, researchMode } = useData();
   const [preset, setPreset] = useState<Preset>(() => (initialPreset && initialPreset in PRESET_LABEL ? (initialPreset as Preset) : "all"));
   const [includeUnknown, setIncludeUnknown] = useState(false);
   const habitat = HABITAT_LIST.find((h) => h.id === preset);
   const filters = habitat ? habitatFilters(habitat) : [];
-  // Envelopes (the habitat ranking) cover every investigation; the matrix pages through the filtered runs.
-  const envelopes = useQuery({
-    queryKey: [researchMode, "conditions", "envelopes"],
-    queryFn: () => client.conditions({ schema_version: "dataset.v2", include_envelopes: true, page_size: 1 }),
-    retry: false,
-  });
   const runs = useInfiniteQuery({
     queryKey: [researchMode, "conditions", "runs", preset, includeUnknown],
     queryFn: ({ pageParam }) =>
@@ -79,17 +74,9 @@ function Conditions({ tab, initialPreset }: { tab: "habitats" | "runs"; initialP
   });
   const first = runs.data?.pages[0];
   const table: ConditionsTable | undefined = first && { ...first, rows: runs.data!.pages.flatMap((p) => p.rows) };
-  if (tab === "habitats" && envelopes.error) return <Unavailable err={envelopes.error} />;
-  if (tab === "runs" && runs.error && !runs.data) return <Unavailable err={runs.error} />;
+  if (runs.error && !runs.data) return <Unavailable err={runs.error} />;
   return (
     <>
-      {tab === "habitats" && envelopes.isPending && <p className="muted">Loading…</p>}
-      {tab === "habitats" && envelopes.data && (
-        <>
-          <HabitatRanking axes={(envelopes.data.envelopes ?? []).map(axesOf)} />
-        </>
-      )}
-      {tab === "runs" && (
       <section className="panel-sec" aria-labelledby="h-matrix">
         <h2 id="h-matrix" className="sr-only">
           Conditions per run
@@ -120,7 +107,6 @@ function Conditions({ tab, initialPreset }: { tab: "habitats" | "runs"; initialP
           </button>
         )}
       </section>
-      )}
     </>
   );
 }
@@ -129,107 +115,6 @@ function Unavailable({ err }: { err: unknown }) {
   return <Gap title="Conditions are not available on this server">{err instanceof Error ? err.message : String(err)}</Gap>;
 }
 
-// ---------------------------------------------------------------- habitat relevance
-
-const pct = (v: number) => `${+(v * 100).toFixed(1)} %`;
-const psi = (pa: number) => `${+(pa / PSI_PA).toFixed(1)} psi`;
-const span = (s: Slot, f: (v: number) => string) => (s.kind === "missing" ? null : s.range.min === s.range.max ? f(s.range.min) : `${f(s.range.min)} – ${f(s.range.max)}`);
-
-function FitCell({ fit }: { fit: Fit }) {
-  if (fit.status === "reached") return <span className="tag tag-ok">within envelope</span>;
-  if (fit.status === "unknown")
-    return (
-      <span className="tag tag-line" title={fitText(fit)}>
-        not decidable
-      </span>
-    );
-  return (
-    <span title={fitText(fit)}>
-      <span className="tag tag-warn">outside</span>
-      <span className="dim small num" style={{ display: "block", marginTop: 2 }}>
-        {fitText(fit).replace("outside tested envelope: ", "")}
-      </span>
-    </span>
-  );
-}
-
-export function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
-  const moon = HABITAT_LIST[0];
-  const ranked = rankFor(axes, moon);
-  return (
-    <section className="panel-sec" aria-labelledby="h-habitats">
-      <h2 id="h-habitats" className="sr-only">
-        Habitat relevance
-      </h2>
-      {ranked.length === 0 ? (
-        <Gap title="No tested envelopes">The conditions service returned no per-investigation envelope.</Gap>
-      ) : (
-        <div className="tbl-wrap">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Investigation</th>
-                <th className="r">Runs</th>
-                <th>Tested O₂ · pressure</th>
-                <th>Gravity</th>
-                {HABITAT_LIST.map((h) => (
-                  <th key={h.id} title={h.sub} className="wrap">
-                    {h.short}
-                    <div className="dim" style={{ fontWeight: 400 }}>
-                      {h.sub}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ranked.map(({ axes: a }) => {
-                const g = gravityStatus(a);
-                return (
-                  <tr key={a.investigation_id}>
-                    <td>
-                      <code>{a.investigation_id}</code>
-                    </td>
-                    <td className="r num">{a.runs}</td>
-                    <td className="num">
-                      <span title={a.o2.kind === "range" ? `${a.o2.range.runs} of ${a.runs} runs` : undefined}>{span(a.o2, pct) ?? <Missing reason={`O₂ ${(a.o2 as { reason: string }).reason}`} />}</span>
-                      <span className="dim"> · </span>
-                      <span title={a.pa.kind === "range" ? `${a.pa.range.runs} of ${a.runs} runs` : undefined}>{span(a.pa, psi) ?? <Missing reason={`pressure ${(a.pa as { reason: string }).reason}`} />}</span>
-                    </td>
-                    <td>
-                      {g.status === "partial_tested" ? (
-                        <span className="tag tag-ok">partial gravity tested</span>
-                      ) : g.status === "no_partial_data" ? (
-                        <span className="tag tag-warn" title={`tested ${g.tested.min}–${g.tested.max} g`}>
-                          no partial-gravity data
-                        </span>
-                      ) : (
-                        <Missing reason={g.reason} />
-                      )}
-                    </td>
-                    {HABITAT_LIST.map((h) => (
-                      <td key={h.id} className="wrap">
-                        <FitCell fit={rankFor([a], h)[0].fit} />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function Missing({ reason }: { reason: string }) {
-  return (
-    <span className="tag tag-line" title={reason}>
-      not stated
-    </span>
-  );
-}
 
 // ---------------------------------------------------------------- conditions matrix
 

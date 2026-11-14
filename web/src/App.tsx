@@ -98,7 +98,7 @@ function Shell() {
         )}
         {route.view === "home" && <Home />}
         {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} />}
-        {route.view === "conditions" && <ConditionsPage habitat={route.params.get("habitat")} tab={(["map", "runs"].includes(route.params.get("tab") ?? "") ? route.params.get("tab") : "habitats") as ConditionsTab} />}
+        {route.view === "conditions" && <ConditionsPage habitat={route.params.get("habitat")} inv={route.params.get("inv")} tab={(["map", "runs"].includes(route.params.get("tab") ?? "") ? route.params.get("tab") : "habitats") as ConditionsTab} />}
         {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
         {route.view === "compare" && <Compare />}
         {route.view === "lab" && <Lab runId={route.id} />}

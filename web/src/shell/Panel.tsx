@@ -10,6 +10,7 @@ import { fmtGravity } from "../format";
 import { ArtifactValue, EvidenceSummary, locatorText, placeShort } from "../views/Answer";
 import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, RefusalNote, ReleaseState, shortId, Synthetic, words } from "../ui/common";
 import { useCompare } from "./compare";
+import { INVESTIGATIONS } from "../data/investigations";
 import { conditionRows, gapText } from "../research/runConditions";
 import { useData } from "./data";
 import { usePanel, type PanelItem } from "./inspector";
@@ -20,7 +21,7 @@ import { isTypedArtifact } from "../research/artifactViews";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 import { SourceOriginal } from "./SourceOriginal";
 
-const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources" };
+const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation" };
 
 const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer", AnswerRefusal: "Refused answer", VisualObservationBundle: "Video contours" };
 
@@ -34,6 +35,8 @@ function itemTitle(i: PanelItem): string {
       return `Step ${i.index}: ${TOOL_LABEL[i.call.tool] ?? words(i.call.tool)}`;
     case "release":
       return i.release.model_name;
+    case "investigation":
+      return INVESTIGATIONS.get(i.id)?.acronym ?? i.id;
     case "artifact":
       return ARTIFACT_TITLE[i.artifact.contract ?? ""] ?? "Artifact";
     default:
@@ -81,8 +84,117 @@ export function Panel() {
         {current.kind === "step" && <StepItem item={current} />}
         {current.kind === "release" && <ReleaseItem item={current} />}
         {current.kind === "sources" && <SourcesItem answers={current.answers} />}
+        {current.kind === "investigation" && <InvestigationItem id={current.id} />}
       </div>
     </aside>
+  );
+}
+
+// ---------------------------------------------------------------- an investigation (atlas card)
+
+const NEED: Record<string, string> = { prevention: "Prevention", detection: "Detection", suppression: "Suppression" };
+const where = (s: { file?: string; page?: number } | null) => (s?.file ? `${s.file}${s.page ? `, p. ${s.page}` : ""}` : null);
+
+/** The atlas card of one investigation: NASA's objective and needs in NASA's words, then the narrative. */
+function InvestigationItem({ id }: { id: string }) {
+  const { push } = usePanel();
+  const inv = INVESTIGATIONS.get(id);
+  if (!inv) return <Gap title="No card for this investigation">{id}</Gap>;
+  return (
+    <>
+      <div className="panel-sec">
+        <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.4 }}>{inv.title}</p>
+        <p className="muted small">
+          {id}
+          {inv.sub_area ? ` · ${inv.sub_area}` : ""}
+          {inv.hardware ? ` · ${inv.hardware}` : ""}
+        </p>
+        <div className="toolbar">
+          <a className="btn btn-s" href={href("conditions", null, { tab: "map", inv: id })}>
+            On the map
+          </a>
+          <a className="btn btn-s" href={href("sources", null, { q: inv.acronym ?? id })}>
+            Documents
+          </a>
+        </div>
+      </div>
+      {inv.needs.length > 0 && (
+        <div className="panel-sec">
+          <h3>Fire safety</h3>
+          {inv.needs.map((n) => (
+            <div key={n.need} className="need-row">
+              <span className={`need${n.inference ? " inferred" : ""}`}>{NEED[n.need] ?? n.need}</span>
+              {n.basis && <blockquote className="quote">{n.basis}</blockquote>}
+              {n.inference && <p className="muted small">{n.inference}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+      {inv.relevance && (
+        <div className="panel-sec">
+          <h3>Why it matters</h3>
+          <p className="reading">{inv.relevance}</p>
+        </div>
+      )}
+      {inv.how_tests_differ && (
+        <div className="panel-sec">
+          <h3>How the tests differ</h3>
+          <p className="reading">{inv.how_tests_differ}</p>
+        </div>
+      )}
+      {inv.findings.length > 0 && (
+        <div className="panel-sec">
+          <h3>Findings</h3>
+          <ol className="findings">
+            {inv.findings.map((f, i) => (
+              <li key={i}>
+                <p>{f.statement}</p>
+                <span className="muted small">
+                  {f.kind}
+                  {where(f.source) ? ` · ${where(f.source)}` : ""}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {inv.sensors.length > 0 && (
+        <div className="panel-sec">
+          <h3>Instruments</h3>
+          <dl className="kv">
+            {inv.sensors.slice(0, 8).map((s, i) => (
+              <div key={i} style={{ display: "contents" }}>
+                <dt>{s.instrument}</dt>
+                <dd>{s.measures}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+      {inv.not_found.length > 0 && (
+        <div className="panel-sec">
+          <h3>Not in the documents</h3>
+          <ul className="plain-list">
+            {inv.not_found.map((t, i) => (
+              <li key={i}>{t}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {inv.related.length > 0 && (
+        <div className="panel-sec">
+          <h3>Related</h3>
+          <div className="toolbar">
+            {inv.related.map((r) => (
+              <button key={r.id} className="btn btn-s" title={r.shared.join("; ")} onClick={() => push({ kind: "investigation", id: r.id })}>
+                {r.acronym ?? r.id}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <p className="muted small">Summaries written by Claude Opus 5.5 from NASA's documents; each finding names its source.</p>
+    </>
   );
 }
 

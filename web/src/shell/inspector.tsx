@@ -11,7 +11,8 @@ export type PanelItem =
   | { kind: "artifact"; artifact: ArtifactRef; caption?: string }
   | { kind: "step"; call: ToolCallState; index: number }
   | { kind: "release"; release: ModelRelease }
-  | { kind: "sources"; answers: ResearchAnswer[] };
+  | { kind: "sources"; answers: ResearchAnswer[] }
+  | { kind: "investigation"; id: string };
 
 export const itemKey = (i: PanelItem): string => {
   switch (i.kind) {
@@ -29,6 +30,8 @@ export const itemKey = (i: PanelItem): string => {
       return `rel:${i.release.id}`;
     case "sources":
       return "sources";
+    case "investigation":
+      return `inv:${i.id}`;
   }
 };
 
