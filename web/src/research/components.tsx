@@ -185,33 +185,37 @@ export function JobLine({ job }: { job: JobRef }) {
 
 // ---------------------------------------------------------------------------------------- timeline
 
+/** Readable wording for a wire name (`not_assessed` → `not assessed`). */
+const words = (s: string) => s.replace(/_/g, " ");
+
+/** One plain sentence per event. Ids stay out of the row (the row's title carries the seq). */
 export function eventSummary(e: ResearchEvent): string {
   const b = e.body;
   switch (b.kind) {
     case "episode.status_changed":
-      return `status ${b.payload.from} → ${b.payload.to}${b.payload.reason ? ` (${b.payload.reason})` : ""}`;
+      return `Status: ${words(b.payload.from)} → ${words(b.payload.to)}${b.payload.reason ? ` (${b.payload.reason})` : ""}`;
     case "message.user":
-      return `user message ${b.payload.message_id}`;
+      return "You sent a message";
     case "message.delta":
-      return `assistant text (partial) ${b.payload.message_id}`;
+      return "The assistant is writing";
     case "message.completed":
-      return `assistant message complete ${b.payload.message_id}`;
+      return "The assistant replied";
     case "tool.started":
-      return `tool ${b.payload.tool} started (${b.payload.call_id})`;
+      return `Tool started: ${words(b.payload.tool)}`;
     case "tool.finished":
-      return `tool ${b.payload.result.tool}: ${b.payload.result.execution_status} / ${b.payload.result.scientific_status}`;
+      return `Tool finished: ${words(b.payload.result.tool)}`;
     case "job.updated":
-      return `job ${b.payload.job.job_id}: ${b.payload.job.status}`;
+      return `Job ${words(b.payload.job.kind)}: ${words(b.payload.job.status)}`;
     case "artifact.created":
-      return `artifact ${b.payload.artifact.artifact_id} (${b.payload.artifact.contract ?? b.payload.artifact.media_type})`;
+      return `Artifact created: ${b.payload.artifact.contract ?? b.payload.artifact.media_type}`;
     case "approval.requested":
-      return `approval requested: ${b.payload.action} [${b.payload.effect}]`;
+      return `Approval requested: ${b.payload.action} (${words(b.payload.effect)})`;
     case "approval.resolved":
-      return `approval ${b.payload.approval_id}: ${b.payload.decision}`;
+      return `Approval ${words(b.payload.decision)}`;
     case "answer.completed":
-      return `answer ${b.payload.answer_id}: ${b.payload.status}`;
+      return `Answer ready (${words(b.payload.status)})`;
     case "runtime.opaque":
-      return `runtime event ${b.payload.method} (archived, not interpreted)`;
+      return `Runtime event ${b.payload.method} (archived, not interpreted)`;
     default: {
       // Unknown kinds from a newer server: shown neutrally, never interpreted.
       const k = (b as { kind?: string }).kind ?? "unknown";
@@ -348,6 +352,14 @@ function ArtifactValue({ client, artifactId, pointer }: { client: ResearchClient
     queryFn: () => client.readArtifactValue(artifactId, pointer),
     retry: false,
   });
+  // A number is never shown without its unit: an AnalysisArtifact states it at `/unit`.
+  const unit = useQuery({
+    queryKey: [client.mode, "artifact-value", artifactId, "/unit"],
+    queryFn: () => client.readArtifactValue(artifactId, "/unit"),
+    enabled: q.isSuccess,
+    retry: false,
+  });
+  const unitText = typeof unit.data?.value === "string" ? unit.data.value : null;
   return (
     <span>
       Value <code>{short(artifactId)}#{pointer}</code>:{" "}
@@ -356,7 +368,10 @@ function ArtifactValue({ client, artifactId, pointer }: { client: ResearchClient
       ) : q.error ? (
         <span className="warn">not available ({q.error instanceof ApiError ? q.error.envelope.code : "error"}) — the number is not shown</span>
       ) : (
-        <b className="num">{JSON.stringify(q.data.value)}</b>
+        <>
+          <b className="num">{JSON.stringify(q.data.value)}</b> {unitText ? <span>{unitText}</span> : <span className="muted">(unit: see the artifact)</span>}
+          {q.data.partial && <span className="muted"> — preview only; the full value is in the artifact</span>}
+        </>
       )}
     </span>
   );
@@ -561,12 +576,13 @@ export function ReleaseCard({ release }: { release: ModelRelease }) {
         <span className="muted">{release.family}</span>
         <span className={`rs-status ${qualified ? "ok" : "warn"}`}>{state.replace(/_/g, " ")}</span>
         {release.is_baseline && <span className="muted">baseline</span>}
+        {release.construction && <OriginBadge origin={release.construction.origin} />}
       </div>
       <p>
         {trained} · lineage {release.lineage}
         {release.construction && <> · construction {release.construction.construction_method.replace(/_/g, " ")}</>}
       </p>
-      {!qualified && <p className="warn">Not qualified: no evaluation supports its predictions. Show its outputs as experimental model output only.</p>}
+      {!qualified && <p className="muted">Not qualified: no evaluation supports its predictions. Show its outputs as experimental model output only.</p>}
       <p className="muted">
         <code>{short(release.id)}</code> · features {release.feature_order.join(", ")} · posterior valid for parameters: {String(release.posterior_valid_for_parameters)}
       </p>
@@ -588,7 +604,7 @@ export function VisualBundleCard({ bundle }: { bundle: VisualObservationBundle }
       <p>
         Axis for these contours: <b>{axis.label}</b>
       </p>
-      {bundle.units_status !== "metric" && <p className="warn">No calibration: these contours are never drawn or compared in metres.</p>}
+      {bundle.units_status !== "metric" && <p className="muted">No calibration: these contours are never drawn or compared in metres.</p>}
       <p className="muted">
         Camera {bundle.camera_id} · time basis {bundle.timestamp_basis} · origin {bundle.time_origin} · run identity {bundle.run.resolution}
       </p>

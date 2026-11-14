@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { ResearchEpisode, ResearchEvent } from "../src/contracts/generated";
 import { availableActions, DraftKey } from "../src/research/episodes.ts";
-import { emptyState } from "../src/research/eventLog.ts";
+import { emptyState, reduceLog } from "../src/research/eventLog.ts";
 import { ApiError, httpClient } from "../src/research/http.ts";
 import { encodeFrame } from "../src/research/sse.ts";
 import { followEpisode, type StreamTransport } from "../src/research/stream.ts";
@@ -135,4 +135,20 @@ test("events after a terminal status, inside the settle window, are still applie
   });
   assert.equal(s.cursor, 16);
   assert.equal(s.messages.m16.text, "One more question");
+});
+
+test("following again from a completed state opens the stream and shows a new message", async () => {
+  // The user sends a message to a completed episode; the UI follows again from the cursor.
+  const completed = reduceLog(EP, EVENTS).state;
+  assert.equal(completed.status, "completed");
+  const next: ResearchEvent = { ...EVENTS[0], seq: 16, event_id: "next", body: { kind: "message.user", payload: { message_id: "m16", text: "New question" } } };
+  const opened: number[] = [];
+  const t: StreamTransport = {
+    openEvents: async (_id, after) => (opened.push(after), openStream(after < 16 ? [next] : [])),
+    getEpisode: async () => fixture<ResearchEpisode>("research/episode.json"),
+  };
+  const s = await followEpisode(t, completed, { signal: new AbortController().signal, onState: () => {}, settleMs: 50 });
+  assert.equal(opened[0], 15, "the stream is opened from the cursor, not skipped");
+  assert.equal(s.cursor, 16);
+  assert.equal(s.messages.m16.text, "New question");
 });
