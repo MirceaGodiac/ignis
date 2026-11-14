@@ -163,7 +163,8 @@ pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); 
   }
 }
 .research ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
-.research .fixture-banner { position: static; margin: 0 0 4px; }
+/* Sticky (global rule): after any scroll, the page still says that its data are synthetic. */
+.research .fixture-banner { margin: 0 -16px 4px; }
 .research .num { font-variant-numeric: tabular-nums; }
 .research .warn { color: var(--warn-fg); font-weight: 600; }
 
@@ -262,6 +263,37 @@ pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); 
 .rs-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 12px; }
 .rs-tile { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--panel); min-width: 0; }
 .research .notices { max-height: 240px; }
+
+/* T3: live origins. Episode picker, deployment capabilities, controls, new investigation, approvals. */
+.rs-episode { flex: 1 1 16rem; min-width: 0; max-width: 46ch; }
+.rs-episode select { flex: 1 1 auto; width: 100%; min-width: 0; color: var(--fg); text-overflow: ellipsis; }
+.rs-caps { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; padding: 0; font-size: 13px; }
+.rs-caps li { cursor: help; }
+.rs-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.rs-new { padding: 16px 0 4px; }
+.rs-new-label { display: block; font-size: 15px; font-weight: 650; margin-bottom: 6px; }
+.rs-new input { min-width: 0; }
+.rs-approval { padding: 8px 0; border-top: 1px solid var(--grid); }
+.rs-approval:first-of-type { border-top: none; padding-top: 0; }
+.rs-approval p { margin: 0 0 8px; }
+.research .steering p { margin: 6px 0 0; font-size: 13px; }
+
+/* Readability pass (review): two text sizes instead of five (14 px secondary, 13 px for chips and
+   labels), readable cited text, more line height for prose, amber kept for real warnings. */
+.rs-goal-meta, .rs-status, .rs-axis, .rs-kv, .rs-caps, .rs-stream-state, .rs-json,
+.research .steering p, .research .status-line, .research .locator, .research .support-list,
+.rs-release p, .rs-tool, .research .timeline, .research .notices, .research .backends { font-size: 14px; }
+.research .msg-role, .research .claim-chip, .research .badge { font-size: 13px; }
+.research code { font-size: 13px; }
+.rs-goal-meta .rs-status { font-size: 15px; }
+.research .page-text { font-size: 14px; line-height: 1.55; color: var(--fg); }
+.research .ev-time { font: 13px ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--fg-muted); }
+.rs-head-note { font-size: 13px; font-weight: 400; color: var(--fg-muted); }
+.rs-section p, .research .claim { line-height: 1.6; }
+.rs-section p { max-width: 70ch; }
+.research .msg p { margin: 2px 0 0; }
+.research .warn { font-weight: 500; }
+.research .exp-head { gap: 4px 10px; }
 @media (max-width: 480px) {
   .rs-goal-text { font-size: 19px; }
   .rs-section { padding: 14px; }

@@ -70,3 +70,18 @@ export function pageCaption(l: SourceLocator): string {
   if (l.page == null) return "no page";
   return l.page_label && l.page_label !== String(l.page) ? `page ${l.page_label} (PDF page ${l.page})` : `page ${l.page}`;
 }
+
+/** RFC 6901 JSON Pointer. Returns undefined when the path does not exist. */
+export function resolvePointer(doc: unknown, pointer: string): unknown {
+  if (pointer === "") return doc;
+  if (!pointer.startsWith("/")) return undefined;
+  let cur: unknown = doc;
+  for (const raw of pointer.slice(1).split("/")) {
+    const key = raw.replace(/~1/g, "/").replace(/~0/g, "~");
+    if (Array.isArray(cur)) cur = /^(0|[1-9]\d*)$/.test(key) ? cur[Number(key)] : undefined;
+    else if (cur && typeof cur === "object") cur = (cur as Record<string, unknown>)[key];
+    else return undefined;
+    if (cur === undefined) return undefined;
+  }
+  return cur;
+}
