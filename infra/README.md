@@ -262,7 +262,28 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 |---|---|
 | Access JWT verification, Worker forwarding | implemented, tested offline (signed test tokens, local JWKS; Worker unit tests) |
 | R2 artifact store, snapshots, push/pull | implemented, tested offline against an S3 stand-in that verifies SigV4 and body hashes; SigV4 checked against AWS's published example. Live bucket test: `cargo test -p ignis-research --test r2 r2_live -- --ignored` with `IGNIS_R2_LIVE_*` — **not run yet** |
-| Server image, compose, systemd | written; compose validated with `docker compose config`; **image not built here yet** |
-| gVisor | **not verified** — `scripts/verify-gvisor.sh` on the GCE VM |
-| Domain (Space Apps offer via Porkbun → Cloudflare), Cloudflare account, tunnel, Access apps, GCE VM | **not provisioned** (needs the account owner's authorization) |
-| RPO/RTO | not measured |
+| Server image, compose, systemd | built on the GCE VM and running under `ignis.service` (2026-11-14) |
+| gVisor | **verified** on the GCE VM (2026-11-14): `verify-gvisor.sh` passes; `runsc` 4.19.0-gvisor kernel; runner preflight reports `isolation=Gvisor` |
+| Domain, Cloudflare zone, tunnel, Access apps, Worker, R2, GCE VM | **provisioned** (2026-11-14): `ignis-ardealu.app` (bought on Cloudflare Registrar: the Space Apps domain offer failed with "Exceptions Occurred"), UI on the apex, origin on `origin.ignis-ardealu.app`, VM `ignis-origin` in `europe-west3-a` |
+| RPO/RTO | not measured (one backup pushed to R2: 386 files in 73 s; no restore drill yet) |
+
+### Live verification on the deployed stack (2026-11-14)
+
+Run from a signed-in browser through the whole path (Access → Worker → service token → tunnel →
+server), model `gpt-6.1-terra`, models (FLEX/ACME/BASS) disabled. What was run and what it showed:
+
+| Check | Result |
+|---|---|
+| Unauthenticated access | origin `/livez` and `/api/v1/capabilities` → 403 (service-token-only Access app); UI → 302 to the Access login |
+| Capabilities | agent runtime, knowledge, datasets, artifact store, MCP (6 tools) and analysis runner available; models "disabled in this deployment" |
+| Real turn | cited answer (`sources_search` + `sources_read`) |
+| Two concurrent sessions | both completed with cited answers; one made 9 tool calls |
+| Typed failure | unknown episode → 404 `not_found`, `retry: never`; unknown body field → 422 `invalid_request` |
+| Cancel | `POST /episodes/{id}/cancel` 4 s into a turn → `cancelled` |
+| Restart | `systemctl restart ignis`: all four episodes still listed with their final status |
+| Large artifact | 64 MiB upload (initiate → PUT → complete) in 8.7 s; stored in R2 (not on the VM disk); download byte-identical by sha256 |
+| Shell request | not refused: the model ran `uname`/`cat /etc/passwd` through `analysis_execute`, so the output came from the gVisor runner (container `/etc/passwd`, gVisor kernel), not the host. No approval prompt was exercised |
+| Backup | `ignis-backup` pushed `backups/state-…/` to R2 |
+
+Not done: refused approval (no prompt was triggered), restore drill (RTO), a turn interrupted by
+the restart (the restart ran between turns).
