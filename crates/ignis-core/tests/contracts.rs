@@ -1254,4 +1254,72 @@ fn k1_evaluation_keeps_the_holdout_away_from_builders_and_one_shape_per_purpose(
         res(&|v| v["harness"]["scores"][0]["n"] = json!(5)).is_err(),
         "a score over more runs than its arm has"
     );
+    assert!(
+        res(&|v| v["per_case"] = json!({"artifact_id": "x", "sha256": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "media_type": "not-a-media-type", "byte_length": 1, "origin": "synthetic_fixture", "created_at": "2026-11-14T18:30:00Z"}))
+            .is_err(),
+        "an invalid per-case artifact on a harness result"
+    );
+
+    // One arm is a measurement (T10 pilot, R10 retrieval numbers): valid, but with no deltas.
+    let one = |deltas: bool| {
+        let mut v = hres.clone();
+        v["request"]["harness"]["variants"]
+            .as_array_mut()
+            .unwrap()
+            .truncate(1);
+        let runs: Vec<Value> = v["harness"]["runs"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|r| r["variant"] == "h0")
+            .cloned()
+            .collect();
+        v["harness"]["runs"] = json!(runs);
+        v["cases"] = json!({"total": 4, "scored": 3, "refused": 0, "failed": 1});
+        v["coverage"] = json!(0.75);
+        let scores: Vec<Value> = v["harness"]["scores"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|s| s["variant"] == "h0")
+            .cloned()
+            .collect();
+        v["harness"]["scores"] = json!(scores);
+        if !deltas {
+            v["harness"]["deltas"] = json!([]);
+        }
+        let mut r: EvaluationResult = typed(&v);
+        r.request_hash = r.request.request_hash();
+        r.validate()
+    };
+    one(false).expect("a one-arm measurement");
+    assert!(one(true).is_err(), "a delta in a one-arm measurement");
+
+    // Every class's prompt carries its task material and nothing that grades it.
+    for (path, material) in [
+        ("evaluation/gold_task_documentary.json", "choices"),
+        ("evaluation/gold_task_citation.json", "statement"),
+        ("evaluation/gold_task_analytical.json", "inputs"),
+        ("evaluation/gold_task_predictive.json", "target"),
+    ] {
+        let t: GoldTask = typed(&fixture(path));
+        let p = serde_json::to_value(t.prompt()).unwrap();
+        assert!(
+            p.get(material).is_some(),
+            "{path}: prompt lacks its {material}: {p}"
+        );
+        for leak in [
+            "answer",
+            "correct",
+            "support",
+            "accepted",
+            "check",
+            "expected",
+            "protocol",
+            "reviewed_by",
+        ] {
+            assert!(p.get(leak).is_none(), "{path}: prompt leaks {leak}: {p}");
+        }
+        typed::<GoldPrompt>(&p);
+    }
 }

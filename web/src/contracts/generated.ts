@@ -4121,7 +4121,8 @@ export interface HarnessBenchmark {
    */
   repetitions: number;
   /**
-   * At least two arms; same runtime build, model and effort, so only the harness differs.
+   * One arm measures a harness; two or more compare harnesses. All arms share the runtime
+   * build, model and effort, so only the harness differs.
    */
   variants: HarnessVariant[];
 }
@@ -4522,15 +4523,31 @@ export interface GoldPromptSet {
   set_id: GoldSetId;
 }
 /**
- * The runner-facing form of a gold task: no answer key, no supporting evidence, no reviewers.
+ * The runner-facing form of a gold task: the task material only; no answer key, no supporting
+ * evidence, no check program, no expected values, no reviewers.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "GoldPrompt".
  */
 export interface GoldPrompt {
+  /**
+   * Documentary: the choices, the last one "insufficient evidence".
+   */
   choices?: string[];
   class: GoldTaskClass;
+  /**
+   * Analytical: the artifacts to compute on.
+   */
+  inputs?: ArtifactRef[];
   question: string;
+  /**
+   * Citation: the statement to support with a cited locator.
+   */
+  statement?: string | null;
+  /**
+   * Predictive: the quantity to forecast.
+   */
+  target?: Quantity | null;
   task_id: GoldTaskId;
 }
 /**
