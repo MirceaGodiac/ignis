@@ -26,6 +26,7 @@ use ignis_core::services::{ArtifactStore, ServiceResult};
 use serde_json::{json, Value};
 
 use super::grants::{McpLease, MCP_TOKEN_ENV};
+use super::harness;
 use super::mapping::{self, map_item, map_notification, map_turn_completed, Mapped, StopReason};
 use super::preflight::{
     ApprovalKind, ApprovalRule, CodexConfig, ProfilePolicy, RuntimeBuildManifest, LIVE,
@@ -429,6 +430,8 @@ impl Inner {
                 slot.stop = None;
             }
         }
+        // The tail of the context: episode-specific input goes here, after the harness prefix
+        // (`developerInstructions`), so the prefix stays byte-identical and cached.
         let input: Vec<Value> = ts
             .messages
             .iter()
@@ -535,6 +538,11 @@ impl Inner {
         if let Some(m) = &self.cfg.model {
             p["model"] = json!(m);
         }
+        // The same bytes on start and on every resume, so the prefix stays cacheable and a thread
+        // reloaded by a new process keeps its instructions.
+        if let Some(h) = &self.cfg.harness {
+            p["developerInstructions"] = json!(h.text());
+        }
         // The thread's IGNIS MCP requests carry its episode grant (one per episode and process).
         if let Some(m) = &self.cfg.mcp {
             let mut leases = live.episode_mcp.lock().unwrap_or_else(|p| p.into_inner());
@@ -576,7 +584,8 @@ impl Inner {
                     return Ok(tid);
                 }
                 match self.resume_rpc(live, scope, ep, &tid) {
-                    Ok(thread) => {
+                    Ok((thread, resp)) => {
+                        self.pin_harness(scope, ep, &resp)?;
                         self.replay(scope, ep, &thread);
                         if let Some(open) = self.store.active_turn(scope, ep)? {
                             self.settle(live, scope, ep, &tid, &open, Some(&thread))?;
@@ -592,11 +601,9 @@ impl Inner {
                             self.settle(live, scope, ep, &tid, &open, Some(&json!({"turns": []})))?;
                         }
                         let new = self.start_thread(live, scope, ep, Some(&tid))?;
-                        if let Some(slot) = self.lock().slots.get_mut(ep) {
-                            slot.note = Some(format!(
-                                "runtime thread {tid} could not be resumed ({message}); continuing in new thread {new}, without its earlier conversation"
-                            ));
-                        }
+                        self.add_note(ep, format!(
+                            "runtime thread {tid} could not be resumed ({message}); continuing in new thread {new}, without its earlier conversation"
+                        ));
                         new
                     }
                     Err(e) => return Err(call_err(e)),
@@ -642,7 +649,39 @@ impl Inner {
             },
             replacing,
         )?;
+        self.pin_harness(scope, ep, &resp)?;
         Ok(tid)
+    }
+
+    /// Pin the harness on the episode with the model and effort the runtime answered with
+    /// (`thread/start` / `thread/resume`); a new or changed pin is said in the next turn's status.
+    fn pin_harness(
+        &self,
+        scope: &ExecutionScope,
+        ep: &EpisodeId,
+        resp: &Value,
+    ) -> ServiceResult<()> {
+        let Some(h) = &self.cfg.harness else {
+            return Ok(());
+        };
+        let model = resp.get("model").and_then(Value::as_str);
+        let effort = resp.get("reasoningEffort").and_then(Value::as_str);
+        let build = &self.manifest.runtime_build_id;
+        if let Some(note) =
+            harness::pin_episode(&self.store, scope, ep, h, build, model, effort, true)?
+        {
+            self.add_note(ep, note);
+        }
+        Ok(())
+    }
+
+    fn add_note(&self, ep: &EpisodeId, note: String) {
+        if let Some(slot) = self.lock().slots.get_mut(ep) {
+            slot.note = Some(match slot.note.take() {
+                Some(prev) => format!("{prev}; {note}"),
+                None => note,
+            });
+        }
     }
 
     fn register_thread(&self, ep: &EpisodeId, tid: &str) {
@@ -653,7 +692,8 @@ impl Inner {
         }
     }
 
-    /// `thread/resume`, then record the items of its finished turns (marks drop what is known).
+    /// `thread/resume` (re-pinning the harness), then record the items of its finished turns (marks
+    /// drop what is known).
     fn resume_thread(
         &self,
         live: &Arc<Live>,
@@ -661,7 +701,8 @@ impl Inner {
         ep: &EpisodeId,
         tid: &str,
     ) -> ServiceResult<Value> {
-        let thread = self.resume_rpc(live, scope, ep, tid).map_err(call_err)?;
+        let (thread, resp) = self.resume_rpc(live, scope, ep, tid).map_err(call_err)?;
+        self.pin_harness(scope, ep, &resp)?;
         self.replay(scope, ep, &thread);
         Ok(thread)
     }
@@ -672,16 +713,17 @@ impl Inner {
         scope: &ExecutionScope,
         ep: &EpisodeId,
         tid: &str,
-    ) -> Result<Value, CallError> {
+    ) -> Result<(Value, Value), CallError> {
         let resp = live.rpc.request(
             "thread/resume",
             self.thread_params(live, scope, ep, Some(tid)),
             self.cfg.request_timeout,
         )?;
-        resp.get("thread").cloned().ok_or(CallError::Rpc {
+        let thread = resp.get("thread").cloned().ok_or(CallError::Rpc {
             code: -32603,
             message: "thread/resume answered without a thread".into(),
-        })
+        })?;
+        Ok((thread, resp))
     }
 
     /// Record the items of a resumed thread's finished turns (marks drop what is already known).
