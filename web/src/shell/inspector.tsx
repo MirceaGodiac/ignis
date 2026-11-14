@@ -1,6 +1,6 @@
 // The side panel's own navigation: a stack of items, so a scientist can go claim → evidence →
 // source → run and come back the same way. Items hold contract objects, not copies.
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { ArtifactRef, Claim, EvidenceRef, ModelRelease } from "../contracts/generated";
 import type { ToolCallState } from "../research/eventLog";
 
@@ -65,6 +65,10 @@ export function PanelProvider({ children }: { children: ReactNode }) {
   }, []);
   const current = stack[stack.length - 1] ?? null;
   const isOpen = (key: string) => !!current && itemKey(current) === key;
+  // Dev builds only: lets a console or a browser check open any panel item (no UI path for fixture-only artifacts).
+  useEffect(() => {
+    if (import.meta.env.DEV) (window as unknown as { __ignisPanel?: { open: typeof open } }).__ignisPanel = { open };
+  }, [open]);
   return <Ctx.Provider value={{ stack, current, open, push, back, close, isOpen }}>{children}</Ctx.Provider>;
 }
 
