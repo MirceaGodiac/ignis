@@ -91,8 +91,27 @@ container → `ExecutionRecord` citit prin `artifacts_read`). Verificat aici sub
 **neverificat sub gVisor** — Netcup cu `runsc` intră în M4. Disk-ul `/out` e limitat doar per fișier
 (`fsize`) și la ingestie; o cotă de volum pentru `--runner-dir` ține de M4.
 
-Rămân: backend R2 pentru `ArtifactStore`, `infra/` (Compose, systemd, cloudflared, Worker, Access,
-secrets, backup/restore), CI (M4).
+Livrat în M4 (branch `feat/m4-infra`, peste `feat/m3-runner`): CI (`.github/workflows/ci.yml`: fmt,
+check, teste offline, drift de scheme, tipuri/build web, Worker, shellcheck, `compose config`) și
+toolchain pin-uit (`rust-toolchain.toml`). `--auth cloudflare-access` nu mai crede header-ul nesemnat:
+originea verifică două JWT RS256 semnate de Cloudflare (`v1::access`) — assertion-ul aplicației Access
+de pe hostname-ul tunelului (`aud` origin, `common_name` = service token-ul Workerului) și assertion-ul
+utilizatorului copiat de Worker în `X-Ignis-User-Assertion` (`aud` UI, `email` = principalul); chei din
+JWKS-ul echipei, refetch la `kid` necunoscut, configurare incompletă = serverul nu pornește; `/livez`
+singura rută fără identitate; SIGTERM oprește grațios. Backend R2 pentru `ArtifactStore`
+(`ignis_research::{s3, r2}`: SigV4 propriu verificat pe exemplul AWS, PUT semnat pe hash-ul corpului,
+multipart peste 64 MiB, manifest publicat ultimul cu `If-None-Match`), `--artifact-backend r2` cu probă
+la pornire. Snapshot-uri de stare (`ignis_research::backup`, `ignis state backup|verify|restore`):
+`VACUUM INTO` pe bazele vii, manifest cu hash-uri, restore doar pe volum gol cu `integrity_check`,
+push/pull în R2, fără credențiale/WAL/staging. `infra/`: imaginea originii, Compose (ignis +
+cloudflared, fără porturi publicate), systemd (serviciu + timer de backup), Worker (UI + proxy `/api`
+în streaming cu service token), scripturi (build cu manifest de release, backup, restore, verificare
+gVisor) și runbook (`infra/README.md`). Teste offline: tokenuri semnate pe un JWKS local (falsificate,
+expirate, inversate, alt service token, cheie nepublicată), un S3 local care reverifică semnătura și
+hash-ul fiecărui request, restore al unui store viu pe volum gol, upload prin `/api/v1` cu backend R2.
+**Neverificate:** bucket R2 real (`r2_live`, opt-in), build-ul imaginii, contul Cloudflare/Netcup
+(neprovizionate), gVisor pe Netcup, RPO/RTO. Riscul socket-ului Docker în containerul `ignis` e
+documentat în runbook.
 
 ## 4. Fișiere deținute
 

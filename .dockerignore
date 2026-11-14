@@ -1,0 +1,19 @@
+# Build context of infra/server/Dockerfile (repository root). Only sources, configs, schemas,
+# manifests and fixtures go in; never state, data, secrets or build output.
+target/
+runs/
+artifacts/
+holdout/
+data/raw/
+data/cache/
+data/work/
+data/models/
+web/
+sidecar/
+**/node_modules/
+infra/worker/
+.git/
+.github/
+.env
+*.key
+docs/

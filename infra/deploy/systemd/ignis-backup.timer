@@ -1,0 +1,11 @@
+# Hourly snapshots (an RPO to be measured against real use, not a promise).
+[Unit]
+Description=Hourly IGNIS state snapshot
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

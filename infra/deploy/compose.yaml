@@ -1,0 +1,89 @@
+# IGNIS origin on the Netcup host: the API and the tunnel connector. Started and supervised by
+# systemd (infra/deploy/systemd/ignis.service); no Nginx, no published ports.
+#
+# Paths: everything persistent lives under /srv/ignis on local NVMe. The runner directory is
+# mounted at the SAME path inside the container because the host engine resolves the runner's bind
+# mounts (`/job`, `/in`, `/out`) against host paths.
+name: ignis
+
+services:
+  ignis:
+    # Pinned by digest in releases (IGNIS_IMAGE=ignis-server@sha256:… from the release manifest).
+    image: ${IGNIS_IMAGE:?set IGNIS_IMAGE in the env file}
+    env_file:
+      - ${IGNIS_ENV_FILE:-/etc/ignis/ignis.env}
+    environment:
+      IGNIS_AUTH: cloudflare-access
+      IGNIS_ARTIFACT_BACKEND: r2
+      IGNIS_RUNNER_DIR: /srv/ignis/runner
+      # Write-once outputs of the legacy routes (reveal log etc.) live with the state, not the image.
+      IGNIS_RUNS: /srv/ignis/state/runs
+    # Exported as environment variables by the entrypoint; files are root:10001 0440 on the host.
+    secrets:
+      - CODEX_API_KEY
+      - IGNIS_R2_SECRET_ACCESS_KEY
+    volumes:
+      - /srv/ignis/state:/srv/ignis/state
+      - /srv/ignis/runner:/srv/ignis/runner
+      # Snapshots before upload (infra/scripts/backup.sh); restore downloads here too.
+      - /srv/ignis/backups:/srv/ignis/backups
+      # Registry records/cohorts (read) and the legacy artifacts root: models/<hex>/ (immutable
+      # releases), evidence catalog, analysis/sealed/reveals (write-once).
+      - /srv/ignis/data:/opt/ignis/data/work:ro
+      - /srv/ignis/artifacts:/opt/ignis/artifacts
+      # Grants control of the host engine (see infra/README.md §Runner): needed to start the
+      # isolated runner containers. The runner containers themselves never see it.
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - ${DOCKER_GID:?set DOCKER_GID to the gid of /var/run/docker.sock}
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks: [origin]
+    # Liveness only (process up, no data); readiness is /api/v1/capabilities behind Access.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8787/livez"]
+      interval: 15s
+      timeout: 3s
+      retries: 4
+      start_period: 60s
+    stop_grace_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: journald
+      options:
+        tag: ignis
+
+  cloudflared:
+    image: ${CLOUDFLARED_IMAGE:?set CLOUDFLARED_IMAGE (cloudflare/cloudflared@sha256:…)}
+    command: ["tunnel", "--no-autoupdate", "--metrics", "127.0.0.1:20241", "run"]
+    # TUNNEL_TOKEN only (root 0600 on the host). The tunnel's public hostname routes to
+    # http://ignis:8787 (configured in the Cloudflare dashboard / API; see infra/README.md).
+    env_file:
+      - ${CLOUDFLARED_ENV_FILE:-/etc/ignis/cloudflared.env}
+    depends_on:
+      ignis:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks: [origin]
+    restart: unless-stopped
+    logging:
+      driver: journald
+      options:
+        tag: cloudflared
+
+networks:
+  origin:
+    driver: bridge
+
+secrets:
+  CODEX_API_KEY:
+    file: ${IGNIS_SECRETS_DIR:-/etc/ignis/secrets}/CODEX_API_KEY
+  IGNIS_R2_SECRET_ACCESS_KEY:
+    file: ${IGNIS_SECRETS_DIR:-/etc/ignis/secrets}/IGNIS_R2_SECRET_ACCESS_KEY
