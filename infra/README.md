@@ -186,6 +186,16 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
    - Access app **origin** on `<origin-hostname>`: policy *Service Auth* allowing only the new
      service token. Note its AUD.
    - Access app **UI** on `<ui-hostname>`: policy for the team's identities. Note its AUD.
+   - Login methods (Zero Trust → Integrations → Identity providers). One-time PIN and the
+     Cloudflare account login exist by default. For Google: in the Google Cloud project, configure
+     the Google Auth Platform (External) and create an OAuth client of type *Web application*
+     whose only redirect URI is `https://<team>.cloudflareaccess.com/cdn-cgi/access/callback`;
+     then add a *Google* identity provider with that client id and secret, PKCE on. The UI app
+     accepts all identity providers, so it needs no change; the origin app stays service-token
+     only. While the Google app is in Testing mode, every allowlisted address must also be a test
+     user there (publishing to production needs a public homepage and privacy policy URL). The
+     origin's checks do not depend on the login method: it verifies the Access JWT and its
+     `email`.
 5. **Config:** `/etc/ignis/ignis.env` from `deploy/ignis.env.example` (root 0600; fill the
    credentials you use, see [Credentials](#credentials)), `/etc/ignis/release.env` from `deploy/release.env.example` (`DOCKER_GID=$(stat -c %g /var/run/docker.sock)`).
 6. **Image, on the VM.** The release is built where it runs, so nothing large crosses the
@@ -265,6 +275,7 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 | Server image, compose, systemd | built on the GCE VM and running under `ignis.service` (2026-11-14) |
 | gVisor | **verified** on the GCE VM (2026-11-14): `verify-gvisor.sh` passes; `runsc` 4.19.0-gvisor kernel; runner preflight reports `isolation=Gvisor` |
 | Domain, Cloudflare zone, tunnel, Access apps, Worker, R2, GCE VM | **provisioned** (2026-11-14): `ignis-ardealu.app` (bought on Cloudflare Registrar: the Space Apps domain offer failed with "Exceptions Occurred"), UI on the apex, origin on `origin.ignis-ardealu.app`, VM `ignis-origin` in `europe-west3-a` |
+| Access login methods | Google, Cloudflare account, one-time PIN on the UI app (Google added 2026-11-14: OAuth client "Cloudflare Access" in `ignis-spaceapps-ardealu`, Testing mode, PKCE). Cloudflare's IdP test returned the expected identity; the allowlist (policy *team*) is unchanged |
 | RPO/RTO | not measured (one backup pushed to R2: 386 files in 73 s; no restore drill yet) |
 
 ### Live verification on the deployed stack (2026-11-14)
