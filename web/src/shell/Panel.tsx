@@ -15,8 +15,12 @@ import { usePanel, type PanelItem } from "./inspector";
 import { FamilyMark, FAMILY_LABEL, IconBack, IconClose } from "./icons";
 import { href } from "./router";
 import { TOOL_LABEL } from "../views/turns";
+import { isTypedArtifact } from "../research/artifactViews";
+import { ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 
 const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Route step", release: "Model release" };
+
+const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer" };
 
 function itemTitle(i: PanelItem): string {
   switch (i.kind) {
@@ -28,6 +32,8 @@ function itemTitle(i: PanelItem): string {
       return `Step ${i.index}: ${TOOL_LABEL[i.call.tool] ?? words(i.call.tool)}`;
     case "release":
       return i.release.model_name;
+    case "artifact":
+      return ARTIFACT_TITLE[i.artifact.contract ?? ""] ?? "Artifact";
     default:
       return TITLE[i.kind];
   }
@@ -344,6 +350,8 @@ function ArtifactItem({ artifact, caption }: { artifact: ArtifactRef; caption?: 
         </div>
         {caption && <p style={{ fontSize: 13 }}>{caption}</p>}
       </div>
+      {isTypedArtifact(artifact.contract) && q.data != null && <TypedArtifactBody contract={artifact.contract} data={q.data} />}
+      {isTypedArtifact(artifact.contract) && q.error != null && <ErrorNote error={q.error} title="The typed view needs the payload, which is not available here" />}
       <dl className="kv">
         <dt>artifact</dt>
         <dd>
@@ -561,6 +569,7 @@ function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }
           <code>{r.id}</code>
         </dd>
       </dl>
+      <ReleaseConstruction release={r} />
     </>
   );
 }

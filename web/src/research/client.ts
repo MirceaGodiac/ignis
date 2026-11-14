@@ -104,8 +104,11 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
     createEpisode: () => fail(MOCK_ONLY, 501),
     act: () => fail(MOCK_ONLY, 501),
     resolveApproval: () => fail(MOCK_ONLY, 501),
-    getArtifactJson: (id) =>
-      id === FIXTURES.answerArtifactId ? ok<ResearchAnswer>(FIXTURES.answer) : fail(notInFixtures(`artifact ${id} payload`), 404),
+    getArtifactJson: (id) => {
+      if (id === FIXTURES.answerArtifactId) return ok<ResearchAnswer>(FIXTURES.answer);
+      const typed = FIXTURES.typedArtifacts.find((t) => t.ref.artifact_id === id);
+      return typed ? ok(typed.payload) : fail(notInFixtures(`artifact ${id} payload`), 404);
+    },
     readArtifactValue: (id, pointer) => {
       if (id !== FIXTURES.answerArtifactId) return fail(notInFixtures(`artifact ${id} payload`), 404);
       const v = resolvePointer(FIXTURES.answer, pointer);

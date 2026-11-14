@@ -4,7 +4,10 @@
 // contracts` (fixtures/contracts/manifest.json `checked_by`), not by this cast. Never edit fixtures from web/.
 
 import type {
+  ArtifactRef,
   DatasetBundle,
+  EvaluationResult,
+  ExecutionRecord,
   ModelRelease,
   ModelSpec,
   ReadResult,
@@ -27,6 +30,8 @@ import releaseW0 from "../../../fixtures/contracts/models/release_w0.json";
 import modelSpec from "../../../fixtures/contracts/models/model_spec.json";
 import datasetBundle from "../../../fixtures/contracts/data/dataset_bundle.json";
 import visualBundle from "../../../fixtures/contracts/data/visual_bundle_pixel_only.json";
+import executionRecord from "../../../fixtures/contracts/research/execution_record.json";
+import evaluationResult from "../../../fixtures/contracts/evaluation/result_dev.json";
 import manifest from "../../../fixtures/contracts/manifest.json";
 
 const as = <T>(v: unknown) => v as T;
@@ -49,4 +54,26 @@ export const FIXTURES = {
   modelSpec: as<ModelSpec>(modelSpec),
   datasetBundle: as<DatasetBundle>(datasetBundle),
   visualBundle: as<VisualObservationBundle>(visualBundle),
+  /** Mock-mode artifact refs for the typed viewers (T7). The refs are made here; the payloads are the C0 fixtures. */
+  typedArtifacts: [
+    typedRef("fixture-artifact-exec-record", "ExecutionRecord", as<ExecutionRecord>(executionRecord)),
+    typedRef("fixture-artifact-dataset-bundle", "DatasetBundle", as<DatasetBundle>(datasetBundle)),
+    typedRef("fixture-artifact-eval-result", "EvaluationResult", as<EvaluationResult>(evaluationResult)),
+  ],
 };
+
+function typedRef(artifact_id: string, contract: string, payload: { created_at?: string; finished_at?: string }): { ref: ArtifactRef; payload: unknown } {
+  const body = JSON.stringify(payload);
+  return {
+    ref: {
+      artifact_id,
+      contract,
+      media_type: "application/json",
+      byte_length: body.length,
+      sha256: `sha256:${"0".repeat(64)}`,
+      origin: "synthetic_fixture",
+      created_at: payload.created_at ?? payload.finished_at ?? "2026-11-12T18:00:00Z",
+    },
+    payload,
+  };
+}
