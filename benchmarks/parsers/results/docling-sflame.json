@@ -1,0 +1,27 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "sflame-figure",
+   "kind": "figure",
+   "basis": "visual",
+   "found": true,
+   "iou": 0.504
+  },
+  {
+   "id": "sflame-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": false
+  }
+ ],
+ "perf": {
+  "sflame": {
+   "pages": 44,
+   "wall_s": 57.86,
+   "cpu_s": 116.09,
+   "units": 449
+  }
+ },
+ "peak_rss_mb": 6888
+}

@@ -12,10 +12,12 @@
 //! and `resolve` print the contract documents (`SearchPage`, `ReadResult`, `EvidenceRef`) of the same
 //! service the HTTP API and MCP tools use. The API key is read only from `DEEPINFRA_API_KEY`.
 
+pub mod attribution;
 pub mod catalog;
 pub mod corpus;
 pub mod deepinfra;
 pub mod dense;
+pub mod docling_view;
 pub mod firewall;
 #[cfg(feature = "pdf")]
 pub mod pdf;
@@ -86,6 +88,21 @@ pub enum EvidenceCmd {
         #[arg(long)]
         db: Option<PathBuf>,
         /// investigation ids to attach, e.g. PSI-25
+        #[arg(long)]
+        investigation: Vec<String>,
+    },
+    /// Import a Docling parse view (`sidecar/docling/ignis_docling.py` output) of a PDF as its active
+    /// view; other views of the PDF stay stored, so their citations still resolve. Refused if the PDF
+    /// bytes differ from the view's source hash or the view has failed pages.
+    ImportView {
+        /// the view JSON
+        view: PathBuf,
+        /// the PDF the view was made from (its bytes are hashed against the view)
+        #[arg(long)]
+        pdf: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// investigation ids to attach (the storage location adds its own)
         #[arg(long)]
         investigation: Vec<String>,
     },
@@ -253,6 +270,23 @@ fn ingest_one(
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
         EvidenceCmd::Corpus(c) => run_corpus(c),
+        EvidenceCmd::ImportView {
+            view,
+            pdf,
+            db,
+            investigation,
+        } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let v: docling_view::DoclingView = serde_json::from_str(&std::fs::read_to_string(&view)?)?;
+            let bytes = std::fs::read(&pdf)?;
+            let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
+            let iv = docling_view::import(&v, &pdf, &bytes, &rp, &investigation)?;
+            let mut con = catalog::connect(&db, false)?;
+            let n = catalog::upsert_parse_view(&mut con, &iv.publication, &iv.chunks, &iv.pages, None)?;
+            print(&json!({"db": db.display().to_string(), "publication_id": iv.publication.id,
+                "parse_view_id": records::parse_view_id(&iv.publication.id, &iv.publication.parser_version),
+                "chunks": n, "views": catalog::views(&con, &iv.publication.id)?}))
+        }
         #[cfg(not(feature = "pdf"))]
         EvidenceCmd::Ingest { .. } | EvidenceCmd::Verify { .. } => anyhow::bail!(
             "PDF ingest/verify needs the `pdf` feature (MuPDF): cargo build -p ignis-cli --features pdf \
