@@ -192,6 +192,7 @@ pub fn map_item(turn: Option<&str>, item: &Value, completed: bool) -> Vec<Mapped
                 Some(started_mark),
                 tool_call(c.clone()),
                 EventBody::ToolStarted {
+                    arguments: None,
                     call_id: call_id.clone(),
                     tool: tool.clone(),
                 },

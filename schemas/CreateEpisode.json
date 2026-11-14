@@ -1,0 +1,41 @@
+{
+  "$defs": {
+    "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/CreateEpisode",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`POST /api/v1/episodes`.",
+  "properties": {
+    "client_request_id": {
+      "$ref": "#/$defs/ClientRequestId",
+      "description": "Idempotency key: retrying the same request returns the same episode."
+    },
+    "goal": {
+      "type": "string"
+    },
+    "model_releases": {
+      "default": [],
+      "description": "Model releases to pin (verified against the `ModelService`). The corpus snapshot is pinned by\nthe host from the caller's scope, never taken from the client.",
+      "items": {
+        "$ref": "#/$defs/ReleaseId"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "goal",
+    "client_request_id"
+  ],
+  "title": "CreateEpisode",
+  "type": "object"
+}

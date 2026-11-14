@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "AnswerProblem": {
+      "additionalProperties": false,
+      "properties": {
+        "block": {
+          "description": "0-based index into `blocks`.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "claim_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClaimId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detail": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/AnswerProblemKind"
+        }
+      },
+      "required": [
+        "kind",
+        "detail"
+      ],
+      "type": "object"
+    },
+    "AnswerProblemKind": {
+      "description": "Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.",
+      "oneOf": [
+        {
+          "const": "unknown_evidence",
+          "description": "Cited evidence was not returned by a tool result in this episode.",
+          "type": "string"
+        },
+        {
+          "const": "unknown_artifact",
+          "description": "A cited artifact does not exist in this episode's workspace.",
+          "type": "string"
+        },
+        {
+          "const": "unresolved_pointer",
+          "description": "A JSON Pointer is malformed, does not resolve, or resolves to a value without a unit.",
+          "type": "string"
+        },
+        {
+          "const": "kind_support_mismatch",
+          "description": "The support does not fit the claim kind (a prediction cited as an observation, a computed\nvalue cited to prose, a predicted series read from a non-model artifact).",
+          "type": "string"
+        },
+        {
+          "const": "unpinned_release",
+          "description": "A release is used but not pinned on the episode (or not listed in `model_releases`).",
+          "type": "string"
+        },
+        {
+          "const": "unknown_claim",
+          "description": "A block names a claim the answer does not define.",
+          "type": "string"
+        },
+        {
+          "const": "view_contract_mismatch",
+          "description": "A view reads an artifact of the wrong contract.",
+          "type": "string"
+        },
+        {
+          "const": "invalid_structure",
+          "description": "Anything else structural (duplicate ids, empty answer, missing limitations, a support check\nwritten by the agent).",
+          "type": "string"
+        }
+      ]
+    },
+    "ClaimId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "ResearchSchema": {
+      "description": "Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`\n(C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a\nsupport check, a harness pin) is refused under the v1 tag, so a v1 reader never receives a\ndocument it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "research.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "research.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$id": "ignis/2.1.0/AnswerRefusal",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The structured refusal of `answer_submit`: every problem found, so the agent fixes all of them in\none resubmission. Stored as an artifact (contract `AnswerRefusal`) referenced by the refused\n`ToolResult`, whose `error.message` renders the same list.",
+  "properties": {
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "problems": {
+      "items": {
+        "$ref": "#/$defs/AnswerProblem"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/ResearchSchema"
+    }
+  },
+  "required": [
+    "schema_version",
+    "problems",
+    "origin"
+  ],
+  "title": "AnswerRefusal",
+  "type": "object"
+}

@@ -311,15 +311,15 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 
 | # | Type / change | Family (owner) | Producer | Consumers (reviewers) | Status |
 |---|---|---|---|---|---|
-| K1.1 | `ToolStarted.arguments` (redacted by scope) | `research.rs` (Mircea) | Mircea | Tudor | to write |
-| K1.2 | `EventBody::StepRationale { call_id?, text, source: model_explanation }` | `research.rs` | Mircea | Tudor | to write |
-| K1.3 | `AnswerSubmission` + refusal reasons (`unknown_evidence`, `unresolved_pointer`, `kind_support_mismatch`, `unpinned_release`); tool effect `compute` | `research.rs` | agent via MCP; Mircea validates | Tudor, Raul | to write |
-| K1.4 | `AnswerBlock::View { view: ViewSpec, caption?, claim_ids }`; `ViewSpec` v1: `source_excerpt{evidence}`, `series_comparison{series: [SeriesRef{artifact_id, pointer, role, unit_pointer}], time_origin_pointer}`, `conditions_matrix{table: ArtifactRef}`, `atmosphere_map{table: ArtifactRef}`, `video_overlay{source_id, bundle: ArtifactRef}`, `release_card{release_id}`, `artifact_table{artifact_id, pointer}` | `research.rs` (Mircea writes, **Tudor co-designs**) | agent | Tudor, Iancu | to write |
-| K1.5 | `Claim.checked_by: Option<SupportCheck{method, model_id?, verdict, confidence?}>` | `research.rs` | Mircea or Tudor's evaluator | Tudor | to write |
-| K1.6 | `EpisodePins.harness: Option<HarnessRef{digest, label, runtime_build, model, effort?}>` replacing `skills_version` | `research.rs` | Mircea | Tudor | to write |
-| K1.7 | server-only types into core: `CreateEpisode`, `PostMessage`, `MessageAccepted`, `HostDecision`, `Capabilities`, `ServiceStatus`, `ToolStatus`, `EpisodeAction` | `research.rs` | Mircea | Tudor | to write |
-| K1.8 | `TraceBundle` | `research.rs` | Mircea | Tudor | to write |
-| K1.9 | `tool_catalog()` entries: `answer_submit`, `sources_outline`, `conditions_query`, `graph_neighbors`, `wiki_read`, `web_search`, `web_fetch` (request/response types stay in their families) | `research.rs` | Mircea | Raul, Tudor | to write |
+| K1.1 | `ToolStarted.arguments` (redacted by scope) | `research.rs` (Mircea) | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.2 | `EventBody::StepRationale { call_id?, text, source: model_explanation }` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.3 | `AnswerSubmission` + refusal reasons (`unknown_evidence`, `unresolved_pointer`, `kind_support_mismatch`, `unpinned_release`); tool effect `compute` | `research.rs` | agent via MCP; Mircea validates | Tudor, Raul | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.4 | `AnswerBlock::View { view: ViewSpec, caption?, claim_ids }`; `ViewSpec` v1: `source_excerpt{evidence}`, `series_comparison{series: [SeriesRef{artifact_id, pointer, role, unit_pointer}], time_origin_pointer}`, `conditions_matrix{table: ArtifactRef}`, `atmosphere_map{table: ArtifactRef}`, `video_overlay{source_id, bundle: ArtifactRef}`, `release_card{release_id}`, `artifact_table{artifact_id, pointer}` | `research.rs` (Mircea writes, **Tudor co-designs**) | agent | Tudor, Iancu | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.5 | `Claim.checked_by: Option<SupportCheck{method, model_id?, verdict, confidence?}>` | `research.rs` | Mircea or Tudor's evaluator | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.6 | `EpisodePins.harness: Option<HarnessRef{digest, label, runtime_build, model, effort?}>` replacing `skills_version` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.7 | server-only types into core: `CreateEpisode`, `PostMessage`, `MessageAccepted`, `HostDecision`, `Capabilities`, `ServiceStatus`, `ToolStatus`, `EpisodeAction` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.8 | `TraceBundle` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.9 | `tool_catalog()` entries: `answer_submit`, `sources_outline`, `conditions_query`, `graph_neighbors`, `wiki_read`, `web_search`, `web_fetch` (request/response types stay in their families) | `research.rs` | Mircea | Raul, Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
 | K1.10 | `SourceLabel` | `evidence.rs` (Raul) | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.11 | `ProvenanceLink` relations for the graph + `GraphNeighborsRequest/Page` | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.12 | `ResponseFormat` on search/read | `evidence.rs` | Raul | Mircea | **merged** (#26) |
@@ -331,6 +331,17 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 | K1.18 | `SourceAccess` (mode, url, expiry, range, cors, landing url); identity stays the `Source` | `evidence.rs` | Raul (mode), Mircea (URL, M12) | Tudor | **merged** (#26) |
 | K1.19 | `SourceOutline` (section tree; summaries labelled generated) | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.20 | wiki read/patch and web search/fetch request/response types | `evidence.rs` | Raul | Mircea | **merged** (#26) |
+
+**K1-research as written** (for Tudor's co-design review of K1.4 before merge): views reference
+artifacts by `artifact_id`, which must be listed in the answer's `artifacts` (not an inline
+`ArtifactRef`), so a view cannot show what the answer does not cite. `SeriesRef` carries explicit
+`time_pointer`, `value_pointer`, `unit_pointer` and a per-series `time_origin_pointer` (instead of one
+view-level pointer), plus an optional quantile `band`; a `predicted` series reads only an
+`AnalysisArtifact` and an `observed`/`computed` one never does. `source_excerpt` takes an
+`evidence_id`. K1.3 refusals are an `AnswerRefusal` artifact on the refused `ToolResult`, listing every
+problem (adds `unknown_artifact`, `unknown_claim`, `view_contract_mismatch`, `invalid_structure`).
+`AnswerSubmission` carries ids only; the host resolves references and rejects agent-written
+`checked_by`. `ToolEffect::compute` already existed.
 
 **Wave K2** (same rules as K1):
 - **K2-evidence (Raul, `evidence.v3`):** `SearchRequest.expected_terms` (optional list); `SearchPage`
