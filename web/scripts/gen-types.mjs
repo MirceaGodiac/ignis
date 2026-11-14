@@ -10,11 +10,18 @@ const here = dirname(fileURLToPath(import.meta.url));
 const schemasDir = join(here, "..", "..", "schemas");
 const index = JSON.parse(readFileSync(join(schemasDir, "index.json"), "utf8"));
 // Property-level "title"s would become one exported alias per field; keep titles on named types only.
+// Under `properties` the keys are field names, not keywords: a field called `title` is kept.
 const untitle = (node, keep = false) => {
   if (Array.isArray(node)) return node.map((n) => untitle(n));
   if (node && typeof node === "object") {
     const out = {};
-    for (const [k, v] of Object.entries(node)) if (k !== "title" || keep) out[k] = untitle(v);
+    for (const [k, v] of Object.entries(node)) {
+      if (k === "title" && !keep) continue;
+      out[k] =
+        k === "properties" && v && typeof v === "object" && !Array.isArray(v)
+          ? Object.fromEntries(Object.entries(v).map(([field, s]) => [field, untitle(s)]))
+          : untitle(v);
+    }
     return out;
   }
   return node;
