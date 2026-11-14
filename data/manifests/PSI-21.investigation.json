@@ -1,0 +1,14 @@
+{
+  "investigation": "PSI-21",
+  "title": "Advanced Combustion via Microgravity Experiments / Coflow Laminar Diffusion Flame",
+  "acronym": "ACME CLD Flame",
+  "investigation_version": "4",
+  "version_reason": "Metadata update",
+  "modified": "22-Jan-2025",
+  "doi": "10.60555/23e1-9950",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Combustion Integrated Rack (CIR), ACME",
+  "total_file_size_bytes": 2005536295241.0,
+  "metadata_url_sha256": "99a5e58119a9c01ec1b57dfe03d696fb8d05b494a3658338b0f2abb077a72ac5"
+}

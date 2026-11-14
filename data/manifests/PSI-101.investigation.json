@@ -1,0 +1,14 @@
+{
+  "investigation": "PSI-101",
+  "title": "Smoke Aerosol Measurement Experiment-Reflight",
+  "acronym": "SAME-R",
+  "investigation_version": "4",
+  "version_reason": "Additional documentation release",
+  "modified": "02-Jun-2025",
+  "doi": "10.60555/2np7-jv14",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Comparitive Soot Diagnostic Hardware; Refer to final report",
+  "total_file_size_bytes": 6308124750.0,
+  "metadata_url_sha256": "e0aa75d015705a5943b51dbb4a8ba52751a35e4cafc2307d9201d77ebed711a5"
+}

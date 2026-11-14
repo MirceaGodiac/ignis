@@ -25,3 +25,7 @@ parquet = { version = "60", default-features = false, features = ["arrow", "snap
 arrow-array = "60"
 arrow-schema = "60"
 arrow-buffer = "60"
+
+[dev-dependencies]
+# Reads the atlas sensor-text list (docs/wsp/atlas/server_sensor_text.csv.gz) in tests/storage.rs.
+flate2 = "1.1"
