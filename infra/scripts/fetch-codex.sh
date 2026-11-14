@@ -2,7 +2,10 @@
 # Fetch the pinned Linux x86_64 Codex binary for the server image, without installing Node.js on
 # the host: npm runs in a throwaway container and only the native executable is kept.
 #
-#   infra/scripts/fetch-codex.sh <out-dir>      → <out-dir>/codex (prints its version and sha256)
+#   infra/scripts/fetch-codex.sh <out-dir>      → <out-dir>/codex and <out-dir>/codex-code-mode-host
+#
+# codex-code-mode-host must sit next to codex: Codex routes tool calls (the IGNIS MCP tools
+# included) through it and fails them closed when it is missing.
 #
 # Same source as tools/codex/setup.sh (the @openai/codex npm package at the pinned version).
 set -euo pipefail
@@ -18,6 +21,10 @@ docker run --rm -v "$work:/w" -w /w node:22-bookworm-slim \
 bin="$(find "$work/node_modules/@openai" -path '*/vendor/x86_64-unknown-linux-*/bin/codex' -type f | head -n 1)"
 [ -n "$bin" ] || { echo "no Linux x86_64 codex binary in @openai/codex@$pin" >&2; exit 1; }
 install -m 0755 "$bin" "$out/codex"
+host="$(dirname "$bin")/codex-code-mode-host"
+[ -f "$host" ] || { echo "no codex-code-mode-host next to codex in @openai/codex@$pin" >&2; exit 1; }
+install -m 0755 "$host" "$out/codex-code-mode-host"
 version="$("$out/codex" --version | awk 'NR==1 {print $NF}')"
 [ "$version" = "$pin" ] || { echo "fetched codex $version, IGNIS pins $pin" >&2; exit 1; }
 echo "codex $version $(sha256sum < "$out/codex" | awk '{print $1}') $out/codex"
+echo "codex-code-mode-host $(sha256sum < "$out/codex-code-mode-host" | awk '{print $1}') $out/codex-code-mode-host"
