@@ -13,7 +13,8 @@ ARG DOCKER_CLI_IMAGE=docker:29.7-cli
 FROM ${DOCKER_CLI_IMAGE} AS dockercli
 
 FROM ${RUST_IMAGE} AS build
-# mupdf-sys (bindgen → libclang), openh264 (nasm).
+# mupdf-sys (bindgen → libclang; the `pdf` feature lets the same image build the evidence catalog
+# on the host, infra/scripts/build-data.sh), openh264 (nasm).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends clang libclang-dev nasm cmake pkg-config \
  && rm -rf /var/lib/apt/lists/*
@@ -21,7 +22,7 @@ WORKDIR /src
 COPY . .
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/src/target \
-    cargo build --release --locked -p ignis-cli --bin ignis \
+    cargo build --release --locked -p ignis-cli --features pdf --bin ignis \
  && install -D -m 0755 target/release/ignis /out/ignis
 
 FROM ${RUNTIME_IMAGE}
@@ -45,6 +46,8 @@ COPY data/manifests /opt/ignis/data/manifests
 COPY data/splits /opt/ignis/data/splits
 COPY data/corpus /opt/ignis/data/corpus
 COPY data/datasets /opt/ignis/data/datasets
+# Adjudications `ignis data ingest` applies when infra/scripts/build-data.sh builds the records.
+COPY data/review /opt/ignis/data/review
 COPY infra/server/entrypoint.sh /usr/local/bin/ignis-entrypoint
 RUN chmod 0755 /usr/local/bin/ignis-entrypoint /usr/local/bin/codex
 
