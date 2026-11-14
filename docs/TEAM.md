@@ -7,8 +7,9 @@ Task-urile și dependențele: [WORKBOARD](implementation/WORKBOARD.md). Contract
 [CONTRACTS](implementation/CONTRACTS.md).
 
 **Faza 2** ([LANES_V2](implementation/LANES_V2.md)): Mircea preia și harness-ul (instrucțiuni, skills,
-subagenți, `answer_submit`, trace-uri, H0/H1 de partea runtime-ului); Raul acoperă toate cele 26 de
-investigații PSI de combustie, clasificarea documentelor și graful de combustie; Tudor face viewerele,
+subagenți, `answer_submit`, trace-uri, H0/H1 de partea runtime-ului, accesul la surse fără copie); Raul
+acoperă cele 19 investigații PSI de zbor (~14,1 GB pe server, media rămâne la NASA), clasificarea
+documentelor și graful de combustie; Tudor face viewerele (originalele citite direct de la NASA),
 UI-ul generativ din catalog, vederile cerute de challenge și benchmark-ul independent. Contractele
 comune ale fazei (val K1) și ordinea de merge sunt în `LANES_V2.md` §5.
 
