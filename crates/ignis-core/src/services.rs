@@ -12,12 +12,13 @@ use std::io::Read;
 
 use crate::contracts::{
     AnalysisArtifact, ArtifactId, ArtifactRef, Author, ConditionsQuery, ConditionsTable,
-    DatasetBundle, DatasetId, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope, EvaluationRequest,
-    EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope, ExternalSourceCandidate,
-    ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest, MetricValue, ModelRelease, Origin,
-    OutlineRequest, Producer, ReadRequest, ReadResult, ReleaseId, RetryPolicy, SearchPage,
-    SearchRequest, SourceAccess, SourceId, SourceLabel, SourceOutline, WebFetchRequest,
-    WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest, WikiReadResult, WikiRevision,
+    DatasetBundle, DatasetId, Digest, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope,
+    EvaluationRequest, EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope,
+    ExternalSourceCandidate, ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest,
+    MetricValue, ModelRelease, Origin, OutlineRequest, Producer, ReadRequest, ReadResult,
+    ReleaseId, RetryPolicy, SearchPage, SearchRequest, SourceAccess, SourceId, SourceLabel,
+    SourceOutline, WebFetchRequest, WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest,
+    WikiReadResult, WikiRevision,
 };
 
 pub type ServiceResult<T> = Result<T, ErrorEnvelope>;
@@ -128,6 +129,33 @@ pub trait DatasetService: Send + Sync {
         _q: &ConditionsQuery,
     ) -> ServiceResult<ConditionsTable> {
         not_provided("conditions_query")
+    }
+
+    /// Identity of the data [`DatasetService::conditions`] answers from (the conditions table and
+    /// every input that decides which runs a scope sees). It changes when, and only when, an
+    /// answer could change, so a citation of a cell resolves later against exactly this data.
+    fn conditions_snapshot(&self, _scope: &ExecutionScope) -> ServiceResult<Digest> {
+        not_provided("conditions_snapshot")
+    }
+
+    /// Every bundle the scope may read, ordered by id (metadata only; the numeric tables stay
+    /// behind their view `ArtifactRef`s). Bundles holding a partition the scope does not grant are
+    /// not listed, and the evaluator root is listed for evaluation scopes only (M11).
+    fn datasets(&self, _scope: &ExecutionScope) -> ServiceResult<Vec<DatasetBundle>> {
+        not_provided("datasets_list")
+    }
+
+    /// Bytes `[offset, offset + len)` of one view's artifact (Parquet), streamed, after the same
+    /// scope checks as [`DatasetService::dataset`]; returns the view's `ArtifactRef` with the reader.
+    fn open_view(
+        &self,
+        _scope: &ExecutionScope,
+        _id: &DatasetId,
+        _view: &str,
+        _offset: u64,
+        _len: Option<u64>,
+    ) -> ServiceResult<(ArtifactRef, Box<dyn Read + Send>)> {
+        not_provided("dataset_view_bytes")
     }
 }
 

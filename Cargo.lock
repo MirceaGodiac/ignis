@@ -1988,6 +1988,7 @@ dependencies = [
  "hex",
  "http-body-util",
  "ignis-core",
+ "ignis-data",
  "ignis-mcp",
  "ignis-research",
  "indexmap",

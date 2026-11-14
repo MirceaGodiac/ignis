@@ -17,6 +17,7 @@
 
 pub mod access;
 pub mod agent;
+pub mod data;
 pub mod fixture;
 pub mod io;
 mod runner;
@@ -431,6 +432,7 @@ pub fn build(state: Arc<V1>) -> Router {
                 o.summary("Publish verified upload bytes as an artifact (idempotent)")
             }),
         )
+        .merge(data::routes())
         // Short commands only: research work runs as jobs, big results are artifacts.
         .layer(TimeoutLayer::with_status_code(
             axum::http::StatusCode::REQUEST_TIMEOUT,
@@ -465,6 +467,7 @@ pub fn build(state: Arc<V1>) -> Router {
     let router = ApiRouter::new()
         .merge(commands)
         .merge(streams)
+        .merge(data::streams())
         .merge(uploads)
         .with_state(state.clone())
         .finish_api(&mut api);
