@@ -1,0 +1,25 @@
+{
+  "schema_version": "evaluation.v2",
+  "task_id": "fixture-gold-pre-01",
+  "class": "predictive",
+  "topic": "models_diagnostics",
+  "split": "dev",
+  "question": "Synthetic fixture: forecast the droplet diameter of the (fixture) run after its cutoff.",
+  "investigations": [
+    "PSI-69"
+  ],
+  "cluster": "PSI-69",
+  "answer": {
+    "kind": "predictive",
+    "protocol": {
+      "protocol_id": "fixture-protocol",
+      "version": "0",
+      "frozen_hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    },
+    "target": "liquid_diameter"
+  },
+  "authored_by": "fixture-evaluator",
+  "reviewed_by": [],
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-14T18:00:00Z"
+}
