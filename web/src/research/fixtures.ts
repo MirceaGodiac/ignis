@@ -23,6 +23,9 @@ import type {
 } from "../contracts/generated";
 import episode from "../../../fixtures/contracts/research/episode.json";
 import events from "../../../fixtures/contracts/research/events.json";
+import episodeV2 from "../../../fixtures/contracts/research/episode_v2.json";
+import eventsV2 from "../../../fixtures/contracts/research/events_v2.json";
+import answerV2 from "../../../fixtures/contracts/research/answer_v2.json";
 import answer from "../../../fixtures/contracts/research/answer.json";
 import toolAccepted from "../../../fixtures/contracts/research/tool_accepted.json";
 import toolFailed from "../../../fixtures/contracts/research/tool_failed.json";
@@ -51,6 +54,13 @@ export const FIXTURES = {
   answer: as<ResearchAnswer>(answer),
   /** ArtifactRef id under which `answer.completed` stores the ResearchAnswer in events.json. */
   answerArtifactId: "fixture-artifact-answer-01",
+  /** research.v2 (K1-research): an episode whose answer places catalog views (T8). */
+  v2: {
+    episode: as<ResearchEpisode>(episodeV2),
+    events: as<ResearchEvent[]>(eventsV2),
+    answer: as<ResearchAnswer>(answerV2),
+    answerArtifactId: "fixture-artifact-answer-02",
+  },
   tools: {
     accepted: as<ToolResult>(toolAccepted),
     failed: as<ToolResult>(toolFailed),
