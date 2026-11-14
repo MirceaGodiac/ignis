@@ -675,7 +675,7 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 
 /* ------------------------------------------------------------------ conditions: map, layers, atmosphere cards */
 .cmap { position: relative; }
-.cmap-svg { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; user-select: none; }
+.cmap-svg { display: block; max-width: none; touch-action: none; cursor: grab; user-select: none; }
 .cmap-svg:active { cursor: grabbing; }
 .cmap-plot { fill: transparent; stroke: var(--rule); }
 .cmap-grid { stroke: var(--grid); }
@@ -765,3 +765,6 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 
 .chips .linkish, .mapv-foot .linkish { color: var(--ink-2); }
 .chips .linkish:hover, .mapv-foot .linkish:hover { color: var(--ink); }
+
+.mapv { container-type: inline-size; }
+@container (max-width: 900px) { .mapv-grid { grid-template-columns: minmax(0, 1fr); } }

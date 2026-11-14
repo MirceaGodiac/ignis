@@ -8,11 +8,7 @@ import type { Habitat, HabitatId } from "../research/habitats";
 import { HABITAT_LIST, PSI_PA } from "../research/habitats";
 import type { TestPoint } from "../research/testPoints";
 
-const W = 820;
-const H = 470;
 const M = { l: 56, r: 56, t: 16, b: 44 };
-const PW = W - M.l - M.r;
-const PH = H - M.t - M.b;
 const PSI_KPA = PSI_PA / 1000;
 
 export interface Domain {
@@ -66,6 +62,17 @@ export function ConditionsMap({
   maxKpa: number;
 }) {
   const svg = useRef<SVGSVGElement>(null);
+  // Drawn at the container's real pixel size, so labels keep their size when a side panel narrows it.
+  const wrap = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(820);
+  useEffect(() => {
+    const ro = new ResizeObserver(([e]) => setW(Math.max(380, Math.round(e.contentRect.width))));
+    ro.observe(wrap.current!);
+    return () => ro.disconnect();
+  }, []);
+  const H = Math.round(Math.min(560, Math.max(320, W * 0.58)));
+  const PW = W - M.l - M.r;
+  const PH = H - M.t - M.b;
   const [hover, setHover] = useState<{ p: TestPoint; x: number; y: number } | null>(null);
   const drag = useRef<{ px: number; py: number; d: Domain; moved: boolean } | null>(null);
 
@@ -138,10 +145,12 @@ export function ConditionsMap({
   const hab = (id: HabitatId): Habitat => HABITAT_LIST.find((h) => h.id === id)!;
 
   return (
-    <div className="cmap">
+    <div className="cmap" ref={wrap}>
       <svg
         ref={svg}
         className="cmap-svg"
+        width={W}
+        height={H}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Test points by ambient oxygen and pressure, with the crew atmospheres"
@@ -150,6 +159,7 @@ export function ConditionsMap({
         onPointerUp={up}
         onPointerLeave={() => setHover(null)}
         onDoubleClick={(e) => {
+          if ((e.target as Element).closest(".cmap-pt")) return;
           const p = toData(e.clientX, e.clientY);
           if (p.inPlot) zoomAt(p.o2, p.k, 0.5);
         }}

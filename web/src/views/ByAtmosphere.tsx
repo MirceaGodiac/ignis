@@ -139,7 +139,7 @@ function InvCard({ s, hid }: { s: Standing; hid: HabitatId }) {
           On the map
         </a>
         {s.runsInside > 0 && (
-          <a className="btn btn-s" href={href("conditions", null, { tab: "runs", habitat: hid })}>
+          <a className="btn btn-s" href={href("runs", null, { habitat: hid, inv: s.investigation })}>
             Runs here
           </a>
         )}

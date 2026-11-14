@@ -82,7 +82,7 @@ export function Home() {
         </div>
         <div className="fam-grid">
           {HABITAT_LIST.map((h) => (
-            <a key={h.id} className="fam-cell" href={href("conditions", null, { tab: "runs", habitat: h.id })}>
+            <a key={h.id} className="fam-cell" href={href("runs", null, { habitat: h.id })}>
               <span className="fam-name">{h.label}</span>
               <span className="fam-n fam-n-s">{h.sub}</span>
               <span className="fam-fuels">Runs tested here</span>
