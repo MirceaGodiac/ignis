@@ -262,6 +262,20 @@ pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); 
 .rs-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 12px; }
 .rs-tile { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--panel); min-width: 0; }
 .research .notices { max-height: 240px; }
+
+/* T3: live origins. Episode picker, deployment capabilities, controls, new investigation, approvals. */
+.rs-episode { flex: 1 1 16rem; min-width: 0; max-width: 46ch; }
+.rs-episode select { flex: 1 1 auto; width: 100%; min-width: 0; color: var(--fg); text-overflow: ellipsis; }
+.rs-caps { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; padding: 0; font-size: 13px; }
+.rs-caps li { cursor: help; }
+.rs-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.rs-new { padding: 16px 0 4px; }
+.rs-new-label { display: block; font-size: 15px; font-weight: 650; margin-bottom: 6px; }
+.rs-new input { min-width: 0; }
+.rs-approval { padding: 8px 0; border-top: 1px solid var(--grid); }
+.rs-approval:first-of-type { border-top: none; padding-top: 0; }
+.rs-approval p { margin: 0 0 8px; }
+.research .steering p { margin: 6px 0 0; font-size: 13px; }
 @media (max-width: 480px) {
   .rs-goal-text { font-size: 19px; }
   .rs-section { padding: 14px; }
