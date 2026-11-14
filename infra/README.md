@@ -42,19 +42,51 @@ can never open the origin directly. The Worker drops any client-supplied copy of
 `/livez` (no data) is the only unauthenticated route; everything else, including the legacy `/api/*`,
 needs at least the origin token.
 
-## Secrets
+## Credentials
 
-Never in Git, the image, the compose file or the Worker config.
+For now every credential is a plain entry in `/etc/ignis/ignis.env` (root 0600), empty when unused;
+the server starts with whichever are filled and `/api/v1/capabilities` says what it uses
+(`credentials: environment | shared_login_home | none`). Sealing them into Compose secret files
+later needs no code change: the entrypoint already exports `/run/secrets/<NAME>` as `<NAME>`.
+None of them is in Git, the image or the compose file.
 
-| Secret | Where it lives | Who reads it |
+| Credential | Entry | Read by |
 |---|---|---|
-| `CODEX_API_KEY` | `/etc/ignis/secrets/CODEX_API_KEY` (root:10001 0440) | entrypoint → `ignis` env → only the Codex child (env cleared otherwise) |
-| `IGNIS_R2_SECRET_ACCESS_KEY` | `/etc/ignis/secrets/IGNIS_R2_SECRET_ACCESS_KEY` (root:10001 0440) | `ignis` (R2 artifacts, backups) |
-| `TUNNEL_TOKEN` | `/etc/ignis/cloudflared.env` (root 0600) | cloudflared |
-| Worker service token (`ORIGIN_CLIENT_ID`, `ORIGIN_CLIENT_SECRET`) | `wrangler secret put` | the Worker |
+| Codex, API billing | `CODEX_API_KEY` | only the Codex child (its environment is cleared otherwise) |
+| Codex, ChatGPT plan | `IGNIS_CODEX_LOGIN_HOME=/srv/ignis/login/codex` (see below) | every Codex process |
+| Claude, plan token or API billing | `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` | only the Claude child |
+| Claude, signed-in config dir | `IGNIS_CLAUDE_LOGIN_HOME=/srv/ignis/login/claude` (see below) | every Claude process |
+| R2 | `IGNIS_R2_ACCESS_KEY_ID`, `IGNIS_R2_SECRET_ACCESS_KEY` | `ignis` (artifacts, backups) |
+| Tunnel | `TUNNEL_TOKEN` in `/etc/ignis/cloudflared.env` (root 0600) | cloudflared |
+| Worker service token | `ORIGIN_CLIENT_ID`, `ORIGIN_CLIENT_SECRET` via `wrangler secret put` | the Worker |
 
-The R2 API token is scoped to the one bucket (Object Read & Write). Runner containers get no host
-environment, no secret mounts, no network (`sandbox_live` tests the env and mounts).
+The runtime is chosen with `IGNIS_AGENT_RUNTIME` (`codex` or `claude`); restart `ignis` after a
+change. The R2 API token is scoped to the one bucket (Object Read & Write). Runner containers get no
+host environment, no credential, no network (`sandbox_live` tests the env and mounts).
+
+### Plan sign-in
+
+A plan account is shared by everyone using the deployment: its usage limits are shared, and a
+turn that hits one fails with the provider's message as its reason.
+
+- **ChatGPT plan (Codex).** On the VM, once the image exists:
+
+  ```bash
+  IMAGE="$(sudo sed -n 's/^IGNIS_IMAGE=//p' /etc/ignis/release.env)"
+  sudo mkdir -p /srv/ignis/login/codex && sudo chown 10001:10001 /srv/ignis/login/codex
+  sudo docker run --rm -it --user 10001:10001 -e CODEX_HOME=/srv/ignis/login/codex \
+    -v /srv/ignis/login/codex:/srv/ignis/login/codex --entrypoint /usr/local/bin/codex "$IMAGE" \
+    -c 'cli_auth_credentials_store="file"' login --device-auth
+  ```
+
+  It prints a URL and a code: open the URL on any device, sign in to ChatGPT and enter the code.
+  Then set `IGNIS_CODEX_LOGIN_HOME=/srv/ignis/login/codex`, leave `CODEX_API_KEY` empty, restart.
+  Codex refreshes the token in that directory (it must stay writable). Several workspaces' Codex
+  processes share it: if one refresh invalidates another's token, turns fail with an
+  authentication error, and signing in again fixes it.
+- **Claude plan (Claude Code).** On any computer with Claude Code signed in to the plan, run
+  `claude setup-token`; put the printed token in `CLAUDE_CODE_OAUTH_TOKEN`, set
+  `IGNIS_AGENT_RUNTIME=claude`, restart. No directory to keep: the token is long-lived.
 
 ## Runner
 
@@ -124,12 +156,13 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 
    Then install Docker Engine and the compose plugin from Docker's Debian repository.
 2. **gVisor.** Install `runsc` from gVisor's apt repository, `runsc install`, restart Docker. Then
-   build the runner image (`tools/runner/build.sh`) and run `infra/scripts/verify-gvisor.sh <id>`.
+   build the runner image (`tools/runner/build.sh`, from the `/opt/ignis-deploy` checkout: do the
+   `git bundle` copy of step 6 first) and run `infra/scripts/verify-gvisor.sh <id>`.
    The isolation suite must pass under `runsc`; record the output. If it fails, do not set
    `--runner-allow-container` — leave the runner unconfigured (analyses report it unavailable).
    gVisor's default platform (systrap) needs no nested virtualization, so a standard GCE VM is
    enough.
-3. **Directories:** `mkdir -p /srv/ignis/{state,backups,data,artifacts} /etc/ignis/secrets`,
+3. **Directories:** `mkdir -p /srv/ignis/{state,backups,data,artifacts,login/codex,login/claude} /etc/ignis`,
    `chown -R 10001:10001 /srv/ignis` (the runner disk is mounted in step 1).
 4. **Cloudflare** (one CLI: Wrangler; dashboard for Zero Trust):
    - R2 bucket `ignis-artifacts` + an R2 API token for it. Lifecycle rule on `backups/` for
@@ -139,31 +172,50 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
    - Access app **origin** on `<origin-hostname>`: policy *Service Auth* allowing only the new
      service token. Note its AUD.
    - Access app **UI** on `<ui-hostname>`: policy for the team's identities. Note its AUD.
-5. **Config:** `/etc/ignis/ignis.env` from `deploy/ignis.env.example`, the two secret files,
-   `/etc/ignis/release.env` from `deploy/release.env.example` (`DOCKER_GID=$(stat -c %g /var/run/docker.sock)`).
-6. **Image:** on a build machine, from a clean checkout of the release commit:
-   `infra/scripts/build-server.sh <linux codex binary>` → `runs/release/<commit>.json`. Transfer the
-   image (`docker save <id> | gcloud compute ssh ignis-origin --zone=$ZONE --tunnel-through-iap -- sudo docker load`)
-   and set `IGNIS_IMAGE` to its id/digest. Pin
-   `CLOUDFLARED_IMAGE` by digest too.
-7. **Start:** checkout to `/opt/ignis-deploy`, copy `deploy/systemd/*` to `/etc/systemd/system/`,
-   `systemctl daemon-reload && systemctl enable --now ignis ignis-backup.timer`.
-8. **Worker:** `npm ci --prefix web && npm --prefix web run build`, fill the placeholders in
+5. **Config:** `/etc/ignis/ignis.env` from `deploy/ignis.env.example` (root 0600; fill the
+   credentials you use, see [Credentials](#credentials)), `/etc/ignis/release.env` from `deploy/release.env.example` (`DOCKER_GID=$(stat -c %g /var/run/docker.sock)`).
+6. **Image, on the VM.** The release is built where it runs, so nothing large crosses the
+   administrator's machine. Copy the release commit without giving the VM Git credentials:
+
+   ```bash
+   git bundle create /tmp/ignis.bundle <release-commit-or-main>      # on the admin machine
+   gcloud compute scp /tmp/ignis.bundle ignis-origin:/tmp/ --zone=$ZONE --tunnel-through-iap
+   # on the VM:
+   sudo git clone -q /tmp/ignis.bundle /opt/ignis-deploy && cd /opt/ignis-deploy
+   sudo git checkout -q <release-commit>
+   sudo infra/scripts/fetch-codex.sh /opt/ignis-cli              # pinned Codex, npm in a container
+   sudo infra/scripts/fetch-claude.sh /opt/ignis-cli             # Claude Code (for the claude runtime)
+   sudo infra/scripts/build-server.sh /opt/ignis-cli/codex /opt/ignis-cli/claude   # → runs/release/<commit>.json
+   ```
+
+   Set `IGNIS_IMAGE` in `/etc/ignis/release.env` to the image id from the manifest. Pin
+   `CLOUDFLARED_IMAGE` by digest too (`docker pull cloudflare/cloudflared:latest`, then
+   `docker inspect --format '{{index .RepoDigests 0}}' cloudflare/cloudflared:latest`).
+7. **Data, on the VM:** `sudo infra/scripts/build-data.sh`. With the release image it downloads the
+   bounded NASA sample set and the evidence-corpus reports from public NASA servers (about 0.3 GB),
+   builds the evidence catalog (`/srv/ignis/artifacts/evidence/`), the records and the FLEX/ACME
+   builder bundles (`/srv/ignis/data/`). Every step must end without an error; the last section
+   lists listing manifests NASA changed since the release (review them, do not commit blindly).
+   Re-run it after each release that changes ingest or bundle code.
+8. **Start:** copy `infra/deploy/systemd/*` from `/opt/ignis-deploy` to `/etc/systemd/system/`,
+   `systemctl daemon-reload && systemctl enable --now ignis ignis-backup.timer`. The log must not
+   say `KnowledgeService not configured` or `DatasetService not configured`.
+9. **Worker:** `npm ci --prefix web && npm --prefix web run build`, fill the placeholders in
    `worker/wrangler.jsonc`, `cd infra/worker && npm ci && npx wrangler secret put ORIGIN_CLIENT_ID`
    (and `ORIGIN_CLIENT_SECRET`), `npx wrangler deploy`.
-9. **Check:** `docker compose … ps` healthy; in the browser, sign in and open
+10. **Check:** `docker compose … ps` healthy; in the browser, sign in and open
    `/api/v1/capabilities` (agent runtime, runner, artifact store); one cited answer and one
    numeric analysis end to end; `curl https://<origin-hostname>/api/health` without the service
    token is refused by Access.
 
 ## Release and rollback
 
-1. Build the new image (step 6) — the manifest names commit, toolchain, Codex hash, base digests.
+1. Build the new image on the VM (step 6); re-run step 7 if ingest or bundle code changed — the manifest names commit, toolchain, Codex hash, base digests.
 2. Back up first: `systemctl start ignis-backup` (and wait for "pushed").
 3. Database migrations: `ResearchStore::open` migrates on start. Test it on a copy first:
    `ignis state restore <latest snapshot> --target /tmp/migrate-test` then start the new image
    against that directory with `--port 0`; it must open the store and serve `/livez`.
-4. Edit `IGNIS_IMAGE` in `/etc/ignis/release.env`, `systemctl restart ignis`; verify as in step 9.
+4. Edit `IGNIS_IMAGE` in `/etc/ignis/release.env`, `systemctl restart ignis`; verify as in step 10.
 5. Rollback: restore the previous `IGNIS_IMAGE` and restart. A code rollback does **not** undo a
    schema migration: if the new release migrated the store and the old one cannot read it, stop,
    `mv /srv/ignis/state /srv/ignis/state.failed`, restore the pre-release snapshot, restart.

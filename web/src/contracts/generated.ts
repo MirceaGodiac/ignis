@@ -413,12 +413,13 @@ export type RetryPolicy =
       kind: "reconcile";
     };
 /**
- * Agent runtime hosting an episode. One value today; a second one needs an ADR.
+ * Agent runtime hosting an episode (ADR 17): the pinned Codex App Server, or Claude Code in
+ * headless mode. Each owns its own model/tool loop; IGNIS maps, stores and audits both the same way.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "RuntimeKind".
  */
-export type RuntimeKind = "codex_app_server";
+export type RuntimeKind = "codex_app_server" | "claude_code";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "RuntimeBuildId".

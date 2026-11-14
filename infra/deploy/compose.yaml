@@ -10,6 +10,8 @@ services:
   ignis:
     # Pinned by digest in releases (IGNIS_IMAGE=ignis-server@sha256:… from the release manifest).
     image: ${IGNIS_IMAGE:?set IGNIS_IMAGE in the env file}
+    # Configuration and, for now, the credentials too (plain entries, see ignis.env.example; they
+    # move to Compose secrets when the setup is sealed: the entrypoint already reads /run/secrets).
     env_file:
       - ${IGNIS_ENV_FILE:-/etc/ignis/ignis.env}
     environment:
@@ -18,15 +20,15 @@ services:
       IGNIS_RUNNER_DIR: /srv/ignis/runner
       # Write-once outputs of the legacy routes (reveal log etc.) live with the state, not the image.
       IGNIS_RUNS: /srv/ignis/state/runs
-    # Exported as environment variables by the entrypoint; files are root:10001 0440 on the host.
-    secrets:
-      - CODEX_API_KEY
-      - IGNIS_R2_SECRET_ACCESS_KEY
     volumes:
       - /srv/ignis/state:/srv/ignis/state
       - /srv/ignis/runner:/srv/ignis/runner
       # Snapshots before upload (infra/scripts/backup.sh); restore downloads here too.
       - /srv/ignis/backups:/srv/ignis/backups
+      # Plan sign-ins (writable: the CLIs refresh their tokens in place). Used only when
+      # IGNIS_CODEX_LOGIN_HOME / IGNIS_CLAUDE_LOGIN_HOME point here.
+      - /srv/ignis/login/codex:/srv/ignis/login/codex
+      - /srv/ignis/login/claude:/srv/ignis/login/claude
       # Registry records/cohorts (read) and the legacy artifacts root: models/<hex>/ (immutable
       # releases), evidence catalog, analysis/sealed/reveals (write-once).
       - /srv/ignis/data:/opt/ignis/data/work:ro
@@ -81,9 +83,3 @@ services:
 networks:
   origin:
     driver: bridge
-
-secrets:
-  CODEX_API_KEY:
-    file: ${IGNIS_SECRETS_DIR:-/etc/ignis/secrets}/CODEX_API_KEY
-  IGNIS_R2_SECRET_ACCESS_KEY:
-    file: ${IGNIS_SECRETS_DIR:-/etc/ignis/secrets}/IGNIS_R2_SECRET_ACCESS_KEY

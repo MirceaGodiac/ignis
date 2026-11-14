@@ -173,9 +173,10 @@ pub struct CodexConfig {
     /// Environment variables forwarded to the child (e.g. `CODEX_API_KEY`); everything else is
     /// cleared, so host secrets never reach the runtime.
     pub pass_env: Vec<String>,
-    /// Local development only: one `CODEX_HOME` signed in with a Codex (ChatGPT) account, used by
-    /// every workspace instead of an empty home each (see `tools/codex/login.*`). Workspaces then
-    /// share the runtime's state directory, so the host allows it only for a single local user.
+    /// One `CODEX_HOME` signed in with a ChatGPT account (a plan instead of an API key), used by
+    /// every workspace instead of an empty home each (`tools/codex/login.*` locally,
+    /// `codex login --device-auth` on a server). Workspaces then share its state directory and the
+    /// account's plan limits; several processes may refresh its token.
     pub login_home: Option<PathBuf>,
     /// The IGNIS MCP server (M3) the runtime processes are attached to. `None`: the runtime has no
     /// IGNIS tools.
@@ -223,7 +224,9 @@ impl CodexConfig {
             .copied()
             .chain(self.pass_env.iter().map(String::as_str))
         {
-            if let Some(v) = std::env::var_os(k) {
+            // An empty entry (an unfilled line of the env file) counts as unset: forwarding it
+            // would make Codex try an empty API key instead of the signed-in login home.
+            if let Some(v) = std::env::var_os(k).filter(|v| !v.is_empty()) {
                 cmd.env(k, v);
             }
         }
@@ -308,8 +311,9 @@ pub struct RuntimeBuildManifest {
     pub model: Option<String>,
     /// Names (never values) of the environment variables forwarded to the runtime.
     pub forwarded_env: Vec<String>,
-    /// How the runtime authenticates: `environment` (an API key forwarded from the host's
-    /// environment, if set) or `shared_login_home` (a signed-in Codex account, local development).
+    /// How the runtime authenticates: `environment` (a key or token forwarded from the host's
+    /// environment), `shared_login_home` (a signed-in plan account), or `none` (nothing set yet:
+    /// turns will fail until a credential is configured).
     pub credentials: &'static str,
     pub preflight_at: Timestamp,
 }
@@ -405,8 +409,15 @@ pub fn preflight(cfg: &CodexConfig) -> Result<RuntimeBuildManifest, String> {
         forwarded_env: cfg.pass_env.clone(),
         credentials: if cfg.login_home.is_some() {
             "shared_login_home"
-        } else {
+        } else if cfg
+            .pass_env
+            .iter()
+            .any(|k| std::env::var_os(k).is_some_and(|v| !v.is_empty()))
+        {
             "environment"
+        } else {
+            // Visible in /capabilities before the first question fails on it.
+            "none"
         },
         preflight_at: Timestamp::now(),
     })
@@ -503,7 +514,7 @@ fn run(cmd: &mut Command, deadline: Duration) -> Result<String, String> {
     Ok(out)
 }
 
-fn sha256_file(path: &Path) -> std::io::Result<String> {
+pub(super) fn sha256_file(path: &Path) -> std::io::Result<String> {
     let mut f = std::fs::File::open(path)?;
     let mut h = Sha256::new();
     let mut buf = vec![0u8; 1 << 16];
