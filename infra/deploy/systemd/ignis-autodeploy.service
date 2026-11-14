@@ -1,0 +1,18 @@
+# /etc/systemd/system/ignis-autodeploy.service — deploy the tip of the configured branch if it is
+# new (infra/scripts/autodeploy.sh, installed as /usr/local/sbin/ignis-autodeploy). Started by
+# ignis-autodeploy.timer; by hand: `systemctl start ignis-autodeploy` or run the script directly
+# with --force / --commit / --rollback / --drill-rollback. Log: journalctl -u ignis-autodeploy.
+[Unit]
+Description=IGNIS automatic deploy (pull from GitHub, build, smoke-test, switch, roll back on failure)
+Documentation=file:///opt/ignis-deploy/infra/README.md
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/ignis-autodeploy
+# Build (cold: tens of minutes) + drain wait (up to DRAIN_TIMEOUT) + restart and checks.
+TimeoutStartSec=3h
+# The image build itself runs in dockerd; this only deprioritises the script and git.
+Nice=10

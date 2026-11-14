@@ -57,6 +57,27 @@ repo root (gitignored) loaded by your shell. Anything paid or networked still ne
 
   Needs a Google account added to the project with IAP tunnel + OS Login roles (Mircea). Zone and
   project: in Mircea's deployment log (`runs/deploy/log.md`, gitignored) and the runbook.
+
+  **If it times out** (`WinError 10060` / "Remote side unexpectedly closed" while testing the
+  tunnel) although the firewall allows IAP: check `curl -6 https://tunnel.cloudproxy.app` vs
+  `curl -4 …`. On a network with a dead IPv6 route, gcloud's Python tries IPv6 first for the IAP
+  websocket. Force IPv4 for gcloud only (no system setting changes) with a `sitecustomize.py` in
+  a directory of your own:
+
+  ```python
+  import socket
+  _orig = socket.getaddrinfo
+  socket.getaddrinfo = lambda host, port, family=0, *a, **k: _orig(host, port, socket.AF_INET, *a, **k)
+  ```
+
+  then, in the shell that runs gcloud (Git Bash on Windows):
+  `export PYTHONPATH="$(cygpath -w <that-dir>)" CLOUDSDK_PYTHON_SITEPACKAGES=1`. `gcloud compute
+  ssh` and `gcloud compute scp` with `--tunnel-through-iap` then work. (Equivalent: a local
+  IPv4-only HTTP CONNECT proxy and `CLOUDSDK_PROXY_TYPE=http CLOUDSDK_PROXY_ADDRESS=127.0.0.1
+  CLOUDSDK_PROXY_PORT=<port>`.) The Cloud Console's SSH-in-browser also works but needs an
+  Authorize click on every load.
+- **Automatic deploys:** the VM deploys `main` by itself (`infra/README.md` §Automatic deploys);
+  `journalctl -u ignis-autodeploy`, history in `/var/lib/ignis-deploy/deploys.jsonl`.
 - **Layout on the VM:**
 
   | Path | What |
