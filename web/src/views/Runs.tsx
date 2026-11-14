@@ -9,7 +9,7 @@ import { usePanel } from "../shell/inspector";
 import { FamilyMark } from "../shell/icons";
 import { go } from "../shell/router";
 import { ErrorNote, Synthetic } from "../ui/common";
-import { FamilyLegend } from "./AtmosMap";
+import { FamilyLegend } from "./FamilyLegend";
 
 type Col = "id" | "inv" | "date" | "family" | "fuel" | "o2" | "pressure" | "flow";
 const cond = (r: ExperimentSummary, k: string) => r.conditions[k]?.value_si ?? null;
@@ -46,11 +46,22 @@ const shortRun = (r: ExperimentSummary) =>
     .filter((p) => p !== r.family && !/^\d{4}-\d{2}-\d{2}$/.test(p))
     .join(" ") || r.id;
 
+/**
+ * NASA's own name for the run, from the record's aliases: the FLEX test sheet number (FLEX-229), the
+ * CFI-G table test (21196 A1), the BASS as-run and test numbers (run 47 · test 82a) or test number (B1).
+ * Falls back to the id without investigation, family and day.
+ */
+function runName(r: ExperimentSummary): string {
+  const a = (scheme: string) => r.aliases?.find((x) => x.scheme === scheme)?.name;
+  const asRun = a("as_run_number");
+  return a("testsheet_header") ?? a("file_flex_number") ?? a("table_test") ?? (asRun ? `run ${asRun} · test ${a("test_number") ?? "?"}` : a("test_number")) ?? shortRun(r);
+}
+
 /** The test day from the run's session ("PSI-69:day:2009-03-05"). */
 const testDate = (r: ExperimentSummary) => r.session_id?.match(/(\d{4}-\d{2}-\d{2})$/)?.[1] ?? null;
 
 const val: Record<Col, (r: ExperimentSummary) => string | number | null> = {
-  id: (r) => shortRun(r),
+  id: (r) => runName(r),
   inv: (r) => r.investigation_id,
   date: (r) => testDate(r),
   family: (r) => r.family,
@@ -169,7 +180,7 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
                   <td className="narrow-hide">{r.fuel_or_material ?? <span className="dim">unknown</span>}</td>
                   <td>
                     <span className="cell-id" title={r.id}>
-                      {shortRun(r)}
+                      {runName(r)}
                     </span>{" "}
                     {r.synthetic && !synthetic && <Synthetic />}
                   </td>

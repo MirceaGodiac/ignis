@@ -2,12 +2,14 @@
 // places a component by kind and references; the UI renders it from its own trusted components and
 // never renders agent markup. A view that references something the answer does not cite is refused
 // with the reason (A2UI's model: the client owns the catalog). A new kind is a contract change.
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ConditionsTable, ResearchAnswer, ViewSpec, VisualObservationBundle } from "../contracts/generated";
 import { SeriesChart } from "../components/SeriesChart";
 import { readSeries, seriesProblems, tableOf, viewProblems, type Series } from "../research/viewSpec";
-import { axesOf } from "../research/habitats";
+import type { HabitatId } from "../research/habitats";
+import { conditionsView } from "../research/testPoints";
+import { ConditionsMap, HOME, type Domain } from "./ConditionsMap";
 import { resolvePointer } from "../research/units";
 import type { ResearchClient } from "../research/client";
 import { ContourVideo } from "../shell/ContourVideo";
@@ -15,7 +17,7 @@ import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
 import { useReleases } from "../shell/queries";
 import { ErrorNote, EvidenceClassTag, ReleaseState, shortId, words } from "../ui/common";
-import { ConditionsMatrix, HabitatRanking } from "./Conditions";
+import { ConditionsMatrix } from "./Conditions";
 
 const KIND_TITLE: Record<ViewSpec["kind"], string> = {
   source_excerpt: "Source excerpt",
@@ -49,7 +51,7 @@ function ViewBody({ view, answer, client }: { view: ViewSpec; answer: ResearchAn
     case "conditions_matrix":
       return <TableArtifact id={view.table} client={client} render={(t) => <ConditionsMatrix t={t} />} />;
     case "atmosphere_map":
-      return <TableArtifact id={view.table} client={client} render={(t) => <HabitatRanking axes={(t.envelopes ?? []).map(axesOf)} />} />;
+      return <TableArtifact id={view.table} client={client} render={(t) => <AnswerMap t={t} />} />;
     case "video_overlay":
       return <BundleArtifact id={view.bundle} sourceId={view.source_id} client={client} />;
     case "release_card":
@@ -116,6 +118,17 @@ function SeriesView({ view, client }: { view: Extract<ViewSpec, { kind: "series_
 }
 
 // ---------------------------------------------------------------- tables and bundles
+
+/** The atmosphere map of the table an answer cites: its own test points, zoomable, nothing hidden. */
+function AnswerMap({ t }: { t: ConditionsTable }) {
+  const v = useMemo(() => conditionsView(t.rows), [t]);
+  const [domain, setDomain] = useState<Domain>(HOME);
+  const [selected, setSelected] = useState<string | null>(null);
+  const maxKpa = Math.max(150, ...v.points.map((p) => p.kpa));
+  return <ConditionsMap points={v.points} hidden={NONE} habitats={ALL_HABITATS} selected={selected} onSelect={setSelected} domain={domain} setDomain={setDomain} maxKpa={maxKpa} />;
+}
+const NONE = new Set<string>();
+const ALL_HABITATS = new Set<HabitatId>(["moon", "suit", "iss"]);
 
 function TableArtifact({ id, client, render }: { id: string; client: ResearchClient; render: (t: ConditionsTable) => JSX.Element }) {
   const q = useArtifact<ConditionsTable>(client, id);
