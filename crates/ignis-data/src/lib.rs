@@ -9,6 +9,7 @@ pub mod auto;
 pub mod cli;
 pub mod cohort;
 pub mod common;
+pub mod conditions;
 pub mod dataset;
 pub mod dossier;
 pub mod families;
