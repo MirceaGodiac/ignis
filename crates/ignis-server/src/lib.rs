@@ -370,6 +370,9 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     };
     app.route("/livez", axum::routing::get(|| async { "ok" }))
         .layer(TraceLayer::new_for_http())
+        // JSON shrinks about tenfold (the run list is 1.4 MB, a conditions page 1.9 MB). The default
+        // predicate leaves event streams, images and small bodies alone.
+        .layer(tower_http::compression::CompressionLayer::new())
         .layer(tower::limit::ConcurrencyLimitLayer::new(256))
 }
 
