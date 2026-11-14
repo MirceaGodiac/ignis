@@ -163,7 +163,8 @@ pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); 
   }
 }
 .research ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
-.research .fixture-banner { position: static; margin: 0 0 4px; }
+/* Sticky (global rule): after any scroll, the page still says that its data are synthetic. */
+.research .fixture-banner { margin: 0 -16px 4px; }
 .research .num { font-variant-numeric: tabular-nums; }
 .research .warn { color: var(--warn-fg); font-weight: 600; }
 
@@ -276,6 +277,23 @@ pre.json { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); 
 .rs-approval:first-of-type { border-top: none; padding-top: 0; }
 .rs-approval p { margin: 0 0 8px; }
 .research .steering p { margin: 6px 0 0; font-size: 13px; }
+
+/* Readability pass (review): two text sizes instead of five (14 px secondary, 13 px for chips and
+   labels), readable cited text, more line height for prose, amber kept for real warnings. */
+.rs-goal-meta, .rs-status, .rs-axis, .rs-kv, .rs-caps, .rs-stream-state, .rs-json,
+.research .steering p, .research .status-line, .research .locator, .research .support-list,
+.rs-release p, .rs-tool, .research .timeline, .research .notices, .research .backends { font-size: 14px; }
+.research .msg-role, .research .claim-chip, .research .badge { font-size: 13px; }
+.research code { font-size: 13px; }
+.rs-goal-meta .rs-status { font-size: 15px; }
+.research .page-text { font-size: 14px; line-height: 1.55; color: var(--fg); }
+.research .ev-time { font: 13px ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--fg-muted); }
+.rs-head-note { font-size: 13px; font-weight: 400; color: var(--fg-muted); }
+.rs-section p, .research .claim { line-height: 1.6; }
+.rs-section p { max-width: 70ch; }
+.research .msg p { margin: 2px 0 0; }
+.research .warn { font-weight: 500; }
+.research .exp-head { gap: 4px 10px; }
 @media (max-width: 480px) {
   .rs-goal-text { font-size: 19px; }
   .rs-section { padding: 14px; }

@@ -121,9 +121,10 @@ export function Research() {
     setArtifact(a);
     requestAnimationFrame(() => document.getElementById("artifact-inspector")?.focus());
   };
-  const continueFollowing = () => {
-    if (!following) setFollow((f) => f + 1);
-  };
+  // Always (re)start following from the cursor after a write: `following` read here can be stale
+  // (the stream may close while the POST is in flight). The effect aborts the old stream, and
+  // dedup by seq makes the overlap harmless.
+  const continueFollowing = () => setFollow((f) => f + 1);
   const putEpisode = (ep: ResearchEpisode) => {
     qc.setQueryData([mode, run, "episode", ep.episode_id], ep);
     qc.setQueryData<ResearchEpisode[]>([mode, run, "episodes"], (xs) => (xs ? xs.map((x) => (x.episode_id === ep.episode_id ? ep : x)) : xs));
@@ -154,9 +155,9 @@ export function Research() {
     <PageOrigin.Provider value={modeOrigin(mode)}>
       <div className="research">
         {mode !== "live" && (
-          <div className="fixture-banner" role="note">
-            {mode === "mock" ? "Mock mode — C0 contract fixtures in the browser (synthetic)." : "Server fixtures — /api/fixtures/v1 serves the C0 contract fixtures (synthetic)."}{" "}
-            {FIXTURES.notice}
+          // Short, because it stays on screen while scrolling; the full notice is its tooltip.
+          <div className="fixture-banner" role="note" title={FIXTURES.notice}>
+            Synthetic C0 fixtures ({mode === "mock" ? "in the browser" : "/api/fixtures/v1"}) — not NASA data or results; nothing here qualifies a model.
           </div>
         )}
 
@@ -174,7 +175,7 @@ export function Research() {
               {!episodes.data?.length && <option value="">{episodes.isPending ? "Loading…" : "No episodes"}</option>}
               {episodes.data?.map((e) => (
                 <option key={e.episode_id} value={e.episode_id}>
-                  {e.goal.length > 60 ? `${e.goal.slice(0, 57)}…` : e.goal} · {e.status.replace(/_/g, " ")}
+                  {e.goal.length > 60 ? `${e.goal.slice(0, 57)}…` : e.goal} · {(e.episode_id === episodeId && status ? status : e.status).replace(/_/g, " ")}
                 </option>
               ))}
             </select>
@@ -274,7 +275,7 @@ export function Research() {
               {latest && latest.artifact.contract !== "ResearchAnswer" && (
                 <p className="warn">The answer artifact has contract {latest.artifact.contract ?? "none"}; it is not rendered.</p>
               )}
-              {answer.isPending && latest && <p className="muted">Loading the answer…</p>}
+              {answer.isFetching && <p className="muted">Loading the answer…</p>}
               {answer.error && <ErrorBox error={answer.error} title="Answer not loaded" />}
               {answer.data && <AnswerView client={client} answer={answer.data} onEvidence={openEvidence} onArtifact={openArtifact} />}
             </section>
@@ -296,6 +297,7 @@ export function Research() {
               })}
               {episodeId && (
                 <Steering
+                  key={`${mode}|${episodeId}`} // a draft and its request key belong to one episode
                   disabledReason={mode === "mock" ? "Mock mode replays a fixed log. Use Server fixtures or Live to send messages." : status === "cancelled" || status === "failed" ? `The episode is ${status}.` : null}
                   note={runtime?.available === false ? "No agent runtime is configured: the message is recorded, but no agent will answer." : null}
                   send={async (text, key) => {
@@ -340,13 +342,17 @@ export function Research() {
             )}
 
             <section className="rs-section" aria-labelledby="tl-h">
-              <h2 id="tl-h">Activity</h2>
+              <h2 id="tl-h">
+                Activity <span className="rs-head-note">times in UTC</span>
+              </h2>
               {state.events.length === 0 && <p className="muted">No events yet.</p>}
               <ol className="timeline">
-                {state.events.map((e) => (
-                  <li key={e.seq} className={`ev ev-${e.body.kind.replace(".", "-")}`}>
+                {/* Partial message text is shown in the conversation; one row per delta is noise. */}
+                {state.events
+                  .filter((e) => e.body.kind !== "message.delta")
+                  .map((e) => (
+                  <li key={e.seq} className={`ev ev-${e.body.kind.replace(".", "-")}`} title={`seq ${e.seq}`}>
                     <div className="ev-line">
-                      <span className="seq num">#{e.seq}</span>
                       <span className="ev-time num">{e.occurred_at.slice(11, 19)}</span>
                       <span className="ev-text">{eventSummary(e)}</span>
                       {e.body.kind === "artifact.created" && (
