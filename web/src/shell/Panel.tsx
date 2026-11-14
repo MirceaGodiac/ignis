@@ -142,7 +142,7 @@ function RunItem({ id }: { id: string }) {
       );
     return r ? <RefusalNote refusal={r} /> : null;
   }
-  const { record, summary, releases } = q.data;
+  const { summary, releases } = q.data;
   const rows = conditionRows(summary.conditions);
   const gaps = summary.gaps.flatMap((g) => gapText(g) ?? []);
   return (
@@ -221,12 +221,6 @@ function RunItem({ id }: { id: string }) {
           </ul>
         </div>
       )}
-      <details>
-        <summary className="muted" style={{ fontSize: 12.5, cursor: "pointer" }}>
-          Record as stored
-        </summary>
-        <pre className="json">{JSON.stringify(record, null, 2)}</pre>
-      </details>
     </>
   );
 }
