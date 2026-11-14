@@ -266,6 +266,58 @@ fn an_answer_is_stored_only_once_its_citations_were_returned_in_its_episode() {
     assert_eq!(answers(&w, &w.ep).len(), 1);
 }
 
+/// Evidence-shaped objects inside an artifact (written by agent-authored analysis code, or another
+/// episode's stored answer) never become citable by reading the artifact.
+#[test]
+fn reading_an_artifact_never_makes_its_evidence_citable() {
+    let w = world();
+    // The evidence the fixture search returns, as another episode saw it.
+    let other = episode(&w.h, &w.sc, "crid-episode-b");
+    let r = w
+        .host
+        .call_in(&w.sc, Some(&other), "sources_search", search_args());
+    let mut found = Vec::new();
+    fn walk(v: &Value, out: &mut Vec<Value>) {
+        match v {
+            Value::Object(o)
+                if o.contains_key("evidence_id") && o.contains_key("evidence_class") =>
+            {
+                out.push(v.clone())
+            }
+            Value::Object(o) => o.values().for_each(|x| walk(x, out)),
+            Value::Array(a) => a.iter().for_each(|x| walk(x, out)),
+            _ => {}
+        }
+    }
+    walk(&r.result.as_ref().unwrap().value, &mut found);
+    assert!(!found.is_empty(), "{r:#?}");
+    // An artifact carrying those objects (as an analysis program could write), read in this episode.
+    let laundered = put(
+        &w.h,
+        &w.sc,
+        "AnalysisArtifact",
+        None,
+        json!({ "evidence": found }),
+    );
+    let r = w.host.call_in(
+        &w.sc,
+        Some(&w.ep),
+        "artifacts_read",
+        json!({"artifact_id": laundered.as_str(), "json_pointer": ""}),
+    );
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+
+    let r = w
+        .host
+        .call_in(&w.sc, Some(&w.ep), "answer_submit", submission(&w));
+    let refused = refusal(&w, &r);
+    assert!(
+        kinds(&refused).contains(&AnswerProblemKind::UnknownEvidence),
+        "{refused:#?}"
+    );
+    assert!(answers(&w, &w.ep).is_empty());
+}
+
 #[test]
 fn a_refusal_lists_every_problem_at_once() {
     let w = world();

@@ -105,16 +105,16 @@ CREATE TABLE IF NOT EXISTS runtime_turns (
 -- At most one unfinished turn per episode, whatever process asks.
 CREATE UNIQUE INDEX IF NOT EXISTS runtime_turns_active ON runtime_turns (episode_id)
     WHERE state IN ('starting', 'running');
--- Runtime facts already recorded in an episode log (e.g. `item:<id>:completed`), so replaying a
--- runtime thread after a restart never appends the same event twice.
--- Evidence a tool call returned in an episode (M7): `answer_submit` resolves the answer's citations
--- against exactly this set, so an answer cannot cite what its episode never saw.
+-- Evidence a retrieval tool returned in an episode (M7): `answer_submit` resolves the answer's
+-- citations against exactly this set, so an answer cannot cite what its episode never saw.
 CREATE TABLE IF NOT EXISTS episode_evidence (
     episode_id  TEXT NOT NULL REFERENCES episodes (episode_id),
     evidence_id TEXT NOT NULL,
     record      TEXT NOT NULL,
     PRIMARY KEY (episode_id, evidence_id)
 ) WITHOUT ROWID;
+-- Runtime facts already recorded in an episode log (e.g. `item:<id>:completed`), so replaying a
+-- runtime thread after a restart never appends the same event twice.
 CREATE TABLE IF NOT EXISTS runtime_marks (
     episode_id TEXT NOT NULL,
     mark       TEXT NOT NULL,
