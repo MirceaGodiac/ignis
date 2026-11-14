@@ -49,6 +49,7 @@ Raul          Raul              Iancu                             Tudor
 | 14 | Fork/rewrite doar pe beneficiu măsurat | rescriere presupusă superioară |
 | 15 (C0) | Serviciile de domeniu sunt trait-uri **sincrone** în `ignis-core`; transporturile async le cheamă pe pool blocant | `async-trait`/Tokio în nucleu |
 | 16 (C0) | `TrainedOn` fără default; construcția WSP în `ModelRelease.construction`; reader legacy pentru 2.0.0 | default `nasa` implicit |
+| 17 | Al doilea runtime de agent: Claude Code headless (`claude -p`, stream-json), lângă Codex App Server; selectat cu `IGNIS_AGENT_RUNTIME`. Claude Code își deține loop-ul (nu e un loop scris de IGNIS); IGNIS doar îl mapează pe aceleași evenimente, cu doar tool-urile IGNIS read/compute și fără tool-uri built-in. Permite planuri ChatGPT/Claude, nu doar chei API | un loop de agent scris în IGNIS; un gateway LLM universal |
 
 Un ADR nou (în acest fișier, rând nou + paragraf): motivul, alternativa respinsă, testul care ar
 infirma alegerea, impactul pe contracte, ownerul.
