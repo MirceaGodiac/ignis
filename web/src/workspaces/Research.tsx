@@ -361,8 +361,8 @@ export function Research() {
                         </button>
                       )}
                     </div>
-                    {e.body.kind === "tool.finished" && <ToolResultCard tool={e.body.payload.result.tool} result={e.body.payload.result} onArtifact={openArtifact} />}
-                    {e.body.kind === "job.updated" && <JobLine job={e.body.payload.job} />}
+                    {e.body.kind === "tool.finished" && <ToolResultCard tool={e.body.payload.result.tool} result={e.body.payload.result} onArtifact={openArtifact} inRow />}
+                    {e.body.kind === "job.updated" && <JobLine job={e.body.payload.job} inRow />}
                   </li>
                 ))}
               </ol>
