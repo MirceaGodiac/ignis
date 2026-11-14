@@ -19,6 +19,8 @@ doc = false
 ignis-core = { path = "../ignis-core" }
 ignis-research = { path = "../ignis-research" }
 ignis-mcp = { path = "../ignis-mcp" }
+# Source manifests and PSI/NTRS addressing (M12 source access).
+ignis-data = { path = "../ignis-data" }
 serde.workspace = true
 serde_json = { workspace = true, features = ["float_roundtrip"] } # stable hashes across store/reload
 thiserror.workspace = true
