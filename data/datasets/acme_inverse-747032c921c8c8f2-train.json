@@ -1,0 +1,288 @@
+{
+  "schema_version": "dataset.v1",
+  "dataset_id": "acme_inverse-747032c921c8c8f2-train",
+  "family": "acme_inverse",
+  "audience": "builder",
+  "cohort_id": "sha256:ed3e9beb717728fc4d371bccfc7896a940d38deea28502728be977f9fb79e45f",
+  "split_id": "sha256:747032c921c8c8f2b976fceb6bda8c90e4c5e18c761fdbd8dafeb5bc44e2b598",
+  "partitions": [
+    "train"
+  ],
+  "source_manifest_hash": "sha256:11a1bdbd4bdbda6e3731309deeabe7e6996fa8fa8c43f84c9aae2e4bc793e126",
+  "time_origin": "hot ignition per table 'burn time (sec)' (not adjudicated against logs)",
+  "views": [
+    {
+      "name": "runs",
+      "artifact": {
+        "artifact_id": "art-c276eea4cccf15baec82d5a1660240e1",
+        "sha256": "sha256:c276eea4cccf15baec82d5a1660240e110bc02395129ba651a0d76a4e5b618fc",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 9240,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "partition",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "group_id",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "investigation_id",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "configuration",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "fuel_or_material",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "identity_resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "injected_mass_flow_si",
+          "role": "condition",
+          "unit": "kg/s",
+          "nullable": false
+        },
+        {
+          "name": "pressure_si",
+          "role": "condition",
+          "unit": "Pa",
+          "nullable": false
+        },
+        {
+          "name": "tad_si",
+          "role": "condition",
+          "unit": "K",
+          "nullable": false
+        },
+        {
+          "name": "x_fuel_ambient_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_fuel_role_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_o2_injected_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_o2_role_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "zst_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "fuel_bottle",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "fuel_species",
+          "role": "condition",
+          "nullable": false
+        }
+      ],
+      "row_count": 73
+    },
+    {
+      "name": "conditions",
+      "artifact": {
+        "artifact_id": "art-350d77b8fe251bc950c89d08cd3b3843",
+        "sha256": "sha256:350d77b8fe251bc950c89d08cd3b3843f45a51ce9dff15fa0e645743e7c08223",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 20371,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "raw_value",
+          "role": "value",
+          "nullable": false
+        },
+        {
+          "name": "raw_unit",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "value_si",
+          "role": "value",
+          "nullable": true
+        },
+        {
+          "name": "unit_si",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "uncertainty_si",
+          "role": "uncertainty",
+          "nullable": true
+        },
+        {
+          "name": "resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "evidence_class",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "flags",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 730
+    },
+    {
+      "name": "endpoints",
+      "artifact": {
+        "artifact_id": "art-25281d6cdf1856133a8995bd9975e424",
+        "sha256": "sha256:25281d6cdf1856133a8995bd9975e424c17bd2b5cd9f70e7507b8939cad91cfd",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 9246,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "censoring",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "last_confirmed_active_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "first_terminal_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "intervention_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": true
+        },
+        {
+          "name": "intervention_kind",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "allowed_causes",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "observation_state",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "original_label",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "evidence",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 73
+    }
+  ],
+  "quality_report": {
+    "artifact_id": "art-8515f119858639ac8af50c0a70acda52",
+    "sha256": "sha256:8515f119858639ac8af50c0a70acda52c15af27c5de4e6f52b193e57d4e1ebcf",
+    "media_type": "application/json",
+    "byte_length": 162,
+    "contract": "DatasetQualityReport",
+    "origin": "system"
+  },
+  "inclusion_criteria": {
+    "bundle_version": "1",
+    "cohort_version": "1",
+    "conditions": "pressure, injected mass flow, role O2 and role fuel fractions all present (no imputation)",
+    "configuration": "normal and inverse never pooled",
+    "endpoint": "SE/FT label present; unresolved SE-vs-intervention conflicts excluded from the event likelihood until adjudicated (kept in records)",
+    "partitions": "train",
+    "population": "established hot flame: Hot ignition == yes (case-insensitive); 'flash'/'no' excluded"
+  },
+  "origin": "system"
+}

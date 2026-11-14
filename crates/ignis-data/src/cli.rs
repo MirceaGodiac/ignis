@@ -101,6 +101,20 @@ pub enum DataCmd {
     /// Grouped, frozen splits.
     #[command(subcommand)]
     Split(SplitCmd),
+    /// Build a DatasetBundle (Parquet views + units + time origin + quality report) from the
+    /// frozen split of a family. Builder bundles never contain `test`; `--evaluator` writes the
+    /// separate evaluator bundle under the lockbox root (run by the evaluator, not by builders).
+    Bundle {
+        /// flex | acme_normal | acme_inverse
+        family: String,
+        /// partitions of a builder bundle, comma-separated
+        #[arg(long, default_value = "train,validation")]
+        partitions: String,
+        #[arg(long)]
+        evaluator: bool,
+    },
+    /// List the builder bundles in the store (ids, partitions, content digest).
+    Bundles,
     /// Write the array views for a cohort as Parquet (physical SI scaling only).
     Views {
         cohort_id: String,
@@ -861,6 +875,74 @@ pub fn run_data(cmd: DataCmd) -> anyhow::Result<()> {
                 s.validation.len(),
                 s.test.len(),
                 p.display()
+            );
+        }
+        DataCmd::Bundle {
+            family,
+            partitions,
+            evaluator,
+        } => {
+            use crate::dataset::{self, BundleSpec, DatasetStore};
+            let fam: ignis_core::contracts::Family = serde_json::from_value(json!(family))?;
+            let spec = if evaluator {
+                BundleSpec::evaluator()
+            } else {
+                let ps = partitions
+                    .split(',')
+                    .map(|p| serde_json::from_value(json!(p.trim())))
+                    .collect::<Result<Vec<ignis_core::contracts::Partition>, _>>()?;
+                BundleSpec::builder(&ps)
+            };
+            let store = DatasetStore::default_roots();
+            let (built, path) = dataset::build_and_save(fam, &spec, &store)?;
+            let b = &built.bundle;
+            let mut out = json!({"dataset_id": b.dataset_id, "audience": b.audience, "partitions": b.partitions,
+                "content_digest": b.content_digest(), "bundle": path.display().to_string()});
+            if !evaluator {
+                // values of an evaluator bundle are never printed; builder summaries are
+                let (copy, changed) = dataset::publish_builder_copy(b)?;
+                out["committed_copy"] = json!(copy.display().to_string());
+                out["copy_changed"] = json!(changed);
+                out["time_origin"] = json!(b.time_origin);
+                out["views"] = json!(b
+                    .views
+                    .iter()
+                    .map(|v| json!({"name": v.name, "rows": v.row_count,
+                    "columns": v.columns.len(), "artifact": v.artifact.artifact_id}))
+                    .collect::<Vec<_>>());
+                out["quality"] = built.quality.clone();
+            }
+            println!("{}", serde_json::to_string_pretty(&out)?);
+        }
+        DataCmd::Bundles => {
+            use ignis_core::services::DatasetService;
+            let store = crate::dataset::DatasetStore::default_roots();
+            let scope = ignis_core::contracts::ExecutionScope {
+                scope_id: ignis_core::contracts::ScopeId::new("local-cli")?,
+                workspace_id: ignis_core::contracts::WorkspaceId::new("local")?,
+                principal: ignis_core::contracts::PrincipalId::new("local-researcher")?,
+                role: ignis_core::contracts::ScopeRole::Research,
+                partitions: [
+                    ignis_core::contracts::Partition::Train,
+                    ignis_core::contracts::Partition::Validation,
+                ]
+                .into(),
+                capabilities: [ignis_core::contracts::Capability::ReadData].into(),
+                corpus_snapshot: None,
+                parent_scope_id: None,
+            };
+            let mut rows = Vec::new();
+            for id in store.list_builder()? {
+                let b = store.dataset(&scope, &ignis_core::contracts::DatasetId::new(id)?);
+                rows.push(match b {
+                    Ok(b) => json!({"dataset_id": b.dataset_id, "family": b.family, "partitions": b.partitions,
+                        "views": b.views.len(), "content_digest": b.content_digest()}),
+                    Err(e) => json!({"error": e}),
+                });
+            }
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&json!({"bundles": rows}))?
             );
         }
         DataCmd::Views {

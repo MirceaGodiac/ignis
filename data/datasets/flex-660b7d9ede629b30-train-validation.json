@@ -1,0 +1,571 @@
+{
+  "schema_version": "dataset.v1",
+  "dataset_id": "flex-660b7d9ede629b30-train-validation",
+  "family": "flex",
+  "audience": "builder",
+  "cohort_id": "sha256:9e31b1aa6b56b2086aac85776d27778bb1680a83fcdfc543dad62e0385da637e",
+  "split_id": "sha256:660b7d9ede629b3009b4b761ea9e5875560719566e3dea21112f607cddd49894",
+  "partitions": [
+    "train",
+    "validation"
+  ],
+  "source_manifest_hash": "sha256:74dedf7ea617ed6da1c5555822137b8433cfbf59cf293ab9989fd5d3c31a6382",
+  "time_origin": "NASA DropletData processed time base (phase entry not adjudicated)",
+  "views": [
+    {
+      "name": "runs",
+      "artifact": {
+        "artifact_id": "art-ccd2dc008cd3e18cb83db70eb9eeb106",
+        "sha256": "sha256:ccd2dc008cd3e18cb83db70eb9eeb1064a58ceb1b42eee1e95d41e7b57eeb55d",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 9197,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "partition",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "group_id",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "investigation_id",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "configuration",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "fuel_or_material",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "identity_resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "ambient_temperature_si",
+          "role": "condition",
+          "unit": "K",
+          "nullable": false
+        },
+        {
+          "name": "initial_diameter_si",
+          "role": "condition",
+          "unit": "m",
+          "nullable": false
+        },
+        {
+          "name": "pressure_si",
+          "role": "condition",
+          "unit": "Pa",
+          "nullable": false
+        },
+        {
+          "name": "x_co2_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_he_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_n2_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_o2_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "fiber",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "fiber_mdca_log",
+          "role": "condition",
+          "nullable": true
+        },
+        {
+          "name": "fuel",
+          "role": "condition",
+          "nullable": false
+        }
+      ],
+      "row_count": 92
+    },
+    {
+      "name": "conditions",
+      "artifact": {
+        "artifact_id": "art-1990189bd3aeeade727f6ae908a0855f",
+        "sha256": "sha256:1990189bd3aeeade727f6ae908a0855f8bc460ca1dff1f8e28b4921c2fd996f8",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 33144,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "raw_value",
+          "role": "value",
+          "nullable": false
+        },
+        {
+          "name": "raw_unit",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "value_si",
+          "role": "value",
+          "nullable": true
+        },
+        {
+          "name": "unit_si",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "uncertainty_si",
+          "role": "uncertainty",
+          "nullable": true
+        },
+        {
+          "name": "resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "evidence_class",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "flags",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 832
+    },
+    {
+      "name": "endpoints",
+      "artifact": {
+        "artifact_id": "art-53bd45b63a5beba3cf361a8bd7710bca",
+        "sha256": "sha256:53bd45b63a5beba3cf361a8bd7710bca68a8ab7233e8019a20995922c7c0a455",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 14816,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "censoring",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "last_confirmed_active_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": true
+        },
+        {
+          "name": "first_terminal_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": true
+        },
+        {
+          "name": "intervention_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": true
+        },
+        {
+          "name": "intervention_kind",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "allowed_causes",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "observation_state",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "original_label",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "evidence",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 92
+    },
+    {
+      "name": "obs_liquid_diameter",
+      "artifact": {
+        "artifact_id": "art-86c9f10d7e7524b67bcf8233e8ec801b",
+        "sha256": "sha256:86c9f10d7e7524b67bcf8233e8ec801b091cc8caf880ac42b4ffa55daa176e13",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 156419,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "observation_id",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "channel",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "time_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "available_at_s",
+          "role": "available_at",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "liquid_diameter_m",
+          "role": "value",
+          "quantity": "liquid_diameter",
+          "unit": "m",
+          "nullable": false
+        },
+        {
+          "name": "liquid_diameter_unc_m",
+          "role": "uncertainty",
+          "quantity": "liquid_diameter",
+          "unit": "m",
+          "nullable": true
+        },
+        {
+          "name": "raw_value",
+          "role": "value",
+          "nullable": false
+        },
+        {
+          "name": "raw_unit",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "valid",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "quality_flags",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "calibration_id",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "evidence_class",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 2940
+    },
+    {
+      "name": "obs_visible_flame_diameter",
+      "artifact": {
+        "artifact_id": "art-abd5f684969788af03cca96c92258c0e",
+        "sha256": "sha256:abd5f684969788af03cca96c92258c0ee9bdbc706305c522e46193c80309e336",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 119055,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "observation_id",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "channel",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "time_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "available_at_s",
+          "role": "available_at",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "visible_flame_diameter_m",
+          "role": "value",
+          "quantity": "visible_flame_diameter",
+          "unit": "m",
+          "nullable": false
+        },
+        {
+          "name": "visible_flame_diameter_unc_m",
+          "role": "uncertainty",
+          "quantity": "visible_flame_diameter",
+          "unit": "m",
+          "nullable": true
+        },
+        {
+          "name": "raw_value",
+          "role": "value",
+          "nullable": false
+        },
+        {
+          "name": "raw_unit",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "valid",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "quality_flags",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "calibration_id",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "evidence_class",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 1921
+    },
+    {
+      "name": "obs_uv_flame_diameter",
+      "artifact": {
+        "artifact_id": "art-90472188164a26d74a459def2510067f",
+        "sha256": "sha256:90472188164a26d74a459def2510067fcef590725017d3e99ba00486d3371199",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 141294,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "observation_id",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "channel",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "time_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "available_at_s",
+          "role": "available_at",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "uv_flame_diameter_m",
+          "role": "value",
+          "quantity": "uv_flame_diameter",
+          "unit": "m",
+          "nullable": false
+        },
+        {
+          "name": "uv_flame_diameter_unc_m",
+          "role": "uncertainty",
+          "quantity": "uv_flame_diameter",
+          "unit": "m",
+          "nullable": true
+        },
+        {
+          "name": "raw_value",
+          "role": "value",
+          "nullable": false
+        },
+        {
+          "name": "raw_unit",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "valid",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "quality_flags",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "calibration_id",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "evidence_class",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 2616
+    }
+  ],
+  "quality_report": {
+    "artifact_id": "art-bb266fa48e7e229ad370ea04e26cd6b7",
+    "sha256": "sha256:bb266fa48e7e229ad370ea04e26cd6b78a49f6c7f16065d09876e4c6d41670fc",
+    "media_type": "application/json",
+    "byte_length": 599,
+    "contract": "DatasetQualityReport",
+    "origin": "system"
+  },
+  "inclusion_criteria": {
+    "bundle_version": "1",
+    "cohort_version": "1",
+    "configuration": "single free-floating droplet: structured Fiber=No, MDCA fiber usage not contradicting, narrative screen not contradicting (else unresolved -> excluded pending review)",
+    "fuel": "methanol (summary and test sheet agree)",
+    "identity": "CIR + date (+GMT) bound to exactly one summary row",
+    "partitions": "train,validation",
+    "phase": "observed after igniter retraction — not yet adjudicated; models must apply their own entry rule",
+    "series": "DropletData present with >= 10 valid liquid-diameter points"
+  },
+  "origin": "system"
+}
