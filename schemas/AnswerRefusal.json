@@ -74,6 +74,41 @@
           "type": "string"
         },
         {
+          "const": "ungrounded_number",
+          "description": "M7b: a single number is cited by pointer without being stated; bind it in the claim's\n`values` (stated value, unit, row keys, column) so the host can check it.",
+          "type": "string"
+        },
+        {
+          "const": "stale_snapshot",
+          "description": "M7b: a value binding names a digest other than the artifact's (another version of the\ntable), or the artifact was built from a corpus snapshot other than the episode's pin.",
+          "type": "string"
+        },
+        {
+          "const": "unresolved_row",
+          "description": "M7b: the row keys select no row or more than one, or a table is not an array or object of\ncolumns, or a pointer steps through an array by position.",
+          "type": "string"
+        },
+        {
+          "const": "unknown_column",
+          "description": "M7b: the column does not resolve in the selected row, or holds no number.",
+          "type": "string"
+        },
+        {
+          "const": "unit_mismatch",
+          "description": "M7b: the cell states no unit, a unit is not registered, or the stated unit measures another\ndimension.",
+          "type": "string"
+        },
+        {
+          "const": "value_mismatch",
+          "description": "M7b: the stated value differs from the cell in SI.",
+          "type": "string"
+        },
+        {
+          "const": "ungrounded_derivation",
+          "description": "M7b: a number computed by `analysis_execute` does not cite that run's `ExecutionRecord` and\nits exact inputs, or a derivation is cited for a number no such run computed.",
+          "type": "string"
+        },
+        {
           "const": "invalid_structure",
           "description": "Anything else structural (duplicate ids, empty answer, missing limitations, a support check\nwritten by the agent).",
           "type": "string"

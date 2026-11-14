@@ -14,6 +14,7 @@
 //! grants) lives in the Codex bridge (`ignis_research::runtime`).
 
 mod answer;
+mod grounding;
 pub mod http;
 pub mod schemas;
 pub mod tools;
