@@ -44,7 +44,10 @@ repo root (gitignored) loaded by your shell. Anything paid or networked still ne
 ## 3. The deployed staging system
 
 - **App:** `https://ignis-ardealu.app`, behind Cloudflare Access: sign in with an e-mail on the
-  Access allowlist (ask Mircea to add yours). The API is reachable only through the app (Worker →
+  Access allowlist (ask Mircea to add yours). Login methods: **Google**, a Cloudflare account, or
+  a one-time PIN sent to the e-mail. Google works only for addresses that are also test users of
+  the Google OAuth app (it is in Testing mode), so Mircea adds you in both places; the PIN works
+  as soon as you are on the allowlist. The API is reachable only through the app (Worker →
   service token → tunnel); the VM has no public port.
 - **VM:** Google Compute Engine `ignis-origin` (Debian 12, e2-standard-4). SSH:
 
