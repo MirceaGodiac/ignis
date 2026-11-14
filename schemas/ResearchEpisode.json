@@ -109,9 +109,10 @@
       "type": "string"
     },
     "RuntimeKind": {
-      "description": "Agent runtime hosting an episode. One value today; a second one needs an ADR.",
+      "description": "Agent runtime hosting an episode (ADR 17): the pinned Codex App Server, or Claude Code in\nheadless mode. Each owns its own model/tool loop; IGNIS maps, stores and audits both the same way.",
       "enum": [
-        "codex_app_server"
+        "codex_app_server",
+        "claude_code"
       ],
       "type": "string"
     },

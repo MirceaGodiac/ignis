@@ -189,7 +189,8 @@ async fn capabilities_report_the_runtime_without_crashing() {
     .await;
     assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE, "{err}");
 
-    // A shared signed-in Codex home is refused outside local development.
+    // A shared signed-in Codex home (a ChatGPT plan) also serves a deployment behind Access,
+    // and capabilities say which credentials the runtime uses.
     let dir = tempfile::tempdir().unwrap();
     let login = dir.path().join("login");
     std::fs::create_dir_all(&login).unwrap();
@@ -223,11 +224,11 @@ async fn capabilities_report_the_runtime_without_crashing() {
             .unwrap(),
     )
     .unwrap();
-    assert_eq!(caps["agent_runtime"]["available"], false, "{caps}");
+    assert_eq!(caps["agent_runtime"]["available"], true, "{caps}");
     assert!(caps["agent_runtime"]["detail"]
         .as_str()
         .unwrap()
-        .contains("local development only"));
+        .contains("credentials: shared_login_home"));
     let dir = tempfile::tempdir().unwrap();
     let (_, caps) = call(
         &router(dir.path(), fake()),
