@@ -983,6 +983,7 @@ export interface Source {
   retrieved_at?: string | null;
   rights?: Rights;
   size_bytes?: number | null;
+  title?: string | null;
 }
 export interface Rights {
   license?: string | null;
@@ -1993,6 +1994,7 @@ export interface SearchHit {
   rank: number;
   scores?: RetrievalScore[];
   snippet: string;
+  title?: string | null;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -2066,6 +2068,7 @@ export interface WikiPatch {
   links?: EntityRef[];
   page_id: WikiPageId;
   schema_version: EvidenceSchema;
+  title: string;
 }
 /**
  * An immutable wiki revision. The wiki is research memory with references; it is never a primary
@@ -2085,6 +2088,7 @@ export interface WikiRevision {
   parent_revision?: number | null;
   revision: number;
   schema_version: EvidenceSchema;
+  title: string;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
