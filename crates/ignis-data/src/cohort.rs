@@ -62,7 +62,7 @@ pub fn cohort_path(cohort_id: &str) -> PathBuf {
     paths::work(&["cohorts", &format!("{}.json", hex_part(cohort_id))])
 }
 
-fn split_files() -> Vec<PathBuf> {
+pub fn split_files() -> Vec<PathBuf> {
     let mut v: Vec<PathBuf> = std::fs::read_dir(paths::splits())
         .into_iter()
         .flatten()
