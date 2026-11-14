@@ -48,9 +48,11 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
       <div className="toolbar">
         <h3 style={{ margin: 0 }}>Original</h3>
         <span className="muted small">{MODE_TEXT[a.mode]}</span>
-        <a className="btn btn-s" style={{ marginLeft: "auto" }} href={a.landing_url} target="_blank" rel="noopener noreferrer">
-          Open at NASA ↗
-        </a>
+        {httpUrl(a.landing_url) && (
+          <a className="btn btn-s" style={{ marginLeft: "auto" }} href={a.landing_url} target="_blank" rel="noopener noreferrer">
+            Open at NASA ↗
+          </a>
+        )}
       </div>
       {expired ? (
         <p className="muted small">
@@ -70,6 +72,16 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
       )}
     </div>
   );
+}
+
+/** Only http(s) links are rendered; a `javascript:` or `data:` landing URL from a manifest is never a link. */
+function httpUrl(u: string | null | undefined): boolean {
+  try {
+    const p = new URL(u ?? "").protocol;
+    return p === "https:" || p === "http:";
+  } catch {
+    return false;
+  }
 }
 
 function VideoOriginal({ url, startS, title }: { url: string; startS: number | null; title: string }) {
