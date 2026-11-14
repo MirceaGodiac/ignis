@@ -34,7 +34,8 @@ RUN apt-get update \
 # The engine CLI only: the runner containers are started through the host engine's socket, which
 # compose mounts (see infra/README.md §Runner for what that grants).
 COPY --from=dockercli /usr/local/bin/docker /usr/local/bin/docker
-COPY infra/server/vendor/codex /usr/local/bin/codex
+# Agent runtime CLIs staged by build-server.sh: codex (always) and claude (when given).
+COPY infra/server/vendor/ /usr/local/bin/
 COPY --from=build /out/ignis /usr/local/bin/ignis
 # Read-only application root: configs, schemas, manifests and the C0 contract fixtures (dev only).
 COPY configs /opt/ignis/configs
@@ -49,13 +50,15 @@ COPY data/datasets /opt/ignis/data/datasets
 # Adjudications `ignis data ingest` applies when infra/scripts/build-data.sh builds the records.
 COPY data/review /opt/ignis/data/review
 COPY infra/server/entrypoint.sh /usr/local/bin/ignis-entrypoint
-RUN chmod 0755 /usr/local/bin/ignis-entrypoint /usr/local/bin/codex
+RUN chmod 0755 /usr/local/bin/ignis-entrypoint /usr/local/bin/codex \
+ && if [ -e /usr/local/bin/claude ]; then chmod 0755 /usr/local/bin/claude; fi
 
 USER 10001:10001
 WORKDIR /opt/ignis
 ENV IGNIS_ROOT=/opt/ignis \
     IGNIS_STATE_DIR=/srv/ignis/state \
     IGNIS_CODEX_BIN=/usr/local/bin/codex \
+    DISABLE_AUTOUPDATER=1 \
     RUST_LOG=info,tower_http=info
 EXPOSE 8787
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/ignis-entrypoint"]

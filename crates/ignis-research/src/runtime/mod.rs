@@ -9,24 +9,29 @@
 //! - [`preflight`]: version/hash pin, protocol schema generated from the binary, handshake probe;
 //!   the result is the [`RuntimeBuildManifest`] (or a reason the host reports as unavailable).
 //! - [`mapping`]: Codex thread/turn/item → `ResearchEvent` records; unknown → `runtime.opaque`.
+//! - [`ClaudeBridge`]: the same contract over Claude Code in headless mode (ADR 17), one process per
+//!   turn; its stream-json is mapped onto the same events.
 //! - [`grants`]: per-process bearer tokens binding the IGNIS MCP endpoint (M3) to a workspace scope.
 //!
 //! Everything is synchronous (threads, not Tokio), like the rest of this crate; the host calls these
 //! methods on its blocking pool. Each call takes the host-derived [`ExecutionScope`] separately.
 
 mod bridge;
+mod claude;
 #[doc(hidden)]
 pub mod fake;
 pub mod framing;
 pub mod grants;
 pub mod mapping;
 pub mod preflight;
+mod recorder;
 pub mod rpc;
 
 use ignis_core::contracts::{ApprovalDecision, ApprovalId, EpisodeId, ExecutionScope};
 use ignis_core::services::ServiceResult;
 
 pub use bridge::{CodexBridge, CommitHook};
+pub use claude::{claude_preflight, turn_snapshot, ClaudeBridge, ClaudeConfig, Translator};
 pub use grants::{McpAttachment, McpGrants, MCP_TOKEN_ENV};
 pub use mapping::StopReason;
 pub use preflight::{
