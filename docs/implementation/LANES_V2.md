@@ -50,7 +50,8 @@ says it pays.
   `ResearchAnswer`** (only `message.completed` text; `answer.completed` exists only in the fixture
   server). No tool arguments in events, no wiki service, no delegation, no traces.
 - **Knowledge:** 6 indexed documents, datasets of 4 investigations, FTS5 + dense + RRF + rerank, MuPDF
-  parsing. Iancu's atlas (`docs/wsp/atlas/`) lists every NASA file of the 19 flight investigations and
+  parsing. **Decision 2026-11-14: no DeepInfra at all (no embeddings, no reranker); retrieval moves to
+  SIRA-style BM25 with LLM vocabulary expansion (R12).** Iancu's atlas (`docs/wsp/atlas/`) lists every NASA file of the 19 flight investigations and
   the storage rule (§10). **Raul's K1 contract wave is merged** (PR #26:
   `evidence.v2` + `dataset.v2`: `SourceAccess`, `SourceLabel`, `SourceOutline`, wiki read/patch, web
   search/fetch, `ConditionsQuery`/`ConditionsTable`, `ResponseFormat`).
@@ -65,6 +66,9 @@ says it pays.
 ---
 
 ## 3. How we work
+
+**Access first:** repo, local setup, the staging app and VM, where secrets and data live:
+[ACCESS.md](ACCESS.md).
 
 **Branches.** One short-lived branch per task from current `main`, named `<lane>-<task>`
 (`feat/agent-backend-m7`, `feat/scientific-data-r6`, `feat/research-product-t10`), one PR each, deleted
@@ -159,16 +163,18 @@ graph the agent can query, with NASA's media left at NASA.
 | P | ID | Deliverable | Depends on | Done when |
 |---|---|---|---|---|
 | done | **K1-evidence/dataset** | `evidence.v2` + `dataset.v2`, merged in PR #26 | — | merged |
-| P0 | **R6** | **Corpus for the 19 flight investigations** by the atlas rule (§10): store the 636 documents (1.63 GB) and the 24,482 sensor/settings text files (12.26 GB) with hashes; the 35,446 image/video/archive files (13.44 TB) and 236 other archives stay as manifest entries. Licence per investigation (PSI-10 blank: verify). NTRS via its API, `.txt` full text where present, rights per document, dedup with PSI. A `SourceAccess` mode per source. **Lockbox:** documents of FLEX, CFI-G, BASS-II and BASS contain held-out outcomes; `strip_for_sealed` must hold for every added document (test), and for the other 15 once their groups are frozen. | — | manifests for all 19; ~13.9 GB stored and hashed; snapshot reproducible; lockbox test on a newly added document |
+| P0 | **R6** | **Corpus for the 19 flight investigations** by the atlas rule (§10), downloaded **on the VM** into `/srv/ignis/data/raw/<PSI-id>/` by a scripted, incremental step in `infra/scripts/build-data.sh` (Raul supplies the selection from the atlas CSVs, Mircea wires and runs it); laptops keep only a development subset ([ACCESS.md](ACCESS.md) §5). Store the 636 documents (1.63 GB) and the 24,482 sensor/settings text files (12.26 GB) with hashes; the 35,446 image/video/archive files (13.44 TB) and 236 other archives stay as manifest entries. Licence per investigation (PSI-10 blank: verify). NTRS via its API, `.txt` full text where present, rights per document, dedup with PSI. A `SourceAccess` mode per source. **Lockbox:** documents of FLEX, CFI-G, BASS-II and BASS contain held-out outcomes; `strip_for_sealed` must hold for every added document (test), and for the other 15 once their groups are frozen. | — | manifests for all 19; ~13.9 GB stored and hashed; snapshot reproducible; lockbox test on a newly added document |
 | P0 | **R9a** | **Conditions table first.** `ConditionsTable` for all 19 investigations, seeded from the 21 PSI experimental-table CSVs (ground truth, tiny), each cell a measured value with raw value, unit, SI and locator, or `missing`/`conflicting`/`not_applicable`; per-investigation tested envelope. This alone powers the challenge's comparison and habitat views. | K1-dataset, R6 | the conditions matrix renders for 19 investigations with gaps explicit |
 | P0 | **R7a** | **Parse views with coordinates** for the stored PDFs: page, bbox normalized `[0,1]` top-left, char spans, tables, figures; versioned; old citations still resolve. Candidates: Docling, GROBID (headers/references), MuPDF baseline; choose by the research method (several PSI reports are scanned: OCR quality matters). | R6 | a passage, a table cell and a figure open at the right place in T7 |
 | P1 | **R7b** | **Section tree** (`SourceOutline`): the document's heading hierarchy with page ranges and generated summaries (labelled generated, never evidence), exposed as `sources_outline` so the agent walks long reports and then reads the passage. PageIndex-style *(lit.)*, but the agent is the navigator, so no extra LLM call per step. | R7a | the FLEX TP (314 pp) and BASS-II summary (144 pp) are navigable |
 | P1 | **R8** | **Labels** (`SourceLabel`): closed-enum document type, investigation, runs, conditions mentioned; two passes, escalation on disagreement, gold set of ~100 hand-labelled documents before use. A typed decision model (Jev) or a small model with structured output; choose by the research method. | R7a | labels with measured accuracy; conflicts visible |
+| P0 | **R12a** | **SIRA retrieval, query side; DeepInfra removed** *(lit.: SIRA)*. Delete the dense branch (embedding calls, vector file, embedding set), RRF, the reranker and the DeepInfra client. `sources_search` accepts the agent's **expected-response sketch** (`expected_terms`: concepts and discriminative terms a relevant passage would contain, never a guessed answer); the service keeps terms with `0 < DF <= tau*N` (DF from FTS5's `fts5vocab`) and scores `BM25(query) + w*BM25(expansion)` in one call. The agent is the LLM, so no extra model call; a search without a sketch is plain BM25. `SearchPage` reports the surviving expansion terms and the stages that ran. No reranker (SIRA uses none). | K2-evidence | dense code gone; T10 retrieval questions answered with expansion, numbers vs plain BM25 in the PR |
+| P1 | **R12b** | **SIRA retrieval, index side.** For each chunk an LLM proposes vocabulary users would type but the text lacks (synonyms, abbreviations, aliases, unit spellings: "LOI" / "limiting oxygen index", "MDCA", "n-heptane" / "heptane"), DF-filtered, stored in a **separate FTS5 column** with its own weight. Generated in the **same LLM pass** as the R7b summaries and R8 labels (one read per chunk). Expansion text is never shown as a snippet, quote or citation; it is recorded with model id, prompt hash, tau and w in the index generation. Tune tau and w on the T10 dev set. | R7a, R12a | before/after nDCG@10 and recall@10 on T10 retrieval questions |
 | P1 | **R2b** | **Sensor text → datasets** for the investigations taken up beyond the first four: Parquet with `ColumnSpec`, units, `time_origin`, quality report | R6 | `datasets_inspect` works for a fifth investigation |
 | P1 | **R9b** | **Graph** (`ProvenanceLink` edges in SQLite): investigation, run, fuel, hardware, condition, diagnostic, observable, source, passage, figure, table; `graph_neighbors`. For joins and filters, not community summaries *(lit.: GraphRAG-Bench)*. | R8, R9a | "investigations sharing MDCA", "runs with O2 ≥ 30 %" answered with evidence |
 | P1 | **R11** | **Media indexes for streaming** (§10): keyframe index per CFI-G `.ts` file (byte offset ↔ PTS of each IDR) and cached ZIP central directories for archives that viewers need frames from; frames converted TIFF → PNG/WebP on demand and cached as artifacts | R6 | M12 serves seekable `.ts` playback; a BASS frame opens from its archive |
 | P2 | R4 | wiki (CAS, itemized deltas, never whole-page rewrites *(lit.: ACE)*), `wiki_read`, web discovery with snapshot and rights | R3 | `wiki_patch` registered |
-| P2 | R10 | retrieval upgrades only where T10 shows a gap: Tantivy, ColQwen figure index, PPR multi-hop *(lit.)*; BASS metric calibration; evaluator dataset bundle | T10 | before/after numbers |
+| P2 | R10 | retrieval upgrades only where T10 shows a gap: Tantivy (BM25 with native DF), PPR multi-hop over the graph *(lit.)*; no embedding indexes (dense and ColQwen are out by decision); BASS metric calibration; evaluator dataset bundle | T10 | before/after numbers |
 
 **Research tips (Raul)**
 - **Parsers:** take 10 PSI PDFs (2 scanned, 2 table-heavy, 2 long, 2 slide decks, 2 engineering docs)
@@ -180,15 +186,20 @@ graph the agent can query, with NASA's media left at NASA.
   Jev's versions and prices differ between listings: confirm on TypeSafe's own docs.
 - **Graph or not:** read GraphRAG-Bench and "RAG vs GraphRAG" *(lit.)* for when graphs help; build the
   table and edges, then let T10's multi-hop questions decide whether PPR is worth it.
-- **Retrieval:** for any backend change (Tantivy, ColQwen), measure recall@k, p95 latency and memory on
-  the T10 retrieval questions against the current FTS5 + dense + rerank.
+- **Retrieval (SIRA):** read arXiv 2605.06647 and the `facebookresearch/sira` code (MIT): the expansion
+  prompts, the DF filter and the weighting. SIRA assumes the LLM knows the field; microgravity combustion
+  is niche, so measure on our T10 retrieval questions: plain BM25 vs query expansion vs query + document
+  expansion, nDCG@10, recall@10, p95 latency. Choose tau and w there, not from the paper.
+- **Efficiency:** no vector file in memory, no embedding call per query, one BM25 call; DF lookups from
+  `fts5vocab` (cache per index generation); document expansion runs once per chunk in the shared LLM pass,
+  batched, cached by `(chunk hash, model, prompt hash)`.
 
 **Efficiency and performance (Raul)**
 - **Incremental ingest:** skip a file when `(investigation, file name, file version, size)` is unchanged;
   hash while streaming; bounded concurrency (start at 4) and a polite rate to geode and S3.
 - **Parse once:** key parse views by `(file hash, parser, parser version)`; store as content-addressed
   artifacts; build index generations separately and switch by atomic pointer.
-- **Embeddings:** batch; cache by `(chunk hash, model id)`; rerank only the top k.
+- **Expansion vocabulary:** batch; cache by `(chunk hash, model id, prompt hash)`; no embeddings, no reranker.
 - **Sensor text:** convert once to Parquet (zstd), read with column pruning; never load an investigation
   whole.
 - **Classification cost:** static prompt prefix (instructions, schema, examples) then the document, so
@@ -294,15 +305,15 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 
 | # | Type / change | Family (owner) | Producer | Consumers (reviewers) | Status |
 |---|---|---|---|---|---|
-| K1.1 | `ToolStarted.arguments` (redacted by scope) | `research.rs` (Mircea) | Mircea | Tudor | to write |
-| K1.2 | `EventBody::StepRationale { call_id?, text, source: model_explanation }` | `research.rs` | Mircea | Tudor | to write |
-| K1.3 | `AnswerSubmission` + refusal reasons (`unknown_evidence`, `unresolved_pointer`, `kind_support_mismatch`, `unpinned_release`); tool effect `compute` | `research.rs` | agent via MCP; Mircea validates | Tudor, Raul | to write |
-| K1.4 | `AnswerBlock::View { view: ViewSpec, caption?, claim_ids }`; `ViewSpec` v1: `source_excerpt{evidence}`, `series_comparison{series: [SeriesRef{artifact_id, pointer, role, unit_pointer}], time_origin_pointer}`, `conditions_matrix{table: ArtifactRef}`, `atmosphere_map{table: ArtifactRef}`, `video_overlay{source_id, bundle: ArtifactRef}`, `release_card{release_id}`, `artifact_table{artifact_id, pointer}` | `research.rs` (Mircea writes, **Tudor co-designs**) | agent | Tudor, Iancu | to write |
-| K1.5 | `Claim.checked_by: Option<SupportCheck{method, model_id?, verdict, confidence?}>` | `research.rs` | Mircea or Tudor's evaluator | Tudor | to write |
-| K1.6 | `EpisodePins.harness: Option<HarnessRef{digest, label, runtime_build, model, effort?}>` replacing `skills_version` | `research.rs` | Mircea | Tudor | to write |
-| K1.7 | server-only types into core: `CreateEpisode`, `PostMessage`, `MessageAccepted`, `HostDecision`, `Capabilities`, `ServiceStatus`, `ToolStatus`, `EpisodeAction` | `research.rs` | Mircea | Tudor | to write |
-| K1.8 | `TraceBundle` | `research.rs` | Mircea | Tudor | to write |
-| K1.9 | `tool_catalog()` entries: `answer_submit`, `sources_outline`, `conditions_query`, `graph_neighbors`, `wiki_read`, `web_search`, `web_fetch` (request/response types stay in their families) | `research.rs` | Mircea | Raul, Tudor | to write |
+| K1.1 | `ToolStarted.arguments` (redacted by scope) | `research.rs` (Mircea) | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.2 | `EventBody::StepRationale { call_id?, text, source: model_explanation }` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.3 | `AnswerSubmission` + refusal reasons (`unknown_evidence`, `unresolved_pointer`, `kind_support_mismatch`, `unpinned_release`); tool effect `compute` | `research.rs` | agent via MCP; Mircea validates | Tudor, Raul | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.4 | `AnswerBlock::View { view: ViewSpec, caption?, claim_ids }`; `ViewSpec` v1: `source_excerpt{evidence}`, `series_comparison{series: [SeriesRef{artifact_id, pointer, role, unit_pointer}], time_origin_pointer}`, `conditions_matrix{table: ArtifactRef}`, `atmosphere_map{table: ArtifactRef}`, `video_overlay{source_id, bundle: ArtifactRef}`, `release_card{release_id}`, `artifact_table{artifact_id, pointer}` | `research.rs` (Mircea writes, **Tudor co-designs**) | agent | Tudor, Iancu | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.5 | `Claim.checked_by: Option<SupportCheck{method, model_id?, verdict, confidence?}>` | `research.rs` | Mircea or Tudor's evaluator | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.6 | `EpisodePins.harness: Option<HarnessRef{digest, label, runtime_build, model, effort?}>` replacing `skills_version` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.7 | server-only types into core: `CreateEpisode`, `PostMessage`, `MessageAccepted`, `HostDecision`, `Capabilities`, `ServiceStatus`, `ToolStatus`, `EpisodeAction` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.8 | `TraceBundle` | `research.rs` | Mircea | Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
+| K1.9 | `tool_catalog()` entries: `answer_submit`, `sources_outline`, `conditions_query`, `graph_neighbors`, `wiki_read`, `web_search`, `web_fetch` (request/response types stay in their families) | `research.rs` | Mircea | Raul, Tudor | **written**, in review (`feat/agent-backend-k1-research`) |
 | K1.10 | `SourceLabel` | `evidence.rs` (Raul) | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.11 | `ProvenanceLink` relations for the graph + `GraphNeighborsRequest/Page` | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.12 | `ResponseFormat` on search/read | `evidence.rs` | Raul | Mircea | **merged** (#26) |
@@ -315,8 +326,24 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 | K1.19 | `SourceOutline` (section tree; summaries labelled generated) | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.20 | wiki read/patch and web search/fetch request/response types | `evidence.rs` | Raul | Mircea | **merged** (#26) |
 
-**K2 candidates** (not in this wave): a `SourceAccess` mode for byte-range playlists and the media
-keyframe index (R11/M12), if the playlist cannot stay server-internal.
+**K1-research as written** (for Tudor's co-design review of K1.4 before merge): views reference
+artifacts by `artifact_id`, which must be listed in the answer's `artifacts` (not an inline
+`ArtifactRef`), so a view cannot show what the answer does not cite. `SeriesRef` carries explicit
+`time_pointer`, `value_pointer`, `unit_pointer` and a per-series `time_origin_pointer` (instead of one
+view-level pointer), plus an optional quantile `band`; a `predicted` series reads only an
+`AnalysisArtifact` and an `observed`/`computed` one never does. `source_excerpt` takes an
+`evidence_id`. K1.3 refusals are an `AnswerRefusal` artifact on the refused `ToolResult`, listing every
+problem (adds `unknown_artifact`, `unknown_claim`, `view_contract_mismatch`, `invalid_structure`).
+`AnswerSubmission` carries ids only; the host resolves references and rejects agent-written
+`checked_by`. `ToolEffect::compute` already existed.
+
+**Wave K2** (same rules as K1):
+- **K2-evidence (Raul, `evidence.v3`):** `SearchRequest.expected_terms` (optional list); `SearchPage`
+  reports `query_expansion` / `doc_expansion` stages and the expansion terms that survived the DF filter;
+  the dense stage is retired (v2 documents that mention it still read). Mircea updates the
+  `sources_search` description and the `source-grounding` skill so the agent writes the sketch (M8, M6).
+- Candidate: a `SourceAccess` mode for byte-range playlists and the media keyframe index (R11/M12), if
+  the playlist cannot stay server-internal.
 
 ### 9.3 Merge order
 
@@ -404,7 +431,13 @@ summary only.
 **Knowledge**
 - GraphRAG 2404.16130; LightRAG 2410.05779; HippoRAG 2 2502.14802; RAPTOR 2401.18059; KAG 2409.13731;
   GraphRAG-Bench 2506.05690; RAG vs GraphRAG 2502.11371 (secondary cost figures).
-- ColPali 2407.01449; ColBERTv2 2112.01488; PLAID 2205.09707.
+- **SIRA** (SuperIntelligent Retrieval Agent), Meta Superintelligence Labs + Rice, arXiv 2605.06647
+  (May 2026); code `facebookresearch/sira` (MIT). BM25 only, no embeddings: LLM document expansion at
+  index time, an expected-response sketch at query time, DF filter, one weighted BM25 call. BEIR nDCG@10
+  average .5723 vs E5 .5434, SPLADE .5223, BM25 .4247; **SciFact .7866** (recall@10 .9216) vs E5 .7156,
+  SPLADE .7025, BM25 .6791. Backbone Qwen3.6-35B-A3B. Stated limitation: corpora far from the LLM's
+  pretraining are untested. No latency or cost figures reported.
+- ColPali 2407.01449; ColBERTv2 2112.01488; PLAID 2205.09707 (embedding-based; not used by decision).
 - PageIndex (VectifyAI): section tree + LLM tree search; 98.7 % FinanceBench is a vendor claim
   (*unverified*); pages/sections, not bboxes.
 - Jev (TypeSafe): typed decision model with confidence; versions and prices differ across listings

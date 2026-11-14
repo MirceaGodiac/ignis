@@ -1,0 +1,76 @@
+{
+  "agent_runtime": {
+    "available": true,
+    "detail": "Synthetic fixture: Codex App Server (public profile: no shell; credentials: environment)"
+  },
+  "runtime_build": {
+    "runtime_build_id": "fixture-runtime-build",
+    "runtime": "codex_app_server",
+    "version": "0.169.0",
+    "binary_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "binary_hash_pinned": true,
+    "protocol_schema_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "user_agent": "fixture-user-agent",
+    "transport": "stdio",
+    "profile": "public",
+    "config_overrides": [
+      "features.shell_tool=false",
+      "web_search=\"disabled\""
+    ],
+    "model": "fixture-model",
+    "forwarded_env": [
+      "OPENAI_API_KEY"
+    ],
+    "credentials": "environment",
+    "preflight_at": "2026-11-14T18:59:00Z"
+  },
+  "knowledge": {
+    "available": true,
+    "detail": "Synthetic fixture: KnowledgeService (Raul), lexical only"
+  },
+  "datasets": {
+    "available": true,
+    "detail": "Synthetic fixture: DatasetService (Raul)"
+  },
+  "models": {
+    "available": false,
+    "detail": "model families (FLEX/ACME/BASS) disabled in this deployment (start with --enable-models)"
+  },
+  "artifact_store": {
+    "available": true,
+    "detail": "Synthetic fixture: local artifact store"
+  },
+  "mcp": {
+    "available": true,
+    "detail": "Synthetic fixture: loopback MCP endpoint"
+  },
+  "analysis_runner": {
+    "available": false,
+    "detail": "Synthetic fixture: isolated runner not configured"
+  },
+  "tools": [
+    {
+      "name": "sources_search",
+      "effect": "read",
+      "available": true
+    },
+    {
+      "name": "answer_submit",
+      "effect": "compute",
+      "available": false,
+      "reason": "no adapter for this tool"
+    },
+    {
+      "name": "models_forecast",
+      "effect": "compute",
+      "available": false,
+      "reason": "model families (FLEX/ACME/BASS) disabled in this deployment (start with --enable-models)"
+    },
+    {
+      "name": "conditions_query",
+      "effect": "read",
+      "available": false,
+      "reason": "no adapter for this tool"
+    }
+  ]
+}

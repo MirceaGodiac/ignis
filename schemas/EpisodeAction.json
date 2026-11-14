@@ -1,0 +1,12 @@
+{
+  "$id": "ignis/2.1.0/EpisodeAction",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`POST /api/v1/episodes/{id}/{action}`: the status changes a person may request. The runtime\nbridge drives the others.",
+  "enum": [
+    "pause",
+    "resume",
+    "cancel"
+  ],
+  "title": "EpisodeAction",
+  "type": "string"
+}
