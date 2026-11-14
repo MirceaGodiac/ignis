@@ -1,0 +1,35 @@
+[package]
+name = "ignis-cli"
+description = "The `ignis` command: one binary for sources, data, fitting, evaluation, lab, evidence, vision and serving"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "ignis"
+path = "src/main.rs"
+
+[features]
+# PDF ingest for `ignis evidence ingest` (MuPDF; see crates/ignis-evidence/Cargo.toml).
+pdf = ["ignis-evidence/pdf"]
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-server = { path = "../ignis-server" }
+ignis-lab = { path = "../ignis-lab" }
+ignis-vision = { path = "../ignis-vision" }
+ignis-data = { path = "../ignis-data" }
+ignis-evidence = { path = "../ignis-evidence" }
+ignis-acme = { path = "../ignis-acme" }
+ignis-bass = { path = "../ignis-bass" }
+ignis-accel = { path = "../ignis-accel" }
+ignis-train = { path = "../ignis-train" }
+ignis-flex = { path = "../ignis-flex" }
+clap.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+axum.workspace = true
+tokio.workspace = true
+tower.workspace = true
