@@ -7,7 +7,9 @@ export type Stop =
   | { kind: "tool"; seq: number; at: string; call: ToolCallState }
   | { kind: "job"; seq: number; at: string; jobId: string; status: string; jobKind: string }
   | { kind: "approval"; seq: number; at: string; approvalId: string; action: string; decision: string | null }
-  | { kind: "answer"; seq: number; at: string; answer: AnswerState };
+  | { kind: "answer"; seq: number; at: string; answer: AnswerState }
+  /** A `step.rationale` that names no call: the model's own note on its route (K1.2). */
+  | { kind: "note"; seq: number; at: string; text: string };
 
 export interface Turn {
   user: MessageState | null;
@@ -54,6 +56,9 @@ export function toTurns(s: EpisodeState): Turn[] {
         else t.stops.push({ kind: "job", seq: e.seq, at: e.occurred_at, jobId: j.job_id, status: j.status, jobKind: j.kind });
         break;
       }
+      case "step.rationale":
+        if (!b.payload.call_id) t.stops.push({ kind: "note", seq: e.seq, at: e.occurred_at, text: b.payload.text });
+        break;
       case "approval.requested":
         t.stops.push({ kind: "approval", seq: e.seq, at: e.occurred_at, approvalId: b.payload.approval_id, action: b.payload.action, decision: s.approvals[b.payload.approval_id]?.decision ?? null });
         break;
@@ -90,6 +95,13 @@ export function elapsed(a: string | null, b: string | null): string | null {
 
 export const TOOL_LABEL: Record<string, string> = {
   sources_search: "Searched the sources",
+  answer_submit: "Submitted the answer",
+  sources_outline: "Read the outline",
+  conditions_query: "Queried conditions",
+  graph_neighbors: "Followed the graph",
+  wiki_read: "Read the wiki",
+  web_search: "Searched the web",
+  web_fetch: "Fetched a web page",
   sources_read: "Read a source",
   datasets_inspect: "Inspected a dataset",
   models_inspect: "Inspected a model release",
