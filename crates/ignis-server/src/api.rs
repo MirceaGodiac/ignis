@@ -330,6 +330,8 @@ fn experiment_summary(
         "outcomes_withheld": withheld,
         "has_endpoint": reg.endpoints.contains_key(&r.id), "identity_resolution": r.identity_resolution,
         "quality_flags": r.quality_flags, "synthetic": reg.is_synthetic(&r.id), "gaps": gaps,
+        // NASA's own names for the run (test sheet number, table test, as-run number), names only.
+        "aliases": r.aliases.iter().map(|a| json!({"scheme": a.scheme, "name": a.name})).collect::<Vec<_>>(),
     })
 }
 
