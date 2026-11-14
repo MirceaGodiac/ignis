@@ -5,11 +5,13 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
-import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, PARTIAL_G, PSI_PA, rankFor, type HabitatId, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
+import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, PSI_PA, rankFor, type HabitatId, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
 import { flagTags, quotedText } from "../research/conditionCells";
 import { rowWindow } from "../research/windowing";
 import { useData } from "../shell/data";
-import { ErrorNote, EvidenceClassTag, Gap, OriginMark, words } from "../ui/common";
+import { href } from "../shell/router";
+import { MapView } from "./MapView";
+import { ErrorNote, EvidenceClassTag, Gap, words } from "../ui/common";
 
 const KEY_LABEL: Record<ConditionKey, string> = {
   oxygen_mole_fraction: "O₂",
@@ -29,8 +31,34 @@ const PAGE_SIZE = 200;
 type Preset = "all" | HabitatId;
 const PRESET_LABEL: Record<Preset, string> = { all: "All runs", moon: "Moon base and rover air", suit: "Suit air", iss: "ISS and Earth air" };
 
-export function Conditions() {
-  const { client, researchMode, synthetic } = useData();
+export type ConditionsTab = "habitats" | "map" | "runs";
+const TABS: [ConditionsTab, string][] = [
+  ["habitats", "Habitats"],
+  ["map", "Atmosphere map"],
+  ["runs", "Runs"],
+];
+
+/** One page for the conditions table (K1.13): its three readings share one service and one header. */
+export function ConditionsPage({ tab }: { tab: ConditionsTab }) {
+  return (
+    <div className="view">
+      <div className="page-title">
+        <h1>Conditions</h1>
+        <nav className="tabs" aria-label="Conditions views">
+          {TABS.map(([t, label]) => (
+            <a key={t} href={href("conditions", null, t === "habitats" ? undefined : { tab: t })} aria-current={t === tab ? "page" : undefined}>
+              {label}
+            </a>
+          ))}
+        </nav>
+      </div>
+      {tab === "map" ? <MapView /> : <Conditions tab={tab} />}
+    </div>
+  );
+}
+
+function Conditions({ tab }: { tab: "habitats" | "runs" }) {
+  const { client, researchMode } = useData();
   const [preset, setPreset] = useState<Preset>("all");
   const [includeUnknown, setIncludeUnknown] = useState(false);
   const habitat = HABITAT_LIST.find((h) => h.id === preset);
@@ -51,26 +79,19 @@ export function Conditions() {
   });
   const first = runs.data?.pages[0];
   const table: ConditionsTable | undefined = first && { ...first, rows: runs.data!.pages.flatMap((p) => p.rows) };
+  if (tab === "habitats" && envelopes.error) return <Unavailable err={envelopes.error} />;
+  if (tab === "runs" && runs.error && !runs.data) return <Unavailable err={runs.error} />;
   return (
-    <div className="view">
-      {envelopes.isPending && <p className="muted">Loading conditions…</p>}
-      {envelopes.error && (
+    <>
+      {tab === "habitats" && envelopes.isPending && <p className="muted">Loading…</p>}
+      {tab === "habitats" && envelopes.data && (
         <>
-          <ErrorNote error={envelopes.error} title="The conditions service did not answer" />
-          <Gap title="Conditions come from the PSI experiment tables and the documents">The conditions query (R9) and its route (M11) are not on this server yet.</Gap>
-        </>
-      )}
-      {envelopes.data && (
-        <>
-          <div className="toolbar">
-            <OriginMark origin={envelopes.data.origin} pageSynthetic={synthetic} />
-            {envelopes.data.corpus_snapshot && <span className="muted small">corpus {envelopes.data.corpus_snapshot}</span>}
-          </div>
           <HabitatRanking axes={(envelopes.data.envelopes ?? []).map(axesOf)} />
         </>
       )}
+      {tab === "runs" && (
       <section className="panel-sec" aria-labelledby="h-matrix">
-        <h2 id="h-matrix" style={{ fontSize: 15, margin: "16px 0 0" }}>
+        <h2 id="h-matrix" className="sr-only">
           Conditions per run
         </h2>
         <div className="toolbar" role="group" aria-label="Runs to show">
@@ -87,10 +108,10 @@ export function Conditions() {
         </div>
         {habitat && (
           <p className="muted small">
-            Runs whose recorded O₂ and pressure lie in {habitat.label.toLowerCase()} ({habitat.sub}). A burner-stream O₂ is never counted as the atmosphere.
+            {habitat.label} · {habitat.sub}
           </p>
         )}
-        {runs.isPending && <p className="muted small">Loading runs…</p>}
+        {runs.isPending && <p className="muted small">Loading…</p>}
         {runs.error && <ErrorNote error={runs.error} title="The runs could not be loaded" />}
         {table && <ConditionsMatrix t={table} />}
         {runs.hasNextPage && (
@@ -99,8 +120,13 @@ export function Conditions() {
           </button>
         )}
       </section>
-    </div>
+      )}
+    </>
   );
+}
+
+function Unavailable({ err }: { err: unknown }) {
+  return <Gap title="Conditions are not available on this server">{err instanceof Error ? err.message : String(err)}</Gap>;
 }
 
 // ---------------------------------------------------------------- habitat relevance
@@ -132,12 +158,9 @@ export function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
   const ranked = rankFor(axes, moon);
   return (
     <section className="panel-sec" aria-labelledby="h-habitats">
-      <h2 id="h-habitats" style={{ fontSize: 15, margin: "8px 0 0" }}>
+      <h2 id="h-habitats" className="sr-only">
         Habitat relevance
       </h2>
-      <p className="muted small">
-        Each investigation's tested range of O₂ and pressure, compared with the crew atmospheres in the challenge brief. Sorted by nearness to the Moon base and rover atmosphere.
-      </p>
       {ranked.length === 0 ? (
         <Gap title="No tested envelopes">The conditions service returned no per-investigation envelope.</Gap>
       ) : (
@@ -196,10 +219,6 @@ export function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
           </table>
         </div>
       )}
-      <p className="muted small">
-        "Within envelope": the tested O₂ and pressure ranges reach the atmosphere (to 0.5 points of O₂ and 1 % of pressure). "Outside" says how far the tests would have to move; nothing is
-        extrapolated. Partial gravity means a tested level between {PARTIAL_G[0]} g and {PARTIAL_G[1]} g (Moon 0.17 g, Mars 0.38 g). Hover a tested range to see how many runs gave it.
-      </p>
     </section>
   );
 }
@@ -281,9 +300,11 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
   const pick = useCallback((p: Picked) => setPicked((cur) => (cur && cur.run === p.run && cur.cell.key === p.cell.key ? null : p)), []);
   return (
     <div className="panel-sec">
-      <p className="muted small">
-        Inputs, not outcomes. Each value keeps its original's locator; gaps are marked, never filled. {t.total_count != null && `${t.rows.length} of ${t.total_count} runs.`}
-      </p>
+      {t.total_count != null && (
+        <p className="muted small">
+          {t.rows.length} of {t.total_count} runs
+        </p>
+      )}
       <div className="tbl-wrap" ref={frame} style={windowed ? { maxHeight: "70vh", overflowY: "auto" } : undefined}>
         <table className="tbl" aria-rowcount={t.rows.length + 1}>
           <thead>

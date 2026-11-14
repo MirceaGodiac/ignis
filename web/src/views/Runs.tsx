@@ -59,12 +59,15 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
 
   return (
     <div className="view">
+      <div className="view-head">
+        <h1>Runs</h1>
+      </div>
       <div className="toolbar">
         <FamilyLegend counts={counts} active={family} onPick={setFamily} />
         <label className="sr-only" htmlFor="run-filter">
           Filter runs
         </label>
-        <input id="run-filter" className="field" placeholder="Filter by id, fuel, configuration…" value={text} onChange={(e) => setText(e.target.value)} style={{ width: 260 }} />
+        <input id="run-filter" className="field" placeholder="Filter runs" value={text} onChange={(e) => setText(e.target.value)} style={{ width: 260 }} />
         <span className="muted" style={{ marginLeft: "auto", fontSize: 12 }}>
           {rows.length} of {runs.length}
         </span>

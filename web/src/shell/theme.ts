@@ -28,6 +28,9 @@ export function currentScheme(): Scheme {
 
 export function applyTheme(choice: ThemeChoice) {
   const root = document.documentElement;
+  // A theme change is instant: hover and state transitions would otherwise animate every colour.
+  root.dataset.themeSwitching = "";
+  requestAnimationFrame(() => requestAnimationFrame(() => delete root.dataset.themeSwitching));
   if (choice === "system") delete root.dataset.theme;
   else root.dataset.theme = choice;
   try {

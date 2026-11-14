@@ -248,10 +248,11 @@ function HoverCard({
         </>
       )}
       {first?.kind === "artifact_value" && <ArtifactValue client={client} support={first} />}
-      <p className="muted" style={{ fontSize: 12 }}>
-        Click the key to open the evidence beside the answer.
-        {(claim.support ?? []).length > 1 && ` ${(claim.support ?? []).length} supports in total.`}
-      </p>
+      {(claim.support ?? []).length > 1 && (
+        <p className="muted" style={{ fontSize: 12 }}>
+          {(claim.support ?? []).length} supports
+        </p>
+      )}
     </div>
   );
 }
