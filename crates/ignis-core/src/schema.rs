@@ -63,6 +63,7 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         // C0: dataset (dataset.v1)
         one::<DatasetBundle>("DatasetBundle"),
         one::<VisualObservationBundle>("VisualObservationBundle"),
+        one::<ImageContourObservation>("ImageContourObservation"),
         // C0: wsp (wsp.v1)
         one::<ModelSpec>("ModelSpec"),
         one::<HandwrittenWeightPatch>("HandwrittenWeightPatch"),

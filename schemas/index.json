@@ -44,6 +44,7 @@
     "WikiRevision",
     "DatasetBundle",
     "VisualObservationBundle",
+    "ImageContourObservation",
     "ModelSpec",
     "HandwrittenWeightPatch",
     "ModelBuildManifest",

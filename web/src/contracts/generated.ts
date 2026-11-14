@@ -767,6 +767,11 @@ export type TimestampBasis = "container_pts" | "nominal_frame_rate" | "telemetry
  */
 export type UnitsStatus = "metric" | "pixel_only" | "normalized";
 /**
+ * Whether contour coordinates are metric. `pixel_only` never becomes metric downstream (a chart
+ * axis or a smarter model does not calibrate a camera).
+ */
+export type UnitsStatus1 = "metric" | "pixel_only" | "normalized";
+/**
  * What an element holds when a root patch does not write it.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -949,6 +954,7 @@ export interface IgnisContracts {
   WikiRevision?: WikiRevision;
   DatasetBundle?: DatasetBundle;
   VisualObservationBundle?: VisualObservationBundle;
+  ImageContourObservation?: ImageContourObservation;
   ModelSpec?: ModelSpec;
   HandwrittenWeightPatch?: HandwrittenWeightPatch;
   ModelBuildManifest?: ModelBuildManifest;
@@ -2144,8 +2150,8 @@ export interface ColumnSpec {
 }
 /**
  * Contours extracted from one video, with camera, time basis and calibration status. Metric
- * contours are `ContourObservation` JSONL (meters); other unit states use another contract and can
- * never be read as `ContourObservation`.
+ * contours are `ContourObservation` JSONL (meters); `pixel_only` / `normalized` contours are
+ * [`ImageContourObservation`] JSONL and can never be read as `ContourObservation`.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "VisualObservationBundle".
@@ -2178,6 +2184,38 @@ export interface VisualObservationBundle {
 export interface RunIdentity {
   resolution: Resolution4;
   run_id?: RunId | null;
+}
+/**
+ * One frame's leading-edge contour in **image** coordinates, the record type of `pixel_only` and
+ * `normalized` [`VisualObservationBundle`]s. It is never metres: a consumer that needs metres
+ * requires a metric bundle ([`VisualObservationBundle::require_metric`]), whose records are
+ * `ContourObservation`. The run identity is the bundle's ([`RunIdentity`]), not repeated here.
+ *
+ * `s` is the transverse grid (image units, e.g. pixel rows), `f` the leading-edge coordinate along
+ * the propagation axis at each `s` (absent = no edge at that grid line). Times are seconds since the
+ * bundle's `time_origin`; `pts_s` is the container presentation time of `frame` (0-based).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ImageContourObservation".
+ */
+export interface ImageContourObservation {
+  available_at_s: number;
+  derivation: Derivation;
+  evidence_class: EvidenceClass1;
+  f: (number | null)[];
+  frame: number;
+  id: string;
+  locator: SourceLocator;
+  /**
+   * Frames the segmentation mask of this frame depended on (all `<= frame`: causal).
+   */
+  mask_dependency_frames: number[];
+  origin: Origin;
+  pts_s: number;
+  s: number[];
+  status: ContourStatus;
+  time_s: number;
+  units: UnitsStatus1;
 }
 /**
  * Complete specification an author writes against: target, domain, features in order, every
