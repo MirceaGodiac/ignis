@@ -46,7 +46,7 @@ export function useConditionsView() {
       return conditionsView(rows);
     },
     retry: false,
-    staleTime: 5 * 60_000,
+    staleTime: 10 * 60_000,
   });
 }
 

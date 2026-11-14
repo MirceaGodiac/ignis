@@ -72,7 +72,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // A deploy restarts the server for a few seconds: the registry is retried with back-off and refreshed
   // when the tab comes back, so one failed request never leaves Runs empty for the session.
-  const registry = { retry: 4, retryDelay: (n: number) => Math.min(8000, 1000 * 2 ** n), refetchOnWindowFocus: true } as const;
+  const registry = { retry: 4, retryDelay: (n: number) => Math.min(8000, 1000 * 2 ** n), refetchOnWindowFocus: true, staleTime: 10 * 60_000 } as const;
   const health = useQuery({ queryKey: [origin, "health"], queryFn: () => call<Health>(origin, "/health"), ...registry });
   const experiments = useQuery({ queryKey: [origin, "experiments"], queryFn: () => call<ExperimentList>(origin, "/experiments"), ...registry });
   const caps = useQuery({ queryKey: [researchMode, replay, "capabilities"], queryFn: () => client.capabilities(), retry: false });
