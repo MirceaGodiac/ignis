@@ -119,6 +119,9 @@ pub struct ServeArgs {
     /// How callers are identified (the host derives each request's ExecutionScope from it).
     #[arg(long, value_enum, env = "IGNIS_AUTH", default_value = "local")]
     pub auth: v1::io::AuthMode,
+    /// Cloudflare Access verification (required by `--auth cloudflare-access`).
+    #[command(flatten)]
+    pub access: v1::access::AccessArgs,
     /// Also serve the internal registry routes (`/seal`, `/reveal`, `/admin/reload`). Off by
     /// default: they are development/evaluation tools, not part of the public runtime.
     #[arg(long)]
@@ -213,6 +216,7 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
         .map(strip_verbatim)
         .unwrap_or(args.root.clone());
     let pool = Arc::new(ignis_core::batch::bounded_pool(args.compute_threads));
+    let access = access_verifier(&args);
     let artifacts = args.root.join(&args.artifacts);
     let Services {
         experts,
@@ -277,6 +281,7 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
         "registry",
         mcp.as_mut(),
         runner_report.clone(),
+        access.clone(),
     );
     app = app.nest("/v1", v1::build(registry_v1));
     if args.dev {
@@ -296,6 +301,7 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
                     "fixture",
                     mcp.as_mut(),
                     runner_report.clone(),
+                    access.clone(),
                 );
                 tracing::warn!("serving C0 CONTRACT FIXTURES (synthetic) under /api/fixtures/v1");
                 app = app.nest("/fixtures/v1", v1::build(fixture_v1));
@@ -315,8 +321,60 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     } else {
         api
     };
-    app.layer(TraceLayer::new_for_http())
+    // Behind Access every route (legacy `/api/*`, static files) needs the origin assertion; `/api/v1`
+    // routes additionally verify the user's. `/livez` is the process-level liveness probe for the
+    // local supervisor (no data, no identity).
+    let app = match args.auth {
+        v1::io::AuthMode::Local => app,
+        v1::io::AuthMode::CloudflareAccess => app.layer(axum::middleware::from_fn(
+            move |req: axum::extract::Request, next: axum::middleware::Next| {
+                let access = access.clone();
+                async move { require_origin(access, req, next).await }
+            },
+        )),
+    };
+    app.route("/livez", axum::routing::get(|| async { "ok" }))
+        .layer(TraceLayer::new_for_http())
         .layer(tower::limit::ConcurrencyLimitLayer::new(256))
+}
+
+/// The Access verifier for `--auth cloudflare-access` (`None` in local mode, or when the
+/// configuration is invalid: then every request is refused, see [`run`] which refuses to start).
+fn access_verifier(args: &ServeArgs) -> Option<Arc<v1::access::AccessVerifier>> {
+    if args.auth != v1::io::AuthMode::CloudflareAccess {
+        return None;
+    }
+    match v1::access::AccessVerifier::new(&args.access) {
+        Ok(v) => Some(Arc::new(v)),
+        Err(e) => {
+            tracing::error!(error = %e, "Cloudflare Access is not configured; every request is refused");
+            None
+        }
+    }
+}
+
+async fn require_origin(
+    access: Option<Arc<v1::access::AccessVerifier>>,
+    req: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::response::IntoResponse;
+    let checked = match &access {
+        None => Err(v1::access::AccessError::Unavailable(
+            "access verification is not configured".into(),
+        )),
+        Some(v) => {
+            let jwt = req
+                .headers()
+                .get(v1::access::ORIGIN_ASSERTION)
+                .and_then(|h| h.to_str().ok());
+            v.check_origin(jwt).await
+        }
+    };
+    match checked {
+        Ok(()) => next.run(req).await,
+        Err(e) => v1::io::ApiError::from(e).into_response(),
+    }
 }
 
 /// One `/api/v1` instance over the state in `dir` (registry, or the C0 fixture in dev mode), with
@@ -333,6 +391,7 @@ fn v1_instance(
     name: &str,
     mcp: Option<&mut McpListener>,
     runner_report: v1::sandbox::RunnerReport,
+    access: Option<Arc<v1::access::AccessVerifier>>,
 ) -> Arc<v1::V1> {
     let (store, inner) = open_state(dir);
     let (artifacts, seed): (Arc<dyn ignis_core::services::ArtifactStore>, _) = match fixture {
@@ -368,6 +427,7 @@ fn v1_instance(
         tools,
         hub,
         auth: args.auth,
+        access,
         runner_wake,
         origin,
         uploads_dir: dir.join("uploads"),
@@ -499,6 +559,9 @@ pub fn run(args: ServeArgs, services: Services) -> anyhow::Result<()> {
     let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
+    if args.auth == v1::io::AuthMode::CloudflareAccess {
+        v1::access::AccessVerifier::new(&args.access).map_err(|e| anyhow::anyhow!(e))?;
+    }
     rt.block_on(async move {
         let addr = format!("{}:{}", args.host, args.port);
         let app = app(args, services);
@@ -507,10 +570,32 @@ pub fn run(args: ServeArgs, services: Services) -> anyhow::Result<()> {
             .map_err(|e| anyhow::anyhow!("bind {addr}: {e}"))?;
         tracing::info!("ignis-server listening on http://{addr}/api");
         axum::serve(listener, app)
-            .with_graceful_shutdown(async {
-                let _ = tokio::signal::ctrl_c().await;
-            })
+            .with_graceful_shutdown(shutdown_signal())
             .await?;
         Ok(())
     })
+}
+
+/// Ctrl-C, or SIGTERM from the supervisor (systemd, `docker stop`).
+async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        use tokio::signal::unix::{signal, SignalKind};
+        match signal(SignalKind::terminate()) {
+            Ok(mut term) => {
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {}
+                    _ = term.recv() => {}
+                }
+            }
+            Err(_) => {
+                let _ = tokio::signal::ctrl_c().await;
+            }
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
+    }
+    tracing::info!("shutting down");
 }

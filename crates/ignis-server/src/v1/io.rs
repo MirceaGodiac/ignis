@@ -136,14 +136,11 @@ impl<T: JsonSchema> OperationInput for Body<T> {
 pub enum AuthMode {
     /// One local user (loopback development). Every request is the principal `local`.
     Local,
-    /// Behind Cloudflare Access: the authenticated identity comes from the
-    /// `Cf-Access-Authenticated-User-Email` header set by the tunnel. Only safe when the origin is
-    /// reachable exclusively through cloudflared (task M4 adds JWT verification of
-    /// `Cf-Access-Jwt-Assertion`).
+    /// Behind Cloudflare Access and the Worker: both Cloudflare-signed assertions are verified on
+    /// every request ([`super::access`]); the user's e-mail in the verified user assertion is the
+    /// principal. No unsigned header is trusted.
     CloudflareAccess,
 }
-
-pub const ACCESS_HEADER: &str = "cf-access-authenticated-user-email";
 
 /// The authenticated caller and the scope the host derives for it. Never read from a body.
 #[derive(Debug, Clone)]
@@ -179,10 +176,40 @@ pub fn research_scope(principal_key: &str, execute_code: bool) -> ExecutionScope
 
 pub trait HasAuth {
     fn auth(&self) -> AuthMode;
+    /// The Access verifier (`--auth cloudflare-access`); without one every request is refused.
+    fn access(&self) -> Option<&super::access::AccessVerifier>;
     /// Whether callers may run code (only in the isolated runner).
     fn execute_code(&self) -> bool {
         false
     }
+}
+
+impl From<super::access::AccessError> for ApiError {
+    fn from(e: super::access::AccessError) -> Self {
+        use super::access::AccessError;
+        match e {
+            AccessError::Denied(m) => ApiError {
+                status: StatusCode::UNAUTHORIZED,
+                envelope: ErrorEnvelope::new(
+                    ErrorCode::ScopeDenied,
+                    format!("not authenticated: {m}"),
+                    RetryPolicy::AfterUserAction,
+                ),
+            },
+            AccessError::Unavailable(m) => ApiError {
+                status: StatusCode::SERVICE_UNAVAILABLE,
+                envelope: ErrorEnvelope::new(
+                    ErrorCode::UpstreamUnavailable,
+                    format!("identity verification unavailable: {m}"),
+                    RetryPolicy::AfterDelay { seconds: 30 },
+                ),
+            },
+        }
+    }
+}
+
+fn header<'a>(parts: &'a Parts, name: &str) -> Option<&'a str> {
+    parts.headers.get(name).and_then(|v| v.to_str().ok())
 }
 
 impl<S: HasAuth + Send + Sync> FromRequestParts<S> for Caller {
@@ -190,20 +217,18 @@ impl<S: HasAuth + Send + Sync> FromRequestParts<S> for Caller {
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, ApiError> {
         let key = match state.auth() {
             AuthMode::Local => "local".to_string(),
-            AuthMode::CloudflareAccess => parts
-                .headers
-                .get(ACCESS_HEADER)
-                .and_then(|v| v.to_str().ok())
-                .map(|s| s.trim().to_lowercase())
-                .filter(|s| !s.is_empty())
-                .ok_or(ApiError {
-                    status: StatusCode::UNAUTHORIZED,
-                    envelope: ErrorEnvelope::new(
-                        ErrorCode::ScopeDenied,
-                        "no authenticated identity on the request",
-                        RetryPolicy::AfterUserAction,
-                    ),
-                })?,
+            AuthMode::CloudflareAccess => {
+                let v = state
+                    .access()
+                    .ok_or(super::access::AccessError::Unavailable(
+                        "access verification is not configured".into(),
+                    ))?;
+                v.identify(
+                    header(parts, super::access::ORIGIN_ASSERTION),
+                    header(parts, super::access::USER_ASSERTION),
+                )
+                .await?
+            }
         };
         Ok(Caller {
             scope: research_scope(&key, state.execute_code()),

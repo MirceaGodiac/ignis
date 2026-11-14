@@ -39,6 +39,10 @@ sha2.workspace = true
 hex.workspace = true
 futures-util = { version = "0.3", default-features = false, features = ["std"] }
 indexmap = "2"
+# Cloudflare Access JWT verification (RS256) and its key fetch; same versions as the rest of the tree.
+ring = "0.17"
+base64 = "0.23"
+ureq = "3"
 # OpenAPI generated from the handlers on top of the contracts' schemars 1 derives (utoipa would need a
 # second schema derive on every C0 type in ignis-core). Exact pin: 0.16 is the schemars-1 line.
 aide = { version = "=0.16.0-alpha.4", features = ["axum", "axum-json", "axum-query"] }
