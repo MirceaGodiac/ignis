@@ -1,0 +1,301 @@
+[
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0201",
+    "episode_id": "fixture-episode-02",
+    "seq": 1,
+    "occurred_at": "2026-11-12T19:00:01Z",
+    "causation": {
+      "client_request_id": "fixture-client-req-11"
+    },
+    "body": {
+      "kind": "message.user",
+      "payload": {
+        "message_id": "fixture-msg-11",
+        "text": "Synthetic fixture question about ambient atmosphere and diameter decrease."
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0202",
+    "episode_id": "fixture-episode-02",
+    "seq": 2,
+    "occurred_at": "2026-11-12T19:00:02Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11"
+    },
+    "body": {
+      "kind": "episode.status_changed",
+      "payload": {
+        "from": "ready",
+        "to": "running"
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0203",
+    "episode_id": "fixture-episode-02",
+    "seq": 3,
+    "occurred_at": "2026-11-12T19:00:03Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11",
+      "tool_call_id": "fixture-call-11"
+    },
+    "body": {
+      "kind": "step.rationale",
+      "payload": {
+        "call_id": "fixture-call-11",
+        "text": "Synthetic fixture: looking for passages that report how ambient oxygen changes the burning rate before comparing with the model.",
+        "source": "model_explanation"
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0204",
+    "episode_id": "fixture-episode-02",
+    "seq": 4,
+    "occurred_at": "2026-11-12T19:00:04Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11",
+      "tool_call_id": "fixture-call-11"
+    },
+    "body": {
+      "kind": "tool.started",
+      "payload": {
+        "call_id": "fixture-call-11",
+        "tool": "sources_search",
+        "arguments": {
+          "value": {
+            "value": {
+              "schema_version": "evidence.v2",
+              "query": "ambient oxygen fraction effect on droplet burning rate (synthetic fixture query)",
+              "mode": "hybrid",
+              "page_size": 10,
+              "response_format": "concise"
+            },
+            "partial": false
+          }
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0205",
+    "episode_id": "fixture-episode-02",
+    "seq": 5,
+    "occurred_at": "2026-11-12T19:00:05Z",
+    "causation": {
+      "tool_call_id": "fixture-call-11"
+    },
+    "body": {
+      "kind": "tool.finished",
+      "payload": {
+        "result": {
+          "schema_version": "tools.v1",
+          "call_id": "fixture-call-11",
+          "tool": "sources_search",
+          "execution_status": "completed",
+          "scientific_status": "conclusive",
+          "result": {
+            "value": {
+              "hits": 1,
+              "first_evidence_id": "fixture-evidence-01"
+            },
+            "partial": true,
+            "full": {
+              "artifact_id": "fixture-artifact-search-11",
+              "sha256": "sha256:5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f",
+              "media_type": "application/json",
+              "byte_length": 4096,
+              "contract": "SearchPage",
+              "produced_by": {
+                "episode_id": "fixture-episode-02",
+                "tool_call_id": "fixture-call-11"
+              },
+              "origin": "synthetic_fixture",
+              "created_at": "2026-11-12T19:00:05Z"
+            }
+          },
+          "artifact_refs": [],
+          "origin": "synthetic_fixture"
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0206",
+    "episode_id": "fixture-episode-02",
+    "seq": 6,
+    "occurred_at": "2026-11-12T19:00:06Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11"
+    },
+    "body": {
+      "kind": "step.rationale",
+      "payload": {
+        "text": "Synthetic fixture: the passage, the run and the forecast are enough for a partial answer; submitting it with the protocol gap stated.",
+        "source": "model_explanation"
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0207",
+    "episode_id": "fixture-episode-02",
+    "seq": 7,
+    "occurred_at": "2026-11-12T19:00:07Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11",
+      "tool_call_id": "fixture-call-14"
+    },
+    "body": {
+      "kind": "tool.started",
+      "payload": {
+        "call_id": "fixture-call-14",
+        "tool": "answer_submit",
+        "arguments": {
+          "value": {
+            "value": {
+              "status": "partial",
+              "claims": 5,
+              "blocks": 6
+            },
+            "partial": true,
+            "full": {
+              "artifact_id": "fixture-artifact-submission-02",
+              "sha256": "sha256:b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "media_type": "application/json",
+              "byte_length": 5200,
+              "produced_by": {
+                "episode_id": "fixture-episode-02",
+                "tool_call_id": "fixture-call-14"
+              },
+              "origin": "synthetic_fixture",
+              "created_at": "2026-11-12T19:00:07Z"
+            }
+          }
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0208",
+    "episode_id": "fixture-episode-02",
+    "seq": 8,
+    "occurred_at": "2026-11-12T19:00:08Z",
+    "causation": {
+      "tool_call_id": "fixture-call-14"
+    },
+    "body": {
+      "kind": "tool.finished",
+      "payload": {
+        "result": {
+          "schema_version": "tools.v1",
+          "call_id": "fixture-call-14",
+          "tool": "answer_submit",
+          "execution_status": "completed",
+          "scientific_status": "not_assessed",
+          "result": {
+            "value": {
+              "answer_id": "fixture-answer-02"
+            },
+            "partial": true,
+            "full": {
+              "artifact_id": "fixture-artifact-answer-02",
+              "sha256": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+              "media_type": "application/json",
+              "byte_length": 6144,
+              "contract": "ResearchAnswer",
+              "produced_by": {
+                "episode_id": "fixture-episode-02",
+                "tool_call_id": "fixture-call-14"
+              },
+              "origin": "synthetic_fixture",
+              "created_at": "2026-11-12T19:00:08Z"
+            }
+          },
+          "artifact_refs": [
+            {
+              "artifact_id": "fixture-artifact-answer-02",
+              "sha256": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+              "media_type": "application/json",
+              "byte_length": 6144,
+              "contract": "ResearchAnswer",
+              "produced_by": {
+                "episode_id": "fixture-episode-02",
+                "tool_call_id": "fixture-call-14"
+              },
+              "origin": "synthetic_fixture",
+              "created_at": "2026-11-12T19:00:08Z"
+            }
+          ],
+          "origin": "synthetic_fixture"
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0209",
+    "episode_id": "fixture-episode-02",
+    "seq": 9,
+    "occurred_at": "2026-11-12T19:00:09Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11",
+      "tool_call_id": "fixture-call-14"
+    },
+    "body": {
+      "kind": "answer.completed",
+      "payload": {
+        "answer_id": "fixture-answer-02",
+        "status": "partial",
+        "answer": {
+          "artifact_id": "fixture-artifact-answer-02",
+          "sha256": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+          "media_type": "application/json",
+          "byte_length": 6144,
+          "contract": "ResearchAnswer",
+          "produced_by": {
+            "episode_id": "fixture-episode-02",
+            "tool_call_id": "fixture-call-14"
+          },
+          "origin": "synthetic_fixture",
+          "created_at": "2026-11-12T19:00:08Z"
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0210",
+    "episode_id": "fixture-episode-02",
+    "seq": 10,
+    "occurred_at": "2026-11-12T19:00:10Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-11"
+    },
+    "body": {
+      "kind": "episode.status_changed",
+      "payload": {
+        "from": "running",
+        "to": "completed"
+      }
+    },
+    "origin": "synthetic_fixture"
+  }
+]

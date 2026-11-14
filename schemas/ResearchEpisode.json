@@ -5,6 +5,10 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
     "EpisodeBranchPoint": {
       "additionalProperties": false,
       "description": "Where a branched episode left its parent.",
@@ -32,12 +36,22 @@
     },
     "EpisodePins": {
       "additionalProperties": false,
-      "description": "Versions an episode is pinned to; switching is an explicit, visible event.",
+      "description": "Versions an episode is pinned to; switching is an explicit, visible event.\n\nv2 replaces C0's `skills_version` (never written: it was always absent) with `harness`.",
       "properties": {
         "corpus_snapshot": {
           "anyOf": [
             {
               "$ref": "#/$defs/CorpusSnapshotId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "harness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HarnessRef"
             },
             {
               "type": "null"
@@ -50,12 +64,6 @@
             "$ref": "#/$defs/ReleaseId"
           },
           "type": "array"
-        },
-        "skills_version": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       },
       "type": "object"
@@ -83,6 +91,41 @@
         }
       ]
     },
+    "HarnessRef": {
+      "additionalProperties": false,
+      "description": "The harness an episode runs with (K1.6): the instruction/skill bundle by digest plus the runtime\nbuild, model and effort it was injected into. Every benchmark number is reported with this.",
+      "properties": {
+        "digest": {
+          "$ref": "#/$defs/Digest",
+          "description": "Digest of the harness bundle (`harness/`: instructions, skills, agents) as injected."
+        },
+        "effort": {
+          "description": "Reasoning effort as the runtime names it, when it has one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "description": "Human label of the bundle or variant (`h1`, `h1-no-wiki`); not an identity.",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model id as the runtime reports it.",
+          "type": "string"
+        },
+        "runtime_build": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        }
+      },
+      "required": [
+        "digest",
+        "label",
+        "runtime_build",
+        "model"
+      ],
+      "type": "object"
+    },
     "Origin": {
       "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
       "enum": [
@@ -97,11 +140,20 @@
       "type": "string"
     },
     "ResearchSchema": {
-      "description": "Wire tag of episodes, events and answers.",
-      "enum": [
-        "research.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`\n(C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a\nsupport check, a harness pin) is refused under the v1 tag, so a v1 reader never receives a\ndocument it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "research.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "research.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "RuntimeBuildId": {
       "minLength": 1,

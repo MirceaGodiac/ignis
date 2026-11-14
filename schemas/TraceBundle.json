@@ -1,0 +1,765 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download\nlink is resolved through the access service, may expire, and does not change the artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "byte_length": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract": {
+          "description": "Exported contract type of the content when it is a JSON/JSONL contract document\n(`\"AnalysisArtifact\"`, `\"ResearchAnswer\"`, ...). Consumers dispatch on it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "inputs": {
+          "description": "Entities this artifact was computed from (lineage, not access grants).",
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "media_type": {
+          "description": "IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "media_type",
+        "byte_length",
+        "origin",
+        "created_at"
+      ],
+      "type": "object"
+    },
+    "CostBasis": {
+      "description": "Where a cost figure comes from.",
+      "oneOf": [
+        {
+          "const": "provider_reported",
+          "description": "The provider or runtime reported the cost of these calls.",
+          "type": "string"
+        },
+        {
+          "const": "price_list",
+          "description": "Measured tokens multiplied by a dated price list (named in `price_list`).",
+          "type": "string"
+        }
+      ]
+    },
+    "CostFigure": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "basis": {
+          "$ref": "#/$defs/CostBasis"
+        },
+        "currency": {
+          "description": "ISO 4217 code, e.g. `USD`.",
+          "type": "string"
+        },
+        "price_list": {
+          "description": "Identity of the price list (provider page and date); present exactly for `price_list`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "amount",
+        "currency",
+        "basis"
+      ],
+      "type": "object"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EventRange": {
+      "additionalProperties": false,
+      "description": "A contiguous range of one episode's log, both ends included.",
+      "properties": {
+        "first_seq": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "last_seq": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "first_seq",
+        "last_seq"
+      ],
+      "type": "object"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ExecutionStatus": {
+      "description": "Did the call run? Independent of what it found.",
+      "oneOf": [
+        {
+          "enum": [
+            "completed",
+            "cancelled"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "accepted",
+          "description": "Long work started; follow `job`.",
+          "type": "string"
+        },
+        {
+          "const": "refused",
+          "description": "The host or service declined (scope, invalid input, unsupported).",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "description": "Technical failure.",
+          "type": "string"
+        }
+      ]
+    },
+    "HarnessRef": {
+      "additionalProperties": false,
+      "description": "The harness an episode runs with (K1.6): the instruction/skill bundle by digest plus the runtime\nbuild, model and effort it was injected into. Every benchmark number is reported with this.",
+      "properties": {
+        "digest": {
+          "$ref": "#/$defs/Digest",
+          "description": "Digest of the harness bundle (`harness/`: instructions, skills, agents) as injected."
+        },
+        "effort": {
+          "description": "Reasoning effort as the runtime names it, when it has one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "description": "Human label of the bundle or variant (`h1`, `h1-no-wiki`); not an identity.",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model id as the runtime reports it.",
+          "type": "string"
+        },
+        "runtime_build": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        }
+      },
+      "required": [
+        "digest",
+        "label",
+        "runtime_build",
+        "model"
+      ],
+      "type": "object"
+    },
+    "HarnessRun": {
+      "additionalProperties": false,
+      "description": "Which benchmark run an episode belongs to (`ignis harness run --variant <v> --tasks <set>`).\n`task_id` names a gold task of the evaluator's set; the trace never carries the task's answer.",
+      "properties": {
+        "repetition": {
+          "description": "0-based repetition of the same task under the same variant.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "variant",
+        "task_id",
+        "repetition"
+      ],
+      "type": "object"
+    },
+    "JobId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "Producer": {
+      "additionalProperties": false,
+      "description": "What produced an artifact (all optional: an ingestion artifact has no episode).",
+      "properties": {
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "job_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolCallId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ResearchSchema": {
+      "description": "Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`\n(C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a\nsupport check, a harness pin) is refused under the v1 tag, so a v1 reader never receives a\ndocument it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "research.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "research.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RuntimeBuildId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RuntimeKind": {
+      "description": "Agent runtime hosting an episode (ADR 17): the pinned Codex App Server, or Claude Code in\nheadless mode. Each owns its own model/tool loop; IGNIS maps, stores and audits both the same way.",
+      "enum": [
+        "codex_app_server",
+        "claude_code"
+      ],
+      "type": "string"
+    },
+    "RuntimeThreadRef": {
+      "additionalProperties": false,
+      "description": "Mapping of an episode to its runtime thread. Turn/item ids travel in `Causation`.",
+      "properties": {
+        "runtime": {
+          "$ref": "#/$defs/RuntimeKind"
+        },
+        "runtime_build_id": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        },
+        "thread_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runtime",
+        "runtime_build_id",
+        "thread_id"
+      ],
+      "type": "object"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    },
+    "TokenUsage": {
+      "additionalProperties": false,
+      "description": "Token usage of one model over the traced range, as the runtime reported it (measured, not\nestimated). Unknown counts stay absent.",
+      "properties": {
+        "cached_input_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "input_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "model": {
+          "type": "string"
+        },
+        "output_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoning_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "model",
+        "input_tokens",
+        "output_tokens"
+      ],
+      "type": "object"
+    },
+    "ToolCallId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "TraceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "TraceToolCall": {
+      "additionalProperties": false,
+      "description": "One tool call as traced: where it sits in the log and its full input and output as artifacts.",
+      "properties": {
+        "arguments": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The arguments as the tool received them."
+        },
+        "call_id": {
+          "$ref": "#/$defs/ToolCallId"
+        },
+        "execution_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExecutionStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "finished_seq": {
+          "description": "Absent when the call had not finished when the trace was cut.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The `ToolResult` as returned."
+        },
+        "started_seq": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tool": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "call_id",
+        "tool",
+        "started_seq"
+      ],
+      "type": "object"
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/TraceBundle",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Everything needed to audit, cost and compare one episode (K1.8): the harness it ran with, its\nevent range, every tool call's input and output, measured usage and cost, and the partitions it\ntouched. Benchmark scorecards read traces; they never re-run an episode to learn its cost.",
+  "properties": {
+    "answer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The `ResearchAnswer` the range ended with, if any."
+    },
+    "cost": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CostFigure"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Absent when no cost could be established; never a guess."
+    },
+    "episode_id": {
+      "$ref": "#/$defs/EpisodeId"
+    },
+    "event_log": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The traced events as JSONL (`ResearchEvent` per line)."
+    },
+    "events": {
+      "$ref": "#/$defs/EventRange"
+    },
+    "finished_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "harness": {
+      "$ref": "#/$defs/HarnessRef"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "partitions_touched": {
+      "default": [],
+      "description": "Data partitions any tool call of the range read.",
+      "items": {
+        "$ref": "#/$defs/Partition"
+      },
+      "type": "array"
+    },
+    "run": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HarnessRun"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "runtime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RuntimeThreadRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/ResearchSchema"
+    },
+    "started_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tool_calls": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/TraceToolCall"
+      },
+      "type": "array"
+    },
+    "trace_id": {
+      "$ref": "#/$defs/TraceId"
+    },
+    "usage": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/TokenUsage"
+      },
+      "type": "array"
+    },
+    "wall_time_s": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "schema_version",
+    "trace_id",
+    "episode_id",
+    "harness",
+    "events",
+    "wall_time_s",
+    "started_at",
+    "finished_at",
+    "origin"
+  ],
+  "title": "TraceBundle",
+  "type": "object"
+}

@@ -6,6 +6,8 @@ Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§4, §9, 
 
 ## 0. Faza 2 (citește întâi) — harness & platformă
 
+**Acces:** [ACCESS](ACCESS.md). Tu deții toate conturile; de făcut: pasul de corpus în `build-data.sh` (selecția vine de la Raul). DeepInfra nu mai e folosit.
+
 Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §4 (lane-ul tău), §9 (contracte), §10 (date NASA).
 
 **Misiune:** agentul live produce răspunsuri validate și legate de surse, sub un harness versionat al
