@@ -39,12 +39,13 @@ use axum::response::{IntoResponse, Response};
 use axum::{Json, Router};
 use ignis_core::contracts::{
     ApprovalAccepted, ApprovalDecision, ApprovalId, ArtifactId, ArtifactRef, Capabilities,
-    Capability, ClientRequestId, ConditionsQuery, ConditionsTable, CreateEpisode, Digest, EpisodeAction, EpisodeId, EpisodePins,
-    ErrorCode, ErrorEnvelope, ExecutionScope, ExecutionStatus, ForecastRequest, HostDecision,
-    JobId, JobRef, MessageAccepted, ModelRelease, Origin as PayloadOrigin, ParseViewId,
-    PostMessage, ReadRange, ReadRequest, ReadResult, ReleaseId, ResearchEpisode, ResolveApproval,
-    RetryPolicy, ScientificStatus, SearchPage, SearchRequest, ServiceStatus, SourceId, Timestamp,
-    ToolCallId, ToolResult, ToolStatus, ToolsSchema,
+    Capability, ClientRequestId, ConditionsQuery, ConditionsTable, CreateEpisode, Digest,
+    EpisodeAction, EpisodeId, EpisodePins, ErrorCode, ErrorEnvelope, ExecutionScope,
+    ExecutionStatus, ForecastRequest, HostDecision, JobId, JobRef, MessageAccepted, ModelRelease,
+    Origin as PayloadOrigin, ParseViewId, PostMessage, ReadRange, ReadRequest, ReadResult,
+    ReleaseId, ResearchEpisode, ResolveApproval, RetryPolicy, ScientificStatus, SearchPage,
+    SearchRequest, ServiceStatus, SourceId, Timestamp, ToolCallId, ToolResult, ToolStatus,
+    ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
