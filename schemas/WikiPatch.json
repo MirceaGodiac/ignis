@@ -1,0 +1,246 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of search, read, provenance and wiki documents.",
+      "enum": [
+        "evidence.v1"
+      ],
+      "type": "string"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/WikiPatch",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A wiki write against `base_revision` (absent = create). The service refuses with `conflict` when\nthe page head moved: the last writer does not win silently.",
+  "properties": {
+    "base_revision": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "body_markdown": {
+      "type": "string"
+    },
+    "links": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/EntityRef"
+      },
+      "type": "array"
+    },
+    "page_id": {
+      "$ref": "#/$defs/WikiPageId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "page_id",
+    "title",
+    "body_markdown"
+  ],
+  "title": "WikiPatch",
+  "type": "object"
+}

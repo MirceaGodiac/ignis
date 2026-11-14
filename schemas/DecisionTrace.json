@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "CandidateScore": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "type": "string"
+        },
+        "expected_risk": {
+          "format": "double",
+          "type": "number"
+        },
+        "mc_standard_error": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "utility": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "action_id",
+        "expected_risk",
+        "utility"
+      ],
+      "type": "object"
+    },
+    "DecisionPolicy": {
+      "enum": [
+        "voi",
+        "random",
+        "uniform",
+        "max_variance"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/DecisionTrace",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/CandidateScore"
+      },
+      "type": "array"
+    },
+    "chosen_action_id": {
+      "type": "string"
+    },
+    "cost_weight": {
+      "format": "double",
+      "type": "number"
+    },
+    "id": {
+      "type": "string"
+    },
+    "loss": {
+      "type": "string"
+    },
+    "mc_settings": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "model_release_id": {
+      "type": "string"
+    },
+    "policy": {
+      "$ref": "#/$defs/DecisionPolicy"
+    },
+    "prefix_hash": {
+      "type": "string"
+    },
+    "realized_score": {
+      "default": null,
+      "format": "double",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "target": {
+      "type": "string"
+    },
+    "updated_artifact_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "prefix_hash",
+    "model_release_id",
+    "target",
+    "loss",
+    "cost_weight",
+    "mc_settings",
+    "candidates",
+    "chosen_action_id",
+    "policy"
+  ],
+  "title": "DecisionTrace",
+  "type": "object"
+}

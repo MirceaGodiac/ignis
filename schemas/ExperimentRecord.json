@@ -1,0 +1,429 @@
+{
+  "$defs": {
+    "Alias": {
+      "additionalProperties": false,
+      "properties": {
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "type": "string"
+        },
+        "scheme": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "scheme"
+      ],
+      "type": "object"
+    },
+    "Derivation": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "method": {
+          "$ref": "#/$defs/Method"
+        },
+        "method_id": {
+          "type": "string"
+        },
+        "method_version": {
+          "type": "string"
+        },
+        "notes": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "method",
+        "method_id",
+        "method_version"
+      ],
+      "type": "object"
+    },
+    "EvidenceClass": {
+      "enum": [
+        "original_observation",
+        "source_derived",
+        "ignis_derived",
+        "model_output",
+        "synthetic"
+      ],
+      "type": "string"
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "Measured": {
+      "additionalProperties": false,
+      "properties": {
+        "derivation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Derivation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "evidence_class": {
+          "$ref": "#/$defs/EvidenceClass",
+          "default": "original_observation"
+        },
+        "flags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "raw_unit": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "raw_value": {
+          "anyOf": [
+            {
+              "format": "double",
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "`Measured.raw_value` / `Observation.raw_value`: `float | str | None`."
+        },
+        "resolution": {
+          "$ref": "#/$defs/Resolution",
+          "default": "resolved"
+        },
+        "uncertainty_reason": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uncertainty_si": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit_si": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value_si": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "raw_value"
+      ],
+      "type": "object"
+    },
+    "Method": {
+      "enum": [
+        "deterministic",
+        "numerical",
+        "semantic",
+        "human_review"
+      ],
+      "type": "string"
+    },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
+    "Resolution": {
+      "enum": [
+        "resolved",
+        "unresolved_conflict",
+        "unknown",
+        "quarantined",
+        "not_applicable"
+      ],
+      "type": "string"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "ignis/2.1.0/ExperimentRecord",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "aliases": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Alias"
+      },
+      "type": "array"
+    },
+    "conditions": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Measured"
+      },
+      "default": {},
+      "type": "object"
+    },
+    "configuration": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "family": {
+      "$ref": "#/$defs/Family"
+    },
+    "fuel_or_material": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gravity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Measured"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "id": {
+      "type": "string"
+    },
+    "identity_evidence": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Derivation"
+      },
+      "type": "array"
+    },
+    "identity_resolution": {
+      "$ref": "#/$defs/Resolution",
+      "default": "resolved"
+    },
+    "investigation_id": {
+      "type": "string"
+    },
+    "notes": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "quality_flags": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "session_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "specimen_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "investigation_id",
+    "family"
+  ],
+  "title": "ExperimentRecord",
+  "type": "object"
+}

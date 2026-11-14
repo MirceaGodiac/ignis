@@ -1,0 +1,23 @@
+{
+  "$defs": {
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/DatasetRef",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Argument of `datasets_inspect`.",
+  "properties": {
+    "dataset_id": {
+      "$ref": "#/$defs/DatasetId"
+    }
+  },
+  "required": [
+    "dataset_id"
+  ],
+  "title": "DatasetRef",
+  "type": "object"
+}

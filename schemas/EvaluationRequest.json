@@ -1,0 +1,293 @@
+{
+  "$defs": {
+    "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EvaluationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvaluationPurpose": {
+      "oneOf": [
+        {
+          "const": "development_feedback",
+          "description": "Repeatable feedback on train/validation, shown to authors (W1).",
+          "type": "string"
+        },
+        {
+          "const": "final_test",
+          "description": "The lockbox run on the frozen protocol. Results are not shown to authors as feedback.",
+          "type": "string"
+        }
+      ]
+    },
+    "EvaluationSchema": {
+      "description": "Wire tag of evaluation requests and results.",
+      "enum": [
+        "evaluation.v1"
+      ],
+      "type": "string"
+    },
+    "ForecastSettings": {
+      "additionalProperties": false,
+      "description": "Settings of a forecast request (strict: unknown fields are refused).",
+      "properties": {
+        "horizon_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n_points": {
+          "default": null,
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "quantile_levels": {
+          "default": null,
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "seed": {
+          "default": 0,
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "times_s": {
+          "description": "Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one\ntime grid so that event metrics compare like with like.",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "MetricSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "description": "Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`).",
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "version"
+      ],
+      "type": "object"
+    },
+    "ModelUnderTest": {
+      "additionalProperties": false,
+      "description": "A model under evaluation: release, forward code identity and the settings it runs with.",
+      "properties": {
+        "forward_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "$ref": "#/$defs/ReleaseId"
+        },
+        "settings": {
+          "$ref": "#/$defs/ForecastSettings",
+          "default": {
+            "horizon_s": null,
+            "n_points": null,
+            "quantile_levels": null,
+            "seed": 0
+          }
+        }
+      },
+      "required": [
+        "release_id"
+      ],
+      "type": "object"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "ProtocolRef": {
+      "additionalProperties": false,
+      "properties": {
+        "frozen_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test."
+        },
+        "protocol_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocol_id",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/EvaluationRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "baselines": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ModelUnderTest"
+      },
+      "type": "array"
+    },
+    "candidate": {
+      "$ref": "#/$defs/ModelUnderTest"
+    },
+    "client_request_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ClientRequestId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cutoffs_s": {
+      "description": "Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.",
+      "items": {
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "dataset_hash": {
+      "$ref": "#/$defs/Digest",
+      "description": "`DatasetBundle::content_digest` of the bundle evaluated."
+    },
+    "dataset_id": {
+      "$ref": "#/$defs/DatasetId"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/MetricSpec"
+      },
+      "type": "array"
+    },
+    "partition": {
+      "$ref": "#/$defs/Partition"
+    },
+    "protocol": {
+      "$ref": "#/$defs/ProtocolRef"
+    },
+    "purpose": {
+      "$ref": "#/$defs/EvaluationPurpose"
+    },
+    "request_id": {
+      "$ref": "#/$defs/EvaluationId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvaluationSchema"
+    },
+    "split_id": {
+      "type": "string"
+    },
+    "target": {
+      "$ref": "#/$defs/Quantity"
+    },
+    "unit": {
+      "description": "SI unit of the target; must equal `target`'s.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "purpose",
+    "protocol",
+    "target",
+    "unit",
+    "dataset_id",
+    "dataset_hash",
+    "split_id",
+    "partition",
+    "candidate",
+    "cutoffs_s",
+    "metrics"
+  ],
+  "title": "EvaluationRequest",
+  "type": "object"
+}

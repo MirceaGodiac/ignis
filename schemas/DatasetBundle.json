@@ -1,0 +1,558 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download\nlink is resolved through the access service, may expire, and does not change the artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "byte_length": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract": {
+          "description": "Exported contract type of the content when it is a JSON/JSONL contract document\n(`\"AnalysisArtifact\"`, `\"ResearchAnswer\"`, ...). Consumers dispatch on it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "inputs": {
+          "description": "Entities this artifact was computed from (lineage, not access grants).",
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "media_type": {
+          "description": "IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "media_type",
+        "byte_length",
+        "origin",
+        "created_at"
+      ],
+      "type": "object"
+    },
+    "BundleAudience": {
+      "description": "Who may receive a bundle. Builder bundles (models, lab, authoring) never contain test outcomes;\nthose live in a separate evaluator bundle that is not mounted in builder workspaces.",
+      "enum": [
+        "builder",
+        "evaluator"
+      ],
+      "type": "string"
+    },
+    "ColumnRole": {
+      "oneOf": [
+        {
+          "enum": [
+            "run_id",
+            "value",
+            "uncertainty",
+            "condition",
+            "flag"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "time",
+          "description": "Seconds since the bundle's `time_origin`.",
+          "type": "string"
+        },
+        {
+          "const": "available_at",
+          "description": "Time the value became available to an observer (seconds since `time_origin`).",
+          "type": "string"
+        },
+        {
+          "const": "locator",
+          "description": "Serialized `SourceLocator` / evidence id of the row.",
+          "type": "string"
+        }
+      ]
+    },
+    "ColumnSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "role": {
+          "$ref": "#/$defs/ColumnRole"
+        },
+        "unit": {
+          "description": "SI unit of the stored values; display conversions never change it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "role",
+        "nullable"
+      ],
+      "type": "object"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "DatasetSchema": {
+      "description": "Wire tag of dataset and visual observation bundles.",
+      "enum": [
+        "dataset.v1"
+      ],
+      "type": "string"
+    },
+    "DatasetView": {
+      "additionalProperties": false,
+      "description": "One columnar view of the bundle (Parquet artifact).",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/ColumnSpec"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "row_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "artifact",
+        "columns",
+        "row_count"
+      ],
+      "type": "object"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "JobId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "Producer": {
+      "additionalProperties": false,
+      "description": "What produced an artifact (all optional: an ingestion artifact has no episode).",
+      "properties": {
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "job_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolCallId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    },
+    "ToolCallId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/DatasetBundle",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A curated dataset for one family/target: cohort, split and the partitions it contains, source\nmanifest hash, time origin, columnar views with units, a quality report and the inclusion\ncriteria. Content-addressed by [`DatasetBundle::content_digest`].",
+  "properties": {
+    "audience": {
+      "$ref": "#/$defs/BundleAudience"
+    },
+    "cohort_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "dataset_id": {
+      "$ref": "#/$defs/DatasetId"
+    },
+    "family": {
+      "$ref": "#/$defs/Family"
+    },
+    "inclusion_criteria": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "type": "object"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "partitions": {
+      "items": {
+        "$ref": "#/$defs/Partition"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "quality_report": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/DatasetSchema"
+    },
+    "source_manifest_hash": {
+      "type": "string"
+    },
+    "split_id": {
+      "type": "string"
+    },
+    "time_origin": {
+      "description": "Event that defines t = 0 for every time column (e.g. `ignition`, `igniter_retracted`).",
+      "type": "string"
+    },
+    "views": {
+      "items": {
+        "$ref": "#/$defs/DatasetView"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "dataset_id",
+    "family",
+    "audience",
+    "cohort_id",
+    "split_id",
+    "partitions",
+    "source_manifest_hash",
+    "time_origin",
+    "views",
+    "origin",
+    "created_at"
+  ],
+  "title": "DatasetBundle",
+  "type": "object"
+}

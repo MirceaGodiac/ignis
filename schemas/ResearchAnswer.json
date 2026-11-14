@@ -1,0 +1,778 @@
+{
+  "$defs": {
+    "AnswerBlock": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "claim_ids": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ClaimId"
+              },
+              "type": "array"
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "const": "text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "text"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "caption": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "artifact_id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "AnswerId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "AnswerStatus": {
+      "oneOf": [
+        {
+          "enum": [
+            "complete",
+            "partial",
+            "failed"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "insufficient_evidence",
+          "description": "A useful conclusion: the data to answer does not exist (yet), and the answer says what is missing.",
+          "type": "string"
+        }
+      ]
+    },
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download\nlink is resolved through the access service, may expire, and does not change the artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "byte_length": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract": {
+          "description": "Exported contract type of the content when it is a JSON/JSONL contract document\n(`\"AnalysisArtifact\"`, `\"ResearchAnswer\"`, ...). Consumers dispatch on it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "inputs": {
+          "description": "Entities this artifact was computed from (lineage, not access grants).",
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "media_type": {
+          "description": "IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "media_type",
+        "byte_length",
+        "origin",
+        "created_at"
+      ],
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "$ref": "#/$defs/ClaimId"
+        },
+        "kind": {
+          "$ref": "#/$defs/ClaimKind"
+        },
+        "support": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ClaimSupport"
+          },
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim_id",
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "ClaimId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ClaimKind": {
+      "description": "What a claim asserts. The kind fixes what may support it, so a prediction cannot be reported as\na measurement and a computed value cannot be cited to prose.",
+      "oneOf": [
+        {
+          "const": "source_reports",
+          "description": "\"Paper X reports ...\" (evidence).",
+          "type": "string"
+        },
+        {
+          "const": "observed",
+          "description": "A measured value (evidence of class original_observation or source_derived).",
+          "type": "string"
+        },
+        {
+          "const": "computed",
+          "description": "Computed by IGNIS (an artifact value).",
+          "type": "string"
+        },
+        {
+          "const": "predicted",
+          "description": "A model prediction (a value in an `AnalysisArtifact`).",
+          "type": "string"
+        },
+        {
+          "const": "interpretation",
+          "description": "The agent's interpretation; may cite anything or nothing.",
+          "type": "string"
+        }
+      ]
+    },
+    "ClaimSupport": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "evidence_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A value inside an artifact, addressed by an RFC 6901 JSON Pointer, so numbers in the text are\nbound to the computed field instead of being transcribed.",
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact_value",
+              "type": "string"
+            },
+            "pointer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "artifact_id",
+            "pointer"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceClass": {
+      "enum": [
+        "original_observation",
+        "source_derived",
+        "ignis_derived",
+        "model_output",
+        "synthetic"
+      ],
+      "type": "string"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A citable pointer into one source version. Verifiable only against that version's asset and\nparse view. Holding an `EvidenceRef` grants no access to restricted originals.",
+      "properties": {
+        "evidence_class": {
+          "$ref": "#/$defs/EvidenceClass"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/EvidenceId"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent for a metadata-only citation (bytes not obtained: listing or access-gated record)."
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "parse_view_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ParseViewId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quote": {
+          "description": "Exact citable text from the parse view (not the normalized index text).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_id": {
+          "$ref": "#/$defs/SourceId"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_id",
+        "evidence_class",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "JobId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "ParseViewId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Producer": {
+      "additionalProperties": false,
+      "description": "What produced an artifact (all optional: an ingestion artifact has no episode).",
+      "properties": {
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "job_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolCallId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ResearchSchema": {
+      "description": "Wire tag of episodes, events and answers.",
+      "enum": [
+        "research.v1"
+      ],
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    },
+    "ToolCallId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ResearchAnswer",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The answer of a turn: text blocks bound to claims, claims bound to evidence or artifact values,\nlimitations, and the releases used.",
+  "properties": {
+    "answer_id": {
+      "$ref": "#/$defs/AnswerId"
+    },
+    "artifacts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "type": "array"
+    },
+    "blocks": {
+      "items": {
+        "$ref": "#/$defs/AnswerBlock"
+      },
+      "type": "array"
+    },
+    "claims": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "type": "array"
+    },
+    "created_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "episode_id": {
+      "$ref": "#/$defs/EpisodeId"
+    },
+    "evidence": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/EvidenceRef"
+      },
+      "type": "array"
+    },
+    "limitations": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "model_releases": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ReleaseId"
+      },
+      "type": "array"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/ResearchSchema"
+    },
+    "status": {
+      "$ref": "#/$defs/AnswerStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "answer_id",
+    "episode_id",
+    "status",
+    "blocks",
+    "origin",
+    "created_at"
+  ],
+  "title": "ResearchAnswer",
+  "type": "object"
+}

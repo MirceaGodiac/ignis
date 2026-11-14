@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ForecastInput": {
+      "description": "Input of a forecast: a stored run cut at `cutoff_s` (the numeric service builds the\n`PrefixBundle`), or an already admitted prefix by its `input_hash`. Never a prefix assembled by a\nlanguage model from text.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "cutoff_s": {
+              "type": "number"
+            },
+            "kind": {
+              "const": "stored_run",
+              "type": "string"
+            },
+            "run_id": {
+              "$ref": "#/$defs/RunId"
+            }
+          },
+          "required": [
+            "kind",
+            "run_id",
+            "cutoff_s"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "input_hash": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "prefix",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "input_hash"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "ForecastSettings": {
+      "additionalProperties": false,
+      "description": "Settings of a forecast request (strict: unknown fields are refused).",
+      "properties": {
+        "horizon_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n_points": {
+          "default": null,
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "quantile_levels": {
+          "default": null,
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "seed": {
+          "default": 0,
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "times_s": {
+          "description": "Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one\ntime grid so that event metrics compare like with like.",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WspSchema": {
+      "description": "Wire tag of model specs, patches, build manifests and forecast requests.",
+      "enum": [
+        "wsp.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ForecastRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "client_request_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ClientRequestId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "input": {
+      "$ref": "#/$defs/ForecastInput"
+    },
+    "release_id": {
+      "$ref": "#/$defs/ReleaseId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/WspSchema"
+    },
+    "settings": {
+      "$ref": "#/$defs/ForecastSettings",
+      "default": {
+        "horizon_s": null,
+        "n_points": null,
+        "quantile_levels": null,
+        "seed": 0
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_id",
+    "input"
+  ],
+  "title": "ForecastRequest",
+  "type": "object"
+}

@@ -1,0 +1,23 @@
+{
+  "$defs": {
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ReleaseRef",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Argument of `models_inspect`.",
+  "properties": {
+    "release_id": {
+      "$ref": "#/$defs/ReleaseId"
+    }
+  },
+  "required": [
+    "release_id"
+  ],
+  "title": "ReleaseRef",
+  "type": "object"
+}

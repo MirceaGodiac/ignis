@@ -1,0 +1,40 @@
+{
+  "$id": "ignis/2.1.0/AcquisitionAction",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cost": {
+      "format": "double",
+      "type": "number"
+    },
+    "id": {
+      "type": "string"
+    },
+    "observation_id": {
+      "type": "string"
+    },
+    "quality": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "time_s": {
+      "format": "double",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "run_id",
+    "observation_id",
+    "time_s",
+    "cost"
+  ],
+  "title": "AcquisitionAction",
+  "type": "object"
+}

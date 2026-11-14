@@ -1,0 +1,52 @@
+{
+  "$defs": {
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/Investigation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "families": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Family"
+      },
+      "type": "array"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "platform": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "name"
+  ],
+  "title": "Investigation",
+  "type": "object"
+}

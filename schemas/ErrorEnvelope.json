@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ErrorCode": {
+      "description": "Technical failure classes. Scientific outcomes (insufficient evidence, out of domain) are *not*\nerrors; they are `ScientificStatus` values of a completed call.",
+      "oneOf": [
+        {
+          "enum": [
+            "invalid_request",
+            "scope_denied",
+            "not_found",
+            "unsupported",
+            "conflict",
+            "rate_limited",
+            "upstream_unavailable",
+            "cancelled",
+            "internal"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "source_missing",
+          "description": "A referenced source/asset is not materialized (listing or metadata only).",
+          "type": "string"
+        },
+        {
+          "const": "capability_unavailable",
+          "description": "A required service or backend is not available in this deployment.",
+          "type": "string"
+        }
+      ]
+    },
+    "RetryPolicy": {
+      "description": "What a caller may do after an error. `reconcile` means the effect is uncertain: inspect state\nbefore any retry, never re-run blindly.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "never",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "after_delay",
+              "type": "string"
+            },
+            "seconds": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "kind",
+            "seconds"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "after_user_action",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "reconcile",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "$id": "ignis/2.1.0/ErrorEnvelope",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The one error shape of services, tools, jobs and the HTTP API.",
+  "properties": {
+    "code": {
+      "$ref": "#/$defs/ErrorCode"
+    },
+    "log_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Redacted log artifact, when one exists."
+    },
+    "message": {
+      "type": "string"
+    },
+    "retry": {
+      "$ref": "#/$defs/RetryPolicy"
+    }
+  },
+  "required": [
+    "code",
+    "message",
+    "retry"
+  ],
+  "title": "ErrorEnvelope",
+  "type": "object"
+}

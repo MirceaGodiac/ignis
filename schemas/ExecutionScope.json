@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "Capability": {
+      "description": "Actions a scope may perform. Tools declare the capabilities they need (`ToolDescriptor`).",
+      "enum": [
+        "read_sources",
+        "read_data",
+        "run_models",
+        "execute_code",
+        "network_fetch",
+        "workspace_write",
+        "wiki_write",
+        "external_write"
+      ],
+      "type": "string"
+    },
+    "CorpusSnapshotId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "PrincipalId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ScopeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ScopeRole": {
+      "description": "What a scope is for. Only `evaluation` may read the final-test partition; `authoring` (WSP\nweight authoring) may not execute code, so no fitter can hide behind a shell.",
+      "enum": [
+        "research",
+        "authoring",
+        "evaluation",
+        "ingestion"
+      ],
+      "type": "string"
+    },
+    "WorkspaceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ExecutionScope",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The data and actions a request may touch. Derived by the host from authentication and episode\nmembership and passed to services as a separate argument: it is never part of a client request\nbody, a tool argument or a prompt, so a model or a document cannot widen it.",
+  "properties": {
+    "capabilities": {
+      "items": {
+        "$ref": "#/$defs/Capability"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "corpus_snapshot": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CorpusSnapshotId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "parent_scope_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ScopeId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "partitions": {
+      "description": "Split partitions whose *outcomes* may be read. Absent partitions are refused.",
+      "items": {
+        "$ref": "#/$defs/Partition"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "principal": {
+      "$ref": "#/$defs/PrincipalId"
+    },
+    "role": {
+      "$ref": "#/$defs/ScopeRole"
+    },
+    "scope_id": {
+      "$ref": "#/$defs/ScopeId"
+    },
+    "workspace_id": {
+      "$ref": "#/$defs/WorkspaceId"
+    }
+  },
+  "required": [
+    "scope_id",
+    "workspace_id",
+    "principal",
+    "role",
+    "partitions",
+    "capabilities"
+  ],
+  "title": "ExecutionScope",
+  "type": "object"
+}

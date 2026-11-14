@@ -1,0 +1,838 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download\nlink is resolved through the access service, may expire, and does not change the artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "byte_length": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract": {
+          "description": "Exported contract type of the content when it is a JSON/JSONL contract document\n(`\"AnalysisArtifact\"`, `\"ResearchAnswer\"`, ...). Consumers dispatch on it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "inputs": {
+          "description": "Entities this artifact was computed from (lineage, not access grants).",
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "media_type": {
+          "description": "IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "media_type",
+        "byte_length",
+        "origin",
+        "created_at"
+      ],
+      "type": "object"
+    },
+    "CaseAccounting": {
+      "additionalProperties": false,
+      "description": "Every case of the protocol is counted: failures and refusals stay in the denominator.",
+      "properties": {
+        "failed": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "refused": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scored": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "scored",
+        "refused",
+        "failed"
+      ],
+      "type": "object"
+    },
+    "CaseFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/CaseFailureKind"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/$defs/ReleaseId"
+        }
+      },
+      "required": [
+        "case_id",
+        "subject",
+        "kind",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "CaseFailureKind": {
+      "enum": [
+        "refused",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ComputeUsage": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_time_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "wall_time_s": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "wall_time_s"
+      ],
+      "type": "object"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvaluationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvaluationPurpose": {
+      "oneOf": [
+        {
+          "const": "development_feedback",
+          "description": "Repeatable feedback on train/validation, shown to authors (W1).",
+          "type": "string"
+        },
+        {
+          "const": "final_test",
+          "description": "The lockbox run on the frozen protocol. Results are not shown to authors as feedback.",
+          "type": "string"
+        }
+      ]
+    },
+    "EvaluationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "baselines": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ModelUnderTest"
+          },
+          "type": "array"
+        },
+        "candidate": {
+          "$ref": "#/$defs/ModelUnderTest"
+        },
+        "client_request_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClientRequestId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cutoffs_s": {
+          "description": "Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.",
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "dataset_hash": {
+          "$ref": "#/$defs/Digest",
+          "description": "`DatasetBundle::content_digest` of the bundle evaluated."
+        },
+        "dataset_id": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/MetricSpec"
+          },
+          "type": "array"
+        },
+        "partition": {
+          "$ref": "#/$defs/Partition"
+        },
+        "protocol": {
+          "$ref": "#/$defs/ProtocolRef"
+        },
+        "purpose": {
+          "$ref": "#/$defs/EvaluationPurpose"
+        },
+        "request_id": {
+          "$ref": "#/$defs/EvaluationId"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/EvaluationSchema"
+        },
+        "split_id": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "unit": {
+          "description": "SI unit of the target; must equal `target`'s.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "request_id",
+        "purpose",
+        "protocol",
+        "target",
+        "unit",
+        "dataset_id",
+        "dataset_hash",
+        "split_id",
+        "partition",
+        "candidate",
+        "cutoffs_s",
+        "metrics"
+      ],
+      "type": "object"
+    },
+    "EvaluationSchema": {
+      "description": "Wire tag of evaluation requests and results.",
+      "enum": [
+        "evaluation.v1"
+      ],
+      "type": "string"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ForecastSettings": {
+      "additionalProperties": false,
+      "description": "Settings of a forecast request (strict: unknown fields are refused).",
+      "properties": {
+        "horizon_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n_points": {
+          "default": null,
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "quantile_levels": {
+          "default": null,
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "seed": {
+          "default": 0,
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "times_s": {
+          "description": "Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one\ntime grid so that event metrics compare like with like.",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "JobId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "MetricSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "description": "Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`).",
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "version"
+      ],
+      "type": "object"
+    },
+    "MetricValue": {
+      "additionalProperties": false,
+      "properties": {
+        "group": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Group key (e.g. `{\"fuel\": \"heptane\"}`); absent for the overall value.",
+          "type": "object"
+        },
+        "metric": {
+          "type": "string"
+        },
+        "n": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "population": {
+          "$ref": "#/$defs/Population"
+        },
+        "subject": {
+          "$ref": "#/$defs/ReleaseId"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value": {
+          "description": "Absent when undefined (no cases), never zero by default.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "version",
+        "subject",
+        "population",
+        "unit",
+        "n"
+      ],
+      "type": "object"
+    },
+    "ModelUnderTest": {
+      "additionalProperties": false,
+      "description": "A model under evaluation: release, forward code identity and the settings it runs with.",
+      "properties": {
+        "forward_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "$ref": "#/$defs/ReleaseId"
+        },
+        "settings": {
+          "$ref": "#/$defs/ForecastSettings",
+          "default": {
+            "horizon_s": null,
+            "n_points": null,
+            "quantile_levels": null,
+            "seed": 0
+          }
+        }
+      },
+      "required": [
+        "release_id"
+      ],
+      "type": "object"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "Population": {
+      "description": "Population a metric is computed over. Conditional quality (scored cases only) is always shown\nnext to coverage over all cases.",
+      "enum": [
+        "scored_cases",
+        "all_cases"
+      ],
+      "type": "string"
+    },
+    "Producer": {
+      "additionalProperties": false,
+      "description": "What produced an artifact (all optional: an ingestion artifact has no episode).",
+      "properties": {
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "job_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolCallId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ProtocolRef": {
+      "additionalProperties": false,
+      "properties": {
+        "frozen_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test."
+        },
+        "protocol_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocol_id",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    },
+    "ToolCallId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Verdict": {
+      "description": "What the result says about the candidate's qualification for the declared target.",
+      "oneOf": [
+        {
+          "enum": [
+            "not_assessed",
+            "inconclusive",
+            "not_qualified"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "qualified",
+          "description": "Only from a system-produced final test on a frozen protocol.",
+          "type": "string"
+        }
+      ]
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/EvaluationResult",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cases": {
+      "$ref": "#/$defs/CaseAccounting"
+    },
+    "compute": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ComputeUsage"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coverage": {
+      "description": "`scored / total` for the candidate (0 when there are no cases).",
+      "type": "number"
+    },
+    "created_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "failures": {
+      "default": [],
+      "description": "Candidate failures; when `per_case` is absent this list is complete.",
+      "items": {
+        "$ref": "#/$defs/CaseFailure"
+      },
+      "type": "array"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/MetricValue"
+      },
+      "type": "array"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "per_case": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Per-case outputs and scores (Parquet/JSONL)."
+    },
+    "request": {
+      "$ref": "#/$defs/EvaluationRequest",
+      "description": "The request, embedded so a result is self-describing."
+    },
+    "request_hash": {
+      "$ref": "#/$defs/Digest"
+    },
+    "result_id": {
+      "$ref": "#/$defs/EvaluationId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvaluationSchema"
+    },
+    "verdict": {
+      "$ref": "#/$defs/Verdict"
+    }
+  },
+  "required": [
+    "schema_version",
+    "result_id",
+    "request",
+    "request_hash",
+    "cases",
+    "coverage",
+    "metrics",
+    "verdict",
+    "origin",
+    "created_at"
+  ],
+  "title": "EvaluationResult",
+  "type": "object"
+}
