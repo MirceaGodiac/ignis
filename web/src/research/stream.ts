@@ -4,7 +4,7 @@
 // runs against /api/v1 and against the fixture transport. Pure module: type-only imports.
 
 import type { ErrorEnvelope, EpisodeStatus, ResearchEpisode, ResearchEvent } from "../contracts/generated";
-import { applyEvent, resyncFromSnapshot, type EpisodeState } from "./eventLog.ts";
+import { applyEvent, emptyState, resyncFromSnapshot, type EpisodeState } from "./eventLog.ts";
 import { SseParser } from "./sse.ts";
 
 export interface StreamTransport {
@@ -20,6 +20,7 @@ export type StreamNotice =
   | { kind: "gap"; expected: number; got: number }
   | { kind: "foreign_event"; episode_id: string }
   | { kind: "resync"; from: number; to: number }
+  | { kind: "restart"; reason: string }
   | { kind: "error"; error: ErrorEnvelope; http_status: number | null }
   | { kind: "gave_up"; reason: string };
 
@@ -68,8 +69,9 @@ export async function followEpisode(transport: StreamTransport, initial: Episode
     onState(s);
   };
 
+  // A terminal status does not stop the loop by itself: a log can continue past it (a later
+  // message reopens the episode), so the stream is always opened at least once from the cursor.
   while (!signal.aborted) {
-    if (state.status && TERMINAL.includes(state.status)) return state;
     if (idle > maxIdle) {
       notice({ kind: "gave_up", reason: `${idle} reconnects without progress` });
       return state;
@@ -92,8 +94,17 @@ export async function followEpisode(transport: StreamTransport, initial: Episode
       try {
         const ep = await transport.getEpisode(state.episode_id, signal);
         const before = state.cursor;
+        if (ep.last_seq < before) {
+          // The server's log is behind our cursor: it is not the log we followed (a reset store or
+          // another instance). Start again from its beginning, after a back-off, never in a tight loop.
+          notice({ kind: "restart", reason: `server log ends at seq ${ep.last_seq}, our cursor is ${before}` });
+          publish({ ...emptyState(state.episode_id), status: ep.status });
+          idle++;
+          continue;
+        }
         const next = resyncFromSnapshot(state, ep);
         if (next.cursor > before) notice({ kind: "resync", from: before + 1, to: next.cursor });
+        else idle++; // nothing new: back off before the next attempt
         publish(next);
       } catch (err) {
         if (signal.aborted) break;
@@ -147,6 +158,9 @@ export async function followEpisode(transport: StreamTransport, initial: Episode
       reader.cancel().catch(() => {});
     }
     if (!reconnect) notice({ kind: "ended", cursor: state.cursor });
+    // A stream that closed at a terminal status with nothing new: the episode is settled. When it
+    // brought events, reconnect once more, in case the connection dropped before the rest of the log.
+    if (!reconnect && !progressed && state.status && TERMINAL.includes(state.status)) return state;
     idle = progressed ? 0 : idle + 1;
   }
   return state;

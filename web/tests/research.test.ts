@@ -82,9 +82,10 @@ test("stream cut at a cursor and resumed with overlap equals the full replay, no
       (after) => sseResponse(EVENTS.slice(Math.max(0, after - 3))), // server resends an overlap
     ]);
     const { state, notices } = await follow(t);
-    assert.deepEqual(calls, [0, k], `k=${k}`);
+    // After the terminal status the client checks once more from its cursor (the log may continue).
+    assert.deepEqual(calls, [0, k, 15], `k=${k}`);
     assert.deepEqual(state, FULL, `k=${k}`);
-    assert.equal(notices.filter((n) => n.kind === "duplicate").length, Math.min(3, k), `k=${k}`);
+    assert.equal(notices.filter((n) => n.kind === "duplicate").length, Math.min(3, k) + 3, `k=${k}`);
   }
 });
 
@@ -93,21 +94,50 @@ test("a gap is not applied; the client resumes from its cursor", async () => {
   const { t, calls } = scripted([() => sseResponse(withGap), (after) => sseResponse(EVENTS.slice(after))]);
   const { state, notices } = await follow(t);
   assert.deepEqual(notices.find((n) => n.kind === "gap"), { kind: "gap", expected: 6, got: 8 });
-  assert.deepEqual(calls, [0, 5]);
+  assert.deepEqual(calls, [0, 5, 15]);
   assert.deepEqual(state, FULL);
 });
 
 test("410 reloads the episode snapshot and records the unseen range", async () => {
   const snapshot: ResearchEpisode = { ...EPISODE, status: "completed" };
   const gone = () => new Response(JSON.stringify({ code: "conflict", message: "log truncated", retry: { kind: "never" } }), { status: 410 });
-  const { t, calls } = scripted([() => sseResponse(EVENTS.slice(0, 5)), gone], snapshot);
+  const { t, calls } = scripted([() => sseResponse(EVENTS.slice(0, 5)), gone, () => sseResponse([])], snapshot);
   const { state, notices } = await follow(t);
-  assert.deepEqual(calls, [0, 5]);
+  assert.deepEqual(calls, [0, 5, 15]);
   assert.equal(state.cursor, snapshot.last_seq);
   assert.equal(state.status, "completed");
   assert.deepEqual(state.missing, [{ from: 6, to: 15 }]);
   assert.ok(notices.some((n) => n.kind === "resync"));
   assert.equal(state.events.length, 5, "events never seen are not invented");
+});
+
+test("a 410 whose snapshot is behind the cursor replays from the start, with back-off, not in a tight loop", async () => {
+  const behind: ResearchEpisode = { ...EPISODE, status: "running", last_seq: 3 };
+  const gone = () => new Response("{}", { status: 410 });
+  const { t, calls } = scripted([() => sseResponse(EVENTS.slice(0, 5)), gone, () => sseResponse(EVENTS)], behind);
+  const sleeps: number[] = [];
+  const notices: StreamNotice[] = [];
+  const state = await followEpisode(t, emptyState(EP), {
+    signal: new AbortController().signal,
+    onState: () => {},
+    onNotice: (n) => notices.push(n),
+    sleep: async (ms) => void sleeps.push(ms),
+  });
+  assert.deepEqual(calls.slice(0, 3), [0, 5, 0], "after the restart the client reads the server's log from seq 0");
+  assert.ok(notices.some((n) => n.kind === "restart"));
+  assert.ok(sleeps.length >= 1, "the restart backs off");
+  assert.equal(state.cursor, 15);
+  assert.ok(calls.length < 10, `bounded requests, got ${calls.length}`);
+});
+
+test("a drop exactly at a terminal status does not lose the events after it", async () => {
+  const later: ResearchEvent = { ...EVENTS[0], seq: 16, event_id: "later", body: { kind: "message.user", payload: { message_id: "m16", text: "Follow-up" } } };
+  const log = [...EVENTS, later];
+  const { t, calls } = scripted([() => sseResponse(log.slice(0, 15)), (after) => sseResponse(log.slice(after))]);
+  const { state } = await follow(t);
+  assert.equal(state.cursor, 16);
+  assert.equal(state.messages.m16.text, "Follow-up");
+  assert.deepEqual(calls, [0, 15, 16]);
 });
 
 test("an HTTP error carries its ErrorEnvelope and the loop gives up without progress", async () => {
@@ -140,6 +170,12 @@ test("SSE parser handles split chunks, CRLF, comments and multi-line data", () =
   const p = new SseParser();
   const frames = [...p.push(": hb\r\nid: 7\r\nevent: x\r\nda"), ...p.push("ta: a\r\ndata: b\r\n\r\n")];
   assert.deepEqual(frames, [{ id: "7", event: "x", data: "a\nb" }]);
+});
+
+test("SSE parser waits when a chunk ends between CR and LF", () => {
+  const p = new SseParser();
+  const frames = [...p.push("id: 3\r"), ...p.push("\nevent: x\r\ndata: a\r"), ...p.push("\n\r\n")];
+  assert.deepEqual(frames, [{ id: "3", event: "x", data: "a" }]);
 });
 
 test("pixel_only observations never get a metre axis", () => {
