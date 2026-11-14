@@ -1,0 +1,18 @@
+[package]
+name = "ignis-flex"
+description = "FLEX experts: physics-neural droplet model (flex.v3), V1, D^2 population and prefix baselines"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-science = { path = "../ignis-science" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+toml.workspace = true
+chrono.workspace = true
+rand = "0.10"
+rand_distr = "0.6"
