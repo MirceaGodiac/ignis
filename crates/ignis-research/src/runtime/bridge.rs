@@ -866,6 +866,21 @@ impl Inner {
             live.revoke_mcp();
             return Err(unavailable(format!("handshake: {e}")));
         }
+        // API-key mode: the app-server only authenticates through an explicit login (it ignores
+        // the key in its environment), so every process is logged in right after the handshake.
+        if let Some(key) = self.cfg.api_key() {
+            if let Err(e) = rpc.request(
+                "account/login/start",
+                json!({"type": "apiKey", "apiKey": key}),
+                self.cfg.request_timeout,
+            ) {
+                rpc.kill();
+                live.revoke_mcp();
+                return Err(unavailable(format!(
+                    "log the runtime in with the API key: {e}"
+                )));
+            }
+        }
         let mut st = self.lock();
         if st.shutdown {
             rpc.kill();
