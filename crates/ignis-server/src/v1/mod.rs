@@ -946,6 +946,7 @@ async fn read_page(
         .require(Capability::ReadSources)
         .map_err(|e| ApiError::from(ErrorEnvelope::from(e)))?;
     let req = ReadRequest {
+        response_format: None,
         schema_version: Default::default(),
         source_id: p.id,
         parse_view_id: q.parse_view_id,

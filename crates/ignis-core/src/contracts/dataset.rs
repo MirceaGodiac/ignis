@@ -11,18 +11,34 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use super::common::{
-    ensure, schema_tag, ArtifactRef, ContractError, DatasetId, Finite, Origin, RunId, SourceId,
-    Timestamp, VisualBundleId,
+    ensure, ArtifactRef, ContractError, CorpusSnapshotId, DatasetId, Finite, Origin, PageCursor,
+    RunId, SourceId, Timestamp, VisualBundleId,
 };
 use super::{
-    ContourStatus, Derivation, EvidenceClass, Family, Partition, Quantity, Resolution,
-    SourceLocator,
+    ContourStatus, Derivation, EvidenceClass, Family, Measured, Partition, Quantity, RawValue,
+    Resolution, SourceLocator,
 };
 
-schema_tag!(
-    /// Wire tag of dataset and visual observation bundles.
-    DatasetSchema = "dataset.v1"
-);
+/// Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
+/// `dataset.v1` (C0) documents are still read, and keep their content digests because a
+/// document is re-serialized with the tag it was read with. New document types require v2.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, JsonSchema)]
+pub enum DatasetSchema {
+    /// C0. Still read; new documents are written as v2.
+    #[serde(rename = "dataset.v1")]
+    V1,
+    #[default]
+    #[serde(rename = "dataset.v2")]
+    V2,
+}
+
+impl DatasetSchema {
+    fn require_v2(self, contract: &'static str) -> Result<(), ContractError> {
+        ensure(self == DatasetSchema::V2, contract, || {
+            format!("{contract} needs schema_version dataset.v2")
+        })
+    }
+}
 
 /// Who may receive a bundle. Builder bundles (models, lab, authoring) never contain test outcomes;
 /// those live in a separate evaluator bundle that is not mounted in builder workspaces.
@@ -301,5 +317,363 @@ impl ImageContourObservation {
             "available before observed".into()
         })?;
         self.locator.validate()
+    }
+}
+
+// ---------------------------------------------------------------- experimental conditions
+
+/// A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
+/// [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
+/// catalog is closed: a new key is a contract change.
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum ConditionKey {
+    OxygenMoleFraction,
+    Pressure,
+    FlowVelocity,
+    GravityLevel,
+    AmbientTemperature,
+    Fuel,
+    Diluent,
+    SampleGeometry,
+    Hardware,
+    Diagnostics,
+}
+
+impl ConditionKey {
+    /// The quantity of a numeric key; `None` for a categorical one.
+    pub fn quantity(self) -> Option<Quantity> {
+        use ConditionKey::*;
+        match self {
+            OxygenMoleFraction => Some(Quantity::MoleFraction),
+            Pressure => Some(Quantity::Pressure),
+            FlowVelocity => Some(Quantity::FlowVelocity),
+            GravityLevel => Some(Quantity::GravityLevel),
+            AmbientTemperature => Some(Quantity::Temperature),
+            Fuel | Diluent | SampleGeometry | Hardware | Diagnostics => None,
+        }
+    }
+}
+
+fn check_measured(c: &'static str, key: ConditionKey, m: &Measured) -> Result<(), ContractError> {
+    let l = m.locator.as_ref().ok_or_else(|| {
+        ContractError::new(
+            c,
+            format!("{key:?}: a value keeps the locator of its original"),
+        )
+    })?;
+    l.validate()?;
+    match key.quantity() {
+        Some(q) => {
+            ensure(matches!(m.raw_value, Some(RawValue::Number(_))), c, || {
+                format!("{key:?}: a numeric condition keeps its raw number")
+            })?;
+            ensure(m.value_si.is_some_and(f64::is_finite), c, || {
+                format!("{key:?}: missing or non-finite SI value")
+            })?;
+            ensure(m.unit_si.as_deref() == Some(q.unit_si()), c, || {
+                format!("{key:?} is stored in {}", q.unit_si())
+            })
+        }
+        None => ensure(
+            matches!(&m.raw_value, Some(RawValue::Text(t)) if !t.trim().is_empty())
+                && m.value_si.is_none(),
+            c,
+            || format!("{key:?}: a categorical condition is text without an SI value"),
+        ),
+    }
+}
+
+/// One cell of the conditions matrix. A gap is a status with a reason, never an absent cell or a
+/// zero. Conditions are experimental inputs, not outcomes; durations and endpoints never appear here.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ConditionCell {
+    /// Raw value, raw unit, SI value and locator of the original.
+    Value {
+        key: ConditionKey,
+        value: Measured,
+    },
+    /// Sources disagree; every candidate is kept.
+    Conflicting {
+        key: ConditionKey,
+        candidates: Vec<Measured>,
+        reason: String,
+    },
+    Missing {
+        key: ConditionKey,
+        reason: String,
+    },
+    NotApplicable {
+        key: ConditionKey,
+        reason: String,
+    },
+}
+
+impl ConditionCell {
+    pub fn key(&self) -> ConditionKey {
+        match self {
+            ConditionCell::Value { key, .. }
+            | ConditionCell::Conflicting { key, .. }
+            | ConditionCell::Missing { key, .. }
+            | ConditionCell::NotApplicable { key, .. } => *key,
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ConditionCell";
+        match self {
+            ConditionCell::Value { key, value } => check_measured(c, *key, value),
+            ConditionCell::Conflicting {
+                key,
+                candidates,
+                reason,
+            } => {
+                ensure(candidates.len() >= 2, c, || {
+                    format!("{key:?}: a conflict has at least two candidates")
+                })?;
+                ensure(!reason.trim().is_empty(), c, || {
+                    "a conflict says why".into()
+                })?;
+                candidates
+                    .iter()
+                    .try_for_each(|m| check_measured(c, *key, m))
+            }
+            ConditionCell::Missing { key, reason }
+            | ConditionCell::NotApplicable { key, reason } => {
+                ensure(!reason.trim().is_empty(), c, || {
+                    format!("{key:?}: a gap says why")
+                })
+            }
+        }
+    }
+}
+
+/// The conditions of one run (or of an investigation-level test point when the run is unresolved).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ConditionsRow {
+    pub investigation_id: String,
+    pub run: RunIdentity,
+    pub cells: Vec<ConditionCell>,
+}
+
+/// What an investigation tested for one key, over its runs.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
+pub enum EnvelopeEntry {
+    /// Numeric key: closed range of the measured SI values.
+    Range {
+        key: ConditionKey,
+        min_si: Finite,
+        max_si: Finite,
+        unit_si: String,
+        runs: u64,
+    },
+    /// Categorical key: the values tested.
+    Values {
+        key: ConditionKey,
+        values: BTreeSet<String>,
+        runs: u64,
+    },
+    Missing {
+        key: ConditionKey,
+        reason: String,
+    },
+}
+
+impl EnvelopeEntry {
+    fn key(&self) -> ConditionKey {
+        match self {
+            EnvelopeEntry::Range { key, .. }
+            | EnvelopeEntry::Values { key, .. }
+            | EnvelopeEntry::Missing { key, .. } => *key,
+        }
+    }
+}
+
+/// The tested envelope of one investigation: what a habitat atmosphere is compared against. Outside
+/// it is "outside the tested envelope", never an extrapolation.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct InvestigationEnvelope {
+    pub investigation_id: String,
+    pub runs: u64,
+    pub entries: Vec<EnvelopeEntry>,
+}
+
+impl InvestigationEnvelope {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "InvestigationEnvelope";
+        let mut keys = BTreeSet::new();
+        for e in &self.entries {
+            let k = e.key();
+            ensure(keys.insert(k), c, || format!("{k:?} listed twice"))?;
+            match e {
+                EnvelopeEntry::Range {
+                    min_si,
+                    max_si,
+                    unit_si,
+                    runs,
+                    ..
+                } => {
+                    let q = k.quantity().ok_or_else(|| {
+                        ContractError::new(c, format!("{k:?} is categorical, not a range"))
+                    })?;
+                    ensure(unit_si == q.unit_si(), c, || {
+                        format!("{k:?} is stored in {}", q.unit_si())
+                    })?;
+                    ensure(min_si.get() <= max_si.get(), c, || {
+                        format!("{k:?}: min above max")
+                    })?;
+                    ensure(*runs >= 1 && *runs <= self.runs, c, || {
+                        format!("{k:?}: run count outside the investigation's")
+                    })?;
+                }
+                EnvelopeEntry::Values { values, runs, .. } => {
+                    ensure(k.quantity().is_none(), c, || {
+                        format!("{k:?} is numeric: give a range")
+                    })?;
+                    ensure(!values.is_empty(), c, || format!("{k:?}: no values"))?;
+                    ensure(*runs >= 1 && *runs <= self.runs, c, || {
+                        format!("{k:?}: run count outside the investigation's")
+                    })?;
+                }
+                EnvelopeEntry::Missing { reason, .. } => {
+                    ensure(!reason.trim().is_empty(), c, || {
+                        format!("{k:?}: a gap says why")
+                    })?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
+/// missing or conflicting are kept only with `ConditionsQuery::include_unknown`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ConditionFilter {
+    pub key: ConditionKey,
+    /// Numeric keys, SI.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_si: Option<Finite>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_si: Option<Finite>,
+    /// Categorical keys.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub any_of: BTreeSet<String>,
+}
+
+/// `conditions_query`: per-run conditions and, on request, each investigation's tested envelope.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ConditionsQuery {
+    pub schema_version: DatasetSchema,
+    /// Empty = every investigation.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub investigation_ids: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub run_ids: Vec<RunId>,
+    /// Columns; empty = every key.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub keys: Vec<ConditionKey>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub filters: Vec<ConditionFilter>,
+    #[serde(default)]
+    pub include_unknown: bool,
+    #[serde(default)]
+    pub include_envelopes: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub page_size: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<PageCursor>,
+}
+
+impl ConditionsQuery {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ConditionsQuery";
+        self.schema_version.require_v2(c)?;
+        ensure(self.page_size != Some(0), c, || {
+            "page_size must be positive".into()
+        })?;
+        for f in &self.filters {
+            let k = f.key;
+            let bounds = f.min_si.is_some() || f.max_si.is_some();
+            if k.quantity().is_some() {
+                ensure(bounds && f.any_of.is_empty(), c, || {
+                    format!("{k:?} filters by min_si/max_si")
+                })?;
+                if let (Some(a), Some(b)) = (f.min_si, f.max_si) {
+                    ensure(a.get() <= b.get(), c, || format!("{k:?}: min above max"))?;
+                }
+            } else {
+                ensure(!bounds && !f.any_of.is_empty(), c, || {
+                    format!("{k:?} filters by any_of")
+                })?;
+            }
+        }
+        Ok(())
+    }
+}
+
+/// A page of the conditions matrix. Every row has exactly one cell per key in `keys`, so a gap is
+/// always visible.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ConditionsTable {
+    pub schema_version: DatasetSchema,
+    pub keys: Vec<ConditionKey>,
+    pub rows: Vec<ConditionsRow>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub envelopes: Vec<InvestigationEnvelope>,
+    /// Sources the table was built from (PSI experimental tables, extracted passages).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub corpus_snapshot: Option<CorpusSnapshotId>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<PageCursor>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub total_count: Option<u64>,
+    pub origin: Origin,
+}
+
+impl ConditionsTable {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ConditionsTable";
+        self.schema_version.require_v2(c)?;
+        let keys: BTreeSet<ConditionKey> = self.keys.iter().copied().collect();
+        ensure(!keys.is_empty() && keys.len() == self.keys.len(), c, || {
+            "keys are non-empty and distinct".into()
+        })?;
+        ensure(
+            self.total_count.is_none_or(|t| t >= self.rows.len() as u64),
+            c,
+            || "total_count below row count".into(),
+        )?;
+        for r in &self.rows {
+            ensure(!r.investigation_id.trim().is_empty(), c, || {
+                "empty investigation id".into()
+            })?;
+            let got: Vec<ConditionKey> = r.cells.iter().map(ConditionCell::key).collect();
+            let got_set: BTreeSet<_> = got.iter().copied().collect();
+            ensure(got.len() == got_set.len() && got_set == keys, c, || {
+                format!(
+                    "{} {:?}: one cell per key, gaps as statuses",
+                    r.investigation_id, r.run.run_id
+                )
+            })?;
+            r.cells.iter().try_for_each(ConditionCell::validate)?;
+        }
+        let mut invs = BTreeSet::new();
+        for e in &self.envelopes {
+            ensure(invs.insert(&e.investigation_id), c, || {
+                format!("envelope of {} listed twice", e.investigation_id)
+            })?;
+            e.validate()?;
+        }
+        Ok(())
     }
 }

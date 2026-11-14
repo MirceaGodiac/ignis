@@ -1,0 +1,77 @@
+{
+  "schema_version": "evidence.v2",
+  "page_id": "fixture-page-time-zero",
+  "revision": 2,
+  "parent_revision": 1,
+  "title": "Synthetic fixture: time zero of a run",
+  "items": [
+    {
+      "item_id": "fixture-item-time-zero",
+      "kind": "method",
+      "text": "Synthetic fixture: take t = 0 at igniter retraction, as the experiment table defines it.",
+      "refs": [
+        {
+          "kind": "evidence",
+          "id": "fixture-evidence-01"
+        }
+      ]
+    },
+    {
+      "item_id": "fixture-item-open-question",
+      "kind": "open_question",
+      "text": "Synthetic fixture: does the validation split show the same extinction trend?",
+      "refs": [
+        {
+          "kind": "dataset",
+          "id": "fixture-dataset-flex"
+        }
+      ],
+      "requires_partitions": [
+        "validation"
+      ]
+    }
+  ],
+  "ops": [
+    {
+      "op": "revise",
+      "item": {
+        "item_id": "fixture-item-time-zero",
+        "kind": "method",
+        "text": "Synthetic fixture: take t = 0 at igniter retraction, as the experiment table defines it.",
+        "refs": [
+          {
+            "kind": "evidence",
+            "id": "fixture-evidence-01"
+          }
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "item": {
+        "item_id": "fixture-item-open-question",
+        "kind": "open_question",
+        "text": "Synthetic fixture: does the validation split show the same extinction trend?",
+        "refs": [
+          {
+            "kind": "dataset",
+            "id": "fixture-dataset-flex"
+          }
+        ]
+      }
+    },
+    {
+      "op": "remove",
+      "item_id": "fixture-item-draft",
+      "reason": "Synthetic fixture: merged into the method item."
+    }
+  ],
+  "content_digest": "sha256:03561b834190c5e9571aeb6f6b3bc7e443de1f3f1dcc8bcb0f5e6ef5f13cf86d",
+  "author": {
+    "kind": "agent",
+    "id": "fixture-agent"
+  },
+  "episode_id": "fixture-episode-01",
+  "created_at": "2026-11-14T12:00:00Z",
+  "origin": "synthetic_fixture"
+}

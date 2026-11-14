@@ -1,0 +1,12 @@
+{
+  "schema_version": "evidence.v2",
+  "query": "investigations that tested oxygen above 30 percent (synthetic fixture query)",
+  "mode": "hybrid",
+  "filters": {
+    "source_kinds": [
+      "publication"
+    ]
+  },
+  "page_size": 10,
+  "response_format": "concise"
+}

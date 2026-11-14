@@ -369,6 +369,7 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 .map(|f| serde_json::from_value::<Family>(json!(f)).with_context(|| format!("--family {f}")))
                 .collect::<Result<Vec<_>>>()?;
             let req = SearchRequest {
+                response_format: None,
                 schema_version: EvidenceSchema::V1,
                 query,
                 mode,
@@ -394,7 +395,7 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 (None, Some(e)) => ReadRange::Passage { evidence_id: EvidenceId::new(e)? },
                 (None, None) => bail!("give --pages or --passage"),
             };
-            let req = ReadRequest { schema_version: EvidenceSchema::V1, source_id: SourceId::new(source)?, parse_view_id: None, range };
+            let req = ReadRequest { schema_version: EvidenceSchema::V1, source_id: SourceId::new(source)?, parse_view_id: None, range, response_format: None };
             emit(svc.read(&local_research_scope(), &req))
         }
         EvidenceCmd::Resolve { evidence_id, db } => {
