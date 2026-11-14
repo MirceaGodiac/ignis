@@ -38,7 +38,8 @@ pub struct Publication {
 }
 
 /// A span of one page. For text/caption chunks `text == page_text(pdf, page)[char_start..char_end]`
-/// (char indices; see [`crate::pdf::page_text`]).
+/// (Unicode-scalar indices into the parse view's page text; see [`crate::pdf::page_text`]).
+/// `id` (`<parse_view_id>:p<page>:<ordinal>`) is the evidence id of the span.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Chunk {
@@ -57,6 +58,10 @@ pub struct Chunk {
     pub context: Value,
     pub locator: SourceLocator,
     pub describes_runs: Vec<String>,
+    /// The last run named before this chunk (in reading order) when this chunk could continue its
+    /// text, e.g. a table row split at a chunk boundary. Used only to withhold, never to attribute.
+    #[serde(default)]
+    pub continues_runs: Vec<String>,
     pub outcome_bearing: bool,
     pub evidence_class: String,
 }
@@ -100,6 +105,16 @@ pub const EVIDENCE_TYPES: [&str; 7] = [
     "hypothesis",
     "absence_of_evidence",
 ];
+
+/// Id of the parse view a publication's chunks count their offsets in: the asset (via the
+/// publication id, `pub-<sha16>`) plus the parser version that defines the page text.
+/// `pv-<sha16>@<parser_version>`; a new parser version is a new view of the same bytes.
+pub fn parse_view_id(publication_id: &str, parser_version: &str) -> String {
+    let sha16 = publication_id
+        .strip_prefix("pub-")
+        .unwrap_or(publication_id);
+    format!("pv-{sha16}@{parser_version}")
+}
 
 /// `SourceLocator` as compact JSON without null fields (the catalog's `locator_json`).
 pub fn locator_json(l: &SourceLocator) -> String {

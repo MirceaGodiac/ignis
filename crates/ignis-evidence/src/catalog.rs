@@ -27,7 +27,8 @@ use unicode_normalization::UnicodeNormalization;
 
 use crate::records::{locator_json, Chunk, Finding, Publication};
 
-pub const CATALOG_VERSION: i64 = 1;
+/// 2: parse-view page texts (`pages`) and `asset_locations`.
+pub const CATALOG_VERSION: i64 = 2;
 pub const DDL: &str = include_str!("../../../schemas/evidence_catalog.sql");
 
 pub fn root() -> PathBuf {
@@ -55,7 +56,7 @@ pub fn connect(path: &Path, readonly: bool) -> Result<Connection> {
         let con = Connection::open(path)?;
         con.execute_batch(DDL)?;
         con.execute(
-            "INSERT OR IGNORE INTO meta(key, value) VALUES ('catalog_version', ?1)",
+            "INSERT OR REPLACE INTO meta(key, value) VALUES ('catalog_version', ?1)",
             [CATALOG_VERSION.to_string()],
         )?;
         // catalogs created before `embedding_sets.provider` existed (additive; readers never use it)
@@ -67,6 +68,17 @@ pub fn connect(path: &Path, readonly: bool) -> Result<Connection> {
         if !has_provider {
             con.execute_batch(
                 "ALTER TABLE embedding_sets ADD COLUMN provider TEXT NOT NULL DEFAULT 'local'",
+            )?;
+        }
+        // catalogs created before `chunks.continues_runs_json` (v1): additive
+        let has_cont: bool = con.query_row(
+            "SELECT count(*) FROM pragma_table_info('chunks') WHERE name = 'continues_runs_json'",
+            [],
+            |r| r.get::<_, i64>(0),
+        )? > 0;
+        if !has_cont {
+            con.execute_batch(
+                "ALTER TABLE chunks ADD COLUMN continues_runs_json TEXT NOT NULL DEFAULT '[]'",
             )?;
         }
         con
@@ -104,8 +116,8 @@ pub fn upsert_publication(
     {
         let mut st = tx.prepare(
             "INSERT INTO chunks(id, publication_id, ordinal, kind, page, char_start, char_end, section, text, text_norm, \
-             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class) \
-             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15)",
+             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json) \
+             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16)",
         )?;
         for c in chunks {
             st.execute(params![
@@ -123,12 +135,128 @@ pub fn upsert_publication(
                 locator_json(&c.locator),
                 js(&c.describes_runs),
                 c.outcome_bearing as i64,
-                c.evidence_class
+                c.evidence_class,
+                js(&c.continues_runs)
             ])?;
         }
     }
     tx.commit()?;
     Ok(chunks.len())
+}
+
+/// Replace a publication with its full parse view: chunks, the exact page texts, and where this host
+/// keeps the bytes (`rel_path`, a cache hint; readers verify the hash).
+pub fn upsert_parse_view(
+    con: &mut Connection,
+    p: &Publication,
+    chunks: &[Chunk],
+    pages: &[String],
+    rel_path: Option<&str>,
+) -> Result<usize> {
+    let n = upsert_publication(con, p, chunks)?;
+    let tx = con.transaction()?;
+    tx.execute("DELETE FROM pages WHERE publication_id = ?1", [&p.id])?;
+    {
+        let mut st =
+            tx.prepare("INSERT INTO pages(publication_id, page, text) VALUES (?1, ?2, ?3)")?;
+        for (i, t) in pages.iter().enumerate() {
+            st.execute(params![p.id, (i + 1) as i64, t])?;
+        }
+    }
+    if let Some(r) = rel_path {
+        tx.execute(
+            "INSERT OR REPLACE INTO asset_locations(sha256, rel_path) VALUES (?1, ?2)",
+            params![p.source_sha256, r],
+        )?;
+    }
+    tx.commit()?;
+    Ok(n)
+}
+
+/// Every publication record, ordered by id.
+pub fn publications(con: &Connection) -> Result<Vec<Publication>> {
+    let mut st = con.prepare(
+        "SELECT id, source_sha256, title, authors_json, year, ntrs_id, doi, canonical_url, investigation_ids_json, \
+         families_json, file_name, n_pages, rights_status, license, describes_runs_json, outcome_bearing, ingested_at, \
+         parser_version FROM publications ORDER BY id",
+    )?;
+    let arr = |s: String| serde_json::from_str::<Vec<String>>(&s).unwrap_or_default();
+    let rows = st.query_map([], |r| {
+        Ok(Publication {
+            id: r.get(0)?,
+            source_sha256: r.get(1)?,
+            title: r.get(2)?,
+            authors: arr(r.get(3)?),
+            year: r.get(4)?,
+            ntrs_id: r.get(5)?,
+            doi: r.get(6)?,
+            canonical_url: r.get(7)?,
+            investigation_ids: arr(r.get(8)?),
+            families: arr(r.get(9)?),
+            file_name: r.get(10)?,
+            n_pages: r.get(11)?,
+            rights_status: r.get(12)?,
+            license: r.get(13)?,
+            describes_runs: arr(r.get(14)?),
+            outcome_bearing: r.get::<_, i64>(15)? != 0,
+            ingested_at: r.get(16)?,
+            parser_version: r.get(17)?,
+        })
+    })?;
+    Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+}
+
+/// Stored page texts `[first, last]` (1-based) of a publication's parse view.
+pub fn page_texts(
+    con: &Connection,
+    publication_id: &str,
+    first: i64,
+    last: i64,
+) -> Result<Vec<(i64, String)>> {
+    let mut st = con.prepare(
+        "SELECT page, text FROM pages WHERE publication_id = ?1 AND page BETWEEN ?2 AND ?3 ORDER BY page",
+    )?;
+    let rows = st
+        .query_map(params![publication_id, first, last], |r| {
+            Ok((r.get(0)?, r.get(1)?))
+        })?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    Ok(rows)
+}
+
+/// Ids of the chunks of `publication_id` on `page`, in reading order.
+pub fn chunk_ids_on_page(con: &Connection, publication_id: &str, page: i64) -> Result<Vec<String>> {
+    let mut st = con.prepare(
+        "SELECT id FROM chunks WHERE publication_id = ?1 AND page = ?2 ORDER BY ordinal",
+    )?;
+    let rows = st
+        .query_map(params![publication_id, page], |r| r.get(0))?
+        .collect::<rusqlite::Result<Vec<String>>>()?;
+    Ok(rows)
+}
+
+/// Where this host keeps the bytes of `sha256`, if recorded at ingest.
+pub fn asset_location(con: &Connection, sha256: &str) -> Result<Option<String>> {
+    use rusqlite::OptionalExtension;
+    Ok(con
+        .query_row(
+            "SELECT rel_path FROM asset_locations WHERE sha256 = ?1",
+            [sha256],
+            |r| r.get(0),
+        )
+        .optional()?)
+}
+
+/// The embedding set recorded for this catalog (sha256 of its vector file), if any.
+pub fn embedding_set_id(con: &Connection) -> Result<Option<String>> {
+    use rusqlite::OptionalExtension;
+    Ok(con
+        .query_row(
+            "SELECT id FROM embedding_sets ORDER BY id LIMIT 1",
+            [],
+            |r| r.get(0),
+        )
+        .optional()?)
 }
 
 pub fn add_findings(con: &mut Connection, findings: &[Finding]) -> Result<usize> {
@@ -214,6 +342,15 @@ pub struct Filters {
     pub outcome_bearing: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rights_status: Option<String>,
+    /// any of these evidence families (`flex`, `acme`, `bass`, ...)
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub families: Vec<String>,
+    /// any of these investigations (`PSI-25`, ...)
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub investigations: Vec<String>,
+    /// any of these assets (bare sha256 of the PDF bytes)
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub source_sha256: Vec<String>,
 }
 
 impl Filters {
@@ -221,12 +358,28 @@ impl Filters {
         self.clauses().0.is_empty()
     }
 
-    fn clauses(&self) -> (Vec<&'static str>, Vec<SqlValue>) {
-        let mut c = Vec::new();
+    fn clauses(&self) -> (Vec<String>, Vec<SqlValue>) {
+        let mut c: Vec<String> = Vec::new();
         let mut a = Vec::new();
+        // a list filter is one clause: OR within the list, AND with the other filters
+        let mut any = |sql: &str, vals: &[String]| {
+            if !vals.is_empty() {
+                c.push(format!("({})", vec![sql; vals.len()].join(" OR ")));
+                a.extend(vals.iter().cloned().map(SqlValue::Text));
+            }
+        };
+        any(
+            "EXISTS (SELECT 1 FROM json_each(p.families_json) WHERE value = ?)",
+            &self.families,
+        );
+        any(
+            "EXISTS (SELECT 1 FROM json_each(p.investigation_ids_json) WHERE value = ?)",
+            &self.investigations,
+        );
+        any("p.source_sha256 = ?", &self.source_sha256);
         let mut s = |sql: &'static str, v: Option<SqlValue>| {
             if let Some(v) = v {
-                c.push(sql);
+                c.push(sql.to_string());
                 a.push(v);
             }
         };
@@ -278,14 +431,27 @@ pub fn lexical(
     filters: &Filters,
     limit: usize,
 ) -> Result<Vec<LexHit>> {
+    lexical_from(con, query, filters, 0, limit)
+}
+
+/// [`lexical`] from position `offset` (0-based) of the BM25 order; ranks continue (`offset + 1`, ...).
+/// Ties are broken by chunk id, so consecutive windows partition the full order.
+pub fn lexical_from(
+    con: &Connection,
+    query: &str,
+    filters: &Filters,
+    offset: usize,
+    limit: usize,
+) -> Result<Vec<LexHit>> {
     let (where_, mut args) = filters.sql();
     let sql = format!(
         "SELECT c.id, bm25(chunks_fts) FROM chunks_fts JOIN chunks c ON c.rowid = chunks_fts.rowid \
          JOIN publications p ON p.id = c.publication_id WHERE chunks_fts MATCH ?{where_} \
-         ORDER BY bm25(chunks_fts) ASC, c.id ASC LIMIT ?"
+         ORDER BY bm25(chunks_fts) ASC, c.id ASC LIMIT ? OFFSET ?"
     );
     args.insert(0, SqlValue::Text(fts_query(query)?));
     args.push(SqlValue::Integer(limit as i64));
+    args.push(SqlValue::Integer(offset as i64));
     let mut st = con.prepare(&sql)?;
     let rows = st.query_map(params_from_iter(args), |r| {
         Ok((r.get::<_, String>(0)?, r.get::<_, f64>(1)?))
@@ -296,7 +462,7 @@ pub fn lexical(
         out.push(LexHit {
             chunk_id,
             bm25,
-            lexical_rank: i + 1,
+            lexical_rank: offset + i + 1,
         });
     }
     Ok(out)

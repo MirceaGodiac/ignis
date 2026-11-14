@@ -1,0 +1,101 @@
+{
+  "snapshot_id": "corpus-d0f2d2c5a4e1381c",
+  "catalog_version": 2,
+  "members": [
+    {
+      "source_id": "sha256:50590fd7e6619203eb75a46f49e83556e6798a53e67869cd52ea89961c692c30",
+      "publication_id": "pub-50590fd7e6619203",
+      "parse_view_id": "pv-50590fd7e6619203@0.3.0-mupdf",
+      "families": [
+        "bass"
+      ],
+      "investigations": [
+        "PSI-25",
+        "PSI-26"
+      ],
+      "rights_status": "verified",
+      "n_pages": 9,
+      "n_chunks": 26,
+      "chunks_digest": "d17df7cf2926b8537aad8e173a2b34c269ee1b3452dcc029a12435f70ab79f6f",
+      "title": "Concurrent Flame Growth, Spread and Extinction over Composite Fabric Samples in Low Speed Purely Forced Flow in Microgravity"
+    },
+    {
+      "source_id": "sha256:5ffa911fd9b6356f204646003fb9342e341810dcdfdf5cb15756e7f01ec5f770",
+      "publication_id": "pub-5ffa911fd9b6356f",
+      "parse_view_id": "pv-5ffa911fd9b6356f@0.3.0-mupdf",
+      "families": [
+        "bass"
+      ],
+      "investigations": [
+        "PSI-25"
+      ],
+      "rights_status": "unverified",
+      "n_pages": 144,
+      "n_chunks": 490,
+      "chunks_digest": "63300fd4838095d5432b8778c193519fe4d89e9a9be01d02d18ad02df90aa09c",
+      "title": "PSI-25_Reports_BASS-II Summary Report"
+    },
+    {
+      "source_id": "sha256:7f875da1d6abeeeeac64aeba67d3f160074cf98430e714fe7606b34b37e0aa59",
+      "publication_id": "pub-7f875da1d6abeeee",
+      "parse_view_id": "pv-7f875da1d6abeeee@0.3.0-mupdf",
+      "families": [
+        "saffire"
+      ],
+      "investigations": [],
+      "rights_status": "unverified",
+      "n_pages": 7,
+      "n_chunks": 33,
+      "chunks_digest": "aa4f7294e9e70781bf6ebcbea13a389efd886499b74ed7643c41fa5fdd53890c",
+      "title": "Preliminary Results from the Saffire VI Experiment"
+    },
+    {
+      "source_id": "sha256:b4f6ca983e2792c33a0b92220a791a818f426bb635b94f7fd33dc8c9c471e79d",
+      "publication_id": "pub-b4f6ca983e2792c3",
+      "parse_view_id": "pv-b4f6ca983e2792c3@0.3.0-mupdf",
+      "families": [
+        "flex"
+      ],
+      "investigations": [
+        "PSI-69"
+      ],
+      "rights_status": "verified",
+      "n_pages": 314,
+      "n_chunks": 681,
+      "chunks_digest": "55d61a560e4e18989d3dfd899e4185d81b5532e09f1c933254bf791e310dc23b",
+      "title": "Detailed Results from the Flame Extinguishment Experiment (FLEX) March 2009 to December 2011"
+    },
+    {
+      "source_id": "sha256:d00a763d60719bc14004264e216452b44c3c1bf4b0c629e9d307c8abf9568e75",
+      "publication_id": "pub-d00a763d60719bc1",
+      "parse_view_id": "pv-d00a763d60719bc1@0.3.0-mupdf",
+      "families": [
+        "bass"
+      ],
+      "investigations": [
+        "PSI-25"
+      ],
+      "rights_status": "unverified",
+      "n_pages": 16,
+      "n_chunks": 22,
+      "chunks_digest": "07b5a29a31f821d67b7ade37a2924934c4ce7f8a6066a2cecdc2a7af4ea7cfdf",
+      "title": "PSI-25_Science Documents_BASS-II_SRD"
+    },
+    {
+      "source_id": "sha256:ee2b103565143c225042c52f9ca3c4938b16f61aec90035f054d9b13ef00df60",
+      "publication_id": "pub-ee2b103565143c22",
+      "parse_view_id": "pv-ee2b103565143c22@0.3.0-mupdf",
+      "families": [
+        "acme"
+      ],
+      "investigations": [
+        "PSI-159"
+      ],
+      "rights_status": "unverified",
+      "n_pages": 11,
+      "n_chunks": 68,
+      "chunks_digest": "379635b43490a7e992253bef828a32bdaf92f5b16da2d6166be2b11082077ebb",
+      "title": "Recent Research on Flames of Gaseous Fuel Aboard the International Space Station "
+    }
+  ]
+}
