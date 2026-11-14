@@ -1,0 +1,3 @@
+data/manifests/** -text
+# Shell scripts run on Linux pods: keep LF on every platform.
+tools/runpod/*.sh text eol=lf

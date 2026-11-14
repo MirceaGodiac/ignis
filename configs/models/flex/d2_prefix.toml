@@ -1,0 +1,53 @@
+# flex.d2_prefix — Prefix D^2 fit: constant K per prefix with a broad fixed prior; train fits the noise kernel only (baseline)
+# Initial configuration (V3.1 §23.1), not validated hyperparameters.
+time_origin = "phase_entry"
+
+[condition_keys]          # FlexTrajectory.conditions keys (data lane); missing keys are refused, never zero-filled
+o2 = "x_o2"
+co2 = "x_co2"
+he = "x_he"
+pressure = "pressure"
+
+[numerics]                # §23.2 starting values; reference solver checks in crates/ignis-flex/tests/
+n_panels = 16
+n_nodes = 8
+newton_steps = 8
+event_nodes = 16
+d_min_m = 2.5e-4          # support floor q_min = d_min^2 [IGNIS, declared]
+t_valid_s = 30.0          # model horizon T_valid [IGNIS, declared]
+nu = 4.0
+
+[fit]
+method = "map"
+seed = 0
+posterior_draws = 400
+
+[fit.map]
+epochs = 40
+steps_per_epoch = 50
+learning_rate = 0.01
+clip_norm = 10.0
+optimizer = "adam+lbfgs"  # "adam" | "adam+lbfgs" (L-BFGS polish of the best Adam epoch)
+weight_decay = 0.0        # > 0: decoupled AdamW
+
+[fit.nuts]                # §12.3 inherited starting point: 4 chains, 1000 warmup, 1500 samples, 0.9, depth 10
+chains = 4
+warmup = 1000
+samples = 1500
+target_accept = 0.9
+max_tree_depth = 10
+mass_matrix = "diag"      # "diag" | "low_rank" (nuts-rs adaptation, on top of the preconditioner)
+precondition = "laplace"  # dense metric from the MAP Hessian (x = x_map + L^-T z); "none" = plain coordinates
+init_jitter = 0.05
+locals = "centered"        # b = L_b eps sampled directly (exact reparameterisation); "noncentered" = Python behaviour
+rhat_max = 1.01
+min_ess = 100
+
+[estimate]                # measured on the Rust port (ignis-flex example `bench`), single thread, laptop CPU
+c_eval_s_cpu = 2.8e-8     # s per work unit (flex.v1 = 0.040 s per gradient at 100 runs / 20.5k obs)
+parallel_efficiency = 0.6 # runs are evaluated in parallel on the profile pool
+compile_s = 0.0           # no JIT
+mean_leapfrog = 143       # measured: flex.v1 synthetic 18 runs, centred locals + Laplace metric (Python: tree depth saturated)
+residual_factor = 0.85
+
+[priors]                  # overrides of default_priors() (crates/ignis-flex/src/structure.rs); empty = §6.7/§23.1 values

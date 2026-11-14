@@ -1,0 +1,19 @@
+{
+  "_comment": "EXAMPLE ONLY (numbers are illustrative, not from a NASA source). Reference points must be cited via 'locator' (e.g. the specimen holder drawing page or a fiducial frame).",
+  "applies_to": ["<run or session id>"],
+  "specimen_length_m": 0.10,
+  "specimen_width_m": 0.05,
+  "image_points_px": [[120.0, 140.0], [600.0, 132.0], [610.0, 380.0], [115.0, 372.0], [362.0, 256.0]],
+  "plane_points_m": [[0.0, 0.0], [0.10, 0.0], [0.10, 0.05], [0.0, 0.05], [0.05, 0.025]],
+  "point_sigma_px": 1.5,
+  "camera_matrix": null,
+  "distortion": null,
+  "camera_distance_m": null,
+  "flame_standoff_max_m": null,
+  "propagation_sign": 1,
+  "occlusion_rois_px": [[0, 0, 720, 48]],
+  "roi_px": null,
+  "pixel_only": false,
+  "locator": null,
+  "notes": "illustrative"
+}

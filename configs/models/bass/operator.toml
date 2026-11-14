@@ -1,0 +1,83 @@
+# BASS visible-front operator (V3.1 §9, §12.5, §23.1). Initial settings, not validated.
+length_key = "length"
+min_valid = 12               # resolved samples needed for a frame to enter the likelihood
+min_valid_fraction = 0.5     # latest prefix contour must be at least this resolved
+ell_s = 0.1                  # spatial error correlation length in xi, fixed from metrology/development
+
+[numerics]
+cfl = 0.4                    # dt <= cfl / (alpha/ds + 2 nu/ds^2)
+feedback = 0.25              # dt <= feedback * ds / max|df/dt|
+dt_max_s = 1.0
+max_steps = 32               # per observation interval (training); unreached time is reported
+scheme = "eno2"              # second-order ENO2 + local Lax-Friedrichs (alpha >= |dH/dp|); "llf1" = previous first-order scheme
+boundary = "linear"          # ghost extrapolation (documented convention); "quadratic" tested, unstable on fine grids
+forecast_max_steps = 128
+
+[train]                      # MAP / AdamW; 5 group-bootstrap members
+n_members = 5
+steps = 6000
+lr = 1.0e-3
+clip_norm = 1.0
+weight_decay = 0.0           # priors are explicit in the objective
+seed = 0
+
+[forecast]
+n_particles = 64
+epsilon = 0.1                # defensive mixture weight of the prior
+quantile_levels = [0.05, 0.5, 0.95]
+seed = 0
+max_unresolved_fraction = 0.5
+validation_particles = 16
+map_maxiter = 200            # local MAP (L-BFGS) iterations per member
+
+[support]
+margin_sd = 0.5
+
+# FiLM conditions, frozen order (§9.3). `source` = key in BassSequence.conditions/geometry and
+# PrefixBundle.known_conditions (SI). Scales fixed from protocol.
+[[features]]
+name = "oxygen_fraction"
+source = "x_o2"
+transform = "ratio"
+ref = 0.21
+
+[[features]]
+name = "log_pressure"
+source = "pressure"
+transform = "log_ratio"
+ref = 101325.0
+
+[[features]]
+name = "flow_speed"
+source = "flow_velocity"
+transform = "abs_ratio"
+ref = 0.1
+
+[[features]]
+name = "flow_direction"
+source = "flow_velocity"
+transform = "sign"
+
+[[features]]
+name = "log_width"
+source = "width"
+transform = "log_ratio"
+ref = 0.01
+
+[[features]]
+name = "log_length"
+source = "length"
+transform = "log_ratio"
+ref = 0.1
+
+[[features]]
+name = "log_thickness"
+source = "thickness"
+transform = "log_ratio"
+ref = 1.0e-4
+
+[[features]]
+name = "time_since_control_change"   # known schedule only
+source = "control_changes_s"     # BassSequence.control_changes_s / PrefixBundle.known_controls
+transform = "time_since"
+ref = 10.0

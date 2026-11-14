@@ -1,0 +1,15 @@
+# Attribution of evidence text to runs (ignis.evidence.pdf.RunPatterns). Aliases are not run ids:
+# the data lane maps them to ExperimentRecord ids. Text with no attribution that is outcome-bearing is
+# stripped under sealed evaluation (conservative firewall), so recall here only reduces over-stripping.
+
+[[pattern]]  # BASS-II PSI-25 file names: BASS_GMT178_SAMPLE_136_TEST_T12
+regex = '(?i)\bSAMPLE[_ ]?(\d{2,3})[_ ]TEST[_ ]?([A-Z]{1,2}\d{1,2}[a-z]?)\b'
+alias = "alias:bass2:sample{0}:test{1}"
+
+[[pattern]]  # "Test T12", "test B1" in BASS reports
+regex = '(?i)\btest\s+([TBPOF]\d{1,2}[a-z]?)\b'
+alias = "alias:bass2:test{0}"
+
+[[pattern]]  # FLEX test points as written in reports, e.g. "FLEX-2 test 12" or "Test Point 37"
+regex = '(?i)\btest\s+point\s+(\d{1,3})\b'
+alias = "alias:flex:testpoint{0}"

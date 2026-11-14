@@ -1,0 +1,8 @@
+# SAM2.1 causal tracker, run by the Python sidecar (sidecar/sam2/ignis_sam2.py) that
+# `ignis vision contours --method sam2` spawns. Setup: `uv sync --project sidecar/sam2`, then
+#   curl -LO https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt
+# The checkpoint path can also come from IGNIS_SAM2_CHECKPOINT. CPU is the default device.
+checkpoint = "data/models/sam2/sam2.1_hiera_small.pt"
+model_cfg = "configs/sam2.1/sam2.1_hiera_s.yaml"   # resolved inside the sam2 package
+device = "cpu"
+sidecar_cmd = ["uv", "run", "--project", "sidecar/sam2", "python", "sidecar/sam2/ignis_sam2.py"]
