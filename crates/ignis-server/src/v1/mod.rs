@@ -38,15 +38,17 @@ use axum::response::sse::Event;
 use axum::response::{IntoResponse, Response};
 use axum::{Json, Router};
 use ignis_core::contracts::{
-    ApprovalDecision, ApprovalId, ArtifactId, ArtifactRef, Capability, ClientRequestId, Digest,
-    EpisodeId, EpisodePins, ErrorCode, ErrorEnvelope, EventId, ExecutionScope, ExecutionStatus,
-    ForecastRequest, JobId, JobRef, ModelRelease, Origin as PayloadOrigin, ParseViewId, ReadRange,
-    ReadRequest, ReadResult, ReleaseId, ResearchEpisode, RetryPolicy, ScientificStatus, SearchPage,
-    SearchRequest, SourceId, Timestamp, ToolCallId, ToolEffect, ToolResult, ToolsSchema,
+    ApprovalAccepted, ApprovalDecision, ApprovalId, ArtifactId, ArtifactRef, Capabilities,
+    Capability, ClientRequestId, CreateEpisode, Digest, EpisodeAction, EpisodeId, EpisodePins,
+    ErrorCode, ErrorEnvelope, ExecutionScope, ExecutionStatus, ForecastRequest, HostDecision,
+    JobId, JobRef, MessageAccepted, ModelRelease, Origin as PayloadOrigin, ParseViewId,
+    PostMessage, ReadRange, ReadRequest, ReadResult, ReleaseId, ResearchEpisode, ResolveApproval,
+    RetryPolicy, ScientificStatus, SearchPage, SearchRequest, ServiceStatus, SourceId, Timestamp,
+    ToolCallId, ToolResult, ToolStatus, ToolsSchema,
 };
 use ignis_core::services::{ArtifactStore, KnowledgeService, ModelService, ServiceResult};
-use ignis_research::runtime::{AgentRuntime, RuntimeBuildManifest, StopReason};
-use ignis_research::store::{EpisodeAction, Replay, UploadRecord, UploadSpec, UploadStatus};
+use ignis_research::runtime::{AgentRuntime, StopReason};
+use ignis_research::store::{Replay, UploadRecord, UploadSpec, UploadStatus};
 use ignis_research::ResearchStore;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -157,18 +159,6 @@ async fn blocking<T: Send + 'static>(
 
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-pub struct CreateEpisode {
-    pub goal: String,
-    /// Idempotency key: retrying the same request returns the same episode.
-    pub client_request_id: ClientRequestId,
-    /// Model releases to pin (verified against the `ModelService`). The corpus snapshot is pinned by
-    /// the host from the caller's scope, never taken from the client.
-    #[serde(default)]
-    pub model_releases: Vec<ReleaseId>,
-}
-
-#[derive(Debug, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
 pub struct InitiateUpload {
     pub media_type: String,
     /// Exact size of the bytes that will be sent.
@@ -235,46 +225,9 @@ struct UploadPath {
     id: String,
 }
 
-#[derive(Debug, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct PostMessage {
-    pub text: String,
-    pub client_request_id: ClientRequestId,
-}
-
-#[derive(Debug, Serialize, JsonSchema)]
-pub struct MessageAccepted {
-    pub episode_id: EpisodeId,
-    pub event_id: EventId,
-    pub seq: u64,
-    /// The key was seen before; nothing new was appended.
-    pub duplicate: bool,
-}
-
 #[derive(Deserialize, JsonSchema)]
 struct EpisodePath {
     id: EpisodeId,
-}
-
-/// A host decision on an approval the runtime requested.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum HostDecision {
-    Approved,
-    Denied,
-}
-
-#[derive(Debug, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct ResolveApproval {
-    pub decision: HostDecision,
-}
-
-#[derive(Debug, Serialize, JsonSchema)]
-pub struct ApprovalAccepted {
-    pub episode_id: EpisodeId,
-    pub approval_id: ApprovalId,
-    pub decision: HostDecision,
 }
 
 #[derive(Deserialize, JsonSchema)]
@@ -283,18 +236,10 @@ struct ApprovalPath {
     approval_id: ApprovalId,
 }
 
-#[derive(Debug, Clone, Copy, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-enum ActionName {
-    Pause,
-    Resume,
-    Cancel,
-}
-
 #[derive(Deserialize, JsonSchema)]
 struct ActionPath {
     id: EpisodeId,
-    action: ActionName,
+    action: EpisodeAction,
 }
 
 #[derive(Deserialize, JsonSchema)]
@@ -345,42 +290,6 @@ struct JobPath {
 struct AnalysisQuery {
     /// Attach the job to an episode (its `job.updated` events go to that log).
     episode_id: Option<EpisodeId>,
-}
-
-#[derive(Debug, Serialize, JsonSchema)]
-pub struct ServiceStatus {
-    pub available: bool,
-    pub detail: String,
-}
-
-#[derive(Debug, Serialize, JsonSchema)]
-pub struct ToolStatus {
-    pub name: String,
-    pub effect: ToolEffect,
-    pub available: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub reason: Option<String>,
-}
-
-#[derive(Debug, Serialize, JsonSchema)]
-pub struct Capabilities {
-    pub agent_runtime: ServiceStatus,
-    /// Identity of the pinned runtime build when the runtime is available.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub runtime_build: Option<RuntimeBuildManifest>,
-    pub knowledge: ServiceStatus,
-    pub datasets: ServiceStatus,
-    pub models: ServiceStatus,
-    pub artifact_store: ServiceStatus,
-    /// The IGNIS MCP endpoint the agent runtime reaches the tools through (loopback only).
-    pub mcp: ServiceStatus,
-    /// The isolated runner behind `analysis_execute`.
-    pub analysis_runner: ServiceStatus,
-    /// What programs run in, when the runner passed preflight.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub runner_environment: Option<ignis_core::contracts::RunnerEnvironment>,
-    /// The C0 tool catalog with what this deployment can actually serve.
-    pub tools: Vec<ToolStatus>,
 }
 
 /// `Last-Event-ID` header (SSE resume cursor).
@@ -653,7 +562,7 @@ async fn create_episode(
     let pins = EpisodePins {
         corpus_snapshot: c.scope.corpus_snapshot.clone(),
         model_releases: req.model_releases,
-        skills_version: None,
+        harness: None,
     };
     let (store, origin) = (v.store.clone(), v.origin);
     // 202 for the first request and for retries alike: the client cannot tell them apart anyway.
@@ -716,11 +625,7 @@ async fn episode_action(
     c: Caller,
     Path(p): Path<ActionPath>,
 ) -> ApiResult<Json<ResearchEpisode>> {
-    let action = match p.action {
-        ActionName::Pause => EpisodeAction::Pause,
-        ActionName::Resume => EpisodeAction::Resume,
-        ActionName::Cancel => EpisodeAction::Cancel,
-    };
+    let action = p.action;
     let store = v.store.clone();
     let scope = c.scope.clone();
     let ep = blocking(move || store.act(&scope, &p.id, action)).await?;
