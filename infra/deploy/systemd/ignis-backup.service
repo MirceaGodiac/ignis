@@ -1,0 +1,13 @@
+# /etc/systemd/system/ignis-backup.service — one consistent state snapshot, pushed to R2.
+[Unit]
+Description=IGNIS state snapshot to R2
+Requires=docker.service
+After=docker.service ignis.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/ignis-deploy
+EnvironmentFile=/etc/ignis/release.env
+ExecStart=/opt/ignis-deploy/infra/scripts/backup.sh
+Nice=10
+IOSchedulingClass=idle

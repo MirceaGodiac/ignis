@@ -10,11 +10,15 @@ use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use ignis_core::contracts::*;
 use ignis_core::services::{ModelService, ServiceResult};
-use ignis_server::v1::io::{AuthMode, ACCESS_HEADER};
+use ignis_server::v1::io::AuthMode;
 use ignis_server::v1::ResearchServices;
 use ignis_server::{app, fixture, ServeArgs, Services};
 use serde_json::{json, Value};
 use tower::ServiceExt;
+
+#[path = "../../ignis-research/tests/s3fake/mod.rs"]
+mod s3fake;
+mod support;
 
 const RELEASE: &str = "sha256:db4ebefdf4b70e96202de6c51e1b9f7690005302cc73374ef03644abdd51e6cc";
 
@@ -42,7 +46,18 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
+        access: support::access().args.clone(),
     }
+}
+
+/// The two Access assertions the Worker forwards for `user`.
+fn as_user(mut req: axum::http::request::Builder, user: &str) -> axum::http::request::Builder {
+    for (k, v) in support::access().headers(user) {
+        req = req.header(k, v);
+    }
+    req
 }
 
 fn router(dir: &Path, auth: AuthMode, models: Option<Arc<dyn ModelService>>) -> axum::Router {
@@ -69,7 +84,7 @@ async fn call(
 ) -> (StatusCode, Value) {
     let mut req = Request::builder().method(method).uri(path);
     if let Some(u) = user {
-        req = req.header(ACCESS_HEADER, u);
+        req = as_user(req, u);
     }
     let req = match body {
         Some(b) => req
@@ -552,7 +567,7 @@ async fn put_bytes(
 ) -> (StatusCode, Value) {
     let mut req = Request::put(path);
     if let Some(u) = user {
-        req = req.header(ACCESS_HEADER, u);
+        req = as_user(req, u);
     }
     let resp = r
         .clone()
@@ -569,7 +584,47 @@ async fn put_bytes(
 #[tokio::test(flavor = "multi_thread")]
 async fn uploads_are_verified_then_published_as_artifacts() {
     let dir = tempfile::tempdir().unwrap();
-    let r = router(dir.path(), AuthMode::CloudflareAccess, None);
+    upload_flow(router(dir.path(), AuthMode::CloudflareAccess, None)).await;
+}
+
+/// The same flow with the deployment's backend: bytes and manifests end up in the (stand-in) R2
+/// bucket under the instance's prefix, and reads stream back from it.
+#[tokio::test(flavor = "multi_thread")]
+async fn uploads_land_in_the_r2_bucket_with_the_r2_backend() {
+    let f = s3fake::fake();
+    let dir = tempfile::tempdir().unwrap();
+    let mut a = args(dir.path(), AuthMode::CloudflareAccess);
+    a.artifact_backend = ignis_server::ops::ArtifactBackend::R2;
+    a.r2 = ignis_server::ops::R2Args {
+        endpoint: Some(f.endpoint.clone()),
+        bucket: Some("ignis-test".into()),
+        access_key_id: Some(s3fake::KEY_ID.into()),
+        secret_access_key: Some(s3fake::SECRET.into()),
+    };
+    let r = app(
+        a,
+        Services {
+            experts: Vec::new(),
+            fixture_experts: fixture::experts(),
+            acquisition: None,
+            research: Default::default(),
+        },
+    );
+    upload_flow(r).await;
+    let b = f.bucket.lock().unwrap();
+    assert!(b.refused.is_empty(), "{:?}", b.refused);
+    assert!(
+        b.objects.keys().any(|k| k.starts_with("registry/objects/")),
+        "{:?}",
+        b.objects.keys()
+    );
+    assert!(b
+        .objects
+        .keys()
+        .any(|k| k.starts_with("registry/manifests/")));
+}
+
+async fn upload_flow(r: axum::Router) {
     let ana = Some("ana@example.org");
     let bytes = b"t_s,d_m\n0,0.001\n".to_vec();
     let decl = json!({"media_type": "text/csv", "byte_length": bytes.len(),
@@ -642,10 +697,12 @@ async fn uploads_are_verified_then_published_as_artifacts() {
         "completed uploads take no more bytes"
     );
 
-    let req = Request::get(format!("/api/v1/artifacts/{}", art.artifact_id))
-        .header(ACCESS_HEADER, "ana@example.org")
-        .body(Body::empty())
-        .unwrap();
+    let req = as_user(
+        Request::get(format!("/api/v1/artifacts/{}", art.artifact_id)),
+        "ana@example.org",
+    )
+    .body(Body::empty())
+    .unwrap();
     let got = axum::body::to_bytes(r.clone().oneshot(req).await.unwrap().into_body(), 1 << 20)
         .await
         .unwrap();

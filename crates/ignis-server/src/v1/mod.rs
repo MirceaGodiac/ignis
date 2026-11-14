@@ -15,6 +15,7 @@
 //! runtime asks for are resolved through `POST /episodes/{id}/approvals/{approval_id}`. Runtime
 //! notifications reach the episode log through the state store, so they stream like any event.
 
+pub mod access;
 pub mod agent;
 pub mod fixture;
 pub mod io;
@@ -93,6 +94,8 @@ pub struct V1 {
     pub tools: Arc<ignis_mcp::ToolHost>,
     pub hub: Arc<Hub>,
     pub auth: AuthMode,
+    /// Verifier of the Access assertions (`--auth cloudflare-access`).
+    pub access: Option<Arc<access::AccessVerifier>>,
     pub runner_wake: Arc<Notify>,
     /// Origin of what this instance creates (`synthetic_fixture` in fixture mode).
     pub origin: PayloadOrigin,
@@ -128,6 +131,9 @@ impl V1 {
 impl HasAuth for Arc<V1> {
     fn auth(&self) -> AuthMode {
         self.auth
+    }
+    fn access(&self) -> Option<&access::AccessVerifier> {
+        self.access.as_deref()
     }
     fn execute_code(&self) -> bool {
         self.services.sandbox.is_some()
