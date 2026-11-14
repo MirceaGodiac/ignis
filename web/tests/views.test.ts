@@ -38,6 +38,9 @@ test("a view that references what the answer does not cite is refused, with the 
   const series = views.find((v) => v.kind === "series_comparison") as Extract<ViewSpec, { kind: "series_comparison" }>;
   const mislabelled = { kind: "series_comparison" as const, series: series.series.map((s) => ({ ...s, role: "observed" as const })) };
   assert.ok(viewProblems(mislabelled, answer).some((p) => p.includes("is model output but is labelled observed")));
+  // An artifact that names no contract cannot stand in for one (the observed fixture artifact has none).
+  const predictedFromUntyped = { kind: "series_comparison" as const, series: [{ ...series.series[0], artifact_id: "fixture-artifact-observed-01", role: "predicted" as const }] };
+  assert.deepEqual(viewProblems(predictedFromUntyped, answer), ["artifact fixture-artifact-observed-01 has contract none, not AnalysisArtifact"]);
 });
 
 const ref = (over: Partial<SeriesRef> = {}): SeriesRef => ({ artifact_id: "a", role: "observed", time_pointer: "/t", value_pointer: "/v", unit_pointer: "/u", time_origin_pointer: "/o", ...over });
