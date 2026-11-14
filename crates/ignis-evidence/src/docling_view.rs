@@ -1,5 +1,10 @@
 //! Import of a Docling parse view (`ignis.docling_view.v1`, produced offline by
-//! `sidecar/docling/ignis_docling.py`) as a catalog parse view, R7a.
+//! `sidecar/docling/ignis_docling.py`) or a PDFium text-layer view (`ignis.pdfium_view.v1`,
+//! `sidecar/pdfium/ignis_pdfium.py`; same shape, text items only, each with its lines) as a catalog
+//! parse view, R7a.
+//!
+//! A PDFium item's `lines` give each line's box and `[start, end)` in the item text; they are stored in
+//! `context.lines` with spans in the page text, so a quote can be highlighted at line precision.
 //!
 //! The view becomes the publication's active view; any other view of the same PDF (the MuPDF one)
 //! stays stored, so citations made against it still resolve (catalog v3).
@@ -30,6 +35,7 @@ use crate::attribution::{families_in, non_outcome_rx, publication_investigations
 use crate::records::{parse_view_id, Chunk, Publication};
 
 pub const FORMAT: &str = "ignis.docling_view.v1";
+pub const PDFIUM_FORMAT: &str = "ignis.pdfium_view.v1";
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -42,6 +48,12 @@ pub struct DoclingView {
     pub tables: Vec<ViewTable>,
     pub figures: Vec<ViewFigure>,
     pub failed_pages: Vec<i64>,
+    /// Page ranges converted with OCR (absent in views made before OCR was limited).
+    #[serde(default)]
+    pub ocr_batches: Vec<[i64; 2]>,
+    /// Pages with an empty text layer (PDFium views: no items there, no OCR).
+    #[serde(default)]
+    pub pages_without_text: Vec<i64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -79,6 +91,18 @@ pub struct ViewItem {
     pub col_span: Option<i64>,
     #[serde(default)]
     pub header: Option<bool>,
+    #[serde(default)]
+    pub lines: Vec<ViewLine>,
+}
+
+/// One line of a text item: its text is `item.text[start..end]` (Unicode scalars).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ViewLine {
+    pub text: String,
+    pub start: usize,
+    pub end: usize,
+    pub bbox: [f64; 4],
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -146,13 +170,29 @@ struct Unit {
     row: Option<i64>,
     context: Value,
     heading: bool,
+    lines: Vec<ViewLine>,
 }
 
+/// `docling-<version>` or `pdfium-<pypdfium2 version>`.
 pub fn parser_version(view: &DoclingView) -> String {
     format!(
-        "docling-{}",
+        "{}-{}",
+        view.parser["name"].as_str().unwrap_or("docling"),
         view.parser["version"].as_str().unwrap_or("unknown")
     )
+}
+
+/// Store an imported view. It becomes the publication's active view, except that a text-layer
+/// (PDFium) view never displaces a Docling view: it is then stored inactive (readable, resolvable).
+pub fn store(con: &mut rusqlite::Connection, iv: &ImportedView) -> Result<usize> {
+    let keep = crate::catalog::active_parser(con, &iv.publication.id)?.is_some_and(|a| {
+        a.starts_with("docling-") && iv.publication.parser_version.starts_with("pdfium-")
+    });
+    if keep {
+        crate::catalog::add_inactive_view(con, &iv.publication, &iv.chunks, &iv.pages)
+    } else {
+        crate::catalog::upsert_parse_view(con, &iv.publication, &iv.chunks, &iv.pages, None)
+    }
 }
 
 /// Turn a Docling view of `pdf_path` (whose bytes are `pdf_bytes`) into a catalog parse view.
@@ -164,8 +204,16 @@ pub fn import(
     investigations: &[String],
 ) -> Result<ImportedView> {
     ensure(
-        view.format == FORMAT,
-        format!("format {:?}, expected {FORMAT}", view.format),
+        view.format == FORMAT || view.format == PDFIUM_FORMAT,
+        format!(
+            "format {:?}, expected {FORMAT} or {PDFIUM_FORMAT}",
+            view.format
+        ),
+    )?;
+    let name = view.parser["name"].as_str().unwrap_or("docling");
+    ensure(
+        (view.format == PDFIUM_FORMAT) == (name == "pdfium"),
+        format!("format {:?} with parser {name:?}", view.format),
     )?;
     let sha = sha256_hex(pdf_bytes);
     ensure(
@@ -189,6 +237,22 @@ pub fn import(
             (1..=n_pages).contains(&it.page),
             format!("item on page {} of {n_pages}", it.page),
         )?;
+        let chars: Vec<char> = it.text.chars().collect();
+        let mut prev = 0;
+        for l in &it.lines {
+            check_box(&l.bbox, &format!("line on page {}", it.page))?;
+            ensure(
+                prev <= l.start
+                    && l.start <= l.end
+                    && l.end <= chars.len()
+                    && chars[l.start..l.end].iter().collect::<String>() == l.text,
+                format!(
+                    "line [{}, {}) on page {} is not its item's text",
+                    l.start, l.end, it.page
+                ),
+            )?;
+            prev = l.end;
+        }
     }
     for t in &view.tables {
         check_box(&t.bbox, &format!("table {}", t.table))?;
@@ -248,6 +312,7 @@ pub fn import(
                     row: None,
                     context: json!({"structure": "text_only", "table_id": table_id, "caption": tab.caption}),
                     heading: false,
+                    lines: vec![],
                 });
             }
             return;
@@ -275,6 +340,7 @@ pub fn import(
                         "col_span": c.col_span, "text": c.text, "bbox": c.bbox})).collect::<Vec<_>>(),
                 }),
                 heading: false,
+                lines: vec![],
             });
         }
     };
@@ -312,6 +378,7 @@ pub fn import(
             row: None,
             context: json!({"label": it.kind}),
             heading,
+            lines: it.lines.clone(),
         });
     }
     for t in tables.keys().copied().collect::<Vec<_>>() {
@@ -328,6 +395,7 @@ pub fn import(
                 row: None,
                 context: json!({"figure": f.figure}),
                 heading: false,
+                lines: vec![],
             });
         }
     }
@@ -368,6 +436,15 @@ pub fn import(
             .is_some_and(|s| !s.is_empty() && non_outcome_rx().is_match(s));
         let ordinal = chunks.len();
         let mut context = u.context;
+        if !u.lines.is_empty() {
+            context["lines"] = json!(u
+                .lines
+                .iter()
+                .map(
+                    |l| json!({"char_start": cs + l.start, "char_end": cs + l.end, "bbox": l.bbox})
+                )
+                .collect::<Vec<_>>());
+        }
         if let Some(figs) = figures_by_page.get(&u.page) {
             context["figures"] = json!(figs
                 .iter()
