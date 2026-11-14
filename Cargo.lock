@@ -2024,6 +2024,7 @@ dependencies = [
  "anyhow",
  "clap",
  "ignis-core",
+ "ignis-data",
  "mp4",
  "openh264",
  "png",

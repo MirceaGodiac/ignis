@@ -11,6 +11,7 @@
 
 #![allow(clippy::needless_range_loop)]
 
+pub mod bundle;
 pub mod calibration;
 pub mod cli;
 pub mod contour;
@@ -22,7 +23,9 @@ pub mod video;
 
 pub use cli::{run, VisionCmd};
 
-pub const METHOD_VERSION: &str = "0.2.0";
+/// 0.3.0: pixel-only runs emit `ImageContourObservation` records and every run a
+/// `VisualObservationBundle` (before: pixel coordinates in `ContourObservation`, units in notes).
+pub const METHOD_VERSION: &str = "0.3.0";
 
 /// A locator into a video asset.
 pub fn locator(

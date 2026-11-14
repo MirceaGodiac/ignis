@@ -1,0 +1,39 @@
+{
+  "_comment": "PSI-25 BASS-II T6 (train partition), clip PSI-25_Raw Data_BASS_GMT100_SAMPLE_132_TEST_T6.mp4 (sha256 936148fb1ac229b2cf5144d2ca04380473966ed621f151c8377d299b1b364d65). SIDE VIEW, EDGE-ON: the camera sees the SIBAL sheet edge-on (Summary Report NASA/TM-20210011385 p.102 s7.1.3), so f = image x along the sample, s = image y (height above/below the sheet). PIXEL-ONLY: no in-frame metric reference could be located to +/-2 px (no legible scale, sample ends not crisp); see docs/raul/02-bass-video-findings.md on branch feature/bass-calibration. propagation_sign=-1: flow is right->left in the side view (same report p.103, Fig. 7.2 text), so the downstream luminous tip is the smallest image x. igniter glow x~630-678 px.",
+  "_frames_notes": {
+    "measured_with": "background-subtracted luminous-extent scan on ignis vision frames cache (diagnostic)",
+    "time_origin_note": "exact container PTS of the start frame (frame*1001/30000; verified against the contour locators)"
+  },
+  "_visibility": "flame visible in the side view only for ~5-7 s after onset; afterwards it is too dim (low flow), so most frames yield out_of_field/no contour",
+  "applies_to": [
+    "PSI-25:T6"
+  ],
+  "pixel_only": true,
+  "image_size_px": [
+    720,
+    480
+  ],
+  "propagation_sign": -1,
+  "occlusion_rois_px": [
+    [
+      0,
+      0,
+      720,
+      90
+    ]
+  ],
+  "roi_px": [
+    0,
+    90,
+    720,
+    470
+  ],
+  "notes": "pixel_only side view (f=x, s=y in px); overlay (y<90) excluded; bottom 10 px excluded; frames outside [_frames.start,_frames.stop] are setup lighting or still-camera playback and must not be segmented",
+  "camera_id": "psi25-main-side-edge-on",
+  "frames": {
+    "start": 138,
+    "stop": 4620,
+    "time_origin_s": 4.6046,
+    "rule": "start = first frame (3-frame resolution) with >=3 luminous columns after the lit setup period (igniter-glow onset, provisional, not an adjudicated ignition time); stop = last frame before the still-camera playback screen appears in the main video"
+  }
+}
