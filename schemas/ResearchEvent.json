@@ -543,6 +543,17 @@
             "payload": {
               "additionalProperties": false,
               "properties": {
+                "arguments": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/ToolArguments"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "v2: the call's arguments, redacted by scope (absent in v1 logs)."
+                },
                 "call_id": {
                   "$ref": "#/$defs/ToolCallId"
                 },
@@ -553,6 +564,47 @@
               "required": [
                 "call_id",
                 "tool"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "kind",
+            "payload"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "v2: the model's own short explanation of a step (why this search, why this computation),\ntied to the tool call it introduces when there is one.",
+          "properties": {
+            "kind": {
+              "const": "step.rationale",
+              "type": "string"
+            },
+            "payload": {
+              "additionalProperties": false,
+              "properties": {
+                "call_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/ToolCallId"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "$ref": "#/$defs/RationaleSource"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "text",
+                "source"
               ],
               "type": "object"
             }
@@ -1020,17 +1072,33 @@
       },
       "type": "object"
     },
+    "RationaleSource": {
+      "description": "Where a step rationale comes from. Closed on purpose: only the model's own explanation, written\nfor the user, is shown; hidden chain-of-thought is never recorded as a rationale.",
+      "enum": [
+        "model_explanation"
+      ],
+      "type": "string"
+    },
     "ReleaseId": {
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
     },
     "ResearchSchema": {
-      "description": "Wire tag of episodes, events and answers.",
-      "enum": [
-        "research.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`\n(C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a\nsupport check, a harness pin) is refused under the v1 tag, so a v1 reader never receives a\ndocument it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "research.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "research.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "RetryPolicy": {
       "description": "What a caller may do after an error. `reconcile` means the effect is uncertain: inspect state\nbefore any retry, never re-run blindly.",
@@ -1120,6 +1188,26 @@
       "format": "date-time",
       "pattern": "Z$",
       "type": "string"
+    },
+    "ToolArguments": {
+      "additionalProperties": false,
+      "description": "The arguments of a tool call as shown in the log (K1.1). The host redacts what the viewer's\nscope may not see before the event is written; the pointers say what was removed, so a missing\nfield is never mistaken for an argument the agent did not send. Large arguments (a program's\nsource) are a partial preview pointing at the full artifact.",
+      "properties": {
+        "redacted": {
+          "description": "RFC 6901 JSON Pointers of the members removed by redaction.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "value": {
+          "$ref": "#/$defs/InlinePayload"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
     },
     "ToolCallId": {
       "minLength": 1,

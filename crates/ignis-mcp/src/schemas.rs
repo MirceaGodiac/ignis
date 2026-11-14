@@ -3,8 +3,9 @@
 //! definitions, and a dangling reference would reach the model as an untyped field.
 
 use ignis_core::contracts::{
-    AnalysisExecuteRequest, ArtifactReadRequest, DatasetRef, ForecastRequest, JobLookup,
-    ReadRequest, ReleaseRef, SearchRequest, WikiPatch,
+    AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ConditionsQuery, DatasetRef,
+    ForecastRequest, GraphNeighborsRequest, JobLookup, OutlineRequest, ReadRequest, ReleaseRef,
+    SearchRequest, WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
 };
 use schemars::generate::SchemaSettings;
 use schemars::JsonSchema;
@@ -31,6 +32,13 @@ pub fn input_schema(contract: &str) -> Option<Value> {
         "JobLookup" => inline::<JobLookup>(),
         "AnalysisExecuteRequest" => inline::<AnalysisExecuteRequest>(),
         "WikiPatch" => inline::<WikiPatch>(),
+        "AnswerSubmission" => inline::<AnswerSubmission>(),
+        "OutlineRequest" => inline::<OutlineRequest>(),
+        "ConditionsQuery" => inline::<ConditionsQuery>(),
+        "GraphNeighborsRequest" => inline::<GraphNeighborsRequest>(),
+        "WikiReadRequest" => inline::<WikiReadRequest>(),
+        "WebSearchRequest" => inline::<WebSearchRequest>(),
+        "WebFetchRequest" => inline::<WebFetchRequest>(),
         _ => return None,
     })
 }

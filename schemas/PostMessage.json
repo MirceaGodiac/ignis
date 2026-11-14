@@ -1,0 +1,27 @@
+{
+  "$defs": {
+    "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/PostMessage",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`POST /api/v1/episodes/{id}/messages`.",
+  "properties": {
+    "client_request_id": {
+      "$ref": "#/$defs/ClientRequestId"
+    },
+    "text": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "text",
+    "client_request_id"
+  ],
+  "title": "PostMessage",
+  "type": "object"
+}

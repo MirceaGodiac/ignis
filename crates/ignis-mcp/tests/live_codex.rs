@@ -196,7 +196,7 @@ async fn live_turn_calls_an_ignis_tool() {
                         reason.clone().unwrap_or_default()
                     )
                 }
-                EventBody::ToolStarted { tool, call_id } => {
+                EventBody::ToolStarted { tool, call_id, .. } => {
                     format!("tool.started {tool} ({call_id})")
                 }
                 EventBody::ToolFinished { result } => format!(
