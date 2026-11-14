@@ -1,0 +1,217 @@
+.ig .ss-stage {
+  overflow: hidden;
+  background: var(--ss-well);
+}
+
+/* Corner bleed: inset top and left, off the right and the bottom. Only the rail's filler is cut. */
+.ig .ig-win {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  width: 1080px;
+  height: 580px;
+  box-shadow: var(--ss-shadow-hero);
+}
+
+.ig .ig-body {
+  display: grid;
+  grid-template-columns: 520px minmax(0, 1fr);
+  height: 100%;
+  background: var(--ss-surface);
+}
+
+.ig .ig-main {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 0;
+  padding: 18px 24px 72px;
+}
+
+.ig .ig-thread {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 14px;
+  min-height: 0;
+  padding-bottom: 18px;
+  overflow: hidden;
+}
+
+.ig .ig-turn--past {
+  display: grid;
+  gap: 8px;
+}
+
+.ig .ig-past-q {
+  justify-self: end;
+}
+
+.ig .ig-q {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ig .ig-q .ss-text {
+  max-width: 82%;
+  white-space: normal;
+  text-wrap: pretty;
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: var(--ss-accent);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ig .ig-searching {
+  color: var(--ss-text);
+  font-size: 13px;
+}
+
+.ig .ig-a {
+  display: grid;
+  gap: 12px;
+}
+
+.ig .ig-stream {
+  color: var(--ss-text-strong);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ig .ig-claims {
+  display: grid;
+  gap: 4px;
+  opacity: 0;
+  will-change: transform; /* stays on its layer: no text hop when it lands */
+  translate: 0 4px;
+  transition: opacity 0.35s ease, translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ig .ig-claims[data-on] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.ig .ig-claim {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--ss-text-strong);
+}
+
+.ig .ig-claim-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Claim kinds differ by label and by line: a prediction (dashed) never looks like an observation. */
+.ig .ig-chip {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.ig .ig-chip--source {
+  color: #4f46e5;
+}
+
+.ig .ig-chip--observed {
+  color: var(--ss-text-strong);
+}
+
+.ig .ig-chip--predicted {
+  color: var(--ss-accent);
+  border-style: dashed;
+}
+
+.ig .ig-open {
+  color: var(--ss-accent);
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.ig .ig-open[data-hover],
+.ig .ig-open[data-open] {
+  background: color-mix(in srgb, var(--ss-accent) 10%, transparent);
+}
+
+/* The rail: a column of the window, on the canvas tone, ruled from the thread. */
+.ig .ig-rail {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--ss-canvas);
+  box-shadow: inset 1px 0 0 var(--ss-line);
+}
+
+.ig .ig-rail-title {
+  color: var(--ss-text-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ig .ig-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+/* The opened source arrives at the top of the rail and carries Activity down, as in the product. */
+.ig .ig-source {
+  width: 340px;
+  margin-bottom: 4px;
+  padding: 16px 18px 18px;
+  border-radius: 12px;
+  background: var(--ss-surface);
+  box-shadow: var(--ss-shadow-card);
+}
+
+.ig .ig-source-head {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.ig .ig-source-title {
+  color: var(--ss-text-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ig .ig-source-meta {
+  color: var(--ss-text);
+  font-size: 12px;
+}
+
+.ig .ig-page {
+  display: grid;
+  gap: 9px;
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--ss-line);
+}
+
+/* The cited region: the bbox the evidence locator points at. */
+.ig .ig-cited {
+  display: grid;
+  gap: 9px;
+  margin: 0 -8px;
+  padding: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, #f59e0b 16%, transparent);
+  box-shadow: inset 0 0 0 1.5px #f59e0b;
+}
