@@ -1846,6 +1846,7 @@ dependencies = [
  "calamine",
  "chrono",
  "clap",
+ "flate2",
  "hex",
  "ignis-core",
  "indexmap",
