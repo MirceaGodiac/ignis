@@ -2,13 +2,14 @@
 // The video streams from NASA through `SourceAccess`; the contour is our own artifact. The layer is
 // SVG in the video's own pixel space (no pixel readback, so no CORS on the video is needed), and it is
 // labelled as image pixels: a `pixel_only` contour is never put on a metric axis.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ImageContourObservation, VisualObservationBundle } from "../contracts/generated";
 import { contourAt, frameTolerance, overlayUnits, parseNdjson, polylines, STATUS_TEXT } from "../research/contours";
 import { accessExpired } from "../research/sourceAccess";
 import { ErrorNote } from "../ui/common";
 import { useData } from "./data";
+import { useLinkedTime } from "./linked";
 
 type FrameVideo = HTMLVideoElement & {
   requestVideoFrameCallback?: (cb: (now: number, meta: { mediaTime: number }) => void) => number;
@@ -49,6 +50,18 @@ function Player({ url, records, units, timeOrigin }: { url: string; records: Ima
   const [current, setCurrent] = useState<ImageContourObservation | null>(null);
   const [failed, setFailed] = useState(false);
   const tol = useMemo(() => frameTolerance(records), [records]);
+  // Linked views (T8): our frame's time since the origin goes to the answer's store; a time set by
+  // another view on the same origin moves the paused video there (pts = time_s + the bundle's offset).
+  const linkId = useId();
+  const { time, setTime } = useLinkedTime();
+  const setRef = useRef(setTime);
+  setRef.current = setTime;
+  useEffect(() => {
+    const el = v.current;
+    if (!el || !time || time.by === linkId || time.origin !== timeOrigin || records.length === 0 || !el.paused) return;
+    const offset = records[0].pts_s - records[0].time_s;
+    el.currentTime = Math.max(0, time.t + offset);
+  }, [time, linkId, timeOrigin, records]);
 
   useEffect(() => {
     const el = v.current;
@@ -61,6 +74,7 @@ function Player({ url, records, units, timeOrigin }: { url: string; records: Ima
       if ((r?.id ?? null) !== last) {
         last = r?.id ?? null;
         setCurrent(r);
+        if (r && !el.paused) setRef.current({ origin: timeOrigin, t: r.time_s, by: linkId });
       }
     };
     const onMeta = () => setSize({ w: el.videoWidth, h: el.videoHeight });
@@ -85,7 +99,7 @@ function Player({ url, records, units, timeOrigin }: { url: string; records: Ima
       el.removeEventListener("timeupdate", onTime);
       if (handle) el.cancelVideoFrameCallback?.(handle);
     };
-  }, [records, tol, url]);
+  }, [records, tol, url, timeOrigin, linkId]);
 
   const seekTo = (r: ImageContourObservation) => {
     const el = v.current;

@@ -5,6 +5,7 @@
 
 import type {
   ArtifactRef,
+  ConditionsTable,
   DatasetBundle,
   EvaluationResult,
   ExecutionRecord,
@@ -22,6 +23,9 @@ import type {
 } from "../contracts/generated";
 import episode from "../../../fixtures/contracts/research/episode.json";
 import events from "../../../fixtures/contracts/research/events.json";
+import episodeV2 from "../../../fixtures/contracts/research/episode_v2.json";
+import eventsV2 from "../../../fixtures/contracts/research/events_v2.json";
+import answerV2 from "../../../fixtures/contracts/research/answer_v2.json";
 import answer from "../../../fixtures/contracts/research/answer.json";
 import toolAccepted from "../../../fixtures/contracts/research/tool_accepted.json";
 import toolFailed from "../../../fixtures/contracts/research/tool_failed.json";
@@ -38,6 +42,7 @@ import accessProxy from "../../../fixtures/contracts/evidence/source_access_prox
 import accessLinkOut from "../../../fixtures/contracts/evidence/source_access_link_out.json";
 import executionRecord from "../../../fixtures/contracts/research/execution_record.json";
 import evaluationResult from "../../../fixtures/contracts/evaluation/result_dev.json";
+import conditionsTable from "../../../fixtures/contracts/data/conditions_table.json";
 import manifest from "../../../fixtures/contracts/manifest.json";
 
 const as = <T>(v: unknown) => v as T;
@@ -49,6 +54,13 @@ export const FIXTURES = {
   answer: as<ResearchAnswer>(answer),
   /** ArtifactRef id under which `answer.completed` stores the ResearchAnswer in events.json. */
   answerArtifactId: "fixture-artifact-answer-01",
+  /** research.v2 (K1-research): an episode whose answer places catalog views (T8). */
+  v2: {
+    episode: as<ResearchEpisode>(episodeV2),
+    events: as<ResearchEvent[]>(eventsV2),
+    answer: as<ResearchAnswer>(answerV2),
+    answerArtifactId: "fixture-artifact-answer-02",
+  },
   tools: {
     accepted: as<ToolResult>(toolAccepted),
     failed: as<ToolResult>(toolFailed),
@@ -71,6 +83,8 @@ export const FIXTURES = {
   ],
   /** The records behind `visualBundle.contours`, served as NDJSON text the way the artifact store holds them. */
   imageContours: as<ImageContourObservation[]>(imageContours),
+  /** K1.13 fixture: two runs with a value, a conflict, a missing and a not-applicable cell, and one envelope. */
+  conditionsTable: as<ConditionsTable>(conditionsTable),
 };
 
 function typedRef(artifact_id: string, contract: string, payload: { created_at?: string; finished_at?: string }): { ref: ArtifactRef; payload: unknown } {
