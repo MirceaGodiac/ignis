@@ -1,0 +1,264 @@
+{
+  "schema_version": "dataset.v1",
+  "dataset_id": "bass-4083156d5b18dab4-train",
+  "family": "bass",
+  "audience": "builder",
+  "cohort_id": "sha256:f66dc826dc830db0efeec395ef4f2f57c6fe3b0b15853c6cc2fb9d2afc06b278",
+  "split_id": "sha256:4083156d5b18dab45889b274812d12fa9c144dec5880fb3a8906e380468b043a",
+  "partitions": [
+    "train"
+  ],
+  "source_manifest_hash": "sha256:405c774caa6926ecb5fa6c79969b092e713fffea79df3d724b6d19ac08ca48aa",
+  "time_origin": "video PTS of the mapped main-view recording (attached by the vision lane; not yet adjudicated)",
+  "views": [
+    {
+      "name": "runs",
+      "artifact": {
+        "artifact_id": "art-81864fd9a79ba3f8a12899238e7b3c1e",
+        "sha256": "sha256:81864fd9a79ba3f8a12899238e7b3c1ed711a4f27a25e9b246f2b14246542caa",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 4486,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "partition",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "group_id",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "investigation_id",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "configuration",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "fuel_or_material",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "identity_resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "flow_velocity_si",
+          "role": "condition",
+          "unit": "m/s",
+          "nullable": true
+        },
+        {
+          "name": "x_co_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_co2_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "x_o2_si",
+          "role": "condition",
+          "unit": "1",
+          "nullable": false
+        },
+        {
+          "name": "fan_display",
+          "role": "condition",
+          "nullable": true
+        },
+        {
+          "name": "flow_restrictor",
+          "role": "condition",
+          "nullable": false
+        }
+      ],
+      "row_count": 4
+    },
+    {
+      "name": "conditions",
+      "artifact": {
+        "artifact_id": "art-9a74f760bb605d851ff6ef70087103d9",
+        "sha256": "sha256:9a74f760bb605d851ff6ef70087103d926f545ab51c91b2fd2178cc4bba14280",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 5335,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "role": "condition",
+          "nullable": false
+        },
+        {
+          "name": "raw_value",
+          "role": "value",
+          "nullable": true
+        },
+        {
+          "name": "raw_unit",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "value_si",
+          "role": "value",
+          "nullable": true
+        },
+        {
+          "name": "unit_si",
+          "role": "flag",
+          "nullable": true
+        },
+        {
+          "name": "uncertainty_si",
+          "role": "uncertainty",
+          "nullable": true
+        },
+        {
+          "name": "resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "evidence_class",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "flags",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 24
+    },
+    {
+      "name": "endpoints",
+      "artifact": {
+        "artifact_id": "art-6882ded7371ae560e2a165da63da7a84",
+        "sha256": "sha256:6882ded7371ae560e2a165da63da7a84b3fd76346c5278898d551494a30243a7",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 1654,
+        "origin": "system"
+      },
+      "columns": [
+        {
+          "name": "run_id",
+          "role": "run_id",
+          "nullable": false
+        },
+        {
+          "name": "censoring",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "last_confirmed_active_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "first_terminal_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "intervention_s",
+          "role": "time",
+          "unit": "s",
+          "nullable": false
+        },
+        {
+          "name": "intervention_kind",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "allowed_causes",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "observation_state",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "original_label",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "resolution",
+          "role": "flag",
+          "nullable": false
+        },
+        {
+          "name": "evidence",
+          "role": "locator",
+          "nullable": false
+        },
+        {
+          "name": "method_id",
+          "role": "locator",
+          "nullable": false
+        }
+      ],
+      "row_count": 0
+    }
+  ],
+  "quality_report": {
+    "artifact_id": "art-219493b2d42836b64af4cebbf571b15c",
+    "sha256": "sha256:219493b2d42836b64af4cebbf571b15c27dd3bb14ce2c802655519f8a6d7c0bd",
+    "media_type": "application/json",
+    "byte_length": 314,
+    "contract": "DatasetQualityReport",
+    "origin": "system"
+  },
+  "inclusion_criteria": {
+    "bundle_version": "1",
+    "cohort_version": "1",
+    "investigation": "PSI-25 (BASS-II) only; PSI-26 is a related but different protocol, never pooled",
+    "material": "SIBAL (75/25 cotton/fiberglass fabric), planar_fabric geometry",
+    "partitions": "train",
+    "qualification": "DECLARED CANDIDATE, NOT QUALIFIED: pixel->m calibration, plane validity, phase and flow history are not established; the vision lane must qualify each run",
+    "video": "at least one resolved main-view MP4 mapped to the run"
+  },
+  "origin": "system"
+}

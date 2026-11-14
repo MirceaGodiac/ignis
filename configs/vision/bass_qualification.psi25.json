@@ -1,0 +1,246 @@
+{
+  "_comment": "BASS-II planar SIBAL cohort qualification (vision lane). Membership of the cohort/split is NOT changed by this file; it records why no run is forecast-qualified. Evidence: docs/raul/02-bass-video-findings.md (branch feature/bass-calibration).",
+  "cohort_id": "sha256:f66dc826dc830db0efeec395ef4f2f57c6fe3b0b15853c6cc2fb9d2afc06b278",
+  "split_id": "sha256:4083156d5b18dab45889b274812d12fa9c144dec5880fb3a8906e380468b043a",
+  "decision": "BASS forecast disabled: edge-on side view, flame invisible after ignition at low flow, no in-frame metric reference (V3.1 s13.9 gate 'Operator video' not met).",
+  "sources": [
+    {
+      "what": "edge-on side view; top-view stills; 10 cm exposed length; 1.2/2.2 cm widths",
+      "where": "PSI-25_Reports_BASS-II Summary Report.pdf, PDF p.102 (NASA/TM-20210011385 s7.1.3)"
+    },
+    {
+      "what": "low-flow flames dim/invisible in side video",
+      "where": "same, PDF p.103 (s7.1.4)"
+    },
+    {
+      "what": "flow right->left in side view",
+      "where": "same, PDF p.103 (Fig. 7.2 text)"
+    },
+    {
+      "what": "duct 7.6x7.6x17 cm, movable scale, WV-CP654 video via turning mirror",
+      "where": "same, PDF pp.12-13 (s1)"
+    },
+    {
+      "what": "sample frame position adjustable",
+      "where": "PSI-25_Engineering Documents_BASS-II_Engineering Requirements.pptx, slide text 'Sample Frame Assembly is designed to allow for adjustment'"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "PSI-25:T5",
+      "partition": "train",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "video assessed",
+      "ignited": "yes",
+      "visible_flame_s": "~0-7 after onset (+ dim, sporadic to ~27)",
+      "spec": "configs/vision/calibration.psi25_T5.pixel.json",
+      "contours": "pixel-only, 208 single-valued / 4995 frames"
+    },
+    {
+      "run_id": "PSI-25:T6",
+      "partition": "train",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "video assessed",
+      "ignited": "yes",
+      "visible_flame_s": "~0-7 after onset",
+      "spec": "configs/vision/calibration.psi25_T6.pixel.json",
+      "contours": "pixel-only, 203 single-valued / 4482 frames"
+    },
+    {
+      "run_id": "PSI-25:T10",
+      "partition": "train",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "video assessed",
+      "ignited": "no (main view: igniter glow only; Summary Report Table 7.1 'No ignition')",
+      "visible_flame_s": "none",
+      "spec": null,
+      "contours": "none"
+    },
+    {
+      "run_id": "PSI-25:T16",
+      "partition": "train",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "video assessed",
+      "ignited": "yes",
+      "visible_flame_s": "~0-12 after onset",
+      "spec": "configs/vision/calibration.psi25_T16.pixel.json",
+      "contours": "pixel-only, 68 single-valued / 4350 frames (right edge occluded: static artifact)"
+    },
+    {
+      "run_id": "PSI-25:T1",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T2",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T4",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T9",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T15",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T18",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T19",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T21",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T22",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T23",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T24",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T25",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T26",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T27",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T28a",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T28b",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T29",
+      "partition": "validation",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not yet assessed (validation video not opened)"
+    },
+    {
+      "run_id": "PSI-25:T11",
+      "partition": "test",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not opened (test partition sealed; no frames, no contours)"
+    },
+    {
+      "run_id": "PSI-25:T12",
+      "partition": "test",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not opened (test partition sealed; no frames, no contours)"
+    },
+    {
+      "run_id": "PSI-25:T14",
+      "partition": "test",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not opened (test partition sealed; no frames, no contours)"
+    },
+    {
+      "run_id": "PSI-25:T17",
+      "partition": "test",
+      "view": "side, edge-on (main MP4)",
+      "metric_calibration": "unavailable",
+      "forecast_qualified": false,
+      "assessment": "not opened (test partition sealed; no frames, no contours)"
+    }
+  ]
+}

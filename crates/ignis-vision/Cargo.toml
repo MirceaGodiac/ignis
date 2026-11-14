@@ -7,6 +7,8 @@ license.workspace = true
 
 [dependencies]
 ignis-core = { path = "../ignis-core" }
+# same lane: the clip -> run map of the BASS records and the frozen splits (bundle scope checks)
+ignis-data = { path = "../ignis-data" }
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true

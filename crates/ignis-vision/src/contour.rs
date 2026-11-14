@@ -398,6 +398,82 @@ pub struct ObservationContext<'a> {
     pub evidence_class: EvidenceClass,
 }
 
+/// The same frame as [`make_observation`], as an image-space record for a `pixel_only` bundle:
+/// coordinates stay pixels and the record type says so (it can never be read as metres).
+pub fn make_image_observation(
+    geom: &ContourGeometry,
+    ctx: &ObservationContext<'_>,
+    frame: usize,
+    pts_s: f64,
+    dependency_frames: &[i64],
+    extra_notes: &[String],
+) -> anyhow::Result<ignis_core::contracts::ImageContourObservation> {
+    use ignis_core::contracts::{Finite, ImageContourObservation, Origin, UnitsStatus};
+    let fin = |v: f64| Finite::new(v).map_err(|e| anyhow::anyhow!("frame {frame}: {e}"));
+    let reasons = if geom.reasons.is_empty() {
+        "-".to_string()
+    } else {
+        geom.reasons.join("|")
+    };
+    let mut notes = vec![
+        "units=px (image coordinates; not metres)".to_string(),
+        format!("status_reasons={reasons}"),
+        format!("geometry_spec={}", ctx.cal.record.id),
+    ];
+    notes.extend(extra_notes.iter().cloned());
+    let t = pts_s - ctx.time_origin_s;
+    let mut deps: Vec<i64> = dependency_frames.to_vec();
+    deps.sort_unstable();
+    deps.dedup();
+    let mut obs = ImageContourObservation {
+        id: String::new(),
+        frame: frame as i64,
+        pts_s: fin(pts_s)?,
+        time_s: fin(t)?,
+        available_at_s: fin(t)?,
+        units: UnitsStatus::PixelOnly,
+        s: geom
+            .s
+            .iter()
+            .map(|v| fin(*v))
+            .collect::<anyhow::Result<_>>()?,
+        f: geom
+            .f
+            .iter()
+            .map(|v| v.map(fin).transpose())
+            .collect::<anyhow::Result<_>>()?,
+        status: geom.status,
+        mask_dependency_frames: deps,
+        evidence_class: ctx.evidence_class,
+        locator: crate::locator(
+            ctx.asset_sha256,
+            ctx.asset_path,
+            Some(frame as i64),
+            Some(pts_s),
+        ),
+        derivation: Derivation {
+            method: Method::Numerical,
+            method_id: ctx.method_id.to_string(),
+            method_version: METHOD_VERSION.into(),
+            inputs: vec![
+                format!("sha256:{}", ctx.asset_sha256),
+                ctx.cal.record.id.clone(),
+            ],
+            agent: None,
+            notes: Some(notes.join("; ")),
+        },
+        origin: if ctx.evidence_class == EvidenceClass::Synthetic {
+            Origin::SyntheticFixture
+        } else {
+            Origin::System
+        },
+    };
+    let hash = ignis_core::hashing::content_hash(&obs, &["id"]);
+    obs.id = format!("imgcontour-{}", &ignis_core::hashing::hex_part(&hash)[..16]);
+    obs.validate()?;
+    Ok(obs)
+}
+
 pub fn make_observation(
     geom: &ContourGeometry,
     ctx: &ObservationContext<'_>,
