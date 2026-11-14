@@ -21,6 +21,9 @@ export class SseParser {
     const out: SseFrame[] = [];
     let nl: number;
     while ((nl = this.buf.search(/\r\n|\r|\n/)) >= 0) {
+      // A chunk that ends on "\r" may be the first half of "\r\n": wait for the next chunk, or the
+      // "\n" would read as an empty line and dispatch the frame early.
+      if (nl === this.buf.length - 1 && this.buf.endsWith("\r")) break;
       const line = this.buf.slice(0, nl);
       const sepLen = this.buf.startsWith("\r\n", nl) ? 2 : 1;
       this.buf = this.buf.slice(nl + sepLen);

@@ -329,6 +329,8 @@ function noticeText(n: Notice): string {
       return `event of episode ${n.episode_id} ignored`;
     case "resync":
       return `410: reloaded the episode snapshot; seq ${n.from}–${n.to} not received`;
+    case "restart":
+      return `410: replaying from the start (${n.reason})`;
     case "error":
       return `error ${n.error.code}${n.http_status ? ` (HTTP ${n.http_status})` : ""}: ${n.error.message}`;
     case "gave_up":
