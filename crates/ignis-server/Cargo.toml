@@ -1,0 +1,49 @@
+[package]
+name = "ignis-server"
+description = "IGNIS runtime API (Axum); started by `ignis serve`"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+# Test double of `codex app-server` for the agent-runtime tests (the program lives in ignis-research).
+[[bin]]
+name = "ignis-server-fake-codex"
+path = "src/bin/ignis-server-fake-codex.rs"
+test = false
+doc = false
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-research = { path = "../ignis-research" }
+ignis-mcp = { path = "../ignis-mcp" }
+serde.workspace = true
+serde_json = { workspace = true, features = ["float_roundtrip"] } # stable hashes across store/reload
+thiserror.workspace = true
+tokio.workspace = true
+axum.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+rusqlite.workspace = true
+moka.workspace = true
+clap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+rayon.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+schemars.workspace = true
+sha2.workspace = true
+hex.workspace = true
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+indexmap = "2"
+# OpenAPI generated from the handlers on top of the contracts' schemars 1 derives (utoipa would need a
+# second schema derive on every C0 type in ignis-core). Exact pin: 0.16 is the schemars-1 line.
+aide = { version = "=0.16.0-alpha.4", features = ["axum", "axum-json", "axum-query"] }
+
+[dev-dependencies]
+tempfile = "3"
+http-body-util = "0.1"
+tower = { workspace = true }

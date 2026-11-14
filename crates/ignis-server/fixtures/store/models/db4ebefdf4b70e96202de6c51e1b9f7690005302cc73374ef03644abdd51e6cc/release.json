@@ -1,0 +1,53 @@
+{
+  "id": "sha256:db4ebefdf4b70e96202de6c51e1b9f7690005302cc73374ef03644abdd51e6cc",
+  "family": "flex",
+  "model_name": "fixture.synthetic_d2",
+  "is_baseline": true,
+  "architecture": {
+    "kind": "ols_d2_law",
+    "note": "development fixture - synthetic"
+  },
+  "config": {
+    "min_observations": 4
+  },
+  "feature_order": [
+    "pressure",
+    "oxygen_mole_fraction"
+  ],
+  "units": {
+    "pressure": "Pa",
+    "oxygen_mole_fraction": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {},
+  "numerics": {},
+  "tensors": [
+    {
+      "name": "d2_law_order",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "cae704efe56758ac2b3c6e18700a5584560df6a1b1f90a53a13916080df010d1",
+      "trainable": true
+    }
+  ],
+  "posterior": [],
+  "cohort_id": "fixture-cohort",
+  "split_id": "fixture-split",
+  "source_manifest_hash": "synthetic",
+  "code_version": "fixture",
+  "applicability": {
+    "note": "development fixture - synthetic"
+  },
+  "evaluation": {},
+  "state": "fit_only",
+  "parent_id": null,
+  "lineage": "initial_fit",
+  "lineage_note": null,
+  "posterior_valid_for_parameters": true,
+  "trained_on": "synthetic",
+  "resource_record": null,
+  "created_at": "2026-11-07T19:45:53.792117Z"
+}
