@@ -69,7 +69,7 @@ const short = (id: string) => (id.length > 24 ? `${id.slice(0, 18)}…${id.slice
 // ------------------------------------------------------------------------------------- tool states
 
 const EXEC_LABEL: Record<ToolResult["execution_status"], string> = {
-  completed: "executed",
+  completed: "completed",
   accepted: "accepted — running as a job",
   refused: "refused",
   failed: "failed (technical)",
@@ -84,7 +84,18 @@ const SCI_LABEL: Record<ToolResult["scientific_status"], string> = {
 };
 
 /** Execution and scientific outcome are separate axes: `completed` + `insufficient_evidence` is a valid result, not an error. */
-export function ToolResultCard({ result, tool, onArtifact }: { result: ToolResult | null; tool: string; onArtifact?: (a: ArtifactRef) => void }) {
+export function ToolResultCard({
+  result,
+  tool,
+  onArtifact,
+  inRow = false,
+}: {
+  result: ToolResult | null;
+  tool: string;
+  onArtifact?: (a: ArtifactRef) => void;
+  /** Inside an Activity row that already names the tool: do not repeat it. */
+  inRow?: boolean;
+}) {
   if (!result)
     return (
       <div className="rs-tool">
@@ -98,7 +109,7 @@ export function ToolResultCard({ result, tool, onArtifact }: { result: ToolResul
   return (
     <div className="rs-tool">
       <div className="rs-tool-head">
-        <b>{result.tool}</b>
+        {!inRow && <b>{result.tool.replace(/_/g, " ")}</b>}
         <span className="rs-axis">
           Execution <span className={`rs-status ${execTone}`}>{EXEC_LABEL[exec]}</span>
         </span>
@@ -107,7 +118,7 @@ export function ToolResultCard({ result, tool, onArtifact }: { result: ToolResul
         </span>
         <OriginBadge origin={result.origin} />
       </div>
-      {result.job && <JobLine job={result.job} />}
+      {result.job && <JobLine job={result.job} inRow={inRow} />}
       {result.result && <InlineResult payload={result.result} onArtifact={onArtifact} />}
       {result.error && <ErrorBox error={new ApiError(result.error, null)} title="Tool error" />}
       {(result.artifact_refs ?? []).length > 0 && (
@@ -172,12 +183,26 @@ function PayloadValue({ value }: { value: unknown }) {
   );
 }
 
-export function JobLine({ job }: { job: JobRef }) {
+/**
+ * A job's state. In an Activity row, the row already says which job and its status, so only the
+ * progress and any error are added; elsewhere the job is named in full.
+ */
+export function JobLine({ job, inRow = false }: { job: JobRef; inRow?: boolean }) {
   const p = job.progress;
+  const progress = p ? `${p.completed}${p.total != null ? ` of ${p.total}` : " (total unknown)"} ${p.unit ?? ""}`.trim() : null;
+  if (inRow) {
+    if (!progress && !job.error) return null;
+    return (
+      <p className="status-line">
+        {progress && `Progress: ${progress}`}
+        {job.error && <span className="warn"> {job.error.code}: {job.error.message}</span>}
+      </p>
+    );
+  }
   return (
     <p className="status-line">
-      Job <code>{job.job_id}</code> ({job.kind}): <b>{job.status}</b>
-      {p && ` — ${p.completed}${p.total != null ? ` / ${p.total}` : " / total unknown"} ${p.unit ?? ""}`}
+      Job <code>{job.job_id}</code> ({job.kind.replace(/_/g, " ")}): <b>{job.status.replace(/_/g, " ")}</b>
+      {progress && ` — ${progress}`}
       {job.error && <span className="warn"> — {job.error.code}: {job.error.message}</span>}
     </p>
   );

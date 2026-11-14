@@ -48,16 +48,20 @@ export function App() {
         <h1>
           IGNIS <span className="muted">microgravity combustion lab</span>
         </h1>
-        <div className="origin" role="group" aria-label="Data origin">
-          <button aria-pressed={origin === "registry"} onClick={() => switchOrigin("registry")}>
-            Registry
-          </button>
-          {fixtures.data && (
-            <button aria-pressed={isFixture} onClick={() => switchOrigin("fixtures")} className="fixture-btn">
-              Development fixture — synthetic
+        {/* The legacy tabs' origin. Research has its own (Mock / Server fixtures / Live); two
+            origin selectors on one screen would contradict each other. */}
+        {tab !== "research" && (
+          <div className="origin" role="group" aria-label="Data origin">
+            <button aria-pressed={origin === "registry"} onClick={() => switchOrigin("registry")}>
+              Registry
             </button>
-          )}
-        </div>
+            {fixtures.data && (
+              <button aria-pressed={isFixture} onClick={() => switchOrigin("fixtures")} className="fixture-btn">
+                Development fixture — synthetic
+              </button>
+            )}
+          </div>
+        )}
       </header>
       <nav role="tablist" aria-label="Workspaces" className="tabs">
         {TABS.map(([id, label], i) => (
