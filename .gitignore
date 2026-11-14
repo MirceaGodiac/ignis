@@ -26,3 +26,9 @@ holdout/
 
 # Model weights fetched for the SAM2 sidecar (never committed)
 data/models/
+
+# Edge worker
+infra/worker/node_modules/
+infra/worker/.wrangler/
+# Server image build context (codex binary staged by infra/scripts/build-server.sh)
+infra/server/vendor/

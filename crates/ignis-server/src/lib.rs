@@ -15,6 +15,7 @@
 mod api;
 mod evidence;
 pub mod fixture;
+pub mod ops;
 mod refusal;
 mod state;
 pub mod v1;
@@ -119,6 +120,17 @@ pub struct ServeArgs {
     /// How callers are identified (the host derives each request's ExecutionScope from it).
     #[arg(long, value_enum, env = "IGNIS_AUTH", default_value = "local")]
     pub auth: v1::io::AuthMode,
+    /// Where `/api/v1` artifacts live.
+    #[arg(
+        long,
+        value_enum,
+        env = "IGNIS_ARTIFACT_BACKEND",
+        default_value = "local"
+    )]
+    pub artifact_backend: ops::ArtifactBackend,
+    /// R2 bucket (with `--artifact-backend r2`).
+    #[command(flatten)]
+    pub r2: ops::R2Args,
     /// Cloudflare Access verification (required by `--auth cloudflare-access`).
     #[command(flatten)]
     pub access: v1::access::AccessArgs,
@@ -393,7 +405,7 @@ fn v1_instance(
     runner_report: v1::sandbox::RunnerReport,
     access: Option<Arc<v1::access::AccessVerifier>>,
 ) -> Arc<v1::V1> {
-    let (store, inner) = open_state(dir);
+    let (store, inner) = open_state(args, dir, name);
     let (artifacts, seed): (Arc<dyn ignis_core::services::ArtifactStore>, _) = match fixture {
         Some(fx) => (Arc::new(fx.artifacts(inner)), Some(Arc::new(fx.seed))),
         None => (inner, None),
@@ -527,16 +539,19 @@ fn blocking_startup<T>(f: impl FnOnce() -> T) -> T {
 }
 
 fn open_state(
+    args: &ServeArgs,
     dir: &std::path::Path,
+    name: &str,
 ) -> (
     Arc<ignis_research::ResearchStore>,
     Arc<dyn ignis_core::services::ArtifactStore>,
 ) {
     let store = ignis_research::ResearchStore::open(dir.join("state.sqlite"))
         .unwrap_or_else(|e| panic!("state store in {}: {e}", dir.display()));
-    let artifacts = ignis_research::LocalArtifactStore::open(dir.join("artifacts"))
-        .unwrap_or_else(|e| panic!("artifact store in {}: {e}", dir.display()));
-    (Arc::new(store), Arc::new(artifacts))
+    let artifacts =
+        ops::artifact_store(args.artifact_backend, &args.r2, dir.join("artifacts"), name)
+            .unwrap_or_else(|e| panic!("artifact store for {}: {e}", dir.display()));
+    (Arc::new(store), artifacts)
 }
 
 /// The short-command limits of the legacy routes (30 s, 1 MiB).
@@ -561,6 +576,10 @@ pub fn run(args: ServeArgs, services: Services) -> anyhow::Result<()> {
         .build()?;
     if args.auth == v1::io::AuthMode::CloudflareAccess {
         v1::access::AccessVerifier::new(&args.access).map_err(|e| anyhow::anyhow!(e))?;
+    }
+    if args.artifact_backend == ops::ArtifactBackend::R2 {
+        // Fail at start (the supervisor retries) rather than accept work it cannot store.
+        ops::probe_r2(&args.r2).map_err(|e| anyhow::anyhow!(e))?;
     }
     rt.block_on(async move {
         let addr = format!("{}:{}", args.host, args.port);

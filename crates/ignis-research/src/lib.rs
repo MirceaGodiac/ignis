@@ -18,7 +18,10 @@
 //! leak.
 
 pub mod artifacts;
+pub mod backup;
+pub mod r2;
 pub mod runtime;
+pub mod s3;
 pub mod sandbox;
 pub mod store;
 

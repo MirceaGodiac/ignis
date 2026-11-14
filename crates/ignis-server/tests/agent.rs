@@ -40,6 +40,8 @@ fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
         codex,
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
         access: Default::default(),
     }
 }

@@ -1938,15 +1938,20 @@ dependencies = [
 name = "ignis-research"
 version = "0.1.0"
 dependencies = [
+ "axum",
+ "chrono",
  "hex",
  "ignis-core",
+ "ring",
  "rusqlite",
  "schemars",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
+ "tokio",
  "tracing",
+ "ureq",
  "uuid",
 ]
 

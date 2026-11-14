@@ -39,6 +39,8 @@ fn router(tag: &str) -> (axum::Router, PathBuf) {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
         access: Default::default(),
     };
     let services = Services {
@@ -174,6 +176,8 @@ async fn acquisition_scoring_never_reads_hidden_values() {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
         access: Default::default(),
     };
     // A scorer that records what it was given.

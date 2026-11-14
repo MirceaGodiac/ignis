@@ -50,4 +50,6 @@ aide = { version = "=0.16.0-alpha.4", features = ["axum", "axum-json", "axum-que
 [dev-dependencies]
 tempfile = "3"
 http-body-util = "0.1"
+# The S3 stand-in shared with ignis-research's tests.
+ignis-research = { path = "../ignis-research" }
 tower = { workspace = true }

@@ -21,6 +21,9 @@ enum Cmd {
     Schemas(SchemasCmd),
     /// Runtime API (Axum) with in-process experts; `--dev` adds the synthetic /fixtures origin.
     Serve(ignis_server::ServeArgs),
+    /// Server state snapshots: backup (optionally to R2), verify, restore onto an empty volume.
+    #[command(subcommand)]
+    State(ignis_server::ops::StateCmd),
     /// Sealed evaluation: deposit, seal, reveal, score, compare, report.
     #[command(subcommand)]
     Eval(ignis_lab::EvalCmd),
@@ -140,6 +143,7 @@ fn main() -> anyhow::Result<()> {
                 research: Default::default(),
             },
         )?,
+        Cmd::State(c) => ignis_server::ops::run_state(c)?,
         Cmd::Eval(c) => {
             let source = eval_source(&c)?;
             std::process::exit(ignis_lab::eval::run(c, &experts(), source.as_ref()))
