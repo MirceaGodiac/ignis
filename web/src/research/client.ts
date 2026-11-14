@@ -119,6 +119,10 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
       id === FIXTURES.readResult.source_id && FIXTURES.readResult.segments.some((s) => s.locator.page === page)
         ? ok(FIXTURES.readResult)
         : fail(notInFixtures(`source ${id} page ${page}`), 404),
+    sourceAccess: (id) => {
+      const a = FIXTURES.sourceAccess.find((x) => x.source_id === id);
+      return a ? ok(a) : fail(notInFixtures(`access to source ${id}`), 404);
+    },
     listModels: () => ok(FIXTURES.releases),
     postMessage: () => fail(MOCK_ONLY, 501),
   };
