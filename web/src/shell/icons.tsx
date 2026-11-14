@@ -33,10 +33,8 @@ export const IconCompare = (p: P) => (
 );
 export const IconLab = (p: P) => (
   <svg {...base(p)}>
-    <path d="M2.5 13.25h11" />
-    <path d="M2.75 11c1.6 0 2.3-3 4.25-3" />
-    <path d="M7 8c1.9 0 2.6-3.5 4.6-4.25" strokeDasharray="1.6 1.9" />
-    <path d="M7 3.25v10" opacity="0.45" />
+    <path d="M9.33 1.33v4a1.33 1.33 0 0 0 .16.64l3.67 6.72A1.33 1.33 0 0 1 12 14.67H4a1.33 1.33 0 0 1-1.17-1.97l3.67-6.72a1.33 1.33 0 0 0 .17-.65v-4" />
+    <path d="M4.3 10h7.4M5.67 1.33h4.66" />
   </svg>
 );
 export const IconSources = (p: P) => (
@@ -95,9 +93,8 @@ export const IconMenu = (p: P) => (
 );
 export const IconHome = (p: P) => (
   <svg {...base(p)}>
-    <path d="M2.75 7.25 7.18 3.4a1.25 1.25 0 0 1 1.64 0l4.43 3.85" />
-    <path d="M4.25 6.1v6.4c0 .69.56 1.25 1.25 1.25h5c.69 0 1.25-.56 1.25-1.25V6.1" />
-    <path d="M6.75 13.75v-2.5a1.25 1.25 0 0 1 2.5 0v2.5" />
+    <path d="M2 6.67a1.33 1.33 0 0 1 .47-1.02l4.67-4a1.33 1.33 0 0 1 1.72 0l4.67 4A1.33 1.33 0 0 1 14 6.67v6a1.33 1.33 0 0 1-1.33 1.33H3.33A1.33 1.33 0 0 1 2 12.67z" />
+    <path d="M10 14V8.67a.67.67 0 0 0-.67-.67H6.67a.67.67 0 0 0-.67.67V14" />
   </svg>
 );
 export const IconEvidence = (p: P) => (
