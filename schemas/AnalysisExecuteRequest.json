@@ -1,0 +1,78 @@
+{
+  "$defs": {
+    "AnalysisInput": {
+      "additionalProperties": false,
+      "description": "One input of an analysis: an artifact of the caller's workspace, mounted read-only at\n`/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "name": {
+          "description": "File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "artifact_id"
+      ],
+      "type": "object"
+    },
+    "AnalysisLanguage": {
+      "description": "Language of an `analysis_execute` program. Closed: a new value needs a runner image that\nprovides it (and a preflight that proves it).",
+      "oneOf": [
+        {
+          "const": "python",
+          "description": "CPython of the pinned runner image, run isolated (`python -I`).",
+          "type": "string"
+        }
+      ]
+    },
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/AnalysisExecuteRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Argument of `analysis_execute`: a program run once in the isolated runner (no network, read-only\nroot, separate uid, no host secrets). Its stdout, stderr and the regular files it writes under\n`/out` become artifacts of an [`ExecutionRecord`].",
+  "properties": {
+    "client_request_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ClientRequestId"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Idempotency key: a retry with the same key returns the same job."
+    },
+    "inputs": {
+      "items": {
+        "$ref": "#/$defs/AnalysisInput"
+      },
+      "type": "array"
+    },
+    "language": {
+      "$ref": "#/$defs/AnalysisLanguage"
+    },
+    "source": {
+      "description": "The program, executed as written.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "language",
+    "source"
+  ],
+  "title": "AnalysisExecuteRequest",
+  "type": "object"
+}

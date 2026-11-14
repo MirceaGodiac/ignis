@@ -15,7 +15,7 @@ Netcup: IGNIS Rust / Axum                                   ignis-server + ignis
    │
 CodexBridge (Rust)  ── JSON-RPC pe stdio privat ──▶ Codex App Server (versiune pin-uită)
    │                                                  investigatorul (model verificat la preflight)
-IGNIS MCP (rmcp, loopback) + runner izolat           ignis-mcp (MCP livrat; runner planificat)
+IGNIS MCP (rmcp, loopback) + runner izolat           ignis-mcp + ignis_research::sandbox (livrate)
    │            │                 │
 Knowledge     Datasets          Models (FLEX/ACME/BASS, WSP)      Evaluator izolat (proces separat)
 Raul          Raul              Iancu                             Tudor

@@ -1,0 +1,8 @@
+# Scientific stack of the analysis runner image. Versions and hashes are locked in
+# requirements.lock (uv pip compile --generate-hashes); the image installs only from the lock.
+numpy
+scipy
+pandas
+pyarrow
+sympy
+pint

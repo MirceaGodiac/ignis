@@ -65,13 +65,39 @@ host-ului (`live_turn_calls_an_ignis_tool`, opt-in). Pin-ul Codex a trecut de la
 0.141.0 primea `model_not_found` pe conturi ChatGPT; 0.169.0 trece preflight-ul (schema protocolului
 conține toate metodele bridge-ului), handshake-ul și turn-ul fără schimbări de cod.
 
-Rămân: runner izolat + `analysis_execute` (M3), backend R2 pentru `ArtifactStore`, `infra/` (Compose, systemd, cloudflared, Worker, Access,
+Livrat în M3 (runner-ul, branch `feat/m3-runner`): `ignis_research::sandbox` + tool-ul `analysis_execute`
+(`AnalysisExecuteRequest` → job → `ExecutionRecord`, contracte noi în `research.rs`, fixture
+`research/execution_record.json`). Programul (Python) rulează o dată într-un container OCI nou pornit
+prin CLI-ul engine-ului, niciodată ca proces pe host: `--network none`, root read-only, `/tmp` tmpfs,
+uid/gid 65534, `--cap-drop ALL`, `no-new-privileges`, bugete de memorie (fără swap), CPU, pids, timp
+și dimensiune de fișier; exact trei mount-uri sub un director per rulare (`/job` ro, `/in` ro = copii
+verificate prin digest ale artefactelor pe care scope-ul le poate citi, `/out`); niciun env de pe host.
+Imaginea (`infra/runner/Dockerfile`, bază pin-uită prin digest, dependențe cu hash-uri în
+`requirements.lock`) e acceptată doar prin id (`tools/runner/build.*`). Preflight-ul verifică engine-ul,
+runtime-ul OCI și id-ul imaginii, apoi rulează o probă prin aceeași cale ca o execuție reală și refuză
+runner-ul dacă dinăuntru se vede rețea, root scriibil, `/in` scriibil, capabilități, socket de engine
+sau variabile de mediu în plus. Fără preflight trecut tool-ul nu e înregistrat, scope-ul nu primește
+`ExecuteCode`, iar `/capabilities` (`analysis_runner`, `runner_environment`) spune de ce; nu există
+fallback pe host. `runsc` (gVisor) e cerut implicit; `--runner-allow-container` (runc) doar cu
+`--auth local`. stdout/stderr (prefix până la buget, `truncated` explicit) și fișierele regulate din
+`/out` devin artefacte cu lineage (input + program); link-urile simbolice și fișierele speciale sunt
+raportate ca `rejected_outputs`, nu urmate. Timeout/OOM sunt rezultate (`outcome`), nu erori de host;
+cancel-ul episodului/jobului omoară containerul. Teste: offline (flag-urile de izolare, mount-uri,
+link-uri, trunchiere, probă eșuată, tool neînregistrat fără runner, `/capabilities`) și opt-in pe
+Docker real cu imaginea pin-uită (`ignis-research/tests/sandbox_live.rs`: program științific, program
+ostil — rețea/DNS/scriere root și input/socket/setuid/mount/secret din env refuzate —, timeout, OOM,
+fork bomb, trunchiere, cancel, alt workspace; `ignis-mcp/tests/analysis_live.rs`: tool → job →
+container → `ExecutionRecord` citit prin `artifacts_read`). Verificat aici sub `runc` (Docker Desktop);
+**neverificat sub gVisor** — Netcup cu `runsc` intră în M4. Disk-ul `/out` e limitat doar per fișier
+(`fsize`) și la ingestie; o cotă de volum pentru `--runner-dir` ține de M4.
+
+Rămân: backend R2 pentru `ArtifactStore`, `infra/` (Compose, systemd, cloudflared, Worker, Access,
 secrets, backup/restore), CI (M4).
 
 ## 4. Fișiere deținute
 
 `crates/ignis-server/`, `crates/ignis-research/`, `crates/ignis-mcp/`, `crates/ignis-cli/src/main.rs`,
-root `Cargo.toml`, `Cargo.lock`, `infra/`, `configs/resources/`, `tools/runpod/`,
+root `Cargo.toml`, `Cargo.lock`, `infra/`, `configs/resources/`, `tools/runpod/`, `tools/runner/`,
 `crates/ignis-core/src/contracts/research.rs`, `crates/ignis-core/src/resources.rs`,
 `fixtures/contracts/research/`, documentele comune (cu review Iancu).
 

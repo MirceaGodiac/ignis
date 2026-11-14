@@ -9,6 +9,7 @@
     {"path": "research/tool_accepted.json", "contract": "ToolResult", "shows": "long call accepted with a job handle, nothing assessed yet"},
     {"path": "research/tool_failed.json", "contract": "ToolResult", "shows": "technical failure: error envelope, no result, not assessed"},
     {"path": "research/tool_insufficient_evidence.json", "contract": "ToolResult", "shows": "completed execution whose scientific outcome is insufficient evidence"},
+    {"path": "research/execution_record.json", "contract": "ExecutionRecord", "shows": "analysis_execute run under gVisor: program, mounted input, budget, exit, kept output and a refused symlink"},
     {"path": "research/answer.json", "contract": "ResearchAnswer", "shows": "claims bound to evidence and artifact values; prediction kept apart from observation"},
     {"path": "evidence/search_request.json", "contract": "SearchRequest", "shows": "hybrid search with filters; no scope in the body"},
     {"path": "evidence/search_page.json", "contract": "SearchPage", "shows": "one hit with a PDF region locator; dense backend unavailable (degraded); total unknown"},

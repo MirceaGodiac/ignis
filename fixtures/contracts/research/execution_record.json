@@ -1,0 +1,78 @@
+{
+  "schema_version": "tools.v1",
+  "language": "python",
+  "program": {
+    "artifact_id": "fixture-art-prog-01",
+    "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "media_type": "text/x-python",
+    "byte_length": 214,
+    "produced_by": {"job_id": "fixture-job-05"},
+    "origin": "synthetic_fixture",
+    "created_at": "2026-11-12T18:01:00Z"
+  },
+  "environment": {
+    "image_id": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "oci_runtime": "runsc",
+    "isolation": "gvisor",
+    "interpreter": "Python 3.12.7"
+  },
+  "inputs": [
+    {
+      "name": "series.parquet",
+      "artifact": {
+        "artifact_id": "fixture-art-series-01",
+        "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 40960,
+        "origin": "synthetic_fixture",
+        "created_at": "2026-11-12T17:59:00Z"
+      }
+    }
+  ],
+  "limits": {
+    "wall_seconds": 600,
+    "memory_bytes": 2147483648,
+    "cpu_millis": 2000,
+    "pids": 256,
+    "tmp_bytes": 268435456,
+    "output_bytes": 1073741824,
+    "stream_bytes": 16777216
+  },
+  "outcome": {"kind": "exited", "exit_code": 0},
+  "stdout": {
+    "total_bytes": 38,
+    "truncated": false,
+    "artifact": {
+      "artifact_id": "fixture-art-stdout-01",
+      "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "media_type": "text/plain",
+      "byte_length": 38,
+      "produced_by": {"job_id": "fixture-job-05"},
+      "inputs": [{"kind": "artifact", "id": "fixture-art-series-01"}],
+      "origin": "synthetic_fixture",
+      "created_at": "2026-11-12T18:01:03Z"
+    }
+  },
+  "stderr": {"total_bytes": 0, "truncated": false},
+  "outputs": [
+    {
+      "path": "burn_rate.json",
+      "artifact": {
+        "artifact_id": "fixture-art-out-01",
+        "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "media_type": "application/json",
+        "byte_length": 96,
+        "produced_by": {"job_id": "fixture-job-05"},
+        "inputs": [{"kind": "artifact", "id": "fixture-art-series-01"}],
+        "origin": "synthetic_fixture",
+        "created_at": "2026-11-12T18:01:03Z"
+      }
+    }
+  ],
+  "rejected_outputs": [
+    {"path": "link_to_host", "reason": "symbolic link (only regular files are kept)"}
+  ],
+  "started_at": "2026-11-12T18:01:01Z",
+  "finished_at": "2026-11-12T18:01:03Z",
+  "origin": "synthetic_fixture"
+}
