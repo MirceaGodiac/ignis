@@ -8,7 +8,7 @@ Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/{CONTRACTS,
 
 Backendul care face din serviciile științifice un produs: Codex App Server pin-uit integrat prin stdio
 privat, API Rust/Axum versionat, evenimente SSE reluabile, joburi durabile, artifact store, scope și
-autorizare, transport MCP peste serviciile colegilor, runner izolat, deployment Cloudflare + Netcup.
+autorizare, transport MCP peste serviciile colegilor, runner izolat, deployment Cloudflare + VM Google Compute Engine.
 Ești și integratorul: composition root, `Cargo.toml`/`Cargo.lock`, CI.
 
 ## 2. Ce există și se reutilizează
@@ -88,7 +88,7 @@ Docker real cu imaginea pin-uită (`ignis-research/tests/sandbox_live.rs`: progr
 ostil — rețea/DNS/scriere root și input/socket/setuid/mount/secret din env refuzate —, timeout, OOM,
 fork bomb, trunchiere, cancel, alt workspace; `ignis-mcp/tests/analysis_live.rs`: tool → job →
 container → `ExecutionRecord` citit prin `artifacts_read`). Verificat aici sub `runc` (Docker Desktop);
-**neverificat sub gVisor** — Netcup cu `runsc` intră în M4. Disk-ul `/out` e limitat doar per fișier
+**neverificat sub gVisor** — VM-ul GCE cu `runsc` intră în M4. Disk-ul `/out` e limitat doar per fișier
 (`fsize`) și la ingestie; o cotă de volum pentru `--runner-dir` ține de M4.
 
 Livrat în M4 (branch `feat/m4-infra`, peste `feat/m3-runner`): CI (`.github/workflows/ci.yml`: fmt,
@@ -109,8 +109,8 @@ cloudflared, fără porturi publicate), systemd (serviciu + timer de backup), Wo
 gVisor) și runbook (`infra/README.md`). Teste offline: tokenuri semnate pe un JWKS local (falsificate,
 expirate, inversate, alt service token, cheie nepublicată), un S3 local care reverifică semnătura și
 hash-ul fiecărui request, restore al unui store viu pe volum gol, upload prin `/api/v1` cu backend R2.
-**Neverificate:** bucket R2 real (`r2_live`, opt-in), build-ul imaginii, contul Cloudflare/Netcup
-(neprovizionate), gVisor pe Netcup, RPO/RTO. Riscul socket-ului Docker în containerul `ignis` e
+**Neverificate:** bucket R2 real (`r2_live`, opt-in), build-ul imaginii, contul Cloudflare/VM-ul GCE/domeniul
+(neprovizionate), gVisor pe VM-ul GCE, RPO/RTO. Riscul socket-ului Docker în containerul `ignis` e
 documentat în runbook.
 
 ## 4. Fișiere deținute

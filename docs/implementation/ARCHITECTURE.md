@@ -10,7 +10,7 @@ Browser: React / TypeScript / Vite                         web/  (Tudor)
    │  HTTPS, SSE
 Cloudflare: Static Assets + Worker mic + Access + R2       infra/ (Mircea; neprovizionat)
    │  Tunnel privat
-Netcup: IGNIS Rust / Axum                                   ignis-server + ignis-research (store, joburi, artefacte)
+GCE VM: IGNIS Rust / Axum                                   ignis-server + ignis-research (store, joburi, artefacte)
    API · auth · scope · episoade · evenimente · joburi · artefacte
    │
 CodexBridge (Rust)  ── JSON-RPC pe stdio privat ──▶ Codex App Server (versiune pin-uită)
@@ -46,7 +46,7 @@ Raul          Raul              Iancu                             Tudor
 | 08 | Catalog relevant + materializare selectivă, buget de stocare | mirror 3,45 TB sau plafon arbitrar de PDF-uri |
 | 09 | Un singur serviciu hybrid de retrieval (lexical + dense + rerank) pentru CLI/HTTP/MCP; query numeric separat | trei implementări, embeddings ca dovadă |
 | 10 | Proveniență comună, artefacte imutabile content-addressed | citări doar cu URL |
-| 11 | Cloudflare + Netcup, Compose + systemd, fără Nginx | stack distribuit „de prestigiu” |
+| 11 | Cloudflare + o VM Google Compute Engine (oferta Space Apps; înlocuiește Netcup), Compose + systemd, fără Nginx; host-ul de origin e interschimbabil (orice Linux cu Docker) | stack distribuit „de prestigiu” |
 | 12 | Limite reale de resurse + continuare (paginare, checkpoint); fără `max_steps/sources/tokens` semantice | trunchiere ireversibilă |
 | 13 | Benchmark H0/H1 cu același runtime/model/date/tools | comparație cu un LLM fără acces |
 | 14 | Fork/rewrite doar pe beneficiu măsurat | rescriere presupusă superioară |

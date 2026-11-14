@@ -70,7 +70,7 @@ Echitatea înseamnă patru rezultate complete, nu număr egal de fișiere. Iancu
 | Persoană | Owner principal | Handoff esențial |
 |---|---|---|
 | **Iancu** | WSP literal, tensors, FLEX/ACME/BASS, model registry | `ModelSpec` + release executabil, cu authoring și forward verificabile |
-| **Mircea** | Codex bridge, Rust API, MCP transport, episoade/joburi, sandbox, Netcup/Cloudflare | API și tools reale, stream reluabil, deployment și runbook |
+| **Mircea** | Codex bridge, Rust API, MCP transport, episoade/joburi, sandbox, GCE/Cloudflare | API și tools reale, stream reluabil, deployment și runbook |
 | **Raul** | Corpus, PSI/NTRS, date numerice, retrieval, web, wiki, observații BASS | surse citabile + dataseturi curate + servicii de căutare/citire |
 | **Tudor** | Frontend, evaluator independent, benchmark harness, deck/video | workspace funcțional + scorecards și comparații reproductibile |
 
@@ -94,7 +94,7 @@ Calea strictă nu cheamă fittingul vechi. În particular, se auditează local M
 
 Mircea integrează un Codex App Server versionat, prin stdio privat. Leagă thread/turn/item de episoadele IGNIS, păstrează approval handling, gestionează întreruperile și reluarea, configurează instrumentele și protejează scope-ul. Nu scrie încă un loop LLM și nu repară protocolul providerului prin conversii improvizate Chat Completions→Responses.
 
-Construiește API-ul, evenimentele SSE, joburile durabile, autorizarea, accesul la artefacte și brokerul de execuție. Deține Netcup, Cloudflare edge/Tunnel/Access/R2 infrastructure, secrets și health checks. Codul generat rulează izolat; un tool MCP nu devine automat sigur fiindcă Codex are un sandbox propriu.
+Construiește API-ul, evenimentele SSE, joburile durabile, autorizarea, accesul la artefacte și brokerul de execuție. Deține VM-ul de origin (Google Compute Engine), Cloudflare edge/Tunnel/Access/R2 infrastructure, secrets și health checks. Codul generat rulează izolat; un tool MCP nu devine automat sigur fiindcă Codex are un sandbox propriu.
 
 **Nu deține:** formulele experților, ranking-ul retrieval, scoringul final sau interfața vizuală. Catalogul MCP înregistrează adaptoare peste serviciile colegilor, nu reimplementează aceleași funcții.
 
@@ -214,7 +214,7 @@ Browser: React / TypeScript / Vite
                        |
 Cloudflare: Static Assets + Worker edge + Access + R2
                        | Tunnel privat către origin
-Netcup: IGNIS Rust / Axum
+GCE VM: IGNIS Rust / Axum
   API / auth / workspace / episodes / events / jobs / artifacts
                        |
                CodexBridge (Rust)
@@ -424,7 +424,7 @@ Exemplu de distribuție, ajustabil după inventar: câțiva GB de documente și 
 
 La tariful R2 Standard consultat, 100 GB menținuți o lună costă aproximativ **1,35 USD**, 200 GB **2,85 USD**, 500 GB **7,35 USD**, după cei 10 GB-lună incluși. Sunt calcule de stocare, fără taxe, operațiuni sau alte servicii. Nu rezultă că întreaga aplicație costă atât. [S34]
 
-R2 ține obiecte content-addressed; Netcup ține indexuri și copii active. Nu montăm R2 ca filesystem pentru SQLite. Cache-urile reconstruibile se pot evacua; raw-urile/versionările pin-uite, weights-urile și artefactele citate nu sunt șterse de aceeași politică de cache.
+R2 ține obiecte content-addressed; VM-ul de origin ține indexuri și copii active. Nu montăm R2 ca filesystem pentru SQLite. Cache-urile reconstruibile se pot evacua; raw-urile/versionările pin-uite, weights-urile și artefactele citate nu sunt șterse de aceeași politică de cache.
 
 ## 10.3 Ce intră în corpusul științific
 
@@ -816,7 +816,7 @@ SQLite rulează pe SSD local, cu praguri de concurență controlate și tranzac�
 
 Avem suprafețe diferite de amenințare: utilizator public, document/web neîncrezut, agent cu tool-uri, cod generat, provider extern și builder de modele. Nu le tratăm ca proces de încredere unic.
 
-**Sandbox recomandat:** runner separat, containere OCI cu gVisor `runsc`/systrap pe Netcup dacă probele reale de compatibilitate trec. Control-plane-ul nu rulează în același sandbox. gVisor oferă izolare suplimentară, dar nu suport universal pentru orice syscall/workload; testăm Python scientific, Rust compile și bibliotecile native folosite. [S39–S40]
+**Sandbox recomandat:** runner separat, containere OCI cu gVisor `runsc`/systrap pe VM-ul de origin dacă probele reale de compatibilitate trec. Control-plane-ul nu rulează în același sandbox. gVisor oferă izolare suplimentară, dar nu suport universal pentru orice syscall/workload; testăm Python scientific, Rust compile și bibliotecile native folosite. [S39–S40]
 
 Runner-ul nu vede Docker socket, home-ul dezvoltatorului, cheile providerilor, întregul R2, alte workspaces sau final-test. Root filesystem este read-only unde posibil, capabilities eliminate, uid separat, mount-uri explicite și rețea închisă implicit. Resource ceilings sunt cele ale jobului autorizat; checkpoint/cancel păstrează progresul.
 
@@ -832,7 +832,7 @@ WSP authoring are un profil și mai restrâns: fără shell/fitter și cu output
 
 **Cloudflare:** Workers Static Assets pentru UI, un Worker TypeScript mic pentru rutare/session handoff/streaming, R2 pentru obiecte, Access/Tunnel pentru origin. Workerul nu deține loop-ul cercetării, SQLite, modele ori joburi științifice. Nu introducem D1, Durable Objects și Workflows peste aceeași stare locală fără o cerință concretă. [S33–S36]
 
-**Netcup:** o mașină Linux cu aproximativ 16 GB RAM și CPU suficient pentru interactive + joburi moderate este configurația de pornire propusă; 4–8 vCPU este un punct de dimensionare, nu un throughput demonstrat. NVMe local pentru indexuri și workspaces. Modelul exact, CPU shared/dedicat, contractul și TVA se verifică la checkout. Nu reutilizăm tarife G12/G12.5 contradictorii din răspunsurile vechi. [S37–S38]
+**Google Compute Engine:** originul este o VM GCE (oferta Google Cloud pentru participanții NASA Space Apps: 300 USD credit pe 90 de zile, fără debitare automată la final), Debian 12, 4 vCPU / 16 GB (`e2-standard-4`) ca punct de pornire — dimensionare, nu throughput demonstrat. Starea și indexurile stau pe un persistent disk separat de boot, runner-ul pe un al doilea disk de mărime fixă. VM-ul nu are service account (IGNIS nu cheamă API-uri Google) și niciun port deschis spre internet: intrarea e doar prin Tunnel, administrarea prin SSH peste IAP. Domeniul vine din oferta Space Apps (GoDaddy Registry, înregistrat la Porkbun, gratuit un an) și e delegat Cloudflare; hostingul inclus nu se folosește. Stack-ul e Linux + Docker obișnuit, deci host-ul rămâne interschimbabil: Netcup (planul inițial) sau altă VM se provizionează din același runbook, iar mutarea e backup → restore, cu artefactele rămase în R2. [S56; S37–S38 pentru alternativa Netcup]
 
 Containerele serviciilor persistente sunt descrise prin Compose și pornite/supravegheate de systemd. Instanța `cloudflared` ajunge direct la Axum pe localhost/rețea privată. **Nu adăugăm Nginx** doar fiindcă un deployment clasic l-ar avea. Caddy este o opțiune separată pentru un origin direct necesar ulterior, nu un strat redundant acum.
 
@@ -844,9 +844,9 @@ Frontendul primește aceleași origini/logical URLs pentru API și artefacte; UR
 
 Pentru un serviciu public aș accepta Workers Paid de bază **5 USD/lună**, în loc să complicăm totul pentru a evita câțiva dolari. Fișierele statice au regim separat gratuit; traficul dinamic și alte resurse pot depăși inclusul. [S33]
 
-Stocarea de 200–500 GB în R2 Standard, dacă este utilizată constant o lună, ar fi aproximativ 2,85–7,35 USD pentru storage. VPS, snapshots, domeniu, operațiuni R2, API LLM/embedding/rerank și eventual GPU sunt categorii distincte. Nu convertesc automat în EUR fără un curs verificat și nu prezint o ofertă Netcup neverificată. [S34, S37]
+Stocarea de 200–500 GB în R2 Standard, dacă este utilizată constant o lună, ar fi aproximativ 2,85–7,35 USD pentru storage. VM-ul de origin (după creditul GCE), snapshots, domeniul (după primul an gratuit), operațiuni R2, API LLM/embedding/rerank și eventual GPU sunt categorii distincte. Nu convertesc automat în EUR fără un curs verificat și nu prezint un tarif GCE sau Netcup neverificat. [S34, S56]
 
-Pentru planificare aș rezerva un buget lunar de infrastructură de ordinul zecilor de euro, cu Netcup configurat efectiv la checkout; costul dominant al cercetării intensive poate fi LLM-ul, nu PDF-urile. Calculăm costul per episod din usage real și facturare reconciliată. Creditele/abonamentele existente sunt confirmate în cont, nu presupuse nelimitate sau transferabile la utilizatorii aplicației.
+Pentru planificare aș rezerva un buget lunar de infrastructură de ordinul zecilor de euro, cu VM-ul GCE acoperit de creditul Space Apps (300 USD / 90 de zile, de confirmat în cont), apoi contul trecut pe plată sau originul mutat (Netcup ori altă VM) înainte de expirare; costul dominant al cercetării intensive poate fi LLM-ul, nu PDF-urile. Calculăm costul per episod din usage real și facturare reconciliată. Creditele/abonamentele existente sunt confirmate în cont, nu presupuse nelimitate sau transferabile la utilizatorii aplicației.
 
 Bugetul istoric de 100 USD incremental rămâne reper de autorizare până este actualizat explicit. Faptul că utilizatorul acceptă stocare utilă de circa 10 EUR nu autorizează cheltuieli nelimitate de agent/API.
 
@@ -1224,7 +1224,7 @@ Taskurile de mai jos sunt unități de integrare, nu estimări de ore. Fiecare a
 | M1 | Mircea | Codex pin/preflight, stdio bridge, approvals, mappings și turn fixture | C0 |
 | M2 | Mircea | HTTP/SSE, state store, artifact store și job scheduler | C0 |
 | M3 | Mircea | MCP adaptoare și runner izolat, fără shell host bypass | M1 + M2 |
-| M4 | Mircea | deployment Cloudflare/Netcup, auth, secrets, backup/restore | M2 + M3 |
+| M4 | Mircea | deployment Cloudflare/GCE, auth, secrets, backup/restore | M2 + M3 |
 | M5 | Mircea | integrare live, cancel/resume/reconciliation, observability | R3 + I2 + T1 |
 | R1 | Raul | manifest corpus, document primar + parser + locator verificat | C0 |
 | R2 | Raul | DatasetBundle FLEX/ACME, identitate/unități/timp/quality | C0 |
@@ -1299,7 +1299,7 @@ Pre-warm numai componentele utile: index reader, conexiuni HTTP, model releases 
 | Corpus incomplet | coverage manifest și metadata-only explicite, expansion la cerere |
 | Raw indispensabil neprelucrat | acquisition plan și rezultat parțial/restrâns, nu ghicirea observației |
 | Model/LLM/test leakage | scope la fișiere, query, retrieval, web, wiki și outputuri derivate |
-| Netcup saturat | scheduling și offload batch înainte de replatformare |
+| VM-ul de origin saturat sau creditele GCE epuizate | scheduling și offload batch; la nevoie VM mai mare sau mutare pe alt host (backup → restore) înainte de replatformare |
 | SQLite write contention/multi-host real | migrare metadata/runtime către Postgres după măsurare |
 | Vector exact scan domină | ANN după evaluare recall și memory, nu înainte |
 | gVisor incompatibil pentru job special | executor dedicat separat și profil de risc, nu dezactivare globală a izolării |
@@ -1472,7 +1472,7 @@ Fiecare coleg trimite întregul document agentului său și folosește promptul 
 | 08 | Catalog relevant + materializare după valoare | mirror complet de 3,45 TB ori plafon arbitrar de PDF-uri |
 | 09 | Hybrid retrieval unificat; numeric query separat | trei implementări CLI/HTTP/MCP sau embeddings drept dovadă |
 | 10 | Provenance comună și artefacte imutabile | citări numai la URL, fără versiune/locator |
-| 11 | Cloudflare + Netcup; fără Nginx redundant | stack distribuit adăugat doar pentru prestigiu |
+| 11 | Cloudflare + VM Google Compute Engine (în locul Netcup); fără Nginx redundant | stack distribuit adăugat doar pentru prestigiu |
 | 12 | Limits reale + continuare; fără trunchiere ireversibilă | max_steps/sources/tokens drept limite ale cercetării |
 | 13 | H0/H1 cu același runtime/model/tools | compararea cu un baseline lipsit de date și instrumente |
 | 14 | Fork/rewrite doar pe beneficiu demonstrat | rescriere rapidă presupusă automat superioară |
@@ -1676,7 +1676,7 @@ Alternativa CPU mai predictibila; nu confundam tarifele promotionale sau TVA ger
 ### S39 — gVisor execution platforms
 https://gvisor.dev/docs/architecture_guide/platforms/
 Tip: official_documentation. Stare: sursă preluată din research-ul anterior; versiunea folosită se fixează la integrare.
-systrap trebuie probat cu imaginea si VPS-ul efectiv; nu presupunem suport complet pentru orice workload.
+systrap trebuie probat cu imaginea si VM-ul GCE efectiv; nu presupunem suport complet pentru orice workload.
 
 ### S40 — gVisor production guide
 https://gvisor.dev/docs/user_guide/production/
@@ -1815,6 +1815,10 @@ Sursă upstream oficială. Versiunea/commitul și licențele dependențelor se c
 ### S55 — Codex app-server și autentificare autorizată
 https://developers.openai.com/siwc/token-sharing-open-source/codex-app-server
 Documentație oficială consultată pentru distincția catalog/entitlement și lifecycle. Se folosește numai fluxul autorizat pentru aplicația efectivă.
+
+### S56 — Google Compute Engine documentation
+https://cloud.google.com/compute/docs
+Tip: official_documentation. Stare: adăugată la alegerea VM-ului GCE ca origin (14 noiembrie 2026); tipul de mașină, discurile și tariful se confirmă în proiectul Google Cloud, nu din acest document.
 
 ### V01 — Reverificări pentru ediția 2.0
 Data: 12 noiembrie 2026. Branch-urile și hashes repo au fost reverificate prin connector. Au fost deschise documentația App Server și gateway compatibility, paginile R2/Workers pricing și anunțul Parallel MCP 2.0. Detaliile de preț sunt exemple fără taxe/operațiuni, iar metodele protocolului se verifică în schema binarului instalat. Restul registrului este arhivă de surse relevantă, nu afirmația unei noi reproduceri a studiilor.
