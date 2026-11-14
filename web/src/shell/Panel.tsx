@@ -2,7 +2,7 @@
 // or release, with a back trail. Every link inside it pushes onto the trail; Escape closes it.
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { ArtifactRef, EvidenceRef, InlinePayload } from "../contracts/generated";
+import type { AnswerRefusal, ArtifactRef, EvidenceRef, InlinePayload } from "../contracts/generated";
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
@@ -16,12 +16,12 @@ import { FamilyMark, FAMILY_LABEL, IconBack, IconClose } from "./icons";
 import { href } from "./router";
 import { TOOL_LABEL } from "../views/turns";
 import { isTypedArtifact } from "../research/artifactViews";
-import { ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
+import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 import { SourceOriginal } from "./SourceOriginal";
 
 const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Route step", release: "Model release" };
 
-const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer" };
+const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer", AnswerRefusal: "Refused answer", VisualObservationBundle: "Video contours" };
 
 function itemTitle(i: PanelItem): string {
   switch (i.kind) {
@@ -280,6 +280,9 @@ const KIND_NOTE: Record<string, string> = {
   interpretation: "The agent's reading of the evidence. It may cite anything or nothing.",
 };
 
+const VERDICT_TONE: Record<string, string> = { supported: "tag-ok", partially_supported: "tag-warn", not_supported: "tag-bad", unverifiable: "tag-line" };
+const CHECK_METHOD: Record<string, string> = { host_rule: "checked by a host rule", nli_model: "checked by an entailment model", llm_judge: "checked by a language-model judge", human: "checked by a person" };
+
 function ClaimItem({ item }: { item: Extract<PanelItem, { kind: "claim" }> }) {
   const { client } = useData();
   const panel = usePanel();
@@ -322,6 +325,24 @@ function ClaimItem({ item }: { item: Extract<PanelItem, { kind: "claim" }> }) {
               )}
             </div>
           ),
+        )}
+      </div>
+      <div className="panel-sec">
+        <h3>Support check</h3>
+        {claim.checked_by ? (
+          <>
+            <div className="toolbar">
+              <span className={`tag ${VERDICT_TONE[claim.checked_by.verdict]}`}>{words(claim.checked_by.verdict)}</span>
+              <span className="muted small">
+                {CHECK_METHOD[claim.checked_by.method]}
+                {claim.checked_by.model_id ? ` · ${claim.checked_by.model_id}` : ""}
+                {claim.checked_by.confidence != null ? ` · confidence ${claim.checked_by.confidence.toFixed(2)}` : ""}
+              </span>
+            </div>
+            <p className="muted small">Whether the cited support says what the claim says. A check by a model can be wrong; open the support to judge.</p>
+          </>
+        ) : (
+          <p className="muted small">Not checked: no rule, model or person verified that the support says what this claim says.</p>
         )}
       </div>
       <Gap title="Why the agent made this claim">
@@ -417,6 +438,22 @@ function ArtifactItem({ artifact, caption }: { artifact: ArtifactRef; caption?: 
 
 // ---------------------------------------------------------------- route step
 
+/** A refused `answer_submit` (K1.3): every problem the host found, so the agent (and the reader) see what to fix. */
+function SubmissionRefusal({ refs }: { refs: ArtifactRef[] }) {
+  const { client, researchMode } = useData();
+  const ref = refs.find((a) => a.contract === "AnswerRefusal");
+  const q = useQuery({ queryKey: [researchMode, "artifact", ref?.artifact_id], queryFn: () => client.getArtifactJson(ref!.artifact_id) as Promise<AnswerRefusal>, enabled: !!ref, retry: false, staleTime: Infinity });
+  if (!ref) return null;
+  return (
+    <div className="panel-sec">
+      <h3>Why the answer was refused</h3>
+      {q.error && <ErrorNote error={q.error} title="The refusal could not be read" />}
+      {q.data && <RefusalProblems refusal={q.data} />}
+    </div>
+  );
+}
+
+
 const EXEC_NOTE: Record<string, string> = {
   completed: "The call ran.",
   accepted: "Long work started as a job.",
@@ -432,12 +469,12 @@ const SCI_NOTE: Record<string, string> = {
   out_of_domain: "A valid conclusion: the question is outside the tool's domain.",
 };
 
-function Payload({ payload, onArtifact }: { payload: InlinePayload; onArtifact: (a: ArtifactRef) => void }) {
+function Payload({ payload, onArtifact, title = "Result" }: { payload: InlinePayload; onArtifact: (a: ArtifactRef) => void; title?: string | null }) {
   const v = payload.value as unknown;
   const flat = v && typeof v === "object" && !Array.isArray(v) && Object.values(v as object).every((x) => x === null || ["string", "number", "boolean"].includes(typeof x));
   return (
     <div className="panel-sec">
-      <h3>Result</h3>
+      {title && <h3>{title}</h3>}
       {payload.partial && (
         <p style={{ fontSize: 13 }}>
           <span className="tag tag-warn">preview only</span>{" "}
@@ -490,7 +527,21 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
         )}
         {r && <OriginMark origin={r.origin} pageSynthetic={synthetic} />}
       </div>
-      <Gap title="Arguments">The harness does not record what this call was given (for example the search query or page range). Only the tool name and its result are in the event log.</Gap>
+      <div className="panel-sec">
+        <h3>Arguments</h3>
+        {item.call.arguments ? (
+          <>
+            <Payload payload={item.call.arguments.value} title={null} onArtifact={(a) => panel.push({ kind: "artifact", artifact: a })} />
+            {(item.call.arguments.redacted ?? []).length > 0 && (
+              <p className="muted small">
+                Removed by scope before recording: {item.call.arguments.redacted!.map((p) => <code key={p}>{p} </code>)}
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="muted small">Not recorded for this call: the runtime sent no arguments with it.</p>
+        )}
+      </div>
       {r?.job && (
         <div className="panel-sec">
           <h3>Job</h3>
@@ -514,6 +565,7 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
         </div>
       )}
       {r?.result && <Payload payload={r.result} onArtifact={(a) => panel.push({ kind: "artifact", artifact: a })} />}
+      {r?.tool === "answer_submit" && r.execution_status === "refused" && <SubmissionRefusal refs={r.artifact_refs ?? []} />}
       {r?.error && (
         <div className="note note-refusal">
           <b>
@@ -532,10 +584,21 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
           ))}
         </div>
       )}
-      <Gap title="Why this step">
-        The model's reason for this call is not in the event contract yet. When the harness records it, it appears here, marked as the model's own explanation (it may not match what the model
-        computed).
-      </Gap>
+      <div className="panel-sec">
+        <h3>Why this step</h3>
+        {item.call.rationale.length === 0 ? (
+          <p className="muted small">The model gave no explanation for this call.</p>
+        ) : (
+          <>
+            {item.call.rationale.map((n) => (
+              <blockquote key={n.seq} className="quote">
+                {n.text}
+              </blockquote>
+            ))}
+            <p className="muted small">The model's own explanation of this step. It may not match what the model computed.</p>
+          </>
+        )}
+      </div>
     </>
   );
 }

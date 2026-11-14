@@ -66,7 +66,7 @@ export const CONTRACT_COVERAGE = {
   WebSearchPage: { notShown: "Waits for web discovery (R4); shown as a route step" },
   // ---- K1-research (PR 31)
   Capabilities: { view: "Sidebar services and tool availability" },
-  AnswerRefusal: { notShown: "Waits for answer_submit validation (M7); T8 shows it on the refused step" },
+  AnswerRefusal: { view: "Route step of a refused answer_submit; side panel typed artifact" },
   TraceBundle: { notShown: "Waits for trace export (M10); T11 scorecard" },
   MessageAccepted: { notShown: "Response: shown as the message in the thread" },
   ApprovalAccepted: { notShown: "Response: shown as the approval's new state in the thread" },
@@ -94,7 +94,7 @@ export const CONTRACT_COVERAGE = {
 } satisfies Record<keyof IgnisContracts, Coverage>;
 
 /** The contracts that get a typed body in the artifact side panel. */
-export const TYPED_ARTIFACTS = ["ExecutionRecord", "DatasetBundle", "EvaluationResult", "AnalysisArtifact", "VisualObservationBundle"] as const;
+export const TYPED_ARTIFACTS = ["ExecutionRecord", "DatasetBundle", "EvaluationResult", "AnalysisArtifact", "VisualObservationBundle", "AnswerRefusal"] as const;
 export type TypedArtifact = (typeof TYPED_ARTIFACTS)[number];
 export const isTypedArtifact = (c: string | null | undefined): c is TypedArtifact => !!c && (TYPED_ARTIFACTS as readonly string[]).includes(c);
 

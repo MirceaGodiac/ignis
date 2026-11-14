@@ -349,6 +349,9 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 2px 5px; border-radius: 4px; bor
 .stop .node.bad { border-color: var(--bad); }
 .stop .node.warn { border-color: var(--ink); border-style: dashed; }
 .stop .node.run { border-color: var(--flame); }
+.stop .node.note { background: transparent; border-style: dotted; }
+.stop-note { cursor: default; }
+.stop-note .what > span { white-space: normal; font-style: italic; }
 .stop .node.answer { border-radius: 2px; border-color: var(--ink); background: var(--ink); }
 .stop .what { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
 .stop .what span { color: var(--ink-3); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

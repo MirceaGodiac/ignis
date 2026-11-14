@@ -349,6 +349,18 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
               <dd>{episode.data?.runtime ? words(episode.data.runtime.runtime) : "not attached"}</dd>
               <dt>Releases</dt>
               <dd>{episode.data?.pins.model_releases?.length ? episode.data.pins.model_releases.map((r) => <code key={r}>{shortId(r, 16)} </code>) : "none pinned"}</dd>
+              <dt>Harness</dt>
+              <dd>
+                {episode.data?.pins.harness ? (
+                  <span title={episode.data.pins.harness.digest}>
+                    <b>{episode.data.pins.harness.label}</b> · {episode.data.pins.harness.model}
+                    {episode.data.pins.harness.effort ? ` · ${episode.data.pins.harness.effort}` : ""} · <code>{shortId(episode.data.pins.harness.digest, 16)}</code>
+                    <div className="dim">runtime {episode.data.pins.harness.runtime_build}</div>
+                  </span>
+                ) : (
+                  "not pinned"
+                )}
+              </dd>
             </dl>
           </details>
           {canWrite && availableActions(status).length > 0 && (
@@ -469,6 +481,7 @@ function EvidenceGrid({ a, n }: { a: AnswerState; n: number }) {
 
 function stopTone(s: Stop): string {
   if (s.kind === "answer") return "answer";
+  if (s.kind === "note") return "note";
   if (s.kind === "job") return s.status === "succeeded" ? "ok" : s.status === "failed" || s.status === "cancelled" ? "bad" : "run";
   if (s.kind === "approval") return s.decision === "approved" ? "ok" : s.decision ? "bad" : "warn";
   const r = s.call.result;
@@ -485,7 +498,8 @@ function stopText(s: Stop): { title: string; sub: string } {
       const title = TOOL_LABEL[s.call.tool] ?? words(s.call.tool);
       if (!r) return { title, sub: "running" };
       const sci = r.scientific_status === "not_assessed" ? "" : ` · ${words(r.scientific_status)}`;
-      return { title, sub: `${words(r.execution_status)}${sci}${r.result?.partial ? " · preview" : ""}` };
+      const q = argQuery(s.call);
+      return { title, sub: `${words(r.execution_status)}${sci}${r.result?.partial ? " · preview" : ""}${q ? ` · “${q}”` : ""}` };
     }
     case "job":
       return { title: `Job: ${words(s.jobKind)}`, sub: words(s.status) };
@@ -493,7 +507,16 @@ function stopText(s: Stop): { title: string; sub: string } {
       return { title: `Approval: ${s.action}`, sub: s.decision ? words(s.decision) : "waiting" };
     case "answer":
       return { title: "Answered", sub: words(s.answer.status) };
+    case "note":
+      return { title: "Agent's note (its own explanation)", sub: s.text };
   }
+}
+
+/** The search query a call was given, when its recorded arguments carry one (K1.1). */
+function argQuery(call: Extract<Stop, { kind: "tool" }>["call"]): string | null {
+  const v = call.arguments?.value.value;
+  const q = v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>).query : undefined;
+  return typeof q === "string" && q ? (q.length > 60 ? `${q.slice(0, 57)}…` : q) : null;
 }
 
 function Stops({ stops, t0 }: { stops: Stop[]; t0: string | null }) {
@@ -503,6 +526,17 @@ function Stops({ stops, t0 }: { stops: Stop[]; t0: string | null }) {
       {stops.map((s, i) => {
         const { title, sub } = stopText(s);
         const on = s.kind === "tool" && panel.current?.kind === "step" && panel.current.call.call_id === s.call.call_id;
+        if (s.kind === "note")
+          return (
+            <div key={`note-${s.seq}`} role="listitem" className="stop stop-note">
+              <span className={`node ${stopTone(s)}`} aria-hidden="true" />
+              <span className="what">
+                {title}
+                <span>{sub}</span>
+              </span>
+              <span className="when">+{elapsed(t0, s.at) ?? "0:00"}</span>
+            </div>
+          );
         return (
           <button
             key={`${s.kind}-${s.seq}`}
