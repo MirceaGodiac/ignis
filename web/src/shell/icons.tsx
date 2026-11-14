@@ -151,6 +151,25 @@ export const IconConditions = (p: P) => (
   </svg>
 );
 
+export const IconCopy = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="5.5" y="5.5" width="8" height="8" rx="1.75" />
+    <path d="M10.5 5.5V4.25c0-.97-.78-1.75-1.75-1.75h-4.5c-.97 0-1.75.78-1.75 1.75v4.5c0 .97.78 1.75 1.75 1.75H5.5" />
+  </svg>
+);
+export const IconMore = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="3.75" cy="8" r="0.6" fill="currentColor" />
+    <circle cx="8" cy="8" r="0.6" fill="currentColor" />
+    <circle cx="12.25" cy="8" r="0.6" fill="currentColor" />
+  </svg>
+);
+export const IconCheck = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M3.25 8.5 6.5 11.5l6.25-7" />
+  </svg>
+);
+
 /** Family marks, shared by the map, the legend and the run index. */
 export function FamilyMark({ family, size = 10 }: { family: string; size?: number }) {
   const s = size;

@@ -1,5 +1,5 @@
 // Left rail: the wordmark, a new question and search, the pages grouped by what a researcher does
-// (router SECTIONS), then the recent questions; the open one expands into Thread, Evidence and Route.
+// (router SECTIONS), then the recent questions.
 // A page whose service this deployment does not serve stays reachable and is drawn dimmed.
 import { useState } from "react";
 import type { EpisodeStatus } from "../contracts/generated";
@@ -11,14 +11,12 @@ import {
   IconClose,
   IconCompare,
   IconConditions,
-  IconEvidence,
   IconHome,
   IconLab,
   IconMenu,
   IconModels,
   IconMoon,
   IconPlus,
-  IconRoute,
   IconRuns,
   IconSearch,
   IconSources,
@@ -45,7 +43,6 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
   const episodes = useEpisodes();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
-  const tab = route.params.get("tab") ?? "thread";
   const here = (v: View) => route.view === v || (v === "conditions" && route.view === "map");
   // Unknown (still loading) counts as served; only a definite "not available" dims a page.
   const served = (v: View) => {
@@ -108,33 +105,12 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
               </a>
             </div>
             <div className="tree">
-              {episodes.data!.map((e) => {
-                const isHere = route.view === "research" && route.id === e.episode_id;
-                return (
-                  <div key={e.episode_id}>
-                    <a className="nav-item recent" href={href("research", e.episode_id)} aria-current={isHere && tab === "thread" ? "page" : undefined} title={e.goal} onClick={close}>
-                      <span className={dotFor(e.status)} aria-hidden="true" />
-                      <span className="grow">{e.goal}</span>
-                    </a>
-                    {isHere && (
-                      <div className="sub">
-                        {(
-                          [
-                            ["thread", "Thread", IconThread],
-                            ["evidence", "Evidence", IconEvidence],
-                            ["route", "Route", IconRoute],
-                          ] as const
-                        ).map(([t, label, I]) => (
-                          <a key={t} className="nav-item" href={href("research", e.episode_id, t === "thread" ? undefined : { tab: t })} aria-current={tab === t ? "page" : undefined} onClick={close}>
-                            <I />
-                            <span className="grow">{label}</span>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {episodes.data!.slice(0, 12).map((e) => (
+                <a key={e.episode_id} className="nav-item recent" href={href("research", e.episode_id)} aria-current={route.view === "research" && route.id === e.episode_id ? "page" : undefined} title={e.goal} onClick={close}>
+                  {ACTIVE.includes(e.status) ? <span className={dotFor(e.status)} aria-hidden="true" /> : <IconThread />}
+                  <span className="grow">{e.goal}</span>
+                </a>
+              ))}
             </div>
           </div>
         )}
