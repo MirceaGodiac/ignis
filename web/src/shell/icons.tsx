@@ -122,6 +122,24 @@ export const IconArrow = (p: P) => (
   </svg>
 );
 
+export const IconSun = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="8" cy="8" r="2.75" />
+    <path d="M8 1.75v1.5M8 12.75v1.5M1.75 8h1.5M12.75 8h1.5M3.6 3.6l1.05 1.05M11.35 11.35l1.05 1.05M3.6 12.4l1.05-1.05M11.35 4.65l1.05-1.05" />
+  </svg>
+);
+export const IconMoon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M13 9.6A5.25 5.25 0 0 1 6.4 3a5.25 5.25 0 1 0 6.6 6.6z" />
+  </svg>
+);
+export const IconSystem = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="2" y="3" width="12" height="8" rx="1.25" />
+    <path d="M6 13.5h4M8 11v2.5" />
+  </svg>
+);
+
 /** Family marks, shared by the map, the legend and the run index. */
 export function FamilyMark({ family, size = 10 }: { family: string; size?: number }) {
   const s = size;
