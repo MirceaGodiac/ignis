@@ -210,3 +210,31 @@ fn main() -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    /// clap's own consistency check over the whole CLI, flattened argument groups included: two
+    /// fields with the same id (e.g. `runtime` in the agent and runner flags) fail here, not at
+    /// `ignis serve` startup in production.
+    #[test]
+    fn the_cli_definition_is_consistent() {
+        use clap::CommandFactory;
+        super::Cli::command().debug_assert();
+    }
+
+    /// The deployment's environment parses: the agent runtime and the runner runtime are distinct.
+    #[test]
+    fn serve_parses_with_both_runtimes_set() {
+        use clap::Parser;
+        let cli = super::Cli::try_parse_from([
+            "ignis",
+            "serve",
+            "--agent-runtime",
+            "claude",
+            "--runner-runtime",
+            "runsc",
+        ])
+        .expect("serve parses");
+        assert!(matches!(cli.cmd, super::Cmd::Serve(_)));
+    }
+}
