@@ -144,17 +144,26 @@ impl Signer for GeodeSigner {
         let status = resp.status().as_u16();
         match status {
             200 => {}
-            // The id is known (it is in the manifests); NASA not serving it now is an upstream
-            // condition, never `not_found`.
-            404 => {
+            // The id is in the manifests but NASA no longer has the object: retrying will not help.
+            // A corpus-integrity problem (the manifest points at something missing), reported with
+            // the closest non-retryable code, `source_missing`, distinct from `not_found` (unknown id)
+            // and from `upstream_unavailable` (outage, retry later).
+            404 | 410 => {
+                tracing::error!(
+                    investigation = %f.investigation,
+                    file = %f.file_name,
+                    version = ?f.file_version,
+                    status,
+                    "corpus integrity: manifest entry not served by PSI"
+                );
                 return Err(ErrorEnvelope::new(
-                    ErrorCode::UpstreamUnavailable,
+                    ErrorCode::SourceMissing,
                     format!(
-                        "PSI does not serve file {:?} version {:?} now (geode 404)",
+                        "corpus integrity: the manifest lists {:?} version {:?}, but PSI no longer serves it (geode {status})",
                         f.file_name, f.file_version
                     ),
-                    RetryPolicy::AfterUserAction,
-                ))
+                    RetryPolicy::Never,
+                ));
             }
             429 => {
                 return Err(ErrorEnvelope::new(
