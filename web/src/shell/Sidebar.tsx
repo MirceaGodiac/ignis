@@ -5,8 +5,12 @@ import type { EpisodeStatus } from "../contracts/generated";
 import { useData, type Source } from "./data";
 import { href, type Route, type View } from "./router";
 import { useEpisodes } from "./queries";
+import { useThemeChoice, type ThemeChoice } from "./theme";
 import {
   IconClose,
+  IconMoon,
+  IconSun,
+  IconSystem,
   IconCompare,
   IconEvidence,
   IconHome,
@@ -104,7 +108,7 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
           {open ? <IconClose /> : <IconMenu />}
         </button>
         <div className="side-new">
-          <a className="btn" href={href("research", null, { new: "1" })} onClick={close}>
+          <a className="btn btn-primary" href={href("research", null, { new: "1" })} onClick={close}>
             <IconPlus /> New investigation
           </a>
           <button className="btn btn-icon" onClick={onCommand} aria-label="Search (Ctrl K)" title="Search  Ctrl K">
@@ -168,6 +172,7 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
       </div>
 
       <div className="side-foot">
+        <ThemeSwitch />
         <div className="services" aria-label="Services">
           {services.map(([name, ok, detail]) => (
             <span key={name} title={detail ?? "not loaded"}>
@@ -179,5 +184,25 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
         </div>
       </div>
     </nav>
+  );
+}
+
+const THEMES: [ThemeChoice, string, (p: { width?: number; height?: number }) => JSX.Element][] = [
+  ["system", "System", IconSystem],
+  ["light", "Light", IconSun],
+  ["dark", "Dark", IconMoon],
+];
+
+function ThemeSwitch() {
+  const [choice, setChoice] = useThemeChoice();
+  return (
+    <div className="seg theme-seg" role="group" aria-label="Theme">
+      {THEMES.map(([c, label, Icon]) => (
+        <button key={c} aria-pressed={choice === c} onClick={() => setChoice(c)} title={`${label} theme`}>
+          <Icon width={14} height={14} />
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }
