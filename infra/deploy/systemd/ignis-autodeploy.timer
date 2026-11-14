@@ -1,0 +1,12 @@
+# Polls the deploy branch every 5 minutes (a no-op when nothing changed: one `git fetch`).
+# Pause deploys without disabling the timer: `echo "reason" | sudo tee /etc/ignis/autodeploy.hold`.
+[Unit]
+Description=Poll GitHub for a new IGNIS release
+
+[Timer]
+OnBootSec=10min
+OnUnitInactiveSec=5min
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target
