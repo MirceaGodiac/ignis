@@ -51,7 +51,7 @@ says it pays.
   server). No tool arguments in events, no wiki service, no delegation, no traces.
 - **Knowledge:** 6 indexed documents, datasets of 4 investigations, FTS5 + dense + RRF + rerank, MuPDF
   parsing. Iancu's atlas (`docs/wsp/atlas/`) lists every NASA file of the 19 flight investigations and
- the storage rule (§10). **Raul's K1 contract wave is drafted** on `feat/scientific-data-k1` (:
+  the storage rule (§10). **Raul's K1 contract wave is merged** (PR #26:
   `evidence.v2` + `dataset.v2`: `SourceAccess`, `SourceLabel`, `SourceOutline`, wiki read/patch, web
   search/fetch, `ConditionsQuery`/`ConditionsTable`, `ResponseFormat`).
 - **Workspace:** shell, Answer view with claim keys, Research route, Atmosphere map, Runs, Compare,
@@ -60,7 +60,7 @@ says it pays.
   contract coverage table. Runs/Lab/Compare/Atmosphere still use legacy `/api/experiments*`.
 - **Evaluation:** fixture evaluator, protocol freeze, scorecards. No gold tasks, no H0/H1 runner.
 - **GitHub:** 23 merged branches deleted on 2026-11-14 (SHAs recorded by the integrator). Remaining:
-  `main`, `feat/research-product-t7` (PR #24), `feat/scientific-data-k1`.
+  `main` and `feat/research-product-t7` (PR #24). CI is disabled for now (see `AGENTS.md`).
 
 ---
 
@@ -158,7 +158,7 @@ graph the agent can query, with NASA's media left at NASA.
 
 | P | ID | Deliverable | Depends on | Done when |
 |---|---|---|---|---|
-| P0 | **K1-evidence/dataset** | finish and open the PR for `feat/scientific-data-k1` (fixtures, schemas, TS regenerated, consumers confirmed) | — | merged first in the K1 order |
+| done | **K1-evidence/dataset** | `evidence.v2` + `dataset.v2`, merged in PR #26 | — | merged |
 | P0 | **R6** | **Corpus for the 19 flight investigations** by the atlas rule (§10): store the 636 documents (1.63 GB) and the 24,482 sensor/settings text files (12.26 GB) with hashes; the 35,446 image/video/archive files (13.44 TB) and 236 other archives stay as manifest entries. Licence per investigation (PSI-10 blank: verify). NTRS via its API, `.txt` full text where present, rights per document, dedup with PSI. A `SourceAccess` mode per source. **Lockbox:** documents of FLEX, CFI-G, BASS-II and BASS contain held-out outcomes; `strip_for_sealed` must hold for every added document (test), and for the other 15 once their groups are frozen. | — | manifests for all 19; ~13.9 GB stored and hashed; snapshot reproducible; lockbox test on a newly added document |
 | P0 | **R9a** | **Conditions table first.** `ConditionsTable` for all 19 investigations, seeded from the 21 PSI experimental-table CSVs (ground truth, tiny), each cell a measured value with raw value, unit, SI and locator, or `missing`/`conflicting`/`not_applicable`; per-investigation tested envelope. This alone powers the challenge's comparison and habitat views. | K1-dataset, R6 | the conditions matrix renders for 19 investigations with gaps explicit |
 | P0 | **R7a** | **Parse views with coordinates** for the stored PDFs: page, bbox normalized `[0,1]` top-left, char spans, tables, figures; versioned; old citations still resolve. Candidates: Docling, GROBID (headers/references), MuPDF baseline; choose by the research method (several PSI reports are scanned: OCR quality matters). | R6 | a passage, a table cell and a figure open at the right place in T7 |
@@ -303,17 +303,17 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 | K1.7 | server-only types into core: `CreateEpisode`, `PostMessage`, `MessageAccepted`, `HostDecision`, `Capabilities`, `ServiceStatus`, `ToolStatus`, `EpisodeAction` | `research.rs` | Mircea | Tudor | to write |
 | K1.8 | `TraceBundle` | `research.rs` | Mircea | Tudor | to write |
 | K1.9 | `tool_catalog()` entries: `answer_submit`, `sources_outline`, `conditions_query`, `graph_neighbors`, `wiki_read`, `web_search`, `web_fetch` (request/response types stay in their families) | `research.rs` | Mircea | Raul, Tudor | to write |
-| K1.10 | `SourceLabel` | `evidence.rs` (Raul) | Raul | Mircea, Tudor | **drafted** |
-| K1.11 | `ProvenanceLink` relations for the graph + `GraphNeighborsRequest/Page` | `evidence.rs` | Raul | Mircea, Tudor | **drafted** |
-| K1.12 | `ResponseFormat` on search/read | `evidence.rs` | Raul | Mircea | **drafted** |
-| K1.13 | `ConditionsQuery` / `ConditionsTable` (cells, envelope) | `dataset.rs` (Raul) | Raul | Tudor, Mircea, Iancu (units) | **drafted** |
+| K1.10 | `SourceLabel` | `evidence.rs` (Raul) | Raul | Mircea, Tudor | **merged** (#26) |
+| K1.11 | `ProvenanceLink` relations for the graph + `GraphNeighborsRequest/Page` | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
+| K1.12 | `ResponseFormat` on search/read | `evidence.rs` | Raul | Mircea | **merged** (#26) |
+| K1.13 | `ConditionsQuery` / `ConditionsTable` (cells, envelope) | `dataset.rs` (Raul) | Raul | Tudor, Mircea, Iancu (units) | **merged** (#26) |
 | K1.14 | `GoldTask` (`split: dev\|holdout`; hold-out never in builder bundles) | `evaluation.rs` (Tudor) | Tudor | Mircea, Raul | to write |
 | K1.15 | `EvaluationRequest.purpose = harness_benchmark` + `HarnessComparison` in `EvaluationResult` | `evaluation.rs` | Tudor | Mircea, team | to write |
 | K1.16 | `SourceLocator.figure_id` (only if needed) | `contracts.rs` (Iancu) | Raul | Tudor | optional |
-| K1.17 | trait methods with default bodies (outline, labels, access, graph, conditions, wiki, web) | `services.rs` (common) | Raul | Mircea | **drafted** |
-| K1.18 | `SourceAccess` (mode, url, expiry, range, cors, landing url); identity stays the `Source` | `evidence.rs` | Raul (mode), Mircea (URL, M12) | Tudor | **drafted** |
-| K1.19 | `SourceOutline` (section tree; summaries labelled generated) | `evidence.rs` | Raul | Mircea, Tudor | **drafted** |
-| K1.20 | wiki read/patch and web search/fetch request/response types | `evidence.rs` | Raul | Mircea | **drafted** |
+| K1.17 | trait methods with default bodies (outline, labels, access, graph, conditions, wiki, web) | `services.rs` (common) | Raul | Mircea | **merged** (#26) |
+| K1.18 | `SourceAccess` (mode, url, expiry, range, cors, landing url); identity stays the `Source` | `evidence.rs` | Raul (mode), Mircea (URL, M12) | Tudor | **merged** (#26) |
+| K1.19 | `SourceOutline` (section tree; summaries labelled generated) | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
+| K1.20 | wiki read/patch and web search/fetch request/response types | `evidence.rs` | Raul | Mircea | **merged** (#26) |
 
 **K2 candidates** (not in this wave): a `SourceAccess` mode for byte-range playlists and the media
 keyframe index (R11/M12), if the playlist cannot stay server-internal.
@@ -321,7 +321,7 @@ keyframe index (R11/M12), if the playlist cannot stay server-internal.
 ### 9.3 Merge order
 
 ```text
-K1-evidence + K1-dataset (Raul, drafted)  ──►  K1-research (Mircea)  ──►  K1-evaluation (Tudor)
+K1-evidence + K1-dataset (Raul, merged #26)  ──►  K1-research (Mircea)  ──►  K1-evaluation (Tudor)
 ```
 
 Written in parallel from the same `main`; merged back to back in this order, each rebased on the
