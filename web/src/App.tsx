@@ -7,12 +7,12 @@ import { PanelProvider, usePanel } from "./shell/inspector";
 import { Panel } from "./shell/Panel";
 import { go, href, useRoute, VIEW_SECTION, VIEW_TITLE } from "./shell/router";
 import { Sidebar } from "./shell/Sidebar";
-import { IconChevron, IconSearch } from "./shell/icons";
+import { IconChevron } from "./shell/icons";
 import { useEpisodes } from "./shell/queries";
 import { Compare } from "./views/Compare";
 import { Home } from "./views/Home";
 import { Lab } from "./views/Lab";
-import { ConditionsPage, type ConditionsTab } from "./views/Conditions";
+import { ConditionsPage } from "./views/Conditions";
 import { Models } from "./views/Models";
 import { Research } from "./views/Research";
 import { Runs } from "./views/Runs";
@@ -49,10 +49,11 @@ function Shell() {
     return () => window.removeEventListener("keydown", on);
   }, []);
 
-  // The old atmosphere-map link opens its tab on the conditions page.
+  // Old links: the atmosphere map is a tab of Conditions; the conditions runs table is the Runs page.
   useEffect(() => {
     if (route.view === "map") go("conditions", null, { tab: "map" });
-  }, [route.view]);
+    else if (route.view === "conditions" && route.params.get("tab") === "runs") go("runs", null, { habitat: route.params.get("habitat") ?? undefined });
+  }, [route.view, route.params]);
 
   // A new view starts with a closed side panel; the panel belongs to what was selected on it.
   const { close } = panel;
@@ -91,15 +92,12 @@ function Shell() {
               )}
             </nav>
             <span className="spacer" />
-            <button className="search-btn" onClick={() => setCmd(true)}>
-              <IconSearch width={14} height={14} /> <span className="lbl">Search</span> <kbd>Ctrl K</kbd>
-            </button>
           </header>
         )}
         {route.view === "home" && <Home />}
         {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} />}
-        {route.view === "conditions" && <ConditionsPage habitat={route.params.get("habitat")} inv={route.params.get("inv")} tab={(["map", "runs"].includes(route.params.get("tab") ?? "") ? route.params.get("tab") : "habitats") as ConditionsTab} />}
-        {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
+        {route.view === "conditions" && <ConditionsPage habitat={route.params.get("habitat")} inv={route.params.get("inv")} tab={route.params.get("tab") === "map" ? "map" : "habitats"} />}
+        {route.view === "runs" && <Runs key={route.params.toString()} initialFamily={route.params.get("family")} initialHabitat={route.params.get("habitat")} initialInv={route.params.get("inv")} />}
         {route.view === "compare" && <Compare />}
         {route.view === "lab" && <Lab runId={route.id} />}
         {route.view === "sources" && <Sources key={route.params.get("q") ?? ""} initial={route.params.get("q")} />}

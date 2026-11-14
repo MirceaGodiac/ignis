@@ -1,18 +1,13 @@
-// T9: the challenge's two direct questions over K1.13 `ConditionsTable`:
-//   1. How near does each investigation's tested envelope come to the Moon/rover, suit and ISS
-//      atmospheres? (reached, outside by how much, or not decidable; never extrapolated)
-//   2. Which conditions did each run record? (value with its original's locator, or an explicit gap)
+// T9: the Conditions page (by crew atmosphere, the atmosphere map) and the conditions matrix that
+// answers can embed. Both read K1.13 `ConditionsTable`; nothing is extrapolated.
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
-import { HABITAT_LIST, habitatFilters, type HabitatId } from "../research/habitats";
 import { flagTags, quotedText } from "../research/conditionCells";
 import { rowWindow } from "../research/windowing";
-import { useData } from "../shell/data";
 import { href } from "../shell/router";
 import { MapView } from "./MapView";
 import { ByAtmosphere } from "./ByAtmosphere";
-import { ErrorNote, EvidenceClassTag, Gap, words } from "../ui/common";
+import { EvidenceClassTag, words } from "../ui/common";
 
 const KEY_LABEL: Record<ConditionKey, string> = {
   oxygen_mole_fraction: "O₂",
@@ -27,16 +22,10 @@ const KEY_LABEL: Record<ConditionKey, string> = {
   diagnostics: "Diagnostics",
 };
 
-const PAGE_SIZE = 200;
-
-type Preset = "all" | HabitatId;
-const PRESET_LABEL: Record<Preset, string> = { all: "All runs", moon: "Moon base and rover air", suit: "Suit air", iss: "ISS and Earth air" };
-
-export type ConditionsTab = "habitats" | "map" | "runs";
+export type ConditionsTab = "habitats" | "map";
 const TABS: [ConditionsTab, string][] = [
   ["habitats", "By atmosphere"],
   ["map", "Atmosphere map"],
-  ["runs", "Runs table"],
 ];
 
 /** One page for the conditions table (K1.13): its three readings share one service and one header. */
@@ -53,66 +42,9 @@ export function ConditionsPage({ tab, habitat, inv }: { tab: ConditionsTab; habi
           ))}
         </nav>
       </div>
-      {tab === "map" ? <MapView focus={inv} /> : tab === "habitats" ? <ByAtmosphere initial={habitat} /> : <Conditions initialPreset={habitat} />}
+      {tab === "map" ? <MapView focus={inv} /> : <ByAtmosphere initial={habitat} />}
     </div>
   );
-}
-
-function Conditions({ initialPreset }: { initialPreset?: string | null }) {
-  const { client, researchMode } = useData();
-  const [preset, setPreset] = useState<Preset>(() => (initialPreset && initialPreset in PRESET_LABEL ? (initialPreset as Preset) : "all"));
-  const [includeUnknown, setIncludeUnknown] = useState(false);
-  const habitat = HABITAT_LIST.find((h) => h.id === preset);
-  const filters = habitat ? habitatFilters(habitat) : [];
-  const runs = useInfiniteQuery({
-    queryKey: [researchMode, "conditions", "runs", preset, includeUnknown],
-    queryFn: ({ pageParam }) =>
-      client.conditions({ schema_version: "dataset.v2", filters, include_unknown: preset === "all" ? true : includeUnknown, page_size: PAGE_SIZE, cursor: pageParam ?? null }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (last) => last.next_cursor ?? undefined,
-    retry: false,
-  });
-  const first = runs.data?.pages[0];
-  const table: ConditionsTable | undefined = first && { ...first, rows: runs.data!.pages.flatMap((p) => p.rows) };
-  if (runs.error && !runs.data) return <Unavailable err={runs.error} />;
-  return (
-    <>
-      <section className="panel-sec" aria-labelledby="h-matrix">
-        <h2 id="h-matrix" className="sr-only">
-          Conditions per run
-        </h2>
-        <div className="toolbar" role="group" aria-label="Runs to show">
-          {(Object.keys(PRESET_LABEL) as Preset[]).map((p) => (
-            <button key={p} className={`btn btn-s${p === preset ? " btn-primary" : ""}`} aria-pressed={p === preset} onClick={() => setPreset(p)}>
-              {PRESET_LABEL[p]}
-            </button>
-          ))}
-          {preset !== "all" && (
-            <label className="small" style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-              <input type="checkbox" checked={includeUnknown} onChange={(e) => setIncludeUnknown(e.target.checked)} /> include runs where O₂ or pressure is not stated
-            </label>
-          )}
-        </div>
-        {habitat && (
-          <p className="muted small">
-            {habitat.label} · {habitat.sub}
-          </p>
-        )}
-        {runs.isPending && <p className="muted small">Loading…</p>}
-        {runs.error && <ErrorNote error={runs.error} title="The runs could not be loaded" />}
-        {table && <ConditionsMatrix t={table} />}
-        {runs.hasNextPage && (
-          <button className="btn btn-s" disabled={runs.isFetchingNextPage} onClick={() => void runs.fetchNextPage()}>
-            {runs.isFetchingNextPage ? "Loading…" : `Load ${PAGE_SIZE} more`}
-          </button>
-        )}
-      </section>
-    </>
-  );
-}
-
-function Unavailable({ err }: { err: unknown }) {
-  return <Gap title="Conditions are not available on this server">{err instanceof Error ? err.message : String(err)}</Gap>;
 }
 
 

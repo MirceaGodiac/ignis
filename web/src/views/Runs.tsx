@@ -10,6 +10,9 @@ import { FamilyMark } from "../shell/icons";
 import { go } from "../shell/router";
 import { ErrorNote, Synthetic } from "../ui/common";
 import { FamilyLegend } from "./FamilyLegend";
+import { HABITAT_LIST, type Habitat, type HabitatId } from "../research/habitats";
+import { offset } from "../research/testPoints";
+import { invName } from "../data/investigations";
 
 type Col = "id" | "inv" | "date" | "family" | "fuel" | "o2" | "pressure" | "flow";
 const cond = (r: ExperimentSummary, k: string) => r.conditions[k]?.value_si ?? null;
@@ -71,18 +74,34 @@ const val: Record<Col, (r: ExperimentSummary) => string | number | null> = {
   flow: (r) => flow(r)?.v ?? null,
 };
 
-export function Runs({ initialFamily }: { initialFamily: string | null }) {
+/** A run is in an atmosphere when its recorded ambient O2 and pressure lie in it (burner-stream O2 never counts). */
+function inAtmosphere(r: ExperimentSummary, h: Habitat): boolean {
+  const o2 = oxygen(r);
+  const pa = cond(r, "pressure");
+  return !o2.burner && o2.v != null && pa != null && offset(o2.v, pa / 1000, h).inside;
+}
+
+export function Runs({ initialFamily, initialHabitat, initialInv }: { initialFamily: string | null; initialHabitat?: string | null; initialInv?: string | null }) {
   const { experiments, synthetic } = useData();
   const panel = usePanel();
   const cmp = useCompare();
   const [family, setFamily] = useState<string | null>(initialFamily);
   const [text, setText] = useState("");
+  const [habitat, setHabitat] = useState<HabitatId | null>(() => (HABITAT_LIST.some((h) => h.id === initialHabitat) ? (initialHabitat as HabitatId) : null));
+  const [inv, setInv] = useState<string | null>(initialInv ?? null);
   const [sort, setSort] = useState<{ col: Col; dir: 1 | -1 }>({ col: "family", dir: 1 });
   const runs = experiments.data?.experiments ?? [];
   const counts = useMemo(() => runs.reduce<Record<string, number>>((m, r) => ((m[r.family] = (m[r.family] ?? 0) + 1), m), {}), [runs]);
   const rows = useMemo(() => {
     const t = text.trim().toLowerCase();
-    const f = runs.filter((r) => (!family || r.family === family) && (!t || `${r.id} ${r.fuel_or_material ?? ""} ${r.configuration ?? ""} ${r.investigation_id}`.toLowerCase().includes(t)));
+    const h = HABITAT_LIST.find((x) => x.id === habitat);
+    const f = runs.filter(
+      (r) =>
+        (!family || r.family === family) &&
+        (!inv || r.investigation_id === inv) &&
+        (!h || inAtmosphere(r, h)) &&
+        (!t || `${r.id} ${runName(r)} ${r.fuel_or_material ?? ""} ${r.configuration ?? ""} ${r.investigation_id} ${invName(r.investigation_id)}`.toLowerCase().includes(t)),
+    );
     // The chosen column first, then family, investigation, day and run, so equal values keep a reading order.
     const keys: Col[] = [sort.col, ...(["family", "inv", "date", "id"] as Col[]).filter((c) => c !== sort.col)];
     return [...f].sort((a, b) => {
@@ -96,7 +115,7 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
       }
       return 0;
     });
-  }, [runs, family, text, sort]);
+  }, [runs, family, text, sort, habitat, inv]);
   const selectedRun = panel.current?.kind === "run" ? panel.current.id : null;
 
   const Th = ({ col, children, r, hide }: { col: Col; children: string; r?: boolean; hide?: boolean }) => (
@@ -119,12 +138,38 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
         <label className="sr-only" htmlFor="run-filter">
           Filter runs
         </label>
-        <input id="run-filter" className="field" placeholder="Filter runs" value={text} onChange={(e) => setText(e.target.value)} style={{ width: 260 }} />
+        <input id="run-filter" className="field" placeholder="Filter runs" value={text} onChange={(e) => setText(e.target.value)} style={{ width: 240 }} />
         <span className="muted" style={{ marginLeft: "auto", fontSize: 12 }}>
           {rows.length} of {runs.length}
         </span>
       </div>
-      {experiments.error && <ErrorNote error={experiments.error} title="Runs could not be loaded" />}
+      <div className="toolbar">
+        <div className="seg" role="group" aria-label="Atmosphere">
+          <button aria-pressed={habitat === null} onClick={() => setHabitat(null)}>
+            Any atmosphere
+          </button>
+          {HABITAT_LIST.map((h) => (
+            <button key={h.id} aria-pressed={habitat === h.id} onClick={() => setHabitat(h.id)} title={h.sub}>
+              {h.label}
+            </button>
+          ))}
+        </div>
+        {habitat && <span className="muted small">{HABITAT_LIST.find((h) => h.id === habitat)!.sub} · recorded ambient O₂ and pressure</span>}
+        {inv && (
+          <button className="chip-t" onClick={() => setInv(null)} aria-label={`Remove the filter ${invName(inv)}`}>
+            {invName(inv)} ×
+          </button>
+        )}
+      </div>
+      {experiments.error && !experiments.data && (
+        <div style={{ display: "grid", gap: 8, justifyItems: "start" }}>
+          <ErrorNote error={experiments.error} title="Runs could not be loaded" />
+          <button className="btn btn-s" onClick={() => void experiments.refetch()}>
+            Try again
+          </button>
+        </div>
+      )}
+      {experiments.isPending && <p className="muted">Loading runs…</p>}
       <div className="tbl-wrap">
         <table className="tbl">
           <thead>
