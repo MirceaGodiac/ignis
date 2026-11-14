@@ -274,7 +274,7 @@ pub fn status(seeds: &[Seed], con: Option<&Connection>) -> Result<Vec<CorpusEntr
                 let det = rec["copyright"]["determinationType"].as_str();
                 e.license = det.map(String::from);
                 e.rights_status = Some(
-                    if det == Some("PUBLIC_USE_PERMITTED") {
+                    if det.is_some_and(|d| ignis_data::sources::ntrs::PUBLIC_USE.contains(&d)) {
                         "verified"
                     } else {
                         "unverified"

@@ -12,7 +12,7 @@ use serde_json::{json, Value};
 use crate::families::{self, family_of, NAMES};
 use crate::sources::intl::{self, common as ic, darts, hreda, mendeley, zenodo};
 use crate::sources::psi::{dump_listing, flatten_listing, save_meta, PsiClient, RemoteFile};
-use crate::sources::{manifest as mf, samples as smp, INVESTIGATIONS};
+use crate::sources::{manifest as mf, samples as smp, storage, INVESTIGATIONS};
 use crate::text::py_dumps_ordered_indent;
 use crate::{auto, cohort, paths, review, store, views};
 
@@ -31,6 +31,10 @@ pub enum SourcesCmd {
         /// PSI category, e.g. 'Raw Data'.
         #[arg(long)]
         category: Option<String>,
+        /// Only the files the server stores by the atlas rule (documents and sensor text; media and
+        /// archives stay at NASA). See `sources::storage`.
+        #[arg(long)]
+        stored: bool,
         #[arg(long, default_value = "cpu-local")]
         profile: String,
         /// Assumed throughput for the estimate.
@@ -45,6 +49,17 @@ pub enum SourcesCmd {
         investigation: String,
         #[arg(long)]
         verify: bool,
+    },
+    /// NTRS discovery (read-only, rate-limited by the provider's headers): every record of a query
+    /// into `data/manifests/ntrs/<name>.jsonl`, raw records next to the corpus sidecars. Records are
+    /// metadata sources until fetched; a query match is not an investigation identity.
+    Ntrs {
+        query: String,
+        /// Manifest file stem; default: the query, slugged.
+        #[arg(long)]
+        name: Option<String>,
+        #[arg(long, default_value_t = 100)]
+        page_size: u32,
     },
     /// International microgravity-combustion sources (separate investigations, never NASA cohorts).
     #[command(subcommand)]
@@ -249,6 +264,56 @@ fn families_of(f: &str) -> Vec<String> {
 }
 
 /// `datetime.now(UTC).isoformat()`.
+fn slug(s: &str) -> String {
+    let mut out = String::new();
+    for ch in s.chars() {
+        if ch.is_ascii_alphanumeric() {
+            out.push(ch.to_ascii_lowercase());
+        } else if !out.ends_with('-') {
+            out.push('-');
+        }
+    }
+    out.trim_matches('-').to_string()
+}
+
+fn run_ntrs(query: &str, name: Option<&str>, page_size: u32) -> anyhow::Result<()> {
+    use crate::sources::ntrs;
+    let stem = name.map(String::from).unwrap_or_else(|| slug(query));
+    anyhow::ensure!(!stem.is_empty(), "empty manifest name");
+    let mut c = ntrs::NtrsClient::new(120);
+    let records = c.search_all(query, page_size)?;
+    let entries = ntrs::entries(query, &records, &now_iso_offset())?;
+    let sidecars = paths::root().join("raw").join("evidence").join("ntrs");
+    std::fs::create_dir_all(&sidecars)?;
+    for (v, e) in records.iter().zip(&entries) {
+        let p = sidecars.join(format!("NTRS-{}.json", e.record.ntrs_id));
+        if !p.exists() {
+            std::fs::write(&p, serde_json::to_string_pretty(v)? + "\n")?;
+        }
+    }
+    let out = paths::manifests()
+        .join("ntrs")
+        .join(format!("{stem}.jsonl"));
+    std::fs::create_dir_all(out.parent().unwrap())?;
+    let mut body = String::new();
+    for e in &entries {
+        body.push_str(&serde_json::to_string(e)?);
+        body.push('\n');
+    }
+    std::fs::write(&out, body)?;
+    let count = |f: &dyn Fn(&ntrs::NtrsEntry) -> bool| entries.iter().filter(|e| f(e)).count();
+    println!(
+        "{}",
+        json!({
+            "query": query, "manifest": out.display().to_string(), "records": entries.len(),
+            "rights_verified": count(&|e| e.source.rights.status == ignis_core::contracts::RightsStatus::Verified),
+            "with_pdf": count(&|e| e.record.pdf_url.is_some()),
+            "with_fulltext": count(&|e| e.record.fulltext_url.is_some()),
+        })
+    );
+    Ok(())
+}
+
 fn now_iso_offset() -> String {
     chrono::Utc::now()
         .format("%Y-%m-%dT%H:%M:%S%.6f+00:00")
@@ -257,16 +322,23 @@ fn now_iso_offset() -> String {
 
 // ------------------------------------------------------------------------------------------ sources
 
+/// The listing of `inv`: the raw PSI response saved by `sources inspect` when present, else the
+/// committed `data/manifests/<inv>.listing.jsonl` (same rows), so a fresh checkout can fetch
+/// without calling the metadata endpoint again.
 fn listing_local(inv: &str) -> anyhow::Result<Vec<RemoteFile>> {
-    let p = paths::meta().join(format!("files_{inv}.json"));
+    let raw = paths::meta().join(format!("files_{inv}.json"));
+    if raw.exists() {
+        return Ok(flatten_listing(
+            inv,
+            &serde_json::from_str(&std::fs::read_to_string(raw)?)?,
+        ));
+    }
+    let committed = paths::manifests().join(format!("{inv}.listing.jsonl"));
     anyhow::ensure!(
-        p.exists(),
+        committed.exists(),
         "no listing for {inv}; run `ignis sources inspect {inv}` first"
     );
-    Ok(flatten_listing(
-        inv,
-        &serde_json::from_str(&std::fs::read_to_string(p)?)?,
-    ))
+    crate::sources::psi::read_listing(&committed)
 }
 
 fn inspect_one(c: &PsiClient, inv: &str) -> anyhow::Result<Vec<RemoteFile>> {
@@ -284,6 +356,9 @@ fn inspect_one(c: &PsiClient, inv: &str) -> anyhow::Result<Vec<RemoteFile>> {
     std::fs::write(out, dump_listing(&files))?;
     Ok(files)
 }
+
+/// Records written to the manifest between files of a bulk fetch.
+const CHECKPOINT_EVERY: usize = 100;
 
 fn fetch_all(
     c: &PsiClient,
@@ -318,6 +393,10 @@ fn fetch_all(
             &rights,
             info["doi"].as_str(),
         ));
+        // Checkpoint: an interrupted bulk fetch keeps what it hashed (write_manifest merges).
+        if records.len() % CHECKPOINT_EVERY == 0 {
+            mf::write_manifest(inv, &records)?;
+        }
     }
     mf::write_manifest(inv, &records)?;
     Ok(records)
@@ -436,17 +515,24 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             investigation,
             pattern,
             category,
+            stored,
             profile,
             mb_per_s,
             execute,
         } => {
             let rx = Regex::new(&pattern)?;
+            // NASA's listings repeat some rows: each (file name, version) is fetched once.
+            let mut seen = std::collections::BTreeSet::new();
             let files: Vec<RemoteFile> = listing_local(&investigation)?
                 .into_iter()
                 .filter(|f| {
                     rx.is_match(&f.file_name)
                         && category.as_ref().is_none_or(|c| *c == f.category)
                         && !f.restricted
+                        && (!stored
+                            || storage::storage_class(&f.category, &f.file_name)
+                                != storage::StorageClass::ManifestOnly)
+                        && seen.insert((f.file_name.clone(), f.file_version))
                 })
                 .collect();
             let total: i64 = files.iter().filter_map(|f| f.size_bytes).sum();
@@ -502,6 +588,11 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
                 anyhow::bail!("{bad} manifest entries missing or mismatched");
             }
         }
+        SourcesCmd::Ntrs {
+            query,
+            name,
+            page_size,
+        } => run_ntrs(&query, name.as_deref(), page_size)?,
         SourcesCmd::Intl(c) => run_intl(c)?,
     }
     Ok(())

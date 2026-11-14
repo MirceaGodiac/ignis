@@ -1,0 +1,938 @@
+{
+ "stats": {
+  "took": 64,
+  "total": 18,
+  "estimate": false,
+  "maxScore": 244.25705
+ },
+ "results": [
+  {
+   "_meta": {
+    "score": 244.25705
+   },
+   "copyright": {
+    "thirdPartyPermissionsProduced": false,
+    "disclosedToPublic": false,
+    "containsIndication": false,
+    "publisherPermissionOrRightsToDistribute": false,
+    "belongsToUsGov": false,
+    "determinationType": "GOV_PUBLIC_USE_PERMITTED",
+    "thirdPartyContentCondition": "NOT_SET",
+    "belongsToContractor": false,
+    "disclosedInvention": false,
+    "submissionId": 20040142357,
+    "containsThirdPartyMaterial": false,
+    "belongsToPublisher": false,
+    "id": "0bf98303e6dc4d3990f81a0b160539ed",
+    "belongsToAuthors": false
+   },
+   "subjectCategories": [
+    "Man/System Technology And Life Support"
+   ],
+   "exportControl": {
+    "isExportControl": "NO",
+    "submissionId": 20040142357,
+    "ear": "NO",
+    "id": "8db10199df304c3594c6da47adb70e37",
+    "itar": "NO"
+   },
+   "distributionDate": "2019-08-14T17:37:56.1600000+00:00",
+   "title": "Space Experiment Concepts: Cup-Burner Flame Extinguishment",
+   "stiType": "CONFERENCE_PAPER",
+   "distribution": "PUBLIC",
+   "submittedDate": "2013-08-22T03:21:00.0000000+00:00",
+   "authorAffiliations": [
+    {
+     "sequence": 0,
+     "submissionId": 20040142357,
+     "meta": {
+      "author": {
+       "name": "Takahashi, Fumiaki"
+      },
+      "organization": {
+       "name": "National Center for Microgravity Research on Fluids and Combustion",
+       "location": "Cleveland, OH, United States"
+      }
+     },
+     "id": "d5ae6c67686c4eb58a06a1abdbb068d3"
+    }
+   ],
+   "stiTypeDetails": "Conference Paper",
+   "technicalReviewType": "TECHNICAL_REVIEW_TYPE_NONE",
+   "modified": "2025-08-31T18:39:21.7150190+00:00",
+   "id": 20040142357,
+   "legacyMeta": {
+    "__type": "LegacyMetaIndex, StrivesApi.ServiceModel",
+    "accessionNumber": ""
+   },
+   "created": "2013-08-22T03:21:00.0000000+00:00",
+   "center": {
+    "code": "GRC",
+    "name": "Glenn Research Center",
+    "id": "19eeb25fa404421d9eaa5f876e853e3c"
+   },
+   "onlyAbstract": false,
+   "sensitiveInformation": 2,
+   "abstract": "Space Fire Suppression Processes & Technology. Space experiment concepts of cup-burner flame extinguishment have been conceived to address to the key issues (i.e., organizing questions) in space fire suppression. Cup-burner flame extinguishment experiment can reveal physical and chemical suppression processes and provide agent effectiveness data useful for technology development of space fire suppression systems in various reduced-gravity platforms.",
+   "isLessonsLearned": false,
+   "disseminated": "DOCUMENT_AND_METADATA",
+   "publications": [
+    {
+     "submissionId": 20040142357,
+     "id": "63b760ac272140d8b74574331169931e",
+     "publicationName": "Strategic Research to Enable NASA's Exploration Missions Conference and Workshop: Presentations, Volume 1",
+     "publicationDate": "2004-08-01T00:00:00.0000000+00:00"
+    }
+   ],
+   "status": "CURATED",
+   "related": [
+    {
+     "disseminated": "DOCUMENT_AND_METADATA",
+     "id": 20040142351,
+     "type": "ANALYTIC_PRIMARY",
+     "title": "Strategic Research to Enable NASA's Exploration Missions Conference and Workshop: Presentations",
+     "stiType": "CONFERENCE_PROCEEDINGS",
+     "distribution": "PUBLIC",
+     "status": "CURATED"
+    },
+    {
+     "disseminated": "DOCUMENT_AND_METADATA",
+     "id": 20040142351,
+     "type": "ANALYTIC_PRIMARY",
+     "title": "Strategic Research to Enable NASA's Exploration Missions Conference and Workshop: Presentations",
+     "stiType": "CONFERENCE_PROCEEDINGS",
+     "distribution": "PUBLIC",
+     "status": "CURATED"
+    }
+   ],
+   "downloads": [
+    {
+     "draft": false,
+     "mimetype": "application/pdf",
+     "name": "20040142357.pdf",
+     "type": "STI",
+     "links": {
+      "original": "/api/citations/20040142357/downloads/20040142357.pdf",
+      "pdf": "/api/citations/20040142357/downloads/20040142357.pdf",
+      "fulltext": "/api/citations/20040142357/downloads/20040142357.txt"
+     }
+    }
+   ],
+   "downloadsAvailable": true,
+   "index": "submissions-2026-11-14-06-24"
+  },
+  {
+   "_meta": {
+    "score": 213.73126
+   },
+   "copyright": {
+    "thirdPartyPermissionsProduced": false,
+    "disclosedToPublic": false,
+    "containsIndication": false,
+    "publisherPermissionOrRightsToDistribute": false,
+    "belongsToUsGov": false,
+    "determinationType": "PUBLIC_USE_PERMITTED",
+    "thirdPartyContentCondition": "NOT_SET",
+    "belongsToContractor": false,
+    "disclosedInvention": false,
+    "submissionId": 20090014812,
+    "containsThirdPartyMaterial": false,
+    "belongsToPublisher": false,
+    "id": "6da905c589794e1a963dc87c60d64bb3",
+    "belongsToAuthors": false
+   },
+   "subjectCategories": [
+    "Chemistry And Materials (General)"
+   ],
+   "exportControl": {
+    "isExportControl": "NO",
+    "submissionId": 20090014812,
+    "ear": "NO",
+    "id": "cd7b676fb6874367982e361eed0500c6",
+    "itar": "NO"
+   },
+   "distributionDate": "2019-07-10T00:00:00.0000000+00:00",
+   "otherReportNumbers": [
+    "JSC-17962-27",
+    "Report Number: JSC-17962-27"
+   ],
+   "title": "Multi-User Droplet Combustion Apparatus - Flame Extinguishment Experiment",
+   "stiType": "OTHER",
+   "distribution": "PUBLIC",
+   "submittedDate": "2013-08-24T17:38:00.0000000+00:00",
+   "authorAffiliations": [
+    {
+     "sequence": 0,
+     "submissionId": 20090014812,
+     "meta": {
+      "author": {
+       "name": "Williams, Forman A."
+      },
+      "organization": {
+       "name": "California Univ., San Diego",
+       "location": "La Jolla, CA, United States"
+      }
+     },
+     "id": "60326a4d79ab4195b17fb74ccf499b9f"
+    },
+    {
+     "sequence": 1,
+     "submissionId": 20090014812,
+     "meta": {
+      "author": {
+       "name": "Nayagam, Vedha"
+      },
+      "organization": {
+       "name": "National Center for Space Exploration Research on Fluids and Combustion",
+       "location": "Cleveland, OH, United States"
+      }
+     },
+     "id": "e613bca960f943c39aec903b90acdce3"
+    },
+    {
+     "sequence": 2,
+     "submissionId": 20090014812,
+     "meta": {
+      "author": {
+       "name": "Choi, Mun Y."
+      },
+      "organization": {
+       "name": "Drexel Univ.",
+       "location": "Philadelphia, PA, United States"
+      }
+     },
+     "id": "ca7175d4c40c469d94e6a4ea7a2dca54"
+    },
+    {
+     "sequence": 3,
+     "submissionId": 20090014812,
+     "meta": {
+      "author": {
+       "name": "Dryer, Frederick L."
+      },
+      "organization": {
+       "name": "Princeton Univ.",
+       "location": "Princeton, NJ, United States"
+      }
+     },
+     "id": "812c78f2c3c44ac6b71ba6190e16cbc1"
+    },
+    {
+     "sequence": 4,
+     "submissionId": 20090014812,
+     "meta": {
+      "author": {
+       "name": "Shaw, Benjamin D."
+      },
+      "organization": {
+       "name": "California Univ.",
+       "location": "Davis, CA, United States"
+      }
+     },
+     "id": "142972b52c0b442da58e29e603c69539"
+    }
+   ],
+   "stiTypeDetails": "Other",
+   "technicalReviewType": "TECHNICAL_REVIEW_TYPE_NONE",
+   "modified": "2025-08-31T18:39:21.7150190+00:00",
+   "id": 20090014812,
+   "legacyMeta": {
+    "__type": "LegacyMetaIndex, StrivesApi.ServiceModel",
+    "accessionNumber": ""
+   },
+   "created": "2013-08-24T17:38:00.0000000+00:00",
+   "center": {
+    "code": "JSC",
+    "name": "Johnson Space Center",
+    "id": "dd46994b91a94cb2a2722617cbbadc55"
+   },
+   "onlyAbstract": false,
+   "sensitiveInformation": 2,
+   "abstract": "Multi-User Droplet Combustion Apparatus Flame Extinguishment Experiment (MDCA-FLEX) will assess the effectiveness of fire suppressants in microgravity and quantify the effect of different possible crew exploration atmospheres on fire suppression. The goal of this research is to provide definition and direction for large scale fire suppression tests and selection of the fire suppressant for next generation crew exploration vehicles.",
+   "isLessonsLearned": false,
+   "disseminated": "DOCUMENT_AND_METADATA",
+   "publications": [
+    {
+     "submissionId": 20090014812,
+     "id": "9ed40b74a6054388a5f37ad31310bda4",
+     "publicationDate": "2009-02-23T00:00:00.0000000+00:00"
+    }
+   ],
+   "status": "CURATED",
+   "related": [],
+   "downloads": [
+    {
+     "draft": false,
+     "mimetype": "application/pdf",
+     "name": "20090014812.pdf",
+     "type": "STI",
+     "links": {
+      "original": "/api/citations/20090014812/downloads/20090014812.pdf",
+      "pdf": "/api/citations/20090014812/downloads/20090014812.pdf",
+      "fulltext": "/api/citations/20090014812/downloads/20090014812.txt"
+     }
+    }
+   ],
+   "downloadsAvailable": true,
+   "index": "submissions-2026-11-14-06-24"
+  }
+ ],
+ "aggregations": {
+  "created": {
+   "buckets": [
+    {
+     "key_as_string": "2013",
+     "key": 1356998400000,
+     "doc_count": 12
+    },
+    {
+     "key_as_string": "2015",
+     "key": 1420070400000,
+     "doc_count": 3
+    },
+    {
+     "key_as_string": "2024",
+     "key": 1704067200000,
+     "doc_count": 2
+    },
+    {
+     "key_as_string": "2026",
+     "key": 1767225600000,
+     "doc_count": 1
+    }
+   ]
+  },
+  "author": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 50,
+   "buckets": [
+    {
+     "key": "Dietrich, Daniel L.",
+     "doc_count": 4
+    },
+    {
+     "key": "Ferkul, Paul V.",
+     "doc_count": 4
+    },
+    {
+     "key": "Hicks, Michael C.",
+     "doc_count": 3
+    },
+    {
+     "key": "Nayagam, Vedha",
+     "doc_count": 3
+    },
+    {
+     "key": "Williams, Forman A.",
+     "doc_count": 3
+    },
+    {
+     "key": "Augustin Guibaud",
+     "doc_count": 2
+    },
+    {
+     "key": "Balazs Toth",
+     "doc_count": 2
+    },
+    {
+     "key": "Choi, Mun Y.",
+     "doc_count": 2
+    },
+    {
+     "key": "Christian Eigenbrod",
+     "doc_count": 2
+    },
+    {
+     "key": "Claire Fortenberry",
+     "doc_count": 2
+    },
+    {
+     "key": "Dryer, Frederick L.",
+     "doc_count": 2
+    },
+    {
+     "key": "Florian Meyer",
+     "doc_count": 2
+    },
+    {
+     "key": "Gokoglu, Suleyman A.",
+     "doc_count": 2
+    },
+    {
+     "key": "Grunde Jomaas",
+     "doc_count": 2
+    },
+    {
+     "key": "Guillaume Legros",
+     "doc_count": 2
+    },
+    {
+     "key": "J H Kimzey",
+     "doc_count": 2
+    },
+    {
+     "key": "Jay Owens",
+     "doc_count": 2
+    },
+    {
+     "key": "John Easton",
+     "doc_count": 2
+    },
+    {
+     "key": "John Graf",
+     "doc_count": 2
+    },
+    {
+     "key": "Johnston, Michael C.",
+     "doc_count": 2
+    }
+   ]
+  },
+  "reportNumber": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 29,
+   "buckets": [
+    {
+     "key": "AIAA Paper 2012-3511",
+     "doc_count": 1
+    },
+    {
+     "key": "E-10678",
+     "doc_count": 1
+    },
+    {
+     "key": "E-14713-1/VOL1",
+     "doc_count": 1
+    },
+    {
+     "key": "E-18312",
+     "doc_count": 1
+    },
+    {
+     "key": "E-18417",
+     "doc_count": 1
+    },
+    {
+     "key": "E-18493",
+     "doc_count": 1
+    },
+    {
+     "key": "E-8364",
+     "doc_count": 1
+    },
+    {
+     "key": "GRC-E-DAA-TN24179",
+     "doc_count": 1
+    },
+    {
+     "key": "GRC-E-DAA-TN25001",
+     "doc_count": 1
+    },
+    {
+     "key": "GRC-E-DAA-TN5314",
+     "doc_count": 1
+    },
+    {
+     "key": "GRC-E-DAA-TN5423",
+     "doc_count": 1
+    },
+    {
+     "key": "GRC-E-DAA-TN8437",
+     "doc_count": 1
+    },
+    {
+     "key": "GRC-E-DAA-TN9229",
+     "doc_count": 1
+    },
+    {
+     "key": "ICES-2024-365",
+     "doc_count": 1
+    },
+    {
+     "key": "JSC-17962-27",
+     "doc_count": 1
+    },
+    {
+     "key": "NAS 1.26:182114",
+     "doc_count": 1
+    },
+    {
+     "key": "NAS 1.55:10194",
+     "doc_count": 1
+    },
+    {
+     "key": "NASA-CP-10194",
+     "doc_count": 1
+    },
+    {
+     "key": "NASA-CR-182114",
+     "doc_count": 1
+    },
+    {
+     "key": "NASA-TM-X-70252",
+     "doc_count": 1
+    }
+   ]
+  },
+  "center": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "GRC",
+     "doc_count": 14
+    },
+    {
+     "key": "LaRC",
+     "doc_count": 2
+    },
+    {
+     "key": "CDMS",
+     "doc_count": 1
+    },
+    {
+     "key": "JSC",
+     "doc_count": 1
+    }
+   ]
+  },
+  "index": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "submissions-2026-11-14-06-24",
+     "doc_count": 18
+    }
+   ]
+  },
+  "fundingNumber": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "NNC08BA05B",
+     "doc_count": 3
+    },
+    {
+     "key": "089407.02.05.22",
+     "doc_count": 2
+    },
+    {
+     "key": "NNC13BA10B",
+     "doc_count": 2
+    },
+    {
+     "key": "WBS 067463.04.03.03",
+     "doc_count": 2
+    },
+    {
+     "key": "WBS 904211.04.02.30.07",
+     "doc_count": 2
+    },
+    {
+     "key": "480-52-25067",
+     "doc_count": 1
+    },
+    {
+     "key": "NAG3-965",
+     "doc_count": 1
+    },
+    {
+     "key": "NAS3-25067",
+     "doc_count": 1
+    },
+    {
+     "key": "NAS3-96017",
+     "doc_count": 1
+    },
+    {
+     "key": "NNC08BA0B",
+     "doc_count": 1
+    },
+    {
+     "key": "NNX10AD99A",
+     "doc_count": 1
+    },
+    {
+     "key": "NSF CBT-86-57228",
+     "doc_count": 1
+    },
+    {
+     "key": "RTOP 480-52-02",
+     "doc_count": 1
+    },
+    {
+     "key": "RTOP 963-80-0J",
+     "doc_count": 1
+    },
+    {
+     "key": "WBS 067463.04.05.04.03",
+     "doc_count": 1
+    },
+    {
+     "key": "WBS 22-101-58-09",
+     "doc_count": 1
+    },
+    {
+     "key": "WBS 904211.04.02.30.19",
+     "doc_count": 1
+    },
+    {
+     "key": "WU–963–80–0J",
+     "doc_count": 1
+    }
+   ]
+  },
+  "published": {
+   "buckets": [
+    {
+     "key_as_string": "2015",
+     "key": 1420070400000,
+     "doc_count": 3
+    },
+    {
+     "key_as_string": "1974",
+     "key": 126230400000,
+     "doc_count": 2
+    },
+    {
+     "key_as_string": "2004",
+     "key": 1072915200000,
+     "doc_count": 2
+    },
+    {
+     "key_as_string": "2012",
+     "key": 1325376000000,
+     "doc_count": 2
+    },
+    {
+     "key_as_string": "2013",
+     "key": 1356998400000,
+     "doc_count": 2
+    },
+    {
+     "key_as_string": "1988",
+     "key": 567993600000,
+     "doc_count": 1
+    },
+    {
+     "key_as_string": "1991",
+     "key": 662688000000,
+     "doc_count": 1
+    },
+    {
+     "key_as_string": "1997",
+     "key": 852076800000,
+     "doc_count": 1
+    },
+    {
+     "key_as_string": "1999",
+     "key": 915148800000,
+     "doc_count": 1
+    },
+    {
+     "key_as_string": "2009",
+     "key": 1230768000000,
+     "doc_count": 1
+    }
+   ]
+  },
+  "distribution": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "PUBLIC",
+     "doc_count": 18
+    }
+   ]
+  },
+  "stiType": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "CONFERENCE_PAPER",
+     "doc_count": 8
+    },
+    {
+     "key": "CONFERENCE_PROCEEDINGS",
+     "doc_count": 2
+    },
+    {
+     "key": "OTHER",
+     "doc_count": 2
+    },
+    {
+     "key": "PRESENTATION",
+     "doc_count": 2
+    },
+    {
+     "key": "CONTRACTOR_OR_GRANTEE_REPORT",
+     "doc_count": 1
+    },
+    {
+     "key": "CONTRACTOR_REPORT",
+     "doc_count": 1
+    },
+    {
+     "key": "TECHNICAL_MEMORANDUM",
+     "doc_count": 1
+    },
+    {
+     "key": "TECHNICAL_PUBLICATION",
+     "doc_count": 1
+    }
+   ]
+  },
+  "subjectCategory": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "Fluid Mechanics And Thermodynamics",
+     "doc_count": 2
+    },
+    {
+     "key": "Fluid Mechanics and Thermodynamics",
+     "doc_count": 2
+    },
+    {
+     "key": "Inorganic And Physical Chemistry",
+     "doc_count": 2
+    },
+    {
+     "key": "Space Sciences (General)",
+     "doc_count": 2
+    },
+    {
+     "key": "Space Transportation And Safety",
+     "doc_count": 2
+    },
+    {
+     "key": "Space Transportation and Safety",
+     "doc_count": 2
+    },
+    {
+     "key": "Chemistry And Materials (General)",
+     "doc_count": 1
+    },
+    {
+     "key": "Engineering (General)",
+     "doc_count": 1
+    },
+    {
+     "key": "Inorganic, Organic And Physical Chemistry",
+     "doc_count": 1
+    },
+    {
+     "key": "Man/System Technology And Life Support",
+     "doc_count": 1
+    },
+    {
+     "key": "Materials Processing",
+     "doc_count": 1
+    },
+    {
+     "key": "Propellants And Fuels",
+     "doc_count": 1
+    }
+   ]
+  },
+  "disseminated": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "DOCUMENT_AND_METADATA",
+     "doc_count": 17
+    },
+    {
+     "key": "METADATA_ONLY",
+     "doc_count": 1
+    }
+   ]
+  },
+  "stiTypeDetails": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "Conference Paper",
+     "doc_count": 8
+    },
+    {
+     "key": "Conference Proceedings",
+     "doc_count": 2
+    },
+    {
+     "key": "Presentation",
+     "doc_count": 2
+    },
+    {
+     "key": "Contractor Report (CR)",
+     "doc_count": 1
+    },
+    {
+     "key": "Contractor or Grantee Report",
+     "doc_count": 1
+    },
+    {
+     "key": "Other",
+     "doc_count": 1
+    },
+    {
+     "key": "Other - Technical Report",
+     "doc_count": 1
+    },
+    {
+     "key": "Technical Memorandum (TM)",
+     "doc_count": 1
+    },
+    {
+     "key": "Technical Publication (TP)",
+     "doc_count": 1
+    }
+   ]
+  },
+  "organization": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 8,
+   "buckets": [
+    {
+     "key": "NASA Glenn Research Center",
+     "doc_count": 8
+    },
+    {
+     "key": "Universities Space Research Association",
+     "doc_count": 5
+    },
+    {
+     "key": "Johnson Space Center",
+     "doc_count": 4
+    },
+    {
+     "key": "National Center for Space Exploration Research on Fluids and Combustion",
+     "doc_count": 4
+    },
+    {
+     "key": "California Univ., San Diego",
+     "doc_count": 3
+    },
+    {
+     "key": "Princeton Univ.",
+     "doc_count": 3
+    },
+    {
+     "key": "California Univ.",
+     "doc_count": 2
+    },
+    {
+     "key": "Case Western Reserve University",
+     "doc_count": 2
+    },
+    {
+     "key": "European Space Agency, ESTEC",
+     "doc_count": 2
+    },
+    {
+     "key": "Glenn Research Center",
+     "doc_count": 2
+    },
+    {
+     "key": "Hokkaido University",
+     "doc_count": 2
+    },
+    {
+     "key": "Moscow State Technological University",
+     "doc_count": 2
+    },
+    {
+     "key": "Slovenian National Building and Civil Engineering Institute",
+     "doc_count": 2
+    },
+    {
+     "key": "Universite d'Orleans",
+     "doc_count": 2
+    },
+    {
+     "key": "University College",
+     "doc_count": 2
+    },
+    {
+     "key": "University of Bremen",
+     "doc_count": 2
+    },
+    {
+     "key": "University of California, Berkeley",
+     "doc_count": 2
+    },
+    {
+     "key": "AeroChem Research Labs., Inc.",
+     "doc_count": 1
+    },
+    {
+     "key": "Case Western Reserve Univ.",
+     "doc_count": 1
+    },
+    {
+     "key": "Connecticut Univ.",
+     "doc_count": 1
+    }
+   ]
+  },
+  "modified": {
+   "buckets": [
+    {
+     "key_as_string": "2025",
+     "key": 1735689600000,
+     "doc_count": 15
+    },
+    {
+     "key_as_string": "2026",
+     "key": 1767225600000,
+     "doc_count": 3
+    }
+   ]
+  },
+  "keyword": {
+   "doc_count_error_upper_bound": 0,
+   "sum_other_doc_count": 0,
+   "buckets": [
+    {
+     "key": "Flammability",
+     "doc_count": 3
+    },
+    {
+     "key": "Microgravity",
+     "doc_count": 2
+    },
+    {
+     "key": "fire",
+     "doc_count": 2
+    },
+    {
+     "key": "microgravity",
+     "doc_count": 2
+    },
+    {
+     "key": "Combustion",
+     "doc_count": 1
+    },
+    {
+     "key": "Droplet Combustion",
+     "doc_count": 1
+    },
+    {
+     "key": "Fires",
+     "doc_count": 1
+    },
+    {
+     "key": "International Space Station",
+     "doc_count": 1
+    }
+   ]
+  }
+ }
+}
