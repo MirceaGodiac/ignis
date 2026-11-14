@@ -64,7 +64,7 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
   return (
     <div className="view" style={{ maxWidth: 920 }}>
       <div className="view-head">
-        <h1>{wantNew ? "New investigation" : "Investigations"}</h1>
+        <h1>{wantNew ? "New question" : "Questions"}</h1>
       </div>
       <AskBox onAsk={create} busy={busy} initial={question ?? ""} autoFocus={wantNew} />
       {researchMode === "mock" && (
@@ -104,7 +104,7 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
           </tbody>
         </table>
       </div>
-      {episodes.error && <ErrorNote error={episodes.error} title="Investigations could not be loaded" />}
+      {episodes.error && <ErrorNote error={episodes.error} title="Questions could not be loaded" />}
     </div>
   );
 }

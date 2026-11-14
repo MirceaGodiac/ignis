@@ -6,14 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import type { ConditionsRow, ConditionsTable } from "../contracts/generated";
 import { pointsFromConditions } from "../research/mapPoints";
 import { useData } from "../shell/data";
-import { href } from "../shell/router";
-import { ErrorNote, Gap, OriginMark } from "../ui/common";
+import { Gap } from "../ui/common";
 import { AtmosMap, HABITATS, moonDistance, PSI } from "./AtmosMap";
 
 const PAGE = 1000;
 
 export function MapView() {
-  const { client, researchMode, synthetic } = useData();
+  const { client, researchMode } = useData();
   const [inv, setInv] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   // The map needs every run, so it reads all pages; only the three keys it draws or labels.
@@ -41,23 +40,9 @@ export function MapView() {
   const total = table.data?.rows.length ?? 0;
 
   return (
-    <div className="view">
-      <div className="view-head">
-        <h1>Atmosphere map</h1>
-        <div className="toolbar">
-          {table.data && <OriginMark origin={table.data.origin} pageSynthetic={synthetic} />}
-          <a className="btn btn-s" href={href("conditions")}>
-            Conditions table
-          </a>
-        </div>
-      </div>
-      {table.isPending && <p className="muted">Loading conditions…</p>}
-      {table.error && (
-        <>
-          <ErrorNote error={table.error} title="The conditions service did not answer" />
-          <Gap title="The map reads the conditions table">The conditions query (R9) and its route (M11) are not on this server yet.</Gap>
-        </>
-      )}
+    <>
+      {table.isPending && <p className="muted">Loading…</p>}
+      {table.error && <Gap title="Conditions are not available on this server">{(table.error as Error).message}</Gap>}
       {table.data && (
         <>
           <div className="seg" role="group" aria-label="Highlight an investigation" style={{ flexWrap: "wrap" }}>
@@ -124,12 +109,11 @@ export function MapView() {
                     </li>
                   ))}
                 </ol>
-                <p className="muted small">Distance on both axes; geometry, not a model.</p>
               </div>
             </aside>
           </section>
         </>
       )}
-    </div>
+    </>
   );
 }

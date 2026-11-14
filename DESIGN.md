@@ -288,6 +288,16 @@ or qualified status. Shape carries the evidence class, so colour is never the on
 
 The shell is a grid: a 256px rail, a flexible main column, and a 400px side panel when an item is open. The main column has a sticky 60px topbar without a rule (crumbs, the synthetic pill, a 300px search field), 90% paper with a 10px blur. An object page has a main column and a 280px properties column on the rail tone. Home is one centred 820px column starting at 11vh.
 
+Information architecture (one registry, `web/src/shell/router.ts` SECTIONS / VIEW_SERVICE): the rail
+has the serif wordmark, "New question" (Home's prompt) and search, then Home; **NASA data**: Sources
+(knowledge), Runs (registry), Conditions (datasets: Habitats, Atmosphere map and Runs as tabs of one
+page); **Models**: Forecast lab, Compare (registry), Models (models); then Recent questions (agent
+runtime) and the theme switch. Breadcrumbs read "section › page". A page whose service the deployment
+does not serve stays reachable, is dimmed in the rail, and says so in place; there is no service
+footer and no global server banner. Every page opens with its title (24px), then tabs or a toolbar,
+then its content: no explanatory sentence under a title, no helper copy under a field. The data source
+is live; fixtures are a development choice (command menu or `?source=synthetic`).
+
 Spacing: 6-10px inside a group, 16-22px between blocks (20px view gap), 32-36px between sections. View padding 12px 32px 56px. Control heights 26 (small), 32 (default), 38 (rail items), 40 (rail actions), 42 (table rows, tabs, list rows), 60 (topbar, panel head).
 
 Responsive behaviour is unchanged: at 1280px the claims margin moves under the answer; at 1100px the side panel overlays and the properties column moves under the page; at 820px the shell is one column with a menu toggle.

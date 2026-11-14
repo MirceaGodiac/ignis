@@ -34,11 +34,14 @@ interface DataCtx {
 const Ctx = createContext<DataCtx | null>(null);
 
 const STORE = "ignis.source";
+// Live by default: a deployment shows its own data. Synthetic fixtures are a development choice, made
+// in the command menu or with ?source=synthetic, and remembered per browser.
 const readStored = (): Source => {
+  if (new URLSearchParams(window.location.search).get("source") === "synthetic") return "synthetic";
   try {
-    return localStorage.getItem(STORE) === "live" ? "live" : "synthetic";
+    return localStorage.getItem(STORE) === "synthetic" ? "synthetic" : "live";
   } catch {
-    return "synthetic";
+    return "live";
   }
 };
 

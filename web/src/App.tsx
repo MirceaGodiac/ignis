@@ -2,18 +2,17 @@
 import { useEffect, useState } from "react";
 import { CompareProvider, useCompare } from "./shell/compare";
 import { CommandMenu } from "./shell/CommandMenu";
-import { DataProvider, useData } from "./shell/data";
+import { DataProvider } from "./shell/data";
 import { PanelProvider, usePanel } from "./shell/inspector";
 import { Panel } from "./shell/Panel";
-import { href, useRoute, VIEW_TITLE } from "./shell/router";
+import { go, href, useRoute, VIEW_SECTION, VIEW_TITLE } from "./shell/router";
 import { Sidebar } from "./shell/Sidebar";
 import { IconChevron, IconSearch } from "./shell/icons";
 import { useEpisodes } from "./shell/queries";
 import { Compare } from "./views/Compare";
 import { Home } from "./views/Home";
 import { Lab } from "./views/Lab";
-import { MapView } from "./views/MapView";
-import { Conditions } from "./views/Conditions";
+import { ConditionsPage, type ConditionsTab } from "./views/Conditions";
 import { Models } from "./views/Models";
 import { Research } from "./views/Research";
 import { Runs } from "./views/Runs";
@@ -33,7 +32,7 @@ export function App() {
 
 function Shell() {
   const route = useRoute();
-  const { synthetic, health } = useData();
+
   const panel = usePanel();
   const cmp = useCompare();
   const episodes = useEpisodes();
@@ -49,6 +48,11 @@ function Shell() {
     window.addEventListener("keydown", on);
     return () => window.removeEventListener("keydown", on);
   }, []);
+
+  // The old atmosphere-map link opens its tab on the conditions page.
+  useEffect(() => {
+    if (route.view === "map") go("conditions", null, { tab: "map" });
+  }, [route.view]);
 
   // A new view starts with a closed side panel; the panel belongs to what was selected on it.
   const { close } = panel;
@@ -66,9 +70,15 @@ function Shell() {
         {route.view !== "home" && (
           <header className="topbar">
             <nav className="crumbs" aria-label="Breadcrumb">
+              {VIEW_SECTION[route.view] && (
+                <>
+                  <span>{VIEW_SECTION[route.view]}</span>
+                  <IconChevron width={12} height={12} />
+                </>
+              )}
               {route.view === "research" && route.id ? (
                 <a href={href("research")} className="here">
-                  Investigations
+                  Questions
                 </a>
               ) : route.view === "lab" && route.id ? (
                 <>
@@ -81,30 +91,14 @@ function Shell() {
               )}
             </nav>
             <span className="spacer" />
-            {synthetic && (
-              <span className="pill-synth" title="Development fixtures: generated data, not NASA results">
-                Synthetic data
-              </span>
-            )}
             <button className="search-btn" onClick={() => setCmd(true)}>
               <IconSearch width={14} height={14} /> <span className="lbl">Search</span> <kbd>Ctrl K</kbd>
             </button>
           </header>
         )}
-        {health.error && !health.data && route.view !== "research" && route.view !== "home" && (
-          <div className="view" style={{ paddingBottom: 0 }}>
-            <div className="note note-refusal" role="status">
-              <b>The IGNIS server is not reachable</b>
-              <p>
-                Start it with <code>cargo run -p ignis-cli -- serve --dev</code>.
-              </p>
-            </div>
-          </div>
-        )}
         {route.view === "home" && <Home />}
         {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} tab={route.params.get("tab")} />}
-        {route.view === "map" && <MapView />}
-        {route.view === "conditions" && <Conditions />}
+        {route.view === "conditions" && <ConditionsPage tab={(["map", "runs"].includes(route.params.get("tab") ?? "") ? route.params.get("tab") : "habitats") as ConditionsTab} />}
         {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
         {route.view === "compare" && <Compare />}
         {route.view === "lab" && <Lab runId={route.id} />}

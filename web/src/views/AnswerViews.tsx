@@ -111,7 +111,6 @@ function SeriesView({ view, client }: { view: Extract<ViewSpec, { kind: "series_
   return (
     <>
       <SeriesChart series={series} id={`series:${view.series.map((s) => s.artifact_id).join(",")}`} />
-      {series.some((s) => s.ref.role === "predicted") && <p className="muted small">Predicted series are model output, not measurements.</p>}
     </>
   );
 }
