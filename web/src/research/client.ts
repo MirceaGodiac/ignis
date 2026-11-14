@@ -127,6 +127,7 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
       const a = FIXTURES.sourceAccess.find((x) => x.source_id === id);
       return a ? ok(a) : fail(notInFixtures(`access to source ${id}`), 404);
     },
+    conditions: () => ok(FIXTURES.conditionsTable),
     listModels: () => ok(FIXTURES.releases),
     postMessage: () => fail(MOCK_ONLY, 501),
   };

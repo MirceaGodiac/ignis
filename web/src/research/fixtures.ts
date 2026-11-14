@@ -5,6 +5,7 @@
 
 import type {
   ArtifactRef,
+  ConditionsTable,
   DatasetBundle,
   EvaluationResult,
   ExecutionRecord,
@@ -38,6 +39,7 @@ import accessProxy from "../../../fixtures/contracts/evidence/source_access_prox
 import accessLinkOut from "../../../fixtures/contracts/evidence/source_access_link_out.json";
 import executionRecord from "../../../fixtures/contracts/research/execution_record.json";
 import evaluationResult from "../../../fixtures/contracts/evaluation/result_dev.json";
+import conditionsTable from "../../../fixtures/contracts/data/conditions_table.json";
 import manifest from "../../../fixtures/contracts/manifest.json";
 
 const as = <T>(v: unknown) => v as T;
@@ -71,6 +73,8 @@ export const FIXTURES = {
   ],
   /** The records behind `visualBundle.contours`, served as NDJSON text the way the artifact store holds them. */
   imageContours: as<ImageContourObservation[]>(imageContours),
+  /** K1.13 fixture: two runs with a value, a conflict, a missing and a not-applicable cell, and one envelope. */
+  conditionsTable: as<ConditionsTable>(conditionsTable),
 };
 
 function typedRef(artifact_id: string, contract: string, payload: { created_at?: string; finished_at?: string }): { ref: ArtifactRef; payload: unknown } {

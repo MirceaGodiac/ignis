@@ -59,7 +59,7 @@ export const CONTRACT_COVERAGE = {
   LabelSet: { notShown: "Waits for the classifier (R8); T7 source panel will show labels" },
   SourceAccess: { view: "Side panel: evidence original, PDF at the bbox or video at the time (T7)" },
   SourceOutline: { notShown: "Waits for outlines (R7); T7 source panel section tree" },
-  ConditionsTable: { notShown: "Waits for the conditions service (R9); T9 conditions matrix" },
+  ConditionsTable: { view: "Conditions page: habitat relevance and conditions per run (T9)" },
   GraphNeighborsPage: { notShown: "Waits for the graph service (R9); T7 related navigation" },
   WikiReadResult: { notShown: "Waits for the wiki (R4); T7 wiki view" },
   ExternalSourceCandidate: { notShown: "Waits for web discovery (R4); shown with the wiki" },

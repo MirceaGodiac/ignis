@@ -24,7 +24,7 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
   const returnTo = useRef<Element | null>(null);
 
   const cmds = useMemo<Cmd[]>(() => {
-    const views: View[] = ["home", "research", "runs", "map", "compare", "lab", "sources", "models"];
+    const views: View[] = ["home", "research", "runs", "map", "conditions", "compare", "lab", "sources", "models"];
     const out: Cmd[] = [
       { id: "ask", group: "Actions", label: "Ask a new question", hint: "investigation", run: () => go("research", null, { new: "1" }) },
       { id: "src", group: "Actions", label: source === "synthetic" ? "Switch to live data" : "Switch to synthetic data", run: () => setSource(source === "synthetic" ? "live" : "synthetic") },
