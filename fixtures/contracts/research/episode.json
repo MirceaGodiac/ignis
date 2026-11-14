@@ -3,7 +3,7 @@
   "episode_id": "fixture-episode-01",
   "workspace_id": "fixture-workspace",
   "goal": "Synthetic fixture: what do the (fixture) studies report about ambient atmosphere and droplet diameter decrease, and how does the handwritten model compare on the selected (fixture) run?",
-  "status": "running",
+  "status": "completed",
   "runtime": {
     "runtime": "codex_app_server",
     "runtime_build_id": "fixture-runtime-build",

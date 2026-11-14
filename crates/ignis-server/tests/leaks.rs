@@ -30,6 +30,7 @@ fn router(dir: &Path, internal_routes: bool) -> axum::Router {
         state_dir: dir.join("state"),
         auth: AuthMode::Local,
         internal_routes,
+        enable_models: true,
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
