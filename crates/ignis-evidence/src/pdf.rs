@@ -292,6 +292,31 @@ struct Sidecar {
     license: Option<String>,
 }
 
+/// Investigations a stored PSI document belongs to: the caller's, plus the one its storage location
+/// names (`raw/samples/<PSI-xx>/...`, or a `<PSI-xx>_` file-name prefix). The lockbox scope of a
+/// publication then never depends on the caller remembering `--investigation` or on keyword hints:
+/// an unattributed outcome passage of a held-out investigation's document is withheld by construction.
+pub fn publication_investigations(path: &Path, given: &[String]) -> Vec<String> {
+    let is_psi = |s: &str| {
+        s.strip_prefix("PSI-")
+            .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
+    };
+    let mut out: Vec<String> = given.to_vec();
+    let parent = path
+        .parent()
+        .and_then(|p| p.file_name())
+        .map(|s| s.to_string_lossy().to_string());
+    let prefix = path
+        .file_name()
+        .and_then(|s| s.to_string_lossy().split('_').next().map(String::from));
+    for cand in [parent, prefix].into_iter().flatten() {
+        if is_psi(&cand) && !out.contains(&cand) {
+            out.push(cand);
+        }
+    }
+    out
+}
+
 fn sidecar(pdf: &Path) -> Result<Sidecar> {
     let p = pdf.with_extension("json");
     if !p.exists() {
@@ -606,7 +631,7 @@ pub fn parse_pdf(path: &Path, opts: &ParseOptions, rp: &RunPatterns) -> Result<P
         ntrs_id: side.ntrs_id,
         doi: None,
         canonical_url: side.canonical_url,
-        investigation_ids: opts.investigation_ids.clone(),
+        investigation_ids: publication_investigations(path, &opts.investigation_ids),
         families,
         file_name: Some(file_name.clone()),
         n_pages: n_pages as i64,
