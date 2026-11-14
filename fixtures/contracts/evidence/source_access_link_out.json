@@ -1,0 +1,10 @@
+{
+  "schema_version": "evidence.v2",
+  "source_id": "fixture-source-journal-v1",
+  "mode": "link_out",
+  "url": "https://example.org/doi/fixture-article",
+  "range": false,
+  "cors": false,
+  "landing_url": "https://example.org/doi/fixture-article",
+  "origin": "synthetic_fixture"
+}

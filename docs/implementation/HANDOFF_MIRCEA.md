@@ -1,8 +1,35 @@
 # Handoff — Mircea: Codex Integration, Backend & Infrastructure
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
-`docs/design/IGNIS_MASTER_V2.md` §5–§9 și §17–§21. Branch: `feat/agent-backend`.
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§4, §9, §10), `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
+`docs/design/IGNIS_MASTER_V2.md` §5–§9 și §17–§21. Branch: unul scurt per task din `main` (`feat/agent-backend-<task>`).
 **Nu ai nicio sarcină de prezentare** (deck, script, voce, capturi, montaj).
+
+## 0. Faza 2 (citește întâi) — harness & platformă
+
+Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §4 (lane-ul tău), §9 (contracte), §10 (date NASA).
+
+**Misiune:** agentul live produce răspunsuri validate și legate de surse, sub un harness versionat al
+cărui efect e măsurat, cu un cost cunoscut per întrebare; originalele NASA ajung în browser fără copii.
+Runtime-ul păstrează bucla (fără buclă proprie, compactor sau gateway).
+
+**P0, în ordine:** (1) PR-ul `research.v2` (K1.1–K1.9; `ViewSpec` împreună cu Tudor), scris în paralel
+cu Raul și Tudor, intră după `evidence.v2`/`dataset.v2`; (2) **M7** `answer_submit` (efect `compute`;
+azi niciun turn live nu produce `ResearchAnswer`); (3) **M6** harness minimal: `harness/investigator.md`
++ 2 skills, secțiunea de tool-uri generată, injectat în ambele runtime-uri, digest pe episod;
+(4) **M12** `SourceAccess`: URL S3 semnat PSI (~1 h), proxy Worker pentru NTRS, playlist HLS pe
+byte-range pentru `.ts` din indexul de cadre-cheie al lui Raul. **P1:** M10 trace-uri, M8 ergonomia
+tool-urilor, M11 rute v1. **P2:** M9 delegare depth-1 și date montate prin ref, M10b căutare offline
+de harness doar pe dev, M4/M5.
+
+**Cum alegi singur:** metoda din LANES_V2 §3 (întrebare + metrică, mini-evaluare pe datele noastre,
+max. 3 candidați din surse primare, măsurat, decizia cu cifre în PR). Pentru câmpurile de instrucțiuni
+citește schema protocolului exportată de preflight și documentația headless a Claude Code; verifică
+prompt caching din câmpurile de usage reale.
+
+**Eficiență:** prefix de instrucțiuni identic byte cu byte (cache); tool-uri `concise` implicit,
+rezultate mari ca `ArtifactRef`; resolver de URL-uri semnate single-flight cu TTL sub expirare;
+proxy NTRS în streaming, fără stocare; raportezi p50/p95 per tool, tokeni și dolari per întrebare,
+procentul de cache.
 
 ## 1. Obiectiv
 

@@ -1,7 +1,36 @@
 # Handoff — Raul: Scientific Data, Retrieval & Knowledge
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
-`docs/design/IGNIS_MASTER_V2.md` §10–§14 și §16. Branch: `feat/scientific-data`.
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§5, §9, §10), `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
+`docs/design/IGNIS_MASTER_V2.md` §10–§14 și §16. Branch: unul scurt per task din `main` (`feat/scientific-data-<task>`).
+
+## 0. Faza 2 (citește întâi) — cunoaștere & date NASA
+
+Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §5 (lane-ul tău), §9 (contracte), §10 (date NASA și
+testele de acces măsurate). Regula de stocare: atlasul lui Iancu, `docs/wsp/atlas/`.
+
+**Misiune:** toate cele 19 investigații de zbor sunt în sistem: documente deschise la locul citat, text
+de senzori ca dataset-uri tipizate, condiții comparabile între investigații, etichete și graf pe care
+agentul le poate interoga, iar media NASA rămâne la NASA.
+
+**P0, în ordine:** (1) deschizi PR-ul pentru `feat/scientific-data-k1` (`evidence.v2` + `dataset.v2`,
+deja scris; intră primul); (2) **R6** corpusul după atlas: 636 documente (1,63 GB) + 24.482 fișiere text
+(12,26 GB) cu hash, 35.446 fișiere media (13,44 TB) doar în manifest; licența PSI-10 de verificat;
+**test de lockbox** pentru fiecare document nou din FLEX, CFI-G, BASS-II, BASS; (3) **R9a**
+`ConditionsTable` pentru toate cele 19, din cele 21 de CSV-uri „Experimental table” (cel mai mare câștig
+pentru challenge, cost mic); (4) **R7a** parse views cu bbox, parser ales prin măsurători (unele
+rapoarte PSI sunt scanate). **P1:** R7b arbore de secțiuni, R8 etichete (gold set ~100), R2b senzori →
+Parquet, R9b graf, R11 indexuri media (`.ts`, ZIP, TIFF → PNG). **P2:** R4 wiki/web, R10.
+
+**Cum alegi singur:** metoda din LANES_V2 §3. Parsere: 10 PDF-uri PSI (2 scanate, 2 cu tabele, 2 lungi,
+2 prezentări, 2 documente inginerești), comparat pe acuratețea bbox, a celulelor de tabel, secunde CPU
+pe pagină și licență. Etichete: Jev vs model mic cu output structurat pe gold set. Graf/PPR/ColQwen:
+doar când întrebările multi-hop sau cu figuri din benchmark-ul lui Tudor arată un gol.
+
+**Eficiență:** ingestie incrementală pe (investigație, fișier, versiune, mărime); parsare o dată per
+(hash, parser, versiune); embeddings în batch, cache pe (hash chunk, model); senzori în Parquet zstd
+citit cu proiecție de coloane; prompt static înaintea documentului (cache); directorul central al
+fiecărei arhive ZIP în cache (0,44 MB pentru 18 GB, apoi 2 cereri per cadru); raportezi documente/oră,
+CPU/pagină, cost per 1.000 de etichete, recall și p95.
 
 ## 1. Obiectiv
 

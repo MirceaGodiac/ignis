@@ -157,7 +157,9 @@ resources.
 | [docs/REPOMAP.md](docs/REPOMAP.md) | Repository map, crate graph, data lifecycle, "where do I change X" |
 | [docs/TEAM.md](docs/TEAM.md) | Team and lanes (Romanian): who owns what, presentation roles, test-partition rules |
 | [AGENTS.md](AGENTS.md) | Operating guide for every coding agent: architecture, ownership, rules, commands |
+| [docs/implementation/LANES_V2.md](docs/implementation/LANES_V2.md) | **Current plan (phase 2):** who does what and why, priorities, shared contracts, how NASA data is stored and streamed (measured) |
 | [docs/implementation/](docs/implementation/) | C0 contracts, integration/ownership, workboard and the four lane handoffs (Romanian) |
+| [docs/wsp/atlas/](docs/wsp/atlas/) | Every NASA file of the 19 flight investigations: what the server stores (~13.9 GB) and what stays at NASA |
 | [docs/design/IGNIS_MASTER_V2.md](docs/design/IGNIS_MASTER_V2.md) | Master system design v2 (Romanian): authoritative for direction |
 | [docs/IGNIS_V3.1.md](docs/IGNIS_V3.1.md) | Historical scientific reference (equations, early plan); superseded for runtime, WSP and ownership |
 | `crates/*/README.md` | One page per crate, e.g. [ignis-core](crates/ignis-core/README.md) |

@@ -1,0 +1,40 @@
+{
+  "schema_version": "evidence.v2",
+  "page_id": "fixture-page-time-zero",
+  "base_revision": 1,
+  "ops": [
+    {
+      "op": "revise",
+      "item": {
+        "item_id": "fixture-item-time-zero",
+        "kind": "method",
+        "text": "Synthetic fixture: take t = 0 at igniter retraction, as the experiment table defines it.",
+        "refs": [
+          {
+            "kind": "evidence",
+            "id": "fixture-evidence-01"
+          }
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "item": {
+        "item_id": "fixture-item-open-question",
+        "kind": "open_question",
+        "text": "Synthetic fixture: does the validation split show the same extinction trend?",
+        "refs": [
+          {
+            "kind": "dataset",
+            "id": "fixture-dataset-flex"
+          }
+        ]
+      }
+    },
+    {
+      "op": "remove",
+      "item_id": "fixture-item-draft",
+      "reason": "Synthetic fixture: merged into the method item."
+    }
+  ]
+}

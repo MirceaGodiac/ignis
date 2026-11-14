@@ -29,7 +29,8 @@ govern WSP, ownership or the runtime.
 
 ## Where does my change go?
 
-1. Find your lane in `docs/implementation/WORKBOARD.md` and read your `HANDOFF_<NAME>.md`.
+1. Find your lane in `docs/implementation/WORKBOARD.md` and read your `HANDOFF_<NAME>.md`; the
+   current phase (lanes, priorities, shared contracts, NASA data access) is `docs/implementation/LANES_V2.md`.
 2. Ownership of every directory and shared file: `docs/implementation/INTEGRATION.md`. Edit only what
    your lane owns. Shared files (`ignis-core`, root `Cargo.toml`, `Cargo.lock`, `ignis-cli/src/main.rs`,
    `schemas/`, `web/src/contracts/generated.ts`) change only by the rules there.
@@ -87,9 +88,15 @@ scope, workspace id or partition grant from a request body, tool argument, promp
   checkpoints and real resource budgets. Security and physical limits stay.
 - **Small surface, no speculation:** no framework, microservice or abstraction without a concrete
   consumer. Do not rewrite mature components for novelty.
-- **Tests guard invariants, boundaries and expensive failure modes** — schema compatibility, payload
-  validation, release meaning, test isolation, citation/unit correctness, replay. No getter tests,
-  line-by-line mirrors, valueless snapshots, heavy mocks or coverage padding. Keep existing valuable tests.
+- **Tests: integration and end-to-end first; unit tests only where they really matter.** Prefer a
+  test that drives a real path: HTTP/SSE route → service → store; MCP tool → service → `ToolResult`;
+  runtime bridge against the fake Codex/Claude binaries; CLI command on fixtures; the UI in fixture
+  mode. E2E tests run offline on fixtures and fakes; live tests stay opt-in. Write a unit test only for
+  a hard invariant or an expensive failure mode that an integration test cannot pin down cheaply:
+  contract `validate()` rules and schema drift, test-partition isolation, citation/unit correctness,
+  release construction, event-log replay/resume. Never add getter tests, tests that restate the code
+  line by line, snapshots without a reason, heavy mocks or coverage padding. Keep existing tests that
+  guard those invariants; remove a clearly pointless test only in your own lane.
 
 ## Commands
 
@@ -109,9 +116,14 @@ npm --prefix web run build
 Nothing expensive or networked runs without an explicit `--execute`; live-API tests are separate
 from offline tests and need explicit authorization.
 
+**No CI for now (since 2026-11-14, until the integrator says otherwise).** The GitHub Actions
+workflow `ci` is disabled. Do not re-enable it, add or edit workflows, wait for checks, or cite CI
+in a PR. Run the commands above that apply to your change locally, before pushing, and list the ones
+you actually ran with their results in the PR description.
+
 ## Delivering a PR
 
-One task id from the workboard per PR, on your lane's branch. The description lists: task id,
+One task id from the workboard per PR, on a short-lived branch from `main` named `feat/<lane>-<task>` (deleted on merge). Phase 2 lanes, priorities and shared contracts: `docs/implementation/LANES_V2.md`. The description lists: task id,
 contracts and versions touched, paths changed, behaviour added, fixtures/artifacts proving it, the
 commands you actually ran with their results, limitations, and the reproduce command. Never write
 PASS for something you did not run. A contract change follows `docs/implementation/CONTRACTS.md`

@@ -173,6 +173,7 @@ fn service(db: &Path, cfg: dense::RetrievalCfg) -> EvidenceService {
 
 fn req(query: &str, mode: SearchMode, page_size: u32, cursor: Option<PageCursor>) -> SearchRequest {
     SearchRequest {
+        response_format: None,
         schema_version: EvidenceSchema::V1,
         query: query.into(),
         mode,
@@ -263,6 +264,7 @@ fn a_scope_without_test_never_receives_test_outcomes() {
             ErrorCode::ScopeDenied
         );
         let r = ReadRequest {
+            response_format: None,
             schema_version: EvidenceSchema::V1,
             source_id: source.clone(),
             parse_view_id: None,
@@ -275,6 +277,7 @@ fn a_scope_without_test_never_receives_test_outcomes() {
     }
     // a page with withheld passages comes back passage by passage, without them
     let pages = ReadRequest {
+        response_format: None,
         schema_version: EvidenceSchema::V1,
         source_id: source.clone(),
         parse_view_id: None,
@@ -293,6 +296,7 @@ fn a_scope_without_test_never_receives_test_outcomes() {
         .read(
             &research(),
             &ReadRequest {
+                response_format: None,
                 range: ReadRange::Passage {
                     evidence_id: EvidenceId::new(suffix(0, 1)).unwrap(),
                 },
@@ -517,6 +521,7 @@ fn reads_return_exact_page_text_and_say_how_to_continue() {
         .read(
             &research(),
             &ReadRequest {
+                response_format: None,
                 schema_version: EvidenceSchema::V1,
                 source_id: source.clone(),
                 parse_view_id: None,
@@ -541,6 +546,7 @@ fn reads_return_exact_page_text_and_say_how_to_continue() {
     let stale = svc.read(
         &research(),
         &ReadRequest {
+            response_format: None,
             schema_version: EvidenceSchema::V1,
             source_id: source,
             parse_view_id: Some(ignis_core::contracts::ParseViewId::new("pv-x@0.1").unwrap()),

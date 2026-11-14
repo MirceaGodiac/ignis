@@ -11,15 +11,30 @@
 use std::io::Read;
 
 use crate::contracts::{
-    AnalysisArtifact, ArtifactId, ArtifactRef, DatasetBundle, DatasetId, EntityRef, ErrorEnvelope,
-    EvaluationRequest, EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope, ForecastRequest,
-    MetricValue, ModelRelease, Origin, Producer, ReadRequest, ReadResult, ReleaseId, SearchPage,
-    SearchRequest,
+    AnalysisArtifact, ArtifactId, ArtifactRef, Author, ConditionsQuery, ConditionsTable,
+    DatasetBundle, DatasetId, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope, EvaluationRequest,
+    EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope, ExternalSourceCandidate,
+    ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest, MetricValue, ModelRelease, Origin,
+    OutlineRequest, Producer, ReadRequest, ReadResult, ReleaseId, RetryPolicy, SearchPage,
+    SearchRequest, SourceAccess, SourceId, SourceLabel, SourceOutline, WebFetchRequest,
+    WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest, WikiReadResult, WikiRevision,
 };
 
 pub type ServiceResult<T> = Result<T, ErrorEnvelope>;
 
-/// Corpus search and reading (Raul). One implementation serves CLI, HTTP and MCP.
+/// Default body of a trait method added after C0: the implementation does not provide it yet. The
+/// host maps it to "not configured" in `/capabilities`, and the tool is not registered.
+pub fn not_provided<T>(what: &str) -> ServiceResult<T> {
+    Err(ErrorEnvelope::new(
+        ErrorCode::CapabilityUnavailable,
+        format!("{what} is not provided by this service"),
+        RetryPolicy::Never,
+    ))
+}
+
+/// Corpus search and reading, the combustion graph, document labels, the wiki and web discovery
+/// (Raul). One implementation serves CLI, HTTP and MCP. Methods after `resolve_evidence` (wave K1)
+/// default to `capability_unavailable`, so existing implementations keep compiling.
 pub trait KnowledgeService: Send + Sync {
     fn search(&self, scope: &ExecutionScope, req: &SearchRequest) -> ServiceResult<SearchPage>;
     fn read(&self, scope: &ExecutionScope, req: &ReadRequest) -> ServiceResult<ReadResult>;
@@ -28,12 +43,92 @@ pub trait KnowledgeService: Send + Sync {
         scope: &ExecutionScope,
         id: &EvidenceId,
     ) -> ServiceResult<EvidenceRef>;
+
+    fn graph_neighbors(
+        &self,
+        _scope: &ExecutionScope,
+        _req: &GraphNeighborsRequest,
+    ) -> ServiceResult<GraphNeighborsPage> {
+        not_provided("graph_neighbors")
+    }
+
+    /// The section tree of one source (`sources_outline`). Summaries are generated text, not evidence.
+    fn outline(
+        &self,
+        _scope: &ExecutionScope,
+        _req: &OutlineRequest,
+    ) -> ServiceResult<SourceOutline> {
+        not_provided("sources_outline")
+    }
+
+    /// How to open the original without IGNIS storing it (mode per source; a signed URL is
+    /// resolved at call time and never stored in a citation).
+    fn access(&self, _scope: &ExecutionScope, _source: &SourceId) -> ServiceResult<SourceAccess> {
+        not_provided("source access")
+    }
+
+    /// Every label of one source (one per labelling batch), conflicts included.
+    fn labels(
+        &self,
+        _scope: &ExecutionScope,
+        _source: &SourceId,
+    ) -> ServiceResult<Vec<SourceLabel>> {
+        not_provided("labels")
+    }
+
+    /// Items the scope may not read are withheld and counted, never silently dropped.
+    fn wiki_read(
+        &self,
+        _scope: &ExecutionScope,
+        _req: &WikiReadRequest,
+    ) -> ServiceResult<WikiReadResult> {
+        not_provided("wiki_read")
+    }
+
+    /// Compare-and-swap on `base_revision` (`conflict` when the head moved). `author` and `episode`
+    /// come from the host, as does the access of the written items (from `scope`).
+    fn wiki_patch(
+        &self,
+        _scope: &ExecutionScope,
+        _author: &Author,
+        _episode: Option<&EpisodeId>,
+        _patch: &WikiPatch,
+    ) -> ServiceResult<WikiRevision> {
+        not_provided("wiki_patch")
+    }
+
+    /// Refused (scope_denied) for evaluation scopes and without `network_fetch`.
+    fn web_search(
+        &self,
+        _scope: &ExecutionScope,
+        _req: &WebSearchRequest,
+    ) -> ServiceResult<WebSearchPage> {
+        not_provided("web_search")
+    }
+
+    /// Fetches under the SSRF policy into a snapshot artifact; never promotes into the corpus.
+    fn web_fetch(
+        &self,
+        _scope: &ExecutionScope,
+        _req: &WebFetchRequest,
+    ) -> ServiceResult<ExternalSourceCandidate> {
+        not_provided("web_fetch")
+    }
 }
 
-/// Curated datasets (Raul).
+/// Curated datasets and experimental conditions (Raul).
 pub trait DatasetService: Send + Sync {
     /// Refuses (scope_denied) bundles whose partitions the scope does not grant.
     fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle>;
+
+    /// Per-run conditions (inputs, not outcomes) and tested envelopes (wave K1).
+    fn conditions(
+        &self,
+        _scope: &ExecutionScope,
+        _q: &ConditionsQuery,
+    ) -> ServiceResult<ConditionsTable> {
+        not_provided("conditions_query")
+    }
 }
 
 /// Model releases and strict forecasts (Iancu).

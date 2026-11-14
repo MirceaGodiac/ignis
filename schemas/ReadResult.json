@@ -6,11 +6,20 @@
       "type": "string"
     },
     "EvidenceSchema": {
-      "description": "Wire tag of search, read, provenance and wiki documents.",
-      "enum": [
-        "evidence.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "OffsetUnit": {
       "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",

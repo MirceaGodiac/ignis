@@ -1,7 +1,15 @@
 # Handoff — Iancu: Scientific Models & Literal Weight-Space Programming
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
-`docs/design/IGNIS_MASTER_V2.md` §15–§16 și §24. Branch: `feat/handwritten-science`.
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§7), `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
+`docs/design/IGNIS_MASTER_V2.md` §15–§16 și §24. Branch: unul scurt per task din `main` (`feat/handwritten-science-<task>`).
+
+## 0. Faza 2 — lane-ul tău nu se schimbă; punctele de contact
+
+Planul celorlalți: [LANES_V2](LANES_V2.md) (§7 pentru tine). Continui I1–I5. În faza 2: review pentru
+semantica seriilor de predicție din `ViewSpec` (K1.4) și pentru unitățile din `ConditionsTable`;
+conținutul skill-ului `model-qualification`; lockbox-ul pentru celelalte 15 investigații când li se
+îngheață grupurile de evaluare; atlasul tău (`docs/wsp/atlas/`) e regula de stocare pe care o
+implementează Raul (R6). Branch scurt per task din `main` (`feat/handwritten-science-<task>`).
 
 ## 1. Obiectiv
 

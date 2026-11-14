@@ -1,0 +1,11 @@
+{
+  "schema_version": "evidence.v2",
+  "source_id": "fixture-source-v1",
+  "mode": "direct",
+  "url": "https://example.org/signed/fixture-video.mp4?signature=fixture",
+  "expires_at": "2026-11-14T13:00:00Z",
+  "range": true,
+  "cors": true,
+  "landing_url": "https://example.org/fixture-investigation-a",
+  "origin": "synthetic_fixture"
+}

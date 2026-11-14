@@ -1,0 +1,38 @@
+{
+  "$defs": {
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$id": "ignis/2.1.0/WebFetchRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`web_fetch`: fetch one URL into a snapshot. The host applies the SSRF policy (schemes, DNS/IP\nafter redirects, no private, link-local or metadata addresses); the contract only admits http(s).",
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "url"
+  ],
+  "title": "WebFetchRequest",
+  "type": "object"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "evidence.v2",
+  "query": "spacecraft material flammability (synthetic fixture query)",
+  "provider": {
+    "name": "fixture-web-provider",
+    "tool": "web_search"
+  },
+  "candidates": [
+    {
+      "schema_version": "evidence.v2",
+      "url": "https://example.org/fixture-paper",
+      "title": "Synthetic fixture web result (not a real paper)",
+      "excerpt": "Synthetic fixture excerpt: a provider snippet, not the document.",
+      "content": "excerpt",
+      "accessed_at": "2026-11-14T12:00:00Z",
+      "provider": {
+        "name": "fixture-web-provider",
+        "tool": "web_search"
+      },
+      "rights": {
+        "license": null,
+        "status": "unverified",
+        "statement_locator": null
+      },
+      "origin": "synthetic_fixture"
+    }
+  ],
+  "origin": "synthetic_fixture"
+}
