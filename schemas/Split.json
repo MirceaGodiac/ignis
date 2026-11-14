@@ -1,0 +1,64 @@
+{
+  "$id": "ignis/2.1.0/Split",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cohort_id": {
+      "type": "string"
+    },
+    "frozen_at": {
+      "default": "",
+      "type": "string"
+    },
+    "group_key": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "rule": {
+      "type": "string"
+    },
+    "run_to_group": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "seed": {
+      "format": "int64",
+      "type": "integer"
+    },
+    "test": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "train": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "validation": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "cohort_id",
+    "group_key",
+    "rule",
+    "seed",
+    "run_to_group",
+    "train",
+    "validation",
+    "test"
+  ],
+  "title": "Split",
+  "type": "object"
+}

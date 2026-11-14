@@ -1,0 +1,239 @@
+{
+  "$defs": {
+    "CorpusSnapshotId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EpisodeBranchPoint": {
+      "additionalProperties": false,
+      "description": "Where a branched episode left its parent.",
+      "properties": {
+        "at_seq": {
+          "description": "Last parent event visible to the child.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "episode_id": {
+          "$ref": "#/$defs/EpisodeId"
+        }
+      },
+      "required": [
+        "episode_id",
+        "at_seq"
+      ],
+      "type": "object"
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EpisodePins": {
+      "additionalProperties": false,
+      "description": "Versions an episode is pinned to; switching is an explicit, visible event.",
+      "properties": {
+        "corpus_snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CorpusSnapshotId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "model_releases": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ReleaseId"
+          },
+          "type": "array"
+        },
+        "skills_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "EpisodeStatus": {
+      "description": "Operational state of an episode. It constrains actions, not reasoning: inside `running` the agent\ndecides whether to read, compute, ask or answer.",
+      "oneOf": [
+        {
+          "enum": [
+            "ready",
+            "running",
+            "waiting_tools",
+            "waiting_approval",
+            "waiting_user",
+            "paused",
+            "cancelled",
+            "failed"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "completed",
+          "description": "The last turn finished; the episode can be continued by a new message.",
+          "type": "string"
+        }
+      ]
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ResearchSchema": {
+      "description": "Wire tag of episodes, events and answers.",
+      "enum": [
+        "research.v1"
+      ],
+      "type": "string"
+    },
+    "RuntimeBuildId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RuntimeKind": {
+      "description": "Agent runtime hosting an episode. One value today; a second one needs an ADR.",
+      "enum": [
+        "codex_app_server"
+      ],
+      "type": "string"
+    },
+    "RuntimeThreadRef": {
+      "additionalProperties": false,
+      "description": "Mapping of an episode to its runtime thread. Turn/item ids travel in `Causation`.",
+      "properties": {
+        "runtime": {
+          "$ref": "#/$defs/RuntimeKind"
+        },
+        "runtime_build_id": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        },
+        "thread_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runtime",
+        "runtime_build_id",
+        "thread_id"
+      ],
+      "type": "object"
+    },
+    "ScopeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    },
+    "WorkspaceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ResearchEpisode",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One scientific investigation. Holds no provider keys and no copy of the runtime transcript.",
+  "properties": {
+    "created_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "episode_id": {
+      "$ref": "#/$defs/EpisodeId"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "last_seq": {
+      "description": "Highest committed event `seq` (0 before the first event).",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "parent": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EpisodeBranchPoint"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pins": {
+      "$ref": "#/$defs/EpisodePins"
+    },
+    "revision": {
+      "description": "Optimistic-concurrency revision of this record.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "runtime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RuntimeThreadRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/ResearchSchema"
+    },
+    "scope_id": {
+      "$ref": "#/$defs/ScopeId"
+    },
+    "status": {
+      "$ref": "#/$defs/EpisodeStatus"
+    },
+    "updated_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "workspace_id": {
+      "$ref": "#/$defs/WorkspaceId"
+    }
+  },
+  "required": [
+    "schema_version",
+    "episode_id",
+    "workspace_id",
+    "goal",
+    "status",
+    "pins",
+    "scope_id",
+    "revision",
+    "last_seq",
+    "created_at",
+    "updated_at",
+    "origin"
+  ],
+  "title": "ResearchEpisode",
+  "type": "object"
+}

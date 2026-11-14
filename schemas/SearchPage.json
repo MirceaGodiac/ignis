@@ -1,0 +1,406 @@
+{
+  "$defs": {
+    "BackendReport": {
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "$ref": "#/$defs/RetrievalBackend"
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/BackendStatus"
+        }
+      },
+      "required": [
+        "backend",
+        "status"
+      ],
+      "type": "object"
+    },
+    "BackendStatus": {
+      "oneOf": [
+        {
+          "enum": [
+            "used",
+            "not_requested"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "unavailable",
+          "description": "Requested but not available: results are degraded and say so.",
+          "type": "string"
+        }
+      ]
+    },
+    "CorpusSnapshotId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceClass": {
+      "enum": [
+        "original_observation",
+        "source_derived",
+        "ignis_derived",
+        "model_output",
+        "synthetic"
+      ],
+      "type": "string"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A citable pointer into one source version. Verifiable only against that version's asset and\nparse view. Holding an `EvidenceRef` grants no access to restricted originals.",
+      "properties": {
+        "evidence_class": {
+          "$ref": "#/$defs/EvidenceClass"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/EvidenceId"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent for a metadata-only citation (bytes not obtained: listing or access-gated record)."
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "parse_view_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ParseViewId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quote": {
+          "description": "Exact citable text from the parse view (not the normalized index text).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_id": {
+          "$ref": "#/$defs/SourceId"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_id",
+        "evidence_class",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of search, read, provenance and wiki documents.",
+      "enum": [
+        "evidence.v1"
+      ],
+      "type": "string"
+    },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "PageCursor": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ParseViewId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RetrievalBackend": {
+      "enum": [
+        "lexical",
+        "dense",
+        "rerank"
+      ],
+      "type": "string"
+    },
+    "RetrievalScore": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/ScoreKind"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ScoreKind": {
+      "description": "Kind of a ranking score. Scores are not probabilities of truth and are not comparable across kinds.",
+      "enum": [
+        "bm25",
+        "cosine",
+        "rrf",
+        "rerank"
+      ],
+      "type": "string"
+    },
+    "SearchHit": {
+      "additionalProperties": false,
+      "description": "One hit: a citable evidence pointer and a short snippet. The snippet is never the full passage;\nread the source to get it.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceRef"
+        },
+        "rank": {
+          "description": "1-based rank across the whole result list (continues across pages).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scores": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RetrievalScore"
+          },
+          "type": "array"
+        },
+        "snippet": {
+          "type": "string"
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "rank",
+        "evidence",
+        "snippet"
+      ],
+      "type": "object"
+    },
+    "SearchMode": {
+      "enum": [
+        "hybrid",
+        "lexical",
+        "dense"
+      ],
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "ignis/2.1.0/SearchPage",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "backends": {
+      "items": {
+        "$ref": "#/$defs/BackendReport"
+      },
+      "type": "array"
+    },
+    "corpus_snapshot": {
+      "$ref": "#/$defs/CorpusSnapshotId"
+    },
+    "hits": {
+      "items": {
+        "$ref": "#/$defs/SearchHit"
+      },
+      "type": "array"
+    },
+    "mode": {
+      "$ref": "#/$defs/SearchMode"
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageCursor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "total_count": {
+      "description": "Exact total, or absent when the backend does not count exhaustively. An empty page does not\ncertify that the corpus lacks the information.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "corpus_snapshot",
+    "mode",
+    "hits",
+    "backends",
+    "origin"
+  ],
+  "title": "SearchPage",
+  "type": "object"
+}

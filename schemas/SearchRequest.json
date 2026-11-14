@@ -1,0 +1,142 @@
+{
+  "$defs": {
+    "CorpusSnapshotId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of search, read, provenance and wiki documents.",
+      "enum": [
+        "evidence.v1"
+      ],
+      "type": "string"
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "PageCursor": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SearchFilters": {
+      "additionalProperties": false,
+      "properties": {
+        "families": {
+          "items": {
+            "$ref": "#/$defs/Family"
+          },
+          "type": "array"
+        },
+        "investigation_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "source_ids": {
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          },
+          "type": "array"
+        },
+        "source_kinds": {
+          "items": {
+            "$ref": "#/$defs/SourceKind"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "SearchMode": {
+      "enum": [
+        "hybrid",
+        "lexical",
+        "dense"
+      ],
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceKind": {
+      "enum": [
+        "dataset_file",
+        "publication",
+        "video",
+        "protocol",
+        "calibration",
+        "webpage",
+        "archive"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/SearchRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A search. The access scope is not here: the host passes it to the service separately.",
+  "properties": {
+    "corpus_snapshot": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CorpusSnapshotId"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Defaults to the snapshot pinned by the scope/episode."
+    },
+    "cursor": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageCursor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "filters": {
+      "$ref": "#/$defs/SearchFilters",
+      "default": {}
+    },
+    "mode": {
+      "$ref": "#/$defs/SearchMode",
+      "default": "hybrid"
+    },
+    "page_size": {
+      "description": "Requested page size; the service may return fewer and pages on with `next_cursor`.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "query": {
+      "type": "string"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    }
+  },
+  "required": [
+    "schema_version",
+    "query"
+  ],
+  "title": "SearchRequest",
+  "type": "object"
+}

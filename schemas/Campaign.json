@@ -1,0 +1,40 @@
+{
+  "$id": "ignis/2.1.0/Campaign",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "end": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "investigation_id": {
+      "type": "string"
+    },
+    "name": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "investigation_id"
+  ],
+  "title": "Campaign",
+  "type": "object"
+}

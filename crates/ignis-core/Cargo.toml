@@ -1,0 +1,23 @@
+[package]
+name = "ignis-core"
+description = "IGNIS shared contracts, prefixes, views, expert trait, registry and resource guard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+sha2.workspace = true
+hex.workspace = true
+rayon.workspace = true
+libm.workspace = true
+zip.workspace = true
+schemars.workspace = true
+toml.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+jsonschema = { version = "0.61.2", default-features = false }

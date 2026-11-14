@@ -1,0 +1,46 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ArtifactReadRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`artifacts_read`: a byte range or a JSON Pointer into a stored artifact.",
+  "properties": {
+    "artifact_id": {
+      "$ref": "#/$defs/ArtifactId"
+    },
+    "byte_length": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "byte_offset": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "json_pointer": {
+      "description": "RFC 6901 pointer into a JSON artifact (`\"\"` = whole document).",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "ArtifactReadRequest",
+  "type": "object"
+}

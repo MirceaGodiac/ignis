@@ -1,0 +1,628 @@
+{
+  "$defs": {
+    "AuthorModel": {
+      "additionalProperties": false,
+      "description": "Model that wrote a patch: provider and the exact model id actually used (not a marketing name).",
+      "properties": {
+        "effort": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "model_id"
+      ],
+      "type": "object"
+    },
+    "BuildCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "check": {
+          "$ref": "#/$defs/BuildCheckKind"
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/CheckStatus"
+        }
+      },
+      "required": [
+        "check",
+        "status"
+      ],
+      "type": "object"
+    },
+    "BuildCheckKind": {
+      "oneOf": [
+        {
+          "enum": [
+            "spec_valid",
+            "patch_valid",
+            "tensors_complete",
+            "finite_forward_on_fixture"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "strict_forward_audit",
+          "description": "The real forecast route (features, local state, noise/hazard, fallbacks) uses no optimizer.",
+          "type": "string"
+        }
+      ]
+    },
+    "CheckStatus": {
+      "enum": [
+        "passed",
+        "failed",
+        "not_run"
+      ],
+      "type": "string"
+    },
+    "ConstructionMethod": {
+      "description": "How a release's parameters came to be.",
+      "oneOf": [
+        {
+          "const": "literal_one_shot",
+          "description": "W0: one literal patch from the spec and admitted knowledge, without evaluation feedback.",
+          "type": "string"
+        },
+        {
+          "const": "literal_revision",
+          "description": "W1: a literal patch over a parent release, written with development feedback.",
+          "type": "string"
+        },
+        {
+          "const": "conventional_training",
+          "description": "Gradient/MCMC fitting (baselines and legacy experts). Never presented as WSP.",
+          "type": "string"
+        }
+      ]
+    },
+    "DataExposure": {
+      "additionalProperties": false,
+      "description": "Everything the author saw. Development feedback and other candidates are listed, so W0 (no\nfeedback) and W1 (feedback) stay distinguishable. The test partition never appears here.",
+      "properties": {
+        "datasets": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExposedDataset"
+          },
+          "type": "array"
+        },
+        "development_feedback": {
+          "default": [],
+          "description": "Development `EvaluationResult`s shown to the author.",
+          "items": {
+            "$ref": "#/$defs/EvaluationId"
+          },
+          "type": "array"
+        },
+        "prior_candidates": {
+          "default": [],
+          "description": "Other candidates (e.g. the other author's) shown to the author.",
+          "items": {
+            "$ref": "#/$defs/ReleaseId"
+          },
+          "type": "array"
+        },
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EvaluationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ExposedDataset": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_id": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "partitions": {
+          "items": {
+            "$ref": "#/$defs/Partition"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "dataset_id",
+        "partitions"
+      ],
+      "type": "object"
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "ForwardContract": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_point": {
+          "description": "Code entry point, e.g. `ignis_wsp::flex::forward`.",
+          "type": "string"
+        },
+        "profile": {
+          "$ref": "#/$defs/ForwardProfile"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_point",
+        "version",
+        "profile"
+      ],
+      "type": "object"
+    },
+    "ForwardProfile": {
+      "description": "Inference profile of the forward pass. Only one exists: fixed weights, deterministic feature\nextraction, explicit numerical integration; no gradient, MAP, NUTS, least squares or any\noptimizer over parameters or local latents at request time.",
+      "enum": [
+        "strict_no_fitting"
+      ],
+      "type": "string"
+    },
+    "Lineage": {
+      "oneOf": [
+        {
+          "enum": [
+            "initial_fit",
+            "weight_edit",
+            "architecture_change",
+            "fine_tune",
+            "objective_change",
+            "preprocessing_change"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "literal_authoring",
+          "description": "Root of a literal weight-space-programming release (W0): tensors come from a\n`HandwrittenWeightPatch`, not from a fit. Literal revisions (W1) are `WeightEdit` children.",
+          "type": "string"
+        }
+      ]
+    },
+    "ModelBuildManifest": {
+      "additionalProperties": false,
+      "description": "How a release was built. Embedded in `ModelRelease.construction`, so it is covered by the\nrelease's content id and cannot drift from it.",
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/BuildCheck"
+          },
+          "type": "array"
+        },
+        "code_version": {
+          "type": "string"
+        },
+        "construction_method": {
+          "$ref": "#/$defs/ConstructionMethod"
+        },
+        "exposure": {
+          "$ref": "#/$defs/DataExposure"
+        },
+        "forward": {
+          "$ref": "#/$defs/ForwardContract"
+        },
+        "forward_hash": {
+          "$ref": "#/$defs/Digest",
+          "description": "Identity of the forward code (source/binary digest), distinct from the weights."
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "parent_release_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "patch_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "patch_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PatchId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "$ref": "#/$defs/WspSchema"
+        },
+        "spec_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "spec_id": {
+          "$ref": "#/$defs/SpecId"
+        },
+        "uncertainty_kind": {
+          "$ref": "#/$defs/UncertaintyKind"
+        },
+        "weights_hash": {
+          "$ref": "#/$defs/Digest",
+          "description": "[`weights_digest`] of the release's tensor table."
+        }
+      },
+      "required": [
+        "schema_version",
+        "construction_method",
+        "spec_id",
+        "spec_hash",
+        "exposure",
+        "weights_hash",
+        "forward",
+        "forward_hash",
+        "code_version",
+        "uncertainty_kind",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "PatchId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "QualificationState": {
+      "oneOf": [
+        {
+          "enum": [
+            "source_only",
+            "measurement_qualified",
+            "fit_only",
+            "forecast_qualified",
+            "event_qualified",
+            "acquisition_evaluated",
+            "unsupported",
+            "insufficient_inference",
+            "failed"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "experimental",
+          "description": "Executes, not qualified by any evaluation. Every literal (WSP) release is created in this\nstate; qualification is recorded by an `EvaluationResult`, never by rewriting the release.",
+          "type": "string"
+        }
+      ]
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SpecId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "TensorEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "dtype": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "shape": {
+          "items": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "trainable": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "shape",
+        "dtype",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "TrainedOn": {
+      "description": "What data conventionally trained the release's parameters. There is deliberately no default:\nschema 2.0.0 defaulted to `nasa`, which labels any release that omits the field (a handwritten\none, say) as NASA-trained. Writers must state it. Legacy files without the field are read by\n[`crate::registry::parse_release`] with their old meaning, and only when they carry no\n`construction` record.",
+      "oneOf": [
+        {
+          "enum": [
+            "nasa",
+            "synthetic",
+            "pretrained"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "not_trained",
+          "description": "No conventional training: the values were written literally (WSP). Requires a literal\n`ModelRelease.construction` manifest.",
+          "type": "string"
+        }
+      ]
+    },
+    "UncertaintyKind": {
+      "description": "Meaning of any uncertainty a release outputs. Literal releases cannot claim calibrated\npredictive intervals: calibrating from data is a separate, separately reported step.",
+      "enum": [
+        "none",
+        "assumed_noise",
+        "scenario_spread",
+        "calibrated_prediction"
+      ],
+      "type": "string"
+    },
+    "WspSchema": {
+      "description": "Wire tag of model specs, patches, build manifests and forecast requests.",
+      "enum": [
+        "wsp.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ModelRelease",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "applicability": {
+      "additionalProperties": true,
+      "default": {},
+      "type": "object"
+    },
+    "architecture": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "code_version": {
+      "type": "string"
+    },
+    "cohort_id": {
+      "type": "string"
+    },
+    "config": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "construction": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelBuildManifest"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "How the parameters were constructed. Required when `trained_on = not_trained`; omitted for\nlegacy fitted releases so their content ids are unchanged. Checked by\n[`ModelRelease::check_construction`] on every registry save and load."
+    },
+    "created_at": {
+      "default": "",
+      "type": "string"
+    },
+    "evaluation": {
+      "additionalProperties": true,
+      "default": {},
+      "type": "object"
+    },
+    "family": {
+      "$ref": "#/$defs/Family"
+    },
+    "feature_order": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "id": {
+      "type": "string"
+    },
+    "is_baseline": {
+      "type": "boolean"
+    },
+    "lineage": {
+      "$ref": "#/$defs/Lineage",
+      "default": "initial_fit"
+    },
+    "lineage_note": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model_name": {
+      "type": "string"
+    },
+    "normalization": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "format": "double",
+          "type": "number"
+        },
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "numerics": {
+      "additionalProperties": true,
+      "default": {},
+      "type": "object"
+    },
+    "observation_model": {
+      "additionalProperties": true,
+      "default": {},
+      "type": "object"
+    },
+    "parent_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "posterior": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/TensorEntry"
+      },
+      "type": "array"
+    },
+    "posterior_parameters": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "posterior_valid_for_parameters": {
+      "default": true,
+      "type": "boolean"
+    },
+    "priors": {
+      "additionalProperties": true,
+      "default": {},
+      "type": "object"
+    },
+    "resource_record": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_manifest_hash": {
+      "type": "string"
+    },
+    "split_id": {
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/QualificationState",
+      "default": "fit_only"
+    },
+    "tensors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/TensorEntry"
+      },
+      "type": "array"
+    },
+    "trained_on": {
+      "$ref": "#/$defs/TrainedOn",
+      "description": "Required since 2.1.0; see [`TrainedOn`]."
+    },
+    "units": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "family",
+    "model_name",
+    "is_baseline",
+    "architecture",
+    "config",
+    "feature_order",
+    "units",
+    "normalization",
+    "cohort_id",
+    "split_id",
+    "source_manifest_hash",
+    "code_version",
+    "trained_on"
+  ],
+  "title": "ModelRelease",
+  "type": "object"
+}

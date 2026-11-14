@@ -1,0 +1,285 @@
+{
+  "$defs": {
+    "ContourStatus": {
+      "enum": [
+        "single_valued",
+        "multivalued",
+        "detached",
+        "occluded",
+        "out_of_field"
+      ],
+      "type": "string"
+    },
+    "Derivation": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "method": {
+          "$ref": "#/$defs/Method"
+        },
+        "method_id": {
+          "type": "string"
+        },
+        "method_version": {
+          "type": "string"
+        },
+        "notes": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "method",
+        "method_id",
+        "method_version"
+      ],
+      "type": "object"
+    },
+    "EvidenceClass": {
+      "enum": [
+        "original_observation",
+        "source_derived",
+        "ignis_derived",
+        "model_output",
+        "synthetic"
+      ],
+      "type": "string"
+    },
+    "Method": {
+      "enum": [
+        "deterministic",
+        "numerical",
+        "semantic",
+        "human_review"
+      ],
+      "type": "string"
+    },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "ignis/2.1.0/ContourObservation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "available_at_s": {
+      "format": "double",
+      "type": "number"
+    },
+    "calibration_id": {
+      "type": "string"
+    },
+    "derivation": {
+      "$ref": "#/$defs/Derivation"
+    },
+    "evidence_class": {
+      "$ref": "#/$defs/EvidenceClass",
+      "default": "ignis_derived"
+    },
+    "f_m": {
+      "items": {
+        "format": "double",
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "type": "array"
+    },
+    "frame": {
+      "format": "int64",
+      "type": "integer"
+    },
+    "id": {
+      "type": "string"
+    },
+    "locator": {
+      "$ref": "#/$defs/SourceLocator"
+    },
+    "mask_dependency_frames": {
+      "items": {
+        "format": "int64",
+        "type": "integer"
+      },
+      "type": "array"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "s_m": {
+      "items": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "scale_uncertainty_rel": {
+      "default": null,
+      "format": "double",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "status": {
+      "$ref": "#/$defs/ContourStatus"
+    },
+    "time_s": {
+      "format": "double",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "run_id",
+    "time_s",
+    "available_at_s",
+    "s_m",
+    "f_m",
+    "status",
+    "calibration_id",
+    "mask_dependency_frames",
+    "frame",
+    "locator",
+    "derivation"
+  ],
+  "title": "ContourObservation",
+  "type": "object"
+}

@@ -1,0 +1,23 @@
+{
+  "$defs": {
+    "JobId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/JobLookup",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Argument of `jobs_get`.",
+  "properties": {
+    "job_id": {
+      "$ref": "#/$defs/JobId"
+    }
+  },
+  "required": [
+    "job_id"
+  ],
+  "title": "JobLookup",
+  "type": "object"
+}

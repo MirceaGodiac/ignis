@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "Exclusion": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/Cohort",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "criteria": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "excluded": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Exclusion"
+      },
+      "type": "array"
+    },
+    "family": {
+      "$ref": "#/$defs/Family"
+    },
+    "id": {
+      "description": "Content hash of (family, criteria, run_ids, source_manifest_hash).",
+      "type": "string"
+    },
+    "run_ids": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "source_manifest_hash": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "family",
+    "version",
+    "criteria",
+    "run_ids",
+    "source_manifest_hash"
+  ],
+  "title": "Cohort",
+  "type": "object"
+}

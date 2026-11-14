@@ -1,0 +1,269 @@
+{
+  "$defs": {
+    "ArtifactKind": {
+      "enum": [
+        "prefix_forecast",
+        "event_probabilities",
+        "acquisition",
+        "comparison",
+        "metrology"
+      ],
+      "type": "string"
+    },
+    "EvidenceClass": {
+      "enum": [
+        "original_observation",
+        "source_derived",
+        "ignis_derived",
+        "model_output",
+        "synthetic"
+      ],
+      "type": "string"
+    },
+    "QualificationState": {
+      "oneOf": [
+        {
+          "enum": [
+            "source_only",
+            "measurement_qualified",
+            "fit_only",
+            "forecast_qualified",
+            "event_qualified",
+            "acquisition_evaluated",
+            "unsupported",
+            "insufficient_inference",
+            "failed"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "experimental",
+          "description": "Executes, not qualified by any evaluation. Every literal (WSP) release is created in this\nstate; qualification is recorded by an `EvaluationResult`, never by rewriting the release.",
+          "type": "string"
+        }
+      ]
+    },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
+    "Support": {
+      "additionalProperties": false,
+      "properties": {
+        "admitted": {
+          "type": "boolean"
+        },
+        "gate": {
+          "$ref": "#/$defs/SupportGate"
+        },
+        "reasons": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "admitted",
+        "gate"
+      ],
+      "type": "object"
+    },
+    "SupportGate": {
+      "enum": [
+        "semantic",
+        "measurement",
+        "condition",
+        "numerical",
+        "horizon",
+        "passed"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/AnalysisArtifact",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "created_at": {
+      "type": "string"
+    },
+    "diagnostics": {
+      "additionalProperties": true,
+      "default": {},
+      "type": "object"
+    },
+    "event_categories": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "event_cdf": {
+      "default": [],
+      "items": {
+        "items": {
+          "format": "double",
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "evidence_class": {
+      "$ref": "#/$defs/EvidenceClass",
+      "default": "model_output"
+    },
+    "field_mean": {
+      "default": [],
+      "items": {
+        "items": {
+          "format": "double",
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "field_quantiles": {
+      "default": [],
+      "items": {
+        "items": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/ArtifactKind"
+    },
+    "mean": {
+      "default": [],
+      "items": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "model_release_id": {
+      "type": "string"
+    },
+    "prefix_hash": {
+      "type": "string"
+    },
+    "quantile_levels": {
+      "default": [],
+      "items": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "quantiles": {
+      "default": [],
+      "items": {
+        "items": {
+          "format": "double",
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "quantity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Quantity"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "run_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "settings_hash": {
+      "type": "string"
+    },
+    "space_s_m": {
+      "default": [],
+      "items": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/QualificationState"
+    },
+    "support": {
+      "$ref": "#/$defs/Support"
+    },
+    "time_origin": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "times_s": {
+      "default": [],
+      "items": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "array"
+    },
+    "unit": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "model_release_id",
+    "prefix_hash",
+    "settings_hash",
+    "status",
+    "support",
+    "created_at"
+  ],
+  "title": "AnalysisArtifact",
+  "type": "object"
+}

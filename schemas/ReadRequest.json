@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of search, read, provenance and wiki documents.",
+      "enum": [
+        "evidence.v1"
+      ],
+      "type": "string"
+    },
+    "ParseViewId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ReadRange": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Physical pages, 1-based, inclusive.",
+          "properties": {
+            "first": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": {
+              "const": "pages",
+              "type": "string"
+            },
+            "last": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "kind",
+            "first",
+            "last"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The passage an evidence reference points at, with its neighbourhood as the service defines.",
+          "properties": {
+            "evidence_id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "passage",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "evidence_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "table",
+              "type": "string"
+            },
+            "table_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "table_id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ReadRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "parse_view_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParseViewId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "range": {
+      "$ref": "#/$defs/ReadRange"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_id",
+    "range"
+  ],
+  "title": "ReadRequest",
+  "type": "object"
+}

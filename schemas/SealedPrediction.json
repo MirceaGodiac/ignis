@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "SplitPartition": {
+      "enum": [
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/SealedPrediction",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifact_hash": {
+      "type": "string"
+    },
+    "artifact_id": {
+      "type": "string"
+    },
+    "prefix_hash": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "run_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sealed_at": {
+      "type": "string"
+    },
+    "split_id": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "split_partition": {
+      "$ref": "#/$defs/SplitPartition"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "artifact_hash",
+    "sealed_at",
+    "split_partition"
+  ],
+  "title": "SealedPrediction",
+  "type": "object"
+}

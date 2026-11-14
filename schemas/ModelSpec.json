@@ -1,0 +1,356 @@
+{
+  "$defs": {
+    "DomainBound": {
+      "additionalProperties": false,
+      "properties": {
+        "feature": {
+          "type": "string"
+        },
+        "max": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "min": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "feature"
+      ],
+      "type": "object"
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "FeatureSpec": {
+      "additionalProperties": false,
+      "description": "One input feature, in model order. Order, unit and transform are part of the contract hash.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "source": {
+          "description": "Where the value comes from, e.g. `condition:pressure`, `observation:liquid_diameter@prefix`.",
+          "type": "string"
+        },
+        "transform": {
+          "description": "Declared deterministic transform id and version (e.g. `log@1`, `identity@1`).",
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "unit",
+        "source",
+        "transform"
+      ],
+      "type": "object"
+    },
+    "ForwardContract": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_point": {
+          "description": "Code entry point, e.g. `ignis_wsp::flex::forward`.",
+          "type": "string"
+        },
+        "profile": {
+          "$ref": "#/$defs/ForwardProfile"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_point",
+        "version",
+        "profile"
+      ],
+      "type": "object"
+    },
+    "ForwardProfile": {
+      "description": "Inference profile of the forward pass. Only one exists: fixed weights, deterministic feature\nextraction, explicit numerical integration; no gradient, MAP, NUTS, least squares or any\noptimizer over parameters or local latents at request time.",
+      "enum": [
+        "strict_no_fitting"
+      ],
+      "type": "string"
+    },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
+    "SpecId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "TargetSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "excludes": {
+          "default": [],
+          "description": "What the model explicitly does not predict.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "unit": {
+          "description": "SI unit; must equal `quantity`'s.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quantity",
+        "unit",
+        "description"
+      ],
+      "type": "object"
+    },
+    "TensorFill": {
+      "description": "What an element holds when a root patch does not write it.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Every element must be written by the root patch; nothing is filled tacitly.",
+          "properties": {
+            "rule": {
+              "const": "author_writes_all",
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Unwritten elements are zero by declaration of the spec (sparse weights).",
+          "properties": {
+            "rule": {
+              "const": "structural_zero",
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Values fixed by the spec (row-major); the author cannot write them.",
+          "properties": {
+            "rule": {
+              "const": "fixed",
+              "type": "string"
+            },
+            "values": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "rule",
+            "values"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "TensorRole": {
+      "description": "Role of a tensor. Every scalar that influences a prediction is inventoried, whether or not it is\ncalled a weight.",
+      "oneOf": [
+        {
+          "enum": [
+            "weight",
+            "bias",
+            "physical_parameter",
+            "noise_parameter",
+            "hazard_parameter"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "constant",
+          "description": "Fixed by the spec, not written by the author.",
+          "type": "string"
+        }
+      ]
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "bounds": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueBounds"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Physical validity range; a patch outside it is rejected, not clipped."
+        },
+        "description": {
+          "type": "string"
+        },
+        "fill": {
+          "$ref": "#/$defs/TensorFill"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/TensorRole"
+        },
+        "shape": {
+          "description": "Row-major shape; `[]` is a scalar.",
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "shape",
+        "role",
+        "fill",
+        "description"
+      ],
+      "type": "object"
+    },
+    "ValueBounds": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "type": "object"
+    },
+    "WspSchema": {
+      "description": "Wire tag of model specs, patches, build manifests and forecast requests.",
+      "enum": [
+        "wsp.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ModelSpec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Complete specification an author writes against: target, domain, features in order, every\ntensor with its role and fill rule, and the forward contract.",
+  "properties": {
+    "domain": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DomainBound"
+      },
+      "type": "array"
+    },
+    "family": {
+      "$ref": "#/$defs/Family"
+    },
+    "features": {
+      "items": {
+        "$ref": "#/$defs/FeatureSpec"
+      },
+      "type": "array"
+    },
+    "forward": {
+      "$ref": "#/$defs/ForwardContract"
+    },
+    "model_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/WspSchema"
+    },
+    "spec_id": {
+      "$ref": "#/$defs/SpecId"
+    },
+    "target": {
+      "$ref": "#/$defs/TargetSpec"
+    },
+    "tensors": {
+      "items": {
+        "$ref": "#/$defs/TensorSpec"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "spec_id",
+    "family",
+    "model_name",
+    "target",
+    "features",
+    "tensors",
+    "forward"
+  ],
+  "title": "ModelSpec",
+  "type": "object"
+}

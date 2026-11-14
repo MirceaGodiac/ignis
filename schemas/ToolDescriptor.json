@@ -1,0 +1,103 @@
+{
+  "$defs": {
+    "Capability": {
+      "description": "Actions a scope may perform. Tools declare the capabilities they need (`ToolDescriptor`).",
+      "enum": [
+        "read_sources",
+        "read_data",
+        "run_models",
+        "execute_code",
+        "network_fetch",
+        "workspace_write",
+        "wiki_write",
+        "external_write"
+      ],
+      "type": "string"
+    },
+    "Lane": {
+      "description": "Lane that implements a tool's domain logic (the MCP transport is always Mircea's).",
+      "enum": [
+        "iancu",
+        "mircea",
+        "raul",
+        "tudor"
+      ],
+      "type": "string"
+    },
+    "ToolEffect": {
+      "description": "Side-effect class of a tool. Approval and idempotency policy key on it.",
+      "enum": [
+        "read",
+        "workspace_write",
+        "compute",
+        "network_fetch",
+        "external_write"
+      ],
+      "type": "string"
+    },
+    "ToolsSchema": {
+      "description": "Wire tag of tool results and descriptors.",
+      "enum": [
+        "tools.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ToolDescriptor",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Static description of a tool: wire name, effect, idempotency, required capabilities and the\ncontract types of its arguments and result payload.",
+  "properties": {
+    "capabilities": {
+      "items": {
+        "$ref": "#/$defs/Capability"
+      },
+      "type": "array"
+    },
+    "domain_owner": {
+      "$ref": "#/$defs/Lane"
+    },
+    "effect": {
+      "$ref": "#/$defs/ToolEffect"
+    },
+    "idempotent": {
+      "type": "boolean"
+    },
+    "input_contract": {
+      "description": "Exported contract type of the arguments.",
+      "type": "string"
+    },
+    "may_return_job": {
+      "description": "May answer `accepted` with a job.",
+      "type": "boolean"
+    },
+    "name": {
+      "description": "Portable wire name (`^[a-z][a-z0-9_]*$`).",
+      "type": "string"
+    },
+    "output_contract": {
+      "description": "Exported contract type of `ToolResult.result.value` (or of the job output artifact).",
+      "type": "string"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/ToolsSchema"
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "name",
+    "summary",
+    "effect",
+    "idempotent",
+    "capabilities",
+    "input_contract",
+    "output_contract",
+    "may_return_job",
+    "domain_owner"
+  ],
+  "title": "ToolDescriptor",
+  "type": "object"
+}
