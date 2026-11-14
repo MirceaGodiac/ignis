@@ -2,19 +2,24 @@
 // README). Pure of runtime imports except types, so it runs under node --test with an injected fetch.
 
 import type {
+  Capabilities,
   ConditionsQuery,
   ConditionsTable,
+  CreateEpisode,
+  EpisodeAction,
   ErrorEnvelope,
+  HostDecision,
   InlinePayload,
+  MessageAccepted,
   ModelRelease,
   Origin,
+  PostMessage,
   ReadResult,
   ResearchEpisode,
   SearchPage,
   SearchRequest,
   SourceAccess,
 } from "../contracts/generated";
-import type { Capabilities, CreateEpisode, EpisodeAction, HostDecision, MessageAccepted, PostMessage } from "./serverTypes";
 import type { StreamTransport } from "./stream";
 
 export type Mode = "mock" | "fixtures" | "live";

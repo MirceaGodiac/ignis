@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { call, type ExperimentList, type Health, type Origin as LegacyOrigin } from "../api";
 import { DEFAULT_FAULTS, httpClient, mockClient, type MockStreamFaults, type Mode, type ResearchClient } from "../research/client";
-import type { Capabilities } from "../research/serverTypes";
+import type { Capabilities } from "../contracts/generated";
 
 export type Source = "synthetic" | "live";
 
