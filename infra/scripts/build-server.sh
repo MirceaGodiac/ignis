@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Build the origin image from a clean checkout and write the release manifest.
 #
-#   infra/scripts/build-server.sh <codex-binary>      (Linux x86_64 codex, the pinned version)
+#   infra/scripts/build-server.sh <codex-binary> [<claude-binary>]
+#     codex:  Linux x86_64, the pinned version (infra/scripts/fetch-codex.sh); its
+#             codex-code-mode-host must be next to it (tool calls fail closed without it)
+#     claude: Linux x86_64 Claude Code, optional (infra/scripts/fetch-claude.sh); needed only for
+#             IGNIS_AGENT_RUNTIME=claude
 #
 # Checks the codex binary's version and sha256 against the pin, stages it into the build context,
 # resolves every base image to a digest, builds, and writes runs/release/<git-sha>.json naming
@@ -9,7 +13,8 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
-codex="${1:?usage: build-server.sh <codex-binary>}"
+codex="${1:?usage: build-server.sh <codex-binary> [<claude-binary>]}"
+claude="${2:-}"
 pin="$(grep -oE 'PINNED_CODEX_VERSION: &str = "[^"]+"' crates/ignis-research/src/runtime/*.rs | head -1 | sed -E 's/.*"([^"]+)"/\1/')"
 [ -n "$pin" ] || { echo "cannot read PINNED_CODEX_VERSION" >&2; exit 1; }
 version="$("$codex" --version | awk 'NR==1 {print $NF}')"
@@ -22,8 +27,25 @@ fi
 mkdir -p infra/server/vendor
 install -m 0755 "$codex" infra/server/vendor/codex
 codex_sha="$(sha256sum < infra/server/vendor/codex | awk '{print $1}')"
+host="$(dirname "$codex")/codex-code-mode-host"
+[ -f "$host" ] || { echo "no codex-code-mode-host next to $codex (re-run fetch-codex.sh)" >&2; exit 1; }
+install -m 0755 "$host" infra/server/vendor/codex-code-mode-host
+host_sha="$(sha256sum < infra/server/vendor/codex-code-mode-host | awk '{print $1}')"
+claude_version=""
+claude_sha=""
+if [ -n "$claude" ]; then
+  install -m 0755 "$claude" infra/server/vendor/claude
+  claude_version="$(infra/server/vendor/claude --version | awk 'NR==1 {print $1}')"
+  claude_sha="$(sha256sum < infra/server/vendor/claude | awk '{print $1}')"
+else
+  rm -f infra/server/vendor/claude
+fi
 
-digest() { docker buildx imagetools inspect "$1" --format '{{json .Manifest}}' | sed -E 's/.*"digest":"([^"]+)".*/\1/'; }
+# Repo digest of a base image (the multi-arch index digest), from the registry via a pull.
+digest() {
+  docker pull -q "$1" >/dev/null
+  docker image inspect --format '{{index .RepoDigests 0}}' "$1" | sed 's/.*@//'
+}
 toolchain="$(sed -nE 's/^channel = "([^"]+)"/\1/p' rust-toolchain.toml)"
 rust_ref="rust:${toolchain}-bookworm"
 rust_img="rust@$(digest "$rust_ref")"
@@ -47,6 +69,9 @@ cat > "$out" <<EOF
   "rust_toolchain": "$toolchain",
   "codex_version": "$pin",
   "codex_sha256": "$codex_sha",
+  "codex_code_mode_host_sha256": "$host_sha",
+  "claude_version": "$claude_version",
+  "claude_sha256": "$claude_sha",
   "base_images": {"rust": "$rust_img", "runtime": "$runtime_img", "docker_cli": "$cli_img"},
   "image_id": "$image_id",
   "built_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"

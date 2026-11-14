@@ -9,14 +9,14 @@ limits that change the interpretation. Read this file fully; follow the links on
 
 | Layer | What | Where |
 |---|---|---|
-| Agent runtime | **Codex App Server** (pinned build, JSON-RPC over private stdio) owns the conversation and the model/tool loop | `ignis_research::runtime` (`AgentRuntime`, `CodexBridge`; M1, Mircea) — offline tests plus an opt-in real turn |
+| Agent runtime | **Codex App Server** (pinned build, JSON-RPC over private stdio) or **Claude Code** (headless, stream-json; ADR 17) owns the conversation and the model/tool loop, chosen with `IGNIS_AGENT_RUNTIME` | `ignis_research::runtime` (`AgentRuntime`, `CodexBridge`, `ClaudeBridge`; Mircea) — offline tests plus an opt-in real turn |
 | Backend | Rust + Axum + Tokio: API, SSE events, jobs, artifacts, scope, MCP transport (`rmcp`) | `crates/ignis-server` (`/api/v1`), `crates/ignis-research` (state store, jobs, artifacts, isolated runner), `crates/ignis-mcp` (IGNIS tools over MCP) |
 | Scientific services | knowledge (search/read/wiki), datasets, models (FLEX/ACME/BASS, literal WSP), evaluation | `ignis-evidence`, `ignis-data`, `ignis-vision`, `ignis-flex/acme/bass`, planned `ignis-wsp`, `ignis-lab/src/eval` |
 | Shared contracts | the single source of truth for every cross-lane type | `crates/ignis-core` (`contracts.rs` + `contracts/*.rs`) |
 | Frontend / edge | React + TypeScript + Vite; Cloudflare static assets, a small Worker, R2, Access, Tunnel | `web/`, `infra/worker` |
 | Hosting | Google Compute Engine VM as the Linux origin (Compose + systemd, `cloudflared` → Axum; no Nginx); domain from the Space Apps offer (registrar Porkbun), served by Cloudflare | `infra/` (runbook: `infra/README.md`; not provisioned yet) |
 
-Codex owns the agent loop. IGNIS owns episodes, scope, jobs, artifacts, data, models and evaluation.
+The agent runtime (Codex or Claude Code) owns the agent loop. IGNIS owns episodes, scope, jobs, artifacts, data, models and evaluation.
 **Do not write a second agent loop, a compactor, a universal LLM gateway, or fork Codex** without an
 ADR that demonstrates a limitation configuration/MCP/adapters cannot solve. Do not move the backend
 to Go or another framework. Decisions and their rationale: `docs/implementation/ARCHITECTURE.md`.

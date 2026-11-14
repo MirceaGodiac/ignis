@@ -309,7 +309,7 @@ Un handoff Fable/Astra este un pachet explicit de specificație, surse admise ș
 
 Configurația verificată conține provider, model ID, protocol, effort acceptat, multimodalitate, tools și politica de conținut. Succesul unui turn efectiv confirmă accesul pentru acea cerere; simpla listare într-un catalog nu garantează entitlement. [S55]
 
-Aplicația publică folosește credențiale/API sau un flux OAuth autorizat pentru acel tip de utilizare. Licența codului Codex nu include gratuit inferența modelelor. Nu copiem tokenuri personale din home în container și nu presupunem că abonamentul Claude al lui Mircea finanțează automat apelurile backendului. Cheile se țin în secrets, cu acces separat de runner și loguri redacționate.
+**Credențialele runtime-ului.** Runtime-ul (Codex App Server sau Claude Code, ADR 17) rulează local, dar inferența modelului rulează la furnizor, deci fiecare turn are nevoie de o credențială. Variante suportate: cheie API (`CODEX_API_KEY` / `ANTHROPIC_API_KEY`, facturare per token), un plan ChatGPT printr-un login home semnat (`IGNIS_CODEX_LOGIN_HOME`, `codex login --device-auth`), un plan Claude printr-un token `claude setup-token` (`CLAUDE_CODE_OAUTH_TOKEN`) sau un config dir semnat. Un plan este partajat de toți utilizatorii deployment-ului, cu limitele lui; un turn care atinge limita eșuează cu mesajul furnizorului. Deocamdată credențialele sunt intrări simple în `ignis.env`; mutarea lor în fișiere secret nu cere cod. `/api/v1/capabilities` arată ce credențială folosește runtime-ul. Runner-ul nu primește niciuna.
 
 În preflight nu setăm la întâmplare `high`, `xhigh` sau `max`. Profilul declară nivelurile reale. Pentru authoring și review dificil alegem efort ridicat suportat; pentru parsing numeric/hash/calcul folosim cod.
 

@@ -46,11 +46,13 @@ pub enum EpisodeStatus {
     Failed,
 }
 
-/// Agent runtime hosting an episode. One value today; a second one needs an ADR.
+/// Agent runtime hosting an episode (ADR 17): the pinned Codex App Server, or Claude Code in
+/// headless mode. Each owns its own model/tool loop; IGNIS maps, stores and audits both the same way.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum RuntimeKind {
     CodexAppServer,
+    ClaudeCode,
 }
 
 /// Mapping of an episode to its runtime thread. Turn/item ids travel in `Causation`.
