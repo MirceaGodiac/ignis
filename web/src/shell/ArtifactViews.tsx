@@ -2,7 +2,7 @@
 // rules visible: exit code is not a result, units are never assumed, coverage sits beside quality,
 // and model output is never presented as a measurement. Raw JSON stays one click away in the panel.
 import { Fragment } from "react";
-import type { AnalysisArtifact, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease, VisualObservationBundle } from "../contracts/generated";
+import type { AnalysisArtifact, AnswerRefusal, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease, VisualObservationBundle } from "../contracts/generated";
 import { ContourVideo } from "./ContourVideo";
 import { checkSummary, columnUnit, durationS, evaluationSummary, exposureRows, fmtMetric, limitRows, outcomeText, UNCERTAINTY_TEXT, type TypedArtifact } from "../research/artifactViews";
 import { Caution, fmtBytes, ReleaseState, shortId, words } from "../ui/common";
@@ -21,6 +21,8 @@ export function TypedArtifactBody({ contract, data }: { contract: TypedArtifact;
       return <AnalysisArtifactView a={data as AnalysisArtifact} />;
     case "VisualObservationBundle":
       return <VisualBundleView b={data as VisualObservationBundle} />;
+    case "AnswerRefusal":
+      return <RefusalProblems refusal={data as AnswerRefusal} />;
   }
 }
 
@@ -450,5 +452,28 @@ function VisualBundleView({ b }: { b: VisualObservationBundle }) {
       </dl>
       <ContourVideo bundle={b} />
     </>
+  );
+}
+
+// ---------------------------------------------------------------- AnswerRefusal
+
+/** Every problem the host found in a refused `answer_submit` (K1.3). */
+export function RefusalProblems({ refusal }: { refusal: AnswerRefusal }) {
+  return (
+    <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>
+      {refusal.problems.map((p, i) => (
+        <li key={i}>
+          <b>{words(p.kind)}</b>
+          {p.block != null && <span className="dim"> · block {p.block + 1}</span>}
+          {p.claim_id && (
+            <span className="dim">
+              {" "}
+              · claim <code>{p.claim_id}</code>
+            </span>
+          )}
+          <div className="muted">{p.detail}</div>
+        </li>
+      ))}
+    </ul>
   );
 }

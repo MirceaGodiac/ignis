@@ -43,6 +43,7 @@ import accessLinkOut from "../../../fixtures/contracts/evidence/source_access_li
 import executionRecord from "../../../fixtures/contracts/research/execution_record.json";
 import evaluationResult from "../../../fixtures/contracts/evaluation/result_dev.json";
 import conditionsTable from "../../../fixtures/contracts/data/conditions_table.json";
+import answerRefusal from "../../../fixtures/contracts/research/answer_refusal.json";
 import manifest from "../../../fixtures/contracts/manifest.json";
 
 const as = <T>(v: unknown) => v as T;
@@ -80,6 +81,7 @@ export const FIXTURES = {
     typedRef("fixture-artifact-dataset-bundle", "DatasetBundle", as<DatasetBundle>(datasetBundle)),
     typedRef("fixture-artifact-eval-result", "EvaluationResult", as<EvaluationResult>(evaluationResult)),
     typedRef("fixture-artifact-visual-bundle", "VisualObservationBundle", as<VisualObservationBundle>(visualBundle)),
+    typedRef("fixture-artifact-answer-refusal", "AnswerRefusal", answerRefusal as { created_at?: string }),
   ],
   /** The records behind `visualBundle.contours`, served as NDJSON text the way the artifact store holds them. */
   imageContours: as<ImageContourObservation[]>(imageContours),
