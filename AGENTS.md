@@ -99,6 +99,11 @@ npm --prefix web run build
 Nothing expensive or networked runs without an explicit `--execute`; live-API tests are separate
 from offline tests and need explicit authorization.
 
+**No CI for now (since 2026-11-14, until the integrator says otherwise).** The GitHub Actions
+workflow `ci` is disabled. Do not re-enable it, add or edit workflows, wait for checks, or cite CI
+in a PR. Run the commands above that apply to your change locally, before pushing, and list the ones
+you actually ran with their results in the PR description.
+
 ## Delivering a PR
 
 One task id from the workboard per PR, on a short-lived branch from `main` named `feat/<lane>-<task>` (deleted on merge). Phase 2 lanes, priorities and shared contracts: `docs/implementation/LANES_V2.md`. The description lists: task id,
