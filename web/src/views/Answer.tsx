@@ -36,7 +36,8 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
   const artifacts = new Map((answer.artifacts ?? []).map((a) => [a.artifact_id, a]));
   // Keys are numbered in reading order of first appearance.
   const order: string[] = [];
-  for (const b of answer.blocks) if (b.type === "text") for (const id of b.claim_ids ?? []) if (!order.includes(id)) order.push(id);
+  for (const b of answer.blocks)
+    if (b.type === "text" || b.type === "view") for (const id of b.claim_ids ?? []) if (!order.includes(id)) order.push(id);
   for (const c of answer.claims ?? []) if (!order.includes(c.claim_id)) order.push(c.claim_id);
   const keyOf = (id: string) => String(order.indexOf(id) + 1);
   let fig = 0;
@@ -96,6 +97,13 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
                     </button>
                   );
                 })}
+              </p>
+            );
+          if (b.type === "view")
+            // research.v2 catalog view: placeholder until the catalog renderer (T8) exists.
+            return (
+              <p key={i} className="note">
+                View <code>{b.view.kind}</code> placed by the agent{b.caption ? `: ${b.caption}` : ""} (not rendered yet).
               </p>
             );
           fig++;
