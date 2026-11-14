@@ -5,6 +5,8 @@ Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§5, §9, 
 
 ## 0. Faza 2 (citește întâi) — cunoaștere & date NASA
 
+**Acces:** [ACCESS](ACCESS.md). Ai nevoie de GitHub, de propria cheie `DEEPINFRA_API_KEY` local și, la R8, de cheia providerului ales. Corpusul complet se descarcă **pe VM** (`/srv/ignis/data/raw/`, pas în `build-data.sh` rulat de Mircea, cu selecția ta din atlas); local ții doar un subset.
+
 Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §5 (lane-ul tău), §9 (contracte), §10 (date NASA și
 testele de acces măsurate). Regula de stocare: atlasul lui Iancu, `docs/wsp/atlas/`.
 
