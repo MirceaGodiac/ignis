@@ -31,7 +31,8 @@ până la livrarea dependenței se lucrează pe fixture-urile din `fixtures/cont
 ### Faza 2 — trei lane-uri paralele (detalii, motivare și surse: [LANES_V2](LANES_V2.md))
 
 Lane-ul lui Iancu (I1–I5) nu se schimbă. Contractele noi intră întâi, ca val **K1** (un PR per
-familie, cu fixture, fără implementare), în ordinea din `LANES_V2.md` §5.3.
+familie, cu fixture, fără implementare): scrise în paralel, merge unul după altul în ordinea din
+`LANES_V2.md` §5.3.
 
 | ID | Owner | Livrabil | Dependență | Stare |
 |---|---|---|---|---|
@@ -42,13 +43,14 @@ familie, cu fixture, fără implementare), în ordinea din `LANES_V2.md` §5.3.
 | M9 | Mircea | context în mediu (artefacte montate în `analysis_execute` prin ref), delegare depth-1 prin subagenții runtime-ului, scope derivat per copil | M6 | de făcut |
 | M10 | Mircea | `TraceBundle` + `ignis harness run --variant`; optimizare offline doar pe dev (stretch) | K1, T10 | de făcut |
 | M11 | Mircea | rute v1 pentru runs/datasets/conditions, ca UI-ul să renunțe la `/api/experiments*` | K1, R9 | de făcut |
-| R6 | Raul | catalog PSI pentru toate cele 26 de investigații de combustie + NTRS, drepturi per document, media leneșă | — | de făcut |
-| R7 | Raul | parsare cu coordonate: Docling + GROBID, bbox normalizat top-left, parse views versionate | R6 | de făcut |
-| R8 | Raul | `SourceLabel`: clasificare în batch, două treceri, gold set de ~100 documente; Muse Spark Contributor doar pe documente publice | R7, K1 | de făcut |
+| M12 | Mircea | acces la surse fără copie: `GET /api/v1/sources/{id}/content` → `SourceAccess` (URL S3 semnat PSI rezolvat la cerere, proxy Worker pentru NTRS, URL permanent pentru biblioteca media); niciun byte media NASA stocat | K1, R6 | de făcut |
+| R6 | Raul | catalog pentru cele 19 investigații de zbor + NTRS după atlasul lui Iancu: pe server ~14,1 GB (636 documente + 25.293 fișiere text de senzori, cu hash), imaginile/filmele (13,47 TB) rămân la NASA; licența PSI-10 de verificat; lockbox pentru documentele cu rezultate ținute deoparte | — | de făcut |
+| R7 | Raul | parsare cu coordonate (Docling + GROBID, bbox normalizat top-left) și arbore de secțiuni în stil PageIndex cu rezumate generate (`sources_outline`) | R6 | de făcut |
+| R8 | Raul | `SourceLabel`: etichete tipizate (Jev potrivit pentru enum-uri închise), două treceri, gold set de ~100 documente; rezumatele cu un model generativ ieftin (ex. Muse Spark Contributor) | R7, K1 | de făcut |
 | R9 | Raul | graf tipizat de combustie (SQLite, `ProvenanceLink`), seed din CSV-urile PSI; servicii `conditions_query` și `graph_neighbors` | R6, R8, K1 | de făcut |
 | R10 | Raul | upgrade-uri de retrieval doar pe baza benchmark-ului (Tantivy, ColQwen, PPR); calibrare BASS; bundle-ul de evaluator | T10 | de făcut |
 | T6 | Tudor | Runs/Lab/Compare/Atmosphere pe rute v1; fără DTO-uri scrise de mână | M11 | de făcut |
-| T7 | Tudor | viewere: PDF.js la bbox, video BASS cu contur, artefacte tipizate, release + calificare, wiki, graf | K1, R7 | de făcut |
+| T7 | Tudor | viewere care citesc originalele direct de la NASA prin `SourceAccess`: PDF.js la bbox, video BASS cu contur, artefacte tipizate, release + calificare, wiki, graf | K1, R7, M12 | de făcut |
 | T8 | Tudor | UI generativ din catalog închis (`ViewSpec`), vederi legate pe timp/selecție | K1, M7 | de făcut |
 | T9 | Tudor | matricea de condiții și clasamentul de relevanță pentru habitate (Lună, costum, ISS) | R9, M8 | de făcut |
 | T10 | Tudor | benchmark (T3 partea 2): `GoldTask`, pilot ~30, set dev + hold-out privat ~20 %, sub-benchmark de retrieval | K1 | de făcut |
