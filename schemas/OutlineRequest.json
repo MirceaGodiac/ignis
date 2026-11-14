@@ -1,0 +1,83 @@
+{
+  "$defs": {
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "OutlineNodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ParseViewId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/OutlineRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`sources_outline`: the section tree of one source, or the subtree under `node_id`.",
+  "properties": {
+    "depth": {
+      "description": "Levels below the root to return; deeper children are flagged, not dropped silently.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "node_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OutlineNodeId"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Subtree root; absent = the whole document."
+    },
+    "parse_view_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParseViewId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_id"
+  ],
+  "title": "OutlineRequest",
+  "type": "object"
+}

@@ -28,9 +28,71 @@
       ],
       "type": "string"
     },
+    "ConceptId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConceptKind": {
+      "description": "Kind of a domain concept of the combustion graph. Concepts are vocabulary nodes (an\ninvestigation, a fuel, a piece of hardware); records (sources, runs, artifacts) are\n[`EntityRef`]s.",
+      "oneOf": [
+        {
+          "enum": [
+            "fuel",
+            "sample_geometry"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "investigation",
+          "description": "A PSI investigation (`id` = its accession, e.g. `PSI-69`) or a ground investigation.",
+          "type": "string"
+        },
+        {
+          "const": "hardware",
+          "description": "Flight or ground hardware (CIR/MDCA, MSG/SPICE duct, an ACME module).",
+          "type": "string"
+        },
+        {
+          "const": "condition",
+          "description": "A controlled condition (oxygen mole fraction, pressure, flow, gravity level).",
+          "type": "string"
+        },
+        {
+          "const": "diagnostic",
+          "description": "An instrument or measurement method (camera, radiometer, thermocouple).",
+          "type": "string"
+        },
+        {
+          "const": "observable",
+          "description": "A measured quantity of interest (extinction diameter, spread rate, burning rate).",
+          "type": "string"
+        }
+      ]
+    },
+    "ConceptRef": {
+      "additionalProperties": false,
+      "properties": {
+        "concept": {
+          "$ref": "#/$defs/ConceptKind"
+        },
+        "id": {
+          "$ref": "#/$defs/ConceptId"
+        }
+      },
+      "required": [
+        "concept",
+        "id"
+      ],
+      "type": "object"
+    },
     "DatasetId": {
       "minLength": 1,
       "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
     },
     "EntityRef": {
@@ -193,11 +255,31 @@
       "type": "string"
     },
     "EvidenceSchema": {
-      "description": "Wire tag of search, read, provenance and wiki documents.",
-      "enum": [
-        "evidence.v1"
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "GraphNode": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EntityRef"
+        },
+        {
+          "$ref": "#/$defs/ConceptRef"
+        }
       ],
-      "type": "string"
+      "description": "A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept\n([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads\nunchanged. Passages, figures and tables are `EntityRef::Evidence`; analyses are artifacts."
     },
     "ObservationId": {
       "minLength": 1,
@@ -209,6 +291,15 @@
       "enum": [
         "system",
         "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
       ],
       "type": "string"
     },
@@ -232,6 +323,149 @@
       "pattern": "Z$",
       "type": "string"
     },
+    "WikiEntry": {
+      "additionalProperties": false,
+      "description": "An item as stored in a revision, with the access the host derived for it.",
+      "properties": {
+        "item_id": {
+          "$ref": "#/$defs/WikiItemId"
+        },
+        "kind": {
+          "$ref": "#/$defs/WikiItemKind"
+        },
+        "refs": {
+          "items": {
+            "$ref": "#/$defs/GraphNode"
+          },
+          "type": "array"
+        },
+        "requires_partitions": {
+          "description": "Partitions whose outcomes the item was written under (from the writing scope, never from\nthe author). A reader needs every one of them: summarizing does not launder a restriction.",
+          "items": {
+            "$ref": "#/$defs/Partition"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "item_id",
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "WikiItem": {
+      "additionalProperties": false,
+      "description": "One itemized entry of a page. Pages change by item deltas, never by rewriting the page, so an\nedit cannot silently drop what it did not mean to touch.",
+      "properties": {
+        "item_id": {
+          "$ref": "#/$defs/WikiItemId"
+        },
+        "kind": {
+          "$ref": "#/$defs/WikiItemKind"
+        },
+        "refs": {
+          "description": "Sources, passages, artifacts, runs or concepts the item rests on.",
+          "items": {
+            "$ref": "#/$defs/GraphNode"
+          },
+          "type": "array"
+        },
+        "text": {
+          "description": "Markdown.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "item_id",
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "WikiItemId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiItemKind": {
+      "enum": [
+        "concept",
+        "method",
+        "protocol",
+        "hypothesis",
+        "calculation",
+        "contradiction",
+        "open_question",
+        "lesson",
+        "note"
+      ],
+      "type": "string"
+    },
+    "WikiOp": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/WikiItem"
+            },
+            "op": {
+              "const": "add",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "item"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "New content for an existing item (same id).",
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/WikiItem"
+            },
+            "op": {
+              "const": "revise",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "item"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "$ref": "#/$defs/WikiItemId"
+            },
+            "op": {
+              "const": "remove",
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "item_id",
+            "reason"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "WikiPageId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -241,13 +475,14 @@
   "$id": "ignis/2.1.0/WikiRevision",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "An immutable wiki revision. The wiki is research memory with references; it is never a primary\nsource and is not indexed as one.",
+  "description": "An immutable wiki revision: the full item list after `ops`, content-addressed by\n`content_digest`. The wiki is research memory with references; it is never a primary source\nand is not indexed as one.",
   "properties": {
     "author": {
       "$ref": "#/$defs/Author"
     },
-    "body_markdown": {
-      "type": "string"
+    "content_digest": {
+      "$ref": "#/$defs/Digest",
+      "description": "[`WikiRevision::digest_of`] of `title` and `items`."
     },
     "created_at": {
       "$ref": "#/$defs/Timestamp"
@@ -262,10 +497,16 @@
         }
       ]
     },
-    "links": {
-      "default": [],
+    "items": {
       "items": {
-        "$ref": "#/$defs/EntityRef"
+        "$ref": "#/$defs/WikiEntry"
+      },
+      "type": "array"
+    },
+    "ops": {
+      "description": "The delta that produced this revision from its parent.",
+      "items": {
+        "$ref": "#/$defs/WikiOp"
       },
       "type": "array"
     },
@@ -300,7 +541,9 @@
     "page_id",
     "revision",
     "title",
-    "body_markdown",
+    "items",
+    "ops",
+    "content_digest",
     "author",
     "created_at",
     "origin"

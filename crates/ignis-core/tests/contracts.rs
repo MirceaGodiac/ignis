@@ -107,7 +107,8 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             !o.is_empty()
                 || base == "ExecutionScope"
                 || base.ends_with("Request")
-                || base == "ModelSpec",
+                || base == "ModelSpec"
+                || base == "WikiPatch",
             "{path}: no origin label"
         );
 
@@ -122,6 +123,25 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "SearchRequest" => drop(check::<SearchRequest>(&v, SearchRequest::validate)),
             "SearchPage" => drop(check::<SearchPage>(&v, SearchPage::validate)),
             "ReadResult" => drop(check::<ReadResult>(&v, ReadResult::validate)),
+            "SourceOutline" => drop(check::<SourceOutline>(&v, SourceOutline::validate)),
+            "SourceAccess" => drop(check::<SourceAccess>(&v, SourceAccess::validate)),
+            "SourceLabel[]" => drop(check::<Vec<SourceLabel>>(&v, |l| {
+                l.iter().try_for_each(SourceLabel::validate)
+            })),
+            "LabelSet" => drop(check::<LabelSet>(&v, LabelSet::validate)),
+            "GraphNeighborsPage" => drop(check::<GraphNeighborsPage>(
+                &v,
+                GraphNeighborsPage::validate,
+            )),
+            "WikiPatch" => drop(check::<WikiPatch>(&v, WikiPatch::validate)),
+            "WikiRevision" => drop(check::<WikiRevision>(&v, WikiRevision::validate)),
+            "WikiReadResult" => drop(check::<WikiReadResult>(&v, WikiReadResult::validate)),
+            "WebSearchPage" => drop(check::<WebSearchPage>(&v, WebSearchPage::validate)),
+            "ExternalSourceCandidate" => drop(check::<ExternalSourceCandidate>(
+                &v,
+                ExternalSourceCandidate::validate,
+            )),
+            "ConditionsTable" => drop(check::<ConditionsTable>(&v, ConditionsTable::validate)),
             "DatasetBundle" => drop(check::<DatasetBundle>(&v, DatasetBundle::validate)),
             "VisualObservationBundle" => drop(check::<VisualObservationBundle>(
                 &v,
@@ -802,4 +822,81 @@ fn tool_catalog_uses_exported_contracts() {
             t.name
         );
     }
+}
+
+#[test]
+fn k1_knowledge_contracts_keep_identity_gaps_and_versions_honest() {
+    // A v2 addition under the v1 tag is refused; the v1 document itself still reads.
+    let mut req = fixture("evidence/search_request.json");
+    typed::<SearchRequest>(&req).validate().unwrap();
+    req["response_format"] = json!("concise");
+    assert!(typed::<SearchRequest>(&req).validate().is_err());
+
+    let page = fixture("evidence/graph_neighbors_page.json");
+    let link = |i: usize| page["neighbors"][i]["link"].clone();
+    let mut v1 = link(0);
+    v1["schema_version"] = json!("evidence.v1");
+    assert!(
+        typed::<ProvenanceLink>(&v1).validate().is_err(),
+        "uses_fuel is v2"
+    );
+
+    // Similarity never becomes identity.
+    let mut mention = link(2);
+    mention["resolution"] = json!("resolved");
+    assert!(typed::<ProvenanceLink>(&mention).validate().is_err());
+    let mut candidate = link(0);
+    candidate["relation"] = json!("same_as_candidate");
+    assert!(typed::<ProvenanceLink>(&candidate).validate().is_err());
+    let mut wrong_end = link(0);
+    wrong_end["to"] = json!({"concept": "hardware", "id": "x"});
+    assert!(typed::<ProvenanceLink>(&wrong_end).validate().is_err());
+
+    // A model label is resolved only by two agreeing passes.
+    let mut label = fixture("evidence/source_labels.json")[0].clone();
+    label["agreement"]["passes"] = json!(1);
+    assert!(typed::<SourceLabel>(&label).validate().is_err());
+
+    // Every row has one cell per key; numeric values keep SI units and the original's locator.
+    let table = fixture("data/conditions_table.json");
+    let mut gap = table.clone();
+    gap["rows"][0]["cells"].as_array_mut().unwrap().remove(2);
+    assert!(
+        typed::<ConditionsTable>(&gap).validate().is_err(),
+        "absent cell"
+    );
+    let mut unit = table.clone();
+    unit["rows"][0]["cells"][1]["value"]["unit_si"] = json!("psi");
+    assert!(typed::<ConditionsTable>(&unit).validate().is_err());
+    let mut unlocated = table.clone();
+    unlocated["rows"][0]["cells"][0]["value"]["locator"] = Value::Null;
+    assert!(typed::<ConditionsTable>(&unlocated).validate().is_err());
+
+    // Wiki deltas: a new page only adds; one item per op.
+    let mut create = fixture("evidence/wiki_patch.json");
+    create.as_object_mut().unwrap().remove("base_revision");
+    create["title"] = json!("t");
+    assert!(typed::<WikiPatch>(&create).validate().is_err());
+    let mut twice = fixture("evidence/wiki_patch.json");
+    let first = twice["ops"][0].clone();
+    twice["ops"].as_array_mut().unwrap().push(first);
+    assert!(typed::<WikiPatch>(&twice).validate().is_err());
+
+    // A web excerpt is never promoted; only http(s) is fetched.
+    let mut excerpt = fixture("evidence/web_search_page.json")["candidates"][0].clone();
+    excerpt["promoted_source_id"] = json!("fixture-source-web-v1");
+    assert!(typed::<ExternalSourceCandidate>(&excerpt)
+        .validate()
+        .is_err());
+    let fetch: WebFetchRequest =
+        typed(&json!({"schema_version": "evidence.v2", "url": "file:///etc/passwd"}));
+    assert!(fetch.validate().is_err());
+
+    // A section sits inside its parent's pages; a link out streams nothing.
+    let mut outline = fixture("evidence/outline.json");
+    outline["nodes"][1]["children"][1]["page_end"] = json!(41);
+    assert!(typed::<SourceOutline>(&outline).validate().is_err());
+    let mut link_out = fixture("evidence/source_access_link_out.json");
+    link_out["range"] = json!(true);
+    assert!(typed::<SourceAccess>(&link_out).validate().is_err());
 }

@@ -1,0 +1,253 @@
+{
+  "schema_version": "dataset.v2",
+  "keys": [
+    "oxygen_mole_fraction",
+    "pressure",
+    "gravity_level",
+    "fuel"
+  ],
+  "rows": [
+    {
+      "investigation_id": "fixture-investigation-a",
+      "run": {
+        "run_id": "fixture-run-01",
+        "resolution": "resolved"
+      },
+      "cells": [
+        {
+          "status": "value",
+          "key": "oxygen_mole_fraction",
+          "value": {
+            "raw_value": 21.0,
+            "raw_unit": "%",
+            "value_si": 0.21,
+            "unit_si": "1",
+            "uncertainty_si": null,
+            "uncertainty_reason": null,
+            "evidence_class": "original_observation",
+            "locator": {
+              "asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+              "path": "fixture-experiment-table.csv",
+              "row": 4,
+              "column": "O2 (%)",
+              "page": null,
+              "frame": null,
+              "pts_s": null,
+              "char_start": null,
+              "char_end": null
+            },
+            "derivation": null,
+            "resolution": "resolved",
+            "flags": []
+          }
+        },
+        {
+          "status": "value",
+          "key": "pressure",
+          "value": {
+            "raw_value": 14.7,
+            "raw_unit": "psi",
+            "value_si": 101352.9,
+            "unit_si": "Pa",
+            "uncertainty_si": null,
+            "uncertainty_reason": null,
+            "evidence_class": "original_observation",
+            "locator": {
+              "asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+              "path": "fixture-experiment-table.csv",
+              "row": 4,
+              "column": "P (psia)",
+              "page": null,
+              "frame": null,
+              "pts_s": null,
+              "char_start": null,
+              "char_end": null
+            },
+            "derivation": null,
+            "resolution": "resolved",
+            "flags": []
+          }
+        },
+        {
+          "status": "missing",
+          "key": "gravity_level",
+          "reason": "Synthetic fixture: the table gives no gravity level."
+        },
+        {
+          "status": "value",
+          "key": "fuel",
+          "value": {
+            "raw_value": "synthetic-fuel-a",
+            "raw_unit": null,
+            "value_si": null,
+            "unit_si": null,
+            "uncertainty_si": null,
+            "uncertainty_reason": null,
+            "evidence_class": "original_observation",
+            "locator": {
+              "asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+              "path": "fixture-experiment-table.csv",
+              "row": 4,
+              "column": "Fuel",
+              "page": null,
+              "frame": null,
+              "pts_s": null,
+              "char_start": null,
+              "char_end": null
+            },
+            "derivation": null,
+            "resolution": "resolved",
+            "flags": []
+          }
+        }
+      ]
+    },
+    {
+      "investigation_id": "fixture-investigation-a",
+      "run": {
+        "run_id": "fixture-run-02",
+        "resolution": "resolved"
+      },
+      "cells": [
+        {
+          "status": "conflicting",
+          "key": "oxygen_mole_fraction",
+          "candidates": [
+            {
+              "raw_value": 40.0,
+              "raw_unit": "%",
+              "value_si": 0.4,
+              "unit_si": "1",
+              "uncertainty_si": null,
+              "uncertainty_reason": null,
+              "evidence_class": "original_observation",
+              "locator": {
+                "asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+                "path": "fixture-experiment-table.csv",
+                "row": 5,
+                "column": "O2 (%)",
+                "page": null,
+                "frame": null,
+                "pts_s": null,
+                "char_start": null,
+                "char_end": null
+              },
+              "derivation": null,
+              "resolution": "resolved",
+              "flags": []
+            },
+            {
+              "raw_value": 35.0,
+              "raw_unit": "%",
+              "value_si": 0.35,
+              "unit_si": "1",
+              "uncertainty_si": null,
+              "uncertainty_reason": null,
+              "evidence_class": "source_derived",
+              "locator": {
+                "asset_sha256": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+                "path": null,
+                "row": null,
+                "column": null,
+                "page": 7,
+                "frame": null,
+                "pts_s": null,
+                "char_start": 120,
+                "char_end": 164,
+                "parse_view_id": "fixture-parse-v2",
+                "offset_unit": "unicode_scalar",
+                "bbox": [
+                  0.1,
+                  0.5,
+                  0.9,
+                  0.55
+                ]
+              },
+              "derivation": null,
+              "resolution": "resolved",
+              "flags": []
+            }
+          ],
+          "reason": "Synthetic fixture: the table and the report disagree."
+        },
+        {
+          "status": "missing",
+          "key": "pressure",
+          "reason": "Synthetic fixture: cell empty in the table."
+        },
+        {
+          "status": "not_applicable",
+          "key": "gravity_level",
+          "reason": "Synthetic fixture: ground reference run; gravity is not a varied condition."
+        },
+        {
+          "status": "value",
+          "key": "fuel",
+          "value": {
+            "raw_value": "synthetic-fuel-a",
+            "raw_unit": null,
+            "value_si": null,
+            "unit_si": null,
+            "uncertainty_si": null,
+            "uncertainty_reason": null,
+            "evidence_class": "original_observation",
+            "locator": {
+              "asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+              "path": "fixture-experiment-table.csv",
+              "row": 5,
+              "column": "Fuel",
+              "page": null,
+              "frame": null,
+              "pts_s": null,
+              "char_start": null,
+              "char_end": null
+            },
+            "derivation": null,
+            "resolution": "resolved",
+            "flags": []
+          }
+        }
+      ]
+    }
+  ],
+  "envelopes": [
+    {
+      "investigation_id": "fixture-investigation-a",
+      "runs": 2,
+      "entries": [
+        {
+          "status": "range",
+          "key": "oxygen_mole_fraction",
+          "min_si": 0.21,
+          "max_si": 0.21,
+          "unit_si": "1",
+          "runs": 1
+        },
+        {
+          "status": "range",
+          "key": "pressure",
+          "min_si": 101352.9,
+          "max_si": 101352.9,
+          "unit_si": "Pa",
+          "runs": 1
+        },
+        {
+          "status": "missing",
+          "key": "gravity_level",
+          "reason": "Synthetic fixture: no run states a gravity level."
+        },
+        {
+          "status": "values",
+          "key": "fuel",
+          "values": [
+            "synthetic-fuel-a"
+          ],
+          "runs": 2
+        }
+      ]
+    }
+  ],
+  "corpus_snapshot": "fixture-corpus-snapshot-02",
+  "total_count": 2,
+  "origin": "synthetic_fixture"
+}

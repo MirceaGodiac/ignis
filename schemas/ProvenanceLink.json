@@ -5,6 +5,64 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ConceptId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConceptKind": {
+      "description": "Kind of a domain concept of the combustion graph. Concepts are vocabulary nodes (an\ninvestigation, a fuel, a piece of hardware); records (sources, runs, artifacts) are\n[`EntityRef`]s.",
+      "oneOf": [
+        {
+          "enum": [
+            "fuel",
+            "sample_geometry"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "investigation",
+          "description": "A PSI investigation (`id` = its accession, e.g. `PSI-69`) or a ground investigation.",
+          "type": "string"
+        },
+        {
+          "const": "hardware",
+          "description": "Flight or ground hardware (CIR/MDCA, MSG/SPICE duct, an ACME module).",
+          "type": "string"
+        },
+        {
+          "const": "condition",
+          "description": "A controlled condition (oxygen mole fraction, pressure, flow, gravity level).",
+          "type": "string"
+        },
+        {
+          "const": "diagnostic",
+          "description": "An instrument or measurement method (camera, radiometer, thermocouple).",
+          "type": "string"
+        },
+        {
+          "const": "observable",
+          "description": "A measured quantity of interest (extinction diameter, spread rate, burning rate).",
+          "type": "string"
+        }
+      ]
+    },
+    "ConceptRef": {
+      "additionalProperties": false,
+      "properties": {
+        "concept": {
+          "$ref": "#/$defs/ConceptKind"
+        },
+        "id": {
+          "$ref": "#/$defs/ConceptId"
+        }
+      },
+      "required": [
+        "concept",
+        "id"
+      ],
+      "type": "object"
+    },
     "DatasetId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -211,11 +269,31 @@
       "type": "string"
     },
     "EvidenceSchema": {
-      "description": "Wire tag of search, read, provenance and wiki documents.",
-      "enum": [
-        "evidence.v1"
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "GraphNode": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EntityRef"
+        },
+        {
+          "$ref": "#/$defs/ConceptRef"
+        }
       ],
-      "type": "string"
+      "description": "A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept\n([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads\nunchanged. Passages, figures and tables are `EntityRef::Evidence`; analyses are artifacts."
     },
     "LinkId": {
       "minLength": 1,
@@ -245,15 +323,58 @@
       "type": "string"
     },
     "Relation": {
-      "enum": [
-        "supports",
-        "contradicts",
-        "derived_from",
-        "describes",
-        "same_run_as",
-        "cites"
-      ],
-      "type": "string"
+      "description": "Edge type of the graph (master §11.3). The catalog is closed: a new relation is a contract change.",
+      "oneOf": [
+        {
+          "enum": [
+            "supports",
+            "derived_from",
+            "cites",
+            "uses_fuel",
+            "has_condition",
+            "measured_by",
+            "uses_hardware",
+            "uses_calibration",
+            "predicted_by"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "contradicts",
+          "description": "C0 name, read only: v2 links write `disputes`.",
+          "type": "string"
+        },
+        {
+          "const": "describes",
+          "description": "A source describes an entity in general (an investigation, a method), not a specific run.",
+          "type": "string"
+        },
+        {
+          "const": "same_run_as",
+          "description": "Exact run identity between two records (identifier, conditions, time or campaign).",
+          "type": "string"
+        },
+        {
+          "const": "describes_run",
+          "description": "A source or passage describes one specific run (`to` is a run).",
+          "type": "string"
+        },
+        {
+          "const": "disputes",
+          "description": "One result questions another. Two results at other conditions are not a dispute by\nthemselves: the populations must overlap.",
+          "type": "string"
+        },
+        {
+          "const": "supersedes",
+          "description": "`from` replaces `to`; descendants of `to` are marked possibly stale, never rewritten.",
+          "type": "string"
+        },
+        {
+          "const": "same_as_candidate",
+          "description": "A possible identity found by similarity or a label. Never an exact identity: its resolution\nis never `resolved`.",
+          "type": "string"
+        }
+      ]
     },
     "ReleaseId": {
       "minLength": 1,
@@ -289,7 +410,7 @@
   "$id": "ignis/2.1.0/ProvenanceLink",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A typed edge between entities, with the evidence and method that established it. A purely\nsemantic association is `resolution = unknown`, never an exact identity.",
+  "description": "A typed edge between two nodes, with the evidence and method that established it. A purely\nsemantic association (no evidence) is never `resolved`; identity needs an identifier,\nconditions, time or an explicit reference.",
   "properties": {
     "evidence": {
       "default": [],
@@ -299,7 +420,7 @@
       "type": "array"
     },
     "from": {
-      "$ref": "#/$defs/EntityRef"
+      "$ref": "#/$defs/GraphNode"
     },
     "link_id": {
       "$ref": "#/$defs/LinkId"
@@ -320,7 +441,7 @@
       "$ref": "#/$defs/EvidenceSchema"
     },
     "to": {
-      "$ref": "#/$defs/EntityRef"
+      "$ref": "#/$defs/GraphNode"
     }
   },
   "required": [

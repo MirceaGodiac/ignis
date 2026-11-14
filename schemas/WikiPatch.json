@@ -5,6 +5,64 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ConceptId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConceptKind": {
+      "description": "Kind of a domain concept of the combustion graph. Concepts are vocabulary nodes (an\ninvestigation, a fuel, a piece of hardware); records (sources, runs, artifacts) are\n[`EntityRef`]s.",
+      "oneOf": [
+        {
+          "enum": [
+            "fuel",
+            "sample_geometry"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "investigation",
+          "description": "A PSI investigation (`id` = its accession, e.g. `PSI-69`) or a ground investigation.",
+          "type": "string"
+        },
+        {
+          "const": "hardware",
+          "description": "Flight or ground hardware (CIR/MDCA, MSG/SPICE duct, an ACME module).",
+          "type": "string"
+        },
+        {
+          "const": "condition",
+          "description": "A controlled condition (oxygen mole fraction, pressure, flow, gravity level).",
+          "type": "string"
+        },
+        {
+          "const": "diagnostic",
+          "description": "An instrument or measurement method (camera, radiometer, thermocouple).",
+          "type": "string"
+        },
+        {
+          "const": "observable",
+          "description": "A measured quantity of interest (extinction diameter, spread rate, burning rate).",
+          "type": "string"
+        }
+      ]
+    },
+    "ConceptRef": {
+      "additionalProperties": false,
+      "properties": {
+        "concept": {
+          "$ref": "#/$defs/ConceptKind"
+        },
+        "id": {
+          "$ref": "#/$defs/ConceptId"
+        }
+      },
+      "required": [
+        "concept",
+        "id"
+      ],
+      "type": "object"
+    },
     "DatasetId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -170,11 +228,31 @@
       "type": "string"
     },
     "EvidenceSchema": {
-      "description": "Wire tag of search, read, provenance and wiki documents.",
-      "enum": [
-        "evidence.v1"
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "GraphNode": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EntityRef"
+        },
+        {
+          "$ref": "#/$defs/ConceptRef"
+        }
       ],
-      "type": "string"
+      "description": "A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept\n([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads\nunchanged. Passages, figures and tables are `EntityRef::Evidence`; analyses are artifacts."
     },
     "ObservationId": {
       "minLength": 1,
@@ -196,6 +274,114 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "WikiItem": {
+      "additionalProperties": false,
+      "description": "One itemized entry of a page. Pages change by item deltas, never by rewriting the page, so an\nedit cannot silently drop what it did not mean to touch.",
+      "properties": {
+        "item_id": {
+          "$ref": "#/$defs/WikiItemId"
+        },
+        "kind": {
+          "$ref": "#/$defs/WikiItemKind"
+        },
+        "refs": {
+          "description": "Sources, passages, artifacts, runs or concepts the item rests on.",
+          "items": {
+            "$ref": "#/$defs/GraphNode"
+          },
+          "type": "array"
+        },
+        "text": {
+          "description": "Markdown.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "item_id",
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "WikiItemId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiItemKind": {
+      "enum": [
+        "concept",
+        "method",
+        "protocol",
+        "hypothesis",
+        "calculation",
+        "contradiction",
+        "open_question",
+        "lesson",
+        "note"
+      ],
+      "type": "string"
+    },
+    "WikiOp": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/WikiItem"
+            },
+            "op": {
+              "const": "add",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "item"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "New content for an existing item (same id).",
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/WikiItem"
+            },
+            "op": {
+              "const": "revise",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "item"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "$ref": "#/$defs/WikiItemId"
+            },
+            "op": {
+              "const": "remove",
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "item_id",
+            "reason"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "WikiPageId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -205,7 +391,7 @@
   "$id": "ignis/2.1.0/WikiPatch",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A wiki write against `base_revision` (absent = create). The service refuses with `conflict` when\nthe page head moved: the last writer does not win silently.",
+  "description": "A wiki write against `base_revision` (absent = create the page). The service refuses with\n`conflict` when the page head moved: the last writer does not win silently. The author, episode\nand access of the written items are derived by the host, never taken from the patch.",
   "properties": {
     "base_revision": {
       "format": "uint64",
@@ -215,13 +401,9 @@
         "null"
       ]
     },
-    "body_markdown": {
-      "type": "string"
-    },
-    "links": {
-      "default": [],
+    "ops": {
       "items": {
-        "$ref": "#/$defs/EntityRef"
+        "$ref": "#/$defs/WikiOp"
       },
       "type": "array"
     },
@@ -232,14 +414,16 @@
       "$ref": "#/$defs/EvidenceSchema"
     },
     "title": {
-      "type": "string"
+      "description": "Required to create a page; a rename otherwise.",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
     "schema_version",
-    "page_id",
-    "title",
-    "body_markdown"
+    "page_id"
   ],
   "title": "WikiPatch",
   "type": "object"
