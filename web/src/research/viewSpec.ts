@@ -23,7 +23,8 @@ export function viewProblems(view: ViewSpec, answer: ResearchAnswer): string[] {
   const needArtifact = (id: string, contract?: string) => {
     const a = artifacts.get(id);
     if (!a) out.push(`artifact ${id} is not cited by the answer`);
-    else if (contract && a.contract && a.contract !== contract) out.push(`artifact ${id} has contract ${a.contract}, not ${contract}`);
+    // Fail closed like the Rust check: an artifact that names no contract does not satisfy one.
+    else if (contract && a.contract !== contract) out.push(`artifact ${id} has contract ${a.contract ?? "none"}, not ${contract}`);
   };
   switch (view.kind) {
     case "source_excerpt":
