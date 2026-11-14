@@ -467,16 +467,16 @@ fn a_version_1_store_is_migrated_in_place() {
             |r| r.get(0),
         )
         .unwrap();
-    assert_eq!(v, "3");
-    // 2 -> 3 adds the agent-runtime tables.
+    assert_eq!(v, "4");
+    // 2 -> 3 adds the agent-runtime tables, 3 -> 4 the episode evidence of `answer_submit`.
     let tables: i64 = c
         .query_row(
-            "SELECT COUNT(*) FROM sqlite_master WHERE name IN ('runtime_turns', 'runtime_marks')",
+            "SELECT COUNT(*) FROM sqlite_master WHERE name IN ('runtime_turns', 'runtime_marks', 'episode_evidence')",
             [],
             |r| r.get(0),
         )
         .unwrap();
-    assert_eq!(tables, 2);
+    assert_eq!(tables, 3);
 }
 
 #[test]
