@@ -27,8 +27,9 @@ export const IconRuns = (p: P) => (
 );
 export const IconCompare = (p: P) => (
   <svg {...base(p)}>
-    <path d="M2.25 6.75c1.9 0 2.6-2.5 4.6-2.5s2.9 2.5 4.8 2.5c.9 0 1.5-.35 2.1-.85" />
-    <path d="M2.25 12.25c1.9 0 2.6-2.5 4.6-2.5s2.9 2.5 4.8 2.5c.9 0 1.5-.35 2.1-.85" opacity="0.55" />
+    <path d="M2.5 2.5v11h11" />
+    <path d="M4.5 10.5c1.5 0 2-4.5 4-4.5s2.25 2.5 4.25 2.5" />
+    <path d="M4.5 12c1.75 0 2.5-2.25 4.25-2.25s2.5 1 4 1" strokeDasharray="1.6 1.6" />
   </svg>
 );
 export const IconLab = (p: P) => (
