@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-98",
+  "title": "Spacecraft Fire Safety Experiment-I",
+  "acronym": "SAFFIRE-I",
+  "investigation_version": "4",
+  "version_reason": "Metadata update",
+  "modified": "03-Jun-2025",
+  "doi": "10.60555/0t15-1z43",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Saffire 1 enclosure in Cygnus",
+  "total_file_size_bytes": 12250600201.0,
+  "metadata_url_sha256": "501b5f625733e29c0c6ff0c12b3de1a3e960a159a8c8f8a21ba5c5803afe0570",
+  "retrieved_at": "2026-11-14T18:24:30.580371+00:00"
+}

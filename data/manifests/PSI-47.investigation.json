@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-47",
+  "title": "Dust and Aerosol Measurement Feasibility Test / Dust and Aerosol Measurement Feasibility Test-2",
+  "acronym": "DAFT / DAFT-2",
+  "investigation_version": "5",
+  "version_reason": "Additional documentation release",
+  "modified": "02-Jun-2025",
+  "doi": "10.60555/ztgj-d202",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "TSI P-Trak",
+  "total_file_size_bytes": 41765333.0,
+  "metadata_url_sha256": "60ff7a7d0ef34c3043dda4133f277045ba72addb1fb2fc2e9f02e0550d0eb389",
+  "retrieved_at": "2026-11-14T18:24:40.091008+00:00"
+}

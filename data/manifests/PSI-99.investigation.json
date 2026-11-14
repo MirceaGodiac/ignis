@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-99",
+  "title": "Spacecraft Fire Experiment-II",
+  "acronym": "SAFFIRE-II",
+  "investigation_version": "5",
+  "version_reason": "Metadata update",
+  "modified": "04-Jun-2025",
+  "doi": "10.60555/2chp-m469",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Cygnus Pressurized Cargo Module, SAFFIRE",
+  "total_file_size_bytes": 16931016137.0,
+  "metadata_url_sha256": "2c042a6bd82fa6b437cae61490d54ea91f890a52282bc5949b4a0119bcbf6633",
+  "retrieved_at": "2026-11-14T18:24:31.647876+00:00"
+}

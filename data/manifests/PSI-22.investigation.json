@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-22",
+  "title": "Advanced Combustion via Microgravity Experiments Electric-Field Effects on Laminar Diffusion Flames",
+  "acronym": "ACME E-FIELD Flames",
+  "investigation_version": "7",
+  "version_reason": "Metadata update",
+  "modified": "08-May-2026",
+  "doi": "10.60555/se5a-8c73",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Combustion Integrated Rack (CIR), ACME",
+  "total_file_size_bytes": 950212491107.0,
+  "metadata_url_sha256": "a491519f60b91c9eb2272e651846103f34006867fb74535911e8c18448e48a09",
+  "retrieved_at": "2026-11-14T18:23:44.197046+00:00"
+}

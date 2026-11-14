@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-10",
+  "title": "Advanced Combustion via Microgravity Experiments / Flame Design",
+  "acronym": "ACME/Flame Design",
+  "investigation_version": "1",
+  "version_reason": "New data release",
+  "modified": "20-Nov-2025",
+  "doi": "10.60555/w4zy-bt45",
+  "license": "",
+  "license_link": "",
+  "hardware": "Advanced Combustion via Microgravity Experiments (ACME), Combustion Integrated Rack (CIR), Reconfiguration of Combustion Integrated Rack (CIR)",
+  "total_file_size_bytes": 2180435304347,
+  "metadata_url_sha256": "a20756e7acf67f0046a21a3bce9bfca7f142cd5350350c0dad29997cf8fe28db",
+  "retrieved_at": "2026-11-14T18:23:04.909149+00:00"
+}
