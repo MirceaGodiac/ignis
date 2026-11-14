@@ -84,7 +84,7 @@ export function App() {
       <main id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
         {health.error && tab !== "research" && (
           <div className="refusal refusal-unavailable" role="status">
-            <strong>Server unavailable.</strong> Start it with <code>cargo run -p ignis-server -- --dev</code>.
+            <strong>Server unavailable.</strong> Start it with <code>cargo run -p ignis-cli -- serve --dev</code>.
           </div>
         )}
         {tab === "explore" && (

@@ -4,6 +4,7 @@ import type { Quantity } from "../contracts/generated";
 import { call, type CompareResult, type Origin } from "../api";
 import { asRefusal } from "../hooks";
 import { RefusalBox } from "../components/Panels";
+import { fmtGravity, fmtMeasured } from "../format";
 
 const QUANTITIES: Quantity[] = ["liquid_diameter", "visible_flame_diameter", "uv_flame_diameter", "front_position", "front_contour", "pressure", "temperature"];
 
@@ -64,7 +65,7 @@ export function Compare({ origin, runIds, clear }: { origin: Origin; runIds: str
                   <tr key={k}>
                     <th scope="row">{k}</th>
                     {r.columns.map((c) => (
-                      <td key={c.id}>{c[k] == null ? "—" : String(c[k])}</td>
+                      <td key={c.id}>{k === "gravity" ? fmtGravity(c.gravity) : c[k] == null ? "—" : String(c[k])}</td>
                     ))}
                     <td />
                   </tr>
@@ -73,7 +74,7 @@ export function Compare({ origin, runIds, clear }: { origin: Origin; runIds: str
                   <tr key={row.key} className={row.comparable ? "" : "incomparable"}>
                     <th scope="row">{row.key}</th>
                     {row.values.map((v, i) => (
-                      <td key={i}>{v ? `${v.value_si ?? "unresolved"} ${v.unit_si ?? ""}` : "not recorded"}</td>
+                      <td key={i}>{v ? (v.value_si == null ? "unresolved" : fmtMeasured(v.value_si, v.unit_si)) : "not recorded"}</td>
                     ))}
                     <td>{row.comparable ? "yes" : `no — ${row.reason}`}</td>
                   </tr>
