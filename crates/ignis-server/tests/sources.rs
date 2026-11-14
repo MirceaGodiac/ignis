@@ -801,12 +801,14 @@ async fn each_failure_outcome_is_distinct_and_never_a_url() {
         "the reason names the upstream status: {body}"
     );
 
-    // NASA answers 404 for a file the manifests know: still unavailable, not not_found.
+    // NASA answers 404 for a file the manifests know: gone, a corpus-integrity problem. Not
+    // retryable, and neither `not_found` (unknown id) nor `upstream_unavailable` (outage).
     let g = geode_answering(Answer::Status(404));
     let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
     let (st, _, body) = get(&r, &path).await;
-    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
-    assert_eq!(outcome(&body).0, "upstream_unavailable");
+    assert_eq!(st, StatusCode::NOT_FOUND);
+    assert_eq!(outcome(&body), ("source_missing".into(), "never".into()));
+    assert!(body.contains("corpus integrity"), "{body}");
 
     // Upstream timeout: unavailable with a retry hint.
     let g = geode_answering(Answer::Hang);
