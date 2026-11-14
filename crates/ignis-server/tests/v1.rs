@@ -9,7 +9,7 @@ use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use ignis_core::contracts::*;
-use ignis_core::services::{ModelService, ServiceResult};
+use ignis_core::services::{DatasetService, ModelService, ServiceResult};
 use ignis_server::v1::io::AuthMode;
 use ignis_server::v1::ResearchServices;
 use ignis_server::{app, fixture, ServeArgs, Services};
@@ -363,6 +363,16 @@ async fn unconfigured_services_are_capability_status_not_results() {
     let (st, e) = call(&r, "GET", "/api/v1/models", None, None).await;
     assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
     assert_eq!(e["code"], "capability_unavailable");
+    let (st, e) = call(
+        &r,
+        "POST",
+        "/api/v1/conditions",
+        None,
+        Some(json!({"schema_version": "dataset.v2"})),
+    )
+    .await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(e["code"], "capability_unavailable");
 
     let (st, doc) = call(&r, "GET", "/api/v1/openapi.json", None, None).await;
     assert_eq!(st, StatusCode::OK);
@@ -376,6 +386,7 @@ async fn unconfigured_services_are_capability_status_not_results() {
         "/uploads/initiate",
         "/uploads/{id}/content",
         "/uploads/complete",
+        "/conditions",
     ] {
         assert!(
             paths.contains_key(p),
@@ -915,4 +926,72 @@ async fn fixture_mode_serves_the_c0_contract_fixtures_through_the_same_routes() 
     // The registry-side /api/v1 is untouched by the fixture.
     let (_, real) = call(&r, "GET", "/api/v1/episodes", None, None).await;
     assert_eq!(real, json!([]));
+}
+
+/// `POST /api/v1/conditions` is a thin route over `DatasetService::conditions`: it validates the
+/// query, passes the host-derived scope, and returns the service's table unchanged.
+#[tokio::test]
+async fn conditions_route_serves_the_dataset_service_table() {
+    struct Table(ConditionsTable, Mutex<Vec<ConditionsQuery>>);
+    impl DatasetService for Table {
+        fn dataset(&self, _: &ExecutionScope, _: &DatasetId) -> ServiceResult<DatasetBundle> {
+            unreachable!("not asked")
+        }
+        fn conditions(
+            &self,
+            _: &ExecutionScope,
+            q: &ConditionsQuery,
+        ) -> ServiceResult<ConditionsTable> {
+            self.1.lock().unwrap().push(q.clone());
+            Ok(self.0.clone())
+        }
+    }
+    let crate_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let table: ConditionsTable = serde_json::from_str(
+        &std::fs::read_to_string(
+            crate_dir.join("../../fixtures/contracts/data/conditions_table.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let svc = Arc::new(Table(table.clone(), Mutex::new(Vec::new())));
+    let dir = tempfile::tempdir().unwrap();
+    let r = app(
+        args(dir.path(), AuthMode::Local),
+        Services {
+            experts: Vec::new(),
+            fixture_experts: fixture::experts(),
+            acquisition: None,
+            research: ResearchServices {
+                datasets: Some(svc.clone() as Arc<dyn DatasetService>),
+                ..Default::default()
+            },
+        },
+    );
+    let (st, caps) = call(&r, "GET", "/api/v1/capabilities", None, None).await;
+    assert_eq!(st, StatusCode::OK);
+    assert_eq!(caps["datasets"]["available"], true);
+
+    let q = json!({"schema_version": "dataset.v2", "include_envelopes": true, "page_size": 200});
+    let (st, body) = call(&r, "POST", "/api/v1/conditions", None, Some(q)).await;
+    assert_eq!(st, StatusCode::OK, "{body}");
+    let got: ConditionsTable = serde_json::from_value(body).unwrap();
+    assert_eq!(got, table, "the service's table, unchanged");
+    let asked = svc.1.lock().unwrap().clone();
+    assert_eq!(asked.len(), 1);
+    assert!(asked[0].include_envelopes);
+    assert_eq!(asked[0].page_size, Some(200));
+
+    // An invalid query is refused before the service sees it.
+    let (st, e) = call(
+        &r,
+        "POST",
+        "/api/v1/conditions",
+        None,
+        Some(json!({"schema_version": "dataset.v2", "page_size": 0})),
+    )
+    .await;
+    assert_eq!(st, StatusCode::UNPROCESSABLE_ENTITY, "{e}");
+    assert_eq!(e["code"], "invalid_request");
+    assert_eq!(svc.1.lock().unwrap().len(), 1);
 }

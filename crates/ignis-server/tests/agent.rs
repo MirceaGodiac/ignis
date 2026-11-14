@@ -239,6 +239,10 @@ async fn capabilities_report_the_runtime_without_crashing() {
     )
     .await;
     assert_eq!(caps["agent_runtime"]["available"], true, "{caps}");
+    assert!(caps["agent_runtime"]["detail"]
+        .as_str()
+        .unwrap()
+        .contains("harness h1 sha256:"));
     let build = &caps["runtime_build"];
     assert_eq!(build["version"], "0.169.0");
     assert_eq!(build["transport"], "stdio");
@@ -336,6 +340,19 @@ async fn a_turn_on_the_fixture_episode_streams_runtime_events_and_a_denied_appro
     let (_, rec) = call(&r, "GET", &format!("{base}/episodes/{id}"), None).await;
     assert_eq!(rec["runtime"]["runtime"], "codex_app_server");
     assert_eq!(rec["status"], "completed");
+    // The harness bundle the runtime started with is pinned on the episode and said in the log.
+    let pin = &rec["pins"]["harness"];
+    assert_eq!(pin["label"], "h1", "{rec}");
+    assert_eq!(pin["runtime_build"], rec["runtime"]["runtime_build_id"]);
+    let digest = pin["digest"].as_str().unwrap();
+    let short = format!("harness h1 {}", &digest[..7 + 12]);
+    assert!(
+        evs.iter().any(|e| to_status(e) == Some("running")
+            && e["body"]["payload"]["reason"]
+                .as_str()
+                .is_some_and(|r| r.contains(&short))),
+        "{evs:?}"
+    );
     let (_, other) = call(&r, "GET", "/api/v1/episodes", None).await;
     assert!(other
         .as_array()
