@@ -469,15 +469,34 @@ fn front_metrics(a: &AnalysisArtifact, truth: &Value) -> Metrics {
 }
 
 pub fn score_case(a: &AnalysisArtifact, revealed: &Revealed, spec: &Spec) -> Case {
-    let truth = &revealed.continuation;
     let seal = &revealed.seal;
+    score_against(
+        a,
+        &revealed.continuation,
+        seal["run_id"].as_str().unwrap_or_default(),
+        seal["sealed"]["split_partition"].clone(),
+        revealed.group_id.clone(),
+        spec,
+    )
+}
+
+/// Score one artifact against its continuation, with the case identity given directly (the
+/// evaluator service has a commitment, not a vault seal record).
+pub fn score_against(
+    a: &AnalysisArtifact,
+    truth: &Value,
+    run_id: &str,
+    partition: Value,
+    group_id: Option<String>,
+    spec: &Spec,
+) -> Case {
     let mut case = Case {
         case_id: a.id.clone(),
-        run_id: seal["run_id"].as_str().unwrap_or_default().to_string(),
+        run_id: run_id.to_string(),
         release_id: a.model_release_id.clone(),
         prefix_hash: a.prefix_hash.clone(),
-        partition: seal["sealed"]["split_partition"].clone(),
-        group_id: revealed.group_id.clone(),
+        partition,
+        group_id,
         session_id: truth.get("session_id").cloned().unwrap_or(Value::Null),
         kind: enum_str(&a.kind),
         metrics: BTreeMap::new(),

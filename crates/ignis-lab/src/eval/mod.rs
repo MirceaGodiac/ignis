@@ -11,9 +11,12 @@
 pub mod bootstrap;
 pub mod compare;
 pub mod deposit;
+pub mod protocol;
 pub mod report;
+pub mod scorecard;
 pub mod scores;
 pub mod scoring;
+pub mod service;
 pub mod vault;
 
 use std::path::PathBuf;
@@ -149,6 +152,19 @@ pub enum EvalCmd {
         /// Also write Markdown here.
         #[arg(long)]
         md: Option<PathBuf>,
+    },
+    /// Render an EvaluationResult JSON as a Markdown scorecard (validates the result first).
+    Scorecard {
+        result: PathBuf,
+        /// Write the Markdown here instead of printing it in the JSON output.
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
+    /// Freeze an evaluation protocol JSON (write-once per id and version) and print its frozen_hash.
+    FreezeProtocol {
+        protocol: PathBuf,
+        #[arg(long, default_value = "configs/evaluation/protocols")]
+        dir: PathBuf,
     },
 }
 
@@ -372,6 +388,35 @@ pub fn run(
                 compare::compare(&grant(), &release_ids, &o)
             })(),
             out.as_deref(),
+        ),
+        EvalCmd::Scorecard { result, out } => emit(
+            (|| {
+                let r: ignis_core::contracts::EvaluationResult =
+                    serde_json::from_str(&std::fs::read_to_string(&result)?)?;
+                r.validate()?;
+                let md = scorecard::render(&r);
+                match &out {
+                    Some(p) => {
+                        std::fs::write(p, &md)?;
+                        Ok(json!({"scorecard": p.display().to_string(), "result_id": r.result_id}))
+                    }
+                    None => Ok(json!({"result_id": r.result_id, "markdown": md})),
+                }
+            })(),
+            None,
+        ),
+        EvalCmd::FreezeProtocol {
+            protocol: path,
+            dir,
+        } => emit(
+            (|| {
+                let p: protocol::Protocol = serde_json::from_str(&std::fs::read_to_string(&path)?)?;
+                let f = protocol::freeze(&dir, &p)?;
+                Ok(
+                    json!({"protocol_id": f.protocol.protocol_id, "version": f.protocol.version, "frozen_hash": f.frozen_hash}),
+                )
+            })(),
+            None,
         ),
         EvalCmd::Report { result, md } => emit(
             (|| {
