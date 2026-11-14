@@ -17,6 +17,7 @@ import { href } from "./router";
 import { TOOL_LABEL } from "../views/turns";
 import { isTypedArtifact } from "../research/artifactViews";
 import { ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
+import { SourceOriginal } from "./SourceOriginal";
 
 const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Route step", release: "Model release" };
 
@@ -251,9 +252,10 @@ function EvidenceItem({ evidence }: { evidence: EvidenceRef }) {
           )}
         </dl>
       </div>
+      {(kind === "page" || kind === "video") && <SourceOriginal evidence={evidence} />}
       {kind === "page" && loc && (
         <div className="panel-sec">
-          <h3>{pageCaption(loc)}</h3>
+          <h3>Parsed text, {pageCaption(loc)}</h3>
           <div className="page-frame" aria-label={`Text of ${pageCaption(loc)} with the cited region marked`}>
             {read.isPending && <p className="muted">Reading the page…</p>}
             {read.error && <ErrorNote error={read.error} title="The page could not be read" />}
@@ -261,7 +263,7 @@ function EvidenceItem({ evidence }: { evidence: EvidenceRef }) {
             {bboxStyle(loc.bbox) && <div className="bbox" style={bboxStyle(loc.bbox)!} title="Cited region" />}
           </div>
           {read.data && !read.data.complete && <p className="muted" style={{ fontSize: 12 }}>Partial read: the source continues on later pages.</p>}
-          <p className="muted" style={{ fontSize: 12 }}>The page shows the parse-view text; the box marks the cited region. The PDF renderer is not connected yet.</p>
+          <p className="muted" style={{ fontSize: 12 }}>What IGNIS read from this page (parse view); the box marks the cited region.</p>
         </div>
       )}
     </>

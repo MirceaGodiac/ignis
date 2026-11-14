@@ -8,6 +8,7 @@ import type {
   DatasetBundle,
   EvaluationResult,
   ExecutionRecord,
+  SourceAccess,
   ModelRelease,
   ModelSpec,
   ReadResult,
@@ -30,6 +31,9 @@ import releaseW0 from "../../../fixtures/contracts/models/release_w0.json";
 import modelSpec from "../../../fixtures/contracts/models/model_spec.json";
 import datasetBundle from "../../../fixtures/contracts/data/dataset_bundle.json";
 import visualBundle from "../../../fixtures/contracts/data/visual_bundle_pixel_only.json";
+import accessDirect from "../../../fixtures/contracts/evidence/source_access_direct.json";
+import accessProxy from "../../../fixtures/contracts/evidence/source_access_proxy.json";
+import accessLinkOut from "../../../fixtures/contracts/evidence/source_access_link_out.json";
 import executionRecord from "../../../fixtures/contracts/research/execution_record.json";
 import evaluationResult from "../../../fixtures/contracts/evaluation/result_dev.json";
 import manifest from "../../../fixtures/contracts/manifest.json";
@@ -54,6 +58,8 @@ export const FIXTURES = {
   modelSpec: as<ModelSpec>(modelSpec),
   datasetBundle: as<DatasetBundle>(datasetBundle),
   visualBundle: as<VisualObservationBundle>(visualBundle),
+  /** K1.18 fixtures: one per access mode. Their URLs are example.org placeholders that load nothing. */
+  sourceAccess: [as<SourceAccess>(accessDirect), as<SourceAccess>(accessProxy), as<SourceAccess>(accessLinkOut)],
   /** Mock-mode artifact refs for the typed viewers (T7). The refs are made here; the payloads are the C0 fixtures. */
   typedArtifacts: [
     typedRef("fixture-artifact-exec-record", "ExecutionRecord", as<ExecutionRecord>(executionRecord)),
