@@ -87,6 +87,121 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "AnswerProblem": {
+      "additionalProperties": false,
+      "properties": {
+        "block": {
+          "description": "0-based index into `blocks`.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "claim_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClaimId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detail": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/AnswerProblemKind"
+        }
+      },
+      "required": [
+        "kind",
+        "detail"
+      ],
+      "type": "object"
+    },
+    "AnswerProblemKind": {
+      "description": "Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.",
+      "oneOf": [
+        {
+          "const": "unknown_evidence",
+          "description": "Cited evidence was not returned by a tool result in this episode.",
+          "type": "string"
+        },
+        {
+          "const": "unknown_artifact",
+          "description": "A cited artifact does not exist in this episode's workspace.",
+          "type": "string"
+        },
+        {
+          "const": "unresolved_pointer",
+          "description": "A JSON Pointer is malformed, does not resolve, or resolves to a value without a unit.",
+          "type": "string"
+        },
+        {
+          "const": "kind_support_mismatch",
+          "description": "The support does not fit the claim kind (a prediction cited as an observation, a computed\nvalue cited to prose, a predicted series read from a non-model artifact).",
+          "type": "string"
+        },
+        {
+          "const": "unpinned_release",
+          "description": "A release is used but not pinned on the episode (or not listed in `model_releases`).",
+          "type": "string"
+        },
+        {
+          "const": "unknown_claim",
+          "description": "A block names a claim the answer does not define.",
+          "type": "string"
+        },
+        {
+          "const": "view_contract_mismatch",
+          "description": "A view reads an artifact of the wrong contract.",
+          "type": "string"
+        },
+        {
+          "const": "ungrounded_number",
+          "description": "M7b: a single number is cited by pointer without being stated; bind it in the claim's\n`values` (stated value, unit, row keys, column) so the host can check it.",
+          "type": "string"
+        },
+        {
+          "const": "stale_snapshot",
+          "description": "M7b: a value binding names a digest other than the artifact's (another version of the\ntable), or the artifact was built from a corpus snapshot other than the episode's pin.",
+          "type": "string"
+        },
+        {
+          "const": "unresolved_row",
+          "description": "M7b: the row keys select no row or more than one, or a table is not an array or object of\ncolumns, or a pointer steps through an array by position.",
+          "type": "string"
+        },
+        {
+          "const": "unknown_column",
+          "description": "M7b: the column does not resolve in the selected row, or holds no number.",
+          "type": "string"
+        },
+        {
+          "const": "unit_mismatch",
+          "description": "M7b: the cell states no unit, a unit is not registered, or the stated unit measures another\ndimension.",
+          "type": "string"
+        },
+        {
+          "const": "value_mismatch",
+          "description": "M7b: the stated value differs from the cell in SI.",
+          "type": "string"
+        },
+        {
+          "const": "ungrounded_derivation",
+          "description": "M7b: a number computed by `analysis_execute` does not cite that run's `ExecutionRecord` and\nits exact inputs, or a derivation is cited for a number no such run computed.",
+          "type": "string"
+        },
+        {
+          "const": "invalid_structure",
+          "description": "Anything else structural (duplicate ids, empty answer, missing limitations, a support check\nwritten by the agent).",
+          "type": "string"
+        }
+      ]
+    },
     "AnswerStatus": {
       "oneOf": [
         {
@@ -191,6 +306,13 @@
         },
         "text": {
           "type": "string"
+        },
+        "values": {
+          "description": "v2 (M7b): every number the claim states, each bound to the cell it was read from. The host\nresolves each binding against the pinned artifact and compares the stated value, so a number\nin this slot is never a bare numeral.",
+          "items": {
+            "$ref": "#/$defs/ClaimValue"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -277,6 +399,65 @@
           "type": "object"
         }
       ]
+    },
+    "ClaimValue": {
+      "additionalProperties": false,
+      "description": "A number a claim states, bound to the reference it is read from (M7b). The reference is the\nsource of truth: the host resolves it and records what it found in `resolved`, which is the value\nthe answer shows. A stated `value` is an assertion, compared on resolve in SI (exactly, or after\nrounding to `significant_digits`); the only tolerance is the floating-point error of a unit\nconversion. What a failed resolution does (refuse, or only record it in the answer's\n`grounding` report) is the host's `GroundingMode`.",
+      "properties": {
+        "derivation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueDerivation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required exactly when the cited artifact was written by an `analysis_execute` run: the run\nthat computed the number and everything it read."
+        },
+        "resolved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResolvedValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Set by the host: what the reference resolved to. Never submitted."
+        },
+        "significant_digits": {
+          "description": "`value` is the referenced number rounded to this many significant decimal digits (1..=17).\nAbsent: `value` is the number itself.",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "unit": {
+          "description": "The unit of `value` (`mm`, `s`, `kPa`, `1` for dimensionless); present exactly with `value`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "description": "The number as the claim states it, in `unit`. Absent: the host renders the resolved value.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
     },
     "DatasetId": {
       "minLength": 1,
@@ -509,10 +690,97 @@
       ],
       "type": "object"
     },
+    "GroundingLevel": {
+      "description": "How deep a resolved number was checked.",
+      "oneOf": [
+        {
+          "const": "cell",
+          "description": "Read from a pinned table cell (raw or SI, with the unit the table states).",
+          "type": "string"
+        },
+        {
+          "const": "text",
+          "description": "Found as text in a retrieved quote.",
+          "type": "string"
+        }
+      ]
+    },
+    "GroundingMode": {
+      "description": "What `answer_submit` does with a grounding problem.",
+      "oneOf": [
+        {
+          "const": "log",
+          "description": "Store the answer and record every grounding problem in its `grounding` report.",
+          "type": "string"
+        },
+        {
+          "const": "enforce",
+          "description": "Refuse the answer with the grounding problems among the others.",
+          "type": "string"
+        }
+      ]
+    },
+    "GroundingReport": {
+      "additionalProperties": false,
+      "description": "What the host found when it resolved an answer's numbers (M7b), under the mode it ran in.",
+      "properties": {
+        "grounded": {
+          "description": "Value references that resolved (and matched, where a value was stated).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": {
+          "$ref": "#/$defs/GroundingMode"
+        },
+        "problems": {
+          "description": "The grounding problems (`AnswerProblemKind::is_grounding`). Under `enforce` an answer with\nany is refused, so a stored one has none.",
+          "items": {
+            "$ref": "#/$defs/AnswerProblem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "grounded"
+      ],
+      "type": "object"
+    },
     "JobId": {
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "KeyEquals": {
+      "additionalProperties": false,
+      "properties": {
+        "equals": {
+          "$ref": "#/$defs/KeyValue"
+        },
+        "field": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "equals"
+      ],
+      "type": "object"
+    },
+    "KeyValue": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "A key value, compared for equality with the stored JSON value (numbers exactly)."
     },
     "ObservationId": {
       "minLength": 1,
@@ -608,6 +876,49 @@
           "type": "string"
         }
       ]
+    },
+    "ResolvedValue": {
+      "additionalProperties": false,
+      "description": "What a value reference resolved to, written by the host.",
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/GroundingLevel"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "level",
+        "value",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "RowSelector": {
+      "additionalProperties": false,
+      "description": "Selects exactly one row of a table by its key fields.",
+      "properties": {
+        "table": {
+          "description": "JSON Pointer from the current record to the table: an array of records (row layout), or an\nobject of equal-length column arrays (column layout, e.g. `times_s` and `mean`).",
+          "type": "string"
+        },
+        "where": {
+          "description": "Key fields the selected row holds; at least one, each named once. Exactly one row must\nmatch. In row layout `field` points inside a record (`/run/run_id`); in column layout it\nnames a column array of the table (`/times_s`).",
+          "items": {
+            "$ref": "#/$defs/KeyEquals"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "table",
+        "where"
+      ],
+      "type": "object"
     },
     "RunId": {
       "minLength": 1,
@@ -897,6 +1208,84 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ValueDerivation": {
+      "additionalProperties": false,
+      "description": "How a derived number was computed: the `ExecutionRecord` of the `analysis_execute` run whose\noutput holds the cell, and every input that run mounted.",
+      "properties": {
+        "computation": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ArtifactId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "computation"
+      ],
+      "type": "object"
+    },
+    "ValueSource": {
+      "description": "Where a number is read from. A new kind (e.g. a dataset snapshot cell, once the v1 data routes\npublish snapshot ids; a PDF table cell, once table parse views exist) is a contract change.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "One cell of a JSON artifact (a `ConditionsTable`, a `DatasetBundle`, an analysis output),\naddressed by key fields, never by position. Cell-level grounding.",
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "column": {
+              "description": "RFC 6901 JSON Pointer from the selected record to the cell. It never steps through an\narray: an element is selected by a `RowSelector`. The cell is a number (its unit is the\nsibling `unit`/`unit_si`/`raw_unit`, or the nearest enclosing `unit`) or an object\nholding `value_si` + `unit_si` or `value` + `unit`.",
+              "type": "string"
+            },
+            "kind": {
+              "const": "artifact_cell",
+              "type": "string"
+            },
+            "rows": {
+              "description": "Row selection, outermost first. Empty when the artifact (or the object `column` starts\nfrom) is itself the record.",
+              "items": {
+                "$ref": "#/$defs/RowSelector"
+              },
+              "type": "array"
+            },
+            "sha256": {
+              "$ref": "#/$defs/Digest",
+              "description": "The content digest the value was read from: the pinned snapshot. A different digest\n(another version of the table) is stale."
+            }
+          },
+          "required": [
+            "kind",
+            "artifact_id",
+            "sha256",
+            "column"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A number written in the quote of evidence a retrieval tool returned in this episode (PDF\ntext). Text-level grounding only: the host checks that the stated number, followed by its\nunit, occurs in the quote the tool returned, not what the number measures. Numbers in PDF\ntables are not covered until table parse views exist.",
+          "properties": {
+            "evidence_id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence_quote",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "evidence_id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "ViewSpec": {
       "description": "The closed catalog of answer views (K1.4, co-designed with the workspace). The agent places a\ncomponent by naming it with references; it never sends markup. Every reference must be one the\nanswer lists (evidence, artifacts, releases), so a view cannot show what the answer does not cite.\nA new kind is a contract change.",
       "oneOf": [
@@ -1085,6 +1474,17 @@
         "$ref": "#/$defs/EvidenceRef"
       },
       "type": "array"
+    },
+    "grounding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GroundingReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "v2 (M7b): what the host found when it resolved the claims' numbers; absent when the answer\nstates none."
     },
     "limitations": {
       "default": [],

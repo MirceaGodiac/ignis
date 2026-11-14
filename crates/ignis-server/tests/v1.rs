@@ -42,6 +42,7 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         auth,
         internal_routes: false,
         enable_models: true,
+        answer_grounding: Default::default(),
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
