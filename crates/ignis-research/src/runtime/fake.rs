@@ -381,6 +381,15 @@ fn handle(sh: &Arc<Shared>, method: &str, id: Value, params: Value) {
             sh.wake.notify_all();
             sh.out.send(ok(json!({})));
         }
+        // API-key login: accepted when a key is given (the key itself is never logged).
+        "account/login/start" => {
+            let key = params["apiKey"].as_str().unwrap_or("");
+            if params["type"] == "apiKey" && !key.is_empty() {
+                sh.out.send(ok(json!({"type": "apiKey"})));
+            } else {
+                sh.out.send(err(-32602, "invalid login"));
+            }
+        }
         _ => sh.out.send(err(-32601, "method not found")),
     }
 }

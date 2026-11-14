@@ -1,0 +1,968 @@
+//! [`ClaudeBridge`]: the [`AgentRuntime`] over Claude Code in headless mode (ADR 17).
+//!
+//! - One `claude -p` process per turn, `--output-format stream-json`. The Claude session id (a UUID
+//!   IGNIS chooses with `--session-id`, then `--resume`s) is the episode's runtime thread.
+//! - Claude Code owns the model/tool loop. Its built-in tools are off (`--tools ""`), user/project
+//!   settings and other MCP servers are ignored; the only tools are the IGNIS MCP server's read and
+//!   compute tools, pre-allowed, so no approval is ever requested (`--permission-mode dontAsk`
+//!   denies anything else).
+//! - Each workspace has its own config directory (sessions, credentials) unless a shared login home
+//!   is configured. The child gets a cleared environment: the forwarded credential variables, the
+//!   MCP token of this turn, and the few variables the OS needs to start a process.
+//! - stream-json lines are translated into the item shapes of [`super::mapping`] and recorded through
+//!   the shared [`Recorder`], so both runtimes produce the same events.
+//! - Interrupt kills the turn's process. A turn left open by a previous host process cannot be
+//!   reconciled from the outside and is settled as interrupted; its messages are not re-sent.
+
+use std::collections::HashMap;
+use std::io::{BufRead, BufReader, Read, Write};
+use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
+use std::sync::{Arc, Mutex, Weak};
+use std::time::Duration;
+
+use ignis_core::contracts::{
+    ApprovalDecision, ApprovalId, Causation, EpisodeId, EpisodeStatus, ErrorCode, ErrorEnvelope,
+    ExecutionScope, Origin, RetryPolicy, RuntimeBuildId, RuntimeKind, RuntimeThreadRef, Timestamp,
+};
+use ignis_core::hashing::sha256_hex;
+use ignis_core::services::{ArtifactStore, ServiceResult};
+use serde_json::{json, Value};
+
+use super::bridge::CommitHook;
+use super::grants::{McpAttachment, MCP_TOKEN_ENV};
+use super::mapping::{self, map_item, map_turn_completed, Mapped, StopReason, IGNIS_MCP_SERVER};
+use super::preflight::{sha256_file, RuntimeBuildManifest, RuntimeProfile, LIVE};
+use super::recorder::Recorder;
+use super::AgentRuntime;
+use crate::store::{RuntimeChange, RuntimeRecord};
+use crate::ResearchStore;
+
+/// The fixed part of every `claude` invocation; part of the build id, so a change is visible.
+const FIXED_ARGS: &[&str] = &[
+    "-p",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--setting-sources",
+    "",
+    "--disable-slash-commands",
+    "--permission-mode",
+    "dontAsk",
+];
+
+/// Variables a process needs to start on the host OS (no secrets); everything else is cleared.
+const OS_ENV: &[&str] = &[
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TZ",
+    "SYSTEMROOT",
+    "TEMP",
+    "TMP",
+    "COMSPEC",
+];
+
+/// stderr kept for the failure reason of a turn.
+const STDERR_TAIL: usize = 4096;
+
+/// Configuration of the Claude Code runtime.
+#[derive(Clone)]
+pub struct ClaudeConfig {
+    /// Native `claude` executable.
+    pub binary: PathBuf,
+    /// Runtime state root: `<home>/ws-<hash>/` is one workspace's config directory and episode cwds.
+    pub home: PathBuf,
+    pub model: Option<String>,
+    /// Environment variables forwarded to the child: the credentials (a plan token from
+    /// `claude setup-token`, or an Anthropic API key).
+    pub pass_env: Vec<String>,
+    /// One config directory signed in with `claude /login`, shared by every workspace instead of an
+    /// empty one each (their sessions then share that directory).
+    pub login_home: Option<PathBuf>,
+    pub mcp: Option<McpAttachment>,
+    /// Longest a turn may run before it is stopped (a resource budget, not a semantic limit).
+    pub turn_timeout: Duration,
+}
+
+impl ClaudeConfig {
+    pub fn new(binary: impl Into<PathBuf>, home: impl Into<PathBuf>) -> Self {
+        ClaudeConfig {
+            binary: binary.into(),
+            home: home.into(),
+            model: None,
+            pass_env: vec!["CLAUDE_CODE_OAUTH_TOKEN".into(), "ANTHROPIC_API_KEY".into()],
+            login_home: None,
+            mcp: None,
+            turn_timeout: Duration::from_secs(60 * 60),
+        }
+    }
+
+    fn credentials(&self) -> &'static str {
+        if self.login_home.is_some() {
+            "shared_login_home"
+        } else {
+            "environment"
+        }
+    }
+}
+
+/// Check the binary and that some credential is configured. `Err` is a reason for `/capabilities`.
+pub fn claude_preflight(cfg: &ClaudeConfig) -> Result<RuntimeBuildManifest, String> {
+    let bin = &cfg.binary;
+    let has_env = cfg
+        .pass_env
+        .iter()
+        .any(|k| std::env::var_os(k).is_some_and(|v| !v.is_empty()));
+    match &cfg.login_home {
+        Some(h) if !h.is_dir() => {
+            return Err(format!("no Claude login directory at {}", h.display()));
+        }
+        None if !has_env => {
+            return Err(format!(
+                "no Claude credential: set one of {} (a plan token from `claude setup-token`, or an API key), or IGNIS_CLAUDE_LOGIN_HOME",
+                cfg.pass_env.join(", ")
+            ));
+        }
+        _ => {}
+    }
+    let out = Command::new(bin)
+        .arg("--version")
+        .stdin(Stdio::null())
+        .output()
+        .map_err(|e| format!("run {} --version: {e}", bin.display()))?;
+    if !out.status.success() {
+        return Err(format!(
+            "{} --version failed: {}",
+            bin.display(),
+            out.status
+        ));
+    }
+    let text = String::from_utf8_lossy(&out.stdout);
+    let version = text
+        .split_whitespace()
+        .next()
+        .filter(|v| v.chars().next().is_some_and(|c| c.is_ascii_digit()))
+        .ok_or_else(|| format!("unexpected `claude --version` output: {}", text.trim()))?
+        .to_string();
+    let binary_sha256 = sha256_file(bin).map_err(|e| format!("hash {}: {e}", bin.display()))?;
+    let args_sha256 = sha256_hex(FIXED_ARGS.join("\u{1f}").as_bytes());
+    let id = format!(
+        "claude-code-{version}+{}.{}",
+        &binary_sha256[..12],
+        &args_sha256[..12]
+    );
+    Ok(RuntimeBuildManifest {
+        runtime_build_id: RuntimeBuildId::new(id).map_err(|e| e.to_string())?,
+        runtime: "claude_code",
+        user_agent: format!("claude-code/{version}"),
+        version,
+        binary_sha256,
+        binary_hash_pinned: false,
+        protocol_schema_sha256: args_sha256,
+        transport: "stdio stream-json (one process per turn)",
+        profile: RuntimeProfile::Public,
+        config_overrides: FIXED_ARGS.iter().map(|s| s.to_string()).collect(),
+        model: cfg.model.clone(),
+        forwarded_env: cfg.pass_env.clone(),
+        credentials: cfg.credentials(),
+        preflight_at: Timestamp::now(),
+    })
+}
+
+// ------------------------------------------------------------------------------ translation
+
+/// Claude Code stream-json → the item shapes [`super::mapping`] records. One per turn.
+pub struct Translator {
+    turn: String,
+    /// tool_use id → (server, tool)
+    tools: HashMap<String, (String, String)>,
+}
+
+/// `mcp__<server>__<tool>` → (server, tool); anything else is reported under server `claude`.
+fn split_tool(name: &str) -> (String, String) {
+    name.strip_prefix("mcp__")
+        .and_then(|rest| rest.split_once("__"))
+        .map(|(s, t)| (s.to_string(), t.to_string()))
+        .unwrap_or_else(|| ("claude".to_string(), name.to_string()))
+}
+
+fn result_text(content: &Value) -> String {
+    match content {
+        Value::String(s) => s.clone(),
+        Value::Array(parts) => parts
+            .iter()
+            .filter_map(|p| p.get("text").and_then(Value::as_str))
+            .collect::<Vec<_>>()
+            .join("\n"),
+        Value::Null => String::new(),
+        other => other.to_string(),
+    }
+}
+
+impl Translator {
+    pub fn new(turn: impl Into<String>) -> Self {
+        Translator {
+            turn: turn.into(),
+            tools: HashMap::new(),
+        }
+    }
+
+    /// Map one stream-json line. The `result` line is returned separately; it ends the turn.
+    pub fn line(&mut self, v: &Value) -> (Vec<Mapped>, Option<Value>) {
+        let turn = Some(self.turn.as_str());
+        match v.get("type").and_then(Value::as_str).unwrap_or("") {
+            "assistant" => {
+                let msg = v.get("message").cloned().unwrap_or(Value::Null);
+                let mid = msg
+                    .get("id")
+                    .and_then(Value::as_str)
+                    .unwrap_or("msg")
+                    .to_string();
+                let mut out = vec![];
+                for (i, block) in msg
+                    .get("content")
+                    .and_then(Value::as_array)
+                    .into_iter()
+                    .flatten()
+                    .enumerate()
+                {
+                    match block.get("type").and_then(Value::as_str) {
+                        Some("text") => {
+                            let text = block.get("text").and_then(Value::as_str).unwrap_or("");
+                            if text.is_empty() {
+                                continue;
+                            }
+                            out.extend(map_item(
+                                turn,
+                                &json!({"id": format!("{mid}-{i}"), "type": "agentMessage", "text": text}),
+                                true,
+                            ));
+                        }
+                        Some("tool_use") => {
+                            let Some(id) = block.get("id").and_then(Value::as_str) else {
+                                continue;
+                            };
+                            let (server, tool) =
+                                split_tool(block.get("name").and_then(Value::as_str).unwrap_or(""));
+                            self.tools
+                                .insert(id.to_string(), (server.clone(), tool.clone()));
+                            out.extend(map_item(
+                                turn,
+                                &json!({"id": id, "type": "mcpToolCall", "server": server,
+                                        "tool": tool, "status": "inProgress"}),
+                                false,
+                            ));
+                        }
+                        // Thinking and other blocks carry no event.
+                        _ => {}
+                    }
+                }
+                (out, None)
+            }
+            "user" => {
+                let mut out = vec![];
+                for block in v
+                    .pointer("/message/content")
+                    .and_then(Value::as_array)
+                    .into_iter()
+                    .flatten()
+                    .filter(|b| b.get("type").and_then(Value::as_str) == Some("tool_result"))
+                {
+                    let Some(id) = block.get("tool_use_id").and_then(Value::as_str) else {
+                        continue;
+                    };
+                    let (server, tool) = self
+                        .tools
+                        .get(id)
+                        .cloned()
+                        .unwrap_or_else(|| ("claude".into(), "unknown".into()));
+                    let text = result_text(block.get("content").unwrap_or(&Value::Null));
+                    let failed = block
+                        .get("is_error")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false);
+                    // The IGNIS server's results are ToolResult JSON; keep anything else as text.
+                    let value = serde_json::from_str::<Value>(&text)
+                        .unwrap_or_else(|_| json!({ "text": text }));
+                    let mut item = json!({"id": id, "type": "mcpToolCall", "server": server,
+                                          "tool": tool,
+                                          "status": if failed { "failed" } else { "completed" },
+                                          "result": {"structuredContent": value}});
+                    if failed {
+                        item["error"] = json!({ "message": text });
+                    }
+                    out.extend(map_item(turn, &item, true));
+                }
+                (out, None)
+            }
+            "result" => (vec![], Some(v.clone())),
+            "system" => {
+                // Say so when the IGNIS server did not connect: the turn then has no tools.
+                let ignis_down = v
+                    .get("mcp_servers")
+                    .and_then(Value::as_array)
+                    .into_iter()
+                    .flatten()
+                    .any(|s| {
+                        s.get("name").and_then(Value::as_str) == Some(IGNIS_MCP_SERVER)
+                            && s.get("status").and_then(Value::as_str) != Some("connected")
+                    });
+                if ignis_down {
+                    (
+                        vec![Mapped::Opaque {
+                            method: "claude/system".into(),
+                            payload: v.clone(),
+                            causation: Causation {
+                                runtime_turn_id: Some(self.turn.clone()),
+                                ..Default::default()
+                            },
+                            mark: None,
+                        }],
+                        None,
+                    )
+                } else {
+                    (vec![], None)
+                }
+            }
+            // Partial messages and rate-limit notices are repeated in the lines above or the result.
+            "stream_event" | "rate_limit_event" => (vec![], None),
+            other => (
+                vec![Mapped::Opaque {
+                    method: format!("claude/{other}"),
+                    payload: v.clone(),
+                    causation: Causation {
+                        runtime_turn_id: Some(self.turn.clone()),
+                        ..Default::default()
+                    },
+                    mark: None,
+                }],
+                None,
+            ),
+        }
+    }
+}
+
+/// The Codex-shaped turn snapshot of a finished turn, for [`map_turn_completed`].
+pub fn turn_snapshot(turn: &str, result: Option<&Value>, exit: &str, stderr: &str) -> Value {
+    match result {
+        Some(r) => {
+            let ok = r.get("subtype").and_then(Value::as_str) == Some("success")
+                && !r.get("is_error").and_then(Value::as_bool).unwrap_or(false);
+            if ok {
+                json!({"id": turn, "status": "completed"})
+            } else {
+                let msg = r
+                    .get("result")
+                    .and_then(Value::as_str)
+                    .filter(|s| !s.is_empty())
+                    .or_else(|| r.get("subtype").and_then(Value::as_str))
+                    .unwrap_or("error");
+                json!({"id": turn, "status": "failed", "error": {"message": msg}})
+            }
+        }
+        None => json!({"id": turn, "status": "failed", "error": {"message":
+            format!("Claude Code exited ({exit}) without a result: {}", stderr.trim())}}),
+    }
+}
+
+// ------------------------------------------------------------------------------ bridge
+
+pub struct ClaudeBridge {
+    inner: Arc<Inner>,
+}
+
+struct Inner {
+    cfg: ClaudeConfig,
+    manifest: RuntimeBuildManifest,
+    store: Arc<ResearchStore>,
+    rec: Recorder,
+    on_commit: CommitHook,
+    state: Mutex<State>,
+    me: Weak<Inner>,
+}
+
+#[derive(Default)]
+struct State {
+    slots: HashMap<EpisodeId, Slot>,
+    shutdown: bool,
+}
+
+#[derive(Default)]
+struct Slot {
+    /// A driver thread is running this episode's turns.
+    busy: bool,
+    /// Work was requested since the driver last looked.
+    dirty: bool,
+    /// Turn key of the turn this process runs.
+    turn_key: Option<String>,
+    child: Option<Arc<Mutex<Child>>>,
+    stop: Option<StopReason>,
+    origin: Option<Origin>,
+}
+
+fn unavailable(msg: impl std::fmt::Display) -> ErrorEnvelope {
+    ErrorEnvelope::new(
+        ErrorCode::CapabilityUnavailable,
+        format!("agent runtime unavailable: {msg}"),
+        RetryPolicy::AfterDelay { seconds: 5 },
+    )
+}
+
+impl ClaudeBridge {
+    pub fn new(
+        cfg: ClaudeConfig,
+        manifest: RuntimeBuildManifest,
+        store: Arc<ResearchStore>,
+        artifacts: Arc<dyn ArtifactStore>,
+        on_commit: CommitHook,
+    ) -> Self {
+        let rec = Recorder {
+            store: store.clone(),
+            artifacts,
+            on_commit: on_commit.clone(),
+        };
+        let inner = Arc::new_cyclic(|me| Inner {
+            cfg,
+            manifest,
+            store,
+            rec,
+            on_commit,
+            state: Mutex::new(State::default()),
+            me: me.clone(),
+        });
+        ClaudeBridge { inner }
+    }
+
+    /// Stop every running turn without recording anything (open turns are settled on the next start).
+    pub fn shutdown(&self) {
+        let children: Vec<_> = {
+            let mut st = self.inner.lock();
+            st.shutdown = true;
+            st.slots.values().filter_map(|s| s.child.clone()).collect()
+        };
+        for c in children {
+            let _ = c.lock().unwrap_or_else(|p| p.into_inner()).kill();
+        }
+    }
+}
+
+impl Drop for ClaudeBridge {
+    fn drop(&mut self) {
+        self.shutdown();
+    }
+}
+
+impl AgentRuntime for ClaudeBridge {
+    fn manifest(&self) -> &RuntimeBuildManifest {
+        &self.inner.manifest
+    }
+
+    fn kick(&self, scope: &ExecutionScope, episode: &EpisodeId) -> ServiceResult<()> {
+        self.inner.drive(scope, episode)
+    }
+
+    fn interrupt(
+        &self,
+        _scope: &ExecutionScope,
+        episode: &EpisodeId,
+        why: StopReason,
+    ) -> ServiceResult<()> {
+        let child = {
+            let mut st = self.inner.lock();
+            let Some(slot) = st.slots.get_mut(episode) else {
+                return Ok(());
+            };
+            if slot.turn_key.is_none() {
+                return Ok(());
+            }
+            slot.stop = Some(why);
+            slot.child.clone()
+        };
+        if let Some(c) = child {
+            let _ = c.lock().unwrap_or_else(|p| p.into_inner()).kill();
+        }
+        Ok(())
+    }
+
+    fn resume(&self, scope: &ExecutionScope, episode: &EpisodeId) -> ServiceResult<()> {
+        self.inner.drive(scope, episode)
+    }
+
+    fn resolve_approval(
+        &self,
+        _scope: &ExecutionScope,
+        _episode: &EpisodeId,
+        approval: &ApprovalId,
+        _decision: ApprovalDecision,
+    ) -> ServiceResult<()> {
+        Err(ErrorEnvelope::new(
+            ErrorCode::NotFound,
+            format!(
+                "no pending approval {approval}: the Claude Code runtime is offered only tools that need none"
+            ),
+            RetryPolicy::Never,
+        ))
+    }
+
+    fn recover(&self) -> ServiceResult<()> {
+        for open in self.inner.store.active_turns()? {
+            self.inner.settle_foreign(&open.scope, &open.episode_id)?;
+            self.inner.drive(&open.scope, &open.episode_id)?;
+        }
+        Ok(())
+    }
+}
+
+impl Inner {
+    fn lock(&self) -> std::sync::MutexGuard<'_, State> {
+        self.state.lock().unwrap_or_else(|p| p.into_inner())
+    }
+
+    fn ws_dir(&self, scope: &ExecutionScope) -> PathBuf {
+        self.cfg.home.join(format!(
+            "ws-{}",
+            &sha256_hex(scope.workspace_id.as_str().as_bytes())[..16]
+        ))
+    }
+
+    /// Start a driver for the episode unless one runs. Every call marks the episode dirty, and the
+    /// driver runs turns until a pass finds it clean, so a message posted while the last turn ends
+    /// is never left waiting.
+    fn drive(&self, scope: &ExecutionScope, ep: &EpisodeId) -> ServiceResult<()> {
+        let episode = self.store.episode(scope, ep)?;
+        {
+            let mut st = self.lock();
+            if st.shutdown {
+                return Err(unavailable("the runtime is shut down"));
+            }
+            let slot = st.slots.entry(ep.clone()).or_default();
+            slot.origin = Some(episode.origin);
+            slot.dirty = true;
+            if slot.busy {
+                return Ok(());
+            }
+            slot.busy = true;
+        }
+        let me = self.me.upgrade().expect("bridge alive while in use");
+        let (scope, ep) = (scope.clone(), ep.clone());
+        std::thread::Builder::new()
+            .name("ignis-claude-turns".into())
+            .spawn(move || loop {
+                {
+                    let mut st = me.lock();
+                    let shutdown = st.shutdown;
+                    let slot = st.slots.entry(ep.clone()).or_default();
+                    if !slot.dirty || shutdown {
+                        slot.busy = false;
+                        return;
+                    }
+                    slot.dirty = false;
+                }
+                loop {
+                    match me.start_one(&scope, &ep) {
+                        Ok(true) => continue,
+                        Ok(false) => break,
+                        Err(e) => {
+                            tracing::warn!(episode = %ep, error = %e, "claude turn");
+                            break;
+                        }
+                    }
+                }
+            })
+            .map_err(|e| unavailable(format!("spawn turn thread: {e}")))?;
+        Ok(())
+    }
+
+    /// A turn opened by another host process: settle it as interrupted (never re-sent).
+    fn settle_foreign(&self, scope: &ExecutionScope, ep: &EpisodeId) -> ServiceResult<()> {
+        let Some(open) = self.store.active_turn(scope, ep)? else {
+            return Ok(());
+        };
+        if self
+            .lock()
+            .slots
+            .get(ep)
+            .is_some_and(|s| s.turn_key.as_deref() == Some(open.turn_key.as_str()))
+        {
+            return Ok(()); // live here
+        }
+        let origin = self.store.episode(scope, ep)?.origin;
+        self.rec.commit(
+            scope,
+            ep,
+            origin,
+            vec![Mapped::Record(RuntimeRecord {
+                mark: Some(format!("turn-key:{}:settled", open.turn_key)),
+                causation: Causation::default(),
+                change: RuntimeChange::Status {
+                    to: EpisodeStatus::WaitingUser,
+                    reason: Some(
+                        "the previous host process ended during this turn; its messages are not re-sent"
+                            .into(),
+                    ),
+                    from_any: LIVE.to_vec(),
+                },
+            })],
+        );
+        self.store.finish_turn(&open.turn_key, "ambiguous")
+    }
+
+    /// The episode's Claude session: the recorded one, or a new UUID recorded now (also when the
+    /// episode was started on another runtime: its earlier conversation is not carried over).
+    fn session(&self, scope: &ExecutionScope, ep: &EpisodeId) -> ServiceResult<(String, bool)> {
+        let episode = self.store.episode(scope, ep)?;
+        match &episode.runtime {
+            Some(t) if t.runtime == RuntimeKind::ClaudeCode => Ok((t.thread_id.clone(), false)),
+            other => {
+                let sid = uuid::Uuid::new_v4().to_string();
+                self.store.set_runtime_thread(
+                    scope,
+                    ep,
+                    RuntimeThreadRef {
+                        runtime: RuntimeKind::ClaudeCode,
+                        runtime_build_id: self.manifest.runtime_build_id.clone(),
+                        thread_id: sid.clone(),
+                    },
+                    other.as_ref().map(|t| t.thread_id.as_str()),
+                )?;
+                Ok((sid, true))
+            }
+        }
+    }
+
+    fn command(
+        &self,
+        scope: &ExecutionScope,
+        ep: &EpisodeId,
+        session: &str,
+        new: bool,
+        mcp_token: Option<&str>,
+    ) -> ServiceResult<Command> {
+        let ws = self.ws_dir(scope);
+        let config_dir = self
+            .cfg
+            .login_home
+            .clone()
+            .unwrap_or_else(|| ws.join("config"));
+        let cwd = ws
+            .join("episodes")
+            .join(&sha256_hex(ep.as_str().as_bytes())[..24]);
+        for d in [&config_dir, &cwd] {
+            std::fs::create_dir_all(d)
+                .map_err(|e| unavailable(format!("create {}: {e}", d.display())))?;
+        }
+        let mut cmd = Command::new(&self.cfg.binary);
+        cmd.args(FIXED_ARGS);
+        if new {
+            cmd.args(["--session-id", session]);
+        } else {
+            cmd.args(["--resume", session]);
+        }
+        if let Some(m) = &self.cfg.model {
+            cmd.args(["--model", m]);
+        }
+        cmd.env_clear();
+        for k in OS_ENV {
+            if let Some(v) = std::env::var_os(k) {
+                cmd.env(k, v);
+            }
+        }
+        for k in &self.cfg.pass_env {
+            if let Some(v) = std::env::var_os(k).filter(|v| !v.is_empty()) {
+                cmd.env(k, v);
+            }
+        }
+        cmd.env("HOME", &config_dir)
+            .env("USERPROFILE", &config_dir)
+            .env("CLAUDE_CONFIG_DIR", &config_dir)
+            .env("DISABLE_AUTOUPDATER", "1")
+            .env("DISABLE_TELEMETRY", "1");
+        if let (Some(m), Some(token)) = (&self.cfg.mcp, mcp_token) {
+            // The token stays in the environment; the config only names the variable.
+            let config = json!({"mcpServers": {IGNIS_MCP_SERVER: {
+                "type": "http",
+                "url": m.url,
+                "headers": {"Authorization": format!("Bearer ${{{MCP_TOKEN_ENV}}}")},
+            }}});
+            let allowed: Vec<String> = m
+                .approved_tools
+                .iter()
+                .map(|t| format!("mcp__{IGNIS_MCP_SERVER}__{t}"))
+                .collect();
+            cmd.arg("--mcp-config").arg(config.to_string());
+            if !allowed.is_empty() {
+                cmd.arg("--allowedTools").arg(allowed.join(","));
+            }
+            cmd.env(MCP_TOKEN_ENV, token);
+        }
+        cmd.current_dir(&cwd)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        Ok(cmd)
+    }
+
+    /// Run one turn for the pending messages. `Ok(false)`: nothing to do.
+    fn start_one(&self, scope: &ExecutionScope, ep: &EpisodeId) -> ServiceResult<bool> {
+        self.settle_foreign(scope, ep)?;
+        let origin = self.store.episode(scope, ep)?.origin;
+        let (session, new) = self.session(scope, ep)?;
+        let Some(ts) = self.store.begin_turn(scope, ep, None)? else {
+            return Ok(false);
+        };
+        (self.on_commit)(ep, ts.episode.last_seq);
+        let turn = format!("claude-turn-{}", uuid::Uuid::new_v4().simple());
+        self.store.turn_running(&ts.turn_key, &turn)?;
+        let lease = self.cfg.mcp.as_ref().map(|m| m.grants.lease(scope));
+        let spawned = self
+            .command(
+                scope,
+                ep,
+                &session,
+                new,
+                lease.as_ref().map(|l| l.token().expose()),
+            )
+            .and_then(|mut c| {
+                c.spawn()
+                    .map_err(|e| unavailable(format!("start {}: {e}", self.cfg.binary.display())))
+            });
+        let mut child = match spawned {
+            Ok(c) => c,
+            Err(e) => {
+                self.finish(
+                    scope,
+                    ep,
+                    origin,
+                    &ts.turn_key,
+                    &turn,
+                    None,
+                    "not started",
+                    &e.message,
+                );
+                return Ok(true);
+            }
+        };
+        let prompt = ts
+            .messages
+            .iter()
+            .map(|(_, t)| t.as_str())
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        let mut stdin = child.stdin.take().expect("piped stdin");
+        let stdout = child.stdout.take().expect("piped stdout");
+        let mut stderr = child.stderr.take().expect("piped stderr");
+        let child = Arc::new(Mutex::new(child));
+        {
+            let mut st = self.lock();
+            let slot = st.slots.entry(ep.clone()).or_default();
+            slot.turn_key = Some(ts.turn_key.clone());
+            slot.child = Some(child.clone());
+            if slot.stop.is_some() {
+                let _ = child.lock().unwrap_or_else(|p| p.into_inner()).kill();
+            }
+        }
+        std::thread::spawn(move || {
+            let _ = stdin.write_all(prompt.as_bytes());
+        });
+        let err_tail = std::thread::spawn(move || {
+            let mut b = vec![];
+            let _ = stderr.read_to_end(&mut b);
+            let s = String::from_utf8_lossy(&b).to_string();
+            let mut cut = s.len().saturating_sub(STDERR_TAIL);
+            while !s.is_char_boundary(cut) {
+                cut += 1;
+            }
+            s[cut..].to_string()
+        });
+        // Turn budget: kill the process when it runs too long.
+        let watchdog = {
+            let child = child.clone();
+            let limit = self.cfg.turn_timeout;
+            let done = Arc::new(std::sync::atomic::AtomicBool::new(false));
+            let d = done.clone();
+            std::thread::spawn(move || {
+                let t0 = std::time::Instant::now();
+                while !d.load(std::sync::atomic::Ordering::Relaxed) {
+                    if t0.elapsed() > limit {
+                        let _ = child.lock().unwrap_or_else(|p| p.into_inner()).kill();
+                        return;
+                    }
+                    std::thread::sleep(Duration::from_millis(200));
+                }
+            });
+            done
+        };
+        let mut tr = Translator::new(turn.clone());
+        let mut result = None;
+        for line in BufReader::new(stdout).lines() {
+            let Ok(line) = line else { break };
+            let Ok(v) = serde_json::from_str::<Value>(&line) else {
+                continue;
+            };
+            let (mapped, r) = tr.line(&v);
+            if !mapped.is_empty() {
+                self.rec.commit(scope, ep, origin, mapped);
+            }
+            if r.is_some() {
+                result = r;
+            }
+        }
+        let exit = child
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .wait()
+            .map(|s| s.to_string())
+            .unwrap_or_else(|e| e.to_string());
+        watchdog.store(true, std::sync::atomic::Ordering::Relaxed);
+        let stderr = err_tail.join().unwrap_or_default();
+        drop(lease);
+        self.finish(
+            scope,
+            ep,
+            origin,
+            &ts.turn_key,
+            &turn,
+            result.as_ref(),
+            &exit,
+            &stderr,
+        );
+        Ok(true)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn finish(
+        &self,
+        scope: &ExecutionScope,
+        ep: &EpisodeId,
+        origin: Origin,
+        turn_key: &str,
+        turn: &str,
+        result: Option<&Value>,
+        exit: &str,
+        stderr: &str,
+    ) {
+        let stop = {
+            let mut st = self.lock();
+            st.slots.get_mut(ep).and_then(|s| {
+                s.child = None;
+                s.turn_key = None;
+                s.stop.take()
+            })
+        };
+        let snapshot = match (result, stop) {
+            (None, Some(_)) => json!({"id": turn, "status": "interrupted"}),
+            _ => turn_snapshot(turn, result, exit, stderr),
+        };
+        let (_, outcome, _) = mapping::turn_outcome(&snapshot, stop);
+        self.rec
+            .commit(scope, ep, origin, map_turn_completed(&snapshot, stop));
+        if let Err(e) = self.store.finish_turn(turn_key, &outcome) {
+            tracing::warn!(episode = %ep, error = %e, "finish claude turn");
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::store::RuntimeChange;
+    use ignis_core::contracts::EventBody;
+
+    fn events(m: &[Mapped]) -> Vec<String> {
+        m.iter()
+            .map(|x| match x {
+                Mapped::Record(r) => match &r.change {
+                    RuntimeChange::Event(EventBody::AssistantMessage { text, .. }) => {
+                        format!("message:{text}")
+                    }
+                    RuntimeChange::Event(EventBody::ToolStarted { tool, .. }) => {
+                        format!("tool.started:{tool}")
+                    }
+                    RuntimeChange::Status { to, .. } => format!("status:{to:?}"),
+                    other => format!("{other:?}"),
+                },
+                Mapped::ToolFinished { tool, error, .. } => {
+                    format!("tool.finished:{tool}:{}", error.is_some())
+                }
+                Mapped::Opaque { method, .. } => format!("opaque:{method}"),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn a_stream_maps_to_the_same_events_as_codex_items() {
+        let mut t = Translator::new("t1");
+        let lines = [
+            json!({"type":"system","subtype":"init","session_id":"s","mcp_servers":[{"name":"ignis","status":"connected"}]}),
+            json!({"type":"assistant","message":{"id":"m1","content":[
+                {"type":"text","text":"Searching."},
+                {"type":"tool_use","id":"tu1","name":"mcp__ignis__sources_search","input":{"query":"x"}}]}}),
+            json!({"type":"user","message":{"content":[
+                {"type":"tool_result","tool_use_id":"tu1","content":[{"type":"text","text":"{\"hits\":[]}"}]}]}}),
+            json!({"type":"assistant","message":{"id":"m2","content":[{"type":"text","text":"Done."}]}}),
+        ];
+        let mut all = vec![];
+        for l in &lines {
+            let (m, r) = t.line(l);
+            assert!(r.is_none());
+            all.extend(m);
+        }
+        assert_eq!(
+            events(&all),
+            [
+                "message:Searching.",
+                "tool.started:sources_search",
+                "tool.started:sources_search",
+                "tool.finished:sources_search:false",
+                "message:Done."
+            ]
+        );
+        let (_, r) = t.line(&json!({"type":"result","subtype":"success","is_error":false}));
+        let snap = turn_snapshot("t1", r.as_ref(), "exit 0", "");
+        assert_eq!(snap["status"], "completed");
+    }
+
+    #[test]
+    fn failures_keep_their_reason_and_never_read_as_success() {
+        let mut t = Translator::new("t2");
+        t.line(&json!({"type":"assistant","message":{"id":"m","content":[
+            {"type":"tool_use","id":"tu","name":"mcp__ignis__datasets_inspect","input":{}}]}}));
+        let (m, _) = t.line(&json!({"type":"user","message":{"content":[
+            {"type":"tool_result","tool_use_id":"tu","is_error":true,"content":"denied"}]}}));
+        assert_eq!(
+            events(&m),
+            [
+                "tool.started:datasets_inspect",
+                "tool.finished:datasets_inspect:true"
+            ]
+        );
+        let limit = json!({"type":"result","subtype":"success","is_error":true,
+                           "result":"Claude usage limit reached"});
+        let snap = turn_snapshot("t2", Some(&limit), "exit 1", "");
+        assert_eq!(snap["status"], "failed");
+        assert_eq!(snap["error"]["message"], "Claude usage limit reached");
+        let crashed = turn_snapshot("t2", None, "exit status: 1", "Invalid API key\n");
+        assert_eq!(crashed["status"], "failed");
+        assert!(crashed["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("Invalid API key"));
+    }
+
+    #[test]
+    fn an_unconnected_ignis_server_is_recorded() {
+        let mut t = Translator::new("t3");
+        let (m, _) = t.line(&json!({"type":"system","subtype":"init",
+            "mcp_servers":[{"name":"ignis","status":"failed"}]}));
+        assert_eq!(events(&m), ["opaque:claude/system"]);
+        assert_eq!(
+            split_tool("mcp__ignis__jobs_get"),
+            ("ignis".into(), "jobs_get".into())
+        );
+        assert_eq!(split_tool("Bash"), ("claude".into(), "Bash".into()));
+    }
+}

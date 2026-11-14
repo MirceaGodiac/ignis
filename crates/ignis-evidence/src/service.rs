@@ -302,9 +302,18 @@ impl EvidenceService {
     }
 
     /// Default catalog, `configs/evidence/retrieval.toml`, lockbox from the frozen splits.
+    ///
+    /// Fails closed when no frozen split is found: an empty lockbox seals nothing, so a scope
+    /// without the test partition would read test outcomes.
     pub fn open_default() -> anyhow::Result<EvidenceService> {
         let cfg = RetrievalCfg::load(&RetrievalCfg::default_path())?;
-        EvidenceService::open(&catalog::default_db(), cfg, Lockbox::load()?)
+        let lockbox = Lockbox::load()?;
+        anyhow::ensure!(
+            !lockbox.run_partition.is_empty(),
+            "no frozen splits under {}: refusing to serve passages without a lockbox",
+            ignis_data::paths::splits().display()
+        );
+        EvidenceService::open(&catalog::default_db(), cfg, lockbox)
     }
 
     /// Run without network access to the embedding/rerank provider (declared as unavailable).

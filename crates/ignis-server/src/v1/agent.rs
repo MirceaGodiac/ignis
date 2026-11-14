@@ -1,42 +1,84 @@
-//! Composition of the agent runtime behind `/api/v1` (task M1): preflight of the pinned Codex App
-//! Server once per process, then one [`CodexBridge`] per `/api/v1` instance (registry and fixture
-//! mode have separate state stores, so separate bridges and `CODEX_HOME`s). A missing or wrong
-//! binary is reported in `GET /capabilities`; the server still starts and records messages.
+//! Composition of the agent runtime behind `/api/v1`: one preflight per process, then one runtime
+//! per `/api/v1` instance (registry and fixture mode have separate state stores, so separate
+//! runtimes and state directories). Two runtimes exist (ADR 17), chosen with `--agent-runtime`:
+//!
+//! - `codex`: the pinned Codex App Server. Credentials: `CODEX_API_KEY` / `OPENAI_API_KEY` in the
+//!   environment, or a ChatGPT plan through a signed-in login home (`--codex-login-home`, made with
+//!   `codex login --device-auth` on a headless host).
+//! - `claude`: Claude Code in headless mode. Credentials: `CLAUDE_CODE_OAUTH_TOKEN` (a Claude plan,
+//!   from `claude setup-token`) or `ANTHROPIC_API_KEY`, or a login home (`--claude-login-home`).
+//!
+//! A missing binary or credential is reported in `GET /capabilities`; the server still starts and
+//! records messages.
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use ignis_core::services::ArtifactStore;
 use ignis_research::runtime::{
-    preflight, AgentRuntime, CodexBridge, CodexConfig, McpAttachment, RuntimeBuildManifest,
-    PINNED_CODEX_VERSION,
+    claude_preflight, preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, CodexBridge,
+    CodexConfig, McpAttachment, RuntimeBuildManifest, PINNED_CODEX_VERSION,
 };
 use ignis_research::ResearchStore;
 
 use super::Hub;
 
-/// `ignis serve` flags of the agent runtime. Without `--codex-bin` the runtime is not configured.
+/// Which agent runtime hosts the episodes.
+#[derive(clap::ValueEnum, Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum AgentRuntimeKind {
+    #[default]
+    Codex,
+    Claude,
+}
+
+/// `ignis serve` flags of the agent runtime. Without the selected runtime's binary it is not
+/// configured.
 #[derive(clap::Args, Debug, Clone, Default)]
 pub struct CodexArgs {
+    /// Agent runtime: `codex` (Codex App Server) or `claude` (Claude Code, headless).
+    #[arg(
+        long = "agent-runtime",
+        env = "IGNIS_AGENT_RUNTIME",
+        value_enum,
+        default_value_t
+    )]
+    pub agent_runtime: AgentRuntimeKind,
     /// Native `codex` executable of the pinned release (the file that is hashed; not an npm shim).
     #[arg(long = "codex-bin", env = "IGNIS_CODEX_BIN")]
     pub bin: Option<PathBuf>,
     /// Expected sha256 (hex) of that executable. Unset: the hash is recorded but not enforced.
     #[arg(long = "codex-sha256", env = "IGNIS_CODEX_SHA256")]
     pub sha256: Option<String>,
-    /// Model the runtime uses (recorded in the build manifest). Unset: Codex's default.
+    /// Model the Codex runtime uses (recorded in the build manifest). Unset: Codex's default.
     #[arg(long = "codex-model", env = "IGNIS_CODEX_MODEL")]
     pub model: Option<String>,
-    /// Local development only (`--auth local`): a CODEX_HOME signed in with a Codex account
-    /// (`tools/codex/login.*`), used instead of an API key. Every workspace shares it.
+    /// A CODEX_HOME signed in with a ChatGPT account (`codex login`, or `codex login --device-auth`
+    /// on a headless host), used instead of an API key. Every workspace shares it, and its plan
+    /// limits. Must be writable: Codex refreshes the token in place.
     #[arg(long = "codex-login-home", env = "IGNIS_CODEX_LOGIN_HOME")]
     pub login_home: Option<PathBuf>,
+    /// Native `claude` executable (Claude Code).
+    #[arg(long = "claude-bin", env = "IGNIS_CLAUDE_BIN")]
+    pub claude_bin: Option<PathBuf>,
+    /// Model the Claude runtime uses. Unset: Claude Code's default for the account.
+    #[arg(long = "claude-model", env = "IGNIS_CLAUDE_MODEL")]
+    pub claude_model: Option<String>,
+    /// A Claude config directory signed in with `claude /login`, shared by every workspace, used
+    /// when no token or API key is set. Must be writable.
+    #[arg(long = "claude-login-home", env = "IGNIS_CLAUDE_LOGIN_HOME")]
+    pub claude_login_home: Option<PathBuf>,
+}
+
+#[derive(Clone)]
+enum Prepared {
+    Codex(CodexConfig),
+    Claude(ClaudeConfig),
 }
 
 /// Result of the one preflight of this process.
 #[derive(Clone)]
 pub struct Preflighted {
-    cfg: Option<CodexConfig>,
+    cfg: Option<Prepared>,
     outcome: Result<RuntimeBuildManifest, String>,
 }
 
@@ -46,39 +88,48 @@ impl Preflighted {
         self.cfg.is_some() && self.outcome.is_ok()
     }
 
-    /// Run the preflight (blocking; startup only). `home` holds the generated protocol schema and
-    /// the probe's throwaway `CODEX_HOME`.
-    pub fn run(args: &CodexArgs, home: &Path, auth: super::io::AuthMode) -> Self {
-        let Some(bin) = &args.bin else {
-            return Preflighted {
-                cfg: None,
-                outcome: Err(format!(
-                    "not configured: set --codex-bin / IGNIS_CODEX_BIN to the codex {PINNED_CODEX_VERSION} executable; messages are recorded"
-                )),
-            };
-        };
-        let mut cfg = CodexConfig::new(bin, home);
-        cfg.expected_sha256 = args.sha256.clone();
-        cfg.model = args.model.clone();
-        cfg.login_home = args.login_home.clone();
-        let outcome = if cfg.login_home.is_some() && auth != super::io::AuthMode::Local {
-            // A signed-in personal account shared by every workspace is not multi-user isolation.
-            Err("--codex-login-home is for local development only (--auth local); deployments use an API key".into())
-        } else {
-            preflight(&cfg)
+    /// Run the preflight (blocking; startup only). `home` holds the runtime's preflight state.
+    pub fn run(args: &CodexArgs, home: &Path, _auth: super::io::AuthMode) -> Self {
+        let (cfg, outcome) = match args.agent_runtime {
+            AgentRuntimeKind::Codex => match &args.bin {
+                None => (
+                    None,
+                    Err(format!(
+                        "not configured: set --codex-bin / IGNIS_CODEX_BIN to the codex {PINNED_CODEX_VERSION} executable; messages are recorded"
+                    )),
+                ),
+                Some(bin) => {
+                    let mut cfg = CodexConfig::new(bin, home);
+                    cfg.expected_sha256 = args.sha256.clone();
+                    cfg.model = args.model.clone();
+                    cfg.login_home = args.login_home.clone();
+                    let outcome = preflight(&cfg);
+                    (Some(Prepared::Codex(cfg)), outcome)
+                }
+            },
+            AgentRuntimeKind::Claude => match &args.claude_bin {
+                None => (
+                    None,
+                    Err("not configured: set --claude-bin / IGNIS_CLAUDE_BIN to the claude executable; messages are recorded".into()),
+                ),
+                Some(bin) => {
+                    let mut cfg = ClaudeConfig::new(bin, home.with_file_name("claude"));
+                    cfg.model = args.claude_model.clone();
+                    cfg.login_home = args.claude_login_home.clone();
+                    let outcome = claude_preflight(&cfg);
+                    (Some(Prepared::Claude(cfg)), outcome)
+                }
+            },
         };
         match &outcome {
             Ok(m) => {
-                tracing::info!(build = %m.runtime_build_id, "codex app-server preflight passed")
+                tracing::info!(build = %m.runtime_build_id, credentials = m.credentials, "agent runtime preflight passed")
             }
             Err(e) => {
-                tracing::error!(reason = %e, "codex app-server preflight failed; the agent runtime is unavailable")
+                tracing::error!(reason = %e, "agent runtime preflight failed; the agent runtime is unavailable")
             }
         }
-        Preflighted {
-            cfg: Some(cfg),
-            outcome,
-        }
+        Preflighted { cfg, outcome }
     }
 }
 
@@ -90,8 +141,8 @@ pub struct RuntimeReport {
     pub manifest: Option<RuntimeBuildManifest>,
 }
 
-/// A bridge over `store`, its `CODEX_HOME`s under `home`, waking `hub` after each commit, with the
-/// IGNIS tools of `mcp` registered in every runtime process.
+/// A runtime over `store`, its state under `home`, waking `hub` after each commit, with the IGNIS
+/// tools of `mcp` attached to every runtime process.
 pub fn runtime(
     pre: &Preflighted,
     home: PathBuf,
@@ -100,43 +151,65 @@ pub fn runtime(
     hub: Arc<Hub>,
     mcp: Option<McpAttachment>,
 ) -> (Option<Arc<dyn AgentRuntime>>, RuntimeReport) {
-    match (&pre.cfg, &pre.outcome) {
-        (Some(cfg), Ok(manifest)) => {
-            let mut cfg = cfg.clone();
-            cfg.home = home;
-            let tools = if mcp.is_some() {
-                "IGNIS tools over loopback MCP"
-            } else {
-                "no IGNIS tools"
-            };
-            cfg.mcp = mcp;
-            let bridge = CodexBridge::new(
-                cfg,
-                manifest.clone(),
-                store,
-                artifacts,
-                Arc::new(move |ep, seq| hub.notify(ep, seq)),
-            );
-            (
-                Some(Arc::new(bridge)),
+    let manifest = match (&pre.cfg, &pre.outcome) {
+        (Some(_), Ok(m)) => m.clone(),
+        (_, Err(reason)) => {
+            return (
+                None,
                 RuntimeReport {
-                    available: true,
-                    detail: format!(
-                        "Codex App Server {} over private stdio ({:?} profile: no shell; {tools})",
-                        manifest.version, manifest.profile
-                    ),
-                    manifest: Some(manifest.clone()),
+                    available: false,
+                    detail: format!("agent runtime unavailable: {reason}"),
+                    manifest: None,
                 },
             )
         }
-        (_, Err(reason)) => (
-            None,
-            RuntimeReport {
-                available: false,
-                detail: format!("agent runtime unavailable: {reason}"),
-                manifest: None,
-            },
-        ),
         (None, Ok(_)) => unreachable!("a manifest needs a configuration"),
-    }
+    };
+    let tools = if mcp.is_some() {
+        "IGNIS tools over loopback MCP"
+    } else {
+        "no IGNIS tools"
+    };
+    let hook: ignis_research::runtime::CommitHook = Arc::new(move |ep, seq| hub.notify(ep, seq));
+    let (rt, what): (Arc<dyn AgentRuntime>, String) = match pre.cfg.clone().expect("checked") {
+        Prepared::Codex(mut cfg) => {
+            cfg.home = home;
+            cfg.mcp = mcp;
+            (
+                Arc::new(CodexBridge::new(
+                    cfg,
+                    manifest.clone(),
+                    store,
+                    artifacts,
+                    hook,
+                )),
+                format!("Codex App Server {} over private stdio", manifest.version),
+            )
+        }
+        Prepared::Claude(mut cfg) => {
+            cfg.home = home.with_file_name("claude");
+            cfg.mcp = mcp;
+            (
+                Arc::new(ClaudeBridge::new(
+                    cfg,
+                    manifest.clone(),
+                    store,
+                    artifacts,
+                    hook,
+                )),
+                format!("Claude Code {} headless (stream-json)", manifest.version),
+            )
+        }
+    };
+    (
+        Some(rt),
+        RuntimeReport {
+            available: true,
+            detail: format!(
+                "{what} ({:?} profile: no shell; {tools}; credentials: {})",
+                manifest.profile, manifest.credentials
+            ),
+            manifest: Some(manifest),
+        },
+    )
 }

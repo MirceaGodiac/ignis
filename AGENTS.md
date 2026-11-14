@@ -9,7 +9,7 @@ limits that change the interpretation. Read this file fully; follow the links on
 
 | Layer | What | Where |
 |---|---|---|
-| Agent runtime | **Codex App Server** (pinned build, JSON-RPC over private stdio) owns the conversation and the model/tool loop | `ignis_research::runtime` (`AgentRuntime`, `CodexBridge`; M1, Mircea) — offline tests plus an opt-in real turn |
+| Agent runtime | **Codex App Server** (pinned build, JSON-RPC over private stdio) or **Claude Code** (headless, stream-json; ADR 17) owns the conversation and the model/tool loop, chosen with `IGNIS_AGENT_RUNTIME` | `ignis_research::runtime` (`AgentRuntime`, `CodexBridge`, `ClaudeBridge`; Mircea) — offline tests plus an opt-in real turn |
 | Backend | Rust + Axum + Tokio: API, SSE events, jobs, artifacts, scope, MCP transport (`rmcp`) | `crates/ignis-server` (`/api/v1`), `crates/ignis-research` (state store, jobs, artifacts, isolated runner), `crates/ignis-mcp` (IGNIS tools over MCP) |
 | Scientific services | knowledge (search/read/wiki), datasets, models (FLEX/ACME/BASS, literal WSP), evaluation | `ignis-evidence`, `ignis-data`, `ignis-vision`, `ignis-flex/acme/bass`, planned `ignis-wsp`, `ignis-lab/src/eval` |
 | Shared contracts | the single source of truth for every cross-lane type | `crates/ignis-core` (`contracts.rs` + `contracts/*.rs`) |
