@@ -126,6 +126,9 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 &v,
                 VisualObservationBundle::validate,
             )),
+            "ImageContourObservation[]" => drop(check::<Vec<ImageContourObservation>>(&v, |r| {
+                r.iter().try_for_each(ImageContourObservation::validate)
+            })),
             "ModelSpec" => drop(check::<ModelSpec>(&v, ModelSpec::validate)),
             "HandwrittenWeightPatch" => drop(check::<HandwrittenWeightPatch>(&v, |p| {
                 p.exposure.validate()
@@ -692,6 +695,23 @@ fn data_bundles_keep_test_outcomes_and_pixels_apart() {
         relabelled.validate().is_err(),
         "pixel contours passed off as metres"
     );
+    let mut undeclared = pixels.clone();
+    undeclared.contours.contract = None;
+    assert!(
+        undeclared.validate().is_err(),
+        "pixel contours must declare ImageContourObservation"
+    );
+    let records: Vec<ImageContourObservation> =
+        typed(&fixture("data/image_contours_pixel_only.json"));
+    let mut as_metres = records[0].clone();
+    as_metres.units = UnitsStatus::Metric;
+    assert!(
+        as_metres.validate().is_err(),
+        "image records claiming metres"
+    );
+    let mut future = records[0].clone();
+    future.mask_dependency_frames.push(future.frame + 1);
+    assert!(future.validate().is_err(), "non-causal mask");
     let mut metric = relabelled.clone();
     metric.units_status = UnitsStatus::Metric;
     assert!(metric.validate().is_err(), "metric without calibration");

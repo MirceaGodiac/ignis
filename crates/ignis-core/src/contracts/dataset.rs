@@ -11,10 +11,13 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use super::common::{
-    ensure, schema_tag, ArtifactRef, ContractError, DatasetId, Origin, RunId, SourceId, Timestamp,
-    VisualBundleId,
+    ensure, schema_tag, ArtifactRef, ContractError, DatasetId, Finite, Origin, RunId, SourceId,
+    Timestamp, VisualBundleId,
 };
-use super::{Family, Partition, Quantity, Resolution};
+use super::{
+    ContourStatus, Derivation, EvidenceClass, Family, Partition, Quantity, Resolution,
+    SourceLocator,
+};
 
 schema_tag!(
     /// Wire tag of dataset and visual observation bundles.
@@ -173,9 +176,14 @@ pub struct RunIdentity {
     pub resolution: Resolution,
 }
 
+/// Content contract of metric contour records (`ContourObservation` JSONL, metres).
+pub const METRIC_CONTOURS: &str = "ContourObservation";
+/// Content contract of image-space contour records ([`ImageContourObservation`] JSONL).
+pub const IMAGE_CONTOURS: &str = "ImageContourObservation";
+
 /// Contours extracted from one video, with camera, time basis and calibration status. Metric
-/// contours are `ContourObservation` JSONL (meters); other unit states use another contract and can
-/// never be read as `ContourObservation`.
+/// contours are `ContourObservation` JSONL (meters); `pixel_only` / `normalized` contours are
+/// [`ImageContourObservation`] JSONL and can never be read as `ContourObservation`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct VisualObservationBundle {
@@ -213,10 +221,16 @@ impl VisualObservationBundle {
                     "metric contours are ContourObservation records".into()
                 })
             }
-            _ => ensure(!metric_contract, c, || {
-                "ContourObservation is metres; pixel/normalized contours use another contract"
-                    .into()
-            }),
+            _ => ensure(
+                self.contours.contract.as_deref() == Some(IMAGE_CONTOURS),
+                c,
+                || {
+                    format!(
+                        "{:?} contours are {IMAGE_CONTOURS} records (ContourObservation is metres)",
+                        self.units_status
+                    )
+                },
+            ),
         }
     }
 
@@ -235,5 +249,59 @@ impl VisualObservationBundle {
                 "the clip's run identity is not resolved",
             )),
         }
+    }
+}
+
+/// One frame's leading-edge contour in **image** coordinates, the record type of `pixel_only` and
+/// `normalized` [`VisualObservationBundle`]s. It is never metres: a consumer that needs metres
+/// requires a metric bundle ([`VisualObservationBundle::require_metric`]), whose records are
+/// `ContourObservation`. The run identity is the bundle's ([`RunIdentity`]), not repeated here.
+///
+/// `s` is the transverse grid (image units, e.g. pixel rows), `f` the leading-edge coordinate along
+/// the propagation axis at each `s` (absent = no edge at that grid line). Times are seconds since the
+/// bundle's `time_origin`; `pts_s` is the container presentation time of `frame` (0-based).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ImageContourObservation {
+    pub id: String,
+    pub frame: i64,
+    pub pts_s: Finite,
+    pub time_s: Finite,
+    pub available_at_s: Finite,
+    /// `pixel_only` or `normalized`; never `metric`.
+    pub units: UnitsStatus,
+    pub s: Vec<Finite>,
+    pub f: Vec<Option<Finite>>,
+    pub status: ContourStatus,
+    /// Frames the segmentation mask of this frame depended on (all `<= frame`: causal).
+    pub mask_dependency_frames: Vec<i64>,
+    pub evidence_class: EvidenceClass,
+    pub locator: SourceLocator,
+    pub derivation: Derivation,
+    pub origin: Origin,
+}
+
+impl ImageContourObservation {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ImageContourObservation";
+        ensure(self.units != UnitsStatus::Metric, c, || {
+            "image contours are not metres (metric contours are ContourObservation)".into()
+        })?;
+        ensure(self.s.len() == self.f.len(), c, || {
+            "s and f must align".into()
+        })?;
+        ensure(self.frame >= 0, c, || "frame is a 0-based index".into())?;
+        ensure(self.locator.frame == Some(self.frame), c, || {
+            "the locator points at the record's frame".into()
+        })?;
+        ensure(
+            self.mask_dependency_frames.iter().all(|&f| f <= self.frame),
+            c,
+            || "the mask depends on a future frame (non-causal)".into(),
+        )?;
+        ensure(self.available_at_s.get() >= self.time_s.get(), c, || {
+            "available before observed".into()
+        })?;
+        self.locator.validate()
     }
 }

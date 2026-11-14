@@ -387,7 +387,7 @@
   "$id": "ignis/2.1.0/VisualObservationBundle",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Contours extracted from one video, with camera, time basis and calibration status. Metric\ncontours are `ContourObservation` JSONL (meters); other unit states use another contract and can\nnever be read as `ContourObservation`.",
+  "description": "Contours extracted from one video, with camera, time basis and calibration status. Metric\ncontours are `ContourObservation` JSONL (meters); `pixel_only` / `normalized` contours are\n[`ImageContourObservation`] JSONL and can never be read as `ContourObservation`.",
   "properties": {
     "bundle_id": {
       "$ref": "#/$defs/VisualBundleId"
