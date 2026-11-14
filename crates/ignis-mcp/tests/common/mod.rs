@@ -111,6 +111,7 @@ pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host
             datasets: None,
             models: Some(Arc::new(FakeModels)),
             sandbox,
+            models_disabled: false,
         },
         store.clone(),
         artifacts.clone(),

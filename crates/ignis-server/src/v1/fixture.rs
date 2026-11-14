@@ -211,6 +211,7 @@ impl Fixture {
                 datasets: None,
                 models: Some(Arc::new(FixtureModels { release })),
                 sandbox: None,
+                models_disabled: false,
             },
             known,
         })

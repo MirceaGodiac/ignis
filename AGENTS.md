@@ -9,8 +9,8 @@ limits that change the interpretation. Read this file fully; follow the links on
 
 | Layer | What | Where |
 |---|---|---|
-| Agent runtime | **Codex App Server** (pinned build, JSON-RPC over private stdio) owns the conversation and the model/tool loop | `ignis_research::runtime` (`AgentRuntime`, `CodexBridge`; M1, Mircea) — offline-tested, no real model turn yet |
-| Backend | Rust + Axum + Tokio: API, SSE events, jobs, artifacts, scope, MCP transport (`rmcp`) | `crates/ignis-server` (`/api/v1`), `crates/ignis-research` (state store, jobs, artifacts), planned `ignis-mcp` |
+| Agent runtime | **Codex App Server** (pinned build, JSON-RPC over private stdio) owns the conversation and the model/tool loop | `ignis_research::runtime` (`AgentRuntime`, `CodexBridge`; M1, Mircea) — offline tests plus an opt-in real turn |
+| Backend | Rust + Axum + Tokio: API, SSE events, jobs, artifacts, scope, MCP transport (`rmcp`) | `crates/ignis-server` (`/api/v1`), `crates/ignis-research` (state store, jobs, artifacts, isolated runner), `crates/ignis-mcp` (IGNIS tools over MCP) |
 | Scientific services | knowledge (search/read/wiki), datasets, models (FLEX/ACME/BASS, literal WSP), evaluation | `ignis-evidence`, `ignis-data`, `ignis-vision`, `ignis-flex/acme/bass`, planned `ignis-wsp`, `ignis-lab/src/eval` |
 | Shared contracts | the single source of truth for every cross-lane type | `crates/ignis-core` (`contracts.rs` + `contracts/*.rs`) |
 | Frontend / edge | React + TypeScript + Vite; Cloudflare static assets, a small Worker, R2, Access, Tunnel | `web/`, `infra/worker` |
@@ -43,7 +43,9 @@ literal patch, or optimizer hidden in preprocessing or the forward pass (no grad
 squares at request time). W0 (one-shot, no feedback) and W1 (revision with development feedback) are
 separate experiments. A literal release is `trained_on = not_trained`, `state = experimental`, carries a
 `construction` manifest; the registry refuses anything else (`ModelRelease::check_construction`).
-Releases never need a NASA-trained parent. The legacy `ignis lab` loop (fit → probe → edit → resume)
+Releases never need a NASA-trained parent. Until FLEX/ACME/BASS releases exist, `ignis serve` keeps the model families off
+(`--enable-models` / `IGNIS_ENABLE_MODELS`, default off): contracts and tool descriptors stay
+published, the model tools are not registered and `/api/v1/capabilities` says why. The legacy `ignis lab` loop (fit → probe → edit → resume)
 still works for fitted baselines, but it is not WSP and its results are never presented as WSP.
 
 **Protect the test.** Never pass `--final-test`, read `holdout/`, score or compare on the test

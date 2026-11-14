@@ -138,6 +138,12 @@ pub struct ServeArgs {
     /// default: they are development/evaluation tools, not part of the public runtime.
     #[arg(long)]
     pub internal_routes: bool,
+    /// Serve the model families (FLEX/ACME/BASS) through `/api/v1` and the IGNIS tools. Off by
+    /// default until their releases are qualified: the contracts and tool descriptors stay
+    /// published, `models_inspect`/`models_forecast` are not registered and `/api/v1/capabilities`
+    /// says why. The legacy `/api` lab routes (fitted baselines) are not affected.
+    #[arg(long, env = "IGNIS_ENABLE_MODELS")]
+    pub enable_models: bool,
     /// Largest single upload accepted by `/api/v1/uploads` (a storage budget, not a result limit).
     #[arg(long, env = "IGNIS_MAX_UPLOAD_BYTES", default_value_t = 2 << 30)]
     pub max_upload_bytes: u64,
@@ -213,6 +219,19 @@ fn origin(
     })
 }
 
+/// Apply `--enable-models`: when off, no `ModelService` reaches `/api/v1` or the tools, and the
+/// catalog reports the model tools as disabled rather than unconfigured.
+fn model_gate(s: v1::ResearchServices, enabled: bool) -> v1::ResearchServices {
+    if enabled {
+        return s;
+    }
+    v1::ResearchServices {
+        models: None,
+        models_disabled: true,
+        ..s
+    }
+}
+
 /// Windows `canonicalize` returns verbatim paths (`\\?\D:\x`); logs prefer `D:\x`.
 fn strip_verbatim(p: PathBuf) -> PathBuf {
     let s = p.display().to_string();
@@ -277,10 +296,11 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     // One runner per process, shared by the instances (each run is scoped by its caller).
     let (sandbox, runner_report) =
         blocking_startup(|| v1::sandbox::preflight(&args.runner, &state_dir, args.auth));
-    let research = v1::ResearchServices {
+    let gate = |s: v1::ResearchServices| model_gate(s, args.enable_models);
+    let research = gate(v1::ResearchServices {
         sandbox: sandbox.clone(),
         ..research
-    };
+    });
     // The IGNIS tools reach the runtime over a loopback-only MCP listener, never through `/api`.
     let mut mcp = McpListener::bind(&args, &codex);
     let registry_v1 = v1_instance(
@@ -304,10 +324,10 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
                     &args,
                     &codex,
                     &state_dir.join("dev-fixture"),
-                    v1::ResearchServices {
+                    gate(v1::ResearchServices {
                         sandbox: sandbox.clone(),
                         ..fx.services.clone()
-                    },
+                    }),
                     ignis_core::contracts::Origin::SyntheticFixture,
                     Some(fx),
                     "fixture",

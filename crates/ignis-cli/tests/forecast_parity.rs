@@ -37,6 +37,7 @@ async fn cli_and_server_produce_the_same_artifact() {
         state_dir: tmp.join("state"),
         auth: ignis_server::v1::io::AuthMode::Local,
         internal_routes: false,
+        enable_models: true,
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),

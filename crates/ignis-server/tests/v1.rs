@@ -41,6 +41,7 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         state_dir: dir.join("state"),
         auth,
         internal_routes: false,
+        enable_models: true,
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
@@ -383,6 +384,73 @@ async fn unconfigured_services_are_capability_status_not_results() {
     }
     let events = &doc["paths"]["/episodes/{id}/events"]["get"]["responses"]["200"]["content"];
     assert!(events.get("text/event-stream").is_some(), "{events}");
+}
+
+/// Without `--enable-models` a configured `ModelService` never reaches `/api/v1` or the tools: the
+/// model contracts stay in the catalog, the tools report the switch, and calls refuse.
+#[tokio::test(flavor = "multi_thread")]
+async fn model_families_are_off_unless_enabled() {
+    let dir = tempfile::tempdir().unwrap();
+    struct Unreachable;
+    impl ModelService for Unreachable {
+        fn releases(&self, _: &ExecutionScope) -> ServiceResult<Vec<ModelRelease>> {
+            unreachable!("model families are disabled")
+        }
+        fn release(&self, _: &ExecutionScope, _: &ReleaseId) -> ServiceResult<ModelRelease> {
+            unreachable!("model families are disabled")
+        }
+        fn forecast(
+            &self,
+            _: &ExecutionScope,
+            _: &ForecastRequest,
+        ) -> ServiceResult<AnalysisArtifact> {
+            unreachable!("model families are disabled")
+        }
+    }
+    let models: Arc<dyn ModelService> = Arc::new(Unreachable);
+    let r = app(
+        ServeArgs {
+            enable_models: false,
+            ..args(dir.path(), AuthMode::Local)
+        },
+        Services {
+            experts: Vec::new(),
+            fixture_experts: fixture::experts(),
+            acquisition: None,
+            research: ResearchServices {
+                models: Some(models),
+                ..Default::default()
+            },
+        },
+    );
+    let (st, caps) = call(&r, "GET", "/api/v1/capabilities", None, None).await;
+    assert_eq!(st, StatusCode::OK);
+    assert_eq!(caps["models"]["available"], false);
+    assert_eq!(caps["models"]["detail"], ignis_mcp::MODELS_DISABLED);
+    let tools = caps["tools"].as_array().unwrap();
+    assert_eq!(
+        tools.len(),
+        tool_catalog().len(),
+        "descriptors stay published"
+    );
+    for name in ["models_inspect", "models_forecast"] {
+        let t = tools.iter().find(|t| t["name"] == name).unwrap();
+        assert_eq!(t["available"], false, "{name}");
+        assert_eq!(t["reason"], ignis_mcp::MODELS_DISABLED, "{name}");
+    }
+    let (st, e) = call(&r, "GET", "/api/v1/models", None, None).await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(e["code"], "capability_unavailable");
+    let (st, e) = call(
+        &r,
+        "POST",
+        "/api/v1/analyses",
+        None,
+        Some(forecast_req("r1", "c1")),
+    )
+    .await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE, "{e}");
+    assert_eq!(e["code"], "capability_unavailable");
 }
 
 /// A `ModelService` returning a fixed artifact (a real one, produced by the synthetic fixture
