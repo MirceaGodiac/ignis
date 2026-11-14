@@ -1,117 +1,116 @@
-import { useRef, useState, type KeyboardEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { call, type Health, type Origin } from "./api";
-import { SCHEMA_VERSION } from "./contracts/generated";
-import { Explore } from "./workspaces/Explore";
-import { Compare } from "./workspaces/Compare";
-import { Lab } from "./workspaces/Lab";
-import { Research } from "./workspaces/Research";
-
-const TABS = [
-  ["research", "Research"],
-  ["explore", "Explore"],
-  ["compare", "Compare"],
-  ["lab", "Experiment Lab"],
-] as const;
-type Tab = (typeof TABS)[number][0];
+// IGNIS shell: sidebar (where), top bar (where am I), centre (what), side panel (why, from where).
+import { useEffect, useState } from "react";
+import { CompareProvider, useCompare } from "./shell/compare";
+import { CommandMenu } from "./shell/CommandMenu";
+import { DataProvider, useData } from "./shell/data";
+import { PanelProvider, usePanel } from "./shell/inspector";
+import { Panel } from "./shell/Panel";
+import { href, useRoute, VIEW_TITLE } from "./shell/router";
+import { Sidebar } from "./shell/Sidebar";
+import { IconChevron, IconSearch } from "./shell/icons";
+import { useEpisodes } from "./shell/queries";
+import { Compare } from "./views/Compare";
+import { Home } from "./views/Home";
+import { Lab } from "./views/Lab";
+import { MapView } from "./views/MapView";
+import { Models } from "./views/Models";
+import { Research } from "./views/Research";
+import { Runs } from "./views/Runs";
+import { Sources } from "./views/Sources";
 
 export function App() {
-  const [origin, setOrigin] = useState<Origin>("registry");
-  const [tab, setTab] = useState<Tab>("research");
-  const [compareSet, setCompareSet] = useState<string[]>([]);
-  const [runId, setRunId] = useState<string | null>(null);
-  const health = useQuery({ queryKey: [origin, "health"], queryFn: () => call<Health>(origin, "/health"), retry: false });
-  // The /fixtures origin exists only when the server runs with --dev.
-  const fixtures = useQuery({ queryKey: ["fixtures", "health"], queryFn: () => call<Health>("fixtures", "/health"), retry: false });
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const onKey = (e: KeyboardEvent, i: number) => {
-    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-    if (!d) return;
-    const j = (i + d + TABS.length) % TABS.length;
-    setTab(TABS[j][0]);
-    tabRefs.current[j]?.focus();
-  };
-  const switchOrigin = (o: Origin) => {
-    setOrigin(o);
-    setCompareSet([]);
-    setRunId(null);
-  };
-  const isFixture = origin === "fixtures";
   return (
-    <div className={isFixture ? "app fixture-mode" : "app"}>
-      {isFixture && (
-        <div className="fixture-banner" role="alert">
-          Development fixture — synthetic. Records, release and results below are generated for development; they are not NASA data or scientific results.
-        </div>
-      )}
-      <header className="top">
-        <h1>
-          IGNIS <span className="muted">microgravity combustion lab</span>
-        </h1>
-        {/* The legacy tabs' origin. Research has its own (Mock / Server fixtures / Live); two
-            origin selectors on one screen would contradict each other. */}
-        {tab !== "research" && (
-          <div className="origin" role="group" aria-label="Data origin">
-            <button aria-pressed={origin === "registry"} onClick={() => switchOrigin("registry")}>
-              Registry
-            </button>
-            {fixtures.data && (
-              <button aria-pressed={isFixture} onClick={() => switchOrigin("fixtures")} className="fixture-btn">
-                Development fixture — synthetic
-              </button>
+    <DataProvider>
+      <CompareProvider>
+        <PanelProvider>
+          <Shell />
+        </PanelProvider>
+      </CompareProvider>
+    </DataProvider>
+  );
+}
+
+function Shell() {
+  const route = useRoute();
+  const { synthetic, health } = useData();
+  const panel = usePanel();
+  const cmp = useCompare();
+  const episodes = useEpisodes();
+  const [cmd, setCmd] = useState(false);
+
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCmd((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, []);
+
+  // A new view starts with a closed side panel; the panel belongs to what was selected on it.
+  const { close } = panel;
+  useEffect(() => close(), [route.view, route.id, close]);
+
+  const goal = route.view === "research" && route.id ? episodes.data?.find((e) => e.episode_id === route.id)?.goal : null;
+  useEffect(() => {
+    document.title = `${goal ?? VIEW_TITLE[route.view]} · IGNIS`;
+  }, [route.view, goal]);
+
+  return (
+    <div className={`shell${panel.current ? " has-panel" : ""}`}>
+      <Sidebar route={route} compareCount={cmp.ids.length} onCommand={() => setCmd(true)} />
+      <main className="main" id="main">
+        {route.view !== "home" && (
+          <header className="topbar">
+            <nav className="crumbs" aria-label="Breadcrumb">
+              {route.view === "research" && route.id ? (
+                <a href={href("research")} className="here">
+                  Investigations
+                </a>
+              ) : route.view === "lab" && route.id ? (
+                <>
+                  <a href={href("lab")}>Forecast lab</a>
+                  <IconChevron width={12} height={12} />
+                  <span className="here">{route.id}</span>
+                </>
+              ) : (
+                <span className="here">{VIEW_TITLE[route.view]}</span>
+              )}
+            </nav>
+            <span className="spacer" />
+            {synthetic && (
+              <span className="pill-synth" title="Development fixtures: generated data, not NASA results">
+                Synthetic data
+              </span>
             )}
+            <button className="search-btn" onClick={() => setCmd(true)}>
+              <IconSearch width={14} height={14} /> <span className="lbl">Search</span> <kbd>Ctrl K</kbd>
+            </button>
+          </header>
+        )}
+        {health.error && !health.data && route.view !== "research" && route.view !== "home" && (
+          <div className="view" style={{ paddingBottom: 0 }}>
+            <div className="note note-refusal" role="status">
+              <b>The IGNIS server is not reachable</b>
+              <p>
+                Start it with <code>cargo run -p ignis-cli -- serve --dev</code>.
+              </p>
+            </div>
           </div>
         )}
-      </header>
-      <nav role="tablist" aria-label="Workspaces" className="tabs">
-        {TABS.map(([id, label], i) => (
-          <button
-            key={id}
-            role="tab"
-            id={`tab-${id}`}
-            aria-selected={tab === id}
-            aria-controls={`panel-${id}`}
-            tabIndex={tab === id ? 0 : -1}
-            ref={(el) => (tabRefs.current[i] = el)}
-            onClick={() => setTab(id)}
-            onKeyDown={(e) => onKey(e, i)}
-          >
-            {label}
-            {id === "compare" && compareSet.length > 0 ? ` (${compareSet.length})` : ""}
-          </button>
-        ))}
-      </nav>
-      <main id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
-        {health.error && tab !== "research" && (
-          <div className="refusal refusal-unavailable" role="status">
-            <strong>Server unavailable.</strong> Start it with <code>cargo run -p ignis-cli -- serve --dev</code>.
-          </div>
-        )}
-        {tab === "explore" && (
-          <Explore
-            origin={origin}
-            compareSet={compareSet}
-            toggleCompare={(id) => setCompareSet((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length >= 8 ? s : [...s, id]))}
-            openLab={(id) => {
-              setRunId(id);
-              setTab("lab");
-            }}
-          />
-        )}
-        {tab === "research" && <Research />}
-        {tab === "compare" && <Compare origin={origin} runIds={compareSet} clear={() => setCompareSet([])} />}
-        {tab === "lab" && <Lab origin={origin} runId={runId} setRunId={setRunId} />}
+        {route.view === "home" && <Home />}
+        {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} tab={route.params.get("tab")} />}
+        {route.view === "map" && <MapView />}
+        {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
+        {route.view === "compare" && <Compare />}
+        {route.view === "lab" && <Lab runId={route.id} />}
+        {route.view === "sources" && <Sources key={route.params.get("q") ?? ""} initial={route.params.get("q")} />}
+        {route.view === "models" && <Models />}
       </main>
-      <footer className="muted">
-        contracts v{SCHEMA_VERSION}
-        {health.data && (
-          <>
-            {" "}
-            · {health.data.data_origin.label} · {health.data.registry.experiments} experiments · evidence catalog{" "}
-            {health.data.evidence_catalog?.available ? "available" : "unavailable"} · {health.data.experts.length} expert{health.data.experts.length === 1 ? "" : "s"} in process
-          </>
-        )}
-      </footer>
+      <Panel />
+      <CommandMenu open={cmd} onClose={() => setCmd(false)} />
     </div>
   );
 }

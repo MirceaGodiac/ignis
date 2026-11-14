@@ -1,7 +1,7 @@
 // Observed points vs model quantile bands vs revealed continuation, in one uPlot instance.
 // The uPlot instance is created once; data changes call setData and the cutoff line is drawn from a
 // ref in a draw hook, so moving the cutoff never re-renders React per pixel.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 
@@ -58,11 +58,21 @@ export function ForecastChart(props: Props) {
   const cutoff = useRef(props.cutoff);
   cutoff.current = props.cutoff;
 
-  // (Re)build only when the series structure changes (number of quantile levels).
+  // The colours are read from CSS tokens at build time, so a scheme change rebuilds the plot.
+  const [scheme, setScheme] = useState(() => (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
+    if (!mq) return;
+    const on = () => setScheme(mq.matches ? "dark" : "light");
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+
+  // (Re)build only when the series structure changes (number of quantile levels) or the scheme.
   useEffect(() => {
     const el = host.current!;
     const { data, nQ } = merge(props);
-    const key = `${nQ}|${props.yLabel}`;
+    const key = `${nQ}|${props.yLabel}|${scheme}`;
     if (plot.current && shape.current === key) {
       plot.current.setData(data, false);
       plot.current.setScale("x", { min: 0, max: Math.max(props.xMax, props.cutoff) });
@@ -131,7 +141,7 @@ export function ForecastChart(props: Props) {
     };
     plot.current = new uPlot(opts, data, el);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.observed, props.revealed, props.bands, props.yLabel, props.xMax]);
+  }, [props.observed, props.revealed, props.bands, props.yLabel, props.xMax, scheme]);
 
   // Cutoff moves immediately: redraw only.
   useEffect(() => {
