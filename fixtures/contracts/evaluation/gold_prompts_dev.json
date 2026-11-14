@@ -1,0 +1,24 @@
+{
+  "schema_version": "evaluation.v2",
+  "set_id": "fixture-gold-dev",
+  "set_hash": "sha256:950a100c9dcf28a269d654c289e871262cb00cb432a17d47580b3bf4c490899c",
+  "prompts": [
+    {
+      "task_id": "fixture-gold-doc-01",
+      "class": "documentary",
+      "question": "Synthetic fixture: which time origin does the (fixture) protocol define for its droplet diameter series?",
+      "choices": [
+        "Synthetic fixture: igniter retraction",
+        "Synthetic fixture: first luminous frame",
+        "Synthetic fixture: drop deployment",
+        "Insufficient evidence to answer"
+      ]
+    },
+    {
+      "task_id": "fixture-gold-ana-01",
+      "class": "analytical",
+      "question": "Synthetic fixture: compute the burning rate constant of the (fixture) run from its diameter series."
+    }
+  ],
+  "origin": "synthetic_fixture"
+}

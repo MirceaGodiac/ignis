@@ -1277,26 +1277,59 @@ export type ForecastInput =
       kind: "prefix";
     };
 /**
- * `DatasetBundle::content_digest` of the bundle evaluated.
+ * How tasks are grouped for the cluster bootstrap of paired deltas.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ClusterBy".
  */
-export type Digest6 = string;
+export type ClusterBy = "task_cluster" | "task";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldSetId".
+ */
+export type GoldSetId = string;
+/**
+ * Which half of the gold tasks: the dev set shared with the builders, or the private hold-out kept
+ * in the evaluator vault, run once on a frozen protocol (LAB-Bench style).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldSplit".
+ */
+export type GoldSplit = "dev" | "holdout";
+/**
+ * Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.
+ */
+export type Partition1 = "train" | "validation" | "test";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
  */
-export type EvaluationPurpose = "development_feedback" | "final_test";
+export type EvaluationPurpose = "development_feedback" | "final_test" | "harness_benchmark";
 /**
- * Wire tag of evaluation requests and results.
+ * Wire tag of gold tasks, evaluation requests and results. Wave K1 writes `evaluation.v2`;
+ * `evaluation.v1` (C0) documents are still read and keep their `request_hash`, because a document
+ * is re-serialized with the tag it was read with and v1 documents never carry a v2 field. A v2
+ * addition (a gold task or set, a harness benchmark) is refused under the v1 tag.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationSchema".
  */
-export type EvaluationSchema = "evaluation.v1";
+export type EvaluationSchema = "evaluation.v2" | "evaluation.v1";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "CaseFailureKind".
  */
 export type CaseFailureKind = "refused" | "failed";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RunOutcome".
+ */
+export type RunOutcome = "scored" | "refused" | "failed";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldTaskId".
+ */
+export type GoldTaskId = string;
 /**
  * Population a metric is computed over. Conditional quality (scored cases only) is always shown
  * next to coverage over all cases.
@@ -1312,6 +1345,78 @@ export type Population = "scored_cases" | "all_cases";
  * via the `definition` "Verdict".
  */
 export type Verdict = ("not_assessed" | "inconclusive" | "not_qualified") | "qualified";
+/**
+ * The answer key. Never part of what an agent under test receives (`GoldPrompt`).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerKey".
+ */
+export type AnswerKey =
+  | {
+      /**
+       * The choices shown, without the "insufficient evidence" option, which is always added.
+       */
+      choices: string[];
+      /**
+       * 0-based index of the right choice; absent when "insufficient evidence" is the right answer.
+       */
+      correct?: number | null;
+      kind: "documentary";
+      /**
+       * Where the right choice is supported (required when one is right).
+       */
+      support?: GoldEvidence[];
+    }
+  | {
+      /**
+       * Locators that support the statement; a cited locator is scored against these.
+       */
+      accepted: GoldEvidence[];
+      kind: "citation";
+      statement: string;
+    }
+  | {
+      check: ArtifactRef2;
+      expected: ExpectedValue[];
+      inputs?: ArtifactRef[];
+      kind: "analytical";
+    }
+  | {
+      kind: "predictive";
+      protocol: ProtocolRef1;
+      target: Quantity;
+    };
+/**
+ * How a task is answered and scored (`LANES_V2.md` §6, T10).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldTaskClass".
+ */
+export type GoldTaskClass = "documentary" | "citation" | "analytical" | "predictive";
+/**
+ * Retrieval sub-set of the benchmark (decides R10 upgrades); absent for tasks outside it.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RetrievalKind".
+ */
+export type RetrievalKind = "single_hop" | "multi_hop" | "figure";
+/**
+ * What the task is about (master design §24.2), so a pilot covers every kind.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldTopic".
+ */
+export type GoldTopic =
+  | "definitions_protocols"
+  | "tables_figures"
+  | "synthesis"
+  | "computation"
+  | "models_diagnostics"
+  | "persistent_research";
+/**
+ * The `set_hash` of the dev set the prompts come from.
+ */
+export type Digest6 = string;
 /**
  * What a `Source.id` hashes: the fetched bytes, a listing entry (url+size+provider checksum, not yet
  * fetched) or a provider metadata record (access-gated). Only `Bytes` proves content identity.
@@ -1427,6 +1532,9 @@ export interface IgnisContracts {
   ForecastRequest?: ForecastRequest;
   EvaluationRequest?: EvaluationRequest;
   EvaluationResult?: EvaluationResult;
+  GoldTask?: GoldTask;
+  GoldSet?: GoldSet;
+  GoldPromptSet?: GoldPromptSet;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -3940,26 +4048,37 @@ export interface ForecastSettings {
  */
 export interface EvaluationRequest {
   baselines?: ModelUnderTest[];
-  candidate: ModelUnderTest;
+  candidate?: ModelUnderTest | null;
   client_request_id?: ClientRequestId | null;
   /**
-   * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
+   * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing. Model
+   * purposes only (empty for a harness benchmark).
    */
-  cutoffs_s: number[];
-  dataset_hash: Digest6;
-  dataset_id: DatasetId;
+  cutoffs_s?: number[];
+  /**
+   * `DatasetBundle::content_digest` of the bundle evaluated. Model purposes only.
+   */
+  dataset_hash?: Digest1 | null;
+  dataset_id?: DatasetId | null;
+  /**
+   * v2, harness benchmark only.
+   */
+  harness?: HarnessBenchmark | null;
   metrics: MetricSpec[];
-  partition: Partition;
+  partition: Partition1;
   protocol: ProtocolRef;
   purpose: EvaluationPurpose;
   request_id: EvaluationId;
   schema_version: EvaluationSchema;
-  split_id: string;
-  target: Quantity;
+  split_id?: string | null;
   /**
-   * SI unit of the target; must equal `target`'s.
+   * Model purposes only (absent for a harness benchmark).
    */
-  unit: string;
+  target?: Quantity | null;
+  /**
+   * SI unit of the target; must equal `target`'s. Model purposes only.
+   */
+  unit?: string | null;
 }
 /**
  * A model under evaluation: release, forward code identity and the settings it runs with.
@@ -3988,11 +4107,61 @@ export interface ForecastSettings1 {
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HarnessBenchmark".
+ */
+export interface HarnessBenchmark {
+  /**
+   * The arm deltas are measured against (H0).
+   */
+  baseline: string;
+  cluster_by: ClusterBy;
+  gold_set: GoldSetRef;
+  /**
+   * Runs per task and arm (seeds); deltas are paired on (task, repetition).
+   */
+  repetitions: number;
+  /**
+   * At least two arms; same runtime build, model and effort, so only the harness differs.
+   */
+  variants: HarnessVariant[];
+}
+/**
+ * The gold set a benchmark runs on, pinned by digest.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldSetRef".
+ */
+export interface GoldSetRef {
+  set_hash: Digest1;
+  set_id: GoldSetId;
+  split: GoldSplit;
+  task_count: number;
+}
+/**
+ * One harness arm. Refers to the harness bundle by digest (research.v2 `HarnessRef`), never by
+ * embedding it.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HarnessVariant".
+ */
+export interface HarnessVariant {
+  effort?: string | null;
+  harness_digest: Digest1;
+  model: string;
+  /**
+   * Short name (`h0`, `h1`, `h1-no-wiki`); unique in the benchmark.
+   */
+  name: string;
+  runtime_build: RuntimeBuildId;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "MetricSpec".
  */
 export interface MetricSpec {
   /**
-   * Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`).
+   * Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`;
+   * for a harness benchmark e.g. `accuracy`, `precision`, `citation_support`, `check_pass`).
    */
   metric: string;
   version: string;
@@ -4003,7 +4172,8 @@ export interface MetricSpec {
  */
 export interface ProtocolRef {
   /**
-   * Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test.
+   * Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test
+   * and for anything that touches the hold-out.
    */
   frozen_hash?: Digest1 | null;
   protocol_id: string;
@@ -4017,14 +4187,24 @@ export interface EvaluationResult {
   cases: CaseAccounting;
   compute?: ComputeUsage | null;
   /**
-   * `scored / total` for the candidate (0 when there are no cases).
+   * `scored / total` for the candidate, or over all runs of a harness benchmark (0 when there are
+   * no cases).
    */
   coverage: number;
   created_at: Timestamp;
   /**
-   * Candidate failures; when `per_case` is absent this list is complete.
+   * Candidate failures; when `per_case` is absent this list is complete. Empty for a harness
+   * benchmark, whose refused and failed runs are in `harness.runs`.
    */
   failures?: CaseFailure[];
+  /**
+   * v2, harness benchmark only.
+   */
+  harness?: HarnessComparison | null;
+  /**
+   * Model metrics (subject = a release). Empty for a harness benchmark, whose metrics are in
+   * `harness`.
+   */
   metrics: MetricValue[];
   origin: Origin;
   /**
@@ -4038,7 +4218,8 @@ export interface EvaluationResult {
   verdict: Verdict;
 }
 /**
- * Every case of the protocol is counted: failures and refusals stay in the denominator.
+ * Every case of the protocol is counted: failures and refusals stay in the denominator. For a
+ * harness benchmark a case is one (task, arm, repetition) run.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "CaseAccounting".
@@ -4069,6 +4250,99 @@ export interface CaseFailure {
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HarnessComparison".
+ */
+export interface HarnessComparison {
+  deltas?: PairedDelta[];
+  /**
+   * Every planned run (task × arm × repetition), including refused and failed ones.
+   */
+  runs: HarnessRunResult[];
+  scores: VariantScore[];
+}
+/**
+ * `variant − baseline` on one metric, paired on (task, repetition), with a cluster-bootstrap
+ * interval over `clusters` clusters.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "PairedDelta".
+ */
+export interface PairedDelta {
+  baseline: string;
+  clusters: number;
+  delta: number;
+  interval: Interval;
+  metric: string;
+  pairs: number;
+  variant: string;
+}
+/**
+ * A two-sided interval at `level` (e.g. 0.95).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "Interval".
+ */
+export interface Interval {
+  hi: number;
+  level: number;
+  lo: number;
+}
+/**
+ * One (task, arm, repetition) run. Its trace (research.v2 `TraceBundle`) holds the cost and
+ * tokens; the run refers to it by id.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "HarnessRunResult".
+ */
+export interface HarnessRunResult {
+  /**
+   * False when the agent chose "insufficient evidence" (precision counts only answered runs).
+   */
+  answered: boolean;
+  outcome: RunOutcome;
+  repetition: number;
+  /**
+   * Task score in [0, 1]; present exactly for a scored run.
+   */
+  score?: number | null;
+  task_id: GoldTaskId;
+  trace_id?: TraceId | null;
+  variant: string;
+}
+/**
+ * One metric of one arm over its runs.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "VariantScore".
+ */
+export interface VariantScore {
+  cost?: CostTotal | null;
+  interval?: Interval | null;
+  metric: string;
+  n: number;
+  tokens?: number | null;
+  /**
+   * Absent when undefined (no runs it applies to).
+   */
+  value?: number | null;
+  variant: string;
+  version: string;
+}
+/**
+ * A money amount summed from traces. Absent when any run's cost is unknown: never a guess.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostTotal".
+ */
+export interface CostTotal {
+  amount: number;
+  /**
+   * ISO 4217 code, e.g. `USD`.
+   */
+  currency: string;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "MetricValue".
  */
 export interface MetricValue {
@@ -4094,26 +4368,170 @@ export interface MetricValue {
  */
 export interface EvaluationRequest1 {
   baselines?: ModelUnderTest[];
-  candidate: ModelUnderTest;
+  candidate?: ModelUnderTest | null;
   client_request_id?: ClientRequestId | null;
   /**
-   * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
+   * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing. Model
+   * purposes only (empty for a harness benchmark).
    */
-  cutoffs_s: number[];
-  dataset_hash: Digest6;
-  dataset_id: DatasetId;
+  cutoffs_s?: number[];
+  /**
+   * `DatasetBundle::content_digest` of the bundle evaluated. Model purposes only.
+   */
+  dataset_hash?: Digest1 | null;
+  dataset_id?: DatasetId | null;
+  /**
+   * v2, harness benchmark only.
+   */
+  harness?: HarnessBenchmark | null;
   metrics: MetricSpec[];
-  partition: Partition;
+  partition: Partition1;
   protocol: ProtocolRef;
   purpose: EvaluationPurpose;
   request_id: EvaluationId;
   schema_version: EvaluationSchema;
-  split_id: string;
-  target: Quantity;
+  split_id?: string | null;
   /**
-   * SI unit of the target; must equal `target`'s.
+   * Model purposes only (absent for a harness benchmark).
    */
+  target?: Quantity | null;
+  /**
+   * SI unit of the target; must equal `target`'s. Model purposes only.
+   */
+  unit?: string | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldTask".
+ */
+export interface GoldTask {
+  answer: AnswerKey;
+  authored_by: string;
+  class: GoldTaskClass;
+  /**
+   * Cluster for paired statistics (cluster bootstrap): tasks that share a study or run group
+   * share a cluster, because they are not independent.
+   */
+  cluster: string;
+  created_at: Timestamp;
+  /**
+   * Investigations the task is about (PSI ids); at least one.
+   */
+  investigations: string[];
+  origin: Origin;
+  question: string;
+  retrieval?: RetrievalKind | null;
+  /**
+   * Independent reviewers of the key (e.g. citations reviewed by the knowledge lane).
+   */
+  reviewed_by?: string[];
+  schema_version: EvaluationSchema;
+  split: GoldSplit;
+  task_id: GoldTaskId;
+  topic: GoldTopic;
+}
+/**
+ * A place in a source that supports an answer. Gold evidence is fixed by the task author, not
+ * returned by an episode, so it names the source and locator directly.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldEvidence".
+ */
+export interface GoldEvidence {
+  locator: SourceLocator;
+  source_id: SourceId;
+}
+/**
+ * Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download
+ * link is resolved through the access service, may expire, and does not change the artifact.
+ */
+export interface ArtifactRef2 {
+  artifact_id: ArtifactId;
+  byte_length: number;
+  /**
+   * Exported contract type of the content when it is a JSON/JSONL contract document
+   * (`"AnalysisArtifact"`, `"ResearchAnswer"`, ...). Consumers dispatch on it.
+   */
+  contract?: string | null;
+  created_at: Timestamp;
+  /**
+   * Entities this artifact was computed from (lineage, not access grants).
+   */
+  inputs?: EntityRef[];
+  /**
+   * IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.
+   */
+  media_type: string;
+  origin: Origin;
+  produced_by?: Producer;
+  sha256: Digest1;
+}
+/**
+ * One number an executable check must reproduce, in SI, with an explicit tolerance.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ExpectedValue".
+ */
+export interface ExpectedValue {
+  abs_tol?: number | null;
+  name: string;
+  rel_tol?: number | null;
   unit: string;
+  value_si: number;
+}
+/**
+ * The frozen evaluator protocol that scores it (targets, groups, cutoffs).
+ */
+export interface ProtocolRef1 {
+  /**
+   * Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test
+   * and for anything that touches the hold-out.
+   */
+  frozen_hash?: Digest1 | null;
+  protocol_id: string;
+  version: string;
+}
+/**
+ * A frozen set of gold tasks. `set_hash` is the digest of `tasks` and is what a benchmark request
+ * pins. A dev set goes to the builders (`benchmarks/`); a hold-out set stays in the evaluator vault.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldSet".
+ */
+export interface GoldSet {
+  created_at: Timestamp;
+  origin: Origin;
+  protocol: ProtocolRef;
+  schema_version: EvaluationSchema;
+  set_hash: Digest1;
+  set_id: GoldSetId;
+  split: GoldSplit;
+  tasks: GoldTask[];
+}
+/**
+ * The prompts of a dev set, as a builder's harness runner reads them (M10). Always a dev set.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldPromptSet".
+ */
+export interface GoldPromptSet {
+  origin: Origin;
+  prompts: GoldPrompt[];
+  schema_version: EvaluationSchema;
+  set_hash: Digest6;
+  set_id: GoldSetId;
+}
+/**
+ * The runner-facing form of a gold task: no answer key, no supporting evidence, no reviewers.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GoldPrompt".
+ */
+export interface GoldPrompt {
+  choices?: string[];
+  class: GoldTaskClass;
+  question: string;
+  task_id: GoldTaskId;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
