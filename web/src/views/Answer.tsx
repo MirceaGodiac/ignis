@@ -11,6 +11,8 @@ import { useCompare } from "../shell/compare";
 import { go } from "../shell/router";
 import { IconArrow } from "../shell/icons";
 import { CLAIM_LABEL, ClaimGlyph, EvidenceClassTag, fmtBytes, OriginMark, shortId, words } from "../ui/common";
+import { LinkedViews } from "../shell/linked";
+import { ViewBlock } from "./AnswerViews";
 
 export function locatorText(e: EvidenceRef): string {
   const l = e.locator;
@@ -57,6 +59,7 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
   };
 
   return (
+    <LinkedViews>
     <section className="answer" aria-label="Answer">
       <div className="answer-main">
         <div className="answer-head">
@@ -100,12 +103,8 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
               </p>
             );
           if (b.type === "view")
-            // research.v2 catalog view: placeholder until the catalog renderer (T8) exists.
-            return (
-              <p key={i} className="note">
-                View <code>{b.view.kind}</code> placed by the agent{b.caption ? `: ${b.caption}` : ""} (not rendered yet).
-              </p>
-            );
+            // research.v2 catalog view (T8): rendered from the UI's own component registry.
+            return <ViewBlock key={i} view={b.view} caption={b.caption} answer={answer} client={client} claimKeys={(b.claim_ids ?? []).map(keyOf)} />;
           fig++;
           const a = artifacts.get(b.artifact_id);
           return a ? (
@@ -154,6 +153,7 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
         />
       )}
     </section>
+    </LinkedViews>
   );
 }
 
