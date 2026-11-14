@@ -49,7 +49,14 @@ pub struct ToolServices {
     pub models: Option<Arc<dyn ModelService>>,
     /// The isolated analysis runner; present only when it passed preflight.
     pub sandbox: Option<Arc<Sandbox>>,
+    /// The deployment switched the model families (FLEX/ACME/BASS) off. Their contracts and tool
+    /// descriptors stay in the catalog; the model tools are not registered and report this reason.
+    pub models_disabled: bool,
 }
+
+/// Why the model tools are absent when the deployment switched the model families off.
+pub const MODELS_DISABLED: &str =
+    "model families (FLEX/ACME/BASS) disabled in this deployment (start with --enable-models)";
 
 /// A catalog entry and whether this deployment can serve it.
 #[derive(Debug, Clone)]
@@ -71,6 +78,9 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 }
                 "datasets_inspect" if services.datasets.is_none() => {
                     Some("DatasetService not configured")
+                }
+                "models_inspect" | "models_forecast" if services.models_disabled => {
+                    Some(MODELS_DISABLED)
                 }
                 "models_inspect" | "models_forecast" if services.models.is_none() => {
                     Some("ModelService not configured")

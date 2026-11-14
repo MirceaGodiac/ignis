@@ -596,7 +596,14 @@ async fn capabilities(State(v): St, _c: Caller) -> Json<Capabilities> {
         runtime_build: v.runtime_report.manifest.clone(),
         knowledge: status(s.knowledge.is_some(), "KnowledgeService", "Raul, R3"),
         datasets: status(s.datasets.is_some(), "DatasetService", "Raul, R2"),
-        models: status(s.models.is_some(), "ModelService", "Iancu, I2"),
+        models: if s.models_disabled {
+            ServiceStatus {
+                available: false,
+                detail: ignis_mcp::MODELS_DISABLED.into(),
+            }
+        } else {
+            status(s.models.is_some(), "ModelService", "Iancu, I2")
+        },
         artifact_store: ServiceStatus {
             available: true,
             detail: "local content-addressed store".into(),
@@ -896,6 +903,14 @@ fn knowledge(v: &V1) -> ApiResult<Arc<dyn KnowledgeService>> {
 }
 
 fn models(v: &V1) -> ApiResult<Arc<dyn ModelService>> {
+    if v.services.models_disabled {
+        return Err(ErrorEnvelope::new(
+            ErrorCode::CapabilityUnavailable,
+            ignis_mcp::MODELS_DISABLED,
+            RetryPolicy::Never,
+        )
+        .into());
+    }
     v.services
         .models
         .clone()

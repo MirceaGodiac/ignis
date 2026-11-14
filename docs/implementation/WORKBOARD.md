@@ -6,27 +6,27 @@ până la livrarea dependenței se lucrează pe fixture-urile din `fixtures/cont
 
 | ID | Owner | Livrabil | Dependență | Stare |
 |---|---|---|---|---|
-| C0 | Iancu | contracte, servicii, scheme + TS, fixture-uri, teste de contract, AGENTS.md, handoff-uri | — | **în acest PR** |
-| I1 | Iancu | `ModelSpec` complet FLEX și ACME (normal/inverse): parametri fizici, noise/hazard, stări locale, layout, fără defaulturi ascunse | C0 | |
-| I2 | Iancu | `ignis-wsp`: assembler literal (spec + patch [+ parent] → tensori → release prin registry), forward strict, audit al rutei reale de forecast | I1 | |
-| I3 | Iancu | candidați W0 independenți Fable / Astra, manifeste, model cards | I2 | |
-| I4 | Iancu | W1 cu feedback de development; candidații nereușiți păstrați | I3 + T2 + R2 | |
-| I5 | Iancu | BASS WSP pe observabila calificată, prin `ModelService` | I2 + R5 | |
-| M1 | Mircea | Codex pin + preflight, bridge stdio, handshake, approvals, mapping thread/turn/item, turn fixture | C0 | **în lucru** (`feat/agent-runtime`, peste M2): `ignis_research::runtime` (pin 0.141.0 → 0.169.0, preflight, bridge stdio, approvals prin host, mapping, pause/cancel/resume, recovery fără duplicare), endpoint de aprobare, teste offline cu app-server fals; turn real cu model verificat pe 0.169.0 (login ChatGPT, opt-in), tool-uri prin MCP în M3 |
-| M2 | Mircea | `/api/v1` HTTP + SSE reluabil, state store (SQLite WAL), `ArtifactStore`, joburi cu lease; închiderea scurgerilor de test din API-ul vechi; OpenAPI generat | C0 | **în lucru** (`feat/agent-backend`): store, SSE, joburi, artefacte locale, OpenAPI, scurgeri închise, uploads, priorități, fixture mode `/api/fixtures/v1`. Rămân: backend R2 (M4), un singur vault cu Tudor (T2) |
-| M3 | Mircea | MCP (`rmcp`) peste serviciile colegilor; runner izolat; fără shell pe host | M1 + M2 | **în lucru** (`feat/m3-mcp`): `crates/ignis-mcp` (dispatcher unic `ToolHost` + server rmcp streamable HTTP pe loopback), token per proces Codex → scope-ul workspace-ului, tool nou `jobs_get`, job MCP atașat episodului; pin Codex 0.169.0; turn real cu model (login ChatGPT) cheamă `sources_search` prin MCP. **Livrat și** (`feat/m3-runner`): runner izolat (`ignis_research::sandbox`, container OCI fără rețea/root read-only/uid 65534/fără capabilități, imagine pin-uită prin id, probă de izolare la preflight) + tool `analysis_execute` → `ExecutionRecord`. Rămâne: verificarea sub gVisor (`runsc`) pe Netcup (M4) |
-| M4 | Mircea | Cloudflare/Netcup, auth, secrets, backup/restore, CI | M2 + M3 | **în lucru** (`feat/m4-infra`): CI, verificarea JWT Access în Rust (două assertion-uri semnate), backend R2 pentru `ArtifactStore`, snapshot/restore de stare (`ignis state`), `infra/` (imagine, Compose, systemd, Worker, runbook). Rămân, cu autorizare: provizionarea Cloudflare/Netcup, bucket R2 real, gVisor pe Netcup, RPO/RTO măsurate |
-| M5 | Mircea | integrare live, cancel/resume/reconciliation, observabilitate | R3 + I2 + T1 | |
-| R1 | Raul | manifest de corpus; un document primar + parser + locator verificat | C0 | |
-| R2 | Raul | `DatasetBundle` FLEX/ACME: identitate, unități, timp, calitate | C0 | |
-| R3 | Raul | `KnowledgeService`: hybrid retrieval + reader, aceeași logică pentru CLI/HTTP/MCP | R1 | |
-| R4 | Raul | web discovery cu snapshot, wiki (CAS), `ProvenanceLink`, corpus snapshot | R3 | |
-| R5 | Raul | BASS: clip→run, calibrare, contur, `VisualObservationBundle` | R2 (nu blochează R3) | |
-| T1 | Tudor | UI pe fixture-urile C0: chat/SSE, evidence viewer, artefacte, stări pending/failed/inconclusive/experimental | C0 | |
-| T2 | Tudor | evaluator pe fixture → `EvaluationResult` determinist; protocol freeze; scorecards | C0 | |
-| T3 | Tudor | UI live + benchmark retrieval/răspuns/calcul | M2 + R3 | |
-| T4 | Tudor | scoring WSP; harness H0/H1, rezultate pereche | T2 + I3 + M5 | |
-| T5 | Tudor | demo bundle, deck/video, export verificabil | T3 + rezultate admise | |
+| C0 | Iancu | contracte, servicii, scheme + TS, fixture-uri, teste de contract, AGENTS.md, handoff-uri | — | **integrat** în `main` |
+| I1 | Iancu | `ModelSpec` complet FLEX și ACME (normal/inverse): parametri fizici, noise/hazard, stări locale, layout, fără defaulturi ascunse | C0 | de făcut. Contractele (`ModelSpec`, `HandwrittenWeightPatch`, `ModelRelease`) sunt publicate; în harness familiile sunt oprite (`--enable-models` / `IGNIS_ENABLE_MODELS`, implicit off) |
+| I2 | Iancu | `ignis-wsp`: assembler literal (spec + patch [+ parent] → tensori → release prin registry), forward strict, audit al rutei reale de forecast | I1 | de făcut; până atunci `ignis serve` nu injectează `ModelService`, iar `models_inspect`/`models_forecast` raportează „disabled” în `/api/v1/capabilities` |
+| I3 | Iancu | candidați W0 independenți Fable / Astra, manifeste, model cards | I2 | de făcut |
+| I4 | Iancu | W1 cu feedback de development; candidații nereușiți păstrați | I3 + T2 + R2 | de făcut |
+| I5 | Iancu | BASS WSP pe observabila calificată, prin `ModelService` | I2 + R5 | de făcut (după I2 + R5); oprit în harness ca I1–I4 |
+| M1 | Mircea | Codex pin + preflight, bridge stdio, handshake, approvals, mapping thread/turn/item, turn fixture | C0 | **integrat** în `main`: bridge Codex 0.169.0, preflight, approvals, mapping, recovery; turn real verificat (login ChatGPT, opt-in) |
+| M2 | Mircea | `/api/v1` HTTP + SSE reluabil, state store (SQLite WAL), `ArtifactStore`, joburi cu lease; închiderea scurgerilor de test din API-ul vechi; OpenAPI generat | C0 | **integrat** în `main`: `/api/v1`, SSE reluabil, store, joburi, artefacte, uploads, OpenAPI, fixture mode `/api/fixtures/v1` |
+| M3 | Mircea | MCP (`rmcp`) peste serviciile colegilor; runner izolat; fără shell pe host | M1 + M2 | **integrat** în `main`: `ignis-mcp` (dispatcher unic + rmcp pe loopback), `jobs_get`, runner izolat + `analysis_execute`. Rămâne: verificarea sub gVisor pe Netcup (M4) |
+| M4 | Mircea | Cloudflare/Netcup, auth, secrets, backup/restore, CI | M2 + M3 | **integrat** în `main`: CI, JWT Access, R2 `ArtifactStore`, `ignis state` backup/restore, `infra/`. Rămân, cu autorizare: provizionarea Cloudflare/Netcup, bucket R2 real, gVisor, RPO/RTO măsurate |
+| M5 | Mircea | integrare live, cancel/resume/reconciliation, observabilitate | R3 + I2 + T1 | pornit: `ignis serve` injectează `KnowledgeService` (R3) și `DatasetService` (R2) când datele lor există; rămân integrarea live, observabilitatea și `ModelService` (după I2) |
+| R1 | Raul | manifest de corpus; un document primar + parser + locator verificat | C0 | **integrat** în `main` (cu R3) |
+| R2 | Raul | `DatasetBundle` FLEX/ACME: identitate, unități, timp, calitate | C0 | **integrat** în `main`: `DatasetBundle` FLEX/ACME + `DatasetService`. Bundle-ul de evaluator e pasul lui Tudor |
+| R3 | Raul | `KnowledgeService`: hybrid retrieval + reader, aceeași logică pentru CLI/HTTP/MCP | R1 | **integrat** în `main`: `KnowledgeService` (lexical-only fără `DEEPINFRA_API_KEY`, declarat). Ruta veche `/api/evidence/search` folosește încă motorul FTS din `ignis-server` |
+| R4 | Raul | web discovery cu snapshot, wiki (CAS), `ProvenanceLink`, corpus snapshot | R3 | de făcut |
+| R5 | Raul | BASS: clip→run, calibrare, contur, `VisualObservationBundle` | R2 (nu blochează R3) | **integrat** în `main`: bundle-uri vizuale BASS (`dataset.v1` `ImageContourObservation`), fără calibrare metrică |
+| T1 | Tudor | UI pe fixture-urile C0: chat/SSE, evidence viewer, artefacte, stări pending/failed/inconclusive/experimental | C0 | **integrat** în `main` |
+| T2 | Tudor | evaluator pe fixture → `EvaluationResult` determinist; protocol freeze; scorecards | C0 | **integrat** în `main`: evaluator pe fixture, protocol freeze, scorecards. Rămâne `CaseSource` din vault (R2) |
+| T3 | Tudor | UI live + benchmark retrieval/răspuns/calcul | M2 + R3 | partea 1 **integrată** (UI live pe `/api/v1`); benchmark-ul (partea 2) rămâne |
+| T4 | Tudor | scoring WSP; harness H0/H1, rezultate pereche | T2 + I3 + M5 | de făcut (după I3) |
+| T5 | Tudor | demo bundle, deck/video, export verificabil | T3 + rezultate admise | pornit: animația Stageshow pentru deck |
 
 R5 și I5 se pot dezvolta pe fixture înaintea calibrării reale, dar nu se declară `metric` / calificate
 până nu există. Un WSP slab nu blochează documente/calcul; schimbă doar verdictul și partea de demo.
