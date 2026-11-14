@@ -38,7 +38,7 @@ din `main` (`feat/<lane>-<task>`), șters la merge.
 
 | P | ID | Owner | Livrabil | Dependență | Stare |
 |---|---|---|---|---|---|
-| P0 | K1-evidence/dataset | Raul | `evidence.v2` + `dataset.v2`: `SourceAccess`, `SourceLabel`, `SourceOutline`, graf, wiki, web, `ConditionsTable`, `ResponseFormat` | — | **scris** pe `feat/scientific-data-k1` (b31823e), PR de deschis |
+| P0 | K1-evidence/dataset | Raul | `evidence.v2` + `dataset.v2`: `SourceAccess`, `SourceLabel`, `SourceOutline`, graf, wiki, web, `ConditionsTable`, `ResponseFormat` | — | **integrat** în `main` (PR #26) |
 | P0 | K1-research | Mircea | `research.v2`: `AnswerSubmission`, `ViewSpec` (co-design Tudor), argumente tool, `StepRationale`, `HarnessRef`, `TraceBundle`, tipuri server în core, intrări noi în `tool_catalog()` | — | de făcut |
 | P0 | K1-evaluation | Tudor | `evaluation.v2`: `GoldTask`, `HarnessComparison` | — | de făcut |
 | P0 | M7 | Mircea | `answer_submit` (efect `compute`): validare pe host → `answer.completed`; refuz cu motiv acționabil | K1-research | de făcut |

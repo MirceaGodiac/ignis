@@ -88,9 +88,15 @@ scope, workspace id or partition grant from a request body, tool argument, promp
   checkpoints and real resource budgets. Security and physical limits stay.
 - **Small surface, no speculation:** no framework, microservice or abstraction without a concrete
   consumer. Do not rewrite mature components for novelty.
-- **Tests guard invariants, boundaries and expensive failure modes** — schema compatibility, payload
-  validation, release meaning, test isolation, citation/unit correctness, replay. No getter tests,
-  line-by-line mirrors, valueless snapshots, heavy mocks or coverage padding. Keep existing valuable tests.
+- **Tests: integration and end-to-end first; unit tests only where they really matter.** Prefer a
+  test that drives a real path: HTTP/SSE route → service → store; MCP tool → service → `ToolResult`;
+  runtime bridge against the fake Codex/Claude binaries; CLI command on fixtures; the UI in fixture
+  mode. E2E tests run offline on fixtures and fakes; live tests stay opt-in. Write a unit test only for
+  a hard invariant or an expensive failure mode that an integration test cannot pin down cheaply:
+  contract `validate()` rules and schema drift, test-partition isolation, citation/unit correctness,
+  release construction, event-log replay/resume. Never add getter tests, tests that restate the code
+  line by line, snapshots without a reason, heavy mocks or coverage padding. Keep existing tests that
+  guard those invariants; remove a clearly pointless test only in your own lane.
 
 ## Commands
 
