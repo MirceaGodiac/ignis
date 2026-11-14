@@ -948,6 +948,36 @@ fn atomic_write(p: &Path, bytes: &[u8]) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// The parsed conditions table, kept while its file is unchanged (same length and modification time).
+/// The table is a file built offline (`ignis data conditions`, about 5 MB); parsing it on every request
+/// cost most of a request's time. A rebuilt file is read again on the next request.
+fn cached_table(p: &Path) -> ServiceResult<Arc<ConditionsTable>> {
+    type Key = (u64, Option<std::time::SystemTime>);
+    static TABLE: std::sync::Mutex<Option<(PathBuf, Key, Arc<ConditionsTable>)>> =
+        std::sync::Mutex::new(None);
+    let meta = std::fs::metadata(p).map_err(|_| {
+        err(
+            ErrorCode::CapabilityUnavailable,
+            format!("{} is not built; run `ignis data conditions`", p.display()),
+        )
+    })?;
+    let key: Key = (meta.len(), meta.modified().ok());
+    let mut slot = TABLE.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((path, k, t)) = slot.as_ref() {
+        if path == p && *k == key {
+            return Ok(t.clone());
+        }
+    }
+    let text = std::fs::read_to_string(p)
+        .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+    let table: Arc<ConditionsTable> = Arc::new(
+        serde_json::from_str(&text)
+            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?,
+    );
+    *slot = Some((p.to_path_buf(), key, table.clone()));
+    Ok(table)
+}
+
 impl DatasetService for DatasetStore {
     fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle> {
         scope
@@ -992,14 +1022,7 @@ impl DatasetService for DatasetStore {
             .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
         scope.require(Capability::ReadData)?;
         let p = crate::conditions::table_path();
-        let text = std::fs::read_to_string(&p).map_err(|_| {
-            err(
-                ErrorCode::CapabilityUnavailable,
-                format!("{} is not built; run `ignis data conditions`", p.display()),
-            )
-        })?;
-        let full: ConditionsTable = serde_json::from_str(&text)
-            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+        let full = cached_table(&p)?;
         let splits: Vec<Split> = crate::cohort::split_files()
             .iter()
             .map(|f| {
