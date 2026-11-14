@@ -6,10 +6,11 @@ import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, Res
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
-import { fmtGravity, fmtMeasured } from "../format";
+import { fmtGravity } from "../format";
 import { ArtifactValue, EvidenceSummary, locatorText, placeShort } from "../views/Answer";
 import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, RefusalNote, ReleaseState, shortId, Synthetic, words } from "../ui/common";
 import { useCompare } from "./compare";
+import { conditionRows, gapText } from "../research/runConditions";
 import { useData } from "./data";
 import { usePanel, type PanelItem } from "./inspector";
 import { FamilyMark, FAMILY_LABEL, IconBack, IconClose } from "./icons";
@@ -26,7 +27,7 @@ const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", Exe
 function itemTitle(i: PanelItem): string {
   switch (i.kind) {
     case "run":
-      return `Run ${i.id}`;
+      return `Run ${i.id.split(":").pop()}`;
     case "claim":
       return `Claim ${i.keyLabel}`;
     case "step":
@@ -127,7 +128,7 @@ function SourcesItem({ answers }: { answers: ResearchAnswer[] }) {
 // ---------------------------------------------------------------- run
 
 function RunItem({ id }: { id: string }) {
-  const { origin, synthetic } = useData();
+  const { origin } = useData();
   const cmp = useCompare();
   const q = useQuery({ queryKey: [origin, "experiment", id], queryFn: () => call<ExperimentDetail>(origin, `/experiments/${encodeURIComponent(id)}`), retry: false });
   if (q.isPending) return <p className="muted">Loading the run…</p>;
@@ -142,6 +143,8 @@ function RunItem({ id }: { id: string }) {
     return r ? <RefusalNote refusal={r} /> : null;
   }
   const { record, summary, releases } = q.data;
+  const rows = conditionRows(summary.conditions);
+  const gaps = summary.gaps.flatMap((g) => gapText(g) ?? []);
   return (
     <>
       <div className="panel-sec">
@@ -149,77 +152,78 @@ function RunItem({ id }: { id: string }) {
           <span className="tag">
             <FamilyMark family={summary.family} size={9} /> {FAMILY_LABEL[summary.family] ?? summary.family}
           </span>
-          {summary.synthetic && !synthetic && <Synthetic />}
-          {summary.synthetic && synthetic && <Synthetic label="Synthetic run" />}
+          {summary.synthetic && <Synthetic label="Synthetic run" />}
         </div>
-        <p style={{ fontSize: 13 }}>
-          {summary.fuel_or_material ?? "Material unknown"} · {summary.configuration ?? "configuration unknown"} · investigation {summary.investigation_id}
+        <p style={{ fontSize: 14 }}>
+          {[summary.fuel_or_material, summary.configuration?.replace(/_/g, " "), summary.investigation_id].filter(Boolean).join(" · ")}
         </p>
         <div className="toolbar">
-          <a className="btn btn-s btn-primary" href={href("lab", id)}>
-            Open in forecast lab
-          </a>
           <button className="btn btn-s" onClick={() => cmp.toggle(id)} aria-pressed={cmp.has(id)}>
             {cmp.has(id) ? "Remove from compare" : "Add to compare"}
           </button>
+          {releases.length > 0 && (
+            <a className="btn btn-s" href={href("lab", id)}>
+              Forecast
+            </a>
+          )}
         </div>
       </div>
       <div className="panel-sec">
-        <h3>Conditions (SI, as recorded)</h3>
+        <h3>Conditions</h3>
         <dl className="kv">
-          <dt>gravity</dt>
-          <dd>{fmtGravity(summary.gravity?.value_si)}</dd>
-          {Object.entries(summary.conditions).map(([k, c]) => (
-            <div key={k} style={{ display: "contents" }}>
-              <dt>{words(k)}</dt>
-              <dd>
-                {c.value_si == null ? <span className="tag tag-synthetic" style={{ background: "none" }}>{words(c.resolution)}</span> : fmtMeasured(c.value_si, c.unit_si)}
-                {c.value_si != null && c.resolution !== "resolved" && <span className="muted"> ({words(c.resolution)})</span>}
-              </dd>
+          {rows.map((r) => (
+            <div key={r.key} style={{ display: "contents" }}>
+              <dt>{r.label}</dt>
+              <dd className="num">{r.text}</dd>
             </div>
           ))}
+          {summary.gravity?.value_si != null && (
+            <>
+              <dt>Gravity</dt>
+              <dd className="num">{fmtGravity(summary.gravity.value_si)}</dd>
+            </>
+          )}
         </dl>
       </div>
-      <div className="panel-sec">
-        <h3>Measurements</h3>
-        <dl className="kv">
-          {summary.quantities.map((qq) => (
-            <div key={qq.quantity} style={{ display: "contents" }}>
-              <dt>{words(qq.quantity)}</dt>
-              <dd className="num">
-                {qq.count} points · {qq.archive_t_min_s.toFixed(2)}–{qq.archive_t_max_s.toFixed(2)} s
-              </dd>
-            </div>
-          ))}
-          <dt>endpoint</dt>
-          <dd>{summary.has_endpoint ? "recorded" : "missing"}</dd>
-          <dt>time origin</dt>
-          <dd>{q.data.control_history?.time_origin ?? "not adjudicated"}</dd>
-        </dl>
-      </div>
-      {summary.gaps.length > 0 && (
+      {summary.quantities.length > 0 && (
         <div className="panel-sec">
-          <h3>Evidence gaps</h3>
-          <ul style={{ display: "grid", gap: 4, fontSize: 13, paddingLeft: 18 }}>
-            {summary.gaps.map((g) => (
+          <h3>Measured series</h3>
+          <dl className="kv">
+            {summary.quantities.map((qq) => (
+              <div key={qq.quantity} style={{ display: "contents" }}>
+                <dt>{words(qq.quantity)}</dt>
+                <dd className="num">
+                  {qq.count} points · {qq.archive_t_min_s.toFixed(2)}–{qq.archive_t_max_s.toFixed(2)} s
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+      {releases.length > 0 && (
+        <div className="panel-sec">
+          <h3>Models</h3>
+          {releases.map((r) => (
+            <div key={r.id} className="stat-line">
+              <span>{r.model_name}</span>
+              <ReleaseState state={r.state} />
+            </div>
+          ))}
+        </div>
+      )}
+      {gaps.length > 0 && (
+        <div className="panel-sec">
+          <h3>Not available</h3>
+          <ul style={{ display: "grid", gap: 4, fontSize: 13, paddingLeft: 18, color: "var(--ink-2)" }}>
+            {gaps.map((g) => (
               <li key={g}>{g}</li>
             ))}
           </ul>
         </div>
       )}
-      <div className="panel-sec">
-        <h3>Model releases for this family</h3>
-        {releases.length === 0 && <p className="muted" style={{ fontSize: 13 }}>None: no forecast can be drawn for this run.</p>}
-        {releases.map((r) => (
-          <div key={r.id} className="stat-line">
-            <span>{r.model_name}</span>
-            <ReleaseState state={r.state} />
-          </div>
-        ))}
-      </div>
       <details>
-        <summary className="muted" style={{ fontSize: 12, cursor: "pointer" }}>
-          Full record (JSON)
+        <summary className="muted" style={{ fontSize: 12.5, cursor: "pointer" }}>
+          Record as stored
         </summary>
         <pre className="json">{JSON.stringify(record, null, 2)}</pre>
       </details>

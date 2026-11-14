@@ -11,17 +11,41 @@ import { go } from "../shell/router";
 import { ErrorNote, Synthetic } from "../ui/common";
 import { FamilyLegend } from "./AtmosMap";
 
-type Col = "id" | "family" | "fuel" | "o2" | "pressure" | "flow" | "obs" | "endpoint";
+type Col = "id" | "inv" | "family" | "fuel" | "o2" | "pressure" | "flow";
 const cond = (r: ExperimentSummary, k: string) => r.conditions[k]?.value_si ?? null;
+
+/**
+ * Ambient oxygen as each family's records name it: `x_o2` (FLEX, BASS), `x_o2_ambient` (ACME normal
+ * flames). An inverse flame burns in a fuel atmosphere: its oxygen is in the burner stream
+ * (`x_o2_injected`), shown as such and never as the atmosphere.
+ */
+function oxygen(r: ExperimentSummary): { v: number | null; burner: boolean } {
+  const amb = cond(r, "x_o2") ?? cond(r, "x_o2_ambient") ?? cond(r, "oxygen_mole_fraction");
+  if (amb != null) return { v: amb, burner: false };
+  const inj = cond(r, "x_o2_injected");
+  return { v: inj, burner: inj != null };
+}
+
+/** Flow as recorded: air velocity (BASS, m/s) or injected mass flow (ACME, kg/s, shown in mg/s). */
+function flow(r: ExperimentSummary): { v: number; text: string } | null {
+  const u = cond(r, "flow_velocity");
+  if (u != null) return { v: u, text: `${fmtNum(u * 100)} cm/s` };
+  const m = cond(r, "injected_mass_flow");
+  if (m != null) return { v: m, text: `${fmtNum(m * 1e6)} mg/s` };
+  return null;
+}
+
+/** The run's own id inside its investigation ("PSI-159:acme_inverse:21196A1" → "21196A1"). */
+const shortRun = (id: string) => id.split(":").pop() ?? id;
+
 const val: Record<Col, (r: ExperimentSummary) => string | number | null> = {
-  id: (r) => r.id,
+  id: (r) => shortRun(r.id),
+  inv: (r) => r.investigation_id,
   family: (r) => r.family,
   fuel: (r) => r.fuel_or_material,
-  o2: (r) => cond(r, "oxygen_mole_fraction"),
+  o2: (r) => oxygen(r).v,
   pressure: (r) => cond(r, "pressure"),
-  flow: (r) => cond(r, "flow_velocity") ?? cond(r, "fuel_flow_rate"),
-  obs: (r) => r.n_observations,
-  endpoint: (r) => (r.has_endpoint ? 1 : 0),
+  flow: (r) => flow(r)?.v ?? null,
 };
 
 export function Runs({ initialFamily }: { initialFamily: string | null }) {
@@ -81,6 +105,9 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
                 <span className="sr-only">Compare</span>
               </th>
               <Th col="id">Run</Th>
+              <Th col="inv" hide>
+                Investigation
+              </Th>
               <Th col="family">Family</Th>
               <Th col="fuel" hide>
                 Fuel or material
@@ -94,16 +121,12 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
               <Th col="flow" r hide>
                 Flow
               </Th>
-              <Th col="obs" r hide>
-                Points
-              </Th>
-              <Th col="endpoint" hide>Endpoint</Th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => {
-              const flow = cond(r, "flow_velocity");
-              const fuelFlow = cond(r, "fuel_flow_rate");
+              const o2 = oxygen(r);
+              const fl = flow(r);
               return (
                 <tr key={r.id} className="clickable" aria-selected={selectedRun === r.id} onClick={() => panel.open({ kind: "run", id: r.id })}>
                   <td onClick={(e) => e.stopPropagation()}>
@@ -116,35 +139,41 @@ export function Runs({ initialFamily }: { initialFamily: string | null }) {
                     />
                   </td>
                   <td>
-                    <span className="cell-id">{r.id}</span> {r.synthetic && !synthetic && <Synthetic />}
+                    <span className="cell-id" title={r.id}>
+                      {shortRun(r.id)}
+                    </span>{" "}
+                    {r.synthetic && !synthetic && <Synthetic />}
+                  </td>
+                  <td className="narrow-hide dim">
+                    {r.investigation_id}
+                    {r.configuration ? ` · ${r.configuration.replace(/_/g, " ")}` : ""}
                   </td>
                   <td>
                     <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                      <FamilyMark family={r.family} size={9} /> <span className="narrow-hide">{r.family.replace("_", " ")}</span>
+                      <FamilyMark family={r.family} size={9} /> <span className="narrow-hide">{r.family.replace("_", " ").replace("acme ", "ACME ").replace("flex", "FLEX").replace("bass", "BASS")}</span>
                     </span>
                   </td>
                   <td className="narrow-hide">{r.fuel_or_material ?? <span className="dim">unknown</span>}</td>
-                  <td className="r num">{num(cond(r, "oxygen_mole_fraction"), 100, 0)}</td>
-                  <td className="r num">{num(cond(r, "pressure"), 0.001, 1)}</td>
-                  <td className="r num narrow-hide">
-                    {flow != null ? `${fmtNum(flow)} m/s` : fuelFlow != null ? `${fmtNum(fuelFlow * 6e7)} mL/min` : <span className="dim">—</span>}
+                  <td className="r num" title={o2.burner ? "Oxygen of the burner stream; the atmosphere is the fuel" : undefined}>
+                    {o2.burner && <span className="dim small">burner </span>}
+                    {num(o2.v, 100, 1)}
                   </td>
-                  <td className="r num narrow-hide">{r.n_observations}</td>
-                  <td className="narrow-hide">{r.has_endpoint ? "recorded" : <span className="dim">missing</span>}</td>
+                  <td className="r num">{num(cond(r, "pressure"), 0.001, 1)}</td>
+                  <td className="r num narrow-hide">{fl ? fl.text : <span className="dim">—</span>}</td>
                 </tr>
               );
             })}
             {rows.length === 0 && runs.length > 0 && (
               <tr>
-                <td colSpan={9} className="dim">
+                <td colSpan={8} className="dim">
                   No run matches. <button className="linkish" onClick={() => (setText(""), setFamily(null))}>Clear the filters</button>
                 </td>
               </tr>
             )}
             {experiments.data && runs.length === 0 && (
               <tr>
-                <td colSpan={9} className="dim">
-                  {synthetic ? "No synthetic runs are loaded. Start the server with --dev." : "The registry has no runs yet. Run ignis data ingest, or switch to synthetic data."}
+                <td colSpan={8} className="dim">
+                  No runs on this server yet.
                 </td>
               </tr>
             )}
