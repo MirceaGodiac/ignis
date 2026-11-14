@@ -259,11 +259,7 @@ impl NtrsClient {
             )?;
             let v: Value =
                 serde_json::from_slice(&got.bytes).with_context(|| format!("{url}: not JSON"))?;
-            let total = v["stats"]["total"].as_u64().unwrap_or(0);
-            anyhow::ensure!(
-                total <= QUERY_CAP,
-                "{query:?}: {total} records exceed NTRS's {QUERY_CAP}-record cap; narrow the query"
-            );
+            let total = page_total(&v).with_context(|| format!("{query:?}"))?;
             let page = v["results"].as_array().cloned().unwrap_or_default();
             let n = page.len();
             out.extend(page);
@@ -272,6 +268,25 @@ impl NtrsClient {
             }
         }
     }
+}
+
+/// The exact record total of one search page. A page without `stats.total`, with an estimated
+/// total, or with more records than NTRS lets a query page through is refused: paging on a guessed
+/// or absent total would silently truncate the listing.
+pub fn page_total(page: &Value) -> anyhow::Result<u64> {
+    let stats = &page["stats"];
+    let total = stats["total"]
+        .as_u64()
+        .context("search page has no stats.total")?;
+    anyhow::ensure!(
+        stats["estimate"].as_bool() != Some(true),
+        "stats.total {total} is only an estimate; narrow the query"
+    );
+    anyhow::ensure!(
+        total <= QUERY_CAP,
+        "{total} records exceed NTRS's {QUERY_CAP}-record cap; narrow the query"
+    );
+    Ok(total)
 }
 
 /// Entries for every record of a query (pure: the network part is [`NtrsClient::search_all`]).
