@@ -64,6 +64,38 @@ fn handshake_then_a_turn_with_deltas_a_message_and_a_tool_call() {
 }
 
 #[test]
+fn a_host_refusal_is_recorded_as_refused_with_its_reason() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = Harness::new(dir.path());
+    let sc = scope("ws-refuse", false);
+    let ep = h.episode(&sc, "refuse");
+    h.say(&sc, &ep, "submit an answer that gets a refusal");
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    check_event_log(&evs).unwrap();
+    let finished: Vec<_> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::ToolFinished { result } => Some((result.clone(), e.causation.clone())),
+            _ => None,
+        })
+        .collect();
+    // Structured content and text-only content both keep the refusal, never "internal".
+    assert_eq!(finished.len(), 2);
+    for (r, c) in finished {
+        assert_eq!(r.tool, "answer_submit");
+        assert_eq!(r.execution_status, ExecutionStatus::Refused);
+        let e = r.error.expect("refusal reason");
+        assert_eq!(e.code, ErrorCode::InvalidRequest);
+        assert!(e.message.contains("unknown_evidence"), "{}", e.message);
+        assert_eq!(
+            Some(&r.call_id),
+            c.tool_call_id.as_ref(),
+            "re-keyed to the runtime item"
+        );
+    }
+}
+
+#[test]
 fn approvals_are_resolved_by_the_host_granted_or_denied() {
     let dir = tempfile::tempdir().unwrap();
     let h = Harness::new(dir.path());
