@@ -132,8 +132,10 @@ unavailable. Tell the human and continue; this is not a deployment blocker.
    *Service Auth*, include *Service Token* `ignis-edge`, nothing else. Log its AUD tag.
 5. Access application **UI** on `<ui-hostname>`: one policy, action *Allow*, include the e-mail
    addresses the human lists (the team). Log its AUD tag. The two AUD tags must differ.
-6. Tunnel `ignis-origin` (Cloudflared connector): copy its token into `/etc/ignis/cloudflared.env`
-   on the VM (step 6). Public hostname `<origin-hostname>` → service `http://ignis:8787`.
+6. Tunnel `ignis-origin`: create it on the VM with the commands of runbook step 4 (`tunnel login`
+   prints a URL; open it, choose the zone, Authorize: **ASK** first, it grants cloudflared on the
+   VM the right to create tunnels and DNS records on that zone). The token goes from
+   `cloudflared tunnel token` straight into `/etc/ignis/cloudflared.env`; never print it.
 
 Checkpoint: the log has the endpoint, bucket, key id, team domain, both AUD tags, service token
 client id; the tunnel shows *Inactive* (nothing runs yet), not *Healthy*.
