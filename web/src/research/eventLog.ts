@@ -12,6 +12,7 @@ import type {
   JobRef,
   ResearchEpisode,
   ResearchEvent,
+  ToolArguments,
   ToolEffect,
   ToolResult,
 } from "../contracts/generated";
@@ -29,6 +30,16 @@ export interface ToolCallState {
   tool: string;
   started_seq: number | null;
   result: ToolResult | null;
+  /** research.v2 (K1.1): what the call was given, redacted by scope; null when not recorded. */
+  arguments: ToolArguments | null;
+  /** research.v2 (K1.2): the model's own explanations for this call, in seq order. Never chain-of-thought. */
+  rationale: RationaleNote[];
+}
+
+/** A `step.rationale`: the model's explanation, which may not match what it computed. */
+export interface RationaleNote {
+  seq: number;
+  text: string;
 }
 
 export interface ApprovalState {
@@ -66,6 +77,10 @@ export interface EpisodeState {
   approvals: Record<string, ApprovalState>;
   answers: AnswerState[];
   missing: MissingRange[];
+  /** Explanations that name a call not started yet; attached when its `tool.started` arrives. */
+  pendingRationale: Record<string, RationaleNote[]>;
+  /** Explanations that name no call: notes on the episode's route. */
+  notes: RationaleNote[];
 }
 
 export type ApplyOutcome = "applied" | "duplicate" | "gap" | "foreign_episode";
@@ -85,6 +100,8 @@ export function emptyState(episode_id: string): EpisodeState {
     approvals: {},
     answers: [],
     missing: [],
+    pendingRationale: {},
+    notes: [],
   };
 }
 
@@ -128,14 +145,23 @@ export function applyEvent(state: EpisodeState, e: ResearchEvent): { state: Epis
       break;
     case "tool.started": {
       const { call_id, tool } = body.payload;
-      s.tools = { ...s.tools, [call_id]: { call_id, tool, started_seq: e.seq, result: s.tools[call_id]?.result ?? null } };
+      const prev = s.tools[call_id];
+      const early = s.pendingRationale[call_id] ?? [];
+      if (early.length) {
+        const { [call_id]: _taken, ...rest } = s.pendingRationale;
+        s.pendingRationale = rest;
+      }
+      s.tools = {
+        ...s.tools,
+        [call_id]: { call_id, tool, started_seq: e.seq, result: prev?.result ?? null, arguments: body.payload.arguments ?? null, rationale: [...early, ...(prev?.rationale ?? [])] },
+      };
       if (!s.toolOrder.includes(call_id)) s.toolOrder = [...s.toolOrder, call_id];
       break;
     }
     case "tool.finished": {
       const r = body.payload.result;
       const prev = s.tools[r.call_id];
-      s.tools = { ...s.tools, [r.call_id]: { call_id: r.call_id, tool: r.tool, started_seq: prev?.started_seq ?? null, result: r } };
+      s.tools = { ...s.tools, [r.call_id]: { call_id: r.call_id, tool: r.tool, started_seq: prev?.started_seq ?? null, result: r, arguments: prev?.arguments ?? null, rationale: prev?.rationale ?? [] } };
       if (!s.toolOrder.includes(r.call_id)) s.toolOrder = [...s.toolOrder, r.call_id];
       if (r.job) s.jobs = { ...s.jobs, [r.job.job_id]: r.job };
       for (const a of r.artifact_refs ?? []) addArtifact(s, a);
@@ -167,9 +193,15 @@ export function applyEvent(state: EpisodeState, e: ResearchEvent): { state: Epis
       addArtifact(s, body.payload.answer);
       s.answers = [...s.answers, { answer_id: body.payload.answer_id, status: body.payload.status, artifact: body.payload.answer }];
       break;
-    case "step.rationale":
-      // research.v2: the model's own step explanation. Kept in the timeline; no derived state yet.
+    case "step.rationale": {
+      // research.v2 (K1.2): the model's own explanation, attached to its call when it names one.
+      const note: RationaleNote = { seq: e.seq, text: body.payload.text };
+      const id = body.payload.call_id;
+      if (!id) s.notes = [...s.notes, note];
+      else if (s.tools[id]) s.tools = { ...s.tools, [id]: { ...s.tools[id], rationale: [...s.tools[id].rationale, note] } };
+      else s.pendingRationale = { ...s.pendingRationale, [id]: [...(s.pendingRationale[id] ?? []), note] };
       break;
+    }
     case "runtime.opaque":
       // Archived, not interpreted: it stays in the timeline only.
       if (body.payload.payload) addArtifact(s, body.payload.payload);
