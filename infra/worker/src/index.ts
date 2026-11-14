@@ -12,6 +12,12 @@
  *
  * Streaming: request and response bodies are passed through as streams (no `.text()`/`.json()`),
  * so SSE, large artifacts and uploads are not buffered here.
+ *
+ * NTRS proxy (M12, LANES_V2 §10): `/ntrs/api/citations/<id>/downloads/<file>` streams that one
+ * NTRS download to the signed-in user. NTRS answers Range but sends no CORS headers, so PDF.js
+ * cannot read it cross-origin; same-origin through here it can. Only that path shape on the one
+ * allow-listed host is forwarded, `Range` passes through, redirects are not followed, and nothing
+ * is cached or stored (`cache: "no-store"`, `cache-control: private, no-store`).
  */
 
 export interface Env {
@@ -86,11 +92,62 @@ export async function forward(request: Request, env: Env): Promise<Response> {
   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: out });
 }
 
+/** The one upstream of the proxy. */
+export const NTRS_ORIGIN = "https://ntrs.nasa.gov";
+/** `/ntrs/api/citations/<11-digit id>/downloads/<file>`: the only forwarded shape. */
+const NTRS_PATH = /^\/ntrs(\/api\/citations\/\d{11}\/downloads\/[A-Za-z0-9_-][A-Za-z0-9._-]*)$/;
+/** Request headers the proxy forwards (everything else, cookies and identity included, is dropped). */
+const NTRS_REQUEST_HEADERS = ["range", "if-range", "if-none-match", "if-modified-since", "accept"];
+/** Response headers the proxy returns (no `set-cookie`, no `x-frame-options` of NTRS's own site). */
+const NTRS_RESPONSE_HEADERS = ["content-type", "content-length", "content-range", "accept-ranges", "etag", "last-modified"];
+
+export async function ntrsProxy(request: Request): Promise<Response> {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return problem(405, "invalid_request", "the NTRS proxy only reads (GET, HEAD)");
+  }
+  // The UI hostname is behind Access; without its assertion this is not a signed-in user and the
+  // Worker must not act as an open proxy.
+  if (!request.headers.get("cf-access-jwt-assertion")) {
+    return problem(401, "scope_denied", "not authenticated: no Access assertion on the request");
+  }
+  const url = new URL(request.url);
+  const m = url.search === "" ? NTRS_PATH.exec(url.pathname) : null;
+  if (!m) {
+    return problem(404, "not_found", "not an NTRS download path");
+  }
+  const headers = new Headers();
+  for (const h of NTRS_REQUEST_HEADERS) {
+    const v = request.headers.get(h);
+    if (v !== null) headers.set(h, v);
+  }
+  let upstream: Response;
+  try {
+    upstream = await fetch(NTRS_ORIGIN + m[1], { method: request.method, headers, redirect: "manual", cache: "no-store" });
+  } catch (e) {
+    return problem(502, "upstream_unavailable", `NTRS unreachable: ${String(e)}`);
+  }
+  if (upstream.status >= 300 && upstream.status < 400 && upstream.status !== 304) {
+    // A redirect could lead anywhere; the proxy reaches only the allow-listed host.
+    return problem(502, "upstream_unavailable", `NTRS redirected (${upstream.status}); not followed`);
+  }
+  const out = new Headers();
+  for (const h of NTRS_RESPONSE_HEADERS) {
+    const v = upstream.headers.get(h);
+    if (v !== null) out.set(h, v);
+  }
+  out.set("cache-control", "private, no-store");
+  out.set("x-content-type-options", "nosniff");
+  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: out });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
     if (pathname === "/api" || pathname.startsWith("/api/")) {
       return forward(request, env);
+    }
+    if (pathname === "/ntrs" || pathname.startsWith("/ntrs/")) {
+      return ntrsProxy(request);
     }
     // Everything else is the UI (SPA fallback is configured on the assets binding).
     return env.ASSETS.fetch(request);
