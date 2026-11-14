@@ -1,0 +1,14 @@
+# Development landmarks (V3.1 section 23.4): seconds since the declared time origin of each family's
+# curated views. Settings to test, not validated intervals for every NASA run. A run enters a
+# landmark only while its phase is established at that cutoff; the rest are counted, not dropped.
+[flex]
+cutoffs_s = [1.0, 3.0, 5.0]
+
+[acme_normal]
+cutoffs_s = [1.0, 3.0, 5.0]
+
+[acme_inverse]
+cutoffs_s = [1.0, 3.0, 5.0]
+
+[bass]
+cutoffs_s = [1.0, 3.0, 5.0]

@@ -1,0 +1,8 @@
+# Classical comparator (ignis.vision.segment.ClassicalSegmenter). Fixed before looking at scores.
+[classical]
+channel = "max"      # max(R,G,B): BASS flames are red (soot) and blue (CH*) in colour video
+blur_px = 5
+floor = 40           # absolute 8-bit floor: Otsu on a dark frame would otherwise segment noise
+open_px = 3
+close_px = 7
+min_area_px = 30

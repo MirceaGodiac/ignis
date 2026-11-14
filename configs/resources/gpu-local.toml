@@ -1,0 +1,7 @@
+# Local consumer GPU (e.g. 8 GB laptop card). JAX does not preallocate.
+device = "gpu"
+usd_per_hour = 0.0
+max_hours = 0
+jax_mem_fraction = 0.6
+torch_mem_fraction = 0.6
+batch_scale = 0.33

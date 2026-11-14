@@ -1,0 +1,6 @@
+# Developer laptop / desktop CPU. No cost, no time limit.
+device = "cpu"
+usd_per_hour = 0.0
+max_hours = 0
+cpu_threads = 0
+batch_scale = 0.25

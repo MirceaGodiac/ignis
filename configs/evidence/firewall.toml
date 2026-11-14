@@ -1,0 +1,3 @@
+# Crates that fit, forecast or train. None may depend on ignis-evidence, directly or through another
+# workspace crate (normal, build or dev dependency): `ignis evidence firewall` (cargo metadata graph).
+protected = ["ignis-science", "ignis-flex", "ignis-acme", "ignis-bass", "ignis-accel", "ignis-train"]

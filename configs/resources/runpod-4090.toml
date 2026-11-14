@@ -1,0 +1,9 @@
+# Burst only for a measured job that is >1.78x faster than the 3090 (V3.1 §15.4).
+device = "gpu"
+usd_per_hour = 0.89
+max_hours = 4
+cpu_threads = 16             # the pod's vCPUs (planning value: re-confirm at checkout)
+jax_mem_fraction = 0.45
+torch_mem_fraction = 0.45
+batch_scale = 1.0
+vram_gb = 24

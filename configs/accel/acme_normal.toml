@@ -1,0 +1,19 @@
+# Optional ACME accelerator (V3.1 §10.4–§10.6, §12.6). Try 2-D Gauss-Hermite first; train only after profiling.
+[tasks]
+seconds_per_task_estimate = 2.0e-5   # measured: 2000 tasks in 0.03 s (Rust, CPU)
+[tasks.options]
+stop_choices_s = [60.0]      # scheduled stops sampled for tasks; edit to the protocol (omit = none)
+
+[train]
+precision = "fp32"
+steps = 10000                # cap 10000-25000 (§12.6)
+batch_size = 256
+lr = 1.0e-3
+clip_norm = 1.0
+validation_fraction = 0.1
+seed = 0
+seconds_per_step_estimate = 0.08   # measured FP32 CPU, batch 256 (CUDA: build with --features cuda)
+
+[benchmark]
+particles = 256
+epsilon = 0.1

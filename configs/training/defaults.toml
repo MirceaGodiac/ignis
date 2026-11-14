@@ -1,0 +1,21 @@
+# Defaults merged under every configs/models/<family>/<model>.toml (model file wins).
+# Planning constants for `ignis fit plan` / guard estimates: rough and declared, replace with a measured pilot.
+[estimate]
+c_eval_s_cpu = 7e-8      # s per integrand evaluation incl. gradient overhead (measured order: 1 ms / 200-obs run gradient)
+mean_leapfrog = 64       # NUTS leapfrog steps per transition (tree depth ~6); pilot decides
+compile_s = 60.0
+nominal_runs = 100
+nominal_obs_per_run = 300
+residual_factor = 1.0
+
+[eval]
+n_global = 16
+n_local = 128
+
+[forecast]
+min_prefix_observations = 2
+
+[support]                 # V3.1 §23.3 initial heuristic (operational refusal, not an OOD probability)
+k = 3
+min_groups = 2
+radius_percentile = 95.0

@@ -1,0 +1,83 @@
+# ACME inverse configuration (V3.1 §8, §23.1). Initial settings, not validated hyperparameters.
+# Inverse: the injected stream is OXIDISER. Fitted independently of normal (no column mixing).
+bin_lower_edges_s = [0.0, 5.0, 10.0, 20.0, 40.0, 80.0]  # fixed physical-time bins; last bin is [80 s, inf)
+t_ref_s = 10.0
+hidden = 8
+cells_per_bin = 8                # integration refinement per bin (check m vs 2m on development)
+operator_hazard = "auto"         # remove the continuous O hazard when every O end is a scheduled stop
+train_quadrature_nodes = 12      # GH nodes/dim marginalising session frailties during fitting
+forecast_quadrature_nodes = 24   # new-session serving; compare 12/24/48 on development
+inference = "nuts_if_qualified"  # NUTS FP64 when qualified, MAP otherwise
+
+[map]
+maxiter = 2000
+seed = 0
+
+[nuts]
+num_warmup = 500
+num_samples = 500
+num_chains = 4
+target_accept = 0.85
+seed = 0
+max_rhat = 1.01
+min_ess = 400.0
+max_divergences = 0
+
+[priors]  # [IGNIS] design priors on normalised scales, not NASA measurements
+rate_ref_per_s = 0.01
+a_sd = 1.5
+beta_sd = 0.5
+b1_sd = 0.1
+b2_sd = 0.1
+sigma_halfnormal = 0.5
+lkj_eta = 2.0
+
+[support]  # operational refusal heuristic (§23.3), not an OOD probability
+min_neighbors = 3
+min_groups = 2
+radius_percentile = 95.0
+
+# Role-aware admissible pre-event features, frozen order. `source` = key in AcmeEventRow.features
+# and PrefixBundle.known_conditions (SI). Reference scales are fixed from protocol/training.
+[[features]]
+name = "log_pressure"
+source = "pressure"
+transform = "log_ratio"
+ref = 101325.0
+
+[[features]]
+name = "log_injected_flow"       # inverse: injected OXIDISER mass flow (setpoint)
+source = "injected_mass_flow"
+transform = "log_ratio"
+ref = 1.0e-5
+
+[[features]]
+name = "oxygen_fraction_role"
+source = "x_o2_role"
+transform = "identity"
+
+[[features]]
+name = "fuel_fraction_role"
+source = "x_fuel_role"
+transform = "identity"
+
+[[features]]
+name = "t_ad_normalized"         # only if computed from admitted initial conditions
+source = "tad"
+transform = "ratio"
+ref = 2000.0
+
+[[features]]
+name = "z_st"
+source = "zst"
+transform = "identity"
+
+[[features]]
+name = "fuel_is_ethane"          # reference fuel: propane (PSI-159 fuels: ethane, propane, butane)
+source = "fuel_is_ethane"
+transform = "indicator"
+
+[[features]]
+name = "fuel_is_butane"
+source = "fuel_is_butane"
+transform = "indicator"

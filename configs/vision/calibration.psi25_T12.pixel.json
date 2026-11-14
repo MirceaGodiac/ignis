@@ -1,0 +1,10 @@
+{
+  "_comment": "PSI-25 BASS-II clip BASS_GMT178_SAMPLE_136_TEST_T12.mp4 (sha256 5747116d...). No cited reference points yet: pixel-only calibration, coordinates are pixels and resolution=unknown. Occlusion ROI = on-screen data overlay (FUEL/AIR/FAN/RAD + GMT) at the top. propagation_sign=-1 is an unverified assumption (leading edge = smallest image x).",
+  "applies_to": ["unmapped:BASS_GMT178_SAMPLE_136_TEST_T12"],
+  "pixel_only": true,
+  "image_size_px": [720, 480],
+  "propagation_sign": -1,
+  "occlusion_rois_px": [[0, 0, 720, 90]],
+  "roi_px": [0, 90, 720, 470],
+  "notes": "pixel_only; overlay (y<90) excluded; bottom 10 px excluded (reflection line)"
+}

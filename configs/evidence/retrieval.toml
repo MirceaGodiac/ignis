@@ -1,0 +1,33 @@
+# Scientific retrieval (V3.1 §18.2, §14.6). Pretrained Qwen3 models served by the DeepInfra API; never
+# trained here. The key is read only from the environment variable DEEPINFRA_API_KEY (never from a file).
+# Without a key or network, dense and rerank are skipped with an explicit status and lexical FTS5 answers.
+[provider]
+base_url = "https://api.deepinfra.com/v1"
+timeout_s = 30.0           # per request
+max_retries = 4            # on 429 / 5xx / transport errors, exponential backoff (Retry-After honoured)
+backoff_s = 0.5
+
+[embedding]
+# POST {base_url}/openai/embeddings (OpenAI-compatible)
+model = "Qwen/Qwen3-Embedding-8B"
+dimensions = 4096          # native size (MRL: the API accepts smaller `dimensions`); part of the vector identity
+batch_size = 32            # inputs per request
+max_batch_chars = 100000   # ~25k tokens per request
+usd_per_mtok = 0.010       # list price, 2026-11
+query_instruction = "Given a question about microgravity combustion experiments, retrieve passages from NASA reports and papers that answer it"
+# query text = "Instruct: {query_instruction}\nQuery:{query}"; documents are embedded without instruction
+
+[reranker]
+# POST {base_url}/inference/{model}: one query per request, scored against every document
+model = "Qwen/Qwen3-Reranker-8B"
+batch_size = 32            # documents per request
+max_batch_chars = 100000
+usd_per_mtok = 0.050       # list price, 2026-11; billed cost is read from inference_status.cost
+top_n = 30                 # initial cost bound, not a universal optimum
+timeout_s = 20.0           # whole rerank stage; on timeout, error or no key: declared fallback to RRF order
+instruction = "Given a question about microgravity combustion experiments, judge whether the passage contains evidence that answers it"
+
+[fusion]
+rrf_k = 60                 # fusion constant, not a probability
+lexical_depth = 100
+dense_depth = 100

@@ -1,0 +1,9 @@
+# Planning tariff from IGNIS V3.1 §15 (re-confirm at checkout). Not provisioned by the code.
+device = "gpu"
+usd_per_hour = 0.50
+max_hours = 12
+cpu_threads = 16             # the pod's vCPUs (planning value: re-confirm at checkout; used by every pool and estimate)
+jax_mem_fraction = 0.45
+torch_mem_fraction = 0.45
+batch_scale = 1.0
+vram_gb = 24

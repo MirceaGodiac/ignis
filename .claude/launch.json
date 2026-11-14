@@ -1,0 +1,78 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ignis-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "web",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5173"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "ignis-server",
+      "runtimeExecutable": "cargo",
+      "runtimeArgs": [
+        "run",
+        "-p",
+        "ignis-cli",
+        "--",
+        "serve",
+        "--dev",
+        "--port",
+        "8787"
+      ],
+      "port": 8787
+    },
+    {
+      "name": "ignis-server-fake-codex",
+      "runtimeExecutable": "cargo",
+      "runtimeArgs": [
+        "run",
+        "-p",
+        "ignis-cli",
+        "--",
+        "serve",
+        "--dev",
+        "--port",
+        "8788",
+        "--state-dir",
+        "runs/server-fake-codex",
+        "--codex-bin",
+        "target/debug/ignis-fake-codex.exe"
+      ],
+      "port": 8788
+    },
+    {
+      "name": "ignis-server-codex",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/codex/serve.ps1"
+      ],
+      "port": 8787
+    },
+    {
+      "name": "ignis-server-codex-app-login",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/codex/serve.ps1",
+        "-UseCodexAppLogin"
+      ],
+      "port": 8787
+    }
+  ]
+}
