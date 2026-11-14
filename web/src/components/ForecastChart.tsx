@@ -120,6 +120,9 @@ export function ForecastChart(props: Props) {
             ctx.stroke();
             ctx.fillStyle = css("--cutoff");
             ctx.font = `${12 * devicePixelRatio}px system-ui`;
+            // uPlot leaves textAlign/baseline from its own axis drawing; reset them so the label sits right of the line.
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
             ctx.fillText("cutoff", x + 4 * devicePixelRatio, u.bbox.top + 14 * devicePixelRatio);
             ctx.restore();
           },

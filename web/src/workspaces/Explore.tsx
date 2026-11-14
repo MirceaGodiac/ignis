@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { call, type ExperimentList, type ExperimentSummary, type Origin, type SearchResult } from "../api";
 import { asRefusal } from "../hooks";
 import { RefusalBox } from "../components/Panels";
+import { fmtGravity, fmtMeasured } from "../format";
 
 function Snippet({ text, open, close }: { text: string; open: string; close: string }) {
   const parts: { t: string; hit: boolean }[] = [];
@@ -22,7 +23,6 @@ function Snippet({ text, open, close }: { text: string; open: string; close: str
   return <p className="snippet">{parts.map((p, k) => (p.hit ? <mark key={k}>{p.t}</mark> : <span key={k}>{p.t}</span>))}</p>;
 }
 
-const fmt = (v: number | null | undefined, unit?: string | null) => (v == null ? "—" : `${+v.toPrecision(4)} ${unit ?? ""}`.trim());
 
 function ExperimentCard({ x, selected, onToggle, onOpen }: { x: ExperimentSummary; selected: boolean; onToggle: () => void; onOpen: () => void }) {
   return (
@@ -35,14 +35,14 @@ function ExperimentCard({ x, selected, onToggle, onOpen }: { x: ExperimentSummar
         {x.synthetic && <span className="badge badge-synthetic">synthetic</span>}
       </div>
       <p className="muted">
-        {x.investigation_id} · {x.fuel_or_material ?? "material unknown"} · {x.configuration ?? "configuration unknown"} · gravity {fmt(x.gravity?.value_si, "g₀")}
+        {x.investigation_id} · {x.fuel_or_material ?? "material unknown"} · {x.configuration ?? "configuration unknown"} · gravity {fmtGravity(x.gravity?.value_si)}
       </p>
       <dl className="conds">
         {Object.entries(x.conditions).map(([k, c]) => (
           <div key={k}>
             <dt>{k}</dt>
             <dd>
-              {fmt(c.value_si, c.unit_si)}
+              {fmtMeasured(c.value_si, c.unit_si)}
               {c.resolution !== "resolved" && <em> ({c.resolution})</em>}
             </dd>
           </div>
