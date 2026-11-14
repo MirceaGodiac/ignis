@@ -1,6 +1,6 @@
 # Handoff — Mircea: Codex Integration, Backend & Infrastructure
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§4, §9, §10), `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
 `docs/design/IGNIS_MASTER_V2.md` §5–§9 și §17–§21. Branch: unul scurt per task din `main` (`feat/agent-backend-<task>`).
 **Nu ai nicio sarcină de prezentare** (deck, script, voce, capturi, montaj).
 

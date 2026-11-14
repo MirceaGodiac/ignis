@@ -1,6 +1,6 @@
 # Handoff — Raul: Scientific Data, Retrieval & Knowledge
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§5, §9, §10), `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
 `docs/design/IGNIS_MASTER_V2.md` §10–§14 și §16. Branch: unul scurt per task din `main` (`feat/scientific-data-<task>`).
 
 ## 0. Faza 2 (citește întâi) — cunoaștere & date NASA

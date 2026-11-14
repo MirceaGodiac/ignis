@@ -1,6 +1,6 @@
 # Handoff — Iancu: Scientific Models & Literal Weight-Space Programming
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§7), `AGENTS.md`, `docs/implementation/CONTRACTS.md` și
 `docs/design/IGNIS_MASTER_V2.md` §15–§16 și §24. Branch: unul scurt per task din `main` (`feat/handwritten-science-<task>`).
 
 ## 0. Faza 2 — lane-ul tău nu se schimbă; punctele de contact

@@ -1,6 +1,6 @@
 # Handoff — Tudor: Research Workspace & Independent Evaluation
 
-Dă agentului tău: acest fișier, `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
+Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§6, §9, §10), `AGENTS.md`, `docs/implementation/{CONTRACTS,INTEGRATION}.md` și
 `docs/design/IGNIS_MASTER_V2.md` §16–§18 și §22–§26. Branch: unul scurt per task din `main` (`feat/research-product-<task>`).
 
 ## 0. Faza 2 (citește întâi) — workspace & evaluare independentă
