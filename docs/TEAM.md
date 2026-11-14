@@ -25,6 +25,8 @@ de eficiență. Contractele comune (val K1) și ordinea de merge: §9.
 
 ## Cum pornește fiecare
 
+0. Citești [ACCESS](implementation/ACCESS.md): repo, branch-uri, setup local, aplicația de staging și
+   VM-ul, unde stau secretele și datele.
 1. Pentru fiecare task: `git worktree add -b feat/<lane>-<task> ../ignis-<nume> origin/main` (sau un
    branch nou în worktree-ul tău, din `origin/main` proaspăt); branch-ul se șterge la merge.
 2. Pornești sesiunea agentului în worktree-ul tău, cu `AGENTS.md` + handoff-ul tău.
