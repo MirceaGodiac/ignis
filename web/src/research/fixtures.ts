@@ -8,6 +8,7 @@ import type {
   DatasetBundle,
   EvaluationResult,
   ExecutionRecord,
+  ImageContourObservation,
   SourceAccess,
   ModelRelease,
   ModelSpec,
@@ -31,6 +32,7 @@ import releaseW0 from "../../../fixtures/contracts/models/release_w0.json";
 import modelSpec from "../../../fixtures/contracts/models/model_spec.json";
 import datasetBundle from "../../../fixtures/contracts/data/dataset_bundle.json";
 import visualBundle from "../../../fixtures/contracts/data/visual_bundle_pixel_only.json";
+import imageContours from "../../../fixtures/contracts/data/image_contours_pixel_only.json";
 import accessDirect from "../../../fixtures/contracts/evidence/source_access_direct.json";
 import accessProxy from "../../../fixtures/contracts/evidence/source_access_proxy.json";
 import accessLinkOut from "../../../fixtures/contracts/evidence/source_access_link_out.json";
@@ -65,7 +67,10 @@ export const FIXTURES = {
     typedRef("fixture-artifact-exec-record", "ExecutionRecord", as<ExecutionRecord>(executionRecord)),
     typedRef("fixture-artifact-dataset-bundle", "DatasetBundle", as<DatasetBundle>(datasetBundle)),
     typedRef("fixture-artifact-eval-result", "EvaluationResult", as<EvaluationResult>(evaluationResult)),
+    typedRef("fixture-artifact-visual-bundle", "VisualObservationBundle", as<VisualObservationBundle>(visualBundle)),
   ],
+  /** The records behind `visualBundle.contours`, served as NDJSON text the way the artifact store holds them. */
+  imageContours: as<ImageContourObservation[]>(imageContours),
 };
 
 function typedRef(artifact_id: string, contract: string, payload: { created_at?: string; finished_at?: string }): { ref: ArtifactRef; payload: unknown } {

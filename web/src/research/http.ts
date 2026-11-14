@@ -33,6 +33,8 @@ export interface ResearchClient extends StreamTransport {
   act(episodeId: string, action: EpisodeAction): Promise<ResearchEpisode>;
   resolveApproval(episodeId: string, approvalId: string, decision: HostDecision): Promise<void>;
   getArtifactJson(artifactId: string): Promise<unknown>;
+  /** A text artifact (NDJSON records, CSV) as its bytes decoded as UTF-8. */
+  getArtifactText(artifactId: string): Promise<string>;
   /** One value of a JSON artifact by RFC 6901 pointer, without downloading the artifact. */
   readArtifactValue(artifactId: string, pointer: string): Promise<InlinePayload>;
   search(req: SearchRequest): Promise<SearchPage>;
@@ -65,7 +67,7 @@ async function envelopeOf(res: Response, base: string): Promise<ErrorEnvelope> {
 export function httpClient(mode: Exclude<Mode, "mock">, fetchImpl: typeof fetch = (...a) => fetch(...a)): ResearchClient {
   const base = BASE[mode];
   const enc = encodeURIComponent;
-  const call = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const raw = async (path: string, init?: RequestInit): Promise<Response> => {
     let res: Response;
     try {
       res = await fetchImpl(`${base}${path}`, init);
@@ -74,8 +76,9 @@ export function httpClient(mode: Exclude<Mode, "mock">, fetchImpl: typeof fetch 
       throw new ApiError({ code: "upstream_unavailable", message: `network: ${String(e)}`, retry: { kind: "after_delay", seconds: 5 } }, null);
     }
     if (!res.ok) throw new ApiError(await envelopeOf(res, base), res.status);
-    return (await res.json()) as T;
+    return res;
   };
+  const call = async <T>(path: string, init?: RequestInit): Promise<T> => (await (await raw(path, init)).json()) as T;
   const post = <T>(path: string, body?: unknown) =>
     call<T>(path, { method: "POST", headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
   return {
@@ -91,6 +94,7 @@ export function httpClient(mode: Exclude<Mode, "mock">, fetchImpl: typeof fetch 
       await post<unknown>(`/episodes/${enc(id)}/approvals/${enc(approvalId)}`, { decision });
     },
     getArtifactJson: (id) => call<unknown>(`/artifacts/${enc(id)}`),
+    getArtifactText: async (id) => (await raw(`/artifacts/${enc(id)}`)).text(),
     readArtifactValue: (id, pointer) => call<InlinePayload>(`/artifacts/${enc(id)}?pointer=${enc(pointer)}`),
     search: (req) => post<SearchPage>(`/search`, req),
     readSource: (id, page) => call<ReadResult>(`/sources/${enc(id)}/pages/${page}`),

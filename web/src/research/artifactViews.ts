@@ -38,9 +38,9 @@ export const CONTRACT_COVERAGE = {
   Session: { notShown: "Waits for the PSI catalog (R6)" },
   Specimen: { notShown: "Waits for the conditions service (R9, T9)" },
   ControlHistory: { notShown: "Waits for v1 run routes (M11, T6)" },
-  ContourObservation: { notShown: "Waits for the BASS video viewer (bytes route)" },
-  VisualObservationBundle: { notShown: "Waits for the BASS video viewer (bytes route)" },
-  ImageContourObservation: { notShown: "Waits for the BASS video viewer (bytes route)" },
+  ContourObservation: { notShown: "Metric contours: waits for a calibrated bundle (R5); not drawn in image space" },
+  VisualObservationBundle: { view: "Side panel: typed artifact, video with contour (T7)" },
+  ImageContourObservation: { view: "Contour layer over the video, image pixels (T7)" },
   Calibration: { notShown: "Shown only through observations that cite it" },
   EndpointRecord: { notShown: "Waits for v1 run routes (M11, T6)" },
   Cohort: { notShown: "Evaluator internal: named by id in results" },
@@ -94,7 +94,7 @@ export const CONTRACT_COVERAGE = {
 } satisfies Record<keyof IgnisContracts, Coverage>;
 
 /** The contracts that get a typed body in the artifact side panel. */
-export const TYPED_ARTIFACTS = ["ExecutionRecord", "DatasetBundle", "EvaluationResult", "AnalysisArtifact"] as const;
+export const TYPED_ARTIFACTS = ["ExecutionRecord", "DatasetBundle", "EvaluationResult", "AnalysisArtifact", "VisualObservationBundle"] as const;
 export type TypedArtifact = (typeof TYPED_ARTIFACTS)[number];
 export const isTypedArtifact = (c: string | null | undefined): c is TypedArtifact => !!c && (TYPED_ARTIFACTS as readonly string[]).includes(c);
 
