@@ -1,0 +1,43 @@
+{
+  "schema_version": "evidence.v2",
+  "source_id": "fixture-source-v1",
+  "parse_view_id": "fixture-parse-v2",
+  "nodes": [
+    {
+      "node_id": "fixture-sec-1",
+      "title": "Synthetic fixture: Introduction",
+      "page_start": 1,
+      "page_end": 4,
+      "summary": {
+        "text": "Synthetic fixture summary: generated navigation text, not evidence.",
+        "model_id": "fixture-summary-model"
+      }
+    },
+    {
+      "node_id": "fixture-sec-2",
+      "title": "Synthetic fixture: Results",
+      "page_start": 5,
+      "page_end": 40,
+      "summary": {
+        "text": "Synthetic fixture summary: generated navigation text, not evidence.",
+        "model_id": "fixture-summary-model"
+      },
+      "children": [
+        {
+          "node_id": "fixture-sec-2-1",
+          "title": "Synthetic fixture: Burning rates",
+          "page_start": 5,
+          "page_end": 18,
+          "children_omitted": true
+        },
+        {
+          "node_id": "fixture-sec-2-2",
+          "title": "Synthetic fixture: Extinction",
+          "page_start": 19,
+          "page_end": 40
+        }
+      ]
+    }
+  ],
+  "origin": "synthetic_fixture"
+}

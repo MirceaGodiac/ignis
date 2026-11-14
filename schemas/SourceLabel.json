@@ -1,0 +1,272 @@
+{
+  "$defs": {
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "DocType": {
+      "description": "Closed catalog of document types. A new type is a contract change.",
+      "oneOf": [
+        {
+          "enum": [
+            "journal_article",
+            "conference_paper",
+            "presentation",
+            "thesis",
+            "outreach",
+            "other"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "technical_report",
+          "description": "NASA TP/TM/CR or an equivalent agency report.",
+          "type": "string"
+        },
+        {
+          "const": "requirements_document",
+          "description": "Science requirements (SRD), test matrices.",
+          "type": "string"
+        },
+        {
+          "const": "engineering_document",
+          "description": "Hardware design, interface and verification documents.",
+          "type": "string"
+        },
+        {
+          "const": "operations_document",
+          "description": "Operations, procedures, timelines.",
+          "type": "string"
+        },
+        {
+          "const": "data_description",
+          "description": "Readme, data dictionary, file description.",
+          "type": "string"
+        },
+        {
+          "const": "data_table",
+          "description": "Experimental table or measurement file described as a document.",
+          "type": "string"
+        }
+      ]
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "LabelAgreement": {
+      "additionalProperties": false,
+      "properties": {
+        "agreed": {
+          "type": "boolean"
+        },
+        "passes": {
+          "description": "Independent passes run on the document.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "passes",
+        "agreed"
+      ],
+      "type": "object"
+    },
+    "Labeller": {
+      "additionalProperties": false,
+      "description": "Who produced a label: a model (method `semantic`, with model id and prompt hash) or a reviewer.",
+      "properties": {
+        "method": {
+          "$ref": "#/$defs/Method"
+        },
+        "model_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prompt_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "type": "object"
+    },
+    "Method": {
+      "enum": [
+        "deterministic",
+        "numerical",
+        "semantic",
+        "human_review"
+      ],
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
+    "Resolution": {
+      "enum": [
+        "resolved",
+        "unresolved_conflict",
+        "unknown",
+        "quarantined",
+        "not_applicable"
+      ],
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/SourceLabel",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "What a document is about, as classified. A label describes; it never establishes identity:\nthe runs it names are mentions, which enter the graph as `same_as_candidate` / `describes_run`\nlinks with resolution `unknown` until an identifier or condition match resolves them.",
+  "properties": {
+    "agreement": {
+      "$ref": "#/$defs/LabelAgreement"
+    },
+    "conditions_mentioned": {
+      "items": {
+        "$ref": "#/$defs/Quantity"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "confidence": {
+      "description": "Self-reported or calibrated confidence in [0, 1]; not a probability of truth.",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "doc_type": {
+      "$ref": "#/$defs/DocType"
+    },
+    "evidence": {
+      "description": "Passages that support the label.",
+      "items": {
+        "$ref": "#/$defs/EvidenceId"
+      },
+      "type": "array"
+    },
+    "families": {
+      "items": {
+        "$ref": "#/$defs/Family"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "investigation_ids": {
+      "description": "Investigation accessions (`PSI-69`) or registered ground-investigation ids.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "labeller": {
+      "$ref": "#/$defs/Labeller"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "runs": {
+      "description": "Runs the document mentions (not resolved identities).",
+      "items": {
+        "$ref": "#/$defs/RunId"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "status": {
+      "$ref": "#/$defs/Resolution",
+      "description": "`resolved` only when the passes agree (two or more for a model label);\n`unresolved_conflict` keeps a disagreement visible."
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_id",
+    "doc_type",
+    "labeller",
+    "agreement",
+    "status",
+    "origin"
+  ],
+  "title": "SourceLabel",
+  "type": "object"
+}

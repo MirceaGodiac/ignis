@@ -138,11 +138,20 @@
       "type": "string"
     },
     "DatasetSchema": {
-      "description": "Wire tag of dataset and visual observation bundles.",
-      "enum": [
-        "dataset.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;\n`dataset.v1` (C0) documents are still read, and keep their content digests because a\ndocument is re-serialized with the tag it was read with. New document types require v2.",
+      "oneOf": [
+        {
+          "enum": [
+            "dataset.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "dataset.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "DatasetView": {
       "additionalProperties": false,

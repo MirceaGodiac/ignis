@@ -1,0 +1,54 @@
+[
+  {
+    "schema_version": "evidence.v2",
+    "source_id": "fixture-source-v1",
+    "doc_type": "technical_report",
+    "families": [
+      "flex"
+    ],
+    "investigation_ids": [
+      "fixture-investigation-a"
+    ],
+    "runs": [
+      "fixture-run-01"
+    ],
+    "conditions_mentioned": [
+      "pressure",
+      "mole_fraction"
+    ],
+    "evidence": [
+      "fixture-evidence-01"
+    ],
+    "labeller": {
+      "method": "semantic",
+      "model_id": "fixture-label-model",
+      "prompt_hash": "sha256:abababababababababababababababababababababababababababababababab"
+    },
+    "confidence": 0.9,
+    "agreement": {
+      "passes": 2,
+      "agreed": true
+    },
+    "status": "resolved",
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "evidence.v2",
+    "source_id": "fixture-source-slides-v1",
+    "doc_type": "presentation",
+    "investigation_ids": [
+      "fixture-investigation-a"
+    ],
+    "labeller": {
+      "method": "semantic",
+      "model_id": "fixture-label-model",
+      "prompt_hash": "sha256:abababababababababababababababababababababababababababababababab"
+    },
+    "agreement": {
+      "passes": 2,
+      "agreed": false
+    },
+    "status": "unresolved_conflict",
+    "origin": "synthetic_fixture"
+  }
+]

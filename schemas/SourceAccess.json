@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "AccessMode": {
+      "description": "How the UI reaches an original's bytes without IGNIS storing them (LANES_V2 §7).",
+      "oneOf": [
+        {
+          "const": "direct",
+          "description": "The browser streams from NASA (signed PSI S3 URL, NASA media library).",
+          "type": "string"
+        },
+        {
+          "const": "proxy",
+          "description": "Through the Worker pass-through proxy (NTRS: no CORS); nothing is stored.",
+          "type": "string"
+        },
+        {
+          "const": "link_out",
+          "description": "Only a link to the provider's page.",
+          "type": "string"
+        }
+      ]
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/SourceAccess",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Delivery of one source version. The identity stays the `Source` (geode URL + file version +\nhash); `url` is a short-lived delivery detail and is never stored in a citation.",
+  "properties": {
+    "cors": {
+      "description": "The URL is readable by scripts from the app's origin.",
+      "type": "boolean"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "When a signed `url` stops working; re-resolve after it."
+    },
+    "landing_url": {
+      "description": "\"Open at NASA\": the provider's own page for the source.",
+      "type": "string"
+    },
+    "mode": {
+      "$ref": "#/$defs/AccessMode"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "range": {
+      "description": "The URL answers HTTP Range requests.",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_id",
+    "mode",
+    "url",
+    "range",
+    "cors",
+    "landing_url",
+    "origin"
+  ],
+  "title": "SourceAccess",
+  "type": "object"
+}

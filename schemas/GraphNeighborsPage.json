@@ -1,0 +1,550 @@
+{
+  "$defs": {
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConceptId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConceptKind": {
+      "description": "Kind of a domain concept of the combustion graph. Concepts are vocabulary nodes (an\ninvestigation, a fuel, a piece of hardware); records (sources, runs, artifacts) are\n[`EntityRef`]s.",
+      "oneOf": [
+        {
+          "enum": [
+            "fuel",
+            "sample_geometry"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "investigation",
+          "description": "A PSI investigation (`id` = its accession, e.g. `PSI-69`) or a ground investigation.",
+          "type": "string"
+        },
+        {
+          "const": "hardware",
+          "description": "Flight or ground hardware (CIR/MDCA, MSG/SPICE duct, an ACME module).",
+          "type": "string"
+        },
+        {
+          "const": "condition",
+          "description": "A controlled condition (oxygen mole fraction, pressure, flow, gravity level).",
+          "type": "string"
+        },
+        {
+          "const": "diagnostic",
+          "description": "An instrument or measurement method (camera, radiometer, thermocouple).",
+          "type": "string"
+        },
+        {
+          "const": "observable",
+          "description": "A measured quantity of interest (extinction diameter, spread rate, burning rate).",
+          "type": "string"
+        }
+      ]
+    },
+    "ConceptRef": {
+      "additionalProperties": false,
+      "properties": {
+        "concept": {
+          "$ref": "#/$defs/ConceptKind"
+        },
+        "id": {
+          "$ref": "#/$defs/ConceptId"
+        }
+      },
+      "required": [
+        "concept",
+        "id"
+      ],
+      "type": "object"
+    },
+    "CorpusSnapshotId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Derivation": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "method": {
+          "$ref": "#/$defs/Method"
+        },
+        "method_id": {
+          "type": "string"
+        },
+        "method_version": {
+          "type": "string"
+        },
+        "notes": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "method",
+        "method_id",
+        "method_version"
+      ],
+      "type": "object"
+    },
+    "EdgeDirection": {
+      "description": "Which side of the requested node an edge sits on.",
+      "oneOf": [
+        {
+          "const": "outgoing",
+          "description": "The node is the link's `from`.",
+          "type": "string"
+        },
+        {
+          "const": "incoming",
+          "description": "The node is the link's `to`.",
+          "type": "string"
+        }
+      ]
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "GraphNeighbor": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "$ref": "#/$defs/EdgeDirection"
+        },
+        "link": {
+          "$ref": "#/$defs/ProvenanceLink"
+        }
+      },
+      "required": [
+        "direction",
+        "link"
+      ],
+      "type": "object"
+    },
+    "GraphNode": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EntityRef"
+        },
+        {
+          "$ref": "#/$defs/ConceptRef"
+        }
+      ],
+      "description": "A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept\n([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads\nunchanged. Passages, figures and tables are `EntityRef::Evidence`; analyses are artifacts."
+    },
+    "LinkId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Method": {
+      "enum": [
+        "deterministic",
+        "numerical",
+        "semantic",
+        "human_review"
+      ],
+      "type": "string"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "PageCursor": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ProvenanceLink": {
+      "additionalProperties": false,
+      "description": "A typed edge between two nodes, with the evidence and method that established it. A purely\nsemantic association (no evidence) is never `resolved`; identity needs an identifier,\nconditions, time or an explicit reference.",
+      "properties": {
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        },
+        "from": {
+          "$ref": "#/$defs/GraphNode"
+        },
+        "link_id": {
+          "$ref": "#/$defs/LinkId"
+        },
+        "method": {
+          "$ref": "#/$defs/Derivation"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "relation": {
+          "$ref": "#/$defs/Relation"
+        },
+        "resolution": {
+          "$ref": "#/$defs/Resolution"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/EvidenceSchema"
+        },
+        "to": {
+          "$ref": "#/$defs/GraphNode"
+        }
+      },
+      "required": [
+        "schema_version",
+        "link_id",
+        "from",
+        "to",
+        "relation",
+        "resolution",
+        "method",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "Relation": {
+      "description": "Edge type of the graph (master §11.3). The catalog is closed: a new relation is a contract change.",
+      "oneOf": [
+        {
+          "enum": [
+            "supports",
+            "derived_from",
+            "cites",
+            "uses_fuel",
+            "has_condition",
+            "measured_by",
+            "uses_hardware",
+            "uses_calibration",
+            "predicted_by"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "contradicts",
+          "description": "C0 name, read only: v2 links write `disputes`.",
+          "type": "string"
+        },
+        {
+          "const": "describes",
+          "description": "A source describes an entity in general (an investigation, a method), not a specific run.",
+          "type": "string"
+        },
+        {
+          "const": "same_run_as",
+          "description": "Exact run identity between two records (identifier, conditions, time or campaign).",
+          "type": "string"
+        },
+        {
+          "const": "describes_run",
+          "description": "A source or passage describes one specific run (`to` is a run).",
+          "type": "string"
+        },
+        {
+          "const": "disputes",
+          "description": "One result questions another. Two results at other conditions are not a dispute by\nthemselves: the populations must overlap.",
+          "type": "string"
+        },
+        {
+          "const": "supersedes",
+          "description": "`from` replaces `to`; descendants of `to` are marked possibly stale, never rewritten.",
+          "type": "string"
+        },
+        {
+          "const": "same_as_candidate",
+          "description": "A possible identity found by similarity or a label. Never an exact identity: its resolution\nis never `resolved`.",
+          "type": "string"
+        }
+      ]
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Resolution": {
+      "enum": [
+        "resolved",
+        "unresolved_conflict",
+        "unknown",
+        "quarantined",
+        "not_applicable"
+      ],
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/GraphNeighborsPage",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "corpus_snapshot": {
+      "$ref": "#/$defs/CorpusSnapshotId"
+    },
+    "neighbors": {
+      "items": {
+        "$ref": "#/$defs/GraphNeighbor"
+      },
+      "type": "array"
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageCursor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "node": {
+      "$ref": "#/$defs/GraphNode"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "total_count": {
+      "description": "Exact total, or absent when not counted.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "corpus_snapshot",
+    "node",
+    "neighbors",
+    "origin"
+  ],
+  "title": "GraphNeighborsPage",
+  "type": "object"
+}
