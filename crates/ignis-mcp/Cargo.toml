@@ -1,0 +1,28 @@
+[package]
+name = "ignis-mcp"
+description = "IGNIS MCP transport (task M3): the tool catalog over the lanes' services, served to the agent runtime by rmcp on a loopback-only streamable-HTTP endpoint"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-research = { path = "../ignis-research" }
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+axum.workspace = true
+uuid = { version = "1", features = ["v4"] }
+# Official MCP Rust SDK (master design S10). Exact pin: the 3.x line still moves its server API; the
+# streamable-HTTP server is the transport the pinned Codex uses for `mcp_servers.<name>.url`.
+rmcp = { version = "=3.10.0", default-features = false, features = ["server", "transport-streamable-http-server"] }
+
+[dev-dependencies]
+tempfile = "3"
+tower = { workspace = true }
+http-body-util = "0.1"

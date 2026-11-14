@@ -1,0 +1,31 @@
+[package]
+name = "ignis-research"
+description = "IGNIS research runtime: episodes, ordered events, durable jobs, the artifact store and the Codex App Server bridge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+serde.workspace = true
+serde_json.workspace = true
+rusqlite.workspace = true
+sha2.workspace = true
+hex.workspace = true
+# Random ids for episodes, events, jobs and staging files (v4 only; ids are opaque on the wire).
+uuid = { version = "1", features = ["v4"] }
+schemars.workspace = true
+tracing.workspace = true
+
+# Test double of `codex app-server` for the offline conformance tests (like ignis-data's fake claude).
+[[bin]]
+name = "ignis-fake-codex"
+path = "src/bin/ignis-fake-codex.rs"
+test = false
+doc = false
+
+[dev-dependencies]
+tempfile = "3"
