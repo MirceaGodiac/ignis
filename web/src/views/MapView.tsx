@@ -1,13 +1,14 @@
 // Atmosphere map tab: the interactive map, its layers (investigations, crew atmospheres), and beside it
 // the test points nearest the chosen atmosphere and the selected point's runs.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ConditionsRow, ConditionsTable } from "../contracts/generated";
 import { invColor, invName, INVESTIGATIONS } from "../data/investigations";
 import { HABITAT_LIST, type HabitatId } from "../research/habitats";
-import { conditionsView, offset, offsetText, type ConditionsView, type TestPoint } from "../research/testPoints";
+import { conditionsView, offset, offsetText, type ConditionsView, type Standing, type TestPoint } from "../research/testPoints";
 import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
+import { keep, readKept } from "../shell/persist";
 import { Gap } from "../ui/common";
 import { ConditionsMap, HOME, ShapeSwatch, type Domain } from "./ConditionsMap";
 
@@ -30,9 +31,24 @@ function downloadCsv(points: TestPoint[]) {
   URL.revokeObjectURL(a.href);
 }
 
-/** Every row of the conditions table (the keys the views read), shared by the map and the atmosphere ranking. */
+type KeptView = Omit<ConditionsView, "byInvestigation"> & { byInvestigation: [string, Standing][] };
+
+/**
+ * Every row of the conditions table (the keys the views read), reduced to test points and standings,
+ * shared by the map and the atmosphere ranking. The reduced view (tens of kilobytes) is kept in this
+ * browser and shown at once on the next visit while the table loads again.
+ */
 export function useConditionsView() {
   const { client, researchMode } = useData();
+  const key = `conditions-view:${researchMode}`;
+  const [kept, setKept] = useState<ConditionsView | undefined>();
+  useEffect(() => {
+    let live = true;
+    void readKept<KeptView>(key).then((k) => live && k && setKept({ ...k.value, byInvestigation: new Map(k.value.byInvestigation) }));
+    return () => {
+      live = false;
+    };
+  }, [key]);
   return useQuery({
     queryKey: [researchMode, "conditions", "view"],
     queryFn: async (): Promise<ConditionsView> => {
@@ -43,9 +59,12 @@ export function useConditionsView() {
         rows.push(...page.rows);
         cursor = page.next_cursor ?? null;
       } while (cursor);
-      return conditionsView(rows);
+      const v = conditionsView(rows);
+      void keep<KeptView>(key, { ...v, byInvestigation: [...v.byInvestigation] });
+      return v;
     },
-    retry: false,
+    placeholderData: kept,
+    retry: 2,
     staleTime: 10 * 60_000,
   });
 }

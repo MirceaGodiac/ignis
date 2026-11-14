@@ -7,6 +7,7 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { call, type ExperimentList, type Health, type Origin as LegacyOrigin } from "../api";
 import { DEFAULT_FAULTS, httpClient, mockClient, type MockStreamFaults, type Mode, type ResearchClient } from "../research/client";
 import type { Capabilities } from "../contracts/generated";
+import { keep, readKept } from "./persist";
 
 export type Source = "synthetic" | "live";
 
@@ -74,7 +75,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // when the tab comes back, so one failed request never leaves Runs empty for the session.
   const registry = { retry: 4, retryDelay: (n: number) => Math.min(8000, 1000 * 2 ** n), refetchOnWindowFocus: true, staleTime: 10 * 60_000 } as const;
   const health = useQuery({ queryKey: [origin, "health"], queryFn: () => call<Health>(origin, "/health"), ...registry });
-  const experiments = useQuery({ queryKey: [origin, "experiments"], queryFn: () => call<ExperimentList>(origin, "/experiments"), ...registry });
+  // The last run list this browser saw is shown at once while the current one loads (shell/persist).
+  const [keptRuns, setKeptRuns] = useState<ExperimentList | undefined>();
+  useEffect(() => {
+    let live = true;
+    void readKept<ExperimentList>(`runs:${origin}`).then((k) => live && setKeptRuns(k?.value));
+    return () => {
+      live = false;
+    };
+  }, [origin]);
+  const experiments = useQuery({
+    queryKey: [origin, "experiments"],
+    queryFn: async () => {
+      const list = await call<ExperimentList>(origin, "/experiments");
+      void keep(`runs:${origin}`, list);
+      return list;
+    },
+    placeholderData: keptRuns,
+    ...registry,
+  });
   const caps = useQuery({ queryKey: [researchMode, replay, "capabilities"], queryFn: () => client.capabilities(), retry: false });
 
   useEffect(() => {
