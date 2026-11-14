@@ -7,25 +7,42 @@
 //! process goes away. The MCP server resolves every request's bearer token here; the scope never
 //! comes from a tool argument, a prompt or a header the model can set.
 //!
+//! A grant may also name the episode its calls belong to (task M7: `answer_submit` stores the
+//! answer of *this* episode and resolves citations against what *this* episode's tools returned).
+//! The Claude runtime runs one process per turn, so its token is bound to the episode directly.
+//! Codex serves every episode of a workspace from one process, so each episode's thread gets its own
+//! episode grant through a per-thread header ([`MCP_EPISODE_HEADER`]); it is accepted only next to a
+//! live process token of the same scope.
+//!
 //! Only `sha256(token)` is kept, so a dump of this registry does not reveal usable tokens.
 
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::{Arc, Mutex};
 
-use ignis_core::contracts::ExecutionScope;
+use ignis_core::contracts::{EpisodeId, ExecutionScope};
 use ignis_core::hashing::sha256_hex;
 
 /// Environment variable through which the runtime child receives its token.
 pub const MCP_TOKEN_ENV: &str = "IGNIS_MCP_TOKEN";
 
+/// Request header that carries an episode grant (Codex: set per thread in its MCP configuration).
+pub const MCP_EPISODE_HEADER: &str = "x-ignis-episode-grant";
+
 /// Name of the IGNIS server in the runtime's MCP configuration.
 pub use super::mapping::IGNIS_MCP_SERVER;
 
-/// Live grants: token digest → scope.
+/// What a live token grants: a host-derived scope and, when bound, the episode its calls serve.
+#[derive(Debug, Clone, PartialEq)]
+pub struct McpGrant {
+    pub scope: ExecutionScope,
+    pub episode: Option<EpisodeId>,
+}
+
+/// Live grants: token digest → grant.
 #[derive(Default)]
 pub struct McpGrants {
-    by_digest: Mutex<HashMap<String, ExecutionScope>>,
+    by_digest: Mutex<HashMap<String, McpGrant>>,
 }
 
 /// A bearer token for one runtime process. Not `Debug`/`Display`: it is a secret.
@@ -44,17 +61,37 @@ impl McpGrants {
 
     /// A fresh token (244 random bits) granting exactly `scope`.
     pub fn issue(&self, scope: &ExecutionScope) -> McpToken {
+        self.issue_grant(McpGrant {
+            scope: scope.clone(),
+            episode: None,
+        })
+    }
+
+    /// A fresh token granting `scope` for the calls of episode `ep`.
+    pub fn issue_for_episode(&self, scope: &ExecutionScope, ep: &EpisodeId) -> McpToken {
+        self.issue_grant(McpGrant {
+            scope: scope.clone(),
+            episode: Some(ep.clone()),
+        })
+    }
+
+    fn issue_grant(&self, grant: McpGrant) -> McpToken {
         let token = format!(
             "ignis_mcp_{}{}",
             uuid::Uuid::new_v4().simple(),
             uuid::Uuid::new_v4().simple()
         );
-        self.lock().insert(digest(&token), scope.clone());
+        self.lock().insert(digest(&token), grant);
         McpToken(token)
     }
 
     /// The scope a bearer token grants, if it is live.
     pub fn resolve(&self, token: &str) -> Option<ExecutionScope> {
+        self.resolve_grant(token).map(|g| g.scope)
+    }
+
+    /// The full grant of a live token.
+    pub fn resolve_grant(&self, token: &str) -> Option<McpGrant> {
         self.lock().get(&digest(token)).cloned()
     }
 
@@ -70,12 +107,20 @@ impl McpGrants {
         }
     }
 
+    /// An episode-bound token for `scope`, revoked when the lease is dropped.
+    pub fn lease_for_episode(self: &Arc<Self>, scope: &ExecutionScope, ep: &EpisodeId) -> McpLease {
+        McpLease {
+            token: self.issue_for_episode(scope, ep),
+            grants: self.clone(),
+        }
+    }
+
     /// Number of live grants (diagnostics and tests).
     pub fn live(&self) -> usize {
         self.lock().len()
     }
 
-    fn lock(&self) -> std::sync::MutexGuard<'_, HashMap<String, ExecutionScope>> {
+    fn lock(&self) -> std::sync::MutexGuard<'_, HashMap<String, McpGrant>> {
         self.by_digest.lock().unwrap_or_else(|p| p.into_inner())
     }
 }
@@ -150,6 +195,17 @@ impl McpAttachment {
             )
         }));
         o
+    }
+
+    /// The per-thread configuration (`thread/start` / `thread/resume` `config`) that sends an
+    /// episode grant with every IGNIS MCP request of that thread. The value is a secret; it lives
+    /// only in the runtime's memory and is revoked with its lease.
+    pub fn thread_config(&self, episode_token: &McpToken) -> serde_json::Value {
+        serde_json::json!({
+            format!("mcp_servers.{IGNIS_MCP_SERVER}.http_headers"): {
+                MCP_EPISODE_HEADER: episode_token.expose(),
+            }
+        })
     }
 }
 

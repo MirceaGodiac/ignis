@@ -431,19 +431,24 @@ fn v1_instance(
         None => (inner, None),
     };
     let runner_wake = Arc::new(tokio::sync::Notify::new());
+    let hub: Arc<v1::Hub> = Default::default();
     let tools = {
         let wake = runner_wake.clone();
-        Arc::new(ignis_mcp::ToolHost::new(
-            services.clone(),
-            store.clone(),
-            artifacts.clone(),
-            origin,
-            Arc::new(move || wake.notify_one()),
-        ))
+        let h = hub.clone();
+        Arc::new(
+            ignis_mcp::ToolHost::new(
+                services.clone(),
+                store.clone(),
+                artifacts.clone(),
+                origin,
+                Arc::new(move || wake.notify_one()),
+            )
+            // `answer_submit` appends `answer.completed`: wake the episode's SSE readers.
+            .with_commit_hook(Arc::new(move |ep, seq| h.notify(ep, seq))),
+        )
     };
     let attachment = mcp.map(|m| m.mount(name, tools.clone()));
     let mcp_url = attachment.as_ref().map(|a| a.url.clone());
-    let hub: Arc<v1::Hub> = Default::default();
     let (runtime, runtime_report) = v1::agent::runtime(
         codex,
         dir.join("codex"),

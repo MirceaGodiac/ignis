@@ -6,16 +6,20 @@
 //! - [`http`]: the rmcp streamable-HTTP server, mounted by the host on a loopback-only listener,
 //!   authenticated by per-process bearer grants ([`ignis_research::runtime::McpGrants`]) that map
 //!   to the host-derived [`ignis_core::contracts::ExecutionScope`].
+//! - `answer`: `answer_submit` (M7), the host-side validation that turns a submission into a stored
+//!   `ResearchAnswer` and `answer.completed`, or a refusal that lists every problem.
 //! - [`schemas`]: tool input schemas generated from the contract types.
 //!
 //! The runtime side (registering the server with `codex app-server`, issuing and revoking the
 //! grants) lives in the Codex bridge (`ignis_research::runtime`).
 
+mod answer;
 pub mod http;
 pub mod schemas;
 pub mod tools;
 
 pub use http::{router, IgnisMcp};
 pub use tools::{
-    catalog, ToolAvailability, ToolHost, ToolServices, ANALYSIS_JOB, FORECAST_JOB, MODELS_DISABLED,
+    catalog, CommitHook, ToolAvailability, ToolHost, ToolServices, ANALYSIS_JOB, FORECAST_JOB,
+    MODELS_DISABLED,
 };

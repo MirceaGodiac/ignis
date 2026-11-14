@@ -91,11 +91,18 @@ struct Live {
     loaded: Mutex<HashSet<String>>,
     /// The process's IGNIS MCP token; taking it out revokes it.
     mcp: Mutex<Option<McpLease>>,
+    /// Episode grants of the threads loaded on this process (sent per thread as a header, so a
+    /// call knows its episode); revoked with the process.
+    episode_mcp: Mutex<HashMap<EpisodeId, McpLease>>,
 }
 
 impl Live {
     fn revoke_mcp(&self) {
         drop(self.mcp.lock().unwrap_or_else(|p| p.into_inner()).take());
+        self.episode_mcp
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .clear();
     }
 }
 
@@ -501,7 +508,13 @@ impl Inner {
         }
     }
 
-    fn thread_params(&self, scope: &ExecutionScope, ep: &EpisodeId, thread: Option<&str>) -> Value {
+    fn thread_params(
+        &self,
+        live: &Live,
+        scope: &ExecutionScope,
+        ep: &EpisodeId,
+        thread: Option<&str>,
+    ) -> Value {
         // Always under IGNIS's runtime state, even when a shared login home is the CODEX_HOME.
         let dir = self
             .cfg
@@ -521,6 +534,14 @@ impl Inner {
         });
         if let Some(m) = &self.cfg.model {
             p["model"] = json!(m);
+        }
+        // The thread's IGNIS MCP requests carry its episode grant (one per episode and process).
+        if let Some(m) = &self.cfg.mcp {
+            let mut leases = live.episode_mcp.lock().unwrap_or_else(|p| p.into_inner());
+            let lease = leases
+                .entry(ep.clone())
+                .or_insert_with(|| m.grants.lease_for_episode(scope, ep));
+            p["config"] = m.thread_config(lease.token());
         }
         match thread {
             Some(t) => p["threadId"] = json!(t),
@@ -601,7 +622,7 @@ impl Inner {
             .rpc
             .request(
                 "thread/start",
-                self.thread_params(scope, ep, None),
+                self.thread_params(live, scope, ep, None),
                 self.cfg.request_timeout,
             )
             .map_err(call_err)?;
@@ -654,7 +675,7 @@ impl Inner {
     ) -> Result<Value, CallError> {
         let resp = live.rpc.request(
             "thread/resume",
-            self.thread_params(scope, ep, Some(tid)),
+            self.thread_params(live, scope, ep, Some(tid)),
             self.cfg.request_timeout,
         )?;
         resp.get("thread").cloned().ok_or(CallError::Rpc {
@@ -857,6 +878,7 @@ impl Inner {
             workspace: ws.clone(),
             loaded: Mutex::new(HashSet::new()),
             mcp: Mutex::new(lease),
+            episode_mcp: Mutex::new(HashMap::new()),
         });
         let (weak, l) = (self.me.clone(), live.clone());
         std::thread::Builder::new()
