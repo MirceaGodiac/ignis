@@ -38,6 +38,7 @@ pub fn rrf(rankings: &[&[String]], k: f64) -> Vec<(String, f64)> {
 #[derive(Debug, Clone)]
 pub struct SearchOpts {
     pub limit: usize,
+    pub use_lexical: bool,
     pub use_dense: bool,
     pub use_rerank: bool,
     pub rerank_top: Option<usize>,
@@ -48,6 +49,7 @@ impl Default for SearchOpts {
     fn default() -> Self {
         SearchOpts {
             limit: 10,
+            use_lexical: true,
             use_dense: true,
             use_rerank: true,
             rerank_top: None,
@@ -111,18 +113,35 @@ impl Retriever {
         Ok(c)
     }
 
-    pub fn search(&mut self, query: &str, filters: &Filters, o: &SearchOpts) -> Result<Value> {
+    /// Rank every candidate of `query`: FTS5 lexical (`lexical_depth`) and exact dense
+    /// (`dense_depth`) lists fused by RRF, then `keep` (the caller's scope filter), then the rerank
+    /// of the head. `keep` runs before anything is sent to the reranker provider, so text the scope
+    /// withholds never leaves the host. Every stage reports what happened in [`Ranked::stages`].
+    pub fn rank(
+        &mut self,
+        query: &str,
+        filters: &Filters,
+        o: &SearchOpts,
+        keep: &dyn Fn(&str) -> bool,
+    ) -> Result<Ranked> {
         let t_all = Instant::now();
         let k = self.cfg.fusion.rrf_k as f64;
         let mut stages = serde_json::Map::new();
         let mut timings = serde_json::Map::new();
         let mut usage = serde_json::Map::new();
         let t = Instant::now();
-        let lex = catalog::lexical(&self.con, query, filters, self.cfg.fusion.lexical_depth)?;
+        let lex = if o.use_lexical {
+            let l = catalog::lexical(&self.con, query, filters, self.cfg.fusion.lexical_depth)?;
+            stages.insert("lexical".into(), json!(format!("ok ({})", l.len())));
+            l
+        } else {
+            stages.insert("lexical".into(), json!("disabled"));
+            Vec::new()
+        };
         timings.insert("lexical_ms".into(), json!(ms(t)));
-        stages.insert("lexical".into(), json!(format!("ok ({})", lex.len())));
         let lex_ids: Vec<String> = lex.iter().map(|r| r.chunk_id.clone()).collect();
         let mut dense_rows = Vec::new();
+        let mut dense_ok = false;
         if !o.use_dense {
             stages.insert("dense".into(), json!("disabled"));
         } else {
@@ -165,6 +184,7 @@ impl Retriever {
                     vs.dim()
                 ))
             })();
+            dense_ok = r.is_ok();
             stages.insert(
                 "dense".into(),
                 json!(r.unwrap_or_else(|e| format!("skipped: {e}"))),
@@ -174,9 +194,18 @@ impl Retriever {
         // a skipped dense stage leaves an empty list, which contributes nothing to RRF
         let rankings: Vec<&[String]> = vec![&lex_ids, &dense_ids];
         let fused = rrf(&rankings, k);
-        let mut order: Vec<String> = fused.iter().map(|(c, _)| c.clone()).collect();
+        let mut withheld = 0usize;
+        let mut order: Vec<String> = Vec::with_capacity(fused.len());
+        for (c, _) in &fused {
+            if keep(c) {
+                order.push(c.clone());
+            } else {
+                withheld += 1;
+            }
+        }
         let top_n = o.rerank_top.unwrap_or(self.cfg.reranker.top_n);
         let mut rerank: HashMap<String, f32> = HashMap::new();
+        let mut rerank_ok = false;
         if !o.use_rerank {
             stages.insert("rerank".into(), json!("disabled; order = RRF"));
         } else {
@@ -222,6 +251,7 @@ impl Retriever {
                             });
                             let tail = order.split_off(head.len());
                             order = h.into_iter().map(|(_, c)| c).chain(tail).collect();
+                            rerank_ok = true;
                             stages.insert(
                                 "rerank".into(),
                                 json!(format!(
@@ -258,28 +288,89 @@ impl Retriever {
             .iter()
             .map(|r| (r.chunk_id.as_str(), r))
             .collect();
-        let top: Vec<String> = order.into_iter().take(o.limit).collect();
-        let rows = catalog::get_chunks(&self.con, &top)?;
+        let hits = order
+            .into_iter()
+            .map(|cid| RankedHit {
+                bm25: lex_by.get(cid.as_str()).map(|x| x.bm25),
+                lexical_rank: lex_by.get(cid.as_str()).map(|x| x.lexical_rank),
+                cosine: den_by.get(cid.as_str()).map(|x| x.cosine as f64),
+                dense_rank: den_by.get(cid.as_str()).map(|x| x.dense_rank),
+                rrf: fused_score.get(&cid).copied(),
+                rerank: rerank.get(&cid).map(|x| *x as f64),
+                chunk_id: cid,
+            })
+            .collect();
+        timings.insert("total_ms".into(), json!(ms(t_all)));
+        Ok(Ranked {
+            hits,
+            withheld,
+            lexical_used: o.use_lexical,
+            lexical_count: lex.len(),
+            dense_used: dense_ok,
+            rerank_used: rerank_ok,
+            lexical_depth: self.cfg.fusion.lexical_depth,
+            stages,
+            timings,
+            usage,
+            rrf_k: k,
+        })
+    }
+
+    /// Legacy JSON view of [`Retriever::rank`] (first `limit` hits with their chunk rows).
+    pub fn search(&mut self, query: &str, filters: &Filters, o: &SearchOpts) -> Result<Value> {
+        let r = self.rank(query, filters, o, &|_| true)?;
+        let top: Vec<&RankedHit> = r.hits.iter().take(o.limit).collect();
+        let ids: Vec<String> = top.iter().map(|h| h.chunk_id.clone()).collect();
+        let rows = catalog::get_chunks(&self.con, &ids)?;
         let results: Vec<Value> = top
             .iter()
-            .map(|cid| {
-                let r = &rows[cid];
-                let l = lex_by.get(cid.as_str());
-                let d = den_by.get(cid.as_str());
+            .map(|h| {
+                let r = &rows[&h.chunk_id];
                 json!({
-                    "chunk_id": cid, "publication_id": r["publication_id"], "title": r["title"], "year": r["year"],
+                    "chunk_id": h.chunk_id, "publication_id": r["publication_id"], "title": r["title"], "year": r["year"],
                     "page": r["page"], "char_start": r["char_start"], "char_end": r["char_end"], "kind": r["kind"],
                     "section": r["section"], "locator": r["locator"], "canonical_url": r["canonical_url"],
-                    "lexical_rank": l.map(|x| x.lexical_rank), "bm25": l.map(|x| x.bm25),
-                    "dense_rank": d.map(|x| x.dense_rank), "cosine": d.map(|x| x.cosine),
-                    "rrf": fused_score.get(cid), "rerank": rerank.get(cid),
+                    "lexical_rank": h.lexical_rank, "bm25": h.bm25,
+                    "dense_rank": h.dense_rank, "cosine": h.cosine,
+                    "rrf": h.rrf, "rerank": h.rerank,
                     "outcome_bearing": r["outcome_bearing"], "describes_runs": r["describes_runs"], "text": r["text"],
                 })
             })
             .collect();
-        timings.insert("total_ms".into(), json!(ms(t_all)));
         Ok(
-            json!({"query": query, "filters": filters, "rrf_k": k, "stages": stages, "timings": timings, "usage": usage, "results": results}),
+            json!({"query": query, "filters": filters, "rrf_k": r.rrf_k, "stages": r.stages, "timings": r.timings,
+            "usage": r.usage, "results": results}),
         )
     }
+}
+
+/// One ranked candidate with the score of every stage it took part in.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RankedHit {
+    pub chunk_id: String,
+    pub bm25: Option<f64>,
+    pub lexical_rank: Option<usize>,
+    pub cosine: Option<f64>,
+    pub dense_rank: Option<usize>,
+    pub rrf: Option<f64>,
+    pub rerank: Option<f64>,
+}
+
+/// The full ranked candidate list of a query (after the scope filter) and what each stage did.
+#[derive(Debug, Clone)]
+pub struct Ranked {
+    pub hits: Vec<RankedHit>,
+    /// candidates dropped by the caller's filter (never reported to callers outside the host)
+    pub withheld: usize,
+    pub lexical_used: bool,
+    /// size of the fused lexical list (`== lexical_depth`: more matches may follow in the tail)
+    pub lexical_count: usize,
+    pub dense_used: bool,
+    pub rerank_used: bool,
+    /// depth of the fused lexical list; candidates past it come from the lexical tail
+    pub lexical_depth: usize,
+    pub stages: serde_json::Map<String, Value>,
+    pub timings: serde_json::Map<String, Value>,
+    pub usage: serde_json::Map<String, Value>,
+    pub rrf_k: f64,
 }

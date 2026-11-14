@@ -13,3 +13,7 @@ alias = "alias:bass2:test{0}"
 [[pattern]]  # FLEX test points as written in reports, e.g. "FLEX-2 test 12" or "Test Point 37"
 regex = '(?i)\btest\s+point\s+(\d{1,3})\b'
 alias = "alias:flex:testpoint{0}"
+
+[[pattern]]  # FLEX test numbers in NASA/TP-2015-216046: "Test FLEX–006", "FLEX-086" (hyphen, en dash, minus)
+regex = '\bFLEX\s*[-\x{2010}-\x{2015}\x{2212}]\s*(\d{3})\b'
+alias = "alias:flex:FLEX-{0}"
