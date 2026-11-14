@@ -130,6 +130,11 @@ export async function ntrsProxy(request: Request): Promise<Response> {
     // A redirect could lead anywhere; the proxy reaches only the allow-listed host.
     return problem(502, "upstream_unavailable", `NTRS redirected (${upstream.status}); not followed`);
   }
+  if (upstream.status >= 500) {
+    // An NTRS outage is "unavailable, retry later", never "not found"; its error page is not passed on.
+    await upstream.body?.cancel();
+    return problem(503, "upstream_unavailable", `NTRS answered ${upstream.status}`);
+  }
   const out = new Headers();
   for (const h of NTRS_RESPONSE_HEADERS) {
     const v = upstream.headers.get(h);
