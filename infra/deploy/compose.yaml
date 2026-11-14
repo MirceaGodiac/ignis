@@ -1,7 +1,7 @@
-# IGNIS origin on the Netcup host: the API and the tunnel connector. Started and supervised by
+# IGNIS origin on the GCE VM: the API and the tunnel connector. Started and supervised by
 # systemd (infra/deploy/systemd/ignis.service); no Nginx, no published ports.
 #
-# Paths: everything persistent lives under /srv/ignis on local NVMe. The runner directory is
+# Paths: everything persistent lives under /srv/ignis (persistent disk ignis-data). The runner directory is
 # mounted at the SAME path inside the container because the host engine resolves the runner's bind
 # mounts (`/job`, `/in`, `/out`) against host paths.
 name: ignis

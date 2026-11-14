@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# On the Netcup host: confirm gVisor is installed as a Docker runtime and that the runner's
+# On the origin VM: confirm gVisor is installed as a Docker runtime and that the runner's
 # isolation suite passes under it (M3 verified it only under runc).
 #
 #   infra/scripts/verify-gvisor.sh <runner-image-id>

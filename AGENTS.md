@@ -14,7 +14,7 @@ limits that change the interpretation. Read this file fully; follow the links on
 | Scientific services | knowledge (search/read/wiki), datasets, models (FLEX/ACME/BASS, literal WSP), evaluation | `ignis-evidence`, `ignis-data`, `ignis-vision`, `ignis-flex/acme/bass`, planned `ignis-wsp`, `ignis-lab/src/eval` |
 | Shared contracts | the single source of truth for every cross-lane type | `crates/ignis-core` (`contracts.rs` + `contracts/*.rs`) |
 | Frontend / edge | React + TypeScript + Vite; Cloudflare static assets, a small Worker, R2, Access, Tunnel | `web/`, `infra/worker` |
-| Hosting | Netcup Linux origin (Compose + systemd, `cloudflared` → Axum; no Nginx) | `infra/` (runbook: `infra/README.md`; not provisioned yet) |
+| Hosting | Google Compute Engine VM as the Linux origin (Compose + systemd, `cloudflared` → Axum; no Nginx); domain from the Space Apps offer (registrar Porkbun), served by Cloudflare | `infra/` (runbook: `infra/README.md`; not provisioned yet) |
 
 ## Where does my change go?
 
