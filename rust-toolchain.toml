@@ -1,0 +1,6 @@
+# One toolchain for developers, CI and the release image (infra/server/Dockerfile reads the same
+# version). Change it in one PR together with any fixes the new compiler requires.
+[toolchain]
+channel = "1.99.1"
+components = ["rustfmt"]
+profile = "minimal"

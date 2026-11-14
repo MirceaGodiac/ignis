@@ -1,0 +1,26 @@
+# /etc/systemd/system/ignis.service — supervises the IGNIS compose project (API + tunnel).
+# Install: infra/README.md §First deployment.
+[Unit]
+Description=IGNIS origin (ignis-server + cloudflared)
+Documentation=file:///opt/ignis-deploy/infra/README.md
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+# Refuse to start on a host that is missing the state volume (e.g. an unmounted disk).
+ConditionPathIsDirectory=/srv/ignis/state
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ignis-deploy
+EnvironmentFile=/etc/ignis/release.env
+# Foreground `up`: systemd sees the project's lifetime; compose restarts crashed containers.
+ExecStartPre=/usr/bin/docker compose -f infra/deploy/compose.yaml --env-file /etc/ignis/release.env config -q
+ExecStart=/usr/bin/docker compose -f infra/deploy/compose.yaml --env-file /etc/ignis/release.env up --no-build --remove-orphans
+ExecStop=/usr/bin/docker compose -f infra/deploy/compose.yaml --env-file /etc/ignis/release.env stop --timeout 30
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=300
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

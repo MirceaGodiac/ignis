@@ -14,6 +14,8 @@ use ignis_server::{app, fixture, ServeArgs, Services};
 use serde_json::{json, Value};
 use tower::ServiceExt;
 
+mod support;
+
 fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
     let crate_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     ServeArgs {
@@ -38,6 +40,9 @@ fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
         codex,
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
+        access: Default::default(),
     }
 }
 
@@ -196,6 +201,7 @@ async fn capabilities_report_the_runtime_without_crashing() {
         },
     );
     a.auth = AuthMode::CloudflareAccess;
+    a.access = support::access().args.clone();
     let r = app(
         a,
         Services {
@@ -205,10 +211,11 @@ async fn capabilities_report_the_runtime_without_crashing() {
             research: Default::default(),
         },
     );
-    let req = Request::get("/api/v1/capabilities")
-        .header(ignis_server::v1::io::ACCESS_HEADER, "someone@example.org")
-        .body(Body::empty())
-        .unwrap();
+    let mut req = Request::get("/api/v1/capabilities");
+    for (k, v) in support::access().headers("someone@example.org") {
+        req = req.header(k, v);
+    }
+    let req = req.body(Body::empty()).unwrap();
     let caps: Value = serde_json::from_slice(
         &axum::body::to_bytes(r.oneshot(req).await.unwrap().into_body(), 1 << 20)
             .await

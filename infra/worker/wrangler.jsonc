@@ -1,0 +1,22 @@
+// The one Cloudflare CLI/config of the project (Wrangler). Deploy: infra/README.md §Release.
+// Placeholders in <> are filled per deployment; secrets go through `wrangler secret put`, never here.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ignis-edge",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "<ui-hostname>", "custom_domain": true }],
+  "assets": {
+    "directory": "../../web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // /api/* always reaches the Worker (never an asset or the SPA fallback).
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "ORIGIN_URL": "https://<origin-hostname>"
+  },
+  "observability": { "enabled": true }
+}

@@ -39,6 +39,9 @@ fn router(tag: &str) -> (axum::Router, PathBuf) {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
+        access: Default::default(),
     };
     let services = Services {
         experts: Vec::new(),
@@ -173,6 +176,9 @@ async fn acquisition_scoring_never_reads_hidden_values() {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        artifact_backend: Default::default(),
+        r2: Default::default(),
+        access: Default::default(),
     };
     // A scorer that records what it was given.
     let seen: Arc<std::sync::Mutex<Option<(Vec<String>, Vec<Value>)>>> = Default::default();

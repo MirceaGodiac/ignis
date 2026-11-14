@@ -129,7 +129,7 @@ reload, seal/reveal și authoring nu sunt publice implicit.
 
 ## Gate-uri de merge
 
-Rulate local (nu există CI configurat încă; Mircea îl adaugă în M4):
+Rulate în CI (`.github/workflows/ci.yml`, la fiecare PR) și local înainte de push:
 
 ```bash
 cargo fmt --all -- --check

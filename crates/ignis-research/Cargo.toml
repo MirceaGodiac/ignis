@@ -19,6 +19,10 @@ hex.workspace = true
 uuid = { version = "1", features = ["v4"] }
 schemars.workspace = true
 tracing.workspace = true
+chrono.workspace = true
+# R2 (S3 API): SigV4 HMAC and blocking HTTP; same versions as the rest of the tree.
+ring = "0.17"
+ureq = "3"
 
 # Test double of `codex app-server` for the offline conformance tests (like ignis-data's fake claude).
 [[bin]]
@@ -29,3 +33,6 @@ doc = false
 
 [dev-dependencies]
 tempfile = "3"
+# In-process S3 stand-in for the R2 tests.
+axum.workspace = true
+tokio.workspace = true
