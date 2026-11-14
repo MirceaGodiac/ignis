@@ -21,10 +21,10 @@ use std::sync::Arc;
 
 use ignis_core::contracts::{
     AnalysisArtifact, ArtifactId, ArtifactRef, Capability, ConditionsQuery, ConditionsRow,
-    ConditionsTable, DatasetBundle, DatasetId, EpisodeId, ErrorCode, ErrorEnvelope, EventBody,
-    EvidenceId, EvidenceRef, ExecutionScope, ForecastRequest, ModelRelease, PageCursor, Partition,
-    ReadRequest, ReadResult, ReleaseId, ResearchEpisode, ResearchEvent, RetryPolicy, ScopeRole,
-    SearchPage, SearchRequest,
+    ConditionsTable, DatasetBundle, DatasetId, Digest, EpisodeId, ErrorCode, ErrorEnvelope,
+    EventBody, EvidenceId, EvidenceRef, ExecutionScope, ForecastRequest, ModelRelease, PageCursor,
+    Partition, ReadRequest, ReadResult, ReleaseId, ResearchEpisode, ResearchEvent, RetryPolicy,
+    ScopeRole, SearchPage, SearchRequest,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -181,11 +181,21 @@ impl DatasetService for FixtureDatasets {
     ) -> ServiceResult<(ArtifactRef, Box<dyn Read + Send>)> {
         let b = self.dataset(scope, id)?;
         if !b.views.iter().any(|v| v.name == view) {
-            return Err(not_found(format!("{id} has no view {view}")));
+            let names: Vec<&str> = b.views.iter().map(|v| v.name.as_str()).collect();
+            return Err(not_found(format!(
+                "{id} has no view {view}; its views are {}",
+                names.join(", ")
+            )));
         }
         Err(not_found(format!(
             "fixture view {view} of {id} has no bytes (only its reference is a fixture)"
         )))
+    }
+
+    /// The fixture table is the whole input: its digest is the snapshot.
+    fn conditions_snapshot(&self, scope: &ExecutionScope) -> ServiceResult<Digest> {
+        scope.require(Capability::ReadData)?;
+        Ok(Digest::of_json(&self.conditions))
     }
 
     /// Investigation, run and key selection with offset paging; value filters are not emulated.

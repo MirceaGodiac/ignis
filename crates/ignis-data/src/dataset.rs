@@ -1016,6 +1016,41 @@ impl DatasetService for DatasetStore {
         crate::conditions::query(&full, q, visible).map_err(|e| err(ErrorCode::InvalidRequest, e))
     }
 
+    /// Digest over the conditions table bytes and every frozen split file (name and bytes), the
+    /// inputs that decide both the cells and which runs a scope sees.
+    fn conditions_snapshot(&self, scope: &ExecutionScope) -> ServiceResult<Digest> {
+        scope
+            .validate()
+            .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
+        scope.require(Capability::ReadData)?;
+        let p = crate::conditions::table_path();
+        let read = |p: &Path| {
+            std::fs::read(p).map_err(|e| {
+                err(
+                    ErrorCode::CapabilityUnavailable,
+                    format!("{}: {e}", p.display()),
+                )
+            })
+        };
+        let mut parts = vec![format!("conditions_table {}", Digest::of_bytes(&read(&p)?))];
+        for f in crate::cohort::split_files() {
+            let name = f
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            parts.push(format!("split {name} {}", Digest::of_bytes(&read(&f)?)));
+        }
+        Ok(Digest::of_bytes(
+            parts
+                .join(
+                    "
+",
+                )
+                .as_bytes(),
+        ))
+    }
+
     /// Bundles the scope may read: a bundle refused for a partition is not listed; the evaluator
     /// root is listed for evaluation scopes only. A bundle that fails to load fails the listing.
     fn datasets(&self, scope: &ExecutionScope) -> ServiceResult<Vec<DatasetBundle>> {
@@ -1069,11 +1104,16 @@ impl DatasetService for DatasetStore {
     ) -> ServiceResult<(ArtifactRef, Box<dyn std::io::Read + Send>)> {
         use std::io::{Read, Seek, SeekFrom};
         let b = self.dataset(scope, id)?;
-        let v = b
-            .views
-            .iter()
-            .find(|v| v.name == view)
-            .ok_or_else(|| err(ErrorCode::NotFound, format!("{id} has no view {view}")))?;
+        let v = b.views.iter().find(|v| v.name == view).ok_or_else(|| {
+            let names: Vec<&str> = b.views.iter().map(|v| v.name.as_str()).collect();
+            err(
+                ErrorCode::NotFound,
+                format!(
+                    "{id} has no view {view}; its views are {}",
+                    names.join(", ")
+                ),
+            )
+        })?;
         let (p, _) = Self::artifact_paths(
             self.root(b.audience),
             &v.artifact.sha256,
