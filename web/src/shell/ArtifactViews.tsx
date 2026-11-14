@@ -5,7 +5,7 @@ import { Fragment } from "react";
 import type { AnalysisArtifact, AnswerRefusal, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease, VisualObservationBundle } from "../contracts/generated";
 import { ContourVideo } from "./ContourVideo";
 import { checkSummary, columnUnit, durationS, evaluationSummary, exposureRows, fmtMetric, limitRows, outcomeText, UNCERTAINTY_TEXT, type TypedArtifact } from "../research/artifactViews";
-import { Caution, fmtBytes, ReleaseState, shortId, words } from "../ui/common";
+import { Caution, Gap, ReleaseState, fmtBytes, shortId, words } from "../ui/common";
 import { usePanel } from "./inspector";
 import { useReleases } from "./queries";
 
@@ -236,19 +236,44 @@ function EvaluationResultView({ r }: { r: EvaluationResult }) {
           <dd className="num">
             {r.cases.refused} / {r.cases.failed}
           </dd>
-          <dt>target</dt>
-          <dd>
-            {words(r.request.target)} ({r.request.unit})
-          </dd>
+          {r.request.target && (
+            <>
+              <dt>target</dt>
+              <dd>
+                {words(r.request.target)} ({r.request.unit})
+              </dd>
+            </>
+          )}
           <dt>partition</dt>
           <dd>{r.request.partition}</dd>
-          <dt>cutoffs</dt>
-          <dd className="num">{r.request.cutoffs_s.map((c) => `${c} s`).join(", ")}</dd>
-          <dt>candidate</dt>
-          <dd>
-            <ReleaseLink id={r.request.candidate.release_id} />
-          </dd>
+          {(r.request.cutoffs_s ?? []).length > 0 && (
+            <>
+              <dt>cutoffs</dt>
+              <dd className="num">{r.request.cutoffs_s!.map((c) => `${c} s`).join(", ")}</dd>
+            </>
+          )}
+          {r.request.candidate && (
+            <>
+              <dt>candidate</dt>
+              <dd>
+                <ReleaseLink id={r.request.candidate.release_id} />
+              </dd>
+            </>
+          )}
+          {r.request.harness && (
+            <>
+              <dt>arms</dt>
+              <dd>
+                {r.request.harness.variants.map((v) => v.name).join(", ")} · baseline {r.request.harness.baseline}
+              </dd>
+              <dt>gold set</dt>
+              <dd>
+                <code>{r.request.harness.gold_set.set_id}</code> · {r.request.harness.gold_set.split} · {r.request.harness.gold_set.task_count} tasks × {r.request.harness.repetitions} repetitions
+              </dd>
+            </>
+          )}
         </dl>
+        {r.harness && <Gap title="Harness comparison">The per-arm scores and paired deltas are in the payload; their view is part of T11.</Gap>}
         {!s.denominatorKept && <Caution title="Case accounting does not add up">Scored, refused and failed cases do not sum to the total.</Caution>}
       </div>
       <div className="panel-sec">

@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EvaluationSchema": {
+      "description": "Wire tag of gold tasks, evaluation requests and results. Wave K1 writes `evaluation.v2`;\n`evaluation.v1` (C0) documents are still read and keep their `request_hash`, because a document\nis re-serialized with the tag it was read with and v1 documents never carry a v2 field. A v2\naddition (a gold task or set, a harness benchmark) is refused under the v1 tag.",
+      "oneOf": [
+        {
+          "enum": [
+            "evaluation.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evaluation.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "GoldPrompt": {
+      "additionalProperties": false,
+      "description": "The runner-facing form of a gold task: no answer key, no supporting evidence, no reviewers.",
+      "properties": {
+        "choices": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "class": {
+          "$ref": "#/$defs/GoldTaskClass"
+        },
+        "question": {
+          "type": "string"
+        },
+        "task_id": {
+          "$ref": "#/$defs/GoldTaskId"
+        }
+      },
+      "required": [
+        "task_id",
+        "class",
+        "question"
+      ],
+      "type": "object"
+    },
+    "GoldSetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "GoldTaskClass": {
+      "description": "How a task is answered and scored (`LANES_V2.md` §6, T10).",
+      "oneOf": [
+        {
+          "const": "documentary",
+          "description": "Multiple choice with an \"insufficient evidence\" option (LitQA2 format); scored on accuracy\nand on precision, so abstaining counts.",
+          "type": "string"
+        },
+        {
+          "const": "citation",
+          "description": "A statement to support: scored on whether the cited locator supports it (ALCE/FACT style).",
+          "type": "string"
+        },
+        {
+          "const": "analytical",
+          "description": "A computation with an executable check (ScienceAgentBench/BixBench style).",
+          "type": "string"
+        },
+        {
+          "const": "predictive",
+          "description": "Only through the frozen evaluator protocol; the task carries no answer of its own.",
+          "type": "string"
+        }
+      ]
+    },
+    "GoldTaskId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/GoldPromptSet",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The prompts of a dev set, as a builder's harness runner reads them (M10). Always a dev set.",
+  "properties": {
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "prompts": {
+      "items": {
+        "$ref": "#/$defs/GoldPrompt"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvaluationSchema"
+    },
+    "set_hash": {
+      "$ref": "#/$defs/Digest",
+      "description": "The `set_hash` of the dev set the prompts come from."
+    },
+    "set_id": {
+      "$ref": "#/$defs/GoldSetId"
+    }
+  },
+  "required": [
+    "schema_version",
+    "set_id",
+    "set_hash",
+    "prompts",
+    "origin"
+  ],
+  "title": "GoldPromptSet",
+  "type": "object"
+}

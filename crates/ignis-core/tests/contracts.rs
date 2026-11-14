@@ -165,6 +165,9 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 drop(check::<EvaluationRequest>(&v, EvaluationRequest::validate))
             }
             "EvaluationResult" => drop(check::<EvaluationResult>(&v, EvaluationResult::validate)),
+            "GoldTask" => drop(check::<GoldTask>(&v, GoldTask::validate)),
+            "GoldSet" => drop(check::<GoldSet>(&v, GoldSet::validate)),
+            "GoldPromptSet" => drop(check::<GoldPromptSet>(&v, GoldPromptSet::validate)),
             other => panic!("{path}: no check registered for {other}"),
         }
     }
@@ -262,18 +265,64 @@ fn fixtures_are_mutually_consistent() {
     let result: EvaluationResult = typed(&fixture("evaluation/result_dev.json"));
     expect(
         "request.dataset_hash",
-        request.dataset_hash.to_string(),
+        request.model().unwrap().dataset_hash.to_string(),
         bundle.content_digest().to_string(),
     );
     expect(
         "request.candidate.release_id",
-        request.candidate.release_id.to_string(),
+        request.model().unwrap().candidate.release_id.to_string(),
         release.id.clone(),
     );
     expect(
         "result.request_hash",
         result.request_hash.to_string(),
         request.request_hash().to_string(),
+    );
+    // K1-evaluation: the dev set pins its tasks, the prompts are the set's builder form, and the
+    // harness request and result name that set and each other.
+    let doc: GoldTask = typed(&fixture("evaluation/gold_task_documentary.json"));
+    let ana: GoldTask = typed(&fixture("evaluation/gold_task_analytical.json"));
+    let set: GoldSet = typed(&fixture("evaluation/gold_set_dev.json"));
+    expect(
+        "gold_set_dev.tasks equal the two gold_task fixtures",
+        (set.tasks == vec![doc, ana]).to_string(),
+        "true".into(),
+    );
+    expect(
+        "gold_set_dev.set_hash",
+        set.set_hash.to_string(),
+        GoldSet::tasks_hash(&set.tasks).to_string(),
+    );
+    let prompts: GoldPromptSet = typed(&fixture("evaluation/gold_prompts_dev.json"));
+    if let Ok(built) = set.builder_prompts() {
+        expect(
+            "gold_prompts_dev.json",
+            serde_json::to_string(&prompts).unwrap(),
+            serde_json::to_string(&built).unwrap(),
+        );
+    }
+    let hreq: EvaluationRequest = typed(&fixture("evaluation/request_harness.json"));
+    let hres: EvaluationResult = typed(&fixture("evaluation/harness_comparison.json"));
+    let gs = &hreq.harness.as_ref().unwrap().gold_set;
+    expect(
+        "request_harness.gold_set.set_hash",
+        gs.set_hash.to_string(),
+        set.set_hash.to_string(),
+    );
+    expect(
+        "request_harness.gold_set.task_count",
+        gs.task_count.to_string(),
+        set.tasks.len().to_string(),
+    );
+    expect(
+        "harness_comparison.request_hash",
+        hres.request_hash.to_string(),
+        hreq.request_hash().to_string(),
+    );
+    expect(
+        "harness_comparison.request equals request_harness.json",
+        (hres.request == hreq).to_string(),
+        "true".into(),
     );
     if result.request != request {
         wrong.push("result.request differs from evaluation/request_dev.json".into());
@@ -1027,4 +1076,182 @@ fn k1_research_contracts_bind_views_and_keep_versions_honest() {
     ] {
         assert!(names.contains(n), "{n}");
     }
+}
+
+#[test]
+fn k1_evaluation_keeps_the_holdout_away_from_builders_and_one_shape_per_purpose() {
+    // v1 stays v1: a v2 document under the v1 tag is refused (the C0 fixtures keep their hashes,
+    // checked in fixtures_are_mutually_consistent).
+    let task = fixture("evaluation/gold_task_documentary.json");
+    let gold = |f: &dyn Fn(&mut Value)| {
+        let mut v = task.clone();
+        f(&mut v);
+        typed::<GoldTask>(&v).validate()
+    };
+    gold(&|_| {}).unwrap();
+    assert!(
+        gold(&|v| v["schema_version"] = json!("evaluation.v1")).is_err(),
+        "gold task under the v1 tag"
+    );
+    assert!(
+        gold(&|v| v["answer"]["correct"] = json!(3)).is_err(),
+        "correct index outside the choices"
+    );
+    assert!(
+        gold(&|v| v["answer"]["support"] = json!([])).is_err(),
+        "a right choice without evidence"
+    );
+    assert!(
+        gold(&|v| v["class"] = json!("citation")).is_err(),
+        "class and answer key disagree"
+    );
+    assert!(
+        gold(&|v| v["answer"]["choices"] = json!(["a", "a"])).is_err(),
+        "duplicate choices"
+    );
+    gold(&|v| {
+        v["answer"].as_object_mut().unwrap().remove("correct");
+        v["answer"]["support"] = json!([]);
+    })
+    .expect("insufficient evidence may be the right answer");
+    let mut no_tol = fixture("evaluation/gold_task_analytical.json");
+    no_tol["answer"]["expected"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("rel_tol");
+    assert!(
+        typed::<GoldTask>(&no_tol).validate().is_err(),
+        "an expected value without a tolerance"
+    );
+
+    // The runner-facing form carries no answer key; the hold-out has no builder form at all.
+    let set: GoldSet = typed(&fixture("evaluation/gold_set_dev.json"));
+    let p = serde_json::to_value(set.tasks[0].prompt()).unwrap();
+    for leak in [
+        "answer",
+        "correct",
+        "support",
+        "accepted",
+        "expected",
+        "reviewed_by",
+    ] {
+        assert!(p.get(leak).is_none(), "prompt leaks {leak}: {p}");
+    }
+    assert_eq!(
+        p["choices"].as_array().unwrap().last().unwrap(),
+        INSUFFICIENT
+    );
+    let mut hold = set.clone();
+    hold.split = GoldSplit::Holdout;
+    for t in &mut hold.tasks {
+        t.split = GoldSplit::Holdout;
+    }
+    assert!(
+        hold.builder_prompts().is_err(),
+        "a builder received the hold-out"
+    );
+    hold.set_hash = GoldSet::tasks_hash(&hold.tasks);
+    assert!(
+        hold.validate().is_err(),
+        "a hold-out set without a frozen protocol"
+    );
+    let mut mixed = set.clone();
+    mixed.tasks[1].split = GoldSplit::Holdout;
+    mixed.set_hash = GoldSet::tasks_hash(&mixed.tasks);
+    assert!(
+        mixed.validate().is_err(),
+        "a hold-out task inside a dev set"
+    );
+    let mut stale = set.clone();
+    stale.tasks[0].question.push('?');
+    assert!(
+        stale.validate().is_err(),
+        "set_hash no longer pins the tasks"
+    );
+
+    // Exactly one request shape per purpose, failing closed.
+    let hreq = fixture("evaluation/request_harness.json");
+    let req = |f: &dyn Fn(&mut Value)| {
+        let mut v = hreq.clone();
+        f(&mut v);
+        typed::<EvaluationRequest>(&v).validate()
+    };
+    req(&|_| {}).unwrap();
+    assert!(
+        req(&|v| v["schema_version"] = json!("evaluation.v1")).is_err(),
+        "harness benchmark under v1"
+    );
+    assert!(
+        req(&|v| v["target"] = json!("liquid_diameter")).is_err(),
+        "a model field in a harness benchmark"
+    );
+    assert!(
+        req(&|v| v["partition"] = json!("test")).is_err(),
+        "a dev-set benchmark on the test partition"
+    );
+    assert!(
+        req(&|v| v["harness"]["variants"][1]["model"] = json!("other-model")).is_err(),
+        "arms differ in more than the harness"
+    );
+    assert!(
+        req(&|v| v["harness"]["baseline"] = json!("h9")).is_err(),
+        "baseline is not an arm"
+    );
+    assert!(
+        req(&|v| {
+            v["harness"]["gold_set"]["split"] = json!("holdout");
+            v["partition"] = json!("test");
+        })
+        .is_err(),
+        "the hold-out without a frozen protocol"
+    );
+    let mut model = fixture("evaluation/request_dev.json");
+    model.as_object_mut().unwrap().remove("candidate");
+    let m: EvaluationRequest = typed(&model);
+    assert!(
+        m.validate().is_err() && m.model().is_err(),
+        "a model request without its candidate"
+    );
+    let h: EvaluationRequest = typed(&hreq);
+    assert!(h.model().is_err(), "a harness benchmark has no model view");
+
+    // Every planned run is reported; accounting, scores and deltas agree with the runs.
+    let hres = fixture("evaluation/harness_comparison.json");
+    let res = |f: &dyn Fn(&mut Value)| {
+        let mut v = hres.clone();
+        f(&mut v);
+        typed::<EvaluationResult>(&v).validate()
+    };
+    res(&|_| {}).unwrap();
+    assert!(
+        res(&|v| {
+            v["harness"]["runs"].as_array_mut().unwrap().pop();
+        })
+        .is_err(),
+        "a planned run dropped"
+    );
+    assert!(
+        res(&|v| v["cases"]["failed"] = json!(0)).is_err(),
+        "accounting disagrees with the runs"
+    );
+    assert!(
+        res(&|v| v["verdict"] = json!("qualified")).is_err(),
+        "a harness benchmark qualified a release"
+    );
+    assert!(
+        res(&|v| v["harness"]["runs"][3]["score"] = json!(0.0)).is_err(),
+        "a failed run with a score"
+    );
+    assert!(
+        res(&|v| v["harness"]["deltas"][0]["delta"] = json!(0.9)).is_err(),
+        "delta outside its interval"
+    );
+    assert!(
+        res(&|v| v["harness"]["scores"][0]["metric"] = json!("f1")).is_err(),
+        "a metric that was not requested"
+    );
+    assert!(
+        res(&|v| v["harness"]["scores"][0]["n"] = json!(5)).is_err(),
+        "a score over more runs than its arm has"
+    );
 }
