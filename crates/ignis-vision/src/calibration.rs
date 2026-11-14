@@ -69,6 +69,22 @@ pub struct CalibrationSpec {
     pub locator: Option<SourceLocator>,
     #[serde(default)]
     pub notes: Option<String>,
+    /// The camera / view this clip shows (e.g. `psi25-main-side-edge-on`).
+    #[serde(default)]
+    pub camera_id: Option<String>,
+    /// The declared frame window and time origin of the run, so a run is reproducible from its spec.
+    #[serde(default)]
+    pub frames: Option<FrameWindow>,
+}
+
+/// Frames `[start, stop)` to segment and the container PTS that defines t = 0, with the rule that
+/// chose them (stated in the visual bundle's `time_origin`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct FrameWindow {
+    pub start: usize,
+    pub stop: usize,
+    pub time_origin_s: f64,
+    pub rule: String,
 }
 
 fn one() -> f64 {

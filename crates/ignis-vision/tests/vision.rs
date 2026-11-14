@@ -1,8 +1,17 @@
-//! Essential vision checks: container PTS (synthetic VFR), causal mask dependencies, homography.
+//! Essential vision checks: container PTS (synthetic VFR), causal mask dependencies, homography,
+//! units kept apart (pixel runs are ImageContourObservation bundles, metric runs ContourObservation),
+//! and the scope checks for serving visual bundles.
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
-use ignis_core::contracts::{ContourObservation, ContourStatus, EvidenceClass};
+use ignis_core::contracts::{
+    Capability, ContourObservation, ContourStatus, ErrorCode, EvidenceClass, ExecutionScope,
+    ImageContourObservation, Origin, Partition, PrincipalId, Resolution, RunId, RunIdentity,
+    ScopeId, ScopeRole, Split, UnitsStatus, VisualObservationBundle, WorkspaceId, IMAGE_CONTOURS,
+    METRIC_CONTOURS,
+};
+use ignis_vision::bundle::{resolve_identity, ClipMapEntry, RunPartitions, VisualBundleStore};
 use ignis_vision::calibration::{apply_h, calibrate, mat_inv, CalibrationSpec};
 use ignis_vision::pipeline::{run_contours, RunParams, Segmentation};
 use ignis_vision::segment::{causal_dependencies, ClassicalSegmenter};
@@ -163,6 +172,12 @@ fn contour_masks_are_causal() {
     let cal = calibrate(&spec, Some(&pr.sha256), 0, 0).unwrap();
     let params = RunParams {
         run_id: "synthetic:vfr".into(),
+        run: RunIdentity {
+            run_id: None,
+            resolution: Resolution::NotApplicable,
+        },
+        camera_id: "synthetic-camera".into(),
+        time_origin: "container PTS 0 s (synthetic clip)".into(),
         every: 1,
         start: 0,
         stop: None,
@@ -181,26 +196,52 @@ fn contour_masks_are_causal() {
         &pool,
     )
     .unwrap();
-    let text =
-        std::fs::read_to_string(Path::new(res["out"].as_str().unwrap()).join("contours.jsonl"))
-            .unwrap();
-    let obs: Vec<ContourObservation> = text
+    let out = Path::new(res["out"].as_str().unwrap()).to_path_buf();
+    // a pixel-only run never writes metric records
+    assert!(!out.join("contours.jsonl").exists());
+    let text = std::fs::read_to_string(out.join("image_contours.jsonl")).unwrap();
+    let obs: Vec<ImageContourObservation> = text
         .lines()
         .map(|l| serde_json::from_str(l).unwrap())
         .collect();
     assert_eq!(obs.len(), PTS_MS.len());
     for o in &obs {
-        assert!(o.mask_dependency_frames.iter().all(|&f| f <= o.frame));
+        o.validate().unwrap();
+        assert_eq!(o.units, UnitsStatus::PixelOnly);
+        assert_eq!(o.origin, Origin::SyntheticFixture);
         assert_eq!(
             o.locator.pts_s,
             Some(PTS_MS[o.frame as usize] as f64 / 1000.0)
         );
-        ignis_core::prefix::validate_contour(o).unwrap();
+        // the metric contract refuses these records outright
+        assert!(
+            serde_json::from_str::<ContourObservation>(&serde_json::to_string(o).unwrap()).is_err()
+        );
     }
+    let b: VisualObservationBundle =
+        serde_json::from_str(&std::fs::read_to_string(out.join("visual_bundle.json")).unwrap())
+            .unwrap();
+    b.validate().unwrap();
+    assert_eq!(b.units_status, UnitsStatus::PixelOnly);
+    assert_eq!(b.contours.contract.as_deref(), Some(IMAGE_CONTOURS));
+    assert_eq!(
+        b.contours.sha256,
+        ignis_core::contracts::Digest::of_bytes(text.as_bytes())
+    );
+    assert!(
+        b.calibration_id.is_none(),
+        "a pixel spec is not a metric calibration"
+    );
+    assert!(b.require_metric().is_err());
     let lead: Vec<f64> = obs
         .iter()
         .filter(|o| o.status == ContourStatus::SingleValued)
-        .map(|o| o.f_m.iter().flatten().copied().fold(f64::MIN, f64::max))
+        .map(|o| {
+            o.f.iter()
+                .flatten()
+                .map(|v| v.get())
+                .fold(f64::MIN, f64::max)
+        })
         .collect();
     assert!(
         lead.len() >= 5 && lead.windows(2).all(|w| w[0] <= w[1]) && lead[lead.len() - 1] > lead[0],
@@ -211,7 +252,200 @@ fn contour_masks_are_causal() {
     assert!(causal_dependencies(&[3, 9], 7).is_err());
     let mut bad = obs[2].clone();
     bad.mask_dependency_frames = vec![2, 3];
-    assert!(ignis_core::prefix::validate_contour(&bad).is_err());
+    assert!(bad.validate().is_err());
+}
+
+#[test]
+fn a_metric_run_writes_contour_observations_in_metres() {
+    let d = tmp("metric");
+    let clip = d.join("vfr.mp4");
+    synthetic_vfr(&clip);
+    let pr = probe(&clip).unwrap();
+    // 1 mm per pixel over the frame: four declared corners
+    let px = [[10.0, 10.0], [150.0, 10.0], [150.0, 118.0], [10.0, 118.0]];
+    let m = |p: [f64; 2]| [(p[0] - 10.0) * 1e-3, (p[1] - 10.0) * 1e-3];
+    let spec = CalibrationSpec {
+        applies_to: vec!["synthetic".into()],
+        specimen_length_m: Some(0.14),
+        specimen_width_m: Some(0.108),
+        image_points_px: px.to_vec(),
+        plane_points_m: px.iter().map(|p| m(*p)).collect(),
+        point_sigma_px: 0.5,
+        camera_distance_m: Some(0.5),
+        flame_standoff_max_m: Some(0.002),
+        propagation_sign: 1,
+        image_size_px: Some([W as u32, H as u32]),
+        ..Default::default()
+    };
+    let cal = calibrate(&spec, Some(&pr.sha256), 50, 0).unwrap();
+    let params = RunParams {
+        run_id: "synthetic:vfr".into(),
+        run: RunIdentity {
+            run_id: None,
+            resolution: Resolution::NotApplicable,
+        },
+        camera_id: "synthetic-camera".into(),
+        time_origin: "container PTS 0 s (synthetic clip)".into(),
+        every: 1,
+        start: 0,
+        stop: None,
+        time_origin_s: 0.0,
+        k: 16,
+        evidence_class: EvidenceClass::Synthetic,
+        out_root: d.join("out"),
+    };
+    let pool = ignis_core::batch::bounded_pool(2);
+    let res = run_contours(
+        &clip,
+        &pr,
+        &cal,
+        Segmentation::Classical(ClassicalSegmenter::default()),
+        &params,
+        &pool,
+    )
+    .unwrap();
+    let out = Path::new(res["out"].as_str().unwrap()).to_path_buf();
+    assert!(!out.join("image_contours.jsonl").exists());
+    let obs: Vec<ContourObservation> = std::fs::read_to_string(out.join("contours.jsonl"))
+        .unwrap()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect();
+    assert_eq!(obs.len(), PTS_MS.len());
+    // metres: every coordinate inside the 0.14 m x 0.108 m plane
+    assert!(obs
+        .iter()
+        .flat_map(|o| o.f_m.iter().flatten())
+        .all(|v| (-0.01..0.16).contains(v)));
+    let b: VisualObservationBundle =
+        serde_json::from_str(&std::fs::read_to_string(out.join("visual_bundle.json")).unwrap())
+            .unwrap();
+    b.validate().unwrap();
+    assert_eq!(b.units_status, UnitsStatus::Metric);
+    assert_eq!(b.contours.contract.as_deref(), Some(METRIC_CONTOURS));
+    assert_eq!(b.calibration_id.as_deref(), Some(cal.record.id.as_str()));
+}
+
+#[test]
+fn clip_identity_is_cross_checked_with_the_clip_map() {
+    let map = vec![ClipMapEntry {
+        file_name: "T5.mp4".into(),
+        run_id: Some("PSI-25:T5".into()),
+        resolution: "resolved".into(),
+    }];
+    let ok = resolve_identity("T5.mp4", None, &["PSI-25:T5".into()], &map).unwrap();
+    assert_eq!(
+        (ok.run_id.unwrap().as_str(), ok.resolution),
+        ("PSI-25:T5", Resolution::Resolved)
+    );
+    let conflict = resolve_identity("T5.mp4", Some("PSI-25:T6"), &[], &map).unwrap();
+    assert_eq!(conflict.resolution, Resolution::UnresolvedConflict);
+    let unmapped = resolve_identity("other.mp4", None, &["PSI-25:T9".into()], &map).unwrap();
+    assert_eq!(
+        unmapped.resolution,
+        Resolution::Unknown,
+        "declared but not cross-checked"
+    );
+    let none = resolve_identity("other.mp4", None, &[], &map).unwrap();
+    assert_eq!((none.run_id, none.resolution), (None, Resolution::Unknown));
+}
+
+fn scope(role: ScopeRole, parts: &[Partition], caps: &[Capability]) -> ExecutionScope {
+    ExecutionScope {
+        scope_id: ScopeId::new("s").unwrap(),
+        workspace_id: WorkspaceId::new("w").unwrap(),
+        principal: PrincipalId::new("p").unwrap(),
+        role,
+        partitions: parts.iter().copied().collect(),
+        capabilities: caps.iter().copied().collect(),
+        corpus_snapshot: None,
+        parent_scope_id: None,
+    }
+}
+
+#[test]
+fn visual_bundles_are_served_only_within_the_scope() {
+    let split = Split {
+        id: "split".into(),
+        cohort_id: "cohort".into(),
+        group_key: "session".into(),
+        rule: "fixture".into(),
+        seed: 0,
+        run_to_group: BTreeMap::from([
+            ("PSI-25:T5".to_string(), "g1".to_string()),
+            ("PSI-25:T12".to_string(), "g2".to_string()),
+        ]),
+        train: vec!["g1".into()],
+        validation: vec![],
+        test: vec!["g2".into()],
+        frozen_at: "2026-11-07T00:00:00Z".into(),
+    };
+    let store = VisualBundleStore::open(tmp("store"), RunPartitions::new(&[split]));
+    let fixture: VisualObservationBundle = serde_json::from_str(
+        &std::fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../../fixtures/contracts/data/visual_bundle_pixel_only.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let with = |run: Option<&str>, res: Resolution| {
+        let mut b = fixture.clone();
+        b.origin = Origin::System;
+        b.run = RunIdentity {
+            run_id: run.map(|r| RunId::new(r).unwrap()),
+            resolution: res,
+        };
+        b
+    };
+    let rd = [Capability::ReadData];
+    let research = scope(
+        ScopeRole::Research,
+        &[Partition::Train, Partition::Validation],
+        &rd,
+    );
+    let eval = scope(
+        ScopeRole::Evaluation,
+        &[Partition::Train, Partition::Validation, Partition::Test],
+        &rd,
+    );
+    let train_run = with(Some("PSI-25:T5"), Resolution::Resolved);
+    let test_run = with(Some("PSI-25:T12"), Resolution::Resolved);
+    let unknown = with(Some("PSI-25:T5"), Resolution::Unknown);
+    let conflict = with(Some("PSI-25:T5"), Resolution::UnresolvedConflict);
+    assert!(store.admit(&research, &train_run).is_ok());
+    assert_eq!(
+        store.admit(&research, &test_run).unwrap_err().code,
+        ErrorCode::ScopeDenied
+    );
+    assert!(store.admit(&eval, &test_run).is_ok());
+    // an unresolved clip could show a sealed run: evaluation only
+    for b in [&unknown, &conflict] {
+        assert_eq!(
+            store.admit(&research, b).unwrap_err().code,
+            ErrorCode::ScopeDenied
+        );
+        assert!(store.admit(&eval, b).is_ok());
+    }
+    // no read_data, or a malformed scope, gets nothing
+    let no_cap = scope(
+        ScopeRole::Research,
+        &[Partition::Train],
+        &[Capability::ReadSources],
+    );
+    assert_eq!(
+        store.admit(&no_cap, &train_run).unwrap_err().code,
+        ErrorCode::ScopeDenied
+    );
+    let forged = scope(
+        ScopeRole::Research,
+        &[Partition::Train, Partition::Test],
+        &rd,
+    );
+    assert_eq!(
+        store.admit(&forged, &train_run).unwrap_err().code,
+        ErrorCode::ScopeDenied
+    );
 }
 
 #[test]
