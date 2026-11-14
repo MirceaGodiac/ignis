@@ -95,7 +95,7 @@ pub enum EvidenceCmd {
     /// view; other views of the PDF stay stored, so their citations still resolve. Refused if the PDF
     /// bytes differ from the view's source hash or the view has failed pages.
     ImportView {
-        /// the view JSON
+        /// the view JSON (Docling or PDFium)
         view: PathBuf,
         /// the PDF the view was made from (its bytes are hashed against the view)
         #[arg(long)]
@@ -282,9 +282,10 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
             let iv = docling_view::import(&v, &pdf, &bytes, &rp, &investigation)?;
             let mut con = catalog::connect(&db, false)?;
-            let n = catalog::upsert_parse_view(&mut con, &iv.publication, &iv.chunks, &iv.pages, None)?;
+            let n = docling_view::store(&mut con, &iv)?;
             print(&json!({"db": db.display().to_string(), "publication_id": iv.publication.id,
                 "parse_view_id": records::parse_view_id(&iv.publication.id, &iv.publication.parser_version),
+                "active": catalog::active_parser(&con, &iv.publication.id)?,
                 "chunks": n, "views": catalog::views(&con, &iv.publication.id)?}))
         }
         #[cfg(not(feature = "pdf"))]

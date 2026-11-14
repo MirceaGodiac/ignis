@@ -225,3 +225,111 @@ fn the_mupdf_view_stays_resolvable_after_the_docling_view_is_active() {
     }
     let _ = std::fs::remove_dir_all(dir);
 }
+
+const PDFIUM: &str = "PSI-69_Science Documents_FLEX_Test_Plan.pdfium.json";
+
+fn pdfium_view() -> DoclingView {
+    serde_json::from_str(&std::fs::read_to_string(fixture(PDFIUM)).unwrap()).unwrap()
+}
+
+#[test]
+fn a_pdfium_view_imports_with_line_boxes_that_index_the_page_text() {
+    let bytes = std::fs::read(fixture(PDF)).unwrap();
+    let iv = import(&pdfium_view(), &fixture(PDF), &bytes, &rp(), &[]).unwrap();
+    assert!(iv.publication.parser_version.starts_with("pdfium-"));
+    let mut lines = 0;
+    for c in &iv.chunks {
+        c.locator.validate().unwrap();
+        let page: Vec<char> = iv.pages[c.page as usize - 1].chars().collect();
+        let (cs, ce) = (c.char_start.unwrap() as usize, c.char_end.unwrap() as usize);
+        assert_eq!(page[cs..ce].iter().collect::<String>(), c.text);
+        for l in c.context["lines"].as_array().unwrap() {
+            let (a, b) = (
+                l["char_start"].as_u64().unwrap() as usize,
+                l["char_end"].as_u64().unwrap() as usize,
+            );
+            assert!(cs <= a && a <= b && b <= ce, "line outside its chunk");
+            let bb: Vec<f64> = serde_json::from_value(l["bbox"].clone()).unwrap();
+            let [x0, y0, x1, y1] = c.locator.bbox.unwrap();
+            assert!(bb[0] >= x0 && bb[1] >= y0 && bb[2] <= x1 && bb[3] <= y1);
+            lines += 1;
+        }
+    }
+    assert!(lines > iv.chunks.len(), "paragraphs have several lines");
+    // a hyphenated line break is joined: the word is searchable whole
+    assert!(iv
+        .chunks
+        .iter()
+        .any(|c| c.text.contains("flame extinction")));
+
+    // a line whose text is not its span of the item is refused
+    let mut v = pdfium_view();
+    let it = v.items.iter_mut().find(|i| i.lines.len() > 1).unwrap();
+    it.lines[1].start += 1;
+    assert!(import(&v, &fixture(PDF), &bytes, &rp(), &[]).is_err());
+    // a PDFium view cannot pass itself off as a Docling one
+    let mut v = pdfium_view();
+    v.format = ignis_evidence::docling_view::FORMAT.into();
+    assert!(import(&v, &fixture(PDF), &bytes, &rp(), &[]).is_err());
+}
+
+#[test]
+fn a_pdfium_view_never_displaces_a_docling_view() {
+    use ignis_evidence::docling_view::store;
+    let dir = std::env::temp_dir().join(format!("ignis-pdfium-view-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let bytes = std::fs::read(fixture(PDF)).unwrap();
+    let dv = import(&view(), &fixture(PDF), &bytes, &rp(), &[]).unwrap();
+    let fv = import(&pdfium_view(), &fixture(PDF), &bytes, &rp(), &[]).unwrap();
+    let pid = dv.publication.id.clone();
+    // PDFium first, Docling second: Docling becomes active
+    let a = dir.join("a.sqlite");
+    let mut con = catalog::connect(&a, false).unwrap();
+    store(&mut con, &fv).unwrap();
+    assert_eq!(
+        catalog::active_parser(&con, &pid).unwrap(),
+        Some(fv.publication.parser_version.clone())
+    );
+    store(&mut con, &dv).unwrap();
+    assert_eq!(
+        catalog::active_parser(&con, &pid).unwrap(),
+        Some(dv.publication.parser_version.clone())
+    );
+    // Docling first, PDFium second: Docling stays active, the PDFium view is stored and resolves
+    let b = dir.join("b.sqlite");
+    let mut con = catalog::connect(&b, false).unwrap();
+    store(&mut con, &dv).unwrap();
+    store(&mut con, &fv).unwrap();
+    assert_eq!(
+        catalog::active_parser(&con, &pid).unwrap(),
+        Some(dv.publication.parser_version.clone())
+    );
+    assert_eq!(catalog::views(&con, &pid).unwrap().len(), 2);
+    drop(con);
+    let cfg = dense::RetrievalCfg::load(&root().join("configs/evidence/retrieval.toml")).unwrap();
+    let mut svc = EvidenceService::open(&b, cfg, Lockbox::default())
+        .unwrap()
+        .offline();
+    svc.ledger = false;
+    let s = scope(
+        ScopeRole::Evaluation,
+        &[Partition::Train, Partition::Validation, Partition::Test],
+    );
+    let dv_view = format!(
+        "{}:",
+        ignis_evidence::records::parse_view_id(&pid, &dv.publication.parser_version)
+    );
+    let hits = search(&svc, &s, "droplet");
+    assert!(!hits.is_empty() && hits.iter().all(|h| h.starts_with(&dv_view)));
+    for c in fv.chunks.iter().take(20) {
+        let e = svc
+            .resolve_evidence(
+                &s,
+                &ignis_core::contracts::EvidenceId::new(c.id.clone()).unwrap(),
+            )
+            .unwrap();
+        assert_eq!(e.quote.as_deref(), Some(c.text.as_str()));
+    }
+    let _ = std::fs::remove_dir_all(dir);
+}

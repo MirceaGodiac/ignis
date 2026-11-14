@@ -32,16 +32,27 @@ RETRIES = 2
 MAX_PIXELS = 400_000_000
 
 
-def converter(models):
+def converter(models, ocr=True):
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = MAX_PIXELS
     from docling.datamodel.base_models import InputFormat
     from docling.datamodel.pipeline_options import PdfPipelineOptions
     from docling.document_converter import DocumentConverter, PdfFormatOption
-    opts = PdfPipelineOptions(do_ocr=True, do_table_structure=True)
+    opts = PdfPipelineOptions(do_ocr=ocr, do_table_structure=True)
     if models:
         opts.artifacts_path = models
+    opts.accelerator_options = accelerator()
     return DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=opts)})
+
+
+def accelerator():
+    """Device from IGNIS_DOCLING_DEVICE (auto | cpu | mps | cuda) and threads from
+    IGNIS_DOCLING_THREADS. Several workers on one Apple GPU queue behind each other, so a mixed pool
+    (some on mps, some on cpu) uses the machine better than all on the GPU."""
+    import os
+    from docling.datamodel.accelerator_options import AcceleratorOptions
+    return AcceleratorOptions(device=os.environ.get("IGNIS_DOCLING_DEVICE", "auto"),
+                              num_threads=int(os.environ.get("IGNIS_DOCLING_THREADS", "4")))
 
 
 def round5(x):
@@ -57,10 +68,26 @@ def to_box(bbox, size):
     return [clamp(x0), clamp(y0), clamp(x1), clamp(y1)]
 
 
+def needs_ocr(path, a, b):
+    """OCR only for a batch with a page without a text layer: 95% of document pages have text, and
+    OCR on every page is the main cost."""
+    import pypdfium2
+    pdf = pypdfium2.PdfDocument(path)
+    for i in range(a - 1, b):
+        tp = pdf[i].get_textpage()
+        try:
+            if len(tp.get_text_range().strip()) < 50:
+                return True
+        finally:
+            tp.close()
+    return False
+
+
 def batch_view(path, a, b, models):
     """Pages a..b of one PDF as view fragments (pages, items, tables, figures)."""
     from docling_core.types.doc import PictureItem, SectionHeaderItem, TableItem
-    doc = converter(models).convert(path, page_range=(a, b)).document
+    ocr = needs_ocr(path, a, b)
+    doc = converter(models, ocr).convert(path, page_range=(a, b)).document
     sizes = {n: (p.size.width, p.size.height) for n, p in doc.pages.items()}
     for n in sizes:
         if not a <= n <= b:
@@ -93,7 +120,8 @@ def batch_view(path, a, b, models):
         elif getattr(item, "text", None):
             kind = "section_header" if isinstance(item, SectionHeaderItem) else str(item.label.value)
             items.append({"kind": kind, "page": page, "bbox": box, "text": item.text})
-    return {"pages": pages, "items": items, "tables": tables, "figures": figures}
+    return {"pages": pages, "items": items, "tables": tables, "figures": figures,
+            "ocr_batches": [[a, b]] if ocr else []}
 
 
 def run(pdf: Path, out: Path, models):
@@ -107,9 +135,10 @@ def run(pdf: Path, out: Path, models):
                        "layout_model": "docling-project/docling-layout-heron",
                        "table_model": "docling-project/docling-models tableformer accurate",
                        "ocr": {"engine": "rapidocr", "version": metadata.version("rapidocr"), "backend": "torch"},
-                       "batch_pages": BATCH, "max_image_pixels": MAX_PIXELS},
+                       "batch_pages": BATCH, "max_image_pixels": MAX_PIXELS, "ocr": "batches with a page without text layer",
+                       "device": __import__("os").environ.get("IGNIS_DOCLING_DEVICE", "auto")},
             "source": {"file_name": pdf.name, "sha256": hashlib.sha256(data).hexdigest(), "n_pages": n},
-            "pages": [], "items": [], "tables": [], "figures": [], "failed_pages": []}
+            "pages": [], "items": [], "tables": [], "figures": [], "failed_pages": [], "ocr_batches": []}
     for a in range(1, n + 1, BATCH):
         b = min(n, a + BATCH - 1)
         frag = None
@@ -133,7 +162,7 @@ def run(pdf: Path, out: Path, models):
         for it in frag["items"]:
             if "table" in it:
                 it["table"] += t0
-        for k in ("pages", "items", "tables", "figures"):
+        for k in ("pages", "items", "tables", "figures", "ocr_batches"):
             view[k] += frag[k]
     out.write_text(json.dumps(view, ensure_ascii=False) + "\n")
     print(json.dumps({"out": str(out), "pages": n, "items": len(view["items"]), "tables": len(view["tables"]),

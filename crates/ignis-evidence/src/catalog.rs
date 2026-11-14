@@ -306,6 +306,79 @@ pub fn chunk_ids_on_page(
 }
 
 /// The parse views of a publication that are stored (any of them can be read).
+/// The parser version of the publication's active view, if the publication is stored.
+pub fn active_parser(con: &Connection, publication_id: &str) -> Result<Option<String>> {
+    use rusqlite::OptionalExtension;
+    Ok(con
+        .query_row(
+            "SELECT parser_version FROM publications WHERE id = ?1",
+            [publication_id],
+            |r| r.get(0),
+        )
+        .optional()?)
+}
+
+/// Store a parse view **without** making it active: its chunks and page texts are written (they
+/// read and resolve like any stored view), the publication row and its active view stay as they are.
+pub fn add_inactive_view(
+    con: &mut Connection,
+    p: &Publication,
+    chunks: &[Chunk],
+    pages: &[String],
+) -> Result<usize> {
+    anyhow::ensure!(
+        active_parser(con, &p.id)?.is_some(),
+        "{}: no stored publication to add an inactive view to",
+        p.id
+    );
+    let view = crate::records::parse_view_id(&p.id, &p.parser_version);
+    let prefix = format!("{view}:");
+    let tx = con.transaction()?;
+    tx.execute(
+        "DELETE FROM chunks WHERE publication_id = ?1 AND substr(id, 1, length(?2)) = ?2",
+        params![p.id, prefix],
+    )?;
+    tx.execute(
+        "DELETE FROM pages WHERE publication_id = ?1 AND parse_view_id = ?2",
+        params![p.id, view],
+    )?;
+    {
+        let mut st = tx.prepare(
+            "INSERT INTO chunks(id, publication_id, ordinal, kind, page, char_start, char_end, section, text, text_norm, \
+             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json) \
+             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16)",
+        )?;
+        for c in chunks {
+            st.execute(params![
+                c.id,
+                c.publication_id,
+                c.ordinal,
+                c.kind,
+                c.page,
+                c.char_start,
+                c.char_end,
+                c.section,
+                c.text,
+                normalize(&c.text),
+                c.context.to_string(),
+                locator_json(&c.locator),
+                js(&c.describes_runs),
+                c.outcome_bearing as i64,
+                c.evidence_class,
+                js(&c.continues_runs)
+            ])?;
+        }
+        let mut st = tx.prepare(
+            "INSERT INTO pages(publication_id, parse_view_id, page, text) VALUES (?1, ?2, ?3, ?4)",
+        )?;
+        for (i, t) in pages.iter().enumerate() {
+            st.execute(params![p.id, view, (i + 1) as i64, t])?;
+        }
+    }
+    tx.commit()?;
+    Ok(chunks.len())
+}
+
 pub fn views(con: &Connection, publication_id: &str) -> Result<Vec<String>> {
     let mut st = con.prepare(
         "SELECT DISTINCT parse_view_id FROM pages WHERE publication_id = ?1 ORDER BY parse_view_id",
