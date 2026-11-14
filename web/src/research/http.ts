@@ -1,7 +1,19 @@
 // The HTTP transport of the research client: `/api/fixtures/v1` and `/api/v1` (crates/ignis-server
 // README). Pure of runtime imports except types, so it runs under node --test with an injected fetch.
 
-import type { ErrorEnvelope, InlinePayload, ModelRelease, Origin, ReadResult, ResearchEpisode, SearchPage, SearchRequest, SourceAccess } from "../contracts/generated";
+import type {
+  ConditionsQuery,
+  ConditionsTable,
+  ErrorEnvelope,
+  InlinePayload,
+  ModelRelease,
+  Origin,
+  ReadResult,
+  ResearchEpisode,
+  SearchPage,
+  SearchRequest,
+  SourceAccess,
+} from "../contracts/generated";
 import type { Capabilities, CreateEpisode, EpisodeAction, HostDecision, MessageAccepted, PostMessage } from "./serverTypes";
 import type { StreamTransport } from "./stream";
 
@@ -41,6 +53,8 @@ export interface ResearchClient extends StreamTransport {
   readSource(sourceId: string, page: number): Promise<ReadResult>;
   /** How to open the original (LANES_V2 M12, K1.18). The URL is short-lived; never store or cite it. */
   sourceAccess(sourceId: string): Promise<SourceAccess>;
+  /** Per-run conditions and tested envelopes (K1.13). Route from M11; until it lands, a 404 here is expected. */
+  conditions(query: ConditionsQuery): Promise<ConditionsTable>;
   listModels(): Promise<ModelRelease[]>;
   postMessage(episodeId: string, text: string, clientRequestId: string): Promise<MessageAccepted>;
 }
@@ -99,6 +113,7 @@ export function httpClient(mode: Exclude<Mode, "mock">, fetchImpl: typeof fetch 
     search: (req) => post<SearchPage>(`/search`, req),
     readSource: (id, page) => call<ReadResult>(`/sources/${enc(id)}/pages/${page}`),
     sourceAccess: (id) => call<SourceAccess>(`/sources/${enc(id)}/content`),
+    conditions: (query) => post<ConditionsTable>(`/conditions`, query),
     listModels: () => call<ModelRelease[]>(`/models`),
     postMessage: (id, text, client_request_id) => post<MessageAccepted>(`/episodes/${enc(id)}/messages`, { text, client_request_id } satisfies PostMessage),
   };

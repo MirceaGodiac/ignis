@@ -13,6 +13,7 @@ import { Compare } from "./views/Compare";
 import { Home } from "./views/Home";
 import { Lab } from "./views/Lab";
 import { MapView } from "./views/MapView";
+import { Conditions } from "./views/Conditions";
 import { Models } from "./views/Models";
 import { Research } from "./views/Research";
 import { Runs } from "./views/Runs";
@@ -103,6 +104,7 @@ function Shell() {
         {route.view === "home" && <Home />}
         {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} tab={route.params.get("tab")} />}
         {route.view === "map" && <MapView />}
+        {route.view === "conditions" && <Conditions />}
         {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
         {route.view === "compare" && <Compare />}
         {route.view === "lab" && <Lab runId={route.id} />}
