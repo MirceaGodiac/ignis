@@ -1,4 +1,5 @@
-//! Local content-addressed artifact store (the R2 backend arrives with the deployment, task M4).
+//! Local content-addressed artifact store (the deployment uses the R2 backend, [`crate::r2`], with the
+//! same layout and identity).
 //!
 //! Layout under the root:
 //! ```text
@@ -30,9 +31,55 @@ use sha2::{Digest as _, Sha256};
 use crate::{internal, new_id, not_found};
 
 #[derive(Serialize, Deserialize)]
-struct Manifest {
-    workspace_id: WorkspaceId,
-    artifact: ArtifactRef,
+pub(crate) struct Manifest {
+    pub(crate) workspace_id: WorkspaceId,
+    pub(crate) artifact: ArtifactRef,
+}
+
+/// The 64-hex identity of an artifact id (`art_<hex>`), or not-found for anything else.
+pub(crate) fn manifest_hex(id: &ArtifactId) -> ServiceResult<String> {
+    let hex = id.as_str().strip_prefix("art_").unwrap_or_default();
+    if hex.len() != 64 || !hex.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(not_found(format!("artifact {id}")));
+    }
+    Ok(hex.to_string())
+}
+
+/// The reference of `len` bytes with digest `sha` declared by `draft` in `scope`'s workspace. The id
+/// is derived from the bytes and the declared metadata (never the time).
+pub(crate) fn artifact_ref(
+    scope: &ExecutionScope,
+    draft: ArtifactDraft,
+    sha: Digest,
+    len: u64,
+) -> ServiceResult<ArtifactRef> {
+    let mut r = ArtifactRef {
+        artifact_id: ArtifactId::new("art_pending").expect("literal id"),
+        sha256: sha,
+        media_type: draft.media_type,
+        byte_length: len,
+        contract: draft.contract,
+        produced_by: draft.produced_by,
+        inputs: draft.inputs,
+        origin: draft.origin,
+        created_at: Timestamp::now(),
+    };
+    r.validate()?;
+    let identity = content_hash(
+        &(
+            &scope.workspace_id,
+            &r.sha256,
+            &r.media_type,
+            &r.contract,
+            &r.produced_by,
+            &r.inputs,
+            &r.origin,
+        ),
+        &[],
+    );
+    let hex = identity.strip_prefix("sha256:").unwrap_or(&identity);
+    r.artifact_id = ArtifactId::new(format!("art_{hex}")).expect("generated id");
+    Ok(r)
 }
 
 pub struct LocalArtifactStore {
@@ -74,10 +121,7 @@ impl LocalArtifactStore {
     }
 
     fn manifest_path(&self, id: &ArtifactId) -> ServiceResult<PathBuf> {
-        let hex = id.as_str().strip_prefix("art_").unwrap_or_default();
-        if hex.len() != 64 || !hex.bytes().all(|b| b.is_ascii_hexdigit()) {
-            return Err(not_found(format!("artifact {id}")));
-        }
+        let hex = manifest_hex(id)?;
         Ok(self.root.join("manifests").join(format!("{hex}.json")))
     }
 
@@ -99,7 +143,7 @@ impl LocalArtifactStore {
 }
 
 /// Write `bytes` to `path` through a sibling temp file and an atomic rename.
-fn publish_file(path: &Path, bytes: &[u8]) -> std::io::Result<()> {
+pub(crate) fn publish_file(path: &Path, bytes: &[u8]) -> std::io::Result<()> {
     let tmp = path.with_extension(format!("tmp-{}", uuid::Uuid::new_v4().simple()));
     {
         let mut f = File::create(&tmp)?;
@@ -154,32 +198,7 @@ impl ArtifactStore for LocalArtifactStore {
                     .map_err(|e| internal("objects", e))?;
                 std::fs::rename(&staging, &obj).map_err(|e| internal("promote", e))?;
             }
-            let mut r = ArtifactRef {
-                artifact_id: ArtifactId::new("art_pending").expect("literal id"),
-                sha256: sha,
-                media_type: draft.media_type,
-                byte_length: len,
-                contract: draft.contract,
-                produced_by: draft.produced_by,
-                inputs: draft.inputs,
-                origin: draft.origin,
-                created_at: Timestamp::now(),
-            };
-            r.validate()?;
-            let identity = content_hash(
-                &(
-                    &scope.workspace_id,
-                    &r.sha256,
-                    &r.media_type,
-                    &r.contract,
-                    &r.produced_by,
-                    &r.inputs,
-                    &r.origin,
-                ),
-                &[],
-            );
-            let hex = identity.strip_prefix("sha256:").unwrap_or(&identity);
-            r.artifact_id = ArtifactId::new(format!("art_{hex}")).expect("generated id");
+            let r = artifact_ref(scope, draft, sha, len)?;
             if let Ok(existing) = self.manifest(scope, &r.artifact_id) {
                 return Ok(existing.artifact);
             }
