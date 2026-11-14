@@ -358,6 +358,9 @@ prune_images() {
   local keep1 keep2 id
   keep1="$(docker image inspect -f '{{.Id}}' "$1")"
   keep2="$(docker image inspect -f '{{.Id}}' "$2" 2>/dev/null || true)"
+  # A redeploy of the same commit moves the commit tag to the new image; keep the previous one
+  # tagged so the dangling-image prune below cannot remove the rollback target.
+  [ -z "$keep2" ] || docker tag "$keep2" ignis-server:rollback
   for id in $(docker images --no-trunc --format '{{.ID}}' ignis-server | sort -u); do
     [ "$id" = "$keep1" ] || [ "$id" = "$keep2" ] || docker rmi -f "$id" >/dev/null 2>&1 || true
   done

@@ -351,6 +351,7 @@ To revoke: delete the deploy key on GitHub and `/etc/ignis/deploy_key*` on the V
 | gVisor | **verified** on the GCE VM (2026-11-14): `verify-gvisor.sh` passes; `runsc` 4.19.0-gvisor kernel; runner preflight reports `isolation=Gvisor` |
 | Domain, Cloudflare zone, tunnel, Access apps, Worker, R2, GCE VM | **provisioned** (2026-11-14): `ignis-ardealu.app` (bought on Cloudflare Registrar: the Space Apps domain offer failed with "Exceptions Occurred"), UI on the apex, origin on `origin.ignis-ardealu.app`, VM `ignis-origin` in `europe-west3-a` |
 | Access login methods | Google, Cloudflare account, one-time PIN on the UI app (Google added 2026-11-14: OAuth client "Cloudflare Access" in `ignis-spaceapps-ardealu`, Testing mode, PKCE). Cloudflare's IdP test returned the expected identity; the allowlist (policy *team*) is unchanged |
+| Automatic deploys | **installed and enabled** on the VM (2026-11-14): deployed `69eeade` (M7, `answer_submit` live). Measured: cold build 477 s; warm deploy 159 s and 131 s end to end (build 16 s, backup 80–95 s, smoke 7 s, restart to healthy 12–35 s). `--drill-rollback` from schema 4 back to the schema-3 image: crash detected, state moved aside, pre-release snapshot restored, old image healthy (outage about 2 min) |
 | RPO/RTO | not measured (one backup pushed to R2: 386 files in 73 s; no restore drill yet) |
 
 ### Live verification on the deployed stack (2026-11-14)
