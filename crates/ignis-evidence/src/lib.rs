@@ -22,6 +22,7 @@ pub mod pdf;
 pub mod records;
 pub mod search;
 pub mod service;
+pub mod sira;
 #[cfg(feature = "pdf")]
 pub mod verify;
 
@@ -131,6 +132,9 @@ pub enum EvidenceCmd {
         /// declare the provider unavailable (no network); degradation is reported
         #[arg(long)]
         offline: bool,
+        /// SIRA query expansion: a term or phrase a relevant passage would contain (repeatable)
+        #[arg(long = "expect")]
+        expect: Vec<String>,
     },
     /// Read a source through the KnowledgeService; prints a ReadResult.
     Read {
@@ -150,6 +154,27 @@ pub enum EvidenceCmd {
         evidence_id: String,
         #[arg(long)]
         db: Option<PathBuf>,
+    },
+    /// SIRA document expansion (R12b): load a page-card pack (pages.jsonl + MANIFEST.json, keyed by
+    /// NASA file sha256 and page) into the expansion index; raises outcome_bearing where the pack
+    /// protects a page, never lowers it; then rebuilds the term statistics.
+    Enrich {
+        /// the pack directory (e.g. /srv/ignis/data/enrichment/docs-v1)
+        pack: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// DF ceiling: expansion words held by more than this share of chunks are dropped
+        #[arg(long, default_value_t = sira::DEFAULT_TAU)]
+        tau: f64,
+    },
+    /// Corpus statistics: rebuild the term table (`--build`), or show how many chunks hold each
+    /// expression and the query finalizer's choice among them.
+    Terms {
+        expressions: Vec<String>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        build: bool,
     },
     /// Dependency-graph check: protected scientific crates must not depend on ignis-evidence.
     Firewall {
@@ -361,7 +386,7 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             job.finish(out.clone());
             print(&out)
         }
-        EvidenceCmd::Search { query, db, mode, page_size, cursor, family, investigation, source, offline } => {
+        EvidenceCmd::Search { query, db, mode, page_size, cursor, family, investigation, source, offline, expect } => {
             let svc = open_service(db, offline)?;
             let mode: SearchMode = serde_json::from_value(json!(mode)).context("--mode hybrid|lexical|dense")?;
             let families = family
@@ -370,7 +395,11 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 .collect::<Result<Vec<_>>>()?;
             let req = SearchRequest {
                 response_format: None,
-                schema_version: EvidenceSchema::V1,
+                schema_version: if expect.is_empty() { EvidenceSchema::V1 } else { EvidenceSchema::V2 },
+                expected_terms: expect
+                    .iter()
+                    .map(|t| ignis_core::contracts::ExpectedTerm { term: t.clone(), importance: None })
+                    .collect(),
                 query,
                 mode,
                 filters: SearchFilters {
@@ -401,6 +430,21 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
         EvidenceCmd::Resolve { evidence_id, db } => {
             let svc = open_service(db, true)?;
             emit(svc.resolve_evidence(&local_research_scope(), &EvidenceId::new(evidence_id)?))
+        }
+        EvidenceCmd::Enrich { pack, db, tau } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let mut con = catalog::connect(&db, false)?;
+            let expansion = sira::enrich(&mut con, &pack, tau)?;
+            let terms = sira::build_term_stats(&mut con)?;
+            print(&json!({"db": db.display().to_string(), "expansion": expansion, "term_stats": terms}))
+        }
+        EvidenceCmd::Terms { expressions, db, build } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let mut con = catalog::connect(&db, !build)?;
+            let built = if build { Some(sira::build_term_stats(&mut con)?) } else { None };
+            let proposals: Vec<(String, f64)> = expressions.iter().map(|e| (e.clone(), 1.0)).collect();
+            let choice = sira::select_expressions(&con, &proposals)?;
+            print(&json!({"db": db.display().to_string(), "built": built, "expressions": choice}))
         }
         EvidenceCmd::Firewall { manifest } => {
             let protected = firewall::protected_from_config(&ignis_core::resources::configs_dir().join("evidence").join("firewall.toml"))?;
