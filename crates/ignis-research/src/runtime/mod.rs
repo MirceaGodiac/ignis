@@ -11,6 +11,7 @@
 //! - [`mapping`]: Codex thread/turn/item → `ResearchEvent` records; unknown → `runtime.opaque`.
 //! - [`ClaudeBridge`]: the same contract over Claude Code in headless mode (ADR 17), one process per
 //!   turn; its stream-json is mapped onto the same events.
+//! - [`harness`]: the versioned instruction bundle (M6) both runtimes start with, pinned per episode.
 //! - [`grants`]: per-process bearer tokens binding the IGNIS MCP endpoint (M3) to a workspace scope.
 //!
 //! Everything is synchronous (threads, not Tokio), like the rest of this crate; the host calls these
@@ -22,6 +23,7 @@ mod claude;
 pub mod fake;
 pub mod framing;
 pub mod grants;
+pub mod harness;
 pub mod mapping;
 pub mod preflight;
 mod recorder;
@@ -33,6 +35,7 @@ use ignis_core::services::ServiceResult;
 pub use bridge::{CodexBridge, CommitHook};
 pub use claude::{claude_preflight, turn_snapshot, ClaudeBridge, ClaudeConfig, Translator};
 pub use grants::{McpAttachment, McpGrant, McpGrants, MCP_EPISODE_HEADER, MCP_TOKEN_ENV};
+pub use harness::{HarnessBundle, HarnessSource};
 pub use mapping::StopReason;
 pub use preflight::{
     preflight, CodexConfig, RuntimeBuildManifest, RuntimeProfile, PINNED_CODEX_VERSION,
