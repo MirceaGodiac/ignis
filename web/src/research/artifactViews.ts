@@ -64,7 +64,18 @@ export const CONTRACT_COVERAGE = {
   WikiReadResult: { notShown: "Waits for the wiki (R4); T7 wiki view" },
   ExternalSourceCandidate: { notShown: "Waits for web discovery (R4); shown with the wiki" },
   WebSearchPage: { notShown: "Waits for web discovery (R4); shown as a route step" },
+  // ---- K1-research (PR 31)
+  Capabilities: { view: "Sidebar services and tool availability" },
+  AnswerRefusal: { notShown: "Waits for answer_submit validation (M7); T8 shows it on the refused step" },
+  TraceBundle: { notShown: "Waits for trace export (M10); T11 scorecard" },
+  MessageAccepted: { notShown: "Response: shown as the message in the thread" },
+  ApprovalAccepted: { notShown: "Response: shown as the approval's new state in the thread" },
   // ---- requests and references: shown inside the object they produce or name
+  AnswerSubmission: { notShown: "Request: shown through the ResearchAnswer it becomes" },
+  CreateEpisode: { notShown: "Request: shown through the ResearchEpisode it creates" },
+  PostMessage: { notShown: "Request: shown as the message in the thread" },
+  ResolveApproval: { notShown: "Request: shown as the approval's new state" },
+  EpisodeAction: { notShown: "Request: shown as the episode's new status" },
   ConditionsQuery: { notShown: "Request: shown through its ConditionsTable" },
   GraphNeighborsRequest: { notShown: "Request: shown through its GraphNeighborsPage" },
   OutlineRequest: { notShown: "Request: shown through its SourceOutline" },
