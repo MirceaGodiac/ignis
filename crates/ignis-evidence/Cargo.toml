@@ -14,6 +14,8 @@ pdf = ["dep:mupdf"]
 
 [dependencies]
 ignis-core = { path = "../ignis-core" }
+# same lane: data paths, frozen splits (lockbox) and the read-only HTTP client
+ignis-data = { path = "../ignis-data" }
 anyhow.workspace = true
 clap.workspace = true
 serde.workspace = true

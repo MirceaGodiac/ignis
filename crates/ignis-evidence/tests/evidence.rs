@@ -44,7 +44,11 @@ fn fts_rrf_returns_known_chunk_with_page_locator() {
         return;
     }
     let rp = pdf::RunPatterns::load(&root().join("configs/evidence/run_patterns.toml")).unwrap();
-    let (publ, chunks, _) = pdf::parse_pdf(&pdf_path, &pdf::ParseOptions::default(), &rp).unwrap();
+    let pdf::ParsedPdf {
+        publication: publ,
+        chunks,
+        ..
+    } = pdf::parse_pdf(&pdf_path, &pdf::ParseOptions::default(), &rp).unwrap();
     assert_eq!(chunks.len(), 46); // same as the PyMuPDF reference
     let dir = tmp("fts");
     let db = dir.join("evidence.sqlite");
@@ -270,6 +274,7 @@ fn tiny_catalog(dir: &Path) -> PathBuf {
             ..Default::default()
         },
         describes_runs: vec![],
+        continues_runs: vec![],
         outcome_bearing: false,
         evidence_class: "source_derived".into(),
     };
