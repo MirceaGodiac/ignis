@@ -1,0 +1,23 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "cool-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.958,
+   "coverage": 1.0,
+   "spill": 1.04
+  }
+ ],
+ "perf": {
+  "cool": {
+   "pages": 20,
+   "wall_s": 27.17,
+   "cpu_s": 49.16,
+   "units": 133
+  }
+ },
+ "peak_rss_mb": 4994
+}

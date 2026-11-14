@@ -62,7 +62,13 @@ pub fn verify_view(con: &Connection, p: &Publication, bytes: &[u8]) -> Result<Vi
     for pno in 1..=doc.page_count()? as usize {
         texts.push(page_text(&doc, pno)?.chars().collect());
     }
-    for (page, stored) in catalog::page_texts(con, &p.id, 1, i64::MAX)? {
+    for (page, stored) in catalog::page_texts(
+        con,
+        &p.id,
+        &crate::records::parse_view_id(&p.id, &p.parser_version),
+        1,
+        i64::MAX,
+    )? {
         r.pages_checked += 1;
         let now = texts.get(page as usize - 1);
         if now.is_none_or(|t| t.iter().collect::<String>() != stored) {
