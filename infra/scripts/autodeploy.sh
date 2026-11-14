@@ -149,8 +149,13 @@ main() {
   cp "$RELEASE_ENV" "$STATE/release.env.previous"
   local td=$(date +%s)
   switch_to "$new_image" "$target"
-  if [ "$drill" = 0 ] && healthy "$new_image" "$td"; then
+  local ok=0
+  if healthy "$new_image" "$td"; then
+    ok=1
     DOWN_S=$(( HEALTHY_AT - td ))
+    log "$target healthy ${DOWN_S}s after the restart"
+  fi
+  if [ "$ok" = 1 ] && [ "$drill" = 0 ]; then
     install_tools "$target"
     rm -f "$STATE/failed"
     prune_images "$new_image" "$cur_image"
@@ -160,7 +165,10 @@ main() {
   fi
 
   # 6. Roll back.
-  [ "$drill" = 1 ] && log "drill: treating $target as failed after it came up"
+  if [ "$drill" = 1 ]; then
+    [ "$ok" = 1 ] || { fail_record "$target" "drill: the new release did not come up"; }
+    log "drill: treating $target as failed"
+  fi
   local prev_commit
   prev_commit="$(awk '{print $2}' "$STATE/previous")"
   cp "$STATE/release.env.previous" "$RELEASE_ENV"
@@ -175,7 +183,7 @@ main() {
     record "$target" rollback_failed
     return 2
   fi
-  if [ "$drill" = 1 ]; then
+  if [ "$drill" = 1 ] && [ "$ok" = 1 ]; then
     record "$target" drill_rolled_back
     return 0
   fi
@@ -286,13 +294,16 @@ switch_to() {
 # Healthy = the ignis container runs the expected image and its healthcheck passes, /livez answers,
 # cloudflared is up, and the log since the restart has no "… not configured" for the core services.
 healthy() {
-  local image="$1" since="$2" id cf i
+  local image="$1" since="$2" id cf i base_id="" base_rc=0 rc
   for i in $(seq 1 $(( HEALTH_TIMEOUT / 5 ))); do
     sleep 5
     id="$("${COMPOSE[@]}" ps -q ignis 2>/dev/null)" || continue
     [ -n "$id" ] || continue
     [ "$(docker inspect -f '{{.Image}}' "$id")" = "$(docker image inspect -f '{{.Id}}' "$image")" ] || continue
-    if [ "$(docker inspect -f '{{.RestartCount}}' "$id")" -ge 3 ]; then
+    # RestartCount is cumulative per container: count only restarts seen during this check.
+    rc="$(docker inspect -f '{{.RestartCount}}' "$id")"
+    if [ "$id" != "$base_id" ]; then base_id="$id"; base_rc="$rc"; fi
+    if [ $(( rc - base_rc )) -ge 3 ]; then
       log "the ignis container keeps restarting"
       break
     fi
