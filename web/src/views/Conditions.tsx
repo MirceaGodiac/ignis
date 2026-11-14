@@ -81,7 +81,7 @@ function FitCell({ fit }: { fit: Fit }) {
   );
 }
 
-function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
+export function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
   const moon = HABITAT_LIST[0];
   const ranked = rankFor(axes, moon);
   return (
@@ -195,7 +195,7 @@ function locText(l: SourceLocator | null | undefined): string {
   return "asset";
 }
 
-function ConditionsMatrix({ t }: { t: ConditionsTable }) {
+export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
   const [picked, setPicked] = useState<Picked | null>(null);
   return (
     <section className="panel-sec" aria-labelledby="h-matrix">

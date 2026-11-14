@@ -5,7 +5,7 @@
 //   live     -> `/api/v1`, the research runtime (M2) with whatever services are configured.
 // Contract types come from contracts/generated.ts; server-only shapes from serverTypes.ts.
 
-import type { ErrorEnvelope, InlinePayload, ResearchAnswer } from "../contracts/generated";
+import type { ErrorEnvelope, InlinePayload, ResearchAnswer, ResearchEvent } from "../contracts/generated";
 import { FIXTURES } from "./fixtures";
 import { ApiError, type ResearchClient } from "./http";
 import type { Capabilities } from "./serverTypes";
@@ -52,9 +52,9 @@ const MOCK_CAPABILITIES: Capabilities = {
   tools: [],
 };
 
-function mockSse(after: number, pacingMs: number, dropAfter: number | null, overlap: number, signal: AbortSignal): Response {
+function mockSse(log: ResearchEvent[], after: number, pacingMs: number, dropAfter: number | null, overlap: number, signal: AbortSignal): Response {
   const from = Math.max(0, after - overlap);
-  const pending = FIXTURES.events.filter((e) => e.seq > from);
+  const pending = log.filter((e) => e.seq > from);
   const enc = new TextEncoder();
   const body = new ReadableStream<Uint8Array>({
     async start(c) {
@@ -76,6 +76,11 @@ function mockSse(after: number, pacingMs: number, dropAfter: number | null, over
   return new Response(body, { status: 200, headers: { "content-type": "text/event-stream" } });
 }
 
+const EPISODES = [FIXTURES.episode, FIXTURES.v2.episode];
+const logOf = (id: string) => (id === FIXTURES.episode.episode_id ? FIXTURES.events : id === FIXTURES.v2.episode.episode_id ? FIXTURES.v2.events : null);
+const answerOf = (artifactId: string) => (artifactId === FIXTURES.answerArtifactId ? FIXTURES.answer : artifactId === FIXTURES.v2.answerArtifactId ? FIXTURES.v2.answer : null);
+const CONDITIONS_ARTIFACT = "fixture-artifact-conditions-01";
+
 export function mockClient(faults: MockStreamFaults): ResearchClient {
   let dropPending = faults.dropAfterSeq;
   let gonePending = faults.goneOnResume;
@@ -88,7 +93,8 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
   return {
     mode: "mock",
     async openEvents(id, after, signal) {
-      if (id !== FIXTURES.episode.episode_id) return new Response(JSON.stringify(notInFixtures(`episode ${id}`)), { status: 404 });
+      const log = logOf(id);
+      if (!log) return new Response(JSON.stringify(notInFixtures(`episode ${id}`)), { status: 404 });
       if (after > 0 && gonePending) {
         gonePending = false;
         const env: ErrorEnvelope = { code: "conflict", message: "mock: the event log no longer covers this cursor", retry: { kind: "reconcile" } };
@@ -96,16 +102,22 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
       }
       const drop = dropPending;
       dropPending = null;
-      return mockSse(after, faults.pacingMs, drop, after > 0 ? faults.resumeOverlap : 0, signal);
+      return mockSse(log, after, faults.pacingMs, drop, after > 0 ? faults.resumeOverlap : 0, signal);
     },
-    getEpisode: (id) => (id === FIXTURES.episode.episode_id ? ok(FIXTURES.episode) : fail(notInFixtures(`episode ${id}`), 404)),
+    getEpisode: (id) => {
+      const e = EPISODES.find((x) => x.episode_id === id);
+      return e ? ok(e) : fail(notInFixtures(`episode ${id}`), 404);
+    },
     capabilities: () => ok(MOCK_CAPABILITIES),
-    listEpisodes: () => ok([FIXTURES.episode]),
+    listEpisodes: () => ok(EPISODES),
     createEpisode: () => fail(MOCK_ONLY, 501),
     act: () => fail(MOCK_ONLY, 501),
     resolveApproval: () => fail(MOCK_ONLY, 501),
     getArtifactJson: (id) => {
-      if (id === FIXTURES.answerArtifactId) return ok<ResearchAnswer>(FIXTURES.answer);
+      const ans = answerOf(id);
+      if (ans) return ok<ResearchAnswer>(ans);
+      // The v2 answer cites a ConditionsTable artifact; the C0 conditions fixture is the only one there is.
+      if (id === CONDITIONS_ARTIFACT) return ok(FIXTURES.conditionsTable);
       const typed = FIXTURES.typedArtifacts.find((t) => t.ref.artifact_id === id);
       return typed ? ok(typed.payload) : fail(notInFixtures(`artifact ${id} payload`), 404);
     },
@@ -114,8 +126,9 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
         ? ok(FIXTURES.imageContours.map((r) => JSON.stringify(r)).join("\n"))
         : fail(notInFixtures(`artifact ${id} text`), 404),
     readArtifactValue: (id, pointer) => {
-      if (id !== FIXTURES.answerArtifactId) return fail(notInFixtures(`artifact ${id} payload`), 404);
-      const v = resolvePointer(FIXTURES.answer, pointer);
+      const ans = answerOf(id);
+      if (!ans) return fail(notInFixtures(`artifact ${id} payload`), 404);
+      const v = resolvePointer(ans, pointer);
       return v === undefined ? fail(notInFixtures(`pointer ${pointer} in ${id}`), 404) : ok<InlinePayload>({ value: v as InlinePayload["value"], partial: false });
     },
     search: () => ok(FIXTURES.searchPage),
