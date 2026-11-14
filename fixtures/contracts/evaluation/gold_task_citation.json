@@ -1,0 +1,48 @@
+{
+  "schema_version": "evaluation.v2",
+  "task_id": "fixture-gold-cit-01",
+  "class": "citation",
+  "topic": "tables_figures",
+  "split": "dev",
+  "question": "Synthetic fixture: cite where the (fixture) report states the ambient oxygen fraction of its runs.",
+  "investigations": [
+    "PSI-69"
+  ],
+  "cluster": "PSI-69",
+  "retrieval": "multi_hop",
+  "answer": {
+    "kind": "citation",
+    "statement": "Synthetic fixture: the runs used an ambient oxygen fraction of 0.21.",
+    "accepted": [
+      {
+        "source_id": "fixture-source-v1",
+        "locator": {
+          "asset_sha256": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "path": null,
+          "row": null,
+          "column": null,
+          "page": 3,
+          "frame": null,
+          "pts_s": null,
+          "char_start": 1840,
+          "char_end": 2115,
+          "page_label": "2",
+          "parse_view_id": "fixture-parse-v1",
+          "offset_unit": "unicode_scalar",
+          "bbox": [
+            0.12,
+            0.21,
+            0.88,
+            0.44
+          ]
+        }
+      }
+    ]
+  },
+  "authored_by": "fixture-evaluator",
+  "reviewed_by": [
+    "fixture-knowledge-reviewer"
+  ],
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-14T18:00:00Z"
+}
