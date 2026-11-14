@@ -1,0 +1,18 @@
+[package]
+name = "ignis-vision"
+description = "BASS visible-front metrology: container-PTS decoding, calibration, causal segmentation, contours"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+rayon.workspace = true
+clap.workspace = true
+toml.workspace = true
+openh264 = "0.9.9"
+mp4 = "0.14.0"
+png = "0.18"
