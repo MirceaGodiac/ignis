@@ -139,6 +139,8 @@ struct Cases {
     models: Arc<Models>,
     /// (case_id, release, artifact hash, forecasts done when revealed)
     reveals: Mutex<Vec<(String, String, String, usize)>>,
+    /// A case whose continuation cannot be read (vault error).
+    fail_reveal: Option<String>,
 }
 
 impl CaseSource for Cases {
@@ -170,6 +172,13 @@ impl CaseSource for Cases {
         Ok(out)
     }
     fn reveal(&self, _s: &ExecutionScope, case: &EvalCase, c: &Commitment) -> ServiceResult<Value> {
+        if self.fail_reveal.as_deref() == Some(case.case_id.as_str()) {
+            return Err(ErrorEnvelope::new(
+                ErrorCode::UpstreamUnavailable,
+                "vault unreadable",
+                RetryPolicy::Never,
+            ));
+        }
         self.reveals.lock().unwrap().push((
             case.case_id.clone(),
             c.release_id.clone(),
@@ -194,6 +203,7 @@ fn evaluator_with(models: Models) -> (Evaluator, Arc<Cases>) {
     let cases = Arc::new(Cases {
         models: models.clone(),
         reveals: Mutex::new(vec![]),
+        fail_reveal: None,
     });
     let e = Evaluator {
         datasets: Arc::new(Datasets),
@@ -695,4 +705,113 @@ fn an_artifact_without_quantity_or_unit_is_failed_not_scored_as_metres() {
                     && f.reason.contains("the protocol scores"))
         );
     }
+}
+
+#[test]
+fn a_frozen_name_binds_the_request_even_without_its_hash() {
+    let dir = std::env::temp_dir().join(format!("ignis-protocols-nohash-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let p = protocol_from(&request());
+    freeze(&dir, &p).unwrap();
+    let (mut e, _) = evaluator_with(Models::default());
+    e.protocols = load_frozen(&dir).unwrap();
+    let scope = eval_scope(&[Partition::Validation]);
+
+    // Same name, hash left out, content changed: refused, not run as an unfrozen protocol.
+    let mut req = request();
+    req.protocol.protocol_id = p.protocol_id.clone();
+    req.protocol.version = p.version.clone();
+    req.protocol.frozen_hash = None;
+    req.cutoffs_s.pop();
+    let err = e.evaluate(&scope, &req).unwrap_err();
+    assert_eq!(err.code, ErrorCode::InvalidRequest);
+    assert!(err.message.contains("frozen_hash"), "{}", err.message);
+
+    // A name that was never frozen stays an unfrozen development protocol.
+    e.evaluate(&scope, &request()).unwrap().validate().unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_requested_forward_without_a_construction_manifest_is_refused() {
+    struct NoManifest(Models);
+    impl ModelService for NoManifest {
+        fn releases(&self, s: &ExecutionScope) -> ServiceResult<Vec<ModelRelease>> {
+            self.0.releases(s)
+        }
+        fn release(&self, s: &ExecutionScope, id: &ReleaseId) -> ServiceResult<ModelRelease> {
+            let mut r = self.0.release(s, id)?;
+            r.construction = None;
+            Ok(r)
+        }
+        fn forecast(
+            &self,
+            s: &ExecutionScope,
+            r: &ForecastRequest,
+        ) -> ServiceResult<AnalysisArtifact> {
+            self.0.forecast(s, r)
+        }
+    }
+    let (mut e, _) = evaluator_with(Models::default());
+    e.models = Arc::new(NoManifest(Models::default()));
+    let err = e
+        .evaluate(&eval_scope(&[Partition::Validation]), &request())
+        .unwrap_err();
+    assert_eq!(err.code, ErrorCode::Conflict);
+    assert!(
+        err.message.contains("cannot be verified"),
+        "{}",
+        err.message
+    );
+}
+
+#[test]
+fn a_failed_reveal_writes_no_result_and_names_what_was_already_revealed() {
+    let models = Arc::new(Models::default());
+    let cases = Arc::new(Cases {
+        models: models.clone(),
+        reveals: Mutex::new(vec![]),
+        fail_reveal: Some("fixture-run-03@3.0".into()),
+    });
+    let (mut e, _) = evaluator_with(Models::default());
+    e.models = models;
+    e.cases = cases.clone();
+    let err = e
+        .evaluate(&eval_scope(&[Partition::Validation]), &request())
+        .unwrap_err();
+    assert_eq!(err.code, ErrorCode::UpstreamUnavailable);
+    assert!(
+        err.message.contains("no result was written"),
+        "{}",
+        err.message
+    );
+    assert!(
+        err.message.contains("2 continuation(s) already revealed"),
+        "{}",
+        err.message
+    );
+    // Every reveal happened after every forecast, before any scoring.
+    assert!(cases
+        .reveals
+        .lock()
+        .unwrap()
+        .iter()
+        .all(|(_, _, _, done)| *done == 4));
+}
+
+#[test]
+fn protocol_names_are_used_as_file_names_unchanged_and_a_stray_temp_file_is_ignored() {
+    let dir = std::env::temp_dir().join(format!("ignis-protocols-names-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let mut bad = protocol_from(&request());
+    bad.protocol_id = "flex/diameter".into();
+    assert!(
+        freeze(&dir, &bad).is_err(),
+        "a name that would be renamed is refused"
+    );
+    let p = protocol_from(&request());
+    freeze(&dir, &p).unwrap();
+    std::fs::write(dir.join(".crashed@1.123.tmp"), "").unwrap();
+    assert_eq!(load_frozen(&dir).unwrap().len(), 1);
+    let _ = std::fs::remove_dir_all(&dir);
 }

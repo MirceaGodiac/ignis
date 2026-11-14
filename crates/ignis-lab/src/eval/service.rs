@@ -183,19 +183,22 @@ impl Evaluator {
     }
 
     fn check_protocol(&self, req: &EvaluationRequest) -> ServiceResult<()> {
-        let Some(_) = &req.protocol.frozen_hash else {
-            return Ok(()); // an unfrozen development protocol: allowed for development feedback only
-        };
         let key = (
             req.protocol.protocol_id.clone(),
             req.protocol.version.clone(),
         );
-        let frozen = self.protocols.get(&key).ok_or_else(|| {
-            err(
-                ErrorCode::NotFound,
-                format!("protocol {}@{} is not frozen here", key.0, key.1),
-            )
-        })?;
+        // A frozen id@version always binds the request, with or without `frozen_hash`: leaving the
+        // hash out must not let changed content run under a frozen name (`check_request` refuses a
+        // missing hash). Only a name that was never frozen is an unfrozen development protocol.
+        let Some(frozen) = self.protocols.get(&key) else {
+            return match &req.protocol.frozen_hash {
+                None => Ok(()),
+                Some(_) => Err(err(
+                    ErrorCode::NotFound,
+                    format!("protocol {}@{} is not frozen here", key.0, key.1),
+                )),
+            };
+        };
         frozen
             .verify()
             .and_then(|_| frozen.protocol.check_request(req))
@@ -242,21 +245,27 @@ impl Evaluator {
         m: &ignis_core::contracts::ModelUnderTest,
     ) -> ServiceResult<ModelRelease> {
         let r = self.models.release(scope, &m.release_id)?;
-        if let (Some(want), Some(have)) = (
+        // Fail closed: a requested forward identity must be proven by the release's manifest.
+        match (
             &m.forward_hash,
             r.construction.as_ref().map(|c| &c.forward_hash),
         ) {
-            if want != have {
-                return Err(err(
-                    ErrorCode::Conflict,
-                    format!(
-                        "release {}: forward {have}, the request names {want}",
-                        m.release_id
-                    ),
-                ));
-            }
+            (Some(want), Some(have)) if want != have => Err(err(
+                ErrorCode::Conflict,
+                format!(
+                    "release {}: forward {have}, the request names {want}",
+                    m.release_id
+                ),
+            )),
+            (Some(want), None) => Err(err(
+                ErrorCode::Conflict,
+                format!(
+                    "release {} has no construction manifest, so forward {want} cannot be verified",
+                    m.release_id
+                ),
+            )),
+            _ => Ok(r),
         }
-        Ok(r)
     }
 
     fn forecast_one(
@@ -413,12 +422,51 @@ impl EvaluationService for Evaluator {
             .collect();
         let spec: Spec = common_spec(&admitted, None);
 
-        // 5. commitments, reveals, scores
+        // 5. commitments and reveals, all before any scoring. A reveal that fails stops the
+        // evaluation before a result exists, and the error names every continuation already opened
+        // (a vault source has logged them), so a retry is a visible, deliberate second reveal.
+        let mut truths: Vec<Vec<Option<Value>>> = Vec::with_capacity(runs.len());
+        let mut opened: Vec<String> = vec![];
+        for run in &runs {
+            let mut row = Vec::with_capacity(cases.len());
+            for (c, o) in cases.iter().zip(&run.outcomes) {
+                let Outcome::Admitted(a) = o else {
+                    row.push(None);
+                    continue;
+                };
+                let commitment = Commitment {
+                    release_id: run.release_id.clone(),
+                    artifact_hash: artifact_hash(a),
+                };
+                match self.cases.reveal(scope, c, &commitment) {
+                    Ok(t) => {
+                        opened.push(format!("{}@{}", c.case_id, run.release_id));
+                        row.push(Some(t));
+                    }
+                    Err(e) => {
+                        return Err(ErrorEnvelope {
+                            message: format!(
+                                "reveal of {} for {} failed ({}); no result was written; {} continuation(s) already revealed: [{}]",
+                                c.case_id,
+                                run.release_id,
+                                e.message,
+                                opened.len(),
+                                opened.join(", ")
+                            ),
+                            ..e
+                        });
+                    }
+                }
+            }
+            truths.push(row);
+        }
+
+        // 6. scores
         let partition = serde_json::to_value(req.partition).unwrap_or(Value::Null);
         let mut scored_by_subject: Vec<Vec<(usize, Case)>> = vec![];
         let mut failures: Vec<CaseFailure> = vec![];
         let mut accounting: Vec<CaseAccounting> = vec![];
-        for run in &runs {
+        for (run, truth_row) in runs.iter().zip(&truths) {
             let mut acc = CaseAccounting {
                 total: cases.len() as u64,
                 scored: 0,
@@ -444,14 +492,12 @@ impl EvaluationService for Evaluator {
                         failures.push(fail(CaseFailureKind::Refused, r.clone()));
                     }
                     Outcome::Admitted(a) => {
-                        let commitment = Commitment {
-                            release_id: run.release_id.clone(),
-                            artifact_hash: artifact_hash(a),
-                        };
-                        let truth = self.cases.reveal(scope, c, &commitment)?;
+                        let truth = truth_row[i]
+                            .as_ref()
+                            .expect("every admitted case was revealed above");
                         let mut case = score_against(
                             a,
-                            &truth,
+                            truth,
                             &c.run_id,
                             partition.clone(),
                             c.group_id.clone(),
@@ -478,7 +524,7 @@ impl EvaluationService for Evaluator {
             scored_by_subject.push(scored);
         }
 
-        // 6. metric values: overall and per cutoff, from the cluster bootstrap estimate
+        // 7. metric values: overall and per cutoff, from the cluster bootstrap estimate
         let mut values = vec![];
         for ((run, scored), acc) in runs.iter().zip(&scored_by_subject).zip(&accounting) {
             let subject = ignis_core::contracts::ReleaseId::new(run.release_id.clone())

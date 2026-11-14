@@ -51,6 +51,12 @@ impl Protocol {
         if self.schema_version != PROTOCOL_SCHEMA {
             return Err(format!("schema_version must be {PROTOCOL_SCHEMA}"));
         }
+        if !file_safe(&self.protocol_id) || !file_safe(&self.version) {
+            return Err(format!(
+                "protocol id and version use only letters, digits, '-', '_' and '.', and do not start with '.' (got {:?}@{:?})",
+                self.protocol_id, self.version
+            ));
+        }
         if self.unit != self.target.unit_si() {
             return Err(format!(
                 "{:?} is scored in {}",
@@ -136,18 +142,17 @@ impl FrozenProtocol {
     }
 }
 
+/// Ids and versions are used as file names as they are: no character is replaced, so two different
+/// protocols can never share one frozen file.
+fn file_safe(s: &str) -> bool {
+    !s.is_empty()
+        && !s.starts_with('.')
+        && s.chars()
+            .all(|c| c.is_ascii_alphanumeric() || "-_.".contains(c))
+}
+
 fn frozen_path(dir: &Path, p: &Protocol) -> PathBuf {
-    let safe = |s: &str| {
-        s.replace(
-            |c: char| !(c.is_ascii_alphanumeric() || "-_.".contains(c)),
-            "_",
-        )
-    };
-    dir.join(format!(
-        "{}@{}.frozen.json",
-        safe(&p.protocol_id),
-        safe(&p.version)
-    ))
+    dir.join(format!("{}@{}.frozen.json", p.protocol_id, p.version))
 }
 
 /// Freeze `p` under `dir`. Idempotent for identical content; refuses a different protocol under an
@@ -173,13 +178,28 @@ pub fn freeze(dir: &Path, p: &Protocol) -> anyhow::Result<FrozenProtocol> {
         return Ok(old);
     }
     std::fs::create_dir_all(dir)?;
-    // create_new: a concurrent freeze of the same version cannot overwrite the first one.
-    let mut f = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&path)?;
-    std::io::Write::write_all(&mut f, serde_json::to_string_pretty(&frozen)?.as_bytes())?;
-    Ok(frozen)
+    // Atomic and write-once: the complete file is written and synced under a temporary name, then
+    // hard-linked to its final name, which fails if that name exists. A crash leaves at most a
+    // temporary file, never an empty or partial frozen protocol.
+    let tmp = dir.join(format!(
+        ".{}@{}.{}.tmp",
+        p.protocol_id,
+        p.version,
+        std::process::id()
+    ));
+    {
+        let mut f = std::fs::File::create(&tmp)?;
+        std::io::Write::write_all(&mut f, serde_json::to_string_pretty(&frozen)?.as_bytes())?;
+        f.sync_all()?;
+    }
+    let linked = std::fs::hard_link(&tmp, &path);
+    let _ = std::fs::remove_file(&tmp);
+    match linked {
+        Ok(()) => Ok(frozen),
+        // A concurrent freeze won: accept it only if it froze the same content.
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => freeze(dir, p),
+        Err(e) => Err(e.into()),
+    }
 }
 
 /// Load every `*.frozen.json` under `dir`, keyed by (protocol_id, version). Fails closed on any
