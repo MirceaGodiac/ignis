@@ -3,12 +3,11 @@
 //   fixtures -> the server's fixture origin `/api/fixtures/v1` (`ignis serve --dev`): real routes,
 //               C0 fixture data;
 //   live     -> `/api/v1`, the research runtime (M2) with whatever services are configured.
-// Contract types come from contracts/generated.ts; server-only shapes from serverTypes.ts.
+// Contract types, including the /api/v1 request and response shapes (K1.7), come from contracts/generated.ts.
 
-import type { ErrorEnvelope, InlinePayload, ResearchAnswer, ResearchEvent } from "../contracts/generated";
+import type { Capabilities, ErrorEnvelope, InlinePayload, ResearchAnswer, ResearchEvent } from "../contracts/generated";
 import { FIXTURES } from "./fixtures";
 import { ApiError, type ResearchClient } from "./http";
-import type { Capabilities } from "./serverTypes";
 import { encodeFrame, HEARTBEAT } from "./sse";
 import { resolvePointer } from "./units";
 
@@ -49,6 +48,7 @@ const MOCK_CAPABILITIES: Capabilities = {
   models: { available: true, detail: "C0 fixture release_w0.json" },
   artifact_store: { available: true, detail: "C0 fixture answer only" },
   mcp: { available: false, detail: "mock mode" },
+  analysis_runner: { available: false, detail: "mock mode: no isolated runner in the browser" },
   tools: [],
 };
 
