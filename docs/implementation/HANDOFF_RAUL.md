@@ -5,7 +5,7 @@ Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§5, §9, 
 
 ## 0. Faza 2 (citește întâi) — cunoaștere & date NASA
 
-**Acces:** [ACCESS](ACCESS.md). Ai nevoie de GitHub, de propria cheie `DEEPINFRA_API_KEY` local și, la R8, de cheia providerului ales. Corpusul complet se descarcă **pe VM** (`/srv/ignis/data/raw/`, pas în `build-data.sh` rulat de Mircea, cu selecția ta din atlas); local ții doar un subset.
+**Acces:** [ACCESS](ACCESS.md). Ai nevoie de GitHub și, la R8, de `TYPESAFE_API_KEY` (Jev, de la Mircea). Fără DeepInfra: nici embeddings, nici reranker. Corpusul complet se descarcă **pe VM** (`/srv/ignis/data/raw/`, pas în `build-data.sh` rulat de Mircea, cu selecția ta din atlas); local ții doar un subset.
 
 Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §5 (lane-ul tău), §9 (contracte), §10 (date NASA și
 testele de acces măsurate). Regula de stocare: atlasul lui Iancu, `docs/wsp/atlas/`.
@@ -21,7 +21,7 @@ deja scris; intră primul); (2) **R6** corpusul după atlas: 636 documente (1,63
 `ConditionsTable` pentru toate cele 19, din cele 21 de CSV-uri „Experimental table” (cel mai mare câștig
 pentru challenge, cost mic); (4) **R7a** parse views cu bbox, parser ales prin măsurători (unele
 rapoarte PSI sunt scanate); (5) **R12a** retrieval în stil SIRA (arXiv 2605.06647, cod MIT
-`facebookresearch/sira`): **embeddings dense eliminate**, schița de termeni a agentului + filtru DF +
+`facebookresearch/sira`): **embeddings, reranker și clientul DeepInfra eliminate**, schița de termeni a agentului + filtru DF +
 BM25 ponderat; PR-ul de contract K2 (`evidence.v3`: `expected_terms`). **P1:** R12b expansiunea de
 vocabular la indexare (în aceeași trecere LLM cu R7b/R8), R7b arbore de secțiuni, R8 etichete (gold set ~100), R2b senzori →
 Parquet, R9b graf, R11 indexuri media (`.ts`, ZIP, TIFF → PNG). **P2:** R4 wiki/web, R10.
@@ -34,7 +34,7 @@ expansiune de query vs query + document pe întrebările de retrieval din T10 (n
 multi-hop din benchmark-ul lui Tudor arată un gol; fără indexuri de embeddings.
 
 **Eficiență:** ingestie incrementală pe (investigație, fișier, versiune, mărime); parsare o dată per
-(hash, parser, versiune); embeddings în batch, cache pe (hash chunk, model); senzori în Parquet zstd
+(hash, parser, versiune); expansiunea de vocabular în batch, cache pe (hash chunk, model, prompt); senzori în Parquet zstd
 citit cu proiecție de coloane; prompt static înaintea documentului (cache); directorul central al
 fiecărei arhive ZIP în cache (0,44 MB pentru 18 GB, apoi 2 cereri per cadru); raportezi documente/oră,
 CPU/pagină, cost per 1.000 de etichete, recall și p95.
@@ -52,8 +52,8 @@ observațiile BASS din video. Corpus util și selectiv, nu mirror de 3,45 TB și
   `data/manifests/<ACC>.jsonl` (un `Source` per asset, id = sha256 bytes) + `.listing.jsonl`, familii
   (`families/{flex,acme,bass}.rs`), store `data/work/records/`, cohorte și split-uri înghețate
   (`cohort.rs`), views Parquet (`views.rs`), coada de review (`review.rs`, `auto.rs`).
-- `crates/ignis-evidence`: catalog SQLite + FTS5 (`schemas/evidence_catalog.sql`), dense exact cosine
-  (vectori `f32`), RRF k=60, rerank Qwen3 prin DeepInfra cu fallback la RRF, `firewall` (dependency
+- `crates/ignis-evidence`: catalog SQLite + FTS5 (`schemas/evidence_catalog.sql`), `firewall` (dependency
+  graph + `strip_for_sealed`). *(Faza 2: dense, RRF și rerank-ul prin DeepInfra se elimină în R12a.)* Rest:
   graph + `strip_for_sealed`), parser PDF (feature `pdf`) care produce `SourceLocator`.
 - `crates/ignis-vision` + `sidecar/sam2`: PTS din container, Otsu sau SAM2.1, contur pe grilă K,
   calibrare DLT + Monte Carlo → `Calibration`, `ContourObservation`.
@@ -100,12 +100,12 @@ prima predare = un document primar cu citare verificabilă + un rezultat de sear
 
 ## 8. Sugestii tehnice
 
-- Direcția spec-ului e Tantivy multi-field + vectori locali exact search + Qwen embeddings/reranker;
-  migrarea de la FTS5 o decizi pe măsurători (recall, latență, memorie). Indiferent de backend:
-  o singură bază de adevăr pentru BM25/dense/rerank, generații de index construite separat și activate
+- Direcția (faza 2): BM25 cu expansiune SIRA (R12), fără embeddings și fără reranker; migrarea de la
+  FTS5 la Tantivy o decizi pe măsurători (recall, latență, memorie). Indiferent de backend:
+  o singură bază de adevăr pentru BM25 și expansiune, generații de index construite separat și activate
   prin pointer atomic, citările vechi rămân rezolvabile.
-- `SearchPage.backends` raportează fiecare backend (`used`/`unavailable`/`not_requested`) — fallback-ul
-  fără dense/rerank e vizibil, niciodată tăcut. `total_count` absent când nu e exhaustiv.
+- `SearchPage.backends` raportează fiecare backend (`used`/`unavailable`/`not_requested`) — o etapă
+  care n-a rulat (ex. expansiunea) e vizibilă, niciodată tăcută. `total_count` absent când nu e exhaustiv.
 - Paginare cu cursor opac (codifică snapshot + poziție); fără plafon semantic de rezultate.
 - `strip_for_sealed` sau echivalent aplicat în serviciu pe baza scope-ului, nu la latitudinea clientului.
 - Bundle-urile numerice: Parquet columnar, `ColumnSpec.unit` în SI, `ColumnRole::Time`/`AvailableAt` în

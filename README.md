@@ -137,7 +137,7 @@ Measured numbers are from the development laptop; "synthetic" means generated da
 | Vision metrology | implemented | Container-PTS decode, calibration, causal classical segmentation, SAM2.1 sidecar; 403 frames/s (was 42) |
 | Sealed evaluation and lab | implemented, tested | Seal → reveal → score → compare with cluster bootstrap; no NASA release has been scored |
 | Observation choice (VOI) | CLI implemented | `ignis decide rank / replay`; the API's `/acquisition` hook is not wired in the binary yet |
-| Evidence retrieval | lexical BM25 + firewall done; **dense embeddings being removed** for SIRA-style expansion (`docs/implementation/LANES_V2.md` R12) | BM25 over FTS5 with LLM vocabulary expansion (agent sketch at query time, per-chunk expansion at index time); optional Qwen3 reranker via `DEEPINFRA_API_KEY` |
+| Evidence retrieval | lexical BM25 + firewall done; **embeddings, reranker and DeepInfra being removed** for SIRA-style expansion (`docs/implementation/LANES_V2.md` R12) | BM25 over FTS5 with LLM vocabulary expansion (agent sketch at query time, per-chunk expansion at index time) |
 | Accelerators | implemented, optional | Encoder + spline flows; not needed by any expert, not trained on NASA data |
 | API and dashboard | implemented | In-process forecasts, typed refusals, VOI scoring; `ignis infer forecast` reaches the same artifact from the CLI; the dev fixture is synthetic and labelled as such |
 | Research runtime (`/api/v1`, Codex, MCP tools, runner) | implemented, tested offline | Episodes, resumable SSE, jobs, artifacts; Codex App Server bridge; tools over MCP; isolated analysis runner (verified under gVisor on the deployed VM). FLEX/ACME/BASS model tools are off by default (`--enable-models`) |

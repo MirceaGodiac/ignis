@@ -2,7 +2,7 @@
 
 The one page to read before your first task. Staging for the hackathon: keep it simple. Secret
 **values** are never written in the repo (git history becomes public when the repo does); this page
-says where each one lives. For local work **use your own key** where you can (DeepInfra, your own
+says where each one lives. For local work **use your own key** where you can (your own
 ChatGPT/Claude login); otherwise ask **Mircea**, who sends it privately. He owns every account
 (GitHub, Google Cloud, Cloudflare, provider keys); server secrets stay on the VM and only he edits them.
 
@@ -33,9 +33,9 @@ ChatGPT/Claude login); otherwise ask **Mircea**, who sends it privately. He owns
 | UI with no backend | nothing: `npm --prefix web run dev`, mock mode (C0 fixtures in the browser) |
 | API on fixtures | nothing: `ignis serve --dev` (fixture routes at `/api/fixtures/v1`) |
 | Tests | nothing for offline tests (fake Codex/Claude binaries, fixtures); live tests are opt-in |
-| Search | nothing: BM25 with the agent's expansion terms (dense embeddings removed, R12); `DEEPINFRA_API_KEY` only for the optional reranker |
+| Search | nothing: BM25 with the agent's expansion terms (R12). No embeddings, no reranker, no DeepInfra |
 | A live agent turn | Codex: `CODEX_API_KEY` or a ChatGPT login (`codex login`); Claude: `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`) or `ANTHROPIC_API_KEY` |
-| Classification / summaries (R8, R7b) | the chosen provider's key (Jev/TypeSafe, Meta Muse, …), named in the PR that adopts it and added to the table in §4 |
+| Labels / claim checks (R8, K1.5) | `TYPESAFE_API_KEY` (Jev). Summaries and index-time expansion (R7b, R12b): the chosen generative model's key, named in the PR that adopts it |
 | NASA files | see §5; nothing secret (PSI and NTRS are public) |
 
 IGNIS reads keys from the process environment. Put yours in your shell profile or a `.env` at the
@@ -81,8 +81,8 @@ repo root (gitignored) loaded by your shell. Anything paid or networked still ne
 | `IGNIS_ACCESS_*` (team domain, AUDs, service-token id; not secret but deployment-specific) | `/etc/ignis/ignis.env` | origin JWT checks |
 | `TUNNEL_TOKEN` | `/etc/ignis/cloudflared.env` | cloudflared |
 | `ORIGIN_CLIENT_ID`, `ORIGIN_CLIENT_SECRET` | Worker secrets (`wrangler secret put`) | the Worker |
-| `DEEPINFRA_API_KEY` | your environment locally; **not yet on the VM**; needed only for the optional reranker (and, if chosen, the R12b expansion model) | knowledge service |
-| Classification/summary provider keys | your environment when you run R8/R7b jobs; on the VM only if the job runs there | Raul's batch jobs |
+| `TYPESAFE_API_KEY` | `.env` locally (Mircea's); on the VM only if label jobs run there | Jev labels (R8), claim support checks |
+| Summary / expansion model key (R7b, R12b) | your environment when you run those jobs; on the VM only if they run there | Raul's batch jobs |
 | Google sign-in (ADR 18, not merged yet) | OAuth client id (public) in the web build env; allowlist on the server | Google auth mode |
 | Accounts: GitHub, Google Cloud project, Cloudflare (zone, Access, Tunnel, R2, Worker), domain | Mircea's accounts | — |
 
@@ -112,6 +112,6 @@ printing it: `sudo grep -c '^NAME=.' /etc/ignis/ignis.env`.
 | Person | Needs |
 |---|---|
 | Iancu | GitHub; local toolchain. No deployment secrets. |
-| Mircea | everything above (owner). Adds `DEEPINFRA_API_KEY` to the VM; wires the corpus step into `build-data.sh`. |
-| Raul | GitHub; `DEEPINFRA_API_KEY` locally; the classification provider key when R8 starts; a local subset of NASA files. VM access only if he runs jobs there (ask Mircea). |
+| Mircea | everything above (owner). Wires the corpus step into `build-data.sh`. |
+| Raul | GitHub; `TYPESAFE_API_KEY` (from Mircea) when R8 starts; a local subset of NASA files. VM access only if he runs jobs there (ask Mircea). |
 | Tudor | GitHub; Access allowlist for the deployed app; a Codex or Claude login for live benchmark runs; nothing for UI work in mock/fixture mode. |
