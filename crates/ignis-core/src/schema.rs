@@ -41,7 +41,7 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<ArtifactReadRequest>("ArtifactReadRequest"),
         one::<InlinePayload>("InlinePayload"),
         one::<ErrorEnvelope>("ErrorEnvelope"),
-        // C0: research (research.v1, tools.v1)
+        // C0: research (research.v1, tools.v1; read alongside research.v2)
         one::<ResearchEpisode>("ResearchEpisode"),
         one::<ResearchEvent>("ResearchEvent"),
         one::<JobRef>("JobRef"),
@@ -53,6 +53,17 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<JobLookup>("JobLookup"),
         one::<AnalysisExecuteRequest>("AnalysisExecuteRequest"),
         one::<ExecutionRecord>("ExecutionRecord"),
+        // K1: research.v2
+        one::<AnswerSubmission>("AnswerSubmission"),
+        one::<AnswerRefusal>("AnswerRefusal"),
+        one::<TraceBundle>("TraceBundle"),
+        one::<CreateEpisode>("CreateEpisode"),
+        one::<PostMessage>("PostMessage"),
+        one::<MessageAccepted>("MessageAccepted"),
+        one::<ResolveApproval>("ResolveApproval"),
+        one::<ApprovalAccepted>("ApprovalAccepted"),
+        one::<EpisodeAction>("EpisodeAction"),
+        one::<Capabilities>("Capabilities"),
         // evidence (C0 evidence.v1, K1 evidence.v2)
         one::<EvidenceRef>("EvidenceRef"),
         one::<SearchRequest>("SearchRequest"),

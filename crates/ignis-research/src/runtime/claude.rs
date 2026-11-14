@@ -32,7 +32,9 @@ use serde_json::{json, Value};
 use super::bridge::CommitHook;
 use super::grants::{McpAttachment, MCP_TOKEN_ENV};
 use super::mapping::{self, map_item, map_turn_completed, Mapped, StopReason, IGNIS_MCP_SERVER};
-use super::preflight::{sha256_file, RuntimeBuildManifest, RuntimeProfile, LIVE};
+use super::preflight::{
+    sha256_file, RuntimeBuildManifest, RuntimeCredentials, RuntimeProfile, LIVE,
+};
 use super::recorder::Recorder;
 use super::AgentRuntime;
 use crate::store::{RuntimeChange, RuntimeRecord};
@@ -101,11 +103,11 @@ impl ClaudeConfig {
         }
     }
 
-    fn credentials(&self) -> &'static str {
+    fn credentials(&self) -> RuntimeCredentials {
         if self.login_home.is_some() {
-            "shared_login_home"
+            RuntimeCredentials::SharedLoginHome
         } else {
-            "environment"
+            RuntimeCredentials::Environment
         }
     }
 }
@@ -157,13 +159,13 @@ pub fn claude_preflight(cfg: &ClaudeConfig) -> Result<RuntimeBuildManifest, Stri
     );
     Ok(RuntimeBuildManifest {
         runtime_build_id: RuntimeBuildId::new(id).map_err(|e| e.to_string())?,
-        runtime: "claude_code",
+        runtime: RuntimeKind::ClaudeCode,
         user_agent: format!("claude-code/{version}"),
         version,
         binary_sha256,
         binary_hash_pinned: false,
         protocol_schema_sha256: args_sha256,
-        transport: "stdio stream-json (one process per turn)",
+        transport: "stdio stream-json (one process per turn)".into(),
         profile: RuntimeProfile::Public,
         config_overrides: FIXED_ARGS.iter().map(|s| s.to_string()).collect(),
         model: cfg.model.clone(),

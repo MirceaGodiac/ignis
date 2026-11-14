@@ -5,6 +5,8 @@ Dă agentului tău: acest fișier, `docs/implementation/LANES_V2.md` (§6, §9, 
 
 ## 0. Faza 2 (citește întâi) — workspace & evaluare independentă
 
+**Acces:** [ACCESS](ACCESS.md). Ai nevoie de GitHub, de e-mailul tău în allowlist-ul Access pentru aplicația de staging și de propriul login Codex sau Claude pentru rulările live ale benchmark-ului; UI-ul în modul mock/fixture nu cere nimic.
+
 Detalii, motivare, surse: [LANES_V2](LANES_V2.md) §6 (lane-ul tău), §9 (contracte), §10 (testele de
 acces și de browser, cu cifre).
 

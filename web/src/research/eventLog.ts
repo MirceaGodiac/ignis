@@ -167,6 +167,9 @@ export function applyEvent(state: EpisodeState, e: ResearchEvent): { state: Epis
       addArtifact(s, body.payload.answer);
       s.answers = [...s.answers, { answer_id: body.payload.answer_id, status: body.payload.status, artifact: body.payload.answer }];
       break;
+    case "step.rationale":
+      // research.v2: the model's own step explanation. Kept in the timeline; no derived state yet.
+      break;
     case "runtime.opaque":
       // Archived, not interpreted: it stays in the timeline only.
       if (body.payload.payload) addArtifact(s, body.payload.payload);

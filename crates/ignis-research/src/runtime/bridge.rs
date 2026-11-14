@@ -27,7 +27,9 @@ use serde_json::{json, Value};
 
 use super::grants::{McpLease, MCP_TOKEN_ENV};
 use super::mapping::{self, map_item, map_notification, map_turn_completed, Mapped, StopReason};
-use super::preflight::{ApprovalKind, ApprovalRule, CodexConfig, RuntimeBuildManifest, LIVE};
+use super::preflight::{
+    ApprovalKind, ApprovalRule, CodexConfig, ProfilePolicy, RuntimeBuildManifest, LIVE,
+};
 use super::recorder::Recorder;
 use super::rpc::{CallError, Connection, Inbound};
 use super::AgentRuntime;
