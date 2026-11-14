@@ -50,6 +50,7 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: support::access().args.clone(),
+        google: Default::default(),
     }
 }
 

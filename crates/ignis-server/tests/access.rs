@@ -44,6 +44,7 @@ fn args(dir: &Path) -> ServeArgs {
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: access().args.clone(),
+        google: Default::default(),
     }
 }
 

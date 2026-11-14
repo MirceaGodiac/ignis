@@ -1,7 +1,9 @@
 //! Cloudflare Access stand-in for the integration tests: a loopback JWKS endpoint serving the public
 //! half of a test-only RSA key (`tests/data/access_test_rsa2048.pkcs1.der`, never used anywhere else) and
 //! RS256 tokens shaped like Access's (service-token assertion for the origin, user assertion for the
-//! UI application).
+//! UI application). The same endpoint and key stand in for Google's (`google_*`): RS256 ID tokens
+//! for [`GOOGLE_CLIENT_ID`], an allowlist of the `example.org` Workspace domain (signed `hd`) and one
+//! consumer address, [`GOOGLE_SOLO`].
 #![allow(dead_code)]
 
 use std::io::{Read, Write};
@@ -18,6 +20,11 @@ pub const ORIGIN_AUD: &str = "aud-origin-0000";
 pub const USER_AUD: &str = "aud-ui-1111";
 pub const SERVICE_TOKEN_ID: &str = "worker-client.access";
 pub const KID: &str = "kid-test-1";
+pub const GOOGLE_ISSUER: &str = "https://accounts.google.com";
+pub const GOOGLE_CLIENT_ID: &str = "1234-test.apps.googleusercontent.com";
+pub const GOOGLE_DOMAIN: &str = "example.org";
+pub const GOOGLE_SOLO: &str = "solo@gmail.com";
+pub const UI_ORIGIN: &str = "https://ignis-ui.example.org";
 
 pub struct TestAccess {
     pub args: AccessArgs,
@@ -119,5 +126,37 @@ impl TestAccess {
             (ORIGIN_ASSERTION, self.sign(&self.origin_claims())),
             (USER_ASSERTION, self.sign(&self.user_claims(email))),
         ]
+    }
+
+    /// `--auth google` configuration against the same loopback key endpoint.
+    pub fn google_args(&self) -> ignis_server::v1::google::GoogleArgs {
+        ignis_server::v1::google::GoogleArgs {
+            google_client_id: Some(GOOGLE_CLIENT_ID.into()),
+            allowed_emails: vec![GOOGLE_SOLO.into()],
+            allowed_domains: vec![GOOGLE_DOMAIN.into()],
+            cors_origins: vec![UI_ORIGIN.into()],
+            google_certs_url: self.args.certs_url.clone(),
+        }
+    }
+
+    /// A Google ID token's claims for `email`: `hd` is set for Workspace addresses (the domain
+    /// part), absent for consumer ones (`gmail.com`).
+    pub fn google_claims(&self, email: &str) -> Value {
+        let mut c = json!({"iss": GOOGLE_ISSUER, "aud": GOOGLE_CLIENT_ID, "azp": GOOGLE_CLIENT_ID,
+                           "sub": "1001", "email": email, "email_verified": true,
+                           "iat": now(), "exp": now() + 300});
+        let domain = email.rsplit('@').next().unwrap_or("").to_lowercase();
+        if domain != "gmail.com" {
+            c["hd"] = json!(domain);
+        }
+        c
+    }
+
+    /// The header the UI sends for `email` with Google sign-in.
+    pub fn google_headers(&self, email: &str) -> [(&'static str, String); 1] {
+        [(
+            "authorization",
+            format!("Bearer {}", self.sign(&self.google_claims(email))),
+        )]
     }
 }

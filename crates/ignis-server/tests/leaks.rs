@@ -39,6 +39,7 @@ fn router(dir: &Path, internal_routes: bool) -> axum::Router {
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: Default::default(),
+        google: Default::default(),
     };
     app(args, Services::default())
 }

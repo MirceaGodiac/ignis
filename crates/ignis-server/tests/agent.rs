@@ -44,6 +44,7 @@ fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: Default::default(),
+        google: Default::default(),
     }
 }
 

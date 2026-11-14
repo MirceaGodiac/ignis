@@ -18,6 +18,7 @@
 pub mod access;
 pub mod agent;
 pub mod fixture;
+pub mod google;
 pub mod io;
 mod runner;
 pub mod sandbox;
@@ -94,8 +95,8 @@ pub struct V1 {
     pub tools: Arc<ignis_mcp::ToolHost>,
     pub hub: Arc<Hub>,
     pub auth: AuthMode,
-    /// Verifier of the Access assertions (`--auth cloudflare-access`).
-    pub access: Option<Arc<access::AccessVerifier>>,
+    /// Identity verifier (`--auth cloudflare-access` or `google`).
+    pub access: Option<Arc<access::Verifier>>,
     pub runner_wake: Arc<Notify>,
     /// Origin of what this instance creates (`synthetic_fixture` in fixture mode).
     pub origin: PayloadOrigin,
@@ -132,7 +133,7 @@ impl HasAuth for Arc<V1> {
     fn auth(&self) -> AuthMode {
         self.auth
     }
-    fn access(&self) -> Option<&access::AccessVerifier> {
+    fn access(&self) -> Option<&access::Verifier> {
         self.access.as_deref()
     }
     fn execute_code(&self) -> bool {

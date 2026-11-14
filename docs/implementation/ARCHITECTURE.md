@@ -53,6 +53,16 @@ Raul          Raul              Iancu                             Tudor
 | 15 (C0) | Serviciile de domeniu sunt trait-uri **sincrone** în `ignis-core`; transporturile async le cheamă pe pool blocant | `async-trait`/Tokio în nucleu |
 | 16 (C0) | `TrainedOn` fără default; construcția WSP în `ModelRelease.construction`; reader legacy pentru 2.0.0 | default `nasa` implicit |
 | 17 | Al doilea runtime de agent: Claude Code headless (`claude -p`, stream-json), lângă Codex App Server; selectat cu `IGNIS_AGENT_RUNTIME`. Claude Code își deține loop-ul (nu e un loop scris de IGNIS); IGNIS doar îl mapează pe aceleași evenimente, cu doar tool-urile IGNIS read/compute și fără tool-uri built-in. Permite planuri ChatGPT/Claude, nu doar chei API | un loop de agent scris în IGNIS; un gateway LLM universal |
+| 18 | Al doilea mod de identitate: Google sign-in (`--auth google`), lângă Cloudflare Access; UI static pe Vercel, API expus prin Caddy (TLS), token Google verificat în Rust pe fiecare rută + allowlist | un al doilea serviciu de auth; un proxy Vercel care ține un secret |
+
+ADR 18 — motivul: domeniul nu poate fi delegat la Cloudflare (revendicarea prin oferta Space Apps
+eșuează), iar Tunnel și Access cer o zonă Cloudflare. Google sign-in nu cere zonă: UI-ul static
+merge pe Vercel, API-ul pe un hostname cu înregistrare A la orice registrar. Alternativa respinsă:
+un proxy în Vercel Functions (ar ține un secret de service și are limite de durată pentru SSE).
+Costul: API-ul devine accesibil din internet; singura poartă e verificarea tokenului (RS256 pe
+cheile Google, `aud` = client id, `email_verified`, allowlist pe e-mail sau pe `hd` semnat). Ce ar
+infirma alegerea: o rută, alta decât `/livez`, care răspunde fără token valid (`tests/google.rs`).
+Contracte: niciunul (`AuthMode` e al serverului). Ambele moduri rămân deployabile. Owner: Mircea.
 
 Un ADR nou (în acest fișier, rând nou + paragraf): motivul, alternativa respinsă, testul care ar
 infirma alegerea, impactul pe contracte, ownerul.

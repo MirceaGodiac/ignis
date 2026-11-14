@@ -42,6 +42,54 @@ can never open the origin directly. The Worker drops any client-supplied copy of
 `/livez` (no data) is the only unauthenticated route; everything else, including the legacy `/api/*`,
 needs at least the origin token.
 
+## Google sign-in (alternative to Access)
+
+For a UI hosted outside Cloudflare (Vercel) and no Cloudflare zone. Both modes stay deployable;
+`IGNIS_AUTH` picks one. **Not deployed yet** (see [Status](#status)).
+
+```text
+Browser ── UI (static web/dist) ──► Vercel
+   │  Google Identity Services → Google ID token (in memory, ~1 h, re-issued before expiry)
+   └── fetch https://<api-hostname>/api/*   Authorization: Bearer <token>   (CORS: exact UI origin)
+GCE VM ── Caddy :443/:80 (ACME certificate) ──► ignis :8787        (cloudflared not started)
+R2 stays as the artifact store (it does not need a Cloudflare zone).
+```
+
+The origin verifies the token on every route except `/livez` (`ignis-server/src/v1/google.rs`):
+RS256 against Google's JWKS, `iss` = Google, `aud` = the OAuth client id, `exp`/`nbf`,
+`email_verified` = true, and the allowlist (`IGNIS_ALLOWED_EMAILS`, or `IGNIS_ALLOWED_DOMAINS`
+matched on the signed `hd` claim, never on the address suffix). The verified e-mail is the principal,
+as with Access. A Cloudflare token is not accepted in this mode.
+
+What changes against the Access topology: **the API is reachable from the internet** (no tunnel,
+no edge filter), so the token check is the only gate; the browser holds a bearer token in memory
+rather than an Access cookie it cannot read. Plain `<a href>`/`<img src>` links to API URLs cannot
+carry the token (the UI has none today; new ones must fetch and use a blob URL).
+
+Setup (each step that touches the VM, its firewall, DNS or the Google project needs the owner's
+go-ahead):
+
+1. **OAuth client:** Google Cloud console → APIs & Services → Credentials → OAuth client ID, type
+   *Web application*, authorized JavaScript origins = the exact UI origin(s). Its client id goes in
+   `IGNIS_GOOGLE_CLIENT_ID` (ignis.env) and `VITE_GOOGLE_CLIENT_ID` (Vercel). No client secret is
+   used.
+2. **Host:** a static external IP, a DNS A record `<api-hostname>` → that IP (any registrar's DNS;
+   no Cloudflare zone needed), and firewall ingress tcp:443 and tcp:80 (ACME HTTP-01) from the
+   internet on the VM's network tag.
+3. **Config:** in ignis.env the four `IGNIS_GOOGLE_*`/`IGNIS_ALLOWED_*`/`IGNIS_CORS_ORIGINS` entries
+   (deploy/ignis.env.example); in release.env `CADDY_IMAGE` (pinned digest) and
+   `IGNIS_API_HOSTNAME`; `mkdir -p /srv/ignis/caddy/{data,config}`.
+4. **Start:** the systemd unit runs `-f infra/deploy/compose.yaml`; add the override with a drop-in
+   (`systemctl edit ignis`) that repeats the three `Exec*` lines with
+   `-f infra/deploy/compose.yaml -f infra/deploy/compose.google.yaml`. `CLOUDFLARED_IMAGE` must stay
+   set (Compose interpolates the base file); the tunnel service is not started.
+5. **UI on Vercel:** import the repository, root directory `web/` (keep "include files outside the
+   root directory" on: the mock mode imports `fixtures/contracts/`), env `VITE_GOOGLE_CLIENT_ID` and
+   `VITE_API_BASE=https://<api-hostname>`. `web/vercel.json` holds the build and SPA fallback.
+6. **Check:** `curl https://<api-hostname>/livez` → `ok`; `curl https://<api-hostname>/api/health` →
+   401; in the browser, sign in on the UI and open the research workspace; one cited answer end to
+   end; a Google account not on the allowlist is refused.
+
 ## Credentials
 
 For now every credential is a plain entry in `/etc/ignis/ignis.env` (root 0600), empty when unused;
@@ -247,6 +295,7 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 | Piece | State |
 |---|---|
 | Access JWT verification, Worker forwarding | implemented, tested offline (signed test tokens, local JWKS; Worker unit tests) |
+| Google sign-in (`--auth google`), CORS, UI sign-in, `compose.google.yaml` + Caddy, `web/vercel.json` | server verification and CORS tested offline (signed test tokens, local JWKS: `tests/google.rs`); UI sign-in type-checked and built, **not run against Google**; Caddy override **not run** (`docker compose config` not run here); no OAuth client, hostname, static IP or firewall rule yet |
 | R2 artifact store, snapshots, push/pull | implemented, tested offline against an S3 stand-in that verifies SigV4 and body hashes; SigV4 checked against AWS's published example. Live bucket test: `cargo test -p ignis-research --test r2 r2_live -- --ignored` with `IGNIS_R2_LIVE_*` — **not run yet** |
 | Server image, compose, systemd | written; compose validated with `docker compose config`; **image not built here yet** |
 | gVisor | **not verified** — `scripts/verify-gvisor.sh` on the GCE VM |

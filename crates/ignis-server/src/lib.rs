@@ -134,6 +134,9 @@ pub struct ServeArgs {
     /// Cloudflare Access verification (required by `--auth cloudflare-access`).
     #[command(flatten)]
     pub access: v1::access::AccessArgs,
+    /// Google sign-in verification and allowed browser origins (required by `--auth google`).
+    #[command(flatten)]
+    pub google: v1::google::GoogleArgs,
     /// Also serve the internal registry routes (`/seal`, `/reveal`, `/admin/reload`). Off by
     /// default: they are development/evaluation tools, not part of the public runtime.
     #[arg(long)]
@@ -353,55 +356,98 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     } else {
         api
     };
-    // Behind Access every route (legacy `/api/*`, static files) needs the origin assertion; `/api/v1`
-    // routes additionally verify the user's. `/livez` is the process-level liveness probe for the
-    // local supervisor (no data, no identity).
+    // Behind Access every route (legacy `/api/*`, static files) needs the origin assertion; with
+    // Google sign-in, a verified allowlisted user. `/api/v1` routes additionally derive the caller's
+    // scope from the user's token. `/livez` is the process-level liveness probe for the local
+    // supervisor (no data, no identity). CORS (Google mode only) sits outside the check: preflights
+    // carry no token, and refusals must stay readable by the UI.
     let app = match args.auth {
         v1::io::AuthMode::Local => app,
-        v1::io::AuthMode::CloudflareAccess => app.layer(axum::middleware::from_fn(
-            move |req: axum::extract::Request, next: axum::middleware::Next| {
-                let access = access.clone();
-                async move { require_origin(access, req, next).await }
-            },
-        )),
+        v1::io::AuthMode::CloudflareAccess | v1::io::AuthMode::Google => {
+            app.layer(axum::middleware::from_fn(
+                move |req: axum::extract::Request, next: axum::middleware::Next| {
+                    let access = access.clone();
+                    async move { require_identity(access, req, next).await }
+                },
+            ))
+        }
     };
-    app.route("/livez", axum::routing::get(|| async { "ok" }))
-        .layer(TraceLayer::new_for_http())
+    let app = app.route("/livez", axum::routing::get(|| async { "ok" }));
+    let app = match args.auth {
+        v1::io::AuthMode::Google => app.layer(cors_layer(&args.google.cors_origins)),
+        _ => app,
+    };
+    app.layer(TraceLayer::new_for_http())
         .layer(tower::limit::ConcurrencyLimitLayer::new(256))
 }
 
-/// The Access verifier for `--auth cloudflare-access` (`None` in local mode, or when the
-/// configuration is invalid: then every request is refused, see [`run`] which refuses to start).
-fn access_verifier(args: &ServeArgs) -> Option<Arc<v1::access::AccessVerifier>> {
-    if args.auth != v1::io::AuthMode::CloudflareAccess {
-        return None;
-    }
-    match v1::access::AccessVerifier::new(&args.access) {
+/// Cross-origin access for a UI served from another origin (Vercel). Exact origins only (preview
+/// URLs change per deploy and are not wildcarded); none listed = no CORS headers. The credential is
+/// the bearer header, not a cookie, so `allow_credentials` stays off.
+fn cors_layer(origins: &[String]) -> tower_http::cors::CorsLayer {
+    use axum::http::{header, HeaderName, HeaderValue, Method};
+    let origins: Vec<HeaderValue> = origins
+        .iter()
+        .map(|o| o.trim().trim_end_matches('/'))
+        .filter(|o| !o.is_empty())
+        .filter_map(|o| match HeaderValue::from_str(o) {
+            Ok(v) if !o.contains('*') => Some(v),
+            _ => {
+                tracing::error!(origin = o, "CORS origin ignored (must be an exact origin)");
+                None
+            }
+        })
+        .collect();
+    tower_http::cors::CorsLayer::new()
+        .allow_origin(origins)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+        ])
+        .allow_headers([
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            HeaderName::from_static("last-event-id"),
+            HeaderName::from_static("idempotency-key"),
+        ])
+        .max_age(Duration::from_secs(600))
+}
+
+/// The identity verifier of the deployment (`None` in local mode, or when the configuration is
+/// invalid: then every request is refused, see [`run`] which refuses to start).
+fn access_verifier(args: &ServeArgs) -> Option<Arc<v1::access::Verifier>> {
+    let built = match args.auth {
+        v1::io::AuthMode::Local => return None,
+        v1::io::AuthMode::CloudflareAccess => {
+            v1::access::AccessVerifier::new(&args.access).map(v1::access::Verifier::Access)
+        }
+        v1::io::AuthMode::Google => {
+            v1::google::GoogleVerifier::new(&args.google).map(v1::access::Verifier::Google)
+        }
+    };
+    match built {
         Ok(v) => Some(Arc::new(v)),
         Err(e) => {
-            tracing::error!(error = %e, "Cloudflare Access is not configured; every request is refused");
+            tracing::error!(error = %e, "identity verification is not configured; every request is refused");
             None
         }
     }
 }
 
-async fn require_origin(
-    access: Option<Arc<v1::access::AccessVerifier>>,
+async fn require_identity(
+    access: Option<Arc<v1::access::Verifier>>,
     req: axum::extract::Request,
     next: axum::middleware::Next,
 ) -> axum::response::Response {
     use axum::response::IntoResponse;
     let checked = match &access {
         None => Err(v1::access::AccessError::Unavailable(
-            "access verification is not configured".into(),
+            "identity verification is not configured".into(),
         )),
-        Some(v) => {
-            let jwt = req
-                .headers()
-                .get(v1::access::ORIGIN_ASSERTION)
-                .and_then(|h| h.to_str().ok());
-            v.check_origin(jwt).await
-        }
+        Some(v) => v.admit(req.headers()).await,
     };
     match checked {
         Ok(()) => next.run(req).await,
@@ -423,7 +469,7 @@ fn v1_instance(
     name: &str,
     mcp: Option<&mut McpListener>,
     runner_report: v1::sandbox::RunnerReport,
-    access: Option<Arc<v1::access::AccessVerifier>>,
+    access: Option<Arc<v1::access::Verifier>>,
 ) -> Arc<v1::V1> {
     let (store, inner) = open_state(args, dir, name);
     let (artifacts, seed): (Arc<dyn ignis_core::services::ArtifactStore>, _) = match fixture {
@@ -594,8 +640,14 @@ pub fn run(args: ServeArgs, services: Services) -> anyhow::Result<()> {
     let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
-    if args.auth == v1::io::AuthMode::CloudflareAccess {
-        v1::access::AccessVerifier::new(&args.access).map_err(|e| anyhow::anyhow!(e))?;
+    match args.auth {
+        v1::io::AuthMode::Local => {}
+        v1::io::AuthMode::CloudflareAccess => {
+            v1::access::AccessVerifier::new(&args.access).map_err(|e| anyhow::anyhow!(e))?;
+        }
+        v1::io::AuthMode::Google => {
+            v1::google::GoogleVerifier::new(&args.google).map_err(|e| anyhow::anyhow!(e))?;
+        }
     }
     if args.artifact_backend == ops::ArtifactBackend::R2 {
         // Fail at start (the supervisor retries) rather than accept work it cannot store.

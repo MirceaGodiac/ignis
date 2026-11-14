@@ -140,6 +140,10 @@ pub enum AuthMode {
     /// every request ([`super::access`]); the user's e-mail in the verified user assertion is the
     /// principal. No unsigned header is trusted.
     CloudflareAccess,
+    /// Google sign-in: every request carries `Authorization: Bearer <Google ID token>`, verified
+    /// against Google's keys and the allowlist ([`super::google`]); the verified e-mail is the
+    /// principal. No other header is an identity.
+    Google,
 }
 
 /// The authenticated caller and the scope the host derives for it. Never read from a body.
@@ -176,8 +180,9 @@ pub fn research_scope(principal_key: &str, execute_code: bool) -> ExecutionScope
 
 pub trait HasAuth {
     fn auth(&self) -> AuthMode;
-    /// The Access verifier (`--auth cloudflare-access`); without one every request is refused.
-    fn access(&self) -> Option<&super::access::AccessVerifier>;
+    /// The identity verifier (`--auth cloudflare-access` or `google`); without one every request
+    /// is refused.
+    fn access(&self) -> Option<&super::access::Verifier>;
     /// Whether callers may run code (only in the isolated runner).
     fn execute_code(&self) -> bool {
         false
@@ -208,26 +213,18 @@ impl From<super::access::AccessError> for ApiError {
     }
 }
 
-fn header<'a>(parts: &'a Parts, name: &str) -> Option<&'a str> {
-    parts.headers.get(name).and_then(|v| v.to_str().ok())
-}
-
 impl<S: HasAuth + Send + Sync> FromRequestParts<S> for Caller {
     type Rejection = ApiError;
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, ApiError> {
         let key = match state.auth() {
             AuthMode::Local => "local".to_string(),
-            AuthMode::CloudflareAccess => {
+            AuthMode::CloudflareAccess | AuthMode::Google => {
                 let v = state
                     .access()
                     .ok_or(super::access::AccessError::Unavailable(
-                        "access verification is not configured".into(),
+                        "identity verification is not configured".into(),
                     ))?;
-                v.identify(
-                    header(parts, super::access::ORIGIN_ASSERTION),
-                    header(parts, super::access::USER_ASSERTION),
-                )
-                .await?
+                v.identify(&parts.headers).await?
             }
         };
         Ok(Caller {

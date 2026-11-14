@@ -46,6 +46,7 @@ async fn cli_and_server_produce_the_same_artifact() {
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: Default::default(),
+        google: Default::default(),
     };
     let router = app(
         args,

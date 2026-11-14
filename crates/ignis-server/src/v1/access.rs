@@ -79,13 +79,53 @@ struct Keys {
     attempted_at: Option<Instant>,
 }
 
+/// A published RS256 key set (JWKS) with its refresh policy, shared by the Cloudflare Access and
+/// Google verifiers.
+pub(super) struct KeySet {
+    certs_url: String,
+    keys: Arc<RwLock<Keys>>,
+}
+
 pub struct AccessVerifier {
     issuer: String,
-    certs_url: String,
     origin_aud: String,
     service_token_id: String,
     user_aud: String,
-    keys: Arc<RwLock<Keys>>,
+    keys: KeySet,
+}
+
+/// The identity check of a deployment: Cloudflare Access (Worker + Tunnel) or Google sign-in
+/// (static UI calling the API with a bearer ID token).
+#[derive(Debug)]
+pub enum Verifier {
+    Access(AccessVerifier),
+    Google(super::google::GoogleVerifier),
+}
+
+impl Verifier {
+    /// The principal key of a request (the verified e-mail, lowercased).
+    pub async fn identify(&self, h: &axum::http::HeaderMap) -> Result<String, AccessError> {
+        match self {
+            Verifier::Access(v) => {
+                v.identify(header(h, ORIGIN_ASSERTION), header(h, USER_ASSERTION))
+                    .await
+            }
+            Verifier::Google(v) => v.identify(header(h, "authorization")).await,
+        }
+    }
+
+    /// The check every route passes (legacy API and static files included): the origin assertion
+    /// behind Access, a verified allowlisted user with Google.
+    pub async fn admit(&self, h: &axum::http::HeaderMap) -> Result<(), AccessError> {
+        match self {
+            Verifier::Access(v) => v.check_origin(header(h, ORIGIN_ASSERTION)).await,
+            Verifier::Google(_) => self.identify(h).await.map(|_| ()),
+        }
+    }
+}
+
+fn header<'a>(h: &'a axum::http::HeaderMap, name: &str) -> Option<&'a str> {
+    h.get(name).and_then(|v| v.to_str().ok())
 }
 
 impl std::fmt::Debug for AccessVerifier {
@@ -115,15 +155,15 @@ impl AccessVerifier {
             ));
         }
         let v = AccessVerifier {
-            certs_url: a
-                .certs_url
-                .clone()
-                .unwrap_or_else(|| format!("{issuer}/cdn-cgi/access/certs")),
+            keys: KeySet::new(
+                a.certs_url
+                    .clone()
+                    .unwrap_or_else(|| format!("{issuer}/cdn-cgi/access/certs")),
+            ),
             origin_aud: need(&a.origin_aud, "--access-origin-aud")?,
             service_token_id: need(&a.service_token_id, "--access-service-token-id")?,
             user_aud: need(&a.user_aud, "--access-user-aud")?,
             issuer,
-            keys: Default::default(),
         };
         if v.origin_aud == v.user_aud {
             return Err("origin and UI must be separate Access applications (distinct AUD tags): a user JWT must not open the origin directly".into());
@@ -163,6 +203,25 @@ impl AccessVerifier {
         jwt: &str,
         aud: &str,
     ) -> Result<serde_json::Map<String, Value>, AccessError> {
+        self.keys.verify(jwt, &[self.issuer.as_str()], aud).await
+    }
+}
+
+impl KeySet {
+    pub(super) fn new(certs_url: String) -> Self {
+        KeySet {
+            certs_url,
+            keys: Default::default(),
+        }
+    }
+
+    /// Signature (RS256, published key), issuer (one of `issuers`), audience and validity window.
+    pub(super) async fn verify(
+        &self,
+        jwt: &str,
+        issuers: &[&str],
+        aud: &str,
+    ) -> Result<serde_json::Map<String, Value>, AccessError> {
         let t = Token::parse(jwt)?;
         let key = self.key(&t.kid).await?;
         ring::signature::RsaPublicKeyComponents {
@@ -175,7 +234,7 @@ impl AccessVerifier {
             &t.signature,
         )
         .map_err(|_| denied("bad signature"))?;
-        check_claims(&t.claims, &self.issuer, aud, now_s())?;
+        check_claims(&t.claims, issuers, aud, now_s())?;
         Ok(t.claims)
     }
 
@@ -207,7 +266,7 @@ impl AccessVerifier {
                     }
                 }
                 Err(e) => {
-                    tracing::error!(error = %e, "Cloudflare Access keys not fetched");
+                    tracing::error!(error = %e, url = %self.certs_url, "signing keys not fetched");
                     // A stale but known key still verifies until the endpoint answers again.
                     return hit.ok_or(AccessError::Unavailable(e));
                 }
@@ -218,7 +277,7 @@ impl AccessVerifier {
     }
 }
 
-fn denied(m: &str) -> AccessError {
+pub(super) fn denied(m: &str) -> AccessError {
     AccessError::Denied(m.to_string())
 }
 
@@ -276,12 +335,13 @@ impl Token {
 
 fn check_claims(
     c: &serde_json::Map<String, Value>,
-    issuer: &str,
+    issuers: &[&str],
     aud: &str,
     now: i64,
 ) -> Result<(), AccessError> {
-    if c.get("iss").and_then(Value::as_str) != Some(issuer) {
-        return Err(denied("wrong issuer"));
+    match c.get("iss").and_then(Value::as_str) {
+        Some(iss) if issuers.contains(&iss) => {}
+        _ => return Err(denied("wrong issuer")),
     }
     let aud_ok = match c.get("aud") {
         Some(Value::String(s)) => s == aud,
@@ -359,7 +419,7 @@ mod tests {
     #[test]
     fn claims_are_checked_strictly() {
         let iss = "https://t.cloudflareaccess.com";
-        let ok = |c: Value| check_claims(&claims(c), iss, "A", 1000);
+        let ok = |c: Value| check_claims(&claims(c), &[iss], "A", 1000);
         assert!(ok(serde_json::json!({"iss": iss, "aud": ["A"], "exp": 1100})).is_ok());
         assert!(
             ok(serde_json::json!({"iss": iss, "aud": "A", "exp": 990})).is_ok(),
@@ -396,7 +456,7 @@ mod tests {
         let v = AccessVerifier::new(&full).unwrap();
         assert_eq!(v.issuer, "https://t.cloudflareaccess.com");
         assert_eq!(
-            v.certs_url,
+            v.keys.certs_url,
             "https://t.cloudflareaccess.com/cdn-cgi/access/certs"
         );
         for broken in [

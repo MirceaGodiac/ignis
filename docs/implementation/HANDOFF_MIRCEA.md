@@ -113,6 +113,18 @@ hash-ul fiecărui request, restore al unui store viu pe volum gol, upload prin `
 (neprovizionate), gVisor pe VM-ul GCE, RPO/RTO. Riscul socket-ului Docker în containerul `ignis` e
 documentat în runbook.
 
+Livrat în M4 (Google sign-in, branch `feat/google-auth`, ADR 18): domeniul nu poate fi delegat la
+Cloudflare, deci Tunnel/Access nu sunt disponibile. `--auth google` (`v1::google`): fiecare rută în
+afară de `/livez` cere `Authorization: Bearer <Google ID token>`, verificat RS256 pe JWKS-ul Google
+(același `KeySet` ca Access), `iss` Google, `aud` = client id, `email_verified`, allowlist pe e-mail
+exact sau pe `hd` semnat; serverul nu pornește cu allowlist gol. CORS doar pentru originile exacte
+(`IGNIS_CORS_ORIGINS`), fără wildcard, fără credentials. UI: `web/src/auth.ts` (GIS, token doar în
+memorie, refresh înainte de expirare, retry o dată pe 401), activ doar cu `VITE_GOOGLE_CLIENT_ID`;
+`web/vercel.json`. Infra: `compose.google.yaml` (Caddy TLS + ACME, `cloudflared` scos prin profil),
+`Caddyfile`, runbook §Google sign-in. Ambele moduri rămân deployabile. Teste offline:
+`tests/google.rs` (tokenuri semnate pe JWKS local). **Neverificate:** sign-in-ul real cu Google,
+Caddy pornit, clientul OAuth/IP/DNS/firewall/Vercel (neprovizionate).
+
 ## 4. Fișiere deținute
 
 `crates/ignis-server/`, `crates/ignis-research/`, `crates/ignis-mcp/`, `crates/ignis-cli/src/main.rs`,

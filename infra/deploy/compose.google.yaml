@@ -1,0 +1,46 @@
+# Google sign-in variant of the origin (infra/README.md §Google sign-in): the UI is a static site
+# elsewhere (Vercel) that calls https://${IGNIS_API_HOSTNAME}/api/* with a Google ID token. Caddy
+# terminates TLS (automatic ACME certificate for the hostname) and proxies to ignis:8787; the tunnel
+# connector is not started. Use with the base file:
+#   docker compose -f infra/deploy/compose.yaml -f infra/deploy/compose.google.yaml ...
+# Needs: a DNS A record for IGNIS_API_HOSTNAME -> the host's static IP, and inbound tcp/80 (ACME
+# HTTP-01) + tcp/443 open to the internet. CLOUDFLARED_IMAGE must still be set (Compose interpolates
+# the whole base file); the service itself stays off.
+services:
+  ignis:
+    environment:
+      IGNIS_AUTH: google
+      # IGNIS_GOOGLE_CLIENT_ID, IGNIS_ALLOWED_EMAILS / IGNIS_ALLOWED_DOMAINS and IGNIS_CORS_ORIGINS
+      # (the exact Vercel production origin) come from the env file (ignis.env.example).
+
+  cloudflared:
+    profiles: [cloudflare-tunnel]
+    env_file: !reset []
+
+  caddy:
+    # Pin by digest in releases, like the other images (caddy@sha256:...).
+    image: ${CADDY_IMAGE:?set CADDY_IMAGE (caddy@sha256:...)}
+    environment:
+      IGNIS_API_HOSTNAME: ${IGNIS_API_HOSTNAME:?set IGNIS_API_HOSTNAME (e.g. api.example.org)}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates and ACME account; keep them across restarts (rate limits).
+      - /srv/ignis/caddy/data:/data
+      - /srv/ignis/caddy/config:/config
+    depends_on:
+      ignis:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    networks: [origin]
+    restart: unless-stopped
+    logging:
+      driver: journald
+      options:
+        tag: caddy

@@ -99,6 +99,7 @@ jobs:
           echo "TUNNEL_TOKEN=x" > "$d/cloudflared.env"
           mkdir "$d/secrets" && touch "$d/secrets/CODEX_API_KEY" "$d/secrets/IGNIS_R2_SECRET_ACCESS_KEY"
           IGNIS_IMAGE=ignis-server@sha256:0000 CLOUDFLARED_IMAGE=cloudflare/cloudflared@sha256:0000 DOCKER_GID=999           IGNIS_ENV_FILE="$d/ignis.env" CLOUDFLARED_ENV_FILE="$d/cloudflared.env" IGNIS_SECRETS_DIR="$d/secrets"             docker compose -f infra/deploy/compose.yaml config -q
+          IGNIS_IMAGE=ignis-server@sha256:0000 CLOUDFLARED_IMAGE=cloudflare/cloudflared@sha256:0000 DOCKER_GID=999           IGNIS_ENV_FILE="$d/ignis.env" CLOUDFLARED_ENV_FILE="$d/cloudflared.env" IGNIS_SECRETS_DIR="$d/secrets"             CADDY_IMAGE=caddy@sha256:0000 IGNIS_API_HOSTNAME=api.example.org             docker compose -f infra/deploy/compose.yaml -f infra/deploy/compose.google.yaml config -q
       - name: systemd units
         run: |
           # Only the unit syntax; the referenced paths exist on the deployed host, not here.

@@ -1,0 +1,18 @@
+# TLS front of the API for --auth google (compose.google.yaml). Identity is checked by ignis on
+# every route except /livez; Caddy only terminates TLS and proxies.
+{
+	admin off
+}
+
+{$IGNIS_API_HOSTNAME} {
+	encode zstd gzip
+	reverse_proxy ignis:8787 {
+		# Stream SSE and large artifacts as they come (no response buffering).
+		flush_interval -1
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		-Server
+	}
+}
