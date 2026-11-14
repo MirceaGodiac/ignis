@@ -1,0 +1,21 @@
+{
+  "schema_version": "research.v2",
+  "problems": [
+    {
+      "kind": "unknown_evidence",
+      "claim_id": "fixture-claim-01",
+      "detail": "Synthetic fixture: evidence fixture-evidence-09 was not returned by any tool result in this episode; cite an evidence id from sources_search or sources_read."
+    },
+    {
+      "kind": "kind_support_mismatch",
+      "claim_id": "fixture-claim-02",
+      "detail": "Synthetic fixture: observed claim fixture-claim-02 cites an AnalysisArtifact value; cite the measured value's evidence, or make it a predicted claim."
+    },
+    {
+      "kind": "unpinned_release",
+      "block": 4,
+      "detail": "Synthetic fixture: the release card shows a release the episode has not pinned; pin it or remove the card."
+    }
+  ],
+  "origin": "synthetic_fixture"
+}

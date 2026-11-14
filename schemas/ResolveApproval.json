@@ -1,0 +1,26 @@
+{
+  "$defs": {
+    "HostDecision": {
+      "description": "A host decision on an approval the runtime requested: the subset of [`ApprovalDecision`] a\nperson may send (`expired` and `cancelled` are the host's own).",
+      "enum": [
+        "approved",
+        "denied"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ResolveApproval",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`POST /api/v1/episodes/{id}/approvals/{approval_id}`.",
+  "properties": {
+    "decision": {
+      "$ref": "#/$defs/HostDecision"
+    }
+  },
+  "required": [
+    "decision"
+  ],
+  "title": "ResolveApproval",
+  "type": "object"
+}
