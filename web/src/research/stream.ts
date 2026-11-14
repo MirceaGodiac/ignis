@@ -32,6 +32,8 @@ export interface FollowOptions {
   maxIdleReconnects?: number;
   backoffMs?: (attempt: number) => number;
   sleep?: (ms: number, signal: AbortSignal) => Promise<void>;
+  /** Quiet time after a terminal status before the stream is closed (ms). */
+  settleMs?: number;
 }
 
 const TERMINAL: EpisodeStatus[] = ["completed", "failed", "cancelled"];
@@ -61,6 +63,7 @@ export async function followEpisode(transport: StreamTransport, initial: Episode
   const maxIdle = opt.maxIdleReconnects ?? 5;
   const backoff = opt.backoffMs ?? ((n: number) => Math.min(250 * 2 ** n, 5000));
   const sleep = opt.sleep ?? defaultSleep;
+  const settleMs = opt.settleMs ?? 1500;
   let state = initial;
   let idle = 0;
 
@@ -124,10 +127,23 @@ export async function followEpisode(transport: StreamTransport, initial: Episode
     const decoder = new TextDecoder();
     const parser = new SseParser();
     let progressed = false;
+    let finished = false;
     let reconnect = false;
     try {
       while (!reconnect) {
-        const { value, done } = await reader.read();
+        // The server keeps the stream open after a terminal status (a later message can reopen the
+        // episode). A replayed history may also pass through a terminal status and continue. So stop
+        // only when the status is terminal AND nothing more arrives within the settle window.
+        const terminal = state.status !== null && TERMINAL.includes(state.status);
+        const next = reader.read();
+        const r0 = terminal
+          ? await Promise.race([next, new Promise<"settled">((res) => setTimeout(() => res("settled"), settleMs))])
+          : await next;
+        if (r0 === "settled") {
+          finished = true;
+          break;
+        }
+        const { value, done } = r0;
         if (done) break;
         for (const frame of parser.push(decoder.decode(value, { stream: true }))) {
           let ev: ResearchEvent;
@@ -158,6 +174,8 @@ export async function followEpisode(transport: StreamTransport, initial: Episode
       reader.cancel().catch(() => {});
     }
     if (!reconnect) notice({ kind: "ended", cursor: state.cursor });
+    // Settled: the stream stayed quiet for the settle window after a terminal status.
+    if (finished) return state;
     // A stream that closed at a terminal status with nothing new: the episode is settled. When it
     // brought events, reconnect once more, in case the connection dropped before the rest of the log.
     if (!reconnect && !progressed && state.status && TERMINAL.includes(state.status)) return state;
