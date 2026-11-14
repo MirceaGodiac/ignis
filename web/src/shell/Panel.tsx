@@ -439,16 +439,20 @@ function ArtifactItem({ artifact, caption }: { artifact: ArtifactRef; caption?: 
 // ---------------------------------------------------------------- route step
 
 /** A refused `answer_submit` (K1.3): every problem the host found, so the agent (and the reader) see what to fix. */
-function SubmissionRefusal({ refs }: { refs: ArtifactRef[] }) {
+function SubmissionRefusal({ refusalRef, fallback }: { refusalRef: ArtifactRef; fallback: string | null }) {
   const { client, researchMode } = useData();
-  const ref = refs.find((a) => a.contract === "AnswerRefusal");
-  const q = useQuery({ queryKey: [researchMode, "artifact", ref?.artifact_id], queryFn: () => client.getArtifactJson(ref!.artifact_id) as Promise<AnswerRefusal>, enabled: !!ref, retry: false, staleTime: Infinity });
-  if (!ref) return null;
+  const q = useQuery({ queryKey: [researchMode, "artifact", refusalRef.artifact_id], queryFn: () => client.getArtifactJson(refusalRef.artifact_id) as Promise<AnswerRefusal>, retry: false, staleTime: Infinity });
   return (
     <div className="panel-sec">
       <h3>Why the answer was refused</h3>
-      {q.error && <ErrorNote error={q.error} title="The refusal could not be read" />}
+      {q.isPending && <p className="muted small">Reading the refusal…</p>}
       {q.data && <RefusalProblems refusal={q.data} />}
+      {q.error && (
+        <>
+          <ErrorNote error={q.error} title="The refusal artifact could not be read; the tool's message follows" />
+          {fallback && <p className="small" style={{ whiteSpace: "pre-wrap" }}>{fallback}</p>}
+        </>
+      )}
     </div>
   );
 }
@@ -505,6 +509,9 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
   const panel = usePanel();
   const { synthetic } = useData();
   const r = item.call.result;
+  // A refused answer_submit carries its problems as an AnswerRefusal artifact (M7); the error message
+  // repeats them as text, so it is shown only when that artifact cannot be read.
+  const refusalRef = r?.tool === "answer_submit" && r.execution_status === "refused" ? (r.artifact_refs ?? []).find((a) => a.contract === "AnswerRefusal") ?? null : null;
   return (
     <>
       <div className="panel-sec">
@@ -565,8 +572,8 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
         </div>
       )}
       {r?.result && <Payload payload={r.result} onArtifact={(a) => panel.push({ kind: "artifact", artifact: a })} />}
-      {r?.tool === "answer_submit" && r.execution_status === "refused" && <SubmissionRefusal refs={r.artifact_refs ?? []} />}
-      {r?.error && (
+      {refusalRef && <SubmissionRefusal refusalRef={refusalRef} fallback={r?.error?.message ?? null} />}
+      {r?.error && !refusalRef && (
         <div className="note note-refusal">
           <b>
             Tool error <code>{r.error.code}</code>
