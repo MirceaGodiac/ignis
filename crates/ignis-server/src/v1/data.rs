@@ -16,9 +16,31 @@
 //! opened outside an evaluation scope, and conditions of a run in a non-granted partition are
 //! withheld. Conditions keep their statuses (`value`, `conflicting`, `missing`, `not_applicable`)
 //! with raw value, raw unit, SI value and locator exactly as the service returns them.
+//!
+//! **Citable answers.** These responses are shaped for a later host-side numeric grounding check
+//! (a number in an answer binds to a reference that resolves against pinned data and must match;
+//! the check itself is not here):
+//! - *Snapshot.* Every bundle and conditions answer names the data it was read from:
+//!   `x-ignis-snapshot` (also the `ETag`) is the bundle's `content_digest` for `/datasets/{id}` and
+//!   its views, and the service's `conditions_snapshot` for `/runs*` and `/conditions` (read before
+//!   and after the query; a change in between is a `409`, never a mixed answer). Page entries of
+//!   `GET /datasets` carry their `content_digest`. Any cache keyed on these routes includes it.
+//! - *Rows by identity, never by position.* A conditions row is `(investigation_id, run.run_id)`;
+//!   a row without a run id (investigation-level test point) is addressed by its cells' source
+//!   locators. A Parquet view row is addressed by the columns of role `run_id` and `locator`
+//!   ([`DatasetEntry::row_identity`]); page offsets and row indices are never references.
+//! - *Columns by name.* Condition keys are a closed enum: an unknown key fails with the permitted
+//!   names; an unknown view fails with the bundle's view names; view columns are the bundle's
+//!   `ColumnSpec` names.
+//! - *Cells.* Raw value, raw unit, SI value, status and source locator, as the service returns them.
 
+use std::collections::BTreeMap;
 use std::io::Read;
 use std::sync::Arc;
+
+use aide::generate::GenContext;
+use aide::openapi::{Operation, Response as ApiResponse, StatusCode as ApiStatus};
+use aide::operation::OperationOutput;
 
 use aide::axum::routing::{get_with, post_with};
 use aide::axum::ApiRouter;
@@ -27,8 +49,9 @@ use axum::http::{header, HeaderValue, StatusCode};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use ignis_core::contracts::{
-    Capability, ConditionsQuery, ConditionsTable, DatasetBundle, DatasetId, DatasetSchema,
-    ErrorCode, ErrorEnvelope, ExecutionScope, PageCursor, RunId,
+    Capability, ColumnRole, ConditionsQuery, ConditionsTable, DatasetBundle, DatasetId,
+    DatasetSchema, Digest, ErrorCode, ErrorEnvelope, ExecutionScope, PageCursor, RetryPolicy,
+    RunId,
 };
 use ignis_core::services::DatasetService;
 use schemars::JsonSchema;
@@ -91,11 +114,84 @@ pub(super) fn streams() -> ApiRouter<Arc<V1>> {
 /// A page of dataset bundles, ordered by `dataset_id`.
 #[derive(Debug, Serialize, JsonSchema)]
 pub struct DatasetPage {
-    pub items: Vec<DatasetBundle>,
+    pub items: Vec<DatasetEntry>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_cursor: Option<PageCursor>,
     /// Bundles the scope may read, over all pages.
     pub total_count: u64,
+}
+
+/// One bundle with what a citation of its data needs.
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct DatasetEntry {
+    /// `DatasetBundle::content_digest`: the version a reference into this bundle resolves against.
+    pub content_digest: Digest,
+    /// Per view, the columns whose values identify a row (roles `run_id` and `locator`).
+    pub row_identity: BTreeMap<String, Vec<String>>,
+    pub bundle: DatasetBundle,
+}
+
+impl DatasetEntry {
+    fn of(bundle: DatasetBundle) -> Self {
+        let row_identity = bundle
+            .views
+            .iter()
+            .map(|v| {
+                let cols = v
+                    .columns
+                    .iter()
+                    .filter(|c| matches!(c.role, ColumnRole::RunId | ColumnRole::Locator))
+                    .map(|c| c.name.clone())
+                    .collect();
+                (v.name.clone(), cols)
+            })
+            .collect();
+        DatasetEntry {
+            content_digest: bundle.content_digest(),
+            row_identity,
+            bundle,
+        }
+    }
+}
+
+/// A JSON answer with the identity of the data it was read from (`x-ignis-snapshot`, `ETag`).
+pub struct Snapshotted<T>(pub Digest, pub T);
+
+fn snapshot_headers(h: &mut axum::http::HeaderMap, d: &Digest) {
+    if let Ok(v) = HeaderValue::from_str(d.as_str()) {
+        h.insert("x-ignis-snapshot", v);
+    }
+    if let Ok(v) = HeaderValue::from_str(&format!("\"{}\"", d.as_str())) {
+        h.insert(header::ETAG, v);
+    }
+    // Caches revalidate, so a stored answer is keyed on its snapshot.
+    h.insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static("private, no-cache"),
+    );
+}
+
+impl<T: Serialize> IntoResponse for Snapshotted<T> {
+    fn into_response(self) -> Response {
+        let mut r = Json(self.1).into_response();
+        snapshot_headers(r.headers_mut(), &self.0);
+        r
+    }
+}
+
+impl<T: JsonSchema> OperationOutput for Snapshotted<T> {
+    type Inner = T;
+
+    fn operation_response(ctx: &mut GenContext, op: &mut Operation) -> Option<ApiResponse> {
+        Json::<T>::operation_response(ctx, op)
+    }
+
+    fn inferred_responses(
+        ctx: &mut GenContext,
+        op: &mut Operation,
+    ) -> Vec<(Option<ApiStatus>, ApiResponse)> {
+        Json::<T>::inferred_responses(ctx, op)
+    }
 }
 
 #[derive(Deserialize, JsonSchema)]
@@ -192,7 +288,12 @@ async fn list_datasets(
     let size = q.page_size.map_or(DEFAULT_PAGE, |n| n as usize);
     let all = blocking(move || d.datasets(&c.scope)).await?;
     let total = all.len();
-    let items: Vec<DatasetBundle> = all.into_iter().skip(offset).take(size).collect();
+    let items: Vec<DatasetEntry> = all
+        .into_iter()
+        .skip(offset)
+        .take(size)
+        .map(DatasetEntry::of)
+        .collect();
     let next = offset + items.len();
     Ok(Json(DatasetPage {
         next_cursor: (next < total && !items.is_empty())
@@ -206,10 +307,19 @@ async fn get_dataset(
     State(v): St,
     c: Caller,
     Path(p): Path<DatasetPath>,
-) -> ApiResult<Json<DatasetBundle>> {
+) -> ApiResult<Snapshotted<DatasetBundle>> {
     let d = datasets(&v)?;
     read_data(&c.scope)?;
-    Ok(Json(blocking(move || d.dataset(&c.scope, &p.id)).await?))
+    let b = blocking(move || d.dataset(&c.scope, &p.id)).await?;
+    Ok(Snapshotted(b.content_digest(), b))
+}
+
+fn changed(what: &str) -> ApiError {
+    ApiError::from(ErrorEnvelope::new(
+        ErrorCode::Conflict,
+        format!("{what} changed during the read; retry"),
+        RetryPolicy::Reconcile,
+    ))
 }
 
 async fn read_view(
@@ -221,8 +331,20 @@ async fn read_view(
     let d = datasets(&v)?;
     read_data(&c.scope)?;
     let offset = q.offset.unwrap_or(0);
-    let (meta, reader) =
-        blocking(move || d.open_view(&c.scope, &p.id, &p.view, offset, q.len)).await?;
+    let (bundle, meta, reader) = blocking(move || {
+        let b = d.dataset(&c.scope, &p.id)?;
+        let (meta, r) = d.open_view(&c.scope, &p.id, &p.view, offset, q.len)?;
+        Ok((b, meta, r))
+    })
+    .await?;
+    // The bytes are a view artifact of exactly the bundle version named in the headers.
+    if !bundle
+        .views
+        .iter()
+        .any(|v| v.artifact.sha256 == meta.sha256)
+    {
+        return Err(changed("the bundle"));
+    }
     let remaining = meta.byte_length.saturating_sub(offset);
     let length = q.len.map_or(remaining, |l| l.min(remaining));
     // Each chunk is read on the blocking pool; the reader moves in and out of the task.
@@ -264,6 +386,7 @@ async fn read_view(
     if let Ok(v) = meta.artifact_id.as_str().parse() {
         h.insert("x-ignis-artifact-id", v);
     }
+    snapshot_headers(h, &bundle.content_digest());
     Ok(resp)
 }
 
@@ -281,51 +404,61 @@ fn conditions_query(investigation: Option<String>, runs: Vec<RunId>) -> Conditio
     }
 }
 
+/// The page and the snapshot it was read from (taken before and after: never a mixed answer).
 async fn conditions(
     v: &V1,
     scope: ExecutionScope,
     q: ConditionsQuery,
-) -> ApiResult<ConditionsTable> {
+) -> ApiResult<Snapshotted<ConditionsTable>> {
     let d = datasets(v)?;
     read_data(&scope)?;
     q.validate()
         .map_err(|e| ApiError::from(ErrorEnvelope::from(e)))?;
-    blocking(move || d.conditions(&scope, &q)).await
+    let (before, t, after) = blocking(move || {
+        let before = d.conditions_snapshot(&scope)?;
+        let t = d.conditions(&scope, &q)?;
+        Ok((before, t, d.conditions_snapshot(&scope)?))
+    })
+    .await?;
+    if before != after {
+        return Err(changed("the conditions data"));
+    }
+    Ok(Snapshotted(before, t))
 }
 
 async fn list_runs(
     State(v): St,
     c: Caller,
     Query(q): Query<RunsQuery>,
-) -> ApiResult<Json<ConditionsTable>> {
+) -> ApiResult<Snapshotted<ConditionsTable>> {
     let mut cq = conditions_query(q.investigation_id, vec![]);
     cq.page_size = q.page_size;
     cq.cursor = q.cursor;
     cq.include_envelopes = q.include_envelopes;
-    Ok(Json(conditions(&v, c.scope, cq).await?))
+    conditions(&v, c.scope, cq).await
 }
 
 async fn get_run(
     State(v): St,
     c: Caller,
     Path(p): Path<RunPath>,
-) -> ApiResult<Json<ConditionsTable>> {
+) -> ApiResult<Snapshotted<ConditionsTable>> {
     let id = p.id.clone();
     let t = conditions(&v, c.scope, conditions_query(None, vec![p.id])).await?;
     // Absent and withheld look the same: a run in a partition the scope lacks is not revealed.
-    if t.rows.is_empty() {
+    if t.1.rows.is_empty() {
         return Err(ApiError::new(
             ErrorCode::NotFound,
             format!("run {id} has no conditions this scope can read"),
         ));
     }
-    Ok(Json(t))
+    Ok(t)
 }
 
 async fn query_conditions(
     State(v): St,
     c: Caller,
     Body(q): Body<ConditionsQuery>,
-) -> ApiResult<Json<ConditionsTable>> {
-    Ok(Json(conditions(&v, c.scope, q).await?))
+) -> ApiResult<Snapshotted<ConditionsTable>> {
+    conditions(&v, c.scope, q).await
 }

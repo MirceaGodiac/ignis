@@ -37,6 +37,9 @@ fn repo() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
+/// Serializes the tests that read (or rewrite) the shared `IGNIS_DATA` files.
+static DATA: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
 /// `IGNIS_DATA` for this test binary: the real split plus a synthetic conditions table whose two
 /// rows are a train run and a test run of that split. Set once, before any request.
 fn data_root() -> &'static Path {
@@ -309,7 +312,7 @@ async fn datasets_are_paginated_metadata_and_views_stream_as_parquet() {
         .as_array()
         .unwrap()
         .iter()
-        .map(|b| b["dataset_id"].as_str().unwrap())
+        .map(|e| e["bundle"]["dataset_id"].as_str().unwrap())
         .collect();
     assert_eq!(
         ids,
@@ -402,12 +405,16 @@ async fn datasets_are_paginated_metadata_and_views_stream_as_parquet() {
     )
     .await;
     assert_eq!(p2["items"].as_array().unwrap().len(), 1);
-    assert_ne!(p1["items"][0]["dataset_id"], p2["items"][0]["dataset_id"]);
+    assert_ne!(
+        p1["items"][0]["bundle"]["dataset_id"],
+        p2["items"][0]["bundle"]["dataset_id"]
+    );
     assert!(p2.get("next_cursor").is_none());
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn held_out_partitions_never_reach_a_research_caller() {
+    let _data = DATA.lock().await;
     data_root();
     let dir = tempfile::tempdir().unwrap();
     let s = store(dir.path());
@@ -478,6 +485,7 @@ async fn held_out_partitions_never_reach_a_research_caller() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn conditions_keep_statuses_raw_si_and_locator() {
+    let _data = DATA.lock().await;
     data_root();
     let dir = tempfile::tempdir().unwrap();
     let s = store(dir.path());
@@ -566,8 +574,11 @@ async fn fixture_mode_serves_the_synthetic_dataset_and_conditions() {
     let base = "/api/fixtures/v1";
     let (st, page) = call(&r, "GET", &format!("{base}/datasets"), None).await;
     assert_eq!(st, StatusCode::OK, "{page}");
-    assert_eq!(page["items"][0]["origin"], "synthetic_fixture");
-    let id = page["items"][0]["dataset_id"].as_str().unwrap().to_string();
+    assert_eq!(page["items"][0]["bundle"]["origin"], "synthetic_fixture");
+    let id = page["items"][0]["bundle"]["dataset_id"]
+        .as_str()
+        .unwrap()
+        .to_string();
     let (st, b) = call(&r, "GET", &format!("{base}/datasets/{id}"), None).await;
     assert_eq!(
         (st, b["origin"].as_str()),
@@ -600,4 +611,100 @@ async fn fixture_mode_serves_the_synthetic_dataset_and_conditions() {
     assert_eq!(t["rows"][0]["run"]["run_id"], "fixture-run-02");
     let (st, _) = call(&r, "GET", &format!("{base}/runs/fixture-run-99"), None).await;
     assert_eq!(st, StatusCode::NOT_FOUND);
+}
+
+/// The M11 answers are shaped for a later host-side numeric grounding check (not built here):
+/// each names the data version it was read from, rows are addressed by identity columns, unknown
+/// names fail with the permitted ones, and a change of the underlying data changes the snapshot.
+#[tokio::test(flavor = "multi_thread")]
+async fn answers_are_citable_against_a_named_snapshot() {
+    let _data = DATA.lock().await;
+    let root = data_root();
+    let dir = tempfile::tempdir().unwrap();
+    let s = store(dir.path());
+    let r = router(dir.path(), Some(s.service.clone()));
+    let train = &s.train.bundle;
+    let digest = train.content_digest();
+
+    // datasets: page entries carry the content digest and per-view row identity columns
+    let (_, page) = call(&r, "GET", "/api/v1/datasets", None).await;
+    let e = &page["items"][0];
+    assert_eq!(e["content_digest"], digest.as_str());
+    for v in &train.views {
+        let ids = e["row_identity"][&v.name].as_array().unwrap();
+        assert!(!ids.is_empty(), "view {} has no identity columns", v.name);
+        for c in ids {
+            assert!(v.columns.iter().any(|col| col.name == c.as_str().unwrap()));
+        }
+        assert!(
+            ids.iter().any(|c| c == "run_id"),
+            "{}: rows are addressed by run id",
+            v.name
+        );
+    }
+    let path = format!("/api/v1/datasets/{}", train.dataset_id);
+    let (st, h, _) = raw(&r, "GET", &path, None).await;
+    assert_eq!(st, StatusCode::OK);
+    assert_eq!(h["x-ignis-snapshot"], digest.as_str());
+    assert_eq!(h["etag"].to_str().unwrap(), format!("\"{digest}\""));
+    let (st, h, _) = raw(&r, "GET", &format!("{path}/views/runs"), None).await;
+    assert_eq!(st, StatusCode::OK);
+    assert_eq!(h["x-ignis-snapshot"], digest.as_str());
+    // an unknown view fails closed and names the permitted ones
+    let (st, e) = call(&r, "GET", &format!("{path}/views/nope"), None).await;
+    assert_eq!(st, StatusCode::NOT_FOUND);
+    let msg = e["message"].as_str().unwrap();
+    assert!(
+        msg.contains("obs_liquid_diameter") && msg.contains("runs"),
+        "{msg}"
+    );
+
+    // conditions: one snapshot across routes, equal to the service's
+    let want = s
+        .service
+        .conditions_snapshot(&ignis_server::v1::io::research_scope("local", false))
+        .unwrap();
+    let (st, h, b) = raw(&r, "GET", "/api/v1/runs", None).await;
+    assert_eq!(st, StatusCode::OK);
+    assert_eq!(h["x-ignis-snapshot"], want.as_str());
+    let q = json!({"schema_version": "dataset.v2", "keys": ["pressure"]});
+    let (_, h2, _) = raw(&r, "POST", "/api/v1/conditions", Some(q)).await;
+    assert_eq!(h2["x-ignis-snapshot"], want.as_str());
+    let (_, h3, _) = raw(&r, "GET", &format!("/api/v1/runs/{}", enc(TRAIN_RUN)), None).await;
+    assert_eq!(h3["x-ignis-snapshot"], want.as_str());
+    // rows are distinct by (investigation_id, run_id)
+    let t: Value = serde_json::from_slice(&b).unwrap();
+    let keys: std::collections::BTreeSet<(String, String)> = t["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| {
+            (
+                r["investigation_id"].to_string(),
+                r["run"]["run_id"].to_string(),
+            )
+        })
+        .collect();
+    assert_eq!(keys.len(), t["rows"].as_array().unwrap().len());
+    // an unknown condition key fails closed and names the permitted keys
+    let q = json!({"schema_version": "dataset.v2", "keys": ["flame_colour"]});
+    let (st, e) = call(&r, "POST", "/api/v1/conditions", Some(q)).await;
+    assert_eq!(st, StatusCode::UNPROCESSABLE_ENTITY);
+    let msg = e["message"].as_str().unwrap();
+    assert!(
+        msg.contains("flame_colour") && msg.contains("pressure"),
+        "{msg}"
+    );
+
+    // the same answer after a change to the data names a different snapshot
+    let table = root.join("work/conditions/conditions_table.json");
+    let before = std::fs::read(&table).unwrap();
+    let mut t: Value = serde_json::from_slice(&before).unwrap();
+    t["rows"][0]["cells"][1]["value"]["value_si"] = json!(101353.0);
+    std::fs::write(&table, serde_json::to_vec_pretty(&t).unwrap()).unwrap();
+    let (_, h4, _) = raw(&r, "GET", "/api/v1/runs", None).await;
+    std::fs::write(&table, &before).unwrap();
+    assert_ne!(h4["x-ignis-snapshot"], want.as_str());
+    let (_, h5, _) = raw(&r, "GET", "/api/v1/runs", None).await;
+    assert_eq!(h5["x-ignis-snapshot"], want.as_str());
 }
