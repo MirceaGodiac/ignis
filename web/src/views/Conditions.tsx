@@ -2,11 +2,12 @@
 //   1. How near does each investigation's tested envelope come to the Moon/rover, suit and ISS
 //      atmospheres? (reached, outside by how much, or not decidable; never extrapolated)
 //   2. Which conditions did each run record? (value with its original's locator, or an explicit gap)
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
 import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, PARTIAL_G, PSI_PA, rankFor, type HabitatId, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
 import { flagTags, quotedText } from "../research/conditionCells";
+import { rowWindow } from "../research/windowing";
 import { useData } from "../shell/data";
 import { ErrorNote, EvidenceClassTag, Gap, OriginMark, words } from "../ui/common";
 
@@ -243,8 +244,39 @@ function locText(l: SourceLocator | null | undefined): string {
   return "asset";
 }
 
+/** From this many rows, the matrix scrolls in its own frame and renders only the rows in view. */
+const WINDOW_FROM = 300;
+const ROW_HEIGHT = 33; // .tbl td height 32px + 1px border; measured below once rows exist
+
 export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
   const [picked, setPicked] = useState<Picked | null>(null);
+  const windowed = t.rows.length >= WINDOW_FROM;
+  const frame = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState({ top: 0, height: 600, rowH: ROW_HEIGHT });
+  useEffect(() => {
+    const el = frame.current;
+    if (!el || !windowed) return;
+    let raf = 0;
+    const read = () => {
+      const row = el.querySelector<HTMLTableRowElement>("tbody tr[aria-rowindex]");
+      const rowH = row?.getBoundingClientRect().height || ROW_HEIGHT;
+      setView({ top: el.scrollTop, height: el.clientHeight, rowH });
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(read);
+    };
+    read();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(el);
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
+  }, [windowed]);
+  const w = windowed ? rowWindow(view.top, view.height, view.rowH, t.rows.length) : { start: 0, end: t.rows.length, top: 0, bottom: 0 };
   // Stable across renders, so a click re-renders only the rows whose selection changed (memo below).
   const pick = useCallback((p: Picked) => setPicked((cur) => (cur && cur.run === p.run && cur.cell.key === p.cell.key ? null : p)), []);
   return (
@@ -252,10 +284,10 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
       <p className="muted small">
         Inputs, not outcomes. Each value keeps its original's locator; gaps are marked, never filled. {t.total_count != null && `${t.rows.length} of ${t.total_count} runs.`}
       </p>
-      <div className="tbl-wrap">
-        <table className="tbl">
+      <div className="tbl-wrap" ref={frame} style={windowed ? { maxHeight: "70vh", overflowY: "auto" } : undefined}>
+        <table className="tbl" aria-rowcount={t.rows.length + 1}>
           <thead>
-            <tr>
+            <tr aria-rowindex={1}>
               <th>Investigation</th>
               <th>Run</th>
               {t.keys.map((k) => (
@@ -264,11 +296,14 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
             </tr>
           </thead>
           <tbody>
-            {t.rows.map((r, i) => {
+            {w.top > 0 && <tr aria-hidden="true" style={{ height: w.top }} />}
+            {t.rows.slice(w.start, w.end).map((r, j) => {
+              const i = w.start + j;
               // A run whose identity is not resolved has no id; it is listed, never merged with another.
               const run = r.run.run_id ?? `unresolved run (row ${i + 1})`;
-              return <MatrixRow key={`${r.investigation_id}/${run}`} row={r} run={run} keys={t.keys} pickedKey={picked?.run === run ? picked.cell.key : null} onPick={pick} />;
+              return <MatrixRow key={`${r.investigation_id}/${run}`} index={i + 2} row={r} run={run} keys={t.keys} pickedKey={picked?.run === run ? picked.cell.key : null} onPick={pick} />;
             })}
+            {w.bottom > 0 && <tr aria-hidden="true" style={{ height: w.bottom }} />}
           </tbody>
         </table>
       </div>
@@ -277,9 +312,9 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
   );
 }
 
-const MatrixRow = memo(function MatrixRow({ row: r, run, keys, pickedKey, onPick }: { row: ConditionsRow; run: string; keys: ConditionKey[]; pickedKey: ConditionKey | null; onPick: (p: Picked) => void }) {
+const MatrixRow = memo(function MatrixRow({ index, row: r, run, keys, pickedKey, onPick }: { index: number; row: ConditionsRow; run: string; keys: ConditionKey[]; pickedKey: ConditionKey | null; onPick: (p: Picked) => void }) {
   return (
-    <tr>
+    <tr aria-rowindex={index}>
       <td className="dim">{r.investigation_id}</td>
       <td>{r.run.run_id ? <code>{run}</code> : <span className="tag tag-line">{run}</span>}</td>
       {keys.map((k) => {
