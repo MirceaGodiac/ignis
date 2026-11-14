@@ -42,7 +42,7 @@ pub struct CodexArgs {
         value_enum,
         default_value_t
     )]
-    pub runtime: AgentRuntimeKind,
+    pub agent_runtime: AgentRuntimeKind,
     /// Native `codex` executable of the pinned release (the file that is hashed; not an npm shim).
     #[arg(long = "codex-bin", env = "IGNIS_CODEX_BIN")]
     pub bin: Option<PathBuf>,
@@ -90,7 +90,7 @@ impl Preflighted {
 
     /// Run the preflight (blocking; startup only). `home` holds the runtime's preflight state.
     pub fn run(args: &CodexArgs, home: &Path, _auth: super::io::AuthMode) -> Self {
-        let (cfg, outcome) = match args.runtime {
+        let (cfg, outcome) = match args.agent_runtime {
             AgentRuntimeKind::Codex => match &args.bin {
                 None => (
                     None,
