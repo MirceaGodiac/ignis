@@ -127,6 +127,43 @@ fn acquisition_scorer() -> ignis_server::AcquisitionScorer {
     })
 }
 
+/// The lane services `/api/v1` and the IGNIS tools run on, each present only when its data is
+/// there; an absent one is reported by `/api/v1/capabilities`, never answered with empty results.
+/// Models (I2) are not wired yet and stay behind `--enable-models` when they are.
+fn research_services() -> ignis_server::v1::ResearchServices {
+    use std::sync::Arc;
+    let knowledge = if ignis_evidence::catalog::default_db().exists() {
+        match ignis_evidence::service::EvidenceService::open_default() {
+            Ok(s) => Some(Arc::new(s) as Arc<dyn ignis_core::services::KnowledgeService>),
+            Err(e) => {
+                eprintln!("KnowledgeService not configured: {e:#}");
+                None
+            }
+        }
+    } else {
+        eprintln!(
+            "KnowledgeService not configured: no evidence catalog at {}",
+            ignis_evidence::catalog::default_db().display()
+        );
+        None
+    };
+    let store = ignis_data::dataset::DatasetStore::default_roots();
+    let datasets = if store.builder_root.exists() {
+        Some(Arc::new(store) as Arc<dyn ignis_core::services::DatasetService>)
+    } else {
+        eprintln!(
+            "DatasetService not configured: no bundles at {}",
+            store.builder_root.display()
+        );
+        None
+    };
+    ignis_server::v1::ResearchServices {
+        knowledge,
+        datasets,
+        ..Default::default()
+    }
+}
+
 fn main() -> anyhow::Result<()> {
     match Cli::parse().cmd {
         Cmd::Schemas(SchemasCmd::Export { out }) => {
@@ -139,8 +176,7 @@ fn main() -> anyhow::Result<()> {
                 experts: experts(),
                 fixture_experts: ignis_server::fixture::experts(),
                 acquisition: Some(acquisition_scorer()),
-                // Lane services are wired here as each lane delivers its constructor (R3, R2, I2).
-                research: Default::default(),
+                research: research_services(),
             },
         )?,
         Cmd::State(c) => ignis_server::ops::run_state(c)?,

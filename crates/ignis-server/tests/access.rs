@@ -35,6 +35,7 @@ fn args(dir: &Path) -> ServeArgs {
         state_dir: dir.join("state"),
         auth: AuthMode::CloudflareAccess,
         internal_routes: false,
+        enable_models: true,
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
