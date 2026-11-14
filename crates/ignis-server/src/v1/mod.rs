@@ -111,6 +111,8 @@ pub struct V1 {
     pub runner_report: sandbox::RunnerReport,
     /// Loopback URL of this instance's MCP endpoint, when it is served.
     pub mcp_url: Option<String>,
+    /// Where artifacts are kept (`--artifact-backend`), reported by `/capabilities`.
+    pub artifact_backend: crate::ops::ArtifactBackend,
 }
 
 impl V1 {
@@ -606,7 +608,11 @@ async fn capabilities(State(v): St, _c: Caller) -> Json<Capabilities> {
         },
         artifact_store: ServiceStatus {
             available: true,
-            detail: "local content-addressed store".into(),
+            detail: match v.artifact_backend {
+                crate::ops::ArtifactBackend::Local => "local content-addressed store".into(),
+                crate::ops::ArtifactBackend::R2 => "Cloudflare R2 bucket (S3 API), content-addressed;                      the local directory only stages uploads and caches manifests"
+                    .into(),
+            },
         },
         mcp: match &v.mcp_url {
             Some(url) => ServiceStatus {

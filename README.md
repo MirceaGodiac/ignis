@@ -140,8 +140,8 @@ Measured numbers are from the development laptop; "synthetic" means generated da
 | Evidence retrieval | lexical + RRF + firewall done; dense/rerank being moved to the DeepInfra API | Qwen3-Embedding-8B and Qwen3-Reranker-8B, key from `DEEPINFRA_API_KEY`, dry-run by default |
 | Accelerators | implemented, optional | Encoder + spline flows; not needed by any expert, not trained on NASA data |
 | API and dashboard | implemented | In-process forecasts, typed refusals, VOI scoring; `ignis infer forecast` reaches the same artifact from the CLI; the dev fixture is synthetic and labelled as such |
-| Research runtime (`/api/v1`, Codex, MCP tools, runner) | implemented, tested offline | Episodes, resumable SSE, jobs, artifacts; Codex App Server bridge; tools over MCP; isolated analysis runner (not yet verified under gVisor). FLEX/ACME/BASS model tools are off by default (`--enable-models`) |
-| Deployment | written, **not provisioned** | Origin on a Google Compute Engine VM (Space Apps Google Cloud credit), Cloudflare Worker/Access/Tunnel/R2 in front, domain from the Space Apps offer. Runbook: [infra/README.md](infra/README.md) |
+| Research runtime (`/api/v1`, Codex, MCP tools, runner) | implemented, tested offline | Episodes, resumable SSE, jobs, artifacts; Codex App Server bridge; tools over MCP; isolated analysis runner (verified under gVisor on the deployed VM). FLEX/ACME/BASS model tools are off by default (`--enable-models`) |
+| Deployment | **provisioned** (2026-11-14), team-only behind Cloudflare Access | Origin on a Google Compute Engine VM (Space Apps Google Cloud credit), Cloudflare Worker/Access/Tunnel/R2 in front, domain `ignis-ardealu.app`. Live checks: [infra/README.md §Status](infra/README.md#status). Runbook: [infra/README.md](infra/README.md) |
 | International data | manifests only | JAXA GCEM, ZARM FLARE (CC BY-NC), ESA HREDA (login-gated, metadata only), Mendeley catalogue; never mixed into NASA cohorts |
 
 Nothing expensive runs by default: fits, bulk downloads, video decoding and paid API calls print a plan
