@@ -10,8 +10,8 @@
 //! `failed` for technical errors. Scientific outcomes stay in the payload; a wrapper never assesses
 //! them (`scientific_status = not_assessed`).
 //!
-//! A call made for an episode (the runtime's grant names it) also records the evidence its result
-//! carries, so `answer_submit` ([`crate::answer`]) resolves citations against exactly what that
+//! A retrieval call made for an episode (the runtime's grant names it) also records the evidence its
+//! result carries, so `answer_submit` ([`crate::answer`]) resolves citations against exactly what that
 //! episode's tools returned.
 //!
 //! A tool whose service is not configured is not registered at all, and is reported in capability
@@ -36,6 +36,12 @@ use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 
 use crate::answer::{AnswerHost, Submitted};
+
+/// The tools whose results are evidence the knowledge/data services retrieved, and so the only ones
+/// whose `EvidenceRef`s an episode may cite. Never `artifacts_read` or `jobs_get`: an artifact can
+/// be written by agent-authored analysis code (a forged `EvidenceRef`) or belong to another episode
+/// (its answer's evidence), and reading it must not make that evidence citable here.
+const RETRIEVES_EVIDENCE: &[&str] = &["sources_search", "sources_read", "datasets_inspect"];
 
 /// Called after the host appended events to an episode log (wakes its SSE readers).
 pub type CommitHook = Arc<dyn Fn(&EpisodeId, u64) + Send + Sync>;
@@ -247,7 +253,7 @@ impl ToolHost {
                 .try_for_each(|c| scope.require(*c).map_err(ErrorEnvelope::from))
                 .and_then(|()| self.dispatch(scope, episode, d, &call_id, args)),
         };
-        if let (Some(ep), Ok(o)) = (episode, &outcome) {
+        if let (Some(ep), Ok(o), true) = (episode, &outcome, RETRIEVES_EVIDENCE.contains(&tool)) {
             self.record_evidence(scope, ep, o);
         }
         self.shape(scope, call_id, tool, outcome)
@@ -609,8 +615,8 @@ impl ToolHost {
     }
 }
 
-/// Every evidence reference inside a result value (search hits, and any other tool result that
-/// carries `EvidenceRef` objects), checked against the contract.
+/// Every evidence reference inside a retrieval tool's result value ([`RETRIEVES_EVIDENCE`]),
+/// checked against the contract.
 fn collect_evidence(v: &Value, out: &mut Vec<EvidenceRef>) {
     match v {
         Value::Object(o) => {
