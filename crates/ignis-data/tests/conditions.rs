@@ -50,6 +50,23 @@ fn cells_parse_without_inventing_values() {
     ] {
         assert!(matches!(parse_cell(many), Parsed::Many { .. }), "{many}");
     }
+    assert_eq!(
+        parse_cell("-10 C"),
+        Parsed::One {
+            x: -10.0,
+            unit: Some("c".into()),
+            approx: false
+        },
+        "a leading minus is a sign"
+    );
+    assert_eq!(
+        parse_cell("10-20"),
+        Parsed::Many {
+            xs: vec![10.0, 20.0],
+            unit: None
+        },
+        "a dash between numbers is a range, not a sign"
+    );
     assert_eq!(parse_cell(""), Parsed::Empty);
     assert_eq!(parse_cell(" – "), Parsed::Empty);
     assert_eq!(parse_cell("RAMP"), Parsed::Unparsed);

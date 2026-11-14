@@ -364,7 +364,7 @@ fn number_re() -> &'static Regex {
     static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
     RE.get_or_init(|| {
         Regex::new(
-            r"(?i)(\d+(?:\.\d+)?|\.\d+)\s*(%|atm\b|bar\b|mmhg\b|psia?\b|cm/s|mm/s|m/s|°?c\b|k\b)?",
+            r"(?i)([-−])?(\d+(?:\.\d+)?|\.\d+)\s*(%|atm\b|bar\b|mmhg\b|psia?\b|cm/s|mm/s|m/s|°?c\b|k\b)?",
         )
         .unwrap()
     })
@@ -382,7 +382,7 @@ pub fn parse_cell(s: &str) -> Parsed {
     let caps: Vec<_> = number_re()
         .captures_iter(t)
         .filter(|c| {
-            let start = c.get(0).map_or(0, |m| m.start());
+            let start = c.get(2).map_or(0, |m| m.start());
             !t[..start]
                 .chars()
                 .next_back()
@@ -392,11 +392,26 @@ pub fn parse_cell(s: &str) -> Parsed {
     if caps.is_empty() {
         return Parsed::Unparsed;
     }
-    let xs: Vec<f64> = caps.iter().filter_map(|c| c[1].parse().ok()).collect();
+    // A minus sign negates only when it does not join two numbers ("10-20" is a range, "-10 C" is not).
+    let negative = |c: &regex::Captures| {
+        c.get(1).is_some_and(|m| {
+            !t[..m.start()]
+                .chars()
+                .next_back()
+                .is_some_and(|ch| ch.is_alphanumeric() || ch == '.')
+        })
+    };
+    let xs: Vec<f64> = caps
+        .iter()
+        .filter_map(|c| {
+            let x: f64 = c[2].parse().ok()?;
+            Some(if negative(c) { -x } else { x })
+        })
+        .collect();
     let unit = caps
         .iter()
         .rev()
-        .find_map(|c| c.get(2).map(|u| u.as_str().to_lowercase()));
+        .find_map(|c| c.get(3).map(|u| u.as_str().to_lowercase()));
     if xs.len() == 1 {
         Parsed::One {
             x: xs[0],
@@ -406,6 +421,23 @@ pub fn parse_cell(s: &str) -> Parsed {
     } else {
         Parsed::Many { xs, unit }
     }
+}
+
+/// A fixed-unit column whose cell writes a different unit ("0.21 atm" under "O2 (%)"): the cell is
+/// refused rather than converted with the header's unit.
+fn cell_unit_conflicts(col: Unit, cell_unit: &str) -> bool {
+    let u = cell_unit.to_lowercase();
+    let want = match col {
+        Unit::Inline | Unit::Text => return false,
+        Unit::Fraction => "1",
+        Unit::Percent => "%",
+        Unit::Atm => "atm",
+        Unit::Bar => "bar",
+        Unit::MmHg => "mmhg",
+        Unit::CmPerS => "cm/s",
+        Unit::Celsius => "c",
+    };
+    u.trim_start_matches('°') != want
 }
 
 /// SI value and unit of `x` written in `unit` (column unit, or the cell's for `Inline`).
@@ -525,6 +557,21 @@ fn from_cell(col: &Col, raw: &str, l: SourceLocator, extra_flags: &[String]) -> 
             numbers: vec![],
             text: None,
         },
+        Parsed::One { unit: Some(u), .. } | Parsed::Many { unit: Some(u), .. }
+            if cell_unit_conflicts(col.unit, &u) =>
+        {
+            Contribution {
+                cell: missing(
+                    key,
+                    format!(
+                        "the cell's unit {u:?} disagrees with the column's: {:?} ({at})",
+                        raw.trim()
+                    ),
+                ),
+                numbers: vec![],
+                text: None,
+            }
+        }
         Parsed::Many { xs, unit } => {
             let si: Vec<f64> = xs
                 .iter()
@@ -589,7 +636,6 @@ fn from_cell(col: &Col, raw: &str, l: SourceLocator, extra_flags: &[String]) -> 
     }
 }
 
-/// A cell that must hold, or a `missing` cell carrying the reason it does not.
 /// Physical bounds of an SI value for a combustion test atmosphere. A value outside them is kept
 /// out (never corrected): NASA's BRE table has "3400%" for 34 %, a spreadsheet format slip.
 pub fn plausible(key: ConditionKey, si: f64) -> bool {
@@ -785,8 +831,11 @@ fn spec_rows(spec: &Spec) -> anyhow::Result<Vec<Built>> {
                         res = Resolution::UnresolvedConflict;
                         id = format!("{id}#row{}", r.row);
                     }
+                    let run_id = RunId::new(id.clone()).map_err(|e| {
+                        anyhow::anyhow!("{}: invalid run id {id:?}: {e}", spec.file)
+                    })?;
                     RunIdentity {
-                        run_id: RunId::new(id).ok(),
+                        run_id: Some(run_id),
                         resolution: res,
                     }
                 }
@@ -857,8 +906,11 @@ fn family_rows(family: &str) -> anyhow::Result<Vec<Built>> {
     }
     let mut out = Vec::new();
     for r in &records {
+        // An invalid id must fail, not become "no run id": rows without one bypass the lockbox.
+        let run_id = RunId::new(r.id.clone())
+            .map_err(|e| anyhow::anyhow!("{family}: invalid run id {:?}: {e}", r.id))?;
         let run = RunIdentity {
-            run_id: RunId::new(r.id.clone()).ok(),
+            run_id: Some(run_id),
             resolution: r.identity_resolution,
         };
         let mut got = BTreeMap::new();
