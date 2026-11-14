@@ -10,17 +10,21 @@
 //! `failed` for technical errors. Scientific outcomes stay in the payload; a wrapper never assesses
 //! them (`scientific_status = not_assessed`).
 //!
+//! A retrieval call made for an episode (the runtime's grant names it) also records the evidence its
+//! result carries, so `answer_submit` ([`crate::answer`]) resolves citations against exactly what that
+//! episode's tools returned.
+//!
 //! A tool whose service is not configured is not registered at all, and is reported in capability
 //! status (see [`catalog`]); it never answers with a negative result.
 
 use std::sync::Arc;
 
 use ignis_core::contracts::{
-    tool_catalog, AnalysisExecuteRequest, ArtifactReadRequest, Causation, ClientRequestId,
-    DatasetRef, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope, ExecutionScope, ExecutionStatus,
-    ForecastRequest, InlinePayload, JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef,
-    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
-    ToolsSchema,
+    tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
+    Causation, ClientRequestId, DatasetRef, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope,
+    EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, InlinePayload, JobLookup,
+    JobRef, Origin, Producer, ReadRequest, ReleaseRef, RetryPolicy, ScientificStatus,
+    SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -30,6 +34,17 @@ use ignis_research::store::{JobPriority, NewJob};
 use ignis_research::ResearchStore;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
+
+use crate::answer::{AnswerHost, Submitted};
+
+/// The tools whose results are evidence the knowledge/data services retrieved, and so the only ones
+/// whose `EvidenceRef`s an episode may cite. Never `artifacts_read` or `jobs_get`: an artifact can
+/// be written by agent-authored analysis code (a forged `EvidenceRef`) or belong to another episode
+/// (its answer's evidence), and reading it must not make that evidence citable here.
+const RETRIEVES_EVIDENCE: &[&str] = &["sources_search", "sources_read", "datasets_inspect"];
+
+/// Called after the host appended events to an episode log (wakes its SSE readers).
+pub type CommitHook = Arc<dyn Fn(&EpisodeId, u64) + Send + Sync>;
 
 /// Job kind of a strict forecast (the job runner executes it).
 pub const FORECAST_JOB: &str = "models_forecast";
@@ -90,7 +105,8 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 }
                 "wiki_patch" => Some("wiki service not implemented"),
                 "sources_search" | "sources_read" | "datasets_inspect" | "models_inspect"
-                | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get" => None,
+                | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get"
+                | "answer_submit" => None,
                 _ => Some("no adapter for this tool"),
             };
             ToolAvailability {
@@ -110,6 +126,8 @@ pub struct ToolHost {
     origin: Origin,
     /// Wakes the job runner after a submission.
     wake_jobs: Arc<dyn Fn() + Send + Sync>,
+    /// Wakes episode readers after `answer_submit` appended `answer.completed`.
+    on_commit: Option<CommitHook>,
     registered: Vec<ToolDescriptor>,
 }
 
@@ -162,6 +180,16 @@ enum Outcome {
     Value(Value),
     Inline(InlinePayload),
     Job(JobRef),
+    /// A value already stored as `artifact` (inline when small, otherwise a preview of it).
+    Stored {
+        value: Value,
+        artifact: ArtifactRef,
+    },
+    /// Declined, with an artifact that details why (e.g. an `AnswerRefusal`).
+    Refused {
+        error: ErrorEnvelope,
+        artifact: ArtifactRef,
+    },
 }
 
 impl ToolHost {
@@ -183,8 +211,15 @@ impl ToolHost {
             artifacts,
             origin,
             wake_jobs,
+            on_commit: None,
             registered,
         }
+    }
+
+    /// Wake episode readers when a tool appends to an episode log.
+    pub fn with_commit_hook(mut self, hook: CommitHook) -> Self {
+        self.on_commit = Some(hook);
+        self
     }
 
     /// The tools this host serves.
@@ -195,6 +230,17 @@ impl ToolHost {
     /// Run one call with the host-derived `scope`. Never panics on input; always returns a valid
     /// [`ToolResult`].
     pub fn call(&self, scope: &ExecutionScope, tool: &str, args: Value) -> ToolResult {
+        self.call_in(scope, None, tool, args)
+    }
+
+    /// [`Self::call`] for the episode a runtime grant is bound to (host-derived, never an argument).
+    pub fn call_in(
+        &self,
+        scope: &ExecutionScope,
+        episode: Option<&EpisodeId>,
+        tool: &str,
+        args: Value,
+    ) -> ToolResult {
         let call_id = new_call_id();
         let outcome = match self.registered.iter().find(|d| d.name == tool) {
             None => Err(envelope(
@@ -205,14 +251,33 @@ impl ToolHost {
                 .capabilities
                 .iter()
                 .try_for_each(|c| scope.require(*c).map_err(ErrorEnvelope::from))
-                .and_then(|()| self.dispatch(scope, d, &call_id, args)),
+                .and_then(|()| self.dispatch(scope, episode, d, &call_id, args)),
         };
+        if let (Some(ep), Ok(o), true) = (episode, &outcome, RETRIEVES_EVIDENCE.contains(&tool)) {
+            self.record_evidence(scope, ep, o);
+        }
         self.shape(scope, call_id, tool, outcome)
+    }
+
+    /// Remember the evidence a result carries for the episode (best effort: a lost record makes a
+    /// later citation of it refused, never accepted).
+    fn record_evidence(&self, scope: &ExecutionScope, ep: &EpisodeId, o: &Outcome) {
+        let v = match o {
+            Outcome::Value(v) => v,
+            Outcome::Inline(p) => &p.value,
+            _ => return,
+        };
+        let mut found = Vec::new();
+        collect_evidence(v, &mut found);
+        if let Err(e) = self.store.record_episode_evidence(scope, ep, &found) {
+            tracing::warn!(episode = %ep, error = %e.message, "evidence of a tool result not recorded");
+        }
     }
 
     fn dispatch(
         &self,
         scope: &ExecutionScope,
+        episode: Option<&EpisodeId>,
         d: &ToolDescriptor,
         call_id: &ToolCallId,
         args: Value,
@@ -258,6 +323,38 @@ impl ToolHost {
             "jobs_get" => {
                 let req: JobLookup = decode(contract, args)?;
                 value(self.store.job(scope, &req.job_id))
+            }
+            "answer_submit" => {
+                let ep = episode.ok_or_else(|| {
+                    envelope(
+                        ErrorCode::InvalidRequest,
+                        "answer_submit stores the answer of an episode; this session's grant is not bound to one",
+                    )
+                })?;
+                let sub: AnswerSubmission = decode(contract, args)?;
+                let host = AnswerHost {
+                    store: &self.store,
+                    artifacts: self.artifacts.as_ref(),
+                    origin: self.origin,
+                };
+                match host.submit(scope, ep, call_id, sub)? {
+                    Submitted::Stored {
+                        answer,
+                        artifact,
+                        appended,
+                    } => {
+                        if let (Some(seq), Some(hook)) = (appended, &self.on_commit) {
+                            hook(ep, seq);
+                        }
+                        let value = serde_json::to_value(&answer)
+                            .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))?;
+                        Ok(Outcome::Stored { value, artifact })
+                    }
+                    Submitted::Refused { error, refusal } => Ok(Outcome::Refused {
+                        error,
+                        artifact: refusal,
+                    }),
+                }
             }
             other => Err(envelope(
                 ErrorCode::Unsupported,
@@ -407,6 +504,36 @@ impl ToolHost {
                 r.job = Some(job);
                 r
             }
+            Ok(Outcome::Refused { error, artifact }) => {
+                let mut r = failed(error);
+                r.artifact_refs = vec![artifact];
+                r
+            }
+            Ok(Outcome::Stored { value, artifact }) => {
+                let small = serde_json::to_vec(&value)
+                    .map(|b| b.len() <= INLINE_RESULT_BYTES)
+                    .unwrap_or(false);
+                let p = if small {
+                    InlinePayload {
+                        value,
+                        partial: false,
+                        full: None,
+                    }
+                } else {
+                    InlinePayload {
+                        value: json!({
+                            "stored_as_artifact": artifact.artifact_id,
+                            "how_to_read": "artifacts_read with this artifact_id and a json_pointer",
+                        }),
+                        partial: true,
+                        full: Some(artifact.clone()),
+                    }
+                };
+                let mut r = base(ExecutionStatus::Completed, None);
+                r.artifact_refs = vec![artifact];
+                r.result = Some(p);
+                r
+            }
             Ok(Outcome::Inline(p)) => {
                 let mut r = base(ExecutionStatus::Completed, None);
                 r.artifact_refs = p.full.iter().cloned().collect();
@@ -485,5 +612,25 @@ impl ToolHost {
             partial: true,
             full: Some(full),
         })
+    }
+}
+
+/// Every evidence reference inside a retrieval tool's result value ([`RETRIEVES_EVIDENCE`]),
+/// checked against the contract.
+fn collect_evidence(v: &Value, out: &mut Vec<EvidenceRef>) {
+    match v {
+        Value::Object(o) => {
+            if o.contains_key("evidence_id") && o.contains_key("evidence_class") {
+                if let Ok(e) = serde_json::from_value::<EvidenceRef>(v.clone()) {
+                    if e.validate().is_ok() {
+                        out.push(e);
+                        return;
+                    }
+                }
+            }
+            o.values().for_each(|x| collect_evidence(x, out));
+        }
+        Value::Array(a) => a.iter().for_each(|x| collect_evidence(x, out)),
+        _ => {}
     }
 }

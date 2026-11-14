@@ -719,7 +719,12 @@ impl Inner {
         (self.on_commit)(ep, ts.episode.last_seq);
         let turn = format!("claude-turn-{}", uuid::Uuid::new_v4().simple());
         self.store.turn_running(&ts.turn_key, &turn)?;
-        let lease = self.cfg.mcp.as_ref().map(|m| m.grants.lease(scope));
+        // One process per turn of one episode: its token is bound to the episode.
+        let lease = self
+            .cfg
+            .mcp
+            .as_ref()
+            .map(|m| m.grants.lease_for_episode(scope, ep));
         let spawned = self
             .command(
                 scope,
