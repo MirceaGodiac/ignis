@@ -40,6 +40,11 @@ COPY configs /opt/ignis/configs
 COPY schemas /opt/ignis/schemas
 COPY fixtures/contracts /opt/ignis/fixtures/contracts
 COPY data/manifests /opt/ignis/data/manifests
+# Frozen splits: the evidence lockbox (which passages a scope may read) refuses to start without
+# them. Corpus manifest/snapshot and builder bundle documents are the committed references.
+COPY data/splits /opt/ignis/data/splits
+COPY data/corpus /opt/ignis/data/corpus
+COPY data/datasets /opt/ignis/data/datasets
 COPY infra/server/entrypoint.sh /usr/local/bin/ignis-entrypoint
 RUN chmod 0755 /usr/local/bin/ignis-entrypoint /usr/local/bin/codex
 
