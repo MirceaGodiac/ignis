@@ -58,8 +58,13 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
   return (
     <nav className={`sidebar${open ? " open" : ""}`} aria-label="Workspace">
       <div className="side-head">
-        <a className="wordmark" href={href("home")} onClick={close}>
-          IGNIS
+        <a className="wordmark" href={href("home")} onClick={close} aria-label="Ignis home">
+          <span className="brand-mark" aria-hidden="true">
+            <svg width="12" height="14" viewBox="0 0 10 12" fill="currentColor">
+              <path d="M5 0c.6 2.2 4.5 4 4.5 7.5A4.5 4.5 0 0 1 .5 7.5C.5 5.8 1.6 4.6 2.6 3.8 2.6 5.4 3.4 6.3 4.2 6.6 3.6 4.2 4.4 1.8 5 0z" />
+            </svg>
+          </span>
+          Ignis
         </a>
         <button className="btn btn-quiet btn-icon only-narrow" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? <IconClose /> : <IconMenu />}

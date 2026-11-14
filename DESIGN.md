@@ -228,7 +228,7 @@ or qualified status. Shape carries the evidence class, so colour is never the on
 
 **Key Characteristics:**
 - Graphite night (#1a1918 ground, #151413 rail, #211f1e sheet) and stone paper (#f4f2ee ground, #ebe8e2 rail, #fbfaf8 sheet). No blue anywhere in the chrome.
-- Hanken Grotesk for all text; Instrument Serif only for the IGNIS wordmark; Geist Mono only for ids, hashes, paths, times and code.
+- Hanken Grotesk for all text, including the "Ignis" lockup (flame in an ink square, 18px 600); Geist Mono only for ids, hashes, paths, times and code.
 - Display and titles at weight 400-500 (never bold), tight negative tracking; labels at 500 in ink-3, sentence case.
 - Flat at rest; shadow only on layers that float above the content and on the Home prompt.
 - Theme: System, Light or Dark from the rail footer; a pinned choice is `<html data-theme>`, read before `prefers-color-scheme`.
@@ -266,7 +266,7 @@ or qualified status. Shape carries the evidence class, so colour is never the on
 ## Typography
 
 **Text font:** Hanken Grotesk 400/500/600 (Segoe UI Variable Text, system-ui stand in offline)
-**Wordmark:** Instrument Serif 400, the rail's "IGNIS" only
+**Lockup:** the flame mark in a 26px ink square and "Ignis" in Hanken Grotesk 600, 18px
 **Data font:** Geist Mono 400/500
 
 ### Hierarchy
