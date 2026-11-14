@@ -2,7 +2,8 @@
 # Build the origin image from a clean checkout and write the release manifest.
 #
 #   infra/scripts/build-server.sh <codex-binary> [<claude-binary>]
-#     codex:  Linux x86_64, the pinned version (infra/scripts/fetch-codex.sh)
+#     codex:  Linux x86_64, the pinned version (infra/scripts/fetch-codex.sh); its
+#             codex-code-mode-host must be next to it (tool calls fail closed without it)
 #     claude: Linux x86_64 Claude Code, optional (infra/scripts/fetch-claude.sh); needed only for
 #             IGNIS_AGENT_RUNTIME=claude
 #
@@ -26,6 +27,10 @@ fi
 mkdir -p infra/server/vendor
 install -m 0755 "$codex" infra/server/vendor/codex
 codex_sha="$(sha256sum < infra/server/vendor/codex | awk '{print $1}')"
+host="$(dirname "$codex")/codex-code-mode-host"
+[ -f "$host" ] || { echo "no codex-code-mode-host next to $codex (re-run fetch-codex.sh)" >&2; exit 1; }
+install -m 0755 "$host" infra/server/vendor/codex-code-mode-host
+host_sha="$(sha256sum < infra/server/vendor/codex-code-mode-host | awk '{print $1}')"
 claude_version=""
 claude_sha=""
 if [ -n "$claude" ]; then
@@ -64,6 +69,7 @@ cat > "$out" <<EOF
   "rust_toolchain": "$toolchain",
   "codex_version": "$pin",
   "codex_sha256": "$codex_sha",
+  "codex_code_mode_host_sha256": "$host_sha",
   "claude_version": "$claude_version",
   "claude_sha256": "$claude_sha",
   "base_images": {"rust": "$rust_img", "runtime": "$runtime_img", "docker_cli": "$cli_img"},
