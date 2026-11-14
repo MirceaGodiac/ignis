@@ -711,12 +711,23 @@ export type ExecutionOutcome =
 export type PageCursor = string;
 export type SearchMode = "hybrid" | "lexical" | "dense";
 /**
- * Wire tag of search, read, provenance and wiki documents.
+ * How much a search or read returns per item: `concise` keeps ids, locators and short text for
+ * scanning, `detailed` adds scores, full quotes and context. Absent = the service default. It
+ * changes the size of each item, never which items match or their order.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResponseFormat".
+ */
+export type ResponseFormat = "concise" | "detailed";
+/**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvidenceSchema".
  */
-export type EvidenceSchema = "evidence.v1";
+export type EvidenceSchema = "evidence.v2" | "evidence.v1";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "RetrievalBackend".
@@ -759,19 +770,162 @@ export type ReadRange =
     };
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "OutlineNodeId".
+ */
+export type OutlineNodeId = string;
+/**
+ * How the UI reaches an original's bytes without IGNIS storing them (LANES_V2 §7).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AccessMode".
+ */
+export type AccessMode = "direct" | "proxy" | "link_out";
+/**
+ * A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept
+ * ([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads
+ * unchanged. Passages, figures and tables are `EntityRef::Evidence`; analyses are artifacts.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GraphNode".
+ */
+export type GraphNode = EntityRef | ConceptRef;
+/**
+ * Kind of a domain concept of the combustion graph. Concepts are vocabulary nodes (an
+ * investigation, a fuel, a piece of hardware); records (sources, runs, artifacts) are
+ * [`EntityRef`]s.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConceptKind".
+ */
+export type ConceptKind =
+  ("fuel" | "sample_geometry") | "investigation" | "hardware" | "condition" | "diagnostic" | "observable";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConceptId".
+ */
+export type ConceptId = string;
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "LinkId".
  */
 export type LinkId = string;
 /**
+ * Edge type of the graph (master §11.3). The catalog is closed: a new relation is a contract change.
+ *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "Relation".
  */
-export type Relation = "supports" | "contradicts" | "derived_from" | "describes" | "same_run_as" | "cites";
+export type Relation =
+  | (
+      | "supports"
+      | "derived_from"
+      | "cites"
+      | "uses_fuel"
+      | "has_condition"
+      | "measured_by"
+      | "uses_hardware"
+      | "uses_calibration"
+      | "predicted_by"
+    )
+  | "contradicts"
+  | "describes"
+  | "same_run_as"
+  | "describes_run"
+  | "disputes"
+  | "supersedes"
+  | "same_as_candidate";
+export type DirectionFilter = "outgoing" | "incoming" | "both";
+/**
+ * Which side of the requested node an edge sits on.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EdgeDirection".
+ */
+export type EdgeDirection = "outgoing" | "incoming";
+/**
+ * Closed catalog of document types. A new type is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DocType".
+ */
+export type DocType =
+  | ("journal_article" | "conference_paper" | "presentation" | "thesis" | "outreach" | "other")
+  | "technical_report"
+  | "requirements_document"
+  | "engineering_document"
+  | "operations_document"
+  | "data_description"
+  | "data_table";
+/**
+ * `resolved` only when the passes agree (two or more for a model label);
+ * `unresolved_conflict` keeps a disagreement visible.
+ */
+export type Resolution5 = "resolved" | "unresolved_conflict" | "unknown" | "quarantined" | "not_applicable";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiOp".
+ */
+export type WikiOp =
+  | {
+      item: WikiItem;
+      op: "add";
+    }
+  | {
+      item: WikiItem;
+      op: "revise";
+    }
+  | {
+      item_id: WikiItemId;
+      op: "remove";
+      reason: string;
+    };
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiItemId".
+ */
+export type WikiItemId = string;
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiItemKind".
+ */
+export type WikiItemKind =
+  | "concept"
+  | "method"
+  | "protocol"
+  | "hypothesis"
+  | "calculation"
+  | "contradiction"
+  | "open_question"
+  | "lesson"
+  | "note";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "AuthorKind".
  */
 export type AuthorKind = "agent" | "human";
+/**
+ * [`WikiRevision::digest_of`] of `title` and `items`.
+ */
+export type Digest4 = string;
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiReadBody".
+ */
+export type WikiReadBody =
+  | {
+      kind: "page";
+      revision: WikiRevision;
+    }
+  | {
+      kind: "index";
+      next_cursor?: PageCursor | null;
+      pages: WikiPageSummary[];
+    };
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WebContent".
+ */
+export type WebContent = "excerpt" | "full_snapshot";
 /**
  * Who may receive a bundle. Builder bundles (models, lab, authoring) never contain test outcomes;
  * those live in a separate evaluator bundle that is not mounted in builder workspaces.
@@ -780,13 +934,16 @@ export type AuthorKind = "agent" | "human";
  * via the `definition` "BundleAudience".
  */
 export type BundleAudience = "builder" | "evaluator";
+export type Timestamp1 = string;
 /**
- * Wire tag of dataset and visual observation bundles.
+ * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
+ * `dataset.v1` (C0) documents are still read, and keep their content digests because a
+ * document is re-serialized with the tag it was read with. New document types require v2.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "DatasetSchema".
  */
-export type DatasetSchema = "dataset.v1";
+export type DatasetSchema = "dataset.v2" | "dataset.v1";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ColumnRole".
@@ -817,6 +974,80 @@ export type UnitsStatus = "metric" | "pixel_only" | "normalized";
  * axis or a smarter model does not calibrate a camera).
  */
 export type UnitsStatus1 = "metric" | "pixel_only" | "normalized";
+/**
+ * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
+ * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
+ * catalog is closed: a new key is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionKey".
+ */
+export type ConditionKey =
+  | "oxygen_mole_fraction"
+  | "pressure"
+  | "flow_velocity"
+  | "gravity_level"
+  | "ambient_temperature"
+  | "fuel"
+  | "diluent"
+  | "sample_geometry"
+  | "hardware"
+  | "diagnostics";
+/**
+ * What an investigation tested for one key, over its runs.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EnvelopeEntry".
+ */
+export type EnvelopeEntry =
+  | {
+      key: ConditionKey;
+      max_si: number;
+      min_si: number;
+      runs: number;
+      status: "range";
+      unit_si: string;
+    }
+  | {
+      key: ConditionKey;
+      runs: number;
+      status: "values";
+      values: string[];
+    }
+  | {
+      key: ConditionKey;
+      reason: string;
+      status: "missing";
+    };
+/**
+ * One cell of the conditions matrix. A gap is a status with a reason, never an absent cell or a
+ * zero. Conditions are experimental inputs, not outcomes; durations and endpoints never appear here.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionCell".
+ */
+export type ConditionCell =
+  | {
+      key: ConditionKey;
+      status: "value";
+      value: Measured;
+    }
+  | {
+      candidates: Measured[];
+      key: ConditionKey;
+      reason: string;
+      status: "conflicting";
+    }
+  | {
+      key: ConditionKey;
+      reason: string;
+      status: "missing";
+    }
+  | {
+      key: ConditionKey;
+      reason: string;
+      status: "not_applicable";
+    };
 /**
  * What an element holds when a root patch does not write it.
  *
@@ -891,7 +1122,7 @@ export type ForecastInput =
 /**
  * `DatasetBundle::content_digest` of the bundle evaluated.
  */
-export type Digest4 = string;
+export type Digest5 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
@@ -955,6 +1186,11 @@ export type Lineage1 =
  * via the `definition` "TrainedOn".
  */
 export type TrainedOn1 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DirectionFilter".
+ */
+export type DirectionFilter1 = "outgoing" | "incoming" | "both";
 
 export interface IgnisContracts {
   Source?: Source;
@@ -997,12 +1233,27 @@ export interface IgnisContracts {
   SearchPage?: SearchPage;
   ReadRequest?: ReadRequest;
   ReadResult?: ReadResult;
+  OutlineRequest?: OutlineRequest;
+  SourceOutline?: SourceOutline;
+  SourceAccess?: SourceAccess;
   ProvenanceLink?: ProvenanceLink;
+  GraphNeighborsRequest?: GraphNeighborsRequest;
+  GraphNeighborsPage?: GraphNeighborsPage;
+  SourceLabel?: SourceLabel;
+  LabelSet?: LabelSet;
   WikiPatch?: WikiPatch;
   WikiRevision?: WikiRevision;
+  WikiReadRequest?: WikiReadRequest;
+  WikiReadResult?: WikiReadResult;
+  WebSearchRequest?: WebSearchRequest;
+  WebSearchPage?: WebSearchPage;
+  WebFetchRequest?: WebFetchRequest;
+  ExternalSourceCandidate?: ExternalSourceCandidate;
   DatasetBundle?: DatasetBundle;
   VisualObservationBundle?: VisualObservationBundle;
   ImageContourObservation?: ImageContourObservation;
+  ConditionsQuery?: ConditionsQuery;
+  ConditionsTable?: ConditionsTable;
   ModelSpec?: ModelSpec;
   HandwrittenWeightPatch?: HandwrittenWeightPatch;
   ModelBuildManifest?: ModelBuildManifest;
@@ -2170,6 +2421,10 @@ export interface SearchRequest {
    */
   page_size?: number | null;
   query: string;
+  /**
+   * v2.
+   */
+  response_format?: ResponseFormat | null;
   schema_version: EvidenceSchema;
 }
 export interface SearchFilters {
@@ -2237,6 +2492,10 @@ export interface RetrievalScore {
 export interface ReadRequest {
   parse_view_id?: ParseViewId | null;
   range: ReadRange;
+  /**
+   * v2.
+   */
+  response_format?: ResponseFormat | null;
   schema_version: EvidenceSchema;
   source_id: SourceId;
 }
@@ -2264,51 +2523,318 @@ export interface ReadSegment {
   text: string;
 }
 /**
- * A typed edge between entities, with the evidence and method that established it. A purely
- * semantic association is `resolution = unknown`, never an exact identity.
+ * `sources_outline`: the section tree of one source, or the subtree under `node_id`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "OutlineRequest".
+ */
+export interface OutlineRequest {
+  /**
+   * Levels below the root to return; deeper children are flagged, not dropped silently.
+   */
+  depth?: number | null;
+  /**
+   * Subtree root; absent = the whole document.
+   */
+  node_id?: OutlineNodeId | null;
+  parse_view_id?: ParseViewId | null;
+  schema_version: EvidenceSchema;
+  source_id: SourceId;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SourceOutline".
+ */
+export interface SourceOutline {
+  nodes: OutlineNode[];
+  origin: Origin;
+  parse_view_id: ParseViewId;
+  schema_version: EvidenceSchema;
+  source_id: SourceId;
+}
+/**
+ * One section: the document's own heading, its physical page range (1-based, inclusive) and
+ * children. `children_omitted` says the request's depth cut children that exist.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "OutlineNode".
+ */
+export interface OutlineNode {
+  children?: OutlineNode[];
+  children_omitted?: boolean;
+  node_id: OutlineNodeId;
+  page_end: number;
+  page_start: number;
+  summary?: GeneratedText | null;
+  title: string;
+}
+/**
+ * Text written by a model about a source. It is navigation help, never evidence: a claim cites
+ * the passage, not the summary.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GeneratedText".
+ */
+export interface GeneratedText {
+  model_id: string;
+  prompt_hash?: Digest1 | null;
+  text: string;
+}
+/**
+ * Delivery of one source version. The identity stays the `Source` (geode URL + file version +
+ * hash); `url` is a short-lived delivery detail and is never stored in a citation.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SourceAccess".
+ */
+export interface SourceAccess {
+  /**
+   * The URL is readable by scripts from the app's origin.
+   */
+  cors: boolean;
+  /**
+   * When a signed `url` stops working; re-resolve after it.
+   */
+  expires_at?: Timestamp | null;
+  /**
+   * "Open at NASA": the provider's own page for the source.
+   */
+  landing_url: string;
+  mode: AccessMode;
+  origin: Origin;
+  /**
+   * The URL answers HTTP Range requests.
+   */
+  range: boolean;
+  schema_version: EvidenceSchema;
+  source_id: SourceId;
+  url: string;
+}
+/**
+ * A typed edge between two nodes, with the evidence and method that established it. A purely
+ * semantic association (no evidence) is never `resolved`; identity needs an identifier,
+ * conditions, time or an explicit reference.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ProvenanceLink".
  */
 export interface ProvenanceLink {
   evidence?: EvidenceId[];
-  from: EntityRef;
+  from: GraphNode;
   link_id: LinkId;
   method: Derivation;
   origin: Origin;
   relation: Relation;
   resolution: Resolution4;
   schema_version: EvidenceSchema;
-  to: EntityRef;
+  to: GraphNode;
 }
 /**
- * A wiki write against `base_revision` (absent = create). The service refuses with `conflict` when
- * the page head moved: the last writer does not win silently.
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConceptRef".
+ */
+export interface ConceptRef {
+  concept: ConceptKind;
+  id: ConceptId;
+}
+/**
+ * `graph_neighbors`: the typed neighbours of one node, paged. For joins and filters ("runs that
+ * share MDCA"), not community summaries.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GraphNeighborsRequest".
+ */
+export interface GraphNeighborsRequest {
+  /**
+   * Defaults to the snapshot pinned by the scope/episode.
+   */
+  corpus_snapshot?: CorpusSnapshotId | null;
+  cursor?: PageCursor | null;
+  direction?: DirectionFilter;
+  node: GraphNode;
+  page_size?: number | null;
+  /**
+   * Empty = every relation.
+   */
+  relations?: Relation[];
+  schema_version: EvidenceSchema;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GraphNeighborsPage".
+ */
+export interface GraphNeighborsPage {
+  corpus_snapshot: CorpusSnapshotId;
+  neighbors: GraphNeighbor[];
+  next_cursor?: PageCursor | null;
+  node: GraphNode;
+  origin: Origin;
+  schema_version: EvidenceSchema;
+  /**
+   * Exact total, or absent when not counted.
+   */
+  total_count?: number | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GraphNeighbor".
+ */
+export interface GraphNeighbor {
+  direction: EdgeDirection;
+  link: ProvenanceLink;
+}
+/**
+ * What a document is about, as classified. A label describes; it never establishes identity:
+ * the runs it names are mentions, which enter the graph as `same_as_candidate` / `describes_run`
+ * links with resolution `unknown` until an identifier or condition match resolves them.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SourceLabel".
+ */
+export interface SourceLabel {
+  agreement: LabelAgreement;
+  conditions_mentioned?: Quantity[];
+  /**
+   * Self-reported or calibrated confidence in [0, 1]; not a probability of truth.
+   */
+  confidence?: number | null;
+  doc_type: DocType;
+  /**
+   * Passages that support the label.
+   */
+  evidence?: EvidenceId[];
+  families?: Family[];
+  /**
+   * Investigation accessions (`PSI-69`) or registered ground-investigation ids.
+   */
+  investigation_ids?: string[];
+  labeller: Labeller;
+  origin: Origin;
+  /**
+   * Runs the document mentions (not resolved identities).
+   */
+  runs?: RunId[];
+  schema_version: EvidenceSchema;
+  source_id: SourceId;
+  status: Resolution5;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "LabelAgreement".
+ */
+export interface LabelAgreement {
+  agreed: boolean;
+  /**
+   * Independent passes run on the document.
+   */
+  passes: number;
+}
+/**
+ * Who produced a label: a model (method `semantic`, with model id and prompt hash) or a reviewer.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "Labeller".
+ */
+export interface Labeller {
+  method: Method;
+  model_id?: string | null;
+  prompt_hash?: Digest1 | null;
+}
+/**
+ * One labelling batch over a corpus snapshot: the labels are a `SourceLabel` JSONL artifact.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "LabelSet".
+ */
+export interface LabelSet {
+  /**
+   * Absent until measured; labels without a measured accuracy are not used for claims.
+   */
+  accuracy?: LabelAccuracy | null;
+  corpus_snapshot: CorpusSnapshotId;
+  counts: LabelCounts;
+  created_at: Timestamp;
+  labeller: Labeller;
+  labels: ArtifactRef;
+  origin: Origin;
+  schema_version: EvidenceSchema;
+}
+/**
+ * Accuracy of the labels on a hand-labelled gold set, measured before the labels are used.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "LabelAccuracy".
+ */
+export interface LabelAccuracy {
+  doc_type_accuracy: number;
+  documents: number;
+  gold_set: ArtifactRef;
+  investigation_accuracy?: number | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "LabelCounts".
+ */
+export interface LabelCounts {
+  resolved: number;
+  total: number;
+  unresolved_conflict: number;
+}
+/**
+ * A wiki write against `base_revision` (absent = create the page). The service refuses with
+ * `conflict` when the page head moved: the last writer does not win silently. The author, episode
+ * and access of the written items are derived by the host, never taken from the patch.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiPatch".
  */
 export interface WikiPatch {
   base_revision?: number | null;
-  body_markdown: string;
-  links?: EntityRef[];
+  ops?: WikiOp[];
   page_id: WikiPageId;
   schema_version: EvidenceSchema;
-  title: string;
+  /**
+   * Required to create a page; a rename otherwise.
+   */
+  title?: string | null;
 }
 /**
- * An immutable wiki revision. The wiki is research memory with references; it is never a primary
- * source and is not indexed as one.
+ * One itemized entry of a page. Pages change by item deltas, never by rewriting the page, so an
+ * edit cannot silently drop what it did not mean to touch.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiItem".
+ */
+export interface WikiItem {
+  item_id: WikiItemId;
+  kind: WikiItemKind;
+  /**
+   * Sources, passages, artifacts, runs or concepts the item rests on.
+   */
+  refs?: GraphNode[];
+  /**
+   * Markdown.
+   */
+  text: string;
+}
+/**
+ * An immutable wiki revision: the full item list after `ops`, content-addressed by
+ * `content_digest`. The wiki is research memory with references; it is never a primary source
+ * and is not indexed as one.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiRevision".
  */
 export interface WikiRevision {
   author: Author;
-  body_markdown: string;
+  content_digest: Digest4;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
-  links?: EntityRef[];
+  items: WikiEntry[];
+  /**
+   * The delta that produced this revision from its parent.
+   */
+  ops: WikiOp[];
   origin: Origin;
   page_id: WikiPageId;
   parent_revision?: number | null;
@@ -2323,6 +2849,146 @@ export interface WikiRevision {
 export interface Author {
   id: string;
   kind: AuthorKind;
+}
+/**
+ * An item as stored in a revision, with the access the host derived for it.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiEntry".
+ */
+export interface WikiEntry {
+  item_id: WikiItemId;
+  kind: WikiItemKind;
+  refs?: GraphNode[];
+  /**
+   * Partitions whose outcomes the item was written under (from the writing scope, never from
+   * the author). A reader needs every one of them: summarizing does not launder a restriction.
+   */
+  requires_partitions?: Partition[];
+  text: string;
+}
+/**
+ * `wiki_read`: one page (head, or a given revision), or the page index when `page_id` is absent.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiReadRequest".
+ */
+export interface WikiReadRequest {
+  /**
+   * Index only.
+   */
+  cursor?: PageCursor | null;
+  page_id?: WikiPageId | null;
+  /**
+   * Index only.
+   */
+  page_size?: number | null;
+  revision?: number | null;
+  schema_version: EvidenceSchema;
+}
+/**
+ * Only what the scope may read: items whose `requires_partitions` the scope lacks are withheld
+ * by the service (and `withheld_items` says how many), never silently dropped.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiReadResult".
+ */
+export interface WikiReadResult {
+  body: WikiReadBody;
+  origin: Origin;
+  schema_version: EvidenceSchema;
+  withheld_items?: number | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WikiPageSummary".
+ */
+export interface WikiPageSummary {
+  head_revision: number;
+  item_count: number;
+  page_id: WikiPageId;
+  title: string;
+  updated_at: Timestamp;
+}
+/**
+ * `web_search`. Off in evaluation scopes and protected authoring (master §13).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WebSearchRequest".
+ */
+export interface WebSearchRequest {
+  cursor?: PageCursor | null;
+  page_size?: number | null;
+  query: string;
+  schema_version: EvidenceSchema;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WebSearchPage".
+ */
+export interface WebSearchPage {
+  candidates: ExternalSourceCandidate[];
+  next_cursor?: PageCursor | null;
+  origin: Origin;
+  provider: WebProvider;
+  query: string;
+  schema_version: EvidenceSchema;
+}
+/**
+ * A source found on the web. It is not a corpus source until promoted (`promoted_source_id`); an
+ * episode may cite it from its snapshot without promotion. Its text is data, never instructions.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ExternalSourceCandidate".
+ */
+export interface ExternalSourceCandidate {
+  accessed_at: Timestamp;
+  canonical_url?: string | null;
+  content: WebContent;
+  excerpt?: string | null;
+  /**
+   * After redirects; absent when nothing was fetched.
+   */
+  final_url?: string | null;
+  origin: Origin;
+  promoted_source_id?: SourceId | null;
+  provider: WebProvider;
+  rights?: Rights1;
+  schema_version: EvidenceSchema;
+  snapshot?: ArtifactRef | null;
+  title?: string | null;
+  /**
+   * As found (search result or request).
+   */
+  url: string;
+}
+/**
+ * The provider adapter that answered (Parallel MCP at first, master §13.1). Kept apart from the
+ * contract so a provider or URL change does not change the rest of the application.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WebProvider".
+ */
+export interface WebProvider {
+  name: string;
+  tool: string;
+  version?: string | null;
+}
+export interface Rights1 {
+  license?: string | null;
+  statement_locator?: SourceLocator | null;
+  status?: RightsStatus;
+}
+/**
+ * `web_fetch`: fetch one URL into a snapshot. The host applies the SSRF policy (schemes, DNS/IP
+ * after redirects, no private, link-local or metadata addresses); the contract only admits http(s).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WebFetchRequest".
+ */
+export interface WebFetchRequest {
+  schema_version: EvidenceSchema;
+  url: string;
 }
 /**
  * A curated dataset for one family/target: cohort, split and the partitions it contains, source
@@ -2447,6 +3113,91 @@ export interface ImageContourObservation {
   status: ContourStatus;
   time_s: number;
   units: UnitsStatus1;
+}
+/**
+ * `conditions_query`: per-run conditions and, on request, each investigation's tested envelope.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionsQuery".
+ */
+export interface ConditionsQuery {
+  cursor?: PageCursor | null;
+  filters?: ConditionFilter[];
+  include_envelopes?: boolean;
+  include_unknown?: boolean;
+  /**
+   * Empty = every investigation.
+   */
+  investigation_ids?: string[];
+  /**
+   * Columns; empty = every key.
+   */
+  keys?: ConditionKey[];
+  page_size?: number | null;
+  run_ids?: RunId[];
+  schema_version: DatasetSchema;
+}
+/**
+ * A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
+ * missing or conflicting are kept only with `ConditionsQuery::include_unknown`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionFilter".
+ */
+export interface ConditionFilter {
+  /**
+   * Categorical keys.
+   */
+  any_of?: string[];
+  key: ConditionKey;
+  max_si?: number | null;
+  /**
+   * Numeric keys, SI.
+   */
+  min_si?: number | null;
+}
+/**
+ * A page of the conditions matrix. Every row has exactly one cell per key in `keys`, so a gap is
+ * always visible.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionsTable".
+ */
+export interface ConditionsTable {
+  /**
+   * Sources the table was built from (PSI experimental tables, extracted passages).
+   */
+  corpus_snapshot?: CorpusSnapshotId | null;
+  envelopes?: InvestigationEnvelope[];
+  keys: ConditionKey[];
+  next_cursor?: PageCursor | null;
+  origin: Origin;
+  rows: ConditionsRow[];
+  schema_version: DatasetSchema;
+  total_count?: number | null;
+}
+/**
+ * The tested envelope of one investigation: what a habitat atmosphere is compared against. Outside
+ * it is "outside the tested envelope", never an extrapolation.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "InvestigationEnvelope".
+ */
+export interface InvestigationEnvelope {
+  entries: EnvelopeEntry[];
+  investigation_id: string;
+  runs: number;
+}
+/**
+ * The conditions of one run (or of an investigation-level test point when the run is unresolved).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionsRow".
+ */
+export interface ConditionsRow {
+  cells: ConditionCell[];
+  investigation_id: string;
+  run: RunIdentity;
 }
 /**
  * Complete specification an author writes against: target, domain, features in order, every
@@ -2596,7 +3347,7 @@ export interface EvaluationRequest {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest4;
+  dataset_hash: Digest5;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -2750,7 +3501,7 @@ export interface EvaluationRequest1 {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest4;
+  dataset_hash: Digest5;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -2769,7 +3520,7 @@ export interface EvaluationRequest1 {
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "Rights".
  */
-export interface Rights1 {
+export interface Rights2 {
   license?: string | null;
   statement_locator?: SourceLocator | null;
   status?: RightsStatus;

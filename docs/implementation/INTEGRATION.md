@@ -6,18 +6,19 @@ de scriere**; ceilalți propun prin PR mic sau prin funcția de înregistrare a 
 
 ## Worktree-uri și branch-uri
 
-După merge-ul C0 în `main`, fiecare pornește din același commit:
+Un branch scurt per task, din `main` proaspăt, cu prefixul lane-ului; se șterge la merge. Nu există
+branch-uri de lane de lungă durată (cele vechi, integrate, au fost șterse pe 2026-11-14).
 
 ```bash
 git fetch origin
-git worktree add -b feat/handwritten-science ../ignis-science  origin/main
-git worktree add -b feat/agent-backend      ../ignis-backend origin/main
-git worktree add -b feat/scientific-data    ../ignis-data   origin/main
-git worktree add -b feat/research-product   ../ignis-product  origin/main
+git worktree add -b feat/handwritten-science-i2 ../ignis-science  origin/main   # exemplu
+git worktree add -b feat/agent-backend-m7      ../ignis-backend origin/main
+git worktree add -b feat/scientific-data-r6    ../ignis-data   origin/main
+git worktree add -b feat/research-product-t10  ../ignis-product  origin/main
 ```
 
 PR-uri mici și dese către `main` (un task din `WORKBOARD.md` per PR). Rebase pe `main` înainte de
-merge. Nu se țin patru versiuni de `main` până la final. Niciun agent nu lucrează în checkout-ul altuia.
+merge. Niciun agent nu lucrează în checkout-ul altuia. Contractele fazei 2 urmează `LANES_V2.md` §9.
 
 ## Harta ownership-ului
 
@@ -50,7 +51,7 @@ merge. Nu se țin patru versiuni de `main` până la final. Niciun agent nu lucr
 | `docs/implementation/HANDOFF_<NUME>.md` | persoana respectivă | |
 | `harness/` (nou: instrucțiuni, `skills/`, `agents/`) | Mircea | conținutul skill-urilor: review Raul (semantica datelor, citări), Iancu (calificarea modelelor) |
 | `benchmarks/` (set dev) | Tudor | hold-out-ul privat stă în vault-ul evaluatorului, niciodată în repo sau în bundle-uri de builder |
-| `docs/implementation/LANES_V2.md` | Mircea (integrator), review din fiecare lane | planul fazei 2; contractele val K1 în §5 |
+| `docs/implementation/LANES_V2.md` | Mircea (integrator), review din fiecare lane | planul fazei 2; contractele val K1 în §9 |
 | `AGENTS.md`, `docs/implementation/{ARCHITECTURE,CONTRACTS,INTEGRATION,WORKBOARD}.md`, `docs/TEAM.md`, `docs/REPOMAP.md` | Mircea (integrator), review Iancu | se actualizează în PR-ul care schimbă realitatea descrisă |
 
 ## Zonele care se suprapun — rezolvate
@@ -131,7 +132,9 @@ reload, seal/reveal și authoring nu sunt publice implicit.
 
 ## Gate-uri de merge
 
-Rulate în CI (`.github/workflows/ci.yml`, la fiecare PR) și local înainte de push:
+**CI e oprit momentan** (din 2026-11-14, până decide integratorul): workflow-ul `ci` e dezactivat pe
+GitHub și nu se reactivează, nu se adaugă și nu se modifică workflow-uri (regula din `AGENTS.md`).
+Gate-urile se rulează local înainte de push, iar PR-ul listează comenzile rulate efectiv:
 
 ```bash
 cargo fmt --all -- --check

@@ -121,4 +121,4 @@ familie (`evidence.v2`, `dataset.v2`, `research.v2`, `evaluation.v2`), referinț
 id-uri/`ArtifactRef`/`EvidenceRef`, fixture întâi, metode noi pe trait-uri cu corp implicit
 `capability_unavailable`; cele trei PR-uri se scriu în paralel și intră unul după altul, Raul → Mircea →
 Tudor, cu schemele și TS regenerate la fiecare pas. Lista tipurilor, producători,
-consumatori și fixture-uri: [LANES_V2](LANES_V2.md) §5.
+consumatori și fixture-uri: [LANES_V2](LANES_V2.md) §9.

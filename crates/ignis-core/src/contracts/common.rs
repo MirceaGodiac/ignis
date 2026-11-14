@@ -62,7 +62,7 @@ pub(crate) use schema_tag;
 
 // ---------------------------------------------------------------- opaque ids
 
-fn check_id(s: &str) -> Result<(), &'static str> {
+pub(crate) fn check_id(s: &str) -> Result<(), &'static str> {
     if s.is_empty() {
         Err("id must not be empty")
     } else if s.chars().any(|c| c.is_whitespace() || c.is_control()) {
@@ -114,6 +114,8 @@ macro_rules! opaque_id {
         }
     )+};
 }
+/// Family files declare their own ids with it (same wire rules); shared ids stay listed here.
+pub(crate) use opaque_id;
 
 opaque_id! {
     /// Workspace (tenant of episodes, artifacts and wiki).

@@ -1,0 +1,10 @@
+{
+  "schema_version": "evidence.v2",
+  "source_id": "fixture-source-report-v1",
+  "mode": "proxy",
+  "url": "https://example.org/proxy/fixture-report.pdf",
+  "range": true,
+  "cors": true,
+  "landing_url": "https://example.org/citations/fixture-report",
+  "origin": "synthetic_fixture"
+}
