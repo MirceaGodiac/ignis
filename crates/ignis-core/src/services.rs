@@ -129,6 +129,26 @@ pub trait DatasetService: Send + Sync {
     ) -> ServiceResult<ConditionsTable> {
         not_provided("conditions_query")
     }
+
+    /// Every bundle the scope may read, ordered by id (metadata only; the numeric tables stay
+    /// behind their view `ArtifactRef`s). Bundles holding a partition the scope does not grant are
+    /// not listed, and the evaluator root is listed for evaluation scopes only (M11).
+    fn datasets(&self, _scope: &ExecutionScope) -> ServiceResult<Vec<DatasetBundle>> {
+        not_provided("datasets_list")
+    }
+
+    /// Bytes `[offset, offset + len)` of one view's artifact (Parquet), streamed, after the same
+    /// scope checks as [`DatasetService::dataset`]; returns the view's `ArtifactRef` with the reader.
+    fn open_view(
+        &self,
+        _scope: &ExecutionScope,
+        _id: &DatasetId,
+        _view: &str,
+        _offset: u64,
+        _len: Option<u64>,
+    ) -> ServiceResult<(ArtifactRef, Box<dyn Read + Send>)> {
+        not_provided("dataset_view_bytes")
+    }
 }
 
 /// Model releases and strict forecasts (Iancu).

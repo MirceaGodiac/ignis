@@ -9,6 +9,10 @@
 //!   `evidence/read_result.json`.
 //! - `ModelService` lists `models/release_w0.json`; a forecast is refused (the fixture has no forward),
 //!   which exercises the failed-job path.
+//! - `DatasetService` serves `data/dataset_bundle.json` and `data/conditions_table.json` (M11). The
+//!   bundle's views have no bytes. Synthetic partitions are not NASA partitions, so the bundle is
+//!   served to the research scope like the legacy fixture origin does, except that a bundle or row
+//!   claiming the test partition is never served outside an evaluation scope.
 //! - The fixture answer artifact is readable; the other fixture artifacts have no bytes.
 
 use std::io::Read;
@@ -16,12 +20,14 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use ignis_core::contracts::{
-    AnalysisArtifact, ArtifactId, ArtifactRef, EpisodeId, ErrorCode, ErrorEnvelope, EventBody,
-    EvidenceId, EvidenceRef, ExecutionScope, ForecastRequest, ModelRelease, ReadRequest,
-    ReadResult, ReleaseId, ResearchEpisode, ResearchEvent, RetryPolicy, SearchPage, SearchRequest,
+    AnalysisArtifact, ArtifactId, ArtifactRef, Capability, ConditionsQuery, ConditionsRow,
+    ConditionsTable, DatasetBundle, DatasetId, EpisodeId, ErrorCode, ErrorEnvelope, EventBody,
+    EvidenceId, EvidenceRef, ExecutionScope, ForecastRequest, ModelRelease, PageCursor, Partition,
+    ReadRequest, ReadResult, ReleaseId, ResearchEpisode, ResearchEvent, RetryPolicy, ScopeRole,
+    SearchPage, SearchRequest,
 };
 use ignis_core::services::{
-    ArtifactDraft, ArtifactStore, KnowledgeService, ModelService, ServiceResult,
+    ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
 };
 use serde::de::DeserializeOwned;
 
@@ -123,6 +129,154 @@ impl ModelService for FixtureModels {
     }
 }
 
+pub struct FixtureDatasets {
+    bundle: DatasetBundle,
+    conditions: ConditionsTable,
+}
+
+fn not_found(msg: String) -> ErrorEnvelope {
+    ErrorEnvelope::new(ErrorCode::NotFound, msg, RetryPolicy::Never)
+}
+
+impl FixtureDatasets {
+    fn check(&self, scope: &ExecutionScope) -> ServiceResult<()> {
+        scope.require(Capability::ReadData)?;
+        if self.bundle.partitions.contains(&Partition::Test) && scope.role != ScopeRole::Evaluation
+        {
+            return Err(ErrorEnvelope::new(
+                ErrorCode::ScopeDenied,
+                "the test partition is served to evaluation scopes only",
+                RetryPolicy::Never,
+            ));
+        }
+        Ok(())
+    }
+}
+
+impl DatasetService for FixtureDatasets {
+    fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle> {
+        if *id != self.bundle.dataset_id {
+            return Err(not_found(format!("dataset {id} is not in the fixture")));
+        }
+        self.check(scope)?;
+        Ok(self.bundle.clone())
+    }
+
+    fn datasets(&self, scope: &ExecutionScope) -> ServiceResult<Vec<DatasetBundle>> {
+        scope.require(Capability::ReadData)?;
+        Ok(self
+            .check(scope)
+            .map(|_| self.bundle.clone())
+            .into_iter()
+            .collect())
+    }
+
+    fn open_view(
+        &self,
+        scope: &ExecutionScope,
+        id: &DatasetId,
+        view: &str,
+        _offset: u64,
+        _len: Option<u64>,
+    ) -> ServiceResult<(ArtifactRef, Box<dyn Read + Send>)> {
+        let b = self.dataset(scope, id)?;
+        if !b.views.iter().any(|v| v.name == view) {
+            return Err(not_found(format!("{id} has no view {view}")));
+        }
+        Err(not_found(format!(
+            "fixture view {view} of {id} has no bytes (only its reference is a fixture)"
+        )))
+    }
+
+    /// Investigation, run and key selection with offset paging; value filters are not emulated.
+    fn conditions(
+        &self,
+        scope: &ExecutionScope,
+        q: &ConditionsQuery,
+    ) -> ServiceResult<ConditionsTable> {
+        scope.require(Capability::ReadData)?;
+        q.validate()?;
+        if !q.filters.is_empty() {
+            return Err(unsupported(
+                "the fixture conditions table does not emulate value filters",
+            ));
+        }
+        let keys = if q.keys.is_empty() {
+            self.conditions.keys.clone()
+        } else {
+            let mut seen = std::collections::BTreeSet::new();
+            q.keys.iter().copied().filter(|k| seen.insert(*k)).collect()
+        };
+        let rows: Vec<&ConditionsRow> = self
+            .conditions
+            .rows
+            .iter()
+            .filter(|r| {
+                q.investigation_ids.is_empty() || q.investigation_ids.contains(&r.investigation_id)
+            })
+            .filter(|r| {
+                q.run_ids.is_empty()
+                    || r.run
+                        .run_id
+                        .as_ref()
+                        .is_some_and(|id| q.run_ids.contains(id))
+            })
+            .collect();
+        let offset = match &q.cursor {
+            None => 0,
+            Some(c) => c
+                .as_str()
+                .strip_prefix("conditions:")
+                .and_then(|n| n.parse().ok())
+                .ok_or_else(|| {
+                    ErrorEnvelope::new(
+                        ErrorCode::InvalidRequest,
+                        format!("{c} is not a conditions cursor"),
+                        RetryPolicy::Never,
+                    )
+                })?,
+        };
+        let size = q.page_size.map_or(usize::MAX, |n| n as usize);
+        let page: Vec<ConditionsRow> = rows
+            .iter()
+            .skip(offset)
+            .take(size)
+            .map(|r| ConditionsRow {
+                investigation_id: r.investigation_id.clone(),
+                run: r.run.clone(),
+                cells: keys
+                    .iter()
+                    .filter_map(|k| r.cells.iter().find(|c| c.key() == *k).cloned())
+                    .collect(),
+            })
+            .collect();
+        let next = offset + page.len();
+        let t = ConditionsTable {
+            keys,
+            next_cursor: (next < rows.len() && !page.is_empty())
+                .then(|| PageCursor::new(format!("conditions:{next}")).expect("cursor")),
+            total_count: Some(rows.len() as u64),
+            rows: page,
+            envelopes: if q.include_envelopes {
+                self.conditions
+                    .envelopes
+                    .iter()
+                    .filter(|e| {
+                        q.investigation_ids.is_empty()
+                            || q.investigation_ids.contains(&e.investigation_id)
+                    })
+                    .cloned()
+                    .collect()
+            } else {
+                vec![]
+            },
+            ..self.conditions.clone()
+        };
+        t.validate()?;
+        Ok(t)
+    }
+}
+
 /// Fixture artifacts referenced by the fixture log, over a real store for everything new.
 pub struct FixtureArtifacts {
     inner: Arc<dyn ArtifactStore>,
@@ -190,6 +344,10 @@ impl Fixture {
         let page: SearchPage = read(root, "evidence/search_page.json")?;
         let read_result: ReadResult = read(root, "evidence/read_result.json")?;
         let release: ModelRelease = read(root, "models/release_w0.json")?;
+        let bundle: DatasetBundle = read(root, "data/dataset_bundle.json")?;
+        let conditions: ConditionsTable = read(root, "data/conditions_table.json")?;
+        bundle.validate()?;
+        conditions.validate()?;
         let answer_file = root.join("research/answer.json");
         let known = events
             .iter()
@@ -208,7 +366,7 @@ impl Fixture {
                     page,
                     read: read_result,
                 })),
-                datasets: None,
+                datasets: Some(Arc::new(FixtureDatasets { bundle, conditions })),
                 models: Some(Arc::new(FixtureModels { release })),
                 sandbox: None,
                 models_disabled: false,
