@@ -1,0 +1,28 @@
+{
+  "schema_version": "evidence.v2",
+  "url": "https://example.org/fixture-paper",
+  "final_url": "https://example.org/papers/fixture-paper.pdf",
+  "canonical_url": "https://example.org/papers/fixture-paper.pdf",
+  "title": "Synthetic fixture web result (not a real paper)",
+  "content": "full_snapshot",
+  "snapshot": {
+    "artifact_id": "fixture-artifact-web-snapshot",
+    "sha256": "sha256:c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+    "media_type": "application/pdf",
+    "byte_length": 524288,
+    "origin": "synthetic_fixture",
+    "created_at": "2026-11-14T12:00:00Z"
+  },
+  "accessed_at": "2026-11-14T12:00:00Z",
+  "provider": {
+    "name": "fixture-web-provider",
+    "tool": "web_fetch"
+  },
+  "rights": {
+    "license": "Synthetic fixture licence statement",
+    "status": "verified",
+    "statement_locator": null
+  },
+  "promoted_source_id": "fixture-source-web-v1",
+  "origin": "synthetic_fixture"
+}

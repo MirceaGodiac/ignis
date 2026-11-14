@@ -1,0 +1,97 @@
+{
+  "schema_version": "evidence.v2",
+  "corpus_snapshot": "fixture-corpus-snapshot-02",
+  "node": {
+    "kind": "run",
+    "id": "fixture-run-01"
+  },
+  "neighbors": [
+    {
+      "direction": "outgoing",
+      "link": {
+        "schema_version": "evidence.v2",
+        "link_id": "fixture-link-fuel",
+        "from": {
+          "kind": "run",
+          "id": "fixture-run-01"
+        },
+        "to": {
+          "concept": "fuel",
+          "id": "fixture-fuel-a"
+        },
+        "relation": "uses_fuel",
+        "evidence": [
+          "fixture-evidence-table-01"
+        ],
+        "resolution": "resolved",
+        "method": {
+          "method": "deterministic",
+          "method_id": "fixture-experiment-table-seed",
+          "method_version": "0",
+          "inputs": [],
+          "agent": null,
+          "notes": "Synthetic fixture: seeded from an experiment table row."
+        },
+        "origin": "synthetic_fixture"
+      }
+    },
+    {
+      "direction": "outgoing",
+      "link": {
+        "schema_version": "evidence.v2",
+        "link_id": "fixture-link-hw",
+        "from": {
+          "kind": "run",
+          "id": "fixture-run-01"
+        },
+        "to": {
+          "concept": "hardware",
+          "id": "fixture-hw-chamber"
+        },
+        "relation": "uses_hardware",
+        "evidence": [
+          "fixture-evidence-table-01"
+        ],
+        "resolution": "resolved",
+        "method": {
+          "method": "deterministic",
+          "method_id": "fixture-experiment-table-seed",
+          "method_version": "0",
+          "inputs": [],
+          "agent": null,
+          "notes": null
+        },
+        "origin": "synthetic_fixture"
+      }
+    },
+    {
+      "direction": "incoming",
+      "link": {
+        "schema_version": "evidence.v2",
+        "link_id": "fixture-link-mention",
+        "from": {
+          "kind": "source",
+          "id": "fixture-source-slides-v1"
+        },
+        "to": {
+          "kind": "run",
+          "id": "fixture-run-01"
+        },
+        "relation": "describes_run",
+        "evidence": [],
+        "resolution": "unknown",
+        "method": {
+          "method": "semantic",
+          "method_id": "fixture-label-model",
+          "method_version": "0",
+          "inputs": [],
+          "agent": null,
+          "notes": "Synthetic fixture: the slides mention the run; identity not established."
+        },
+        "origin": "synthetic_fixture"
+      }
+    }
+  ],
+  "next_cursor": "fixture-cursor-graph-02",
+  "origin": "synthetic_fixture"
+}

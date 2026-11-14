@@ -1,0 +1,17 @@
+{
+  "schema_version": "evidence.v2",
+  "body": {
+    "kind": "index",
+    "pages": [
+      {
+        "page_id": "fixture-page-time-zero",
+        "title": "Synthetic fixture: time zero of a run",
+        "head_revision": 2,
+        "item_count": 2,
+        "updated_at": "2026-11-14T12:00:00Z"
+      }
+    ],
+    "next_cursor": "fixture-cursor-wiki-02"
+  },
+  "origin": "synthetic_fixture"
+}
