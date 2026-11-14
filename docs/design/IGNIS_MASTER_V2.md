@@ -844,7 +844,7 @@ Frontendul primește aceleași origini/logical URLs pentru API și artefacte; UR
 
 Pentru un serviciu public aș accepta Workers Paid de bază **5 USD/lună**, în loc să complicăm totul pentru a evita câțiva dolari. Fișierele statice au regim separat gratuit; traficul dinamic și alte resurse pot depăși inclusul. [S33]
 
-Stocarea de 200–500 GB în R2 Standard, dacă este utilizată constant o lună, ar fi aproximativ 2,85–7,35 USD pentru storage. VPS, snapshots, domeniu, operațiuni R2, API LLM/embedding/rerank și eventual GPU sunt categorii distincte. Nu convertesc automat în EUR fără un curs verificat și nu prezint un tarif GCE sau Netcup neverificat. [S34, S56]
+Stocarea de 200–500 GB în R2 Standard, dacă este utilizată constant o lună, ar fi aproximativ 2,85–7,35 USD pentru storage. VM-ul de origin (după creditul GCE), snapshots, domeniul (după primul an gratuit), operațiuni R2, API LLM/embedding/rerank și eventual GPU sunt categorii distincte. Nu convertesc automat în EUR fără un curs verificat și nu prezint un tarif GCE sau Netcup neverificat. [S34, S56]
 
 Pentru planificare aș rezerva un buget lunar de infrastructură de ordinul zecilor de euro, cu VM-ul GCE acoperit de creditul Space Apps (300 USD / 90 de zile, de confirmat în cont), apoi contul trecut pe plată sau originul mutat (Netcup ori altă VM) înainte de expirare; costul dominant al cercetării intensive poate fi LLM-ul, nu PDF-urile. Calculăm costul per episod din usage real și facturare reconciliată. Creditele/abonamentele existente sunt confirmate în cont, nu presupuse nelimitate sau transferabile la utilizatorii aplicației.
 
@@ -1676,7 +1676,7 @@ Alternativa CPU mai predictibila; nu confundam tarifele promotionale sau TVA ger
 ### S39 — gVisor execution platforms
 https://gvisor.dev/docs/architecture_guide/platforms/
 Tip: official_documentation. Stare: sursă preluată din research-ul anterior; versiunea folosită se fixează la integrare.
-systrap trebuie probat cu imaginea si VPS-ul efectiv; nu presupunem suport complet pentru orice workload.
+systrap trebuie probat cu imaginea si VM-ul GCE efectiv; nu presupunem suport complet pentru orice workload.
 
 ### S40 — gVisor production guide
 https://gvisor.dev/docs/user_guide/production/

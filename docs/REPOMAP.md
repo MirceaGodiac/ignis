@@ -18,7 +18,9 @@ and configs. Everything else is committed.
 ├── AGENTS.md                  operating guide for every coding agent (architecture, ownership, rules, commands)
 ├── fixtures/contracts/        synthetic C0 contract fixtures (origin=synthetic_fixture) + manifest.json
 ├── Cargo.toml                 workspace (crates/*), shared dependency versions, release profile
+├── rust-toolchain.toml        pinned Rust toolchain (CI and the server image use the same)
 ├── .claude/launch.json        dev-server definitions: ignis-web (5173), ignis-server (8787)
+├── .github/workflows/         CI: fmt, check, tests, web type drift + build, Worker tests, shellcheck
 │
 ├── crates/                    the Rust workspace (one binary: ignis)
 │   ├── ignis-core/            contracts (+ C0 families in contracts/), service traits, prefixes, views, Expert trait, release registry, resource guard, shared forecast path
@@ -33,8 +35,16 @@ and configs. Everything else is committed.
 │   ├── ignis-evidence/        PDF chunks, SQLite FTS5, dense retrieval + rerank, RRF, leak firewall
 │   ├── ignis-vision/          video decode with real PTS, calibration, contours, SAM2 bridge
 │   ├── ignis-research/        runtime state: episodes + event logs, jobs (leases), uploads (SQLite WAL); artifact store
+│   ├── ignis-mcp/             IGNIS tools over MCP (rmcp, loopback only): one `ToolHost` dispatcher shared with `/api/v1`
 │   ├── ignis-server/          Axum API (`ignis serve`): legacy `/api` + research `/api/v1`; fixtures/ = synthetic dev origin
 │   └── ignis-cli/             main.rs: wires every command group and collects the experts
+│
+├── infra/                     deployment (runbook: infra/README.md); nothing here runs automatically
+│   ├── deploy/                compose.yaml, systemd units, env examples for the origin (Google Compute Engine VM)
+│   ├── server/                server image (Dockerfile, entrypoint)
+│   ├── runner/                isolated analysis runner image (pinned Python packages)
+│   ├── scripts/               build, backup/restore to R2, gVisor verification
+│   └── worker/                Cloudflare Worker "ignis-edge": static UI + /api proxy behind Access
 │
 ├── configs/
 │   ├── resources/             execution profiles: cpu-local, gpu-local, runpod-3090, runpod-4090
