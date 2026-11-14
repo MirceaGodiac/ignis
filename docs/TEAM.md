@@ -9,7 +9,7 @@ fit-peste-noapte → test sigilat. Decizia curentă: `docs/design/IGNIS_MASTER_V
 | Cine | Lane | Branch | Handoff |
 |---|---|---|---|
 | **Iancu** | C0 (contracte comune), apoi Scientific Models & literal WSP: FLEX/ACME/BASS, `ignis-wsp`, specificații, assembler, forward strict, releases fără parent NASA-trained | `feat/handwritten-science` | [HANDOFF_IANCU](implementation/HANDOFF_IANCU.md) |
-| **Mircea** | Codex App Server, backend Rust/Axum, SSE, joburi, artefacte, MCP, runner, Cloudflare/Netcup; integratorul composition root-ului | `feat/agent-backend` | [HANDOFF_MIRCEA](implementation/HANDOFF_MIRCEA.md) |
+| **Mircea** | Codex App Server, backend Rust/Axum, SSE, joburi, artefacte, MCP, runner, Cloudflare/GCE; integratorul composition root-ului | `feat/agent-backend` | [HANDOFF_MIRCEA](implementation/HANDOFF_MIRCEA.md) |
 | **Raul** | date NASA, corpus, retrieval hibrid, reader, web, wiki, `DatasetBundle`, observații BASS | `feat/scientific-data` | [HANDOFF_RAUL](implementation/HANDOFF_RAUL.md) |
 | **Tudor** | Research Workspace (frontend) și evaluarea independentă (vault, scorecards, benchmark) | `feat/research-product` | [HANDOFF_TUDOR](implementation/HANDOFF_TUDOR.md) |
 
