@@ -2,6 +2,8 @@
 // README). Pure of runtime imports except types, so it runs under node --test with an injected fetch.
 
 import type {
+  ConditionsQuery,
+  ConditionsTable,
   ErrorEnvelope,
   InlinePayload,
   ModelRelease,
@@ -46,6 +48,8 @@ export interface ResearchClient extends StreamTransport {
   readArtifactValue(artifactId: string, pointer: string): Promise<InlinePayload>;
   search(req: SearchRequest): Promise<SearchPage>;
   readSource(sourceId: string, page: number): Promise<ReadResult>;
+  /** Per-run conditions and tested envelopes (K1.13). Route from M11; until it lands, a 404 here is expected. */
+  conditions(query: ConditionsQuery): Promise<ConditionsTable>;
   listModels(): Promise<ModelRelease[]>;
   postMessage(episodeId: string, text: string, clientRequestId: string): Promise<MessageAccepted>;
 }
@@ -101,6 +105,7 @@ export function httpClient(mode: Exclude<Mode, "mock">, fetchImpl: typeof fetch 
     readArtifactValue: (id, pointer) => call<InlinePayload>(`/artifacts/${enc(id)}?pointer=${enc(pointer)}`),
     search: (req) => post<SearchPage>(`/search`, req),
     readSource: (id, page) => call<ReadResult>(`/sources/${enc(id)}/pages/${page}`),
+    conditions: (query) => post<ConditionsTable>(`/conditions`, query),
     listModels: () => call<ModelRelease[]>(`/models`),
     postMessage: (id, text, client_request_id) => post<MessageAccepted>(`/episodes/${enc(id)}/messages`, { text, client_request_id } satisfies PostMessage),
   };

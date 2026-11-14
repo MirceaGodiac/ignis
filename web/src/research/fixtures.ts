@@ -4,6 +4,7 @@
 // contracts` (fixtures/contracts/manifest.json `checked_by`), not by this cast. Never edit fixtures from web/.
 
 import type {
+  ConditionsTable,
   DatasetBundle,
   ModelRelease,
   ModelSpec,
@@ -27,6 +28,7 @@ import releaseW0 from "../../../fixtures/contracts/models/release_w0.json";
 import modelSpec from "../../../fixtures/contracts/models/model_spec.json";
 import datasetBundle from "../../../fixtures/contracts/data/dataset_bundle.json";
 import visualBundle from "../../../fixtures/contracts/data/visual_bundle_pixel_only.json";
+import conditionsTable from "../../../fixtures/contracts/data/conditions_table.json";
 import manifest from "../../../fixtures/contracts/manifest.json";
 
 const as = <T>(v: unknown) => v as T;
@@ -49,4 +51,6 @@ export const FIXTURES = {
   modelSpec: as<ModelSpec>(modelSpec),
   datasetBundle: as<DatasetBundle>(datasetBundle),
   visualBundle: as<VisualObservationBundle>(visualBundle),
+  /** K1.13 fixture: two runs with a value, a conflict, a missing and a not-applicable cell, and one envelope. */
+  conditionsTable: as<ConditionsTable>(conditionsTable),
 };
