@@ -1,7 +1,8 @@
 //! Test double of headless Claude Code (`claude -p --output-format stream-json`) for the offline
 //! tests of `ClaudeBridge`. It checks the isolation flags and the cleared environment, keeps
 //! sessions as files in `CLAUDE_CONFIG_DIR`, and acts on keywords in the prompt:
-//! `tool` (one IGNIS tool call), `slow` (runs 30 s), `limit` (plan limit result), `crash` (exits
+//! `tool` (one IGNIS tool call), `explain` (a message, then a call it introduces, with arguments
+//! larger than an event inlines), `slow` (runs 30 s), `limit` (plan limit result), `crash` (exits
 //! without a result). It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log`.
 
 use std::io::{Read, Write};
@@ -70,6 +71,24 @@ fn main() {
         );
         emit(serde_json::json!({"type":"user","message":{"content":[
             {"type":"tool_result","tool_use_id":"tu-1","content":[{"type":"text","text":"{\"hits\":[]}"}]}]}}));
+    }
+    if prompt.contains("explain") {
+        let source = format!(
+            "print(1)
+{}",
+            "# padding
+"
+            .repeat(10_000)
+        );
+        emit(
+            serde_json::json!({"type":"assistant","message":{"id":"m-explain","content":[
+            {"type":"thinking","thinking":"hidden reasoning that is never logged"},
+            {"type":"text","text":"Computing the spread rate from the cited table."},
+            {"type":"tool_use","id":"tu-x","name":"mcp__ignis__analysis_execute",
+             "input":{"language":"python","source":source}}]}}),
+        );
+        emit(serde_json::json!({"type":"user","message":{"content":[
+            {"type":"tool_result","tool_use_id":"tu-x","content":[{"type":"text","text":"{\"ok\":true}"}]}]}}));
     }
     if prompt.contains("slow") {
         emit(
