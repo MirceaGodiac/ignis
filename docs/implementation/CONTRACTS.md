@@ -23,7 +23,7 @@ Rust (ignis-core) ──ignis schemas export──▶ schemas/*.json ──npm r
 | `contracts/evidence.rs` | `evidence.v1` | Raul | Mircea (transport), Tudor (viewer) | `EvidenceRef`, `SearchRequest/SearchPage`, `ReadRequest/ReadResult`, `ProvenanceLink`, `WikiPatch/WikiRevision` |
 | `contracts/dataset.rs` | `dataset.v1` | Raul | Iancu, Tudor (consum numeric) | `DatasetBundle`, `VisualObservationBundle` |
 | `contracts/wsp.rs` | `wsp.v1` | Iancu | Tudor (evaluabilitate) | `ModelSpec`, `HandwrittenWeightPatch`, `ModelBuildManifest`, regulile `ModelRelease::check_construction`, `ForecastRequest` |
-| `contracts/evaluation.rs` | `evaluation.v1` | Tudor | review științific înainte de freeze | `EvaluationRequest`, `EvaluationResult` |
+| `contracts/evaluation.rs` | `evaluation.v2` (scris; `evaluation.v1` citit, rezultatele de model din `ignis-lab` rămân v1) | Tudor | review științific înainte de freeze | `EvaluationRequest` (+ `purpose = harness_benchmark`, `HarnessBenchmark`), `EvaluationResult` (+ `HarnessComparison`), `GoldTask`, `GoldSet`, `GoldPromptSet` (forma pentru builder: fără chei de răspuns; hold-out-ul nu are formă de builder) |
 | `services.rs` | — | comun | Mircea (composition root) | `KnowledgeService`, `DatasetService`, `ModelService`, `ArtifactStore`, `EvaluationService` |
 
 ## Reutilizat, nu duplicat

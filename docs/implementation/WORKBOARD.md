@@ -40,7 +40,7 @@ din `main` (`feat/<lane>-<task>`), șters la merge.
 |---|---|---|---|---|---|
 | P0 | K1-evidence/dataset | Raul | `evidence.v2` + `dataset.v2`: `SourceAccess`, `SourceLabel`, `SourceOutline`, graf, wiki, web, `ConditionsTable`, `ResponseFormat` | — | **integrat** în `main` (PR #26) |
 | P0 | K1-research | Mircea | `research.v2`: `AnswerSubmission`, `ViewSpec` (co-design Tudor), argumente tool, `StepRationale`, `HarnessRef`, `TraceBundle`, tipuri server în core, intrări noi în `tool_catalog()` | — | **integrat** în `main` (PR #31); `ViewSpec` așteaptă co-design-ul lui Tudor |
-| P0 | K1-evaluation | Tudor | `evaluation.v2`: `GoldTask`, `HarnessComparison` | — | de făcut |
+| P0 | K1-evaluation | Tudor | `evaluation.v2`: `GoldTask`, `HarnessComparison` | — | **integrat** în `dev` (PR #44): și `GoldSet`, `GoldPromptSet`; fără scorer de harness (T11) și fără conținut de gold set (T10) |
 | P0 | M7 | Mircea | `answer_submit` (efect `compute`): validare pe host → `answer.completed`; refuz cu motiv acționabil | K1-research | **scris** (`feat/mircea-m7`): grant MCP legat de episod (Claude per turn, Codex prin header per thread), dovezi înregistrate per episod, refuz cu toate problemele; teste offline; neverificat cu un turn Codex real |
 | P0 | M6 | Mircea | harness bundle minimal (`harness/`): instrucțiuni operaționale + 2 skills, secțiune de tool-uri generată, injectat în Codex și Claude Code, digest pe episod | K1-research | de făcut |
 | P0 | M12 | Mircea | acces la surse fără copie: `GET /api/v1/sources/{id}/content` → `SourceAccess` (URL S3 semnat, proxy NTRS, URL permanent, playlist HLS pe byte-range pentru `.ts`) | K1-evidence, R6 | de făcut |
