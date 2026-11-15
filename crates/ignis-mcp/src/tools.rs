@@ -23,9 +23,9 @@ use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
     Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef, EpisodeId, ErrorCode,
     ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode,
-    InlinePayload, JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, ResponseFormat,
-    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
-    ToolsSchema,
+    InlinePayload, JobLookup, JobRef, Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef,
+    ResponseFormat, RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor,
+    ToolResult, ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -101,7 +101,9 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
         .into_iter()
         .map(|d| {
             let unavailable = match d.name.as_str() {
-                "sources_search" | "sources_read" if services.knowledge.is_none() => {
+                "sources_search" | "sources_read" | "sources_outline"
+                    if services.knowledge.is_none() =>
+                {
                     Some("KnowledgeService not configured")
                 }
                 "datasets_inspect" | "conditions_query" if services.datasets.is_none() => {
@@ -118,10 +120,10 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                     Some("isolated runner not configured or failed preflight")
                 }
                 "wiki_patch" => Some("wiki service not implemented"),
-                "sources_search" | "sources_read" | "datasets_inspect" | "conditions_query"
-                | "models_inspect" | "models_forecast" | "analysis_execute" | "artifacts_read"
-                | "jobs_get" | "answer_submit" => None,
-                // sources_outline, graph_neighbors, wiki_read, web_search, web_fetch: their
+                "sources_search" | "sources_read" | "sources_outline" | "datasets_inspect"
+                | "conditions_query" | "models_inspect" | "models_forecast"
+                | "analysis_execute" | "artifacts_read" | "jobs_get" | "answer_submit" => None,
+                // graph_neighbors, wiki_read, web_search, web_fetch: their
                 // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
@@ -169,13 +171,22 @@ fn refusal(code: ErrorCode) -> bool {
     )
 }
 
+/// Decode tool arguments; a failure names the JSON path of the offending field (`claims[0].kind`),
+/// so the model fixes that field instead of guessing where it belongs.
 fn decode<T: DeserializeOwned>(contract: &str, args: Value) -> ServiceResult<T> {
-    serde_json::from_value(args).map_err(|e| {
+    serde_path_to_error::deserialize(args).map_err(|e| {
+        let path = e.path().to_string();
+        let at = if path.is_empty() || path == "." {
+            "at the top level".to_string()
+        } else {
+            format!("at `{path}`")
+        };
         envelope(
             ErrorCode::InvalidRequest,
             format!(
-                "arguments are not a valid {contract}: {e}. The tool's input schema is the \
-                 {contract} contract; fix that field and call again."
+                "arguments are not a valid {contract}: {at}: {}. The tool's input schema is the \
+                 {contract} contract; fix that field and call again.",
+                e.inner()
             ),
         )
     })
@@ -341,6 +352,11 @@ impl ToolHost {
                 let req: ReadRequest = decode(contract, args)?;
                 checked(req.validate())?;
                 value(self.knowledge()?.read(scope, &req))
+            }
+            "sources_outline" => {
+                let req: OutlineRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                value(self.knowledge()?.outline(scope, &req))
             }
             "datasets_inspect" => {
                 let req: DatasetRef = decode(contract, args)?;

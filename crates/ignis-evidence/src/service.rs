@@ -31,9 +31,10 @@ use anyhow::Context;
 use ignis_core::contracts::{
     BackendReport, BackendStatus, Capability, CorpusSnapshotId, ErrorCode, ErrorEnvelope,
     EvidenceClass, EvidenceId, EvidenceRef, EvidenceSchema, ExecutionScope, Family, Finite,
-    OffsetUnit, Origin, PageCursor, ParseViewId, Partition, ReadRange, ReadRequest, ReadResult,
-    ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind, SearchHit, SearchMode,
-    SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator, Split,
+    OffsetUnit, Origin, OutlineRequest, PageCursor, ParseViewId, Partition, ReadRange, ReadRequest,
+    ReadResult, ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind, SearchHit,
+    SearchMode, SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator, SourceOutline,
+    Split,
 };
 use ignis_core::hashing::{canonical_json, sha256_hex};
 use ignis_core::services::{KnowledgeService, ServiceResult};
@@ -45,6 +46,9 @@ use crate::corpus::{self, CorpusSnapshot};
 use crate::dense::RetrievalCfg;
 use crate::records::parse_view_id;
 use crate::search::{Ranked, RankedHit, Retriever, SearchOpts};
+
+/// Section summaries next to the catalog (answers of `ignis evidence outline-summaries --execute`).
+pub const SUMMARIES_FILE: &str = "outline_summaries.jsonl";
 
 /// Requested page size when the request names none.
 pub const DEFAULT_PAGE_SIZE: u32 = 10;
@@ -260,6 +264,11 @@ pub struct EvidenceService {
     meta: Mutex<Connection>,
     snapshot: CorpusSnapshot,
     lockbox: Lockbox,
+    /// Section summaries (R7b pass answers, `outline_summaries.jsonl` next to the catalog), read once.
+    summaries_path: std::path::PathBuf,
+    summaries: std::sync::OnceLock<
+        std::collections::HashMap<(String, String), ignis_core::contracts::GeneratedText>,
+    >,
     orders: Mutex<VecDeque<(String, Arc<Ranked>)>>,
     /// record API spend in the cost ledger (`runs/`); off in tests
     pub ledger: bool,
@@ -305,6 +314,8 @@ impl EvidenceService {
             meta: Mutex::new(meta),
             snapshot,
             lockbox,
+            summaries_path: db.with_file_name(SUMMARIES_FILE),
+            summaries: std::sync::OnceLock::new(),
             orders: Mutex::new(VecDeque::new()),
             ledger: true,
         })
@@ -525,7 +536,10 @@ impl EvidenceService {
         let mut out = Vec::new();
         let mut kept = 0usize;
         let mut pos = r.lexical_depth;
-        let window = r.lexical_depth.max(100);
+        // Each window re-runs the ranked query (FTS5 + expansion, grouped and sorted in full), so
+        // the window doubles: a page behind many withheld or filtered-out matches (lockbox
+        // investigations) costs O(log n) passes instead of n/100. Same order, same pages.
+        let mut window = r.lexical_depth.max(100);
         loop {
             let batch = {
                 let ret = self.retriever.lock().expect("retriever");
@@ -536,6 +550,7 @@ impl EvidenceService {
                 return Ok((out, false));
             }
             pos += batch.len();
+            window = window.saturating_mul(2);
             for h in batch {
                 if seen.contains(h.chunk_id.as_str()) {
                     continue;
@@ -851,6 +866,88 @@ impl KnowledgeService for EvidenceService {
         };
         page.validate()?;
         Ok(page)
+    }
+
+    /// The section tree of the source's active view (R7b, [`crate::outline`]). Headings a scope's
+    /// lockbox withholds are left out (their section merges into the one before), so a heading
+    /// never reveals what the passages under it would not.
+    fn outline(
+        &self,
+        scope: &ExecutionScope,
+        req: &OutlineRequest,
+    ) -> ServiceResult<SourceOutline> {
+        self.check_scope(scope)?;
+        req.validate()?;
+        let p = self.publication_of(&req.source_id)?;
+        let active = parse_view_id(&p.id, &p.parser_version);
+        if let Some(v) = &req.parse_view_id {
+            if v.as_str() != active {
+                return Err(err(
+                    ErrorCode::Unsupported,
+                    format!("outlines are built from the active view ({active}), not {v}"),
+                ));
+            }
+        }
+        let chunks = {
+            let con = self.meta.lock().expect("meta");
+            crate::outline::load_chunks(&con, &p.id).map_err(internal)?
+        };
+        let sealed = self.lockbox.sealed(scope);
+        let mut pub_scope = p.investigation_ids.clone();
+        pub_scope.extend(p.families.iter().cloned());
+        let total = chunks.len();
+        let visible: Vec<_> = chunks
+            .into_iter()
+            .filter(|c| {
+                !self.lockbox.withholds(
+                    &sealed,
+                    c.outcome_bearing,
+                    &c.describes_runs,
+                    &c.continues_runs,
+                    &pub_scope,
+                )
+            })
+            .collect();
+        let visible_all = visible.len() == total;
+        let (heads, _method) = crate::outline::headings(&visible);
+        let title = p
+            .title
+            .clone()
+            .or_else(|| p.file_name.clone())
+            .unwrap_or_else(|| "(whole document)".into());
+        let roots = crate::outline::build(&heads, p.n_pages, &title).map_err(internal)?;
+        let mut roots = roots;
+        // Summaries are generated text about whole sections: shown only when this scope's lockbox
+        // withholds nothing of the document, so they can never paraphrase a withheld passage.
+        if visible_all {
+            let summaries = self.summaries.get_or_init(|| {
+                crate::outline::load_summaries(&self.summaries_path).unwrap_or_else(|e| {
+                    eprintln!("outline summaries not loaded: {e:#}");
+                    Default::default()
+                })
+            });
+            crate::outline::attach(&mut roots, &active, summaries);
+        }
+        let nodes =
+            crate::outline::select(roots, req.node_id.as_ref(), req.depth).ok_or_else(|| {
+                err(
+                    ErrorCode::NotFound,
+                    format!(
+                        "{} is not a section of {} (node ids come from sources_outline)",
+                        req.node_id.as_ref().map(|n| n.as_str()).unwrap_or_default(),
+                        req.source_id
+                    ),
+                )
+            })?;
+        let out = SourceOutline {
+            schema_version: EvidenceSchema::V2,
+            source_id: req.source_id.clone(),
+            parse_view_id: ParseViewId::new(active)?,
+            nodes,
+            origin: Origin::System,
+        };
+        out.validate()?;
+        Ok(out)
     }
 
     fn read(&self, scope: &ExecutionScope, req: &ReadRequest) -> ServiceResult<ReadResult> {

@@ -41,7 +41,7 @@ use ignis_core::contracts::{
     ScopeRole, Split, Timestamp,
 };
 use ignis_core::contracts::{ConditionsQuery, ConditionsTable, RunId};
-use ignis_core::services::{DatasetService, ServiceResult};
+use ignis_core::services::{DatasetService, ServiceResult, ViewCell, ViewRows, ViewRowsQuery};
 use parquet::arrow::ArrowWriter;
 use parquet::basic::Compression;
 use parquet::file::metadata::KeyValue;
@@ -867,6 +867,25 @@ impl DatasetStore {
         Ok(p)
     }
 
+    /// Writes the `ArtifactRef` of builder bytes already placed under `artifacts/` (a view streamed to
+    /// disk, e.g. the R2b sensor samples), after checking it names those bytes' file.
+    pub fn write_ref(&self, a: &ArtifactRef) -> anyhow::Result<()> {
+        let (data, refp) = Self::artifact_paths(&self.builder_root, &a.sha256, &a.media_type);
+        anyhow::ensure!(
+            std::fs::metadata(&data).is_ok_and(|m| m.len() == a.byte_length),
+            "{} is not in place for artifact {}",
+            data.display(),
+            a.artifact_id
+        );
+        atomic_write(
+            &refp,
+            (serde_json::to_string_pretty(a)?
+                + "
+")
+            .as_bytes(),
+        )
+    }
+
     fn load(&self, a: BundleAudience, id: &DatasetId) -> Option<anyhow::Result<DatasetBundle>> {
         let p = self.root(a).join(format!("{id}.json"));
         if !p.exists() {
@@ -984,6 +1003,20 @@ fn cached_table(p: &Path) -> ServiceResult<(Arc<ConditionsTable>, Digest)> {
     Ok((table, digest))
 }
 
+/// Ids of the bundles under `root` (`<id>.json`), sorted; unreadable directories list nothing.
+fn bundle_ids(root: &Path) -> Vec<String> {
+    let mut v: Vec<String> = std::fs::read_dir(root)
+        .into_iter()
+        .flatten()
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.is_file() && p.extension().is_some_and(|x| x == "json"))
+        .filter_map(|p| p.file_stem().map(|s| s.to_string_lossy().to_string()))
+        .collect();
+    v.sort();
+    v
+}
+
 impl DatasetService for DatasetStore {
     fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle> {
         scope
@@ -998,9 +1031,20 @@ impl DatasetService for DatasetStore {
         };
         let b = found
             .ok_or_else(|| {
+                // Name what exists, so the agent can pick an id instead of guessing (seen live:
+                // "ACME" asked for, nothing to go on). Builder ids only; a listed id may still be
+                // refused for this scope, which then says why.
+                let known = bundle_ids(&self.builder_root);
                 err(
                     ErrorCode::NotFound,
-                    format!("dataset {id} is not in this store"),
+                    if known.is_empty() {
+                        format!("dataset {id} is not in this store; the store holds no datasets")
+                    } else {
+                        format!(
+                            "dataset {id} is not in this store; dataset ids here: {}",
+                            known.join(", ")
+                        )
+                    },
                 )
             })?
             .map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?;
@@ -1008,6 +1052,17 @@ impl DatasetService for DatasetStore {
             return Err(err(
                 ErrorCode::ScopeDenied,
                 "evaluator bundles are served to evaluation scopes only",
+            ));
+        }
+        // A bundle without a split (R2b sensor bundles, `split_id = unsplit`) declares `train` only
+        // because nothing assigns its runs yet. Once a frozen split assigns any run of its
+        // investigation, the split decides: the unsplit bundle is withheld until rebuilt on it.
+        if let Some(split) = unsplit_superseded(&b, &crate::cohort::split_files()) {
+            return Err(err(
+                ErrorCode::ScopeDenied,
+                format!(
+                    "{id} was built without a split, but frozen split {split} now assigns runs of its investigation; the split's partitions win: rebuild the bundle on the split"
+                ),
             ));
         }
         for p in &b.partitions {
@@ -1048,6 +1103,26 @@ impl DatasetService for DatasetStore {
     /// Digest over the conditions table the service answers from (the bytes its cached copy was
     /// parsed from) and every frozen split file (name and bytes): the inputs that decide both the
     /// cells and which runs a scope sees.
+    /// The partition of `run` in every frozen split that assigns one (the same splits that decide
+    /// which runs `conditions` withholds).
+    fn run_partitions(
+        &self,
+        scope: &ExecutionScope,
+        run: &RunId,
+    ) -> ServiceResult<BTreeSet<Partition>> {
+        scope
+            .validate()
+            .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
+        scope.require(Capability::ReadData)?;
+        let mut out = BTreeSet::new();
+        for f in crate::cohort::split_files() {
+            let (s, _) = crate::cohort::load_split_with_cohort(&f.display().to_string())
+                .map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?;
+            out.extend(s.partition_of(run.as_str()));
+        }
+        Ok(out)
+    }
+
     fn conditions_snapshot(&self, scope: &ExecutionScope) -> ServiceResult<Digest> {
         scope
             .validate()
@@ -1162,6 +1237,233 @@ impl DatasetService for DatasetStore {
         let take = len.unwrap_or(u64::MAX);
         Ok((v.artifact.clone(), Box::new(f.take(take))))
     }
+
+    fn view_rows(&self, scope: &ExecutionScope, q: &ViewRowsQuery) -> ServiceResult<ViewRows> {
+        if q.keys.is_empty() {
+            return Err(err(
+                ErrorCode::InvalidRequest,
+                "a view row is selected by at least one key column (never by position)",
+            ));
+        }
+        // Only bundles this scope may read are searched for the pinned view.
+        let found = self.datasets(scope)?.into_iter().find_map(|b| {
+            let v = b
+                .views
+                .iter()
+                .find(|v| v.artifact.sha256 == q.view_sha256)?
+                .clone();
+            Some((b, v))
+        });
+        let (b, v) = found.ok_or_else(|| {
+            err(
+                ErrorCode::NotFound,
+                format!(
+                    "no dataset view this scope reads has digest {} (a rebuilt view has a new digest: re-read the bundle)",
+                    q.view_sha256
+                ),
+            )
+        })?;
+        let names = || {
+            v.columns
+                .iter()
+                .map(|c| c.name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+        let spec = |name: &str| v.columns.iter().find(|c| c.name == name);
+        for (k, _) in &q.keys {
+            let c = spec(k).ok_or_else(|| {
+                err(
+                    ErrorCode::InvalidRequest,
+                    format!(
+                        "{}.{}: no column {k:?} (columns: {})",
+                        b.dataset_id,
+                        v.name,
+                        names()
+                    ),
+                )
+            })?;
+            if matches!(
+                c.role,
+                ColumnRole::Value | ColumnRole::Uncertainty | ColumnRole::AvailableAt
+            ) {
+                return Err(err(
+                    ErrorCode::InvalidRequest,
+                    format!(
+                        "{}.{}: {k:?} is a measured column ({:?}); select rows by identity columns (run id, condition, time, flag, locator)",
+                        b.dataset_id, v.name, c.role
+                    ),
+                ));
+            }
+        }
+        for c in &q.columns {
+            if spec(c).is_none() {
+                return Err(err(
+                    ErrorCode::InvalidRequest,
+                    format!(
+                        "{}.{}: no column {c:?} (columns: {})",
+                        b.dataset_id,
+                        v.name,
+                        names()
+                    ),
+                ));
+            }
+        }
+        let (p, _) = Self::artifact_paths(
+            self.root(b.audience),
+            &v.artifact.sha256,
+            &v.artifact.media_type,
+        );
+        let units = ["unit_si", "raw_unit", "unit"]
+            .into_iter()
+            .filter(|u| q.with_unit_columns && spec(u).is_some())
+            .map(String::from);
+        let wanted: Vec<String> = q
+            .keys
+            .iter()
+            .map(|(k, _)| k.clone())
+            .chain(q.columns.iter().cloned())
+            .chain(units)
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        let (rows, truncated) = read_rows(&p, &wanted, &q.keys, q.limit)
+            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e:#}", p.display())))?;
+        Ok(ViewRows {
+            dataset_id: b.dataset_id.clone(),
+            view: v.name.clone(),
+            artifact: v.artifact.clone(),
+            columns: v
+                .columns
+                .iter()
+                .filter(|c| wanted.contains(&c.name))
+                .cloned()
+                .collect(),
+            rows,
+            truncated,
+        })
+    }
+}
+
+/// Split id of the bundle's runs, for a bundle built without a split.
+pub const UNSPLIT: &str = "unsplit";
+
+/// For an unsplit bundle (`split_id = unsplit`): the first frozen split among `split_files` that
+/// assigns a run of the bundle's investigation (`inclusion_criteria.investigation`; run ids are
+/// `<investigation>:<test>`). `None` for a bundle with a split, or when no split covers it. An
+/// unreadable split file counts as covering (fail closed).
+pub fn unsplit_superseded(b: &DatasetBundle, split_files: &[PathBuf]) -> Option<String> {
+    if b.split_id != UNSPLIT {
+        return None;
+    }
+    let Some(inv) = b.inclusion_criteria.get("investigation") else {
+        return Some("(unknown: the unsplit bundle names no investigation)".into());
+    };
+    let prefix = format!("{inv}:");
+    for f in split_files {
+        let name = f.display().to_string();
+        let Ok(text) = std::fs::read_to_string(f) else {
+            return Some(name);
+        };
+        let Ok(v) = serde_json::from_str::<Value>(&text) else {
+            return Some(name);
+        };
+        let split = if v.get("split").is_some() {
+            &v["split"]
+        } else {
+            &v
+        };
+        let covers = split["run_to_group"]
+            .as_object()
+            .is_some_and(|m| m.keys().any(|k| k.starts_with(&prefix)));
+        if covers {
+            return Some(split["id"].as_str().unwrap_or(&name).to_string());
+        }
+    }
+    None
+}
+
+fn view_cell(a: &dyn arrow_array::Array, i: usize) -> ViewCell {
+    use arrow_array::cast::AsArray;
+    use arrow_array::types::{Float32Type, Float64Type, Int32Type, Int64Type};
+    if a.is_null(i) {
+        return ViewCell::Null;
+    }
+    match a.data_type() {
+        DataType::Utf8 => ViewCell::Text(a.as_string::<i32>().value(i).to_string()),
+        DataType::LargeUtf8 => ViewCell::Text(a.as_string::<i64>().value(i).to_string()),
+        DataType::Float64 => ViewCell::Number(a.as_primitive::<Float64Type>().value(i)),
+        DataType::Float32 => ViewCell::Number(a.as_primitive::<Float32Type>().value(i) as f64),
+        DataType::Int64 => ViewCell::Number(a.as_primitive::<Int64Type>().value(i) as f64),
+        DataType::Int32 => ViewCell::Number(a.as_primitive::<Int32Type>().value(i) as f64),
+        DataType::Boolean => ViewCell::Bool(a.as_boolean().value(i)),
+        other => ViewCell::Text(format!("<unsupported {other}>")),
+    }
+}
+
+fn key_holds(cell: &ViewCell, want: &ignis_core::contracts::KeyValue) -> bool {
+    use ignis_core::contracts::KeyValue as K;
+    match (cell, want) {
+        (ViewCell::Text(a), K::Text(b)) => a == b,
+        (ViewCell::Number(a), K::Number(b)) => *a == b.get(),
+        (ViewCell::Bool(a), K::Bool(b)) => a == b,
+        _ => false,
+    }
+}
+
+/// Streams a Parquet view, projected to `wanted`, keeping the rows where every key holds; stops
+/// after `limit` matches (and reports whether one more exists).
+fn read_rows(
+    p: &Path,
+    wanted: &[String],
+    keys: &[(String, ignis_core::contracts::KeyValue)],
+    limit: usize,
+) -> anyhow::Result<(Vec<BTreeMap<String, ViewCell>>, bool)> {
+    use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
+    use parquet::arrow::ProjectionMask;
+    let b = ParquetRecordBatchReaderBuilder::try_new(std::fs::File::open(p)?)?;
+    let idx: Vec<usize> = b
+        .schema()
+        .fields()
+        .iter()
+        .enumerate()
+        .filter(|(_, f)| wanted.contains(f.name()))
+        .map(|(i, _)| i)
+        .collect();
+    let mask = ProjectionMask::roots(b.parquet_schema(), idx);
+    let reader = b.with_projection(mask).with_batch_size(64 * 1024).build()?;
+    let mut out = Vec::new();
+    for batch in reader {
+        let batch = batch?;
+        let col = |n: &str| batch.column_by_name(n);
+        let key_cols: Vec<_> = keys
+            .iter()
+            .map(|(k, v)| {
+                col(k)
+                    .map(|c| (c, v))
+                    .with_context(|| format!("view has no column {k}"))
+            })
+            .collect::<anyhow::Result<_>>()?;
+        for i in 0..batch.num_rows() {
+            if !key_cols
+                .iter()
+                .all(|(c, v)| key_holds(&view_cell(c.as_ref(), i), v))
+            {
+                continue;
+            }
+            if out.len() == limit {
+                return Ok((out, true));
+            }
+            let mut row = BTreeMap::new();
+            for n in wanted {
+                if let Some(c) = col(n) {
+                    row.insert(n.clone(), view_cell(c.as_ref(), i));
+                }
+            }
+            out.push(row);
+        }
+    }
+    Ok((out, false))
 }
 
 // ------------------------------------------------------------------ CLI helper

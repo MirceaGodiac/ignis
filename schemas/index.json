@@ -57,6 +57,8 @@
     "OutlineRequest",
     "SourceOutline",
     "SourceAccess",
+    "MediaKeyframeIndex",
+    "ArchiveListing",
     "ProvenanceLink",
     "GraphNeighborsRequest",
     "GraphNeighborsPage",

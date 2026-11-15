@@ -14,9 +14,13 @@ use std::time::Duration;
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use ignis_core::contracts::*;
+use ignis_data::media::range::MemRange;
+use ignis_data::media::{synth, ts, zipdir};
 use ignis_server::v1::io::{research_scope, AuthMode};
 use ignis_server::v1::sources::catalog::{Catalog, PsiFile};
-use ignis_server::v1::sources::hls::{self, KeyframeIndex};
+use ignis_server::v1::sources::hls;
+
+type KeyframeIndex = MediaKeyframeIndex;
 use ignis_server::v1::sources::resolver::{GeodeSigner, Signed, SignedUrls, Signer};
 use ignis_server::v1::sources::{SourceArgs, SourceDelivery};
 use ignis_server::v1::ResearchServices;
@@ -131,6 +135,8 @@ fn source_args(geode: &str, public: Option<&str>) -> SourceArgs {
     SourceArgs {
         manifests: data().join("manifests"),
         media_index: data().join("keyframes"),
+        media_cache: std::env::temp_dir()
+            .join(format!("ignis-sources-test-{}", std::process::id())),
         public_url: public.map(String::from),
         geode_url: geode.into(),
         margin_s: 300,
@@ -377,35 +383,13 @@ fn check_playlist(m3u8: &str, index: &KeyframeIndex) -> (Range, Vec<Range>) {
         "the playlist covers the stream to its last whole packet"
     );
     // EXTINF comes from keyframe PTS differences: they add up to the PTS span exactly.
-    let span = index.end_pts_s - index.keyframes[0].pts_s;
+    let span = index.end_pts_s.get() - index.keyframes[0].pts_s.get();
     assert!(
         (total - span).abs() < 1e-3,
         "durations add up to the PTS span: {total} vs {span}"
     );
     assert!(ranges.len() > 1);
     (init, ranges)
-}
-
-/// A synthetic MPEG-TS byte stream: every packet starts with the sync byte; PAT (PID 0) and PMT
-/// (PID 0x1000) first, then video packets, the IDR ones at `idr` packet numbers.
-fn synthetic_ts(packets: usize, idr: &[usize], tail: usize) -> Vec<u8> {
-    let mut b = vec![0xFFu8; packets * 188 + tail];
-    for p in 0..packets {
-        let o = p * 188;
-        let pid: u16 = match p {
-            0 => 0,
-            1 => 0x1000,
-            _ => 0x100,
-        };
-        b[o] = 0x47;
-        b[o + 1] = 0x40 | (pid >> 8) as u8; // payload unit start
-        b[o + 2] = pid as u8;
-        b[o + 3] = 0x10;
-        if idr.contains(&p) {
-            b[o + 4..o + 8].copy_from_slice(&[0, 0, 1, 0xE0]); // video PES start
-        }
-    }
-    b
 }
 
 #[test]
@@ -415,7 +399,7 @@ fn playlist_builder_segments_on_keyframes_and_refuses_bad_indexes() {
     )
     .unwrap();
     let id = SourceId::new(TS).unwrap();
-    index.validate(&id, TS_SIZE).unwrap();
+    hls::check(&index, &id, TS_SIZE).unwrap();
     let url = "https://psi-repo-prod.s3.amazonaws.com/k.ts?Expires=1&Signature=x";
     let m = hls::playlist(&index, url, hls::DEFAULT_TARGET_S).unwrap();
     check_playlist(&m, &index);
@@ -431,7 +415,7 @@ fn playlist_builder_segments_on_keyframes_and_refuses_bad_indexes() {
     let bad = |f: &dyn Fn(&mut KeyframeIndex)| {
         let mut ix = index.clone();
         f(&mut ix);
-        ix.validate(&id, TS_SIZE)
+        hls::check(&ix, &id, TS_SIZE)
     };
     assert!(
         bad(&|ix| ix.keyframes[3].offset += 1).is_err(),
@@ -441,7 +425,15 @@ fn playlist_builder_segments_on_keyframes_and_refuses_bad_indexes() {
         bad(&|ix| ix.keyframes.swap(2, 3)).is_err(),
         "not increasing"
     );
-    assert!(bad(&|ix| ix.keyframes[4].pts_s = f64::NAN).is_err());
+    assert!(
+        bad(&|ix| ix.keyframes[4].length = ix.keyframes[5].offset - ix.keyframes[4].offset + 188)
+            .is_err(),
+        "an I-frame range runs into the next keyframe"
+    );
+    assert!(
+        bad(&|ix| ix.keyframes[4].length = 100).is_err(),
+        "not whole packets"
+    );
     assert!(bad(&|ix| ix.keyframes.clear()).is_err());
     assert!(bad(&|ix| ix.end_pts_s = ix.keyframes.last().unwrap().pts_s).is_err());
     assert!(bad(&|ix| ix.init_bytes = 0).is_err(), "no init section");
@@ -453,10 +445,11 @@ fn playlist_builder_segments_on_keyframes_and_refuses_bad_indexes() {
         bad(&|ix| ix.init_bytes = 564).is_err(),
         "first keyframe inside init"
     );
-    assert!(index.validate(&id, TS_SIZE + 188).is_err(), "stale index");
-    assert!(index
-        .validate(&SourceId::new(PDF).unwrap(), TS_SIZE)
-        .is_err());
+    assert!(
+        hls::check(&index, &id, TS_SIZE + 188).is_err(),
+        "stale index"
+    );
+    assert!(hls::check(&index, &SourceId::new(PDF).unwrap(), TS_SIZE).is_err());
     assert!(hls::playlist(&index, "https://x/a b", 8.0).is_err());
     assert!(hls::playlist(&index, "https://x/a\n#EXT-X-ENDLIST", 8.0).is_err());
 }
@@ -722,42 +715,82 @@ async fn scope_is_host_derived_and_lockbox_originals_stay_closed_to_authoring() 
     assert_eq!(fake.calls.load(Ordering::SeqCst), 2);
 }
 
+/// The I-frames-only playlist (RFC 8216 §4.3.3.6): one range per keyframe, exactly its access
+/// unit, never the init section; returns the ranges.
+fn check_iframes(m3u8: &str, index: &KeyframeIndex) -> Vec<Range> {
+    let lines: Vec<&str> = m3u8.lines().collect();
+    assert_eq!(lines[0], "#EXTM3U");
+    // EXT-X-MAP in an I-frames-only playlist needs version 5 (§4.3.1.2).
+    assert!(lines.contains(&"#EXT-X-VERSION:5"));
+    assert!(lines.contains(&"#EXT-X-I-FRAMES-ONLY"));
+    assert_eq!(*lines.last().unwrap(), "#EXT-X-ENDLIST");
+    let map = lines
+        .iter()
+        .find_map(|l| l.strip_prefix("#EXT-X-MAP:"))
+        .expect("an EXT-X-MAP");
+    assert!(map.ends_with(&format!("BYTERANGE=\"{}@0\"", index.init_bytes)));
+    let mut ranges = Vec::new();
+    let mut total = 0.0;
+    for w in lines.windows(2) {
+        let Some(d) = w[0].strip_prefix("#EXTINF:") else {
+            continue;
+        };
+        total += d.trim_end_matches(',').parse::<f64>().unwrap();
+        let (len, off) = w[1]
+            .strip_prefix("#EXT-X-BYTERANGE:")
+            .unwrap()
+            .split_once('@')
+            .unwrap();
+        ranges.push(Range {
+            offset: off.parse().unwrap(),
+            length: len.parse().unwrap(),
+        });
+    }
+    assert_eq!(ranges.len(), index.keyframes.len());
+    for (r, k) in ranges.iter().zip(&index.keyframes) {
+        assert_eq!((r.offset, r.length), (k.offset, k.length));
+        assert!(
+            r.offset >= index.init_bytes,
+            "an I-frame range never holds the init section"
+        );
+    }
+    let span = index.end_pts_s.get() - index.keyframes[0].pts_s.get();
+    assert!((total - span).abs() < 1e-3, "{total} vs {span}");
+    ranges
+}
+
 #[test]
-fn playlist_ranges_are_whole_packets_starting_on_sync_bytes_and_idrs() {
-    // 2 s GOPs of 58 packets after PAT + PMT, a 100-byte partial packet at the end.
-    let idr: Vec<usize> = (0..7).map(|g| 2 + 58 * g).collect();
-    let packets = 2 + 58 * 7;
-    let bytes = synthetic_ts(packets, &idr, 100);
-    let index = KeyframeIndex {
-        source_id: SourceId::new(TS).unwrap(),
-        size_bytes: bytes.len() as u64,
-        init_bytes: 2 * 188,
-        end_pts_s: 10.0 + 2.0 * 7.0,
-        keyframes: idr
-            .iter()
-            .enumerate()
-            .map(|(g, &p)| hls::Keyframe {
-                offset: (p * 188) as u64,
-                pts_s: 10.0 + 2.0 * g as f64,
-            })
-            .collect(),
-        note: Some("synthetic_fixture".into()),
-    };
-    index
-        .validate(&index.source_id, bytes.len() as u64)
-        .unwrap();
-    let m = hls::playlist(
-        &index,
-        "https://psi-repo-prod.s3.amazonaws.com/k.ts?Expires=1",
-        4.0,
+fn indexed_stream_gives_playable_media_and_iframe_ranges() {
+    // A synthetic H.264 stream (PAT, PMT, interleaved audio, 1 s GOPs, a PTS wrap, a partial
+    // trailing packet), indexed by R11's indexer exactly as a NASA recording would be.
+    let s = synth::stream(&synth::SynthSpec {
+        gops: 20,
+        trailing: 100,
+        ..Default::default()
+    });
+    let bytes = &s.bytes;
+    let index = ts::index(
+        &MemRange::new(bytes.clone()),
+        SourceId::new(TS).unwrap(),
+        ts::TsOptions {
+            sample_every_s: None,
+            ..Default::default()
+        },
+        Origin::SyntheticFixture,
     )
     .unwrap();
-    let (init, ranges) = check_playlist(&m, &index);
+    hls::check(&index, &SourceId::new(TS).unwrap(), bytes.len() as u64).unwrap();
+    let url = "https://psi-repo-prod.s3.amazonaws.com/k.ts?Expires=1";
+    let (init, ranges) = check_playlist(&hls::playlist(&index, url, 4.0).unwrap(), &index);
     let pid = |o: usize| (u16::from(bytes[o + 1] & 0x1F) << 8) | u16::from(bytes[o + 2]);
     // The init section is exactly PAT then PMT.
     assert_eq!(init.length, 376);
     assert_eq!((pid(0), pid(188)), (0, 0x1000));
-    for r in std::iter::once(init).chain(ranges.iter().copied()) {
+    let iframes = check_iframes(&hls::iframes_playlist(&index, url).unwrap(), &index);
+    for r in std::iter::once(init)
+        .chain(ranges.iter().copied())
+        .chain(iframes.iter().copied())
+    {
         for p in (r.offset..r.offset + r.length).step_by(188) {
             assert_eq!(
                 bytes[p as usize], 0x47,
@@ -765,23 +798,186 @@ fn playlist_ranges_are_whole_packets_starting_on_sync_bytes_and_idrs() {
             );
         }
     }
-    // Every media range opens with an IDR (the first keyframe follows the init section here).
-    for r in &ranges {
-        let o = r.offset as usize;
-        assert_eq!(
-            &bytes[o + 4..o + 8],
-            &[0, 0, 1, 0xE0],
-            "range at {o} starts on an IDR"
-        );
+    // Every media and I-frame range opens with a video PES whose access unit holds an IDR.
+    let idr_at = |o: usize| {
+        assert_eq!(pid(o), 0x100);
+        assert_eq!(&bytes[o + 4..o + 8], &[0, 0, 1, 0xE0], "video PES at {o}");
+        bytes[o..o + 188].windows(4).any(|w| w == [0, 0, 1, 0x65])
+    };
+    assert!(ranges.iter().all(|r| idr_at(r.offset as usize)));
+    assert!(iframes.iter().all(|r| idr_at(r.offset as usize)));
+    // An I-frame range stops before the next frame's PES: one picture, not the GOP.
+    for r in &iframes {
+        let next = (r.offset + r.length) as usize;
+        assert_eq!(pid(next), 0x100);
+        assert!(!bytes[next..next + 188]
+            .windows(4)
+            .any(|w| w == [0, 0, 1, 0x65]));
     }
-    assert_eq!(
-        ranges.len(),
-        4,
-        "4 s target over 2 s GOPs: two GOPs per segment, 7 GOPs"
-    );
-    // The partial trailing packet is not in any range.
+    assert_eq!(ranges.len(), 5, "4 s target over 1 s GOPs, 20 GOPs");
     let end = ranges.last().map(|r| r.offset + r.length).unwrap();
-    assert_eq!(bytes.len() as u64 - end, 100);
+    assert_eq!(
+        bytes.len() as u64 - end,
+        100,
+        "the partial packet is in no range"
+    );
+}
+
+#[tokio::test]
+async fn ts_video_also_has_iframe_and_master_playlists() {
+    let g = geode();
+    let dir = tempfile::tempdir().unwrap();
+    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let index: KeyframeIndex = serde_json::from_slice(
+        &std::fs::read(data().join(format!("keyframes/{}.json", TS.replace(':', "-")))).unwrap(),
+    )
+    .unwrap();
+
+    let (st, h, m3u8) = get(&r, &format!("/api/v1/sources/{TS}/iframes.m3u8")).await;
+    assert_eq!(st, StatusCode::OK, "{m3u8}");
+    assert_eq!(
+        header(&h, "content-type"),
+        Some("application/vnd.apple.mpegurl")
+    );
+    assert_eq!(header(&h, "cache-control"), Some("private, no-store"));
+    check_iframes(&m3u8, &index);
+    assert!(m3u8
+        .lines()
+        .filter(|l| !l.starts_with('#'))
+        .all(|l| l.starts_with("https://psi-repo-prod.s3.amazonaws.com/")));
+
+    let (st, _, master) = get(&r, &format!("/api/v1/sources/{TS}/master.m3u8")).await;
+    assert_eq!(st, StatusCode::OK, "{master}");
+    let lines: Vec<&str> = master.lines().collect();
+    assert_eq!(lines[0], "#EXTM3U");
+    let media = lines
+        .iter()
+        .position(|l| l.starts_with("#EXT-X-STREAM-INF:BANDWIDTH="))
+        .expect("one variant");
+    assert_eq!(
+        lines[media + 1],
+        format!("{PUBLIC}/api/v1/sources/{TS}/playlist.m3u8")
+    );
+    let iframe = lines
+        .iter()
+        .find(|l| l.starts_with("#EXT-X-I-FRAME-STREAM-INF:"))
+        .expect("an I-frame stream");
+    assert!(iframe.ends_with(&format!(
+        "URI=\"{PUBLIC}/api/v1/sources/{TS}/iframes.m3u8\""
+    )));
+    assert!(
+        !master.contains("amazonaws"),
+        "the master names IGNIS URLs only"
+    );
+    let (media_bw, iframe_bw) = hls::bandwidths(&index, hls::DEFAULT_TARGET_S);
+    assert!(lines[media].ends_with(&media_bw.to_string()));
+    assert!(iframe.contains(&format!("BANDWIDTH={iframe_bw},")));
+
+    // A source that is not a `.ts` has no playlists.
+    let (st, _, _) = get(&r, &format!("/api/v1/sources/{PDF}/iframes.m3u8")).await;
+    assert_eq!(st, StatusCode::NOT_IMPLEMENTED);
+}
+
+/// A PSI-68 ZIP listed in the test manifests (`PSI-68.listing.jsonl`, synthetic).
+const ZIP_NAME: &str = "PSI-68_Raw Data_IGNIS-TEST_frames.zip";
+const ZIP_SIZE: i64 = 4_096_000;
+
+#[tokio::test]
+async fn archive_entries_page_from_the_cached_central_directory() {
+    let g = geode();
+    let dir = tempfile::tempdir().unwrap();
+    let mut args = source_args(&g.url, Some(PUBLIC));
+    args.media_cache = dir.path().join("media");
+    // A central directory as the indexer caches it: 7 entries, 3 of them TIFF frames.
+    let mut raw = Vec::new();
+    let names = [
+        "run/a.tif",
+        "run/b.tif",
+        "run/notes.txt",
+        "run/c.TIFF",
+        "run/d.csv",
+        "run/e.bin",
+        "run/f.png",
+    ];
+    for (i, n) in names.iter().enumerate() {
+        raw.extend_from_slice(b"PK\x01\x02");
+        raw.extend_from_slice(&[20, 0, 20, 0, 0, 0, 8, 0, 0, 0, 0, 0]);
+        raw.extend_from_slice(&0u32.to_le_bytes()); // crc
+        raw.extend_from_slice(&(100 + i as u32).to_le_bytes()); // compressed
+        raw.extend_from_slice(&(200 + i as u32).to_le_bytes()); // size
+        raw.extend_from_slice(&(n.len() as u16).to_le_bytes());
+        raw.extend_from_slice(&[0; 8]); // extra, comment, disk, internal attributes
+        raw.extend_from_slice(&[0; 4]); // external attributes
+        raw.extend_from_slice(&(i as u32 * 1000).to_le_bytes());
+        raw.extend_from_slice(n.as_bytes());
+    }
+    let entries = zipdir::parse_central(&raw).unwrap();
+    assert_eq!(entries.len(), 7);
+    let id = ignis_data::media::listing_source_id("PSI-68", ZIP_NAME, Some(1), Some(ZIP_SIZE));
+    zipdir::DirCache::new(args.media_cache.join("zipdir"))
+        .store(
+            &id,
+            &zipdir::ZipDirectory {
+                size_bytes: ZIP_SIZE as u64,
+                cd_offset: 4_000_000,
+                raw,
+                entries,
+            },
+        )
+        .unwrap();
+    let r = router(dir.path(), args);
+
+    let (st, h, body) = get(&r, &format!("/api/v1/sources/{id}/archive?limit=3")).await;
+    assert_eq!(st, StatusCode::OK, "{body}");
+    assert_eq!(header(&h, "cache-control"), Some("private, max-age=86400"));
+    let page: ArchiveListing = serde_json::from_str(&body).unwrap();
+    page.validate().unwrap();
+    assert_eq!(
+        (page.total_entries, page.first, page.next_after),
+        (7, 0, Some(3))
+    );
+    assert_eq!(page.archive_size_bytes, ZIP_SIZE as u64);
+    let frames: Vec<bool> = page.entries.iter().map(|e| e.frame).collect();
+    assert_eq!(frames, [true, true, false]);
+    assert_eq!(page.entries[1].size_bytes, 201);
+
+    let (_, _, body) = get(&r, &format!("/api/v1/sources/{id}/archive?after=6&limit=3")).await;
+    let last: ArchiveListing = serde_json::from_str(&body).unwrap();
+    assert_eq!(
+        (last.first, last.entries.len(), last.next_after),
+        (6, 1, None)
+    );
+    assert_eq!(last.entries[0].name, "run/f.png");
+    assert_eq!(
+        g.calls.load(Ordering::SeqCst),
+        0,
+        "a cached directory needs no geode call"
+    );
+
+    // A conversion is only for TIFF frames; an unknown entry is not found; neither calls geode.
+    let (st, _, body) = get(
+        &r,
+        &format!("/api/v1/sources/{id}/archive/entry?name=run/notes.txt&format=png"),
+    )
+    .await;
+    assert_eq!(st, StatusCode::UNPROCESSABLE_ENTITY, "{body}");
+    let (st, _, _) = get(
+        &r,
+        &format!("/api/v1/sources/{id}/archive/entry?name=nope.tif"),
+    )
+    .await;
+    assert_eq!(st, StatusCode::NOT_FOUND);
+    let (st, _, _) = get(
+        &r,
+        &format!("/api/v1/sources/{id}/archive/entry?name=run/a.tif&format=gif"),
+    )
+    .await;
+    assert_eq!(st, StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(g.calls.load(Ordering::SeqCst), 0);
+
+    // A source that is not a ZIP has no archive listing.
+    let (st, _, _) = get(&r, &format!("/api/v1/sources/{TS}/archive")).await;
+    assert_eq!(st, StatusCode::NOT_IMPLEMENTED);
 }
 
 #[tokio::test]

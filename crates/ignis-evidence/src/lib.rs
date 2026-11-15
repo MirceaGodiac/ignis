@@ -19,6 +19,8 @@ pub mod deepinfra;
 pub mod dense;
 pub mod docling_view;
 pub mod firewall;
+pub mod llm_pass;
+pub mod outline;
 #[cfg(feature = "pdf")]
 pub mod pdf;
 pub mod records;
@@ -210,11 +212,77 @@ pub enum EvidenceCmd {
         #[arg(long)]
         build: bool,
     },
+    /// Section outlines (R7b) from the active parse views: one source's tree as JSON, or with
+    /// `--all` a report of every publication (method, sections, depth) written as JSONL.
+    Outline {
+        /// Source ids (`sha256:<pdf>`); none with `--all`.
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        /// Levels to print below the document.
+        #[arg(long)]
+        depth: Option<u32>,
+        /// Report path for `--all` (default `<catalog dir>/outline_report.jsonl`).
+        #[arg(long)]
+        report: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// Section summaries (R7b): build the requests and print the cost estimate; with `--execute`,
+    /// call the model (`claude -p`) and append answers to `<catalog dir>/outline_summaries.jsonl`,
+    /// which `sources_outline` attaches as generated text. Spend needs the user's approval.
+    OutlineSummaries {
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        /// Summarise parents too (their pages repeat their children's).
+        #[arg(long)]
+        parents: bool,
+        #[arg(long, default_value = "haiku")]
+        model: String,
+        /// Price per million input / output tokens for the estimate (USD).
+        #[arg(long, default_value_t = 1.0)]
+        usd_per_mtok_in: f64,
+        #[arg(long, default_value_t = 5.0)]
+        usd_per_mtok_out: f64,
+        /// Where the requests are written for review.
+        #[arg(long)]
+        requests: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        execute: bool,
+    },
     /// Dependency-graph check: protected scientific crates must not depend on ignis-evidence.
     Firewall {
         #[arg(long, default_value = "Cargo.toml")]
         manifest: PathBuf,
     },
+}
+
+/// The publications named by source id (`sha256:<hex>` or the bare hex), or every one with `all`.
+fn select_pubs(
+    con: &rusqlite::Connection,
+    sources: &[String],
+    all: bool,
+) -> Result<Vec<records::Publication>> {
+    let pubs = catalog::publications(con)?;
+    if all {
+        return Ok(pubs);
+    }
+    if sources.is_empty() {
+        bail!("name sources (sha256:<pdf>) or pass --all");
+    }
+    sources
+        .iter()
+        .map(|s| {
+            let sha = s.trim_start_matches("sha256:");
+            pubs.iter()
+                .find(|p| p.source_sha256 == sha)
+                .cloned()
+                .ok_or_else(|| anyhow::anyhow!("{s} is not in the catalog"))
+        })
+        .collect()
 }
 
 fn print(v: &Value) -> Result<()> {
@@ -520,6 +588,57 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             let proposals: Vec<(String, f64)> = expressions.iter().map(|e| (e.clone(), 1.0)).collect();
             let choice = sira::select_expressions(&con, &proposals)?;
             print(&json!({"db": db.display().to_string(), "built": built, "expressions": choice}))
+        }
+        EvidenceCmd::Outline { sources, all, depth, report, db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let mut lines = Vec::new();
+            let mut by_method = std::collections::BTreeMap::<&str, usize>::new();
+            for p in &pubs {
+                let chunks = outline::load_chunks(&con, &p.id)?;
+                let (heads, method) = outline::headings(&chunks);
+                let title = p.title.clone().or_else(|| p.file_name.clone()).unwrap_or_default();
+                let roots = outline::build(&heads, p.n_pages, &title)?;
+                *by_method.entry(method.as_str()).or_default() += 1;
+                if all {
+                    lines.push(json!({"source_id": format!("sha256:{}", p.source_sha256), "file": p.file_name,
+                        "pages": p.n_pages, "method": method.as_str(), "sections": outline::count(&roots),
+                        "top_level": roots.len()}));
+                } else {
+                    let nodes = outline::select(roots, None, depth).unwrap_or_default();
+                    print(&json!({"source_id": format!("sha256:{}", p.source_sha256), "method": method.as_str(), "nodes": nodes}))?;
+                }
+            }
+            if all {
+                let path = report.unwrap_or_else(|| db.with_file_name("outline_report.jsonl"));
+                let mut text = String::new();
+                for l in &lines {
+                    text.push_str(&l.to_string());
+                    text.push('\n');
+                }
+                std::fs::write(&path, text)?;
+                print(&json!({"publications": pubs.len(), "by_method": by_method, "report": path.display().to_string()}))?;
+            }
+            Ok(())
+        }
+        EvidenceCmd::OutlineSummaries { sources, all, parents, model, usd_per_mtok_in, usd_per_mtok_out, requests, db, execute } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let reqs = outline::summary_requests(&con, &pubs, !parents)?;
+            let req_path = requests.unwrap_or_else(|| db.with_file_name("outline_summary_requests.jsonl"));
+            llm_pass::write_requests(&req_path, &reqs)?;
+            let est = llm_pass::estimate(&reqs, usd_per_mtok_in, usd_per_mtok_out);
+            let out = db.with_file_name(service::SUMMARIES_FILE);
+            print(&json!({"publications": pubs.len(), "requests_file": req_path.display().to_string(),
+                "estimate": est, "model": model, "answers": out.display().to_string(),
+                "status": if execute { "running" } else { "dry run: nothing was sent to a model; add --execute after the spend is approved" }}))?;
+            if execute {
+                let r = llm_pass::run(&reqs, &llm_pass::ClaudeCli::new(&model), &out, 5)?;
+                print(&serde_json::to_value(&r)?)?;
+            }
+            Ok(())
         }
         EvidenceCmd::Firewall { manifest } => {
             let protected = firewall::protected_from_config(&ignis_core::resources::configs_dir().join("evidence").join("firewall.toml"))?;
