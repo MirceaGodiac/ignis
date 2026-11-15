@@ -34,7 +34,9 @@ use ignis_core::contracts::{
     ResolvedValue, RetryPolicy, Timestamp, ToolCallId, ValueDerivation, ValueSource, ViewSpec,
 };
 use ignis_core::hashing::sha256_hex;
-use ignis_core::services::{ArtifactDraft, ArtifactStore, DatasetService, ServiceResult};
+use ignis_core::services::{
+    ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ServiceResult,
+};
 use ignis_research::ResearchStore;
 use serde_json::Value;
 
@@ -64,6 +66,9 @@ pub(crate) struct AnswerHost<'a> {
     pub grounding: GroundingMode,
     /// Conditions of experimental runs, to read a `conditions_cell` back (absent: not served).
     pub datasets: Option<&'a dyn DatasetService>,
+    /// The corpus, to read the passage of a cited evidence id whose recorded reference carries no
+    /// quote (search hits never do, and `sources_read` returns segments, not references).
+    pub knowledge: Option<&'a dyn KnowledgeService>,
 }
 
 fn internal(msg: impl Into<String>) -> ErrorEnvelope {
@@ -488,16 +493,32 @@ impl AnswerHost<'_> {
                             continue;
                         };
                         let at = format!("value {n}{stated} quoted from {evidence_id}");
-                        let Some(quote) = e.quote.as_deref() else {
-                            push(
-                                AnswerProblemKind::UngroundedNumber,
-                                format!(
-                                    "{at}: the evidence carries no quote; cite evidence whose returned quote contains the number (e.g. from sources_read)"
-                                ),
-                            );
-                            continue;
+                        // The id was returned in this episode; its passage text comes from the
+                        // corpus under this scope (a withheld passage stays unreadable).
+                        let passage = match (&e.quote, self.knowledge) {
+                            (Some(q), _) => Ok(q.clone()),
+                            (None, Some(k)) => k
+                                .resolve_evidence(scope, evidence_id)
+                                .map_err(|e| e.message)
+                                .and_then(|r| {
+                                    r.quote
+                                        .ok_or_else(|| "the corpus returns no text".to_string())
+                                }),
+                            (None, None) => Err("no knowledge service is configured".to_string()),
                         };
-                        match grounding::find_in_quote(quote, x.get(), unit) {
+                        let quote = match passage {
+                            Ok(q) => q,
+                            Err(why) => {
+                                push(
+                                    AnswerProblemKind::UngroundedNumber,
+                                    format!(
+                                        "{at}: the passage text could not be read ({why}); bind the number to a reference that resolves"
+                                    ),
+                                );
+                                continue;
+                            }
+                        };
+                        match grounding::find_in_quote(&quote, x.get(), unit) {
                             Ok(()) => {
                                 v.resolved = Some(ResolvedValue {
                                     level: GroundingLevel::Text,
