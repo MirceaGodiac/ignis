@@ -35,10 +35,11 @@ use ignis_core::services::ServiceResult;
 pub use bridge::{CodexBridge, CommitHook};
 pub use claude::{claude_preflight, turn_snapshot, ClaudeBridge, ClaudeConfig, Translator};
 pub use grants::{McpAttachment, McpGrant, McpGrants, MCP_EPISODE_HEADER, MCP_TOKEN_ENV};
-pub use harness::{HarnessBundle, HarnessSource};
+pub use harness::{HarnessBundle, HarnessShelf, HarnessSource, Skill};
 pub use mapping::StopReason;
 pub use preflight::{
-    preflight, CodexConfig, RuntimeBuildManifest, RuntimeProfile, PINNED_CODEX_VERSION,
+    codex_base_instructions, preflight, CodexConfig, RuntimeBuildManifest, RuntimeProfile,
+    CODEX_BASE_LABEL, PINNED_CODEX_VERSION,
 };
 
 /// The host's view of the agent runtime. Methods return quickly; turns run on runtime-owned threads

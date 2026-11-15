@@ -168,24 +168,29 @@ pub fn host_full(
     let knowledge = Arc::new(FakeKnowledge::default());
     let wakes = Arc::new(AtomicUsize::new(0));
     let w = wakes.clone();
-    let host = Arc::new(ToolHost::new(
-        ToolServices {
-            knowledge: Some(knowledge.clone()),
-            datasets,
-            models: Some(Arc::new(FakeModels)),
-            sandbox,
-            models_disabled: false,
-            conditions: true,
-            web: Default::default(),
-            wiki: false,
-        },
-        store.clone(),
-        artifacts.clone(),
-        Origin::SyntheticFixture,
-        Arc::new(move || {
-            w.fetch_add(1, Ordering::SeqCst);
-        }),
-    ));
+    let host = Arc::new(
+        ToolHost::new(
+            ToolServices {
+                knowledge: Some(knowledge.clone()),
+                datasets,
+                models: Some(Arc::new(FakeModels)),
+                sandbox,
+                models_disabled: false,
+                conditions: true,
+                web: Default::default(),
+                wiki: false,
+                wiki_write: false,
+            },
+            store.clone(),
+            artifacts.clone(),
+            Origin::SyntheticFixture,
+            Arc::new(move || {
+                w.fetch_add(1, Ordering::SeqCst);
+            }),
+        )
+        // No job runner here: a job tool answers at once instead of waiting for one.
+        .with_job_wait(std::time::Duration::ZERO),
+    );
     Host {
         _dir: dir,
         host,

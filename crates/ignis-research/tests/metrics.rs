@@ -214,7 +214,7 @@ fn metrics_of_a_fixture_log_are_measured_exactly_and_fail_closed() {
     let m = &measure.metrics;
     m.validate().unwrap();
     assert_eq!(m.last_seq, log.events.len() as u64);
-    assert_eq!(m.price_list, "ignis-llm-prices@2026-11-15");
+    assert_eq!(m.price_list, "ignis-llm-prices@2026-11-15b");
 
     // Latency: nearest rank over the 20 measured samples.
     let search = m.tools.iter().find(|t| t.tool == "sources_search").unwrap();

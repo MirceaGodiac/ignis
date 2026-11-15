@@ -18,6 +18,7 @@
 //! status (see [`catalog`]); it never answers with a negative result.
 
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
@@ -28,9 +29,11 @@ use ignis_core::contracts::{
     ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
     WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
 };
+use ignis_core::contracts::{SkillRef, SkillText};
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
 };
+use ignis_research::runtime::HarnessShelf;
 use ignis_research::sandbox::Sandbox;
 use ignis_research::store::{JobPriority, NewJob};
 use ignis_research::ResearchStore;
@@ -63,6 +66,11 @@ pub const ANALYSIS_JOB: &str = "analysis_execute";
 /// preview that points at it, so a model context never receives an unbounded payload.
 pub const INLINE_RESULT_BYTES: usize = 64 << 10;
 
+/// How long a job tool waits by default for its job to end before answering with the job's
+/// current state. Every agent poll is a full model request that re-sends the conversation, so the
+/// host waits instead; bounded below the runtime's MCP call timeout (Codex: 60 s).
+pub const JOB_WAIT: Duration = Duration::from_secs(25);
+
 /// Domain services the composition root injects (each optional until its lane delivers it).
 #[derive(Default, Clone)]
 pub struct ToolServices {
@@ -83,6 +91,10 @@ pub struct ToolServices {
     /// The KnowledgeService has a wiki store attached (`wiki_read`, `wiki_patch`). Without it
     /// the wiki tools are not registered and capability status says why.
     pub wiki: bool,
+    /// A session of this deployment can hold `wiki_write`. Research sessions never do (they read
+    /// the wiki only), so by default `wiki_patch` is not registered: an agent would carry its
+    /// schema in every request for a tool every call of which is refused.
+    pub wiki_write: bool,
 }
 
 /// Which web discovery tools the deployment enabled (`IGNIS_ENABLE_WEB`).
@@ -105,6 +117,10 @@ pub const WEB_SEARCH_NO_PROVIDER: &str =
 
 /// Why the wiki tools are absent while knowledge is configured.
 pub const WIKI_NOT_CONFIGURED: &str = "wiki store not attached to the KnowledgeService";
+
+/// Why `wiki_patch` is absent while the wiki is attached.
+pub const WIKI_WRITE_NOT_GRANTED: &str =
+    "no session of this deployment is granted wiki_write (research sessions read the wiki only)";
 
 /// Why `conditions_query` is absent while datasets are configured.
 pub const CONDITIONS_NOT_BUILT: &str =
@@ -142,6 +158,7 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                     Some("KnowledgeService not configured")
                 }
                 "wiki_read" | "wiki_patch" if !services.wiki => Some(WIKI_NOT_CONFIGURED),
+                "wiki_patch" if !services.wiki_write => Some(WIKI_WRITE_NOT_GRANTED),
                 "models_inspect" | "models_forecast" if services.models_disabled => {
                     Some(MODELS_DISABLED)
                 }
@@ -163,6 +180,8 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 | "datasets_inspect" | "conditions_query" | "models_inspect"
                 | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get"
                 | "answer_submit" | "wiki_read" | "wiki_patch" => None,
+                // The host always holds the harness bundle of its runtime (see `harness`).
+                "skills_read" => None,
                 // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
@@ -196,7 +215,11 @@ pub struct ToolHost {
     on_commit: Option<CommitHook>,
     /// What `answer_submit` does with a number that does not ground (M7b); `log` by default.
     grounding: GroundingMode,
+    /// How long a job tool waits server-side for its job to end ([`JOB_WAIT`] by default).
+    job_wait: Duration,
     registered: Vec<ToolDescriptor>,
+    /// The harness bundles this host's runtimes were started with: what `skills_read` serves.
+    harness: HarnessShelf,
 }
 
 fn envelope(code: ErrorCode, msg: impl Into<String>) -> ErrorEnvelope {
@@ -265,6 +288,12 @@ fn new_call_id() -> ToolCallId {
 /// What one tool produced before it is shaped into a [`ToolResult`].
 enum Outcome {
     Value(Value),
+    /// A compact view for the agent (`shown`) of the service's answer (`full`): the evidence is
+    /// recorded from `full`, and `full` is what is stored when `shown` is too large to inline.
+    Concise {
+        shown: Value,
+        full: Value,
+    },
     Inline(InlinePayload),
     Job(JobRef),
     /// A value already stored as `artifact` (inline when small, otherwise a preview of it).
@@ -300,7 +329,9 @@ impl ToolHost {
             wake_jobs,
             on_commit: None,
             grounding: GroundingMode::default(),
+            job_wait: JOB_WAIT,
             registered,
+            harness: HarnessShelf::default(),
         }
     }
 
@@ -317,9 +348,22 @@ impl ToolHost {
         self
     }
 
+    /// How long `jobs_get`, `models_forecast` and `analysis_execute` wait for their job to end
+    /// before answering with its current state (`Duration::ZERO`: answer at once).
+    pub fn with_job_wait(mut self, wait: Duration) -> Self {
+        self.job_wait = wait;
+        self
+    }
+
     /// The tools this host serves.
     pub fn registered(&self) -> &[ToolDescriptor] {
         &self.registered
+    }
+
+    /// Where the composition root puts the harness bundle it renders for the runtime, so
+    /// `skills_read` serves the skills of the bundle an episode is pinned to.
+    pub fn harness(&self) -> &HarnessShelf {
+        &self.harness
     }
 
     /// Run one call with the host-derived `scope`. Never panics on input; always returns a valid
@@ -365,12 +409,15 @@ impl ToolHost {
     /// later citation of it refused, never accepted).
     fn record_evidence(&self, scope: &ExecutionScope, ep: &EpisodeId, o: &Outcome) {
         let v = match o {
-            Outcome::Value(v) => v,
+            Outcome::Value(v) | Outcome::Concise { full: v, .. } => v,
             Outcome::Inline(p) => &p.value,
             _ => return,
         };
         let mut found = Vec::new();
         collect_evidence(v, &mut found);
+        if found.is_empty() {
+            return;
+        }
         if let Err(e) = self.store.record_episode_evidence(scope, ep, &found) {
             tracing::warn!(episode = %ep, error = %e.message, "evidence of a tool result not recorded");
         }
@@ -389,12 +436,14 @@ impl ToolHost {
             "sources_search" => {
                 let req: SearchRequest = decode(contract, args)?;
                 checked(req.validate())?;
-                let mut page = self.knowledge()?.search(scope, &req)?;
-                if concise(req.response_format) {
-                    // Ranking scores are for comparing hits, not for citing them.
-                    page.hits.iter_mut().for_each(|h| h.scores.clear());
+                let page = self.knowledge()?.search(scope, &req)?;
+                if !concise(req.response_format) {
+                    return value(Ok(page));
                 }
-                value(Ok(page))
+                let shown = concise_page(&page);
+                let full = serde_json::to_value(&page)
+                    .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))?;
+                Ok(Outcome::Concise { shown, full })
             }
             "sources_read" => {
                 let req: ReadRequest = decode(contract, args)?;
@@ -457,7 +506,7 @@ impl ToolHost {
                 let req: ForecastRequest = decode(contract, args)?;
                 self.models()?;
                 let job = self.submit_forecast(scope, &req, None, None, call_id)?;
-                Ok(Outcome::Job(job))
+                Ok(Outcome::Job(self.settle(scope, job)?))
             }
             "analysis_execute" => {
                 let req: AnalysisExecuteRequest = decode(contract, args)?;
@@ -471,7 +520,7 @@ impl ToolHost {
                     self.services.datasets.as_deref(),
                 )?;
                 let job = self.submit_analysis(scope, &req, call_id)?;
-                Ok(Outcome::Job(job))
+                Ok(Outcome::Job(self.settle(scope, job)?))
             }
             "artifacts_read" => {
                 let req: ArtifactReadRequest = decode(contract, args)?;
@@ -480,7 +529,8 @@ impl ToolHost {
             }
             "jobs_get" => {
                 let req: JobLookup = decode(contract, args)?;
-                value(self.store.job(scope, &req.job_id))
+                let job = self.store.job(scope, &req.job_id)?;
+                value(self.settle(scope, job))
             }
             "answer_submit" => {
                 let ep = episode.ok_or_else(|| {
@@ -507,8 +557,20 @@ impl ToolHost {
                         if let (Some(seq), Some(hook)) = (appended, &self.on_commit) {
                             hook(ep, seq);
                         }
-                        let value = serde_json::to_value(&answer)
-                            .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))?;
+                        // An acknowledgement, not the answer: the agent wrote it, the artifact
+                        // keeps it whole, and readers get it from `answer.completed`.
+                        let mut value = json!({
+                            "answer_id": answer.answer_id,
+                            "status": answer.status,
+                            "stored_as_artifact": artifact.artifact_id,
+                            "claims": answer.claims.len(),
+                            "evidence": answer.evidence.len(),
+                            "artifacts": answer.artifacts.len(),
+                        });
+                        if let Some(g) = &answer.grounding {
+                            value["grounding"] = serde_json::to_value(g)
+                                .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))?;
+                        }
                         Ok(Outcome::Stored { value, artifact })
                     }
                     Submitted::Refused { error, refusal } => Ok(Outcome::Refused {
@@ -516,6 +578,10 @@ impl ToolHost {
                         artifact: refusal,
                     }),
                 }
+            }
+            "skills_read" => {
+                let req: SkillRef = decode(contract, args)?;
+                value(self.skill(scope, episode, &req.name))
             }
             other => Err(envelope(
                 ErrorCode::Unsupported,
@@ -587,6 +653,81 @@ impl ToolHost {
         Ok(job)
     }
 
+    /// `skills_read`: the skill from the bundle the episode is pinned to (never another bundle: the
+    /// pin is what the trace reproduces), or, outside an episode, from the host's current bundle.
+    fn skill(
+        &self,
+        scope: &ExecutionScope,
+        episode: Option<&EpisodeId>,
+        name: &str,
+    ) -> ServiceResult<SkillText> {
+        let bundle = match episode {
+            Some(ep) => {
+                let pin = self.store.episode(scope, ep)?.pins.harness.ok_or_else(|| {
+                    envelope(
+                        ErrorCode::CapabilityUnavailable,
+                        "this episode is not pinned to a harness bundle yet, so it has no skills to read",
+                    )
+                })?;
+                self.harness.get(&pin.digest).ok_or_else(|| {
+                    envelope(
+                        ErrorCode::CapabilityUnavailable,
+                        format!(
+                            "this episode is pinned to harness {} sha256:{}, which this host does not hold; its skills cannot be served here",
+                            pin.label,
+                            pin.digest.hex()
+                        ),
+                    )
+                })?
+            }
+            None => self.harness.current().ok_or_else(|| {
+                envelope(
+                    ErrorCode::CapabilityUnavailable,
+                    "no harness bundle is loaded in this host",
+                )
+            })?,
+        };
+        bundle.skill_text(name).ok_or_else(|| {
+            let names: Vec<&str> = bundle.skills().iter().map(|s| s.name.as_str()).collect();
+            envelope(
+                ErrorCode::NotFound,
+                format!(
+                    "no skill {name:?} in this episode's harness; its skills are: {}",
+                    if names.is_empty() {
+                        "none".to_string()
+                    } else {
+                        names.join(", ")
+                    }
+                ),
+            )
+        })
+    }
+
+    /// Wait (bounded by `job_wait`) for `job` to reach a terminal state and return its latest
+    /// state either way, so the agent does not spend a model request per poll. Blocks the calling
+    /// thread: transports run tool calls on the blocking pool (see [`crate::http`]), never on a
+    /// reactor thread. Reads the store, so it also sees a runner in another process.
+    fn settle(&self, scope: &ExecutionScope, job: JobRef) -> ServiceResult<JobRef> {
+        if job.status.is_terminal() || self.job_wait.is_zero() {
+            return Ok(job);
+        }
+        let deadline = Instant::now() + self.job_wait;
+        let mut pause = Duration::from_millis(50);
+        let mut job = job;
+        loop {
+            let left = deadline.saturating_duration_since(Instant::now());
+            if left.is_zero() {
+                return Ok(job);
+            }
+            std::thread::sleep(pause.min(left));
+            pause = (pause * 2).min(Duration::from_millis(500));
+            job = self.store.job(scope, &job.job_id)?;
+            if job.status.is_terminal() {
+                return Ok(job);
+            }
+        }
+    }
+
     fn sandbox(&self) -> ServiceResult<&Arc<Sandbox>> {
         self.services.sandbox.as_ref().ok_or_else(|| {
             envelope(
@@ -655,12 +796,14 @@ impl ToolHost {
         let r = match outcome {
             Err(e) => failed(e),
             Ok(Outcome::Job(job)) => {
-                // An idempotent resubmission may find the job already finished.
-                let status = match job.status {
-                    ignis_core::contracts::JobStatus::Succeeded => ExecutionStatus::Completed,
-                    _ => ExecutionStatus::Accepted,
+                // The job may have ended while the host waited (or before an idempotent
+                // resubmission): say how, with the job's own error.
+                use ignis_core::contracts::JobStatus;
+                let mut r = match (job.status, &job.error) {
+                    (JobStatus::Succeeded, _) => base(ExecutionStatus::Completed, None),
+                    (JobStatus::Failed | JobStatus::Cancelled, Some(e)) => failed(e.clone()),
+                    _ => base(ExecutionStatus::Accepted, None),
                 };
-                let mut r = base(status, None);
                 r.artifact_refs = job.outputs.clone();
                 r.job = Some(job);
                 r
@@ -700,6 +843,29 @@ impl ToolHost {
                 r.artifact_refs = p.full.iter().cloned().collect();
                 r.result = Some(p);
                 r
+            }
+            Ok(Outcome::Concise { shown, full }) => {
+                let small = serde_json::to_vec(&shown)
+                    .map(|b| b.len() <= INLINE_RESULT_BYTES)
+                    .unwrap_or(false);
+                let p = if small {
+                    Ok(InlinePayload {
+                        value: shown,
+                        partial: false,
+                        full: None,
+                    })
+                } else {
+                    self.inline_or_store(scope, &call_id, tool, full)
+                };
+                match p {
+                    Ok(p) => {
+                        let mut r = base(ExecutionStatus::Completed, None);
+                        r.artifact_refs = p.full.iter().cloned().collect();
+                        r.result = Some(p);
+                        r
+                    }
+                    Err(e) => failed(e),
+                }
             }
             Ok(Outcome::Value(v)) => match self.inline_or_store(scope, &call_id, tool, v) {
                 Ok(p) => {
@@ -794,4 +960,75 @@ fn collect_evidence(v: &Value, out: &mut Vec<EvidenceRef>) {
         Value::Array(a) => a.iter().for_each(|x| collect_evidence(x, out)),
         _ => {}
     }
+}
+
+/// The `concise` view of a search page an agent reads: per hit what it needs to choose, read and
+/// cite a passage (rank, evidence id and class, source id, page, snippet), each source's title
+/// once, and only the backends that changed the search (degraded, or used with a note). Locator
+/// internals (asset digest, offsets, bbox, parse view), per-hit origin equal to the page's, and
+/// backends that were not part of the search are left out; `detailed` returns the `SearchPage`.
+/// The host records the full `EvidenceRef` of every hit, so citations resolve exactly as before.
+fn concise_page(page: &ignis_core::contracts::SearchPage) -> Value {
+    use ignis_core::contracts::BackendStatus;
+    use serde_json::Map;
+    let mut sources = Map::new();
+    let hits: Vec<Value> = page
+        .hits
+        .iter()
+        .map(|h| {
+            let e = &h.evidence;
+            let mut o = Map::new();
+            o.insert("rank".into(), json!(h.rank));
+            o.insert("evidence_id".into(), json!(e.evidence_id));
+            o.insert("evidence_class".into(), json!(e.evidence_class));
+            o.insert("source_id".into(), json!(e.source_id));
+            if let Some(l) = &e.locator {
+                if let Some(p) = l.page {
+                    o.insert("page".into(), json!(p));
+                }
+                if let Some(p) = &l.page_label {
+                    o.insert("page_label".into(), json!(p));
+                }
+                if let Some(t) = &l.table_id {
+                    o.insert("table_id".into(), json!(t));
+                }
+            }
+            o.insert("snippet".into(), json!(h.snippet));
+            if let Some(q) = &e.quote {
+                o.insert("quote".into(), json!(q));
+            }
+            if e.origin != page.origin {
+                o.insert("origin".into(), json!(e.origin));
+            }
+            if let Some(t) = &h.title {
+                sources
+                    .entry(e.source_id.as_str().to_string())
+                    .or_insert_with(|| json!(t));
+            }
+            Value::Object(o)
+        })
+        .collect();
+    let backends: Vec<_> = page
+        .backends
+        .iter()
+        .filter(|b| match b.status {
+            BackendStatus::Unavailable => true,
+            BackendStatus::Used => b.detail.is_some(),
+            BackendStatus::NotRequested => false,
+        })
+        .collect();
+    let mut out = Map::new();
+    out.insert("hits".into(), Value::Array(hits));
+    out.insert("sources".into(), Value::Object(sources));
+    if let Some(c) = &page.next_cursor {
+        out.insert("next_cursor".into(), json!(c));
+    }
+    if let Some(n) = page.total_count {
+        out.insert("total_count".into(), json!(n));
+    }
+    if !backends.is_empty() {
+        out.insert("backends".into(), json!(backends));
+    }
+    out.insert("origin".into(), json!(page.origin));
+    Value::Object(out)
 }

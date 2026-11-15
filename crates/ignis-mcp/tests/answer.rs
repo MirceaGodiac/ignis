@@ -192,6 +192,17 @@ fn refusal(w: &World, r: &ToolResult) -> AnswerRefusal {
     refusal
 }
 
+/// The answer a completed `answer_submit` stored (the tool result only acknowledges it).
+fn stored(w: &World, r: &ToolResult) -> ResearchAnswer {
+    let a = &r.artifact_refs[0];
+    assert_eq!(a.contract.as_deref(), Some("ResearchAnswer"));
+    let answer: ResearchAnswer =
+        serde_json::from_reader(w.h.artifacts.open(&w.sc, &a.artifact_id, 0, None).unwrap())
+            .unwrap();
+    answer.validate().unwrap();
+    answer
+}
+
 fn kinds(r: &AnswerRefusal) -> Vec<AnswerProblemKind> {
     r.problems.iter().map(|p| p.kind).collect()
 }
@@ -217,12 +228,19 @@ fn an_answer_is_stored_only_once_its_citations_were_returned_in_its_episode() {
         vec![AnswerProblemKind::UnknownEvidence; 3],
         "{refused:#?}"
     );
-    assert!(r
-        .error
-        .as_ref()
-        .unwrap()
-        .message
-        .contains("returned in this episode"));
+    let message = &r.error.as_ref().unwrap().message;
+    assert!(message.contains("returned in this episode"));
+    // The refusal in the tool result itself lists every problem, one line each.
+    assert_eq!(
+        message
+            .matches(
+                "
+- [unknown_evidence]"
+            )
+            .count(),
+        3,
+        "{message}"
+    );
     assert!(answers(&w, &w.ep).is_empty());
 
     // Evidence returned in *another* episode of the same workspace does not count.
@@ -267,10 +285,21 @@ fn an_answer_is_stored_only_once_its_citations_were_returned_in_its_episode() {
         EvidenceClass::SourceDerived
     );
     assert_eq!(answer.artifacts.len(), 3);
-    assert_eq!(
-        r.result.as_ref().unwrap().value,
-        serde_json::to_value(&answer).unwrap()
+    // The result acknowledges the stored answer compactly; the artifact keeps it whole.
+    let ack = &r.result.as_ref().unwrap().value;
+    assert_eq!(ack["answer_id"], json!(answer.answer_id));
+    assert_eq!(ack["status"], json!(answer.status));
+    assert_eq!(ack["stored_as_artifact"], json!(artifact.artifact_id));
+    assert_eq!(ack["claims"], json!(answer.claims.len()));
+    assert!(ack.get("blocks").is_none() && ack.get("evidence").unwrap().is_u64());
+    let (ack_len, answer_len) = (
+        ack.to_string().len(),
+        serde_json::to_string(&answer).unwrap().len(),
     );
+    eprintln!(
+        "answer_submit result: {ack_len} bytes acknowledgement, stored answer {answer_len} bytes"
+    );
+    assert!(ack_len * 3 < answer_len, "{ack}");
 
     // A retry with the same key returns the same answer and appends nothing.
     let again = w
@@ -296,9 +325,12 @@ fn reading_an_artifact_never_makes_its_evidence_citable() {
     let w = world();
     // The evidence the fixture search returns, as another episode saw it.
     let other = episode(&w.h, &w.sc, "crid-episode-b");
+    let mut detailed = search_args();
+    detailed["schema_version"] = json!("evidence.v2");
+    detailed["response_format"] = json!("detailed");
     let r = w
         .host
-        .call_in(&w.sc, Some(&other), "sources_search", search_args());
+        .call_in(&w.sc, Some(&other), "sources_search", detailed);
     let mut found = Vec::new();
     fn walk(v: &Value, out: &mut Vec<Value>) {
         match v {
@@ -887,8 +919,7 @@ fn a_derived_number_cites_its_computation_and_inputs() {
     // The computation and its exact inputs: stored, and the answer lists all three artifacts.
     let r = submit(&w, &w.ep, with(&record.artifact_id, &[&w.observed]));
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
-    let answer: ResearchAnswer =
-        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let answer = stored(&w, &r);
     let ids: Vec<&ArtifactId> = answer.artifacts.iter().map(|a| &a.artifact_id).collect();
     for want in [&output.artifact_id, &record.artifact_id, &w.observed] {
         assert!(ids.contains(&want), "{want} missing from {ids:?}");
@@ -929,8 +960,7 @@ fn the_log_mode_stores_the_answer_and_records_what_did_not_ground() {
         ]),
     );
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
-    let answer: ResearchAnswer =
-        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let answer = stored(&w, &r);
     answer.validate().unwrap();
     let report = answer.grounding.as_ref().unwrap();
     assert_eq!((report.mode, report.grounded), (GroundingMode::Log, 0));
@@ -995,8 +1025,7 @@ fn a_quoted_number_must_be_written_in_the_returned_quote() {
         observed(vec![quoted(3.05, "mm"), quoted(12.4, "s")]),
     );
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
-    let answer: ResearchAnswer =
-        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let answer = stored(&w, &r);
     for v in &answer.claims[0].values {
         assert_eq!(v.resolved.as_ref().unwrap().level, GroundingLevel::Text);
     }
@@ -1041,8 +1070,7 @@ fn a_quote_less_hit_is_grounded_against_its_passage_in_the_corpus() {
         observed(vec![quoted(3.05, "mm"), quoted(12.4, "s")]),
     );
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
-    let answer: ResearchAnswer =
-        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let answer = stored(&w, &r);
     assert_eq!(answer.grounding.as_ref().unwrap().grounded, 2);
 }
 
@@ -1153,8 +1181,7 @@ fn a_condition_resolves_against_the_conditions_snapshot() {
     let good = observed(vec![rounded, raw, picked]);
     let r = submit(good.clone());
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
-    let answer: ResearchAnswer =
-        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let answer = stored(&w, &r);
     let resolved: Vec<(f64, &str)> = answer.claims[0]
         .values
         .iter()
@@ -1243,8 +1270,7 @@ fn a_number_from_a_dataset_view_is_read_back_from_its_row() {
         kelvin,
     ]));
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
-    let answer: ResearchAnswer =
-        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let answer = stored(&w, &r);
     let resolved: Vec<(f64, String)> = answer.claims[0]
         .values
         .iter()

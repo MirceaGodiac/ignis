@@ -43,7 +43,8 @@ const INSTRUCTIONS: &str = "IGNIS research tools over NASA microgravity-combusti
 model releases. Every result is a ToolResult: execution_status says whether the call ran, \
 scientific_status is never assessed by the tool itself. A refused call says why and what to change; \
 fix the arguments rather than retrying them unchanged. Long work (models_forecast, \
-analysis_execute) answers `accepted` with a job: follow it with jobs_get, then read its output \
+analysis_execute) waits briefly for its job: it answers `completed` with the output artifacts, or \
+`accepted` with a job to pass to jobs_get, which also waits for it to end; then read the output \
 artifacts with artifacts_read. Results are concise by default (response_format `detailed` where a \
 tool offers it). A partial result points at the full artifact; read more of it instead of treating \
 the preview as the whole answer.";

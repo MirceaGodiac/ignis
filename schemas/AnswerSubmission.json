@@ -194,7 +194,12 @@
         },
         {
           "const": "interpretation",
-          "description": "The agent's interpretation; may cite anything or nothing.",
+          "description": "The agent's interpretation of the retrieved or computed material; may cite anything or\nnothing.",
+          "type": "string"
+        },
+        {
+          "const": "background",
+          "description": "Stated from the answering model's own knowledge, not retrieved or computed in this episode;\nunverified by IGNIS. It carries no `support` and no `values` (a statement the cited evidence\ncarries is `source_reports`; a number read from the corpus or an artifact is bound on a\ngrounded claim), so a number in its text is never shown as grounded. The host records it as\n`checked_by = host_rule / unverifiable` and refuses one that names a run of the validation or\ntest partition (a run's outcome comes only from what the tools return). An answer may be\n`complete` with background claims.",
           "type": "string"
         }
       ]
@@ -989,7 +994,7 @@
   "$id": "ignis/2.1.0/AnswerSubmission",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "What the agent submits through `answer_submit` (K1.3). It names evidence, artifacts and releases\nonly by id: the host resolves them against what tool results returned in this episode and the\nepisode's pins, builds the `ResearchAnswer` (ids, timestamps, origin, full references) and stores\nit. The agent cannot write a support check or a reference the host did not issue.",
+  "description": "What the agent submits through `answer_submit` (K1.3). It names evidence, artifacts and releases\nonly by id: the host resolves them against what tool results returned in this episode and the\nepisode's pins, builds the `ResearchAnswer` (ids, timestamps, origin, full references) and stores\nit. The agent cannot write a support check or a reference the host did not issue. The answer is\nnot limited to retrieved material: what the model knows itself goes in `background` claims.",
   "properties": {
     "blocks": {
       "items": {

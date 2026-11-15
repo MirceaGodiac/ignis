@@ -2015,6 +2015,7 @@ dependencies = [
  "ignis-data",
  "ignis-evidence",
  "ignis-research",
+ "jsonschema",
  "rmcp",
  "schemars",
  "serde",
