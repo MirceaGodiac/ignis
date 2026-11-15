@@ -56,7 +56,7 @@ figure.view-block > .view-cap { display: flex; flex-wrap: wrap; align-items: bas
 .view-kind { font-size: 12px; font-weight: 600; color: var(--ink-3); }
 .view-caption { flex: 1 1 240px; color: var(--ink); }
 .view-claims { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.view-body { display: grid; gap: 10px; min-width: 0; padding: 0 16px 14px; }
+.view-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; padding: 0 16px 14px; }
 .view-body > .note { margin: 0; }
 .view-wait { padding: 20px 0; }
 .view-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 14px; margin: 0; font-size: 12px; color: var(--ink-3); }
@@ -93,6 +93,9 @@ figure.view-block > .view-cap { display: flex; flex-wrap: wrap; align-items: bas
 .ch-title { fill: var(--ink-2); font: 500 12px var(--font-ui); }
 .ch-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .ch-dot { fill-opacity: 0.82; stroke-width: 1; }
+/* scatter: translucent, so points on the same spot read as a darker stack */
+.ch-dot-scatter { fill-opacity: 0.45; stroke-opacity: 0.85; }
+.chart-tip-n { color: var(--ink-3); font-size: 12px; }
 .ch-bar { transition: opacity 120ms; cursor: default; }
 .ch-bar.dim { opacity: 0.42; }
 .ch-hover { fill: none; stroke-width: 2; pointer-events: none; }

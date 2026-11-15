@@ -156,6 +156,15 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 3px 6px; border-radius: 5px; bor
 .note-ok > b::before, .note-caution > b::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex: none; }
 .note-ok > b::before { background: var(--ok); }
 .note-caution > b::before { background: var(--ink); }
+/* a declined or failed step, read calmly: neutral wash, a one-line human heading, the tool's message
+   (and any list it names) under it; the raw text stays in the step's technical details */
+.note-declined { gap: 6px; padding: 12px 14px 13px; }
+.note-declined > b { font-weight: 550; }
+.declined-msg { margin: 0; line-height: 1.55; color: var(--ink-2); }
+.declined-list { display: grid; gap: 3px; margin: 0; padding: 0 0 0 2px; }
+.declined-list li { list-style: none; position: relative; padding-left: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.declined-list li::before { content: ""; position: absolute; left: 2px; top: 0.68em; width: 4px; height: 4px; border-radius: 50%; background: var(--ink-3); }
+.declined-list code { color: var(--ink); font-size: 12px; }
 .note-gap { background: transparent; box-shadow: inset 0 0 0 1px var(--rule); color: var(--ink-3); }
 .note-gap > b { color: var(--ink-2); font-weight: 550; }
 
@@ -775,6 +784,15 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 .cmap-tools .btn-icon { font-size: 15px; }
 .cmap-out { position: absolute; left: 66px; top: 22px; height: 26px; padding: 0 10px; border: 1px solid var(--rule-2); border-radius: 999px; background: var(--sheet); color: var(--ink-2); font-size: 12px; cursor: pointer; }
 .cmap-out:hover { color: var(--ink); background: var(--hover); }
+/* inside an answer: the map follows the card, the tools sit above the plot and wrap, the page keeps
+   the wheel and touch scrolling (Ctrl/Cmd + wheel zooms; a hint says so) */
+.cmap-inline { width: 100%; min-width: 0; overflow: hidden; }
+.cmap-inline .cmap-svg { touch-action: pan-x pan-y; }
+.cmap-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 8px; margin-bottom: 6px; }
+.cmap-bar .cmap-tools { position: static; }
+.cmap-bar .cmap-out { position: static; order: -1; margin-right: auto; }
+.cmap-hint { position: absolute; left: 50%; bottom: 56px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--ink) 82%, transparent); color: var(--paper); font-size: 12px; pointer-events: none; opacity: 0; transform: translate(-50%, 2px); transition: opacity 160ms var(--ease), transform 160ms var(--ease); }
+.cmap-hint.on { opacity: 1; transform: translate(-50%, 0); }
 
 .mapv { display: grid; gap: 14px; }
 .mapv-layers { display: grid; gap: 8px; }

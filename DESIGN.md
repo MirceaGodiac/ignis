@@ -378,7 +378,9 @@ Neutral by default, red only for refusals.
 - **Refusal:** refusal wash fill and a red heading. It shows the typed code and the next action.
 - **Caution:** neutral note with a 6px ink dot before the heading.
 - **Ok:** neutral note with a 6px green dot before the heading.
-- **Gap:** transparent with an inset 1px hairline and pencil-grey text. It names data that the contracts do not carry yet.
+- **Gap:** transparent with an inset 1px hairline and pencil-grey text. It names data that the contracts do not carry yet. A view or figure inside an answer that cannot be drawn ("Not shown: …") is a gap, not a refusal.
+- **Declined step:** a refused or failed tool step in the side panel is a neutral note: a one-line human heading from the error code ("This dataset isn't available here"), then the tool's message; a list it names after a colon becomes a short bulleted list (name in mono, parenthetical muted). The raw message and code stay in Technical details. The trail keeps "1 step did not run" in red, and that line opens the step.
+- **Limits:** one quiet line under the answer (info icon, "3 limits", chevron) that opens into a list on a faint wash; each limit leads with its first sentence, the rest muted; the ask button appears on row hover or focus, always on touch.
 
 ### Evidence glyphs (signature)
 8px CSS shapes that sit before a label in tags, legends, claim keys and the evidence grid. They use `currentColor` where the class has no hue of its own. See the Shape Carries Evidence Rule.

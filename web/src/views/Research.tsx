@@ -716,6 +716,7 @@ function LiveRow({ stop }: { stop: Stop | null }) {
 /** One line when closed ("Searched 3 times, read 2 sources · 32 s"); the trail when open. While the
  * agent works, the current step stays visible under the line. */
 function RouteSummary({ stops, turn, working }: { stops: Stop[]; turn: Turn; working: boolean }) {
+  const panel = usePanel();
   const [open, setOpen] = useState(false);
   const visible = stops.filter((s) => !isBookkeeping(s));
   const lastStep = [...visible].reverse().find((s) => s.kind === "tool" || s.kind === "job");
@@ -730,17 +731,34 @@ function RouteSummary({ stops, turn, working }: { stops: Stop[]; turn: Turn; wor
       : null
     : routeSummary(stops) ?? (asides ? `${asides} note${asides === 1 ? "" : "s"} on the way` : "No tool steps");
   const total = working ? null : duration(turn.startedAt, turn.endedAt);
+  // "1 step did not run" opens that step (the first one) in the side panel, with the trail around it;
+  // its number is the one the trail shows.
+  const tools = listed.filter((s): s is Extract<Stop, { kind: "tool" }> => s.kind === "tool");
+  const firstBad = tools.findIndex((s) => stopTone(s) === "bad");
+  const openProblem = () => {
+    if (firstBad < 0) return;
+    setOpen(true);
+    panel.open({ kind: "step", call: tools[firstBad].call, index: firstBad + 1 });
+  };
+  const problemText = problems === 1 ? "1 step did not run" : `${problems} steps did not run`;
   return (
     <section className={`trail${open ? " open" : ""}${working ? " live" : ""}`} aria-label="What the agent did">
       {summary && (
-        <button className="trail-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          <span className="trail-sum">
-            {summary}
-            {total && <span className="trail-total"> · {total}</span>}
-          </span>
-          {problems > 0 && <span className="trail-state tone-bad">{problems === 1 ? "1 step did not run" : `${problems} steps did not run`}</span>}
-          <IconChevron className="chev" aria-hidden="true" />
-        </button>
+        <div className="trail-headrow">
+          <button className="trail-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+            <span className="trail-sum">
+              {summary}
+              {total && <span className="trail-total"> · {total}</span>}
+            </span>
+            {problems > 0 && firstBad < 0 && <span className="trail-state tone-bad">{problemText}</span>}
+            <IconChevron className="chev" aria-hidden="true" />
+          </button>
+          {problems > 0 && firstBad >= 0 && (
+            <button className="trail-problem trail-state tone-bad" onClick={openProblem}>
+              {problemText}
+            </button>
+          )}
+        </div>
       )}
       {open && <Stops stops={listed} t0={turn.startedAt} />}
       {working && <LiveRow stop={current} />}

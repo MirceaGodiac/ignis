@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { ConditionsTable, ResearchAnswer, ViewSpec, VisualObservationBundle } from "../contracts/generated";
 import { SeriesChart } from "../components/SeriesChart";
 import { readSeries, seriesProblems, viewProblems, type Series } from "../research/viewSpec";
-import { chartRows, skippedNote, tableModel, type ChartView } from "../research/chartRows";
+import { chartRows, rowCount, skippedNote, tableModel, type ChartView } from "../research/chartRows";
+import { compactKeys } from "../research/noteText";
 import { AnswerChart } from "../components/AnswerChart";
 import { DataTable } from "../components/DataTable";
 import "./answer.css";
@@ -36,18 +37,19 @@ const KIND_TITLE: Record<ViewSpec["kind"], string> = {
 
 export function ViewBlock({ view, caption, answer, client, claimKeys }: { view: ViewSpec; caption?: string | null; answer: ResearchAnswer; client: ResearchClient; claimKeys: string[] }) {
   const problems = viewProblems(view, answer);
+  const claims = claimKeys.length ? compactKeys(claimKeys) : null;
   return (
     <figure className={`view-block view-${view.kind}`} aria-label={caption ? `${KIND_TITLE[view.kind]}: ${caption}` : KIND_TITLE[view.kind]}>
       <figcaption className="view-cap">
         <span className="view-kind">{KIND_TITLE[view.kind]}</span>
         {caption && <span className="view-caption">{caption}</span>}
-        {claimKeys.length > 0 && (
-          <span className="view-claims">
-            {claimKeys.length === 1 ? "Claim" : "Claims"} {claimKeys.join(", ")}
+        {claims && (
+          <span className="view-claims" title={claims.short === claims.full ? undefined : claims.full}>
+            {claims.short}
           </span>
         )}
       </figcaption>
-      <div className="view-body">{problems.length > 0 ? <p className="note note-refusal small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}</div>
+      <div className="view-body">{problems.length > 0 ? <p className="note note-gap small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}</div>
     </figure>
   );
 }
@@ -117,12 +119,12 @@ function SeriesView({ view, client }: { view: Extract<ViewSpec, { kind: "series_
     staleTime: Infinity,
   });
   if (q.isPending) return <p className="muted small view-wait">Reading the series…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The series could not be read" />;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The series could not be read" />;
   const bad = q.data.flatMap((s, i) => (typeof s === "string" ? [`series ${i + 1}: ${s}`] : []));
-  if (bad.length) return <p className="note note-refusal small">Not drawn: {bad.join("; ")}.</p>;
+  if (bad.length) return <p className="note note-gap small">Not drawn: {bad.join("; ")}.</p>;
   const series = q.data as Series[];
   const mismatch = seriesProblems(series);
-  if (mismatch.length) return <p className="note note-refusal small">Not drawn on one axis: {mismatch.join("; ")}.</p>;
+  if (mismatch.length) return <p className="note note-gap small">Not drawn on one axis: {mismatch.join("; ")}.</p>;
   return (
     <>
       <SeriesChart series={series} id={`series:${view.series.map((s) => s.artifact_id).join(",")}`} />
@@ -138,7 +140,7 @@ function AnswerMap({ t }: { t: ConditionsTable }) {
   const [domain, setDomain] = useState<Domain>(HOME);
   const [selected, setSelected] = useState<string | null>(null);
   const maxKpa = Math.max(150, ...v.points.map((p) => p.kpa));
-  return <ConditionsMap points={v.points} hidden={NONE} habitats={ALL_HABITATS} selected={selected} onSelect={setSelected} domain={domain} setDomain={setDomain} maxKpa={maxKpa} />;
+  return <ConditionsMap points={v.points} hidden={NONE} habitats={ALL_HABITATS} selected={selected} onSelect={setSelected} domain={domain} setDomain={setDomain} maxKpa={maxKpa} inline />;
 }
 const NONE = new Set<string>();
 const ALL_HABITATS = new Set<HabitatId>(["moon", "suit", "iss"]);
@@ -146,17 +148,17 @@ const ALL_HABITATS = new Set<HabitatId>(["moon", "suit", "iss"]);
 function TableArtifact({ id, client, render }: { id: string; client: ResearchClient; render: (t: ConditionsTable) => JSX.Element }) {
   const q = useArtifact<ConditionsTable>(client, id);
   if (q.isPending) return <p className="muted small view-wait">Reading the conditions…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The conditions table could not be read" />;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The conditions table could not be read" />;
   return render(q.data);
 }
 
 function BundleArtifact({ id, sourceId, client }: { id: string; sourceId: string; client: ResearchClient }) {
   const q = useArtifact<VisualObservationBundle>(client, id);
   if (q.isPending) return <p className="muted small view-wait">Reading the contour bundle…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The contour bundle could not be read" />;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The contour bundle could not be read" />;
   if (q.data.video_source_id !== sourceId)
     return (
-      <p className="note note-refusal small">
+      <p className="note note-gap small">
         Not shown: the bundle was extracted from {q.data.video_source_id}, not from {sourceId}.
       </p>
     );
@@ -197,8 +199,8 @@ function ArtifactTable({ id, pointer, client }: { id: string; pointer: string; c
   const q = useArtifact<unknown>(client, id);
   const t = useMemo(() => (q.data === undefined ? null : tableModel(resolvePointer(q.data, pointer))), [q.data, pointer]);
   if (q.isPending) return <p className="muted small view-wait">Reading the artifact…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The artifact could not be read" />;
-  if (!t) return <p className="note note-refusal small">Not shown: {pointer || "the document"} is not a table.</p>;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The artifact could not be read" />;
+  if (!t) return <p className="note note-gap small">Not shown: {pointer || "the document"} is not a table.</p>;
   return <DataTable columns={t.columns} rows={t.rows} />;
 }
 
@@ -208,18 +210,15 @@ function ChartArtifact({ view, client }: { view: ChartView; client: ResearchClie
   const q = useArtifact<unknown>(client, view.artifact_id);
   const d = useMemo(() => (q.data === undefined ? null : chartRows(q.data, view)), [q.data, view]);
   if (q.isPending) return <p className="muted small view-wait">Reading the rows…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The chart's artifact could not be read" />;
-  if (typeof d === "string" || !d) return <p className="note note-refusal small">Not drawn: {d ?? "no rows"}.</p>;
-  if (!d.points.length) return <p className="note note-refusal small">Not drawn: none of the {d.total} rows has plottable values{d.skipped ? ` (${skippedNote(d)})` : ""}.</p>;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The chart's artifact could not be read" />;
+  if (typeof d === "string" || !d) return <p className="note note-gap small">Not drawn: {d ?? "no rows"}.</p>;
+  if (!d.points.length) return <p className="note note-gap small">Not drawn: none of the {d.total} rows has plottable values{d.skipped ? ` (${skippedNote(d)})` : ""}.</p>;
   const note = skippedNote(d);
   return (
     <>
       <AnswerChart view={view} data={d} />
       <p className="view-foot">
-        <span>
-          {d.points.length} {d.points.length === 1 ? "row" : "rows"} from <code>{shortId(view.artifact_id)}</code>
-          {view.pointer && <code>{view.pointer}</code>}
-        </span>
+        <span title={`From ${view.artifact_id}${view.pointer ? ` ${view.pointer}` : ""}`}>{rowCount(d.points.length, d.noun)}</span>
         {note && <span className="view-skip">{note}</span>}
       </p>
     </>

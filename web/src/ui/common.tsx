@@ -56,10 +56,12 @@ function retryText(e: ErrorEnvelope): string {
   }
 }
 
-export function ErrorNote({ error, title }: { error: unknown; title?: string }) {
+/** A failed request. `quiet` (inside an answer, where the failure is one view's, not the page's) reads
+ * as an outlined gap rather than a red refusal. */
+export function ErrorNote({ error, title, quiet = false }: { error: unknown; title?: string; quiet?: boolean }) {
   const env = error instanceof ApiError ? error.envelope : null;
   return (
-    <div className="note note-refusal" role="status">
+    <div className={`note ${quiet ? "note-gap small" : "note-refusal"}`} role="status">
       <b>
         {title ?? "Request failed"} {env && <code>{env.code}</code>}
         {error instanceof ApiError && error.httpStatus != null && <span className="muted">HTTP {error.httpStatus}</span>}

@@ -86,6 +86,8 @@ export interface ChartData {
   skipped: number;
   skippedWhy: Record<string, number>;
   total: number;
+  /** What one row is to a reader ("17 tests" for a conditions table, else "rows"). */
+  noun: "test" | "row";
 }
 
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -137,8 +139,17 @@ export function chartRows(doc: unknown, view: ChartView): ChartData | string {
   const categories = categorical ? [...new Set(points.map((p) => p.x as string))] : [];
   const groups = view.group ? [...new Set(points.map((p) => p.group))] : [null];
   const skipped = rows.length - points.length;
-  return { points, categorical, categories, groups, skipped, skippedWhy: why, total: rows.length };
+  return { points, categorical, categories, groups, skipped, skippedWhy: why, total: rows.length, noun: rowNoun(rows) };
 }
+
+/** What a row is, for the reader: a test when rows name their run (a conditions table), else a row. */
+export function rowNoun(rows: unknown[]): "test" | "row" {
+  const r = rows.find((x) => x && typeof x === "object" && !Array.isArray(x)) as Record<string, unknown> | undefined;
+  return r && ["run", "run_id", "test", "test_id", "run_key"].some((k) => k in r) ? "test" : "row";
+}
+
+/** "17 tests", "1 row". */
+export const rowCount = (n: number, noun: "test" | "row") => `${n} ${noun}${n === 1 ? "" : "s"}`;
 
 /** "3 rows not drawn (2: pressure is not a number; 1: …)" or null. */
 export function skippedNote(d: ChartData): string | null {
