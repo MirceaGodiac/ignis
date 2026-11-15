@@ -319,6 +319,12 @@ impl AgentRuntime for CodexBridge {
                 tracing::warn!(episode = %open.episode_id, error = %e, "runtime recovery failed");
             }
         }
+        // Messages no turn received, and continuations left pending, when the host stopped.
+        for (ep, scope) in self.inner.store.episodes_to_drive()? {
+            if let Err(e) = self.inner.drive(&scope, &ep, true) {
+                tracing::warn!(episode = %ep, error = %e, "runtime recovery failed");
+            }
+        }
         Ok(())
     }
 }
@@ -400,10 +406,35 @@ impl Inner {
                     tracing::warn!(episode = %ep, error = %e, "runtime turn not started");
                     slot.busy = false;
                     slot.again = false;
+                    let origin = slot.origin;
+                    drop(st);
+                    // Never silent: the episode says why its messages wait.
+                    self.commit(
+                        &scope,
+                        ep,
+                        origin,
+                        vec![Mapped::Record(RuntimeRecord {
+                            mark: None,
+                            causation: Causation::default(),
+                            change: status(
+                                EpisodeStatus::WaitingUser,
+                                mapping::IDLE,
+                                mapping::not_started(&e.message),
+                            ),
+                        })],
+                    );
                     return;
                 }
             }
         }
+    }
+
+    /// Whether the runtime is attached to `answer_submit`.
+    fn answer_tool(&self) -> bool {
+        self.cfg
+            .mcp
+            .as_ref()
+            .is_some_and(|m| m.enabled_tools.iter().any(|t| t == mapping::ANSWER_TOOL))
     }
 
     /// Settle what a previous process left open, then start one turn. `Ok(true)` when a turn runs.
@@ -422,7 +453,11 @@ impl Inner {
             self.settle(&live, scope, ep, &thread_id, &open, None)?;
         }
         let note = self.lock().slots.get_mut(ep).and_then(|s| s.note.take());
-        let Some(ts) = self.store.begin_turn(scope, ep, note.as_deref())? else {
+        let Some(ts) = self
+            .store
+            .begin_turn(scope, ep, note.as_deref(), self.answer_tool())?
+        else {
+            (self.on_commit)(ep, self.store.episode(scope, ep)?.last_seq);
             return Ok(false);
         };
         (self.on_commit)(ep, ts.episode.last_seq);
@@ -485,8 +520,8 @@ impl Inner {
                 } else {
                     (
                         "rejected",
-                        EpisodeStatus::Failed,
-                        format!("the runtime refused the turn: {e}"),
+                        EpisodeStatus::WaitingUser,
+                        format!("the runtime refused the turn: {e}; {}", mapping::CONTINUES),
                     )
                 };
                 self.store.finish_turn(&ts.turn_key, outcome)?;
@@ -1076,16 +1111,48 @@ impl Inner {
                 self.send_interrupt(live, &thread, &t);
             }
         }
-        let (stop, mapped) = {
+        let (stop, mut mapped, live_key) = {
             let mut st = self.lock();
             let slot = st.slots.get_mut(&ep);
             let stop = slot.as_ref().and_then(|s| s.stop);
             let mapped = map_notification(method, &params, stop);
             match slot {
-                Some(s) => (stop, s.preamble.link(mapped)),
-                None => (stop, mapped),
+                Some(s) => {
+                    let id = mapping::turn_of(&params);
+                    let ours = s.runtime_turn_id.is_none() || s.runtime_turn_id.as_deref() == id;
+                    let key = s.turn_key.clone().filter(|_| ours);
+                    (stop, s.preamble.link(mapped), key)
+                }
+                None => (stop, mapped, None),
             }
         };
+        if method == "turn/completed" {
+            // A turn that completed without an accepted answer it could have submitted: the
+            // episode stays `running` for the host's one continuation (opened by the next
+            // `begin_turn`), so nobody sees it completed in between.
+            let completed = params
+                .get("turn")
+                .is_some_and(|t| mapping::turn_outcome(t, stop).0 == EpisodeStatus::Completed);
+            let continues = completed
+                && self.answer_tool()
+                && live_key.as_deref().is_some_and(|k| {
+                    self.store.continuation_due(&ep, k).unwrap_or_else(|e| {
+                        tracing::warn!(episode = %ep, error = %e, "continuation check");
+                        false
+                    })
+                });
+            if continues {
+                mapped.retain(|m| {
+                    !matches!(
+                        m,
+                        Mapped::Record(RuntimeRecord {
+                            change: RuntimeChange::Status { .. },
+                            ..
+                        })
+                    )
+                });
+            }
+        }
         self.commit(&scope, &ep, origin, mapped);
         if method == "turn/completed" {
             if let Some(t) = params.get("turn") {
@@ -1112,7 +1179,8 @@ impl Inner {
             if !ours {
                 return;
             }
-            slot.busy = false;
+            // Still claimed until the store has closed the turn, so no other driver mistakes it
+            // for a turn some other process left open.
             slot.runtime_turn_id = None;
             slot.stop = None;
             slot.turn_key.take()
@@ -1123,8 +1191,12 @@ impl Inner {
                 tracing::warn!(error = %e, "close runtime turn");
             }
         }
+        if let Some(slot) = self.lock().slots.get_mut(ep) {
+            slot.busy = false;
+        }
         self.cancel_approvals(ep, Verdict::Host(ApprovalDecision::Cancelled));
-        // Messages that arrived during the turn (begin_turn refuses paused or ended episodes).
+        // Messages that arrived during the turn, or the host's continuation (begin_turn refuses
+        // paused or ended episodes).
         if let Err(e) = self.drive(scope, ep, false) {
             tracing::debug!(error = %e, "no follow-up turn");
         }
