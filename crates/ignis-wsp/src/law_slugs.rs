@@ -55,6 +55,8 @@ pub const SLUGS: &[Slug] = &[
     slug!("efield3"),
     slug!("cld3"),
     slug!("bass4"),
+    // PROTOCOL 13.8: the one post-final plastics revision (phys_bass_post_final.md)
+    slug!("bass5"),
 ];
 
 /// Index of a slug by its model key (the slug itself).

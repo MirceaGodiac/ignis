@@ -62,8 +62,8 @@ const PINNED: [(&str, &str); 14] = [
         "sha256:e33ee7665b599e7e6c8c978f61ebf3bf106b2b6a94c3a0821dbdf42cf47a1b5f",
     ),
     (
-        "bass4.wsp",
-        "sha256:ceefc15d4cb8cf658772ec3603c9dabd6565fb3db6528bb35c2205f0d3bdab86",
+        "bass5.wsp",
+        "sha256:050a4ceb6c094b9256c5568408f8574508530ce1b31ce45eae43e8785fa4b82d",
     ),
 ];
 
