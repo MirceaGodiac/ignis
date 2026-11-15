@@ -867,6 +867,25 @@ impl DatasetStore {
         Ok(p)
     }
 
+    /// Writes the `ArtifactRef` of builder bytes already placed under `artifacts/` (a view streamed to
+    /// disk, e.g. the R2b sensor samples), after checking it names those bytes' file.
+    pub fn write_ref(&self, a: &ArtifactRef) -> anyhow::Result<()> {
+        let (data, refp) = Self::artifact_paths(&self.builder_root, &a.sha256, &a.media_type);
+        anyhow::ensure!(
+            std::fs::metadata(&data).is_ok_and(|m| m.len() == a.byte_length),
+            "{} is not in place for artifact {}",
+            data.display(),
+            a.artifact_id
+        );
+        atomic_write(
+            &refp,
+            (serde_json::to_string_pretty(a)?
+                + "
+")
+            .as_bytes(),
+        )
+    }
+
     fn load(&self, a: BundleAudience, id: &DatasetId) -> Option<anyhow::Result<DatasetBundle>> {
         let p = self.root(a).join(format!("{id}.json"));
         if !p.exists() {
