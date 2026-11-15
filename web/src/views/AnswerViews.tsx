@@ -24,7 +24,7 @@ import { ContourVideo } from "../shell/ContourVideo";
 import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
 import { useReleases } from "../shell/queries";
-import { ErrorNote, EvidenceClassTag, Qualified, shortId } from "../ui/common";
+import { ErrorNote, EvidenceClassTag, Qualified } from "../ui/common";
 import { headlineScore, modelTitle, scoreParts, useServedCard, writtenBy } from "../shell/models";
 import { ConditionsMatrix } from "./Conditions";
 

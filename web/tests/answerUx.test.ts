@@ -82,7 +82,7 @@ test("legend names come from the series role, never from an artifact id", () => 
   assert.equal(seriesName(ref({ role: "observed", label: "art_3427dd…" }), []), "Measured");
   assert.equal(seriesName(ref({ role: "observed", label: "Run 12 (observed)" }), []), "Run 12 (observed)");
   assert.ok(looksLikeId("sha256:ddc6469cf444"));
-  assert.ok(!looksLikeId("Experimental handwritten release (not qualified)"));
+  assert.ok(!looksLikeId("Qualified hand-written release"));
   assert.equal(quantityLabel("liquid_diameter"), "Droplet diameter");
   assert.equal(rangeLabel(0.05, 0.95), "5–95%");
 });
