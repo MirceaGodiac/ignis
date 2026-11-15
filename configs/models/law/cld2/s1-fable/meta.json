@@ -1,0 +1,29 @@
+{
+  "patch_id": "law-cld2-v1-s1-fable",
+  "parent_release_id": "sha256:195f6da6c135af909c65acbd1342b629e1fe6c0046da7d13ef2981caa4e90bfe",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_cld2.md(sha256:970688997e13dd17c20e2ce3b00089c9b28745fb243276cd0b3f0b66cc1a751b;second-law;data-informed-from-train-and-validation-days-via-gen7_failure_analysis.md)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "cld2-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-and-13.3-validation-aggregates",
+      "docs/wsp/feedback/gen7_failure_analysis.md"
+    ],
+    "prior_candidates": []
+  },
+  "rationale": "Second law cld2 of PROTOCOL 13.4: docs/wsp/research/phys_cld2.md (sha256 970688997e13dd17c20e2ce3b00089c9b28745fb243276cd0b3f0b66cc1a751b), the parent's block with the dossier's lines, verbatim. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

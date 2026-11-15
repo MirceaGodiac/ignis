@@ -1,0 +1,31 @@
+{
+  "patch_id": "law-bre-v1-d3-fable",
+  "parent_release_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bre_study.md(sha256:dbdced679233e2aee34d82094c1dc35da558d67cce75da205fe5ade28577d10a)",
+      "runs/dev/gen7/whatif_log.jsonl(logged-candidates)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bre-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores"
+    ],
+    "prior_candidates": [
+      "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d"
+    ]
+  },
+  "rationale": "bre d3-fable (PROTOCOL 13.6): runs/dev/gen7/study/bre_d3.wsp verbatim, a revision of W0. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "origin": "system"
+}

@@ -1,0 +1,33 @@
+{
+ "slug": "slice2",
+ "candidate": "s2-fable",
+ "label": "S2",
+ "edits": "runs/dev/gen7/study/slice2_s2.wsp",
+ "edits_sha256": "06e2f3b5c1d66d446127efa463fe9c60960e66b0b1c660e50362233c861974c6",
+ "study": "docs/wsp/research/phys_slice_study.md",
+ "study_sha256": "a3bd91b2bad5dac175fae201526822ab557163f92abea418ff490546704d6384",
+ "parent": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+ "release": "sha256:0f5763f5749bb669b6ed9b70ac2629c8923838b3308f6094b2efcd7d8313388a",
+ "elements_written": 50,
+ "elements_written_equal_to_parent": [
+  "('blow_off.logit.W1', (0, 0))",
+  "('blow_off.logit.W1', (0, 1))",
+  "('blow_off.logit.W1', (0, 4))",
+  "('blow_off.logit.W1', (0, 7))",
+  "('blow_off.logit.W1', (1, 0))",
+  "('blow_off.logit.W1', (1, 1))",
+  "('blow_off.logit.W1', (1, 4))",
+  "('blow_off.logit.W1', (1, 7))",
+  "('blow_off.logit.W1', (2, 0))",
+  "('blow_off.logit.W1', (2, 1))",
+  "('blow_off.logit.W1', (2, 4))",
+  "('blow_off.logit.W1', (2, 7))",
+  "('blow_off.logit.W1', (4, 0))",
+  "('blow_off.logit.W1', (4, 7))",
+  "('blow_off.logit.skip', (1,))",
+  "('blow_off.logit.skip', (7,))"
+ ],
+ "elements_differing_from_parent": 34,
+ "differing_not_written": [],
+ "mismatches": {}
+}

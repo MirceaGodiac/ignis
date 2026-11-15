@@ -1,0 +1,102 @@
+{
+  "slug": "efield3",
+  "status": "declared",
+  "family": "other",
+  "investigation": "PSI-22, ACME E-FIELD Flames: coflow and gas-jet diffusion flames under a burner-to-mesh electric field",
+  "description": "Third law of PSI-22 (docs/wsp/research/phys_efield_study.md section 4, PROTOCOL 13.6): the declaration of efield with the three indicators of section 3 appended (indices 7, 8, 9) and flame_end with causes blowoff, press, other. Time origin of flame_end: the field switched on. sweep_v_max is the planned maximum of the programme (docs/wsp/feedback/efield_planned_fields.md). Derived by tools/wsp/ext/law_inputs.py from condition fields only (burner, coflow and polarity are known before the test).",
+  "features": [
+    {
+      "name": "carbon_flow",
+      "unit": "1/s",
+      "transform": "ln",
+      "description": "fuel carbon atoms per second (case input carbon_flow_atoms_s)"
+    },
+    {
+      "name": "x_fuel",
+      "unit": "1",
+      "transform": "ln",
+      "description": "fuel mole fraction of the fuel stream"
+    },
+    {
+      "name": "is_ethylene",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 when fuel = ethylene"
+    },
+    {
+      "name": "mesh_positive",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 when polarity = positive"
+    },
+    {
+      "name": "voltage",
+      "unit": "V",
+      "transform": "ln",
+      "description": "magnitude of the level's v_cmd; for the targets without a level, the highest magnitude of the sweep"
+    },
+    {
+      "name": "sweep_v_max",
+      "unit": "V",
+      "transform": "ln",
+      "description": "largest magnitude of v_cmd over the programme"
+    },
+    {
+      "name": "window",
+      "unit": "s",
+      "transform": "ln",
+      "description": "window_s of the field programme"
+    },
+    {
+      "name": "is_gas_jet",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 if burner = gas_jet_2.1mm, else 0"
+    },
+    {
+      "name": "still_coflow_burner",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 if burner = coflow and u_coflow_m_s = 0, else 0"
+    },
+    {
+      "name": "strong_coflow",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 if u_coflow_m_s >= 0.1, else 0"
+    }
+  ],
+  "targets": [
+    {
+      "name": "ion_current",
+      "kind": "positive",
+      "unit": "A",
+      "shared_quantity": null,
+      "description": "flame current at a planned voltage level, positive in the direction the field drives it, given that the flame still burns (lane-local)"
+    },
+    {
+      "name": "flame_end",
+      "kind": "event",
+      "causes": [
+        "blowoff",
+        "press",
+        "other"
+      ],
+      "description": "the flame goes out under the field, seconds since the field is switched on; no scheduled stop declared"
+    },
+    {
+      "name": "peak_ion_current",
+      "kind": "positive",
+      "unit": "A",
+      "shared_quantity": null,
+      "description": "largest current of the sweep (lane-local)"
+    },
+    {
+      "name": "peak_voltage",
+      "kind": "positive",
+      "unit": "V",
+      "shared_quantity": null,
+      "description": "voltage at which the largest current is reached (lane-local)"
+    }
+  ]
+}

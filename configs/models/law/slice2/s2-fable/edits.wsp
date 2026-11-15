@@ -1,0 +1,24 @@
+# slice2 S2: runs/dev/gen7/study/slice2_s2.wsp (sha256 06e2f3b5c1d66d446127efa463fe9c60960e66b0b1c660e50362233c861974c6), verbatim, a revision of
+# slice2 s1-fable sha256:d586d0d3…0b61 (docs/wsp/research/phys_slice_study.md); every other number is the parent's.
+# slice2 candidate S1 (numbers on the slice2 declaration, base s1-fable): blow_off only.
+# Boundary read from the development lines: Psi = U_j / U_j0 + U_co / U_c0 = 1, with
+# U_c0 = 0.57 m/s (S_L/0.38)^2 (d/0.41 mm)^0.45 (x_O2/0.228)^3
+# U_j0 = 22.4 m/s (S_L/0.38)^2 (0.0552/Z_st)^2 (d/0.41 mm)^0.7 (x_O2/0.228)^3
+# logit = -1.2 + 4 ln Psi.
+blow_off.logit.b0 = -5.232
+blow_off.logit.skip[0:8] = [4.0, 0.0, -1.8, -4.4, -12.0, -0.608, -0.608, 0.0]
+blow_off.logit.W1[0, 0:8] = [-1.0, 1.0, -0.25, -2.6, 0.0, 0.130, 0.177, 0.0]
+blow_off.logit.b1[0] = -0.608
+blow_off.logit.w2[0] = 1.24
+blow_off.logit.W1[1, 0:8] = [-1.0, 1.0, -0.25, -2.6, 0.0, 0.130, 0.177, 0.0]
+blow_off.logit.b1[1] = -2.808
+blow_off.logit.w2[1] = 1.52
+blow_off.logit.W1[2, 0:8] = [-1.0, 1.0, -0.25, -2.6, 0.0, 0.130, 0.177, 0.0]
+blow_off.logit.b1[2] = -5.008
+blow_off.logit.w2[2] = 1.24
+blow_off.logit.w2[3] = 4.0
+# S2 = S1 plus: a flame seen burning beyond its jet limit (jet part B > 0) says that limit is wrong for it;
+# the jet part then stops adding (unit 4 subtracts 4 relu(B)); the coflow part still counts.
+blow_off.logit.W1[4, 0:8] = [0.0, 1.0, -0.7, -3.7, -3.0, -0.022, 0.025, 0.0]
+blow_off.logit.b1[4] = -3.816
+blow_off.logit.w2[4] = -4.0

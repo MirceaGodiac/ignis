@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-cld-v1-c1-fable",
+  "parent_release_id": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_cld_study.md(sha256:fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6;candidate-C1)",
+      "repo:runs/dev/gen7/study/cld_c1.wsp(sha256:f7f10d4b52ad04486bd22a1cb3f5f616e16ae00f047366f39870b23bbd091979)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-C1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "cld-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-C1"
+    ],
+    "prior_candidates": [
+      "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f"
+    ]
+  },
+  "rationale": "cld C1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/cld_c1.wsp verbatim as a revision of cld d1-fable (docs/wsp/research/phys_cld_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

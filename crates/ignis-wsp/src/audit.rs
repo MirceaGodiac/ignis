@@ -201,6 +201,39 @@ pub fn forward_sources_of(model_name: &str) -> Option<Vec<(&'static str, &'stati
             v.push(("flame7.rs", include_str!("flame7.rs")));
             return Some(v);
         }
+        // the forwards of the second fuel table (phys_sflame_f3.md): each its own file and both tables'
+        "acme_normal.wsp14" => {
+            let mut v: Vec<_> = SHARED.to_vec();
+            v.push(("fuel.rs", include_str!("fuel.rs")));
+            v.push(("fuel2.rs", include_str!("fuel2.rs")));
+            v.push(("flame8.rs", include_str!("flame8.rs")));
+            return Some(v);
+        }
+        "acme_normal.wsp15" => {
+            let mut v: Vec<_> = SHARED.to_vec();
+            v.push(("fuel.rs", include_str!("fuel.rs")));
+            v.push(("fuel2.rs", include_str!("fuel2.rs")));
+            v.push(("flame9.rs", include_str!("flame9.rs")));
+            return Some(v);
+        }
+        "acme_normal.wsp16" => {
+            let mut v: Vec<_> = SHARED.to_vec();
+            v.push(("fuel.rs", include_str!("fuel.rs")));
+            v.push(("fuel2.rs", include_str!("fuel2.rs")));
+            v.push(("flame10.rs", include_str!("flame10.rs")));
+            return Some(v);
+        }
+        // a release of the fourth committee is run by its own file and by the three member forwards
+        "acme_normal.wsp13" => {
+            let mut v: Vec<_> = SHARED.to_vec();
+            v.push(("fuel.rs", include_str!("fuel.rs")));
+            v.push(("fuel2.rs", include_str!("fuel2.rs")));
+            v.push(("flame8.rs", include_str!("flame8.rs")));
+            v.push(("flame9.rs", include_str!("flame9.rs")));
+            v.push(("flame10.rs", include_str!("flame10.rs")));
+            v.push(("committee4.rs", include_str!("committee4.rs")));
+            return Some(v);
+        }
         // a release of the third committee is run by its own file and by the three member forwards
         "acme_normal.wsp12" | "acme_inverse.wsp12" => {
             let mut v: Vec<_> = SHARED.to_vec();

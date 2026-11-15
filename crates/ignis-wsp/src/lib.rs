@@ -41,6 +41,11 @@
 //!   [`flame7`] — the laws of `flame`, `flame3` and `flame4` reading it, of `acme_*.wsp9`,
 //!   `acme_*.wsp10` and `acme_*.wsp11`; [`committee3`] — the committee of `committee2` with those
 //!   members, of `acme_*.wsp12` (each its own identity; the earlier forwards are untouched).
+//! * [`fuel2`] — the second fuel table with a diluent table (helium, hydrogen, blends, the burner
+//!   limit as an input); [`flame8`], [`flame9`], [`flame10`] — the laws of `flame5`, `flame6` and
+//!   `flame7` reading it, with the heating law of `phys_sflame_f3.md`, of `acme_normal.wsp14`,
+//!   `wsp15` and `wsp16`; [`committee4`] — the committee of `committee3` with those members and two
+//!   oxygen candidates, of `acme_normal.wsp13` (normal flames only; earlier forwards untouched).
 //! * [`front5`] — the fifth flame-front forward, of `bass_front.wsp5`: the tip of `front` unchanged,
 //!   its quench hazard replaced by the boundary law of ignition and quench (a 41-node mixture over the
 //!   boundary error); [`front5_tools`] — its declarations and its track reader (pressure, flow
@@ -69,6 +74,7 @@ pub mod cli;
 pub mod committee;
 pub mod committee2;
 pub mod committee3;
+pub mod committee4;
 pub mod common;
 pub mod condition_committee;
 pub mod droplet;
@@ -83,11 +89,14 @@ pub mod droplet9;
 pub mod droplet9_tools;
 pub mod droplet_tools;
 pub mod flame;
+pub mod flame10;
 pub mod flame3;
 pub mod flame4;
 pub mod flame5;
 pub mod flame6;
 pub mod flame7;
+pub mod flame8;
+pub mod flame9;
 pub mod flame_tools;
 pub mod flex;
 pub mod flex_tools;
@@ -100,6 +109,7 @@ pub mod front5;
 pub mod front5_tools;
 pub mod front_tools;
 pub mod fuel;
+pub mod fuel2;
 // <slug>.wsp: the generic law forward, its slug table and its tools
 pub mod law;
 pub mod law_slugs;
@@ -197,6 +207,10 @@ pub fn experts() -> Vec<Box<dyn Expert>> {
         Box::new(flame7::FlameWsp::new(Family::AcmeInverse)),
         Box::new(committee3::Committee3Wsp::new(Family::AcmeNormal)),
         Box::new(committee3::Committee3Wsp::new(Family::AcmeInverse)),
+        Box::new(flame8::FlameWsp::new(Family::AcmeNormal)),
+        Box::new(flame9::FlameWsp::new(Family::AcmeNormal)),
+        Box::new(flame10::FlameWsp::new(Family::AcmeNormal)),
+        Box::new(committee4::Committee4Wsp::new(Family::AcmeNormal)),
         // bass_front.wsp5
         Box::new(front5::FrontWsp::new()),
     ];

@@ -1,0 +1,1539 @@
+{
+  "id": "sha256:8575550b310950efde7da2f00a1964c9a4d0c393fd3fbcaf4e4f2f1f8f046f04",
+  "family": "other",
+  "model_name": "efield3.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 120,
+      "authored_total": 1012,
+      "constant_total": 1,
+      "per_tensor": {
+        "flame_end.blowoff.median.W1": [
+          80,
+          3
+        ],
+        "flame_end.blowoff.median.b0": [
+          1,
+          1
+        ],
+        "flame_end.blowoff.median.b1": [
+          8,
+          0
+        ],
+        "flame_end.blowoff.median.skip": [
+          10,
+          2
+        ],
+        "flame_end.blowoff.median.w2": [
+          8,
+          1
+        ],
+        "flame_end.blowoff.shape": [
+          1,
+          1
+        ],
+        "flame_end.other.median.W1": [
+          80,
+          6
+        ],
+        "flame_end.other.median.b0": [
+          1,
+          1
+        ],
+        "flame_end.other.median.b1": [
+          8,
+          1
+        ],
+        "flame_end.other.median.skip": [
+          10,
+          0
+        ],
+        "flame_end.other.median.w2": [
+          8,
+          2
+        ],
+        "flame_end.other.shape": [
+          1,
+          1
+        ],
+        "flame_end.press.median.W1": [
+          80,
+          3
+        ],
+        "flame_end.press.median.b0": [
+          1,
+          1
+        ],
+        "flame_end.press.median.b1": [
+          8,
+          1
+        ],
+        "flame_end.press.median.skip": [
+          10,
+          2
+        ],
+        "flame_end.press.median.w2": [
+          8,
+          1
+        ],
+        "flame_end.press.shape": [
+          1,
+          1
+        ],
+        "ion_current.median.W1": [
+          80,
+          24
+        ],
+        "ion_current.median.b0": [
+          1,
+          1
+        ],
+        "ion_current.median.b1": [
+          8,
+          5
+        ],
+        "ion_current.median.skip": [
+          10,
+          3
+        ],
+        "ion_current.median.w2": [
+          8,
+          5
+        ],
+        "ion_current.spread.W1": [
+          80,
+          4
+        ],
+        "ion_current.spread.b0": [
+          1,
+          1
+        ],
+        "ion_current.spread.b1": [
+          8,
+          1
+        ],
+        "ion_current.spread.skip": [
+          10,
+          0
+        ],
+        "ion_current.spread.w2": [
+          8,
+          0
+        ],
+        "ion_current.tail_weight": [
+          1,
+          1
+        ],
+        "ion_current.tail_width": [
+          1,
+          1
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "peak_ion_current.median.W1": [
+          80,
+          0
+        ],
+        "peak_ion_current.median.b0": [
+          1,
+          1
+        ],
+        "peak_ion_current.median.b1": [
+          8,
+          0
+        ],
+        "peak_ion_current.median.skip": [
+          10,
+          2
+        ],
+        "peak_ion_current.median.w2": [
+          8,
+          0
+        ],
+        "peak_ion_current.spread.W1": [
+          80,
+          0
+        ],
+        "peak_ion_current.spread.b0": [
+          1,
+          1
+        ],
+        "peak_ion_current.spread.b1": [
+          8,
+          0
+        ],
+        "peak_ion_current.spread.skip": [
+          10,
+          2
+        ],
+        "peak_ion_current.spread.w2": [
+          8,
+          0
+        ],
+        "peak_ion_current.tail_weight": [
+          1,
+          1
+        ],
+        "peak_ion_current.tail_width": [
+          1,
+          1
+        ],
+        "peak_voltage.median.W1": [
+          80,
+          0
+        ],
+        "peak_voltage.median.b0": [
+          1,
+          1
+        ],
+        "peak_voltage.median.b1": [
+          8,
+          0
+        ],
+        "peak_voltage.median.skip": [
+          10,
+          3
+        ],
+        "peak_voltage.median.w2": [
+          8,
+          0
+        ],
+        "peak_voltage.spread.W1": [
+          80,
+          0
+        ],
+        "peak_voltage.spread.b0": [
+          1,
+          1
+        ],
+        "peak_voltage.spread.b1": [
+          8,
+          0
+        ],
+        "peak_voltage.spread.skip": [
+          10,
+          1
+        ],
+        "peak_voltage.spread.w2": [
+          8,
+          0
+        ],
+        "peak_voltage.tail_weight": [
+          1,
+          1
+        ],
+        "peak_voltage.tail_width": [
+          1,
+          1
+        ],
+        "x.carbon_flow.centre": [
+          1,
+          1
+        ],
+        "x.carbon_flow.hi": [
+          1,
+          1
+        ],
+        "x.carbon_flow.lo": [
+          1,
+          1
+        ],
+        "x.carbon_flow.scale": [
+          1,
+          1
+        ],
+        "x.is_ethylene.centre": [
+          1,
+          0
+        ],
+        "x.is_ethylene.hi": [
+          1,
+          1
+        ],
+        "x.is_ethylene.lo": [
+          1,
+          0
+        ],
+        "x.is_ethylene.scale": [
+          1,
+          1
+        ],
+        "x.is_gas_jet.centre": [
+          1,
+          0
+        ],
+        "x.is_gas_jet.hi": [
+          1,
+          1
+        ],
+        "x.is_gas_jet.lo": [
+          1,
+          0
+        ],
+        "x.is_gas_jet.scale": [
+          1,
+          1
+        ],
+        "x.mesh_positive.centre": [
+          1,
+          0
+        ],
+        "x.mesh_positive.hi": [
+          1,
+          1
+        ],
+        "x.mesh_positive.lo": [
+          1,
+          0
+        ],
+        "x.mesh_positive.scale": [
+          1,
+          1
+        ],
+        "x.still_coflow_burner.centre": [
+          1,
+          0
+        ],
+        "x.still_coflow_burner.hi": [
+          1,
+          1
+        ],
+        "x.still_coflow_burner.lo": [
+          1,
+          0
+        ],
+        "x.still_coflow_burner.scale": [
+          1,
+          1
+        ],
+        "x.strong_coflow.centre": [
+          1,
+          0
+        ],
+        "x.strong_coflow.hi": [
+          1,
+          1
+        ],
+        "x.strong_coflow.lo": [
+          1,
+          0
+        ],
+        "x.strong_coflow.scale": [
+          1,
+          1
+        ],
+        "x.sweep_v_max.centre": [
+          1,
+          1
+        ],
+        "x.sweep_v_max.hi": [
+          1,
+          1
+        ],
+        "x.sweep_v_max.lo": [
+          1,
+          1
+        ],
+        "x.sweep_v_max.scale": [
+          1,
+          1
+        ],
+        "x.voltage.centre": [
+          1,
+          1
+        ],
+        "x.voltage.hi": [
+          1,
+          1
+        ],
+        "x.voltage.lo": [
+          1,
+          1
+        ],
+        "x.voltage.scale": [
+          1,
+          1
+        ],
+        "x.window.centre": [
+          1,
+          1
+        ],
+        "x.window.hi": [
+          1,
+          1
+        ],
+        "x.window.lo": [
+          1,
+          1
+        ],
+        "x.window.scale": [
+          1,
+          1
+        ],
+        "x.x_fuel.centre": [
+          1,
+          1
+        ],
+        "x.x_fuel.hi": [
+          1,
+          1
+        ],
+        "x.x_fuel.lo": [
+          1,
+          1
+        ],
+        "x.x_fuel.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:e97878bc66f11bd8317f00eb3ce386dded48ad5289ce69a5299de1d8844d6f9b",
+    "spec_id": "law-efield3-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "carbon_flow",
+    "x_fuel",
+    "is_ethylene",
+    "mesh_positive",
+    "voltage",
+    "sweep_v_max",
+    "window",
+    "is_gas_jet",
+    "still_coflow_burner",
+    "strong_coflow"
+  ],
+  "units": {
+    "carbon_flow": "1/s",
+    "is_ethylene": "1",
+    "is_gas_jet": "1",
+    "mesh_positive": "1",
+    "still_coflow_burner": "1",
+    "strong_coflow": "1",
+    "sweep_v_max": "V",
+    "voltage": "V",
+    "window": "s",
+    "x_fuel": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "flame current at a planned voltage level, positive in the direction the field drives it, given that the flame still burns (lane-local)",
+        "kind": "positive",
+        "label": "efield3:ion_current",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "ion_current",
+        "unit": "A"
+      },
+      {
+        "description": "the flame goes out under the field, seconds since the field is switched on; no scheduled stop declared",
+        "kind": "event",
+        "label": "efield3:flame_end",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "flame_end",
+        "unit": "s"
+      },
+      {
+        "description": "largest current of the sweep (lane-local)",
+        "kind": "positive",
+        "label": "efield3:peak_ion_current",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "peak_ion_current",
+        "unit": "A"
+      },
+      {
+        "description": "voltage at which the largest current is reached (lane-local)",
+        "kind": "positive",
+        "label": "efield3:peak_voltage",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "peak_voltage",
+        "unit": "V"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "flame_end.blowoff.median.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "ac48a3baa7b85301229d465f682fc5164222eded3b860c654b4634faa7f8d227",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6743d622286b6b3dd6faa586a5a7394354f21368bd5c39a7030cc2a481d45667",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "801977c0f39daeaf9c9a03a87fb06c787ca2fc2434980ae1f6618ea203ffc4b8",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "dec18ebf96cff9ef3563fb5415fb490035e941b0d239d09f4e4d9a86e80005f3",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "05e48ced7405805c3ac025acf7e58f82866766ca6a4ebee0b05388758d8cc284",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.other.median.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "736dae4d06096476e700f6336c5edca74d272b76433d9ff279ebf79c2a0a8ce9",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.other.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "281d50b4cfbf32b38603526fd0f79f9e58c3ca58523c58d10a5dbe6578e81544",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.other.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "676252fb21ac1d94943f0d2be59bd22210bd83491d8a36c778b5200fd16e1632",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.other.median.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "c786701834388c51420379bcee057e392f9a18a28ea5102d091fe69746dc1ed2",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.other.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "0628fe4252a5ae8b11b286ae5194340a876d86243d2efa0c8e1b18c14e9ba7ff",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.other.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.press.median.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "232eada27721122d3615b619fa268c1dadef40dcaadb8f6398f4ff8b4b933567",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.press.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6743d622286b6b3dd6faa586a5a7394354f21368bd5c39a7030cc2a481d45667",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.press.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "676252fb21ac1d94943f0d2be59bd22210bd83491d8a36c778b5200fd16e1632",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.press.median.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "801977c0f39daeaf9c9a03a87fb06c787ca2fc2434980ae1f6618ea203ffc4b8",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.press.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "e12cbf262ee869e5e98587b5bd0836d82b9a3b3eeb0bf4ce059ab1cbe3c2db8c",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.press.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.median.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "a211ad90f525fc78977ae5afbf72693ba26bbc25c59cb01a7de98986771f1765",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "076095c41222a16a4b8a519d1b1b07a62a46b53cec05f5e3c4cb218bee6fa1d0",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "0a7d08a598cf4099bc2462031b0fa7614c8fbd62949300e4f22ac135c5f0dbef",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.median.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "5063975863054fdd39f0be7e5ac32b53b78c6189d79ab2ea0a2ed3b6bb5eb833",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "b108d38a8fdabe05e4a0d5ce2fd33e91bd4dbe03b1f10f4cd3b53bfb873e1830",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.spread.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "e1bc80ab39e7499f6e458c87bd9f7eacf9b3bffa9607a679557abebd991a3f0c",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "f58f3945336e85f26292a84cc8a0289b6f9ccafd35adda5d1bfe27fc0ba08469",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.spread.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "c786701834388c51420379bcee057e392f9a18a28ea5102d091fe69746dc1ed2",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "ion_current.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.median.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "ca17fe752419f3644eff41278f2801f057241f1247c796483a8022a3a08bed68",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "87f9011b969ef306d82e14051e2d33db9c88bd12a68b07b8f10c662cff101eac",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.median.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "6f16d660545e005fae71d87debf19061aca61fb49d2bb99a7624d0c46487850c",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.spread.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "ca17fe752419f3644eff41278f2801f057241f1247c796483a8022a3a08bed68",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "94d0f2db3bc346a2068ed0513e6c84efb204425fac2114a12d68d5fef5f4312a",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.spread.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "7fc13f67dc3f53f6e5a9d52f05c7a15b768c229b4230f80348fa1909eb83e1a1",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "peak_ion_current.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.median.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "ca17fe752419f3644eff41278f2801f057241f1247c796483a8022a3a08bed68",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "833204987b281a0861b7eb116fe9eb60b9b5eec09339a71f20e9eca29a535361",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.median.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "5062d060620ae3bbba01a42f9027a9faad99dc719e5a64933667dd9a00c48d65",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.spread.W1",
+      "shape": [
+        8,
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "ca17fe752419f3644eff41278f2801f057241f1247c796483a8022a3a08bed68",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.spread.skip",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "89cb0d4d502268489d5e29fa5ed52ed2161c7042d93289c15e06b7f7185af62e",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "peak_voltage.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "x.carbon_flow.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "04eb5c72c1b89846385cf7c4b0e11d827bd212d7eaa623ec66f280b6b3134407",
+      "trainable": false
+    },
+    {
+      "name": "x.carbon_flow.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "3105c9c5ea651b49038436b017cf96b67a89aee369bcadba90d8d0b632499b09",
+      "trainable": false
+    },
+    {
+      "name": "x.carbon_flow.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "97c9038fdd30181882ba11b5601edd875bb1687107beb935e47a4f0ec34ed6a2",
+      "trainable": false
+    },
+    {
+      "name": "x.carbon_flow.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_gas_jet.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_gas_jet.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_gas_jet.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_gas_jet.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.mesh_positive.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.mesh_positive.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.mesh_positive.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.mesh_positive.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.still_coflow_burner.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.still_coflow_burner.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.still_coflow_burner.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.still_coflow_burner.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.strong_coflow.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.strong_coflow.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.strong_coflow.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.strong_coflow.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.sweep_v_max.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1bc9223f1a10923533f1d24da7206cc61f0b4a816622ddd181efbaba7de1592",
+      "trainable": false
+    },
+    {
+      "name": "x.sweep_v_max.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "210b2f63dddfe8e2a90fbb253f2d3460e6634f1888fc9adaca66ddc99542d6f4",
+      "trainable": false
+    },
+    {
+      "name": "x.sweep_v_max.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "85bd2f47c626143ba679f805ca4cdafd05f1c153db410338601804b39e783273",
+      "trainable": false
+    },
+    {
+      "name": "x.sweep_v_max.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.voltage.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7ee93f3c1eacb9cf7d7f5f97626164e4073e081604d8cf68296eb9f90e04691d",
+      "trainable": false
+    },
+    {
+      "name": "x.voltage.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "210b2f63dddfe8e2a90fbb253f2d3460e6634f1888fc9adaca66ddc99542d6f4",
+      "trainable": false
+    },
+    {
+      "name": "x.voltage.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "85bd2f47c626143ba679f805ca4cdafd05f1c153db410338601804b39e783273",
+      "trainable": false
+    },
+    {
+      "name": "x.voltage.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.window.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "85bd2f47c626143ba679f805ca4cdafd05f1c153db410338601804b39e783273",
+      "trainable": false
+    },
+    {
+      "name": "x.window.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "86b51d676c412bf1c2b118dbb7608b765c3bf1a21c0cf30e96c9542bb29c9ffe",
+      "trainable": false
+    },
+    {
+      "name": "x.window.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "x.window.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-22:catalogue",
+  "split_id": "sha256:eea9c9f2afb906ca12398701f6a49db62434b242feccc2ef7cd5d22d3c32bdf6",
+  "source_manifest_hash": "sha256:c34470df1cd271d589911e26a433234f8337bd69ea31a9e54c0e5c3786c2101d",
+  "code_version": "ignis-wsp@0.1.0+fwd.c0a9c1512a2875f4",
+  "applicability": {
+    "declaration": {
+      "description": "Third law of PSI-22 (docs/wsp/research/phys_efield_study.md section 4, PROTOCOL 13.6): the declaration of efield with the three indicators of section 3 appended (indices 7, 8, 9) and flame_end with causes blowoff, press, other. Time origin of flame_end: the field switched on. sweep_v_max is the planned maximum of the programme (docs/wsp/feedback/efield_planned_fields.md). Derived by tools/wsp/ext/law_inputs.py from condition fields only (burner, coflow and polarity are known before the test).",
+      "family": "other",
+      "features": [
+        {
+          "description": "fuel carbon atoms per second (case input carbon_flow_atoms_s)",
+          "name": "carbon_flow",
+          "transform": "ln",
+          "unit": "1/s"
+        },
+        {
+          "description": "fuel mole fraction of the fuel stream",
+          "name": "x_fuel",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "1 when fuel = ethylene",
+          "name": "is_ethylene",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 when polarity = positive",
+          "name": "mesh_positive",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "magnitude of the level's v_cmd; for the targets without a level, the highest magnitude of the sweep",
+          "name": "voltage",
+          "transform": "ln",
+          "unit": "V"
+        },
+        {
+          "description": "largest magnitude of v_cmd over the programme",
+          "name": "sweep_v_max",
+          "transform": "ln",
+          "unit": "V"
+        },
+        {
+          "description": "window_s of the field programme",
+          "name": "window",
+          "transform": "ln",
+          "unit": "s"
+        },
+        {
+          "description": "1 if burner = gas_jet_2.1mm, else 0",
+          "name": "is_gas_jet",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 if burner = coflow and u_coflow_m_s = 0, else 0",
+          "name": "still_coflow_burner",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 if u_coflow_m_s >= 0.1, else 0",
+          "name": "strong_coflow",
+          "transform": "identity",
+          "unit": "1"
+        }
+      ],
+      "investigation": "PSI-22, ACME E-FIELD Flames: coflow and gas-jet diffusion flames under a burner-to-mesh electric field",
+      "slug": "efield3",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [],
+          "description": "flame current at a planned voltage level, positive in the direction the field drives it, given that the flame still burns (lane-local)",
+          "kind": "positive",
+          "name": "ion_current",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "A"
+        },
+        {
+          "causes": [
+            "blowoff",
+            "press",
+            "other"
+          ],
+          "description": "the flame goes out under the field, seconds since the field is switched on; no scheduled stop declared",
+          "kind": "event",
+          "name": "flame_end",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "largest current of the sweep (lane-local)",
+          "kind": "positive",
+          "name": "peak_ion_current",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "A"
+        },
+        {
+          "causes": [],
+          "description": "voltage at which the largest current is reached (lane-local)",
+          "kind": "positive",
+          "name": "peak_voltage",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "V"
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/efield3/decl.json",
+    "features": [
+      {
+        "description": "fuel carbon atoms per second (case input carbon_flow_atoms_s)",
+        "name": "carbon_flow",
+        "transform": "ln",
+        "unit": "1/s"
+      },
+      {
+        "description": "fuel mole fraction of the fuel stream",
+        "name": "x_fuel",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "1 when fuel = ethylene",
+        "name": "is_ethylene",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 when polarity = positive",
+        "name": "mesh_positive",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "magnitude of the level's v_cmd; for the targets without a level, the highest magnitude of the sweep",
+        "name": "voltage",
+        "transform": "ln",
+        "unit": "V"
+      },
+      {
+        "description": "largest magnitude of v_cmd over the programme",
+        "name": "sweep_v_max",
+        "transform": "ln",
+        "unit": "V"
+      },
+      {
+        "description": "window_s of the field programme",
+        "name": "window",
+        "transform": "ln",
+        "unit": "s"
+      },
+      {
+        "description": "1 if burner = gas_jet_2.1mm, else 0",
+        "name": "is_gas_jet",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 if burner = coflow and u_coflow_m_s = 0, else 0",
+        "name": "still_coflow_burner",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 if u_coflow_m_s >= 0.1, else 0",
+        "name": "strong_coflow",
+        "transform": "identity",
+        "unit": "1"
+      }
+    ],
+    "investigation": "PSI-22, ACME E-FIELD Flames: coflow and gas-jet diffusion flames under a burner-to-mesh electric field",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "efield3",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "flame current at a planned voltage level, positive in the direction the field drives it, given that the flame still burns (lane-local)",
+        "kind": "positive",
+        "label": "efield3:ion_current",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "ion_current",
+        "unit": "A"
+      },
+      {
+        "description": "the flame goes out under the field, seconds since the field is switched on; no scheduled stop declared",
+        "kind": "event",
+        "label": "efield3:flame_end",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "flame_end",
+        "unit": "s"
+      },
+      {
+        "description": "largest current of the sweep (lane-local)",
+        "kind": "positive",
+        "label": "efield3:peak_ion_current",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "peak_ion_current",
+        "unit": "A"
+      },
+      {
+        "description": "voltage at which the largest current is reached (lane-local)",
+        "kind": "positive",
+        "label": "efield3:peak_voltage",
+        "shared_quantity": null,
+        "slug": "efield3",
+        "status": "declared",
+        "target": "peak_voltage",
+        "unit": "V"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:f78c2ece35c2e4808e00edb7aca5c797fe668edb11d9f6250081ef1e9c38efd8",
+  "lineage": "weight_edit",
+  "lineage_note": "efield3 (PROTOCOL 13.6): data-informed from the development days (train and validation); efield3 = E1's ion current (configs/models/law/efield/e1-fable, its lines runs/dev/gen7/study/efield_e1.wsp) plus the new flame-out law with burner, co",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-15T08:38:20.588455Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "law-efield3-v1",
+    "spec_hash": "sha256:e97878bc66f11bd8317f00eb3ce386dded48ad5289ce69a5299de1d8844d6f9b",
+    "patch_id": "law-efield3-v1-s1-fable",
+    "patch_hash": "sha256:1b33b13252e9672b31129938f0df4902aaa81061b4e0eb704d4e5738ec5df458",
+    "parent_release_id": "sha256:f78c2ece35c2e4808e00edb7aca5c797fe668edb11d9f6250081ef1e9c38efd8",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/wsp/research/phys_efield_study.md(sha256:573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e;section-4)",
+        "repo:runs/dev/gen7/study/efield3_block.wsp(sha256:3810450a923772c5522165daf05b4e6456d9dfab21e14647552ed9be8d7703ec)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "efield-train-and-validation-cases",
+          "partitions": [
+            "train",
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [
+        "PROTOCOL-13.2-to-13.6-development-scores",
+        "what-if-run-of-E1"
+      ],
+      "prior_candidates": [
+        "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+        "sha256:dbb4bd6453a2870ddbc6c34125b38068dd6b83da87025b2ae170aa0f25b873b0"
+      ]
+    },
+    "weights_hash": "sha256:827f1bb2a36c104f5d7ef7ccf1dff5a4ec234c8c2621c4bc0afffeb7dab2a524",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:c0a9c1512a2875f407ba629e76c642bf7422be329ed8a3c09030064bb1b37a06",
+    "code_version": "ignis-wsp@0.1.0+fwd.c0a9c1512a2875f4",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "1012 authored elements (120 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 4 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}

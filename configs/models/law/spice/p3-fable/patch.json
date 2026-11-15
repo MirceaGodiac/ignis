@@ -1,0 +1,171 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-spice-v1-p3-fable",
+  "spec_hash": "sha256:0dce43b67260ae6d91fd96c7156db8f98fe83167cb4630f8af0f294564143a92",
+  "parent_release_id": "sha256:f1fe69f0956eddbbc4333187b1668d0e3b8e6ddc8af649872408e99581e3258a",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_spice_study.md(sha256:33f9808be1fe798355b9d5df29dd0695b63467050240dfe6f8ee92473fd4bb05;candidate-P3)",
+      "repo:runs/dev/gen7/study/spice_p3.wsp(sha256:4338268390c3d6c3c6fa6c55cf6eb2f839ce871dfcc1dfe2b6ad37e6a4a41b51)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-P3)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "spice-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-P3"
+    ],
+    "prior_candidates": [
+      "sha256:f1fe69f0956eddbbc4333187b1668d0e3b8e6ddc8af649872408e99581e3258a"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b0",
+      "index": [],
+      "value": -3.797
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        -0.16,
+        -0.08,
+        1.08,
+        0.858,
+        0.099,
+        0.173,
+        0.188
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        1.16,
+        0.08,
+        -1.08,
+        -0.858,
+        -0.099,
+        -0.173,
+        -0.188
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        2
+      ],
+      "value": -0.648
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        3,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        1.16,
+        0.08,
+        -1.08,
+        -0.858,
+        -0.099,
+        -0.173,
+        -0.188
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        3
+      ],
+      "value": -2.848
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        4,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        1.16,
+        0.08,
+        -1.08,
+        -0.858,
+        -0.099,
+        -0.173,
+        -0.188
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        4
+      ],
+      "value": -5.048
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.spread.b0",
+      "index": [],
+      "value": 0.1
+    }
+  ],
+  "rationale": "spice P3 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/spice_p3.wsp verbatim as a revision of spice p2-fable (docs/wsp/research/phys_spice_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

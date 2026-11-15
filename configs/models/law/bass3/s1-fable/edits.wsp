@@ -1,0 +1,322 @@
+# bass3 (docs/wsp/research/phys_bass_study.md section 4.4, sha256 08b20a41160c880a43c98fcabef63539d96bdc3dfcd6012b2d19eadcab894b21): every line of the bass2 s1 block, with the dossier's
+# changed elements written in place (inside the parent's list line where the parent writes a list), then its new lines. Numbers verbatim.
+# bass1.wsp: W0, zero-shot. Author claude-fable-5-2. Source: docs/wsp/research/phys_bass1_w0.md
+# features z = (z_x, z_u, z_r, z_t, concurrent), columns 0..4
+x.x_o2.centre = 0.18
+x.x_o2.scale = 1.0
+x.x_o2.lo = 0.12
+x.x_o2.hi = 0.25
+x.flow_speed.centre = 0.01
+x.flow_speed.scale = 1.0
+x.flow_speed.lo = 0.003
+x.flow_speed.hi = 0.6
+x.nose_radius.centre = 0.01
+x.nose_radius.scale = 1.0
+x.nose_radius.lo = 0.002
+x.nose_radius.hi = 0.03
+x.heat_time.centre = 200.0
+x.heat_time.scale = 1.0
+x.heat_time.lo = 20.0
+x.heat_time.hi = 4000.0
+x.is_concurrent.centre = 0.0
+x.is_concurrent.scale = 1.0
+x.is_concurrent.lo = 0.0
+x.is_concurrent.hi = 1.0
+
+# --- rod tips and spheres: not quenched. logit = min(l_f, l_th) = l_f - relu(l_f - l_th).
+# l_f = 28 ln(X / 0.134) = 8.26 + 28 z_x: floor 13.4 % O2, sd 0.06 in ln (0.8 % O2).
+holds_low_flow.logit.b0 = 8.26
+holds_low_flow.logit.skip[0:5] = [28.0, 0.0, 0.0, 0.0, 0.0]
+# unit 0: l_f - l_th, l_th = 6.3 (ln X - ln X_th), ln X_th = -1.750 - 0.25 z_u + 0.583 z_r - 0.208 z_t
+# (surface radiation 7.2 kW/m2 plus conduction 110 / sqrt(t) against a supply 62 sqrt(a_e) (X - 0.03)).
+holds_low_flow.logit.W1[0, 0:5] = [21.7, -1.58, 3.67, -1.31, 0.0]
+holds_low_flow.logit.b1[0] = 8.04
+holds_low_flow.logit.w2[0] = -1.0
+
+# --- rod tips and spheres: not blown off. logit = 28 (ln(X / 0.134) - ln(X_k / 0.134)),
+# X_k = 0.134 + 0.00035 a_n, ln a_n = 0.692 + z_u - 0.75 z_r; chords at a_n = 5, 25, 60, 150 /s.
+holds_high_flow.logit.b0 = 8.26
+holds_high_flow.logit.skip[0:5] = [28.0, 0.0, 0.0, 0.0, 0.0]
+holds_high_flow.logit.W1[0, 1] = 1.0
+holds_high_flow.logit.W1[0, 2] = -0.75
+holds_high_flow.logit.b1[0] = -0.917
+holds_high_flow.logit.w2[0] = -1.09
+holds_high_flow.logit.W1[1, 1] = 1.0
+holds_high_flow.logit.W1[1, 2] = -0.75
+holds_high_flow.logit.b1[1] = -2.527
+holds_high_flow.logit.w2[1] = -1.54
+holds_high_flow.logit.W1[2, 1] = 1.0
+holds_high_flow.logit.W1[2, 2] = -0.75
+holds_high_flow.logit.b1[2] = -3.402
+holds_high_flow.logit.w2[2] = -3.00
+holds_high_flow.logit.W1[3, 1] = 1.0
+holds_high_flow.logit.W1[3, 2] = -0.75
+holds_high_flow.logit.b1[3] = -4.319
+holds_high_flow.logit.w2[3] = -3.86
+
+# --- oxygen limit = floor, plus the excess of the thermal limit over it, plus the blow-off rise.
+# b0 = ln 0.134.
+oxygen_limit.median.b0 = -2.010
+oxygen_limit.median.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+# units 0, 1: relu(ln X_th - ln 0.134), rounded at the corner (0.15 of it starts 0.3 earlier).
+oxygen_limit.median.W1[0, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.median.b1[0] = 0.260
+oxygen_limit.median.w2[0] = 0.85
+oxygen_limit.median.W1[1, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.median.b1[1] = 0.560
+oxygen_limit.median.w2[1] = 0.15
+# units 2..5: ln(1 + 0.00035 a_n / 0.134).
+oxygen_limit.median.W1[2, 1] = 1.0
+oxygen_limit.median.W1[2, 2] = -0.75
+oxygen_limit.median.b1[2] = -0.917
+oxygen_limit.median.w2[2] = 0.039
+oxygen_limit.median.W1[3, 1] = 1.0
+oxygen_limit.median.W1[3, 2] = -0.75
+oxygen_limit.median.b1[3] = -2.527
+oxygen_limit.median.w2[3] = 0.055
+oxygen_limit.median.W1[4, 1] = 1.0
+oxygen_limit.median.W1[4, 2] = -0.75
+oxygen_limit.median.b1[4] = -3.402
+oxygen_limit.median.w2[4] = 0.107
+oxygen_limit.median.W1[5, 1] = 1.0
+oxygen_limit.median.W1[5, 2] = -0.75
+oxygen_limit.median.b1[5] = -4.319
+oxygen_limit.median.w2[5] = 0.138
+# spread: 0.06 on the floor; rises to 0.28 once the thermal limit is 0.44 (in ln) above the floor;
+# plus 0.02 per e-fold of stretch beyond 25 /s (the slope s_b is known to 30 %).
+oxygen_limit.spread.b0 = 0.06
+oxygen_limit.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+oxygen_limit.spread.W1[0, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.spread.b1[0] = 0.260
+oxygen_limit.spread.w2[0] = 0.5
+oxygen_limit.spread.W1[1, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.spread.b1[1] = -0.180
+oxygen_limit.spread.w2[1] = -0.5
+oxygen_limit.spread.W1[2, 1] = 1.0
+oxygen_limit.spread.W1[2, 2] = -0.75
+oxygen_limit.spread.b1[2] = -2.527
+oxygen_limit.spread.w2[2] = 0.02
+oxygen_limit.tail_weight = 0.1
+oxygen_limit.tail_width = 2.0
+
+# --- quench speed = 2 R a_q / 3 - D_c / R. b0 = ln(1.71 cm/s) - ln(100): R = 1 cm, 18 % O2, 200 s.
+# skip: a_q ~ (X - 0.03)^-2 -> -2.4 per e-fold of X; R; (1 + 15.3 / sqrt(t))^2 -> -0.5 per e-fold of t.
+quench_speed.median.b0 = -4.356
+# (the dossier's number for quench_speed.median.b0[] written inside the parent's line above, the dossier's number)
+quench_speed.median.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+# (the dossier's number for quench_speed.median.skip[0], quench_speed.median.skip[2], quench_speed.median.skip[3] written inside the parent's line above, the dossier's number)
+# units 0..3: ln(1 - exp(-v)), v = 0.666 - 2.4 z_x + 2 z_r - 0.5 z_t = ln(forced part / diffusive part);
+# chords at v = 3.0, 1.2, 0.6, 0.3. Below v = 0 the median runs to zero: no quench while the fan turns.
+quench_speed.median.W1[0, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[0] = 2.334
+quench_speed.median.w2[0] = 0.0
+# (the dossier's number for quench_speed.median.w2[0] written inside the parent's line above, the dossier's number)
+quench_speed.median.W1[1, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[1] = 0.534
+quench_speed.median.w2[1] = 0.0
+# (the dossier's number for quench_speed.median.w2[1] written inside the parent's line above, the dossier's number)
+quench_speed.median.W1[2, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[2] = -0.066
+quench_speed.median.w2[2] = 0.0
+# (the dossier's number for quench_speed.median.w2[2] written inside the parent's line above, the dossier's number)
+quench_speed.median.W1[3, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[3] = -0.366
+quench_speed.median.w2[3] = 0.0
+# (the dossier's number for quench_speed.median.w2[3] written inside the parent's line above, the dossier's number)
+# spread: 0.75 (k_s 25 %, q_r 15 %, b_c 50 %, squared); wider as the two parts cancel.
+quench_speed.spread.b0 = 0.15
+# (the dossier's number for quench_speed.spread.b0[] written inside the parent's line above, the dossier's number)
+quench_speed.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+quench_speed.spread.W1[0, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.spread.b1[0] = 0.534
+quench_speed.spread.w2[0] = 0.0
+# (the dossier's number for quench_speed.spread.w2[0] written inside the parent's line above, the dossier's number)
+quench_speed.spread.W1[1, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.spread.b1[1] = -0.066
+quench_speed.spread.w2[1] = 0.0
+# (the dossier's number for quench_speed.spread.w2[1] written inside the parent's line above, the dossier's number)
+quench_speed.tail_weight = 0.1
+quench_speed.tail_width = 2.0
+
+# --- blow-off speed = (X - 0.134) R^0.75 r0^0.25 / (1.5 * 0.00035). b0: R = 1 cm, X = 0.18 on the
+# line through X = 0.21 with slope 2.8; units 0..4 bend it down to ln(X - 0.134) (knots at 19, 18,
+# 17, 16, 15 % O2).
+blowoff_speed.median.b0 = -0.347
+blowoff_speed.median.skip[0:5] = [2.8, 0.0, 0.75, 0.0, 0.0]
+blowoff_speed.median.W1[0, 0] = -1.0
+blowoff_speed.median.b1[0] = 0.054
+blowoff_speed.median.w2[0] = -0.85
+blowoff_speed.median.W1[1, 0] = -1.0
+blowoff_speed.median.b1[1] = 0.0
+blowoff_speed.median.w2[1] = -0.65
+blowoff_speed.median.W1[2, 0] = -1.0
+blowoff_speed.median.b1[2] = -0.057
+blowoff_speed.median.w2[2] = -1.06
+blowoff_speed.median.W1[3, 0] = -1.0
+blowoff_speed.median.b1[3] = -0.118
+blowoff_speed.median.w2[3] = -2.22
+blowoff_speed.median.W1[4, 0] = -1.0
+blowoff_speed.median.b1[4] = -0.182
+blowoff_speed.median.w2[4] = -3.4
+# spread: 0.36 (s_b 30 %, radius exponent); grows below 17 % as the floor's 0.8 % O2 comes to matter.
+blowoff_speed.spread.b0 = 0.36
+blowoff_speed.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+blowoff_speed.spread.W1[0, 0] = -1.0
+blowoff_speed.spread.b1[0] = -0.057
+blowoff_speed.spread.w2[0] = 0.8
+blowoff_speed.spread.W1[1, 0] = -1.0
+blowoff_speed.spread.b1[1] = -0.118
+blowoff_speed.spread.w2[1] = 1.5
+blowoff_speed.tail_weight = 0.1
+blowoff_speed.tail_width = 2.0
+
+# --- films and slabs: not quenched. l_f = 20 ln(X / 0.138) (sd 0.085 in ln);
+# l_th = 4.5 (ln X - ln X_th), ln X_th = -1.711 - 0.833 z_u + 0.338 concurrent (sd 0.38 in ln).
+flat_holds_low_flow.logit.b0 = 5.31
+flat_holds_low_flow.logit.skip[0:5] = [20.0, 0.0, 0.0, 0.0, 0.0]
+flat_holds_low_flow.logit.W1[0, 0:5] = [15.5, -3.75, 0.0, 0.0, 1.52]
+flat_holds_low_flow.logit.b1[0] = 5.33
+flat_holds_low_flow.logit.w2[0] = -1.0
+
+# --- films and slabs: not blown off. X_k = 0.138 + 0.0016 U (cm/s), half the slope concurrent;
+# chords of ln(X_k / 0.138) at U = 1, 5, 10, 20, 40 cm/s.
+flat_holds_high_flow.logit.b0 = 5.31
+flat_holds_high_flow.logit.skip[0:5] = [20.0, 0.0, 0.0, 0.0, 0.0]
+flat_holds_high_flow.logit.W1[0, 1] = 1.0
+flat_holds_high_flow.logit.W1[0, 4] = -0.693
+flat_holds_high_flow.logit.b1[0] = 0.0
+flat_holds_high_flow.logit.w2[0] = -0.56
+flat_holds_high_flow.logit.W1[1, 1] = 1.0
+flat_holds_high_flow.logit.W1[1, 4] = -0.693
+flat_holds_high_flow.logit.b1[1] = -1.609
+flat_holds_high_flow.logit.w2[1] = -0.98
+flat_holds_high_flow.logit.W1[2, 1] = 1.0
+flat_holds_high_flow.logit.W1[2, 4] = -0.693
+flat_holds_high_flow.logit.b1[2] = -2.303
+flat_holds_high_flow.logit.w2[2] = -1.32
+flat_holds_high_flow.logit.W1[3, 1] = 1.0
+flat_holds_high_flow.logit.W1[3, 4] = -0.693
+flat_holds_high_flow.logit.b1[3] = -2.996
+flat_holds_high_flow.logit.w2[3] = -2.10
+flat_holds_high_flow.logit.W1[4, 1] = 1.0
+flat_holds_high_flow.logit.W1[4, 4] = -0.693
+flat_holds_high_flow.logit.b1[4] = -3.689
+flat_holds_high_flow.logit.w2[4] = -2.30
+
+# --- films and slabs: quench speed = c_dir * 0.151 cm/s / (X - 0.03): 1.00 cm/s at 18 % opposed.
+flat_quench_speed.median.b0 = -4.126
+# (the dossier's number for flat_quench_speed.median.b0[] written inside the parent's line above, the dossier's number)
+flat_quench_speed.median.skip[0:5] = [-0.6, 0.0, 0.0, 0.0, 0.405]
+# (the dossier's number for flat_quench_speed.median.skip[0] written inside the parent's line above, the dossier's number)
+flat_quench_speed.spread.b0 = 0.15
+# (the dossier's number for flat_quench_speed.spread.b0[] written inside the parent's line above, the dossier's number)
+flat_quench_speed.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+flat_quench_speed.tail_weight = 0.15
+flat_quench_speed.tail_width = 2.5
+
+# --- the D1 block of phys_bass1_d1.md
+flat_quench_speed.median.W1[0, 2] = 1.0
+flat_quench_speed.median.w2[0] = 0.0
+# (the dossier's number for flat_quench_speed.median.w2[0] written inside the parent's line above, the dossier's number)
+flat_quench_speed.spread.W1[0, 2] = 1.0
+flat_quench_speed.spread.w2[0] = 0.0
+# (the dossier's number for flat_quench_speed.spread.w2[0] written inside the parent's line above, the dossier's number)
+# --- new lines of phys_bass2.md
+# bass2: data-informed (train and validation days of bass1). Features 5 (is_rod), 6 (flat_thickness).
+x.is_rod.centre = 0.0
+x.is_rod.scale = 1.0
+x.is_rod.lo = 0.0
+x.is_rod.hi = 1.0
+x.flat_thickness.centre = 0.0005
+x.flat_thickness.scale = 1.0
+x.flat_thickness.lo = 0.00005
+x.flat_thickness.hi = 0.03
+
+# --- rods: a rod is not fed from all sides. The four chords of ln(1 - exp(-v)), the diffusion
+# term D_c / R, are switched off for rods (-20 puts each unit below zero over the whole domain).
+quench_speed.median.W1[0, 5] = -20.0
+quench_speed.median.W1[1, 5] = -20.0
+quench_speed.median.W1[2, 5] = -20.0
+quench_speed.median.W1[3, 5] = -20.0
+# a rod is a fin: 1.5 to 2 kW/m2 conducted along it for as long as it burns: a_q times 1.5.
+quench_speed.median.skip[5] = 0.0
+# (the dossier's number for quench_speed.median.skip[5] written inside the parent's line above, the dossier's number)
+# the widening that went with the cancelled diffusion term: off for rods (ln-sd 0.75).
+quench_speed.spread.W1[0, 5] = -20.0
+quench_speed.spread.W1[1, 5] = -20.0
+
+# --- films: the edge sits in the holder's boundary layer (gas at 0.5 to 0.67 of the duct speed).
+# CHANGED LINE: was -4.601. Factor 1.58, half of what the film cases ask for.
+
+# --- slabs: conduction into cold fuel at a spreading edge, by thickness (replaces the D1 flag,
+# which is inert now that flat samples are supplied nose_radius = 0.01).
+# ln(median) rises by 1.0 (factor 2.7) between 0.5 mm and 2 mm, flat outside.
+flat_quench_speed.median.W1[1, 6] = 1.0
+flat_quench_speed.median.w2[1] = 0.0
+# (the dossier's number for flat_quench_speed.median.w2[1] written inside the parent's line above, the dossier's number)
+flat_quench_speed.median.W1[2, 6] = 1.0
+flat_quench_speed.median.b1[2] = -1.386
+flat_quench_speed.median.w2[2] = 0.0
+# (the dossier's number for flat_quench_speed.median.w2[2] written inside the parent's line above, the dossier's number)
+# ln-sd rises from 0.50 to 0.80 over the same range.
+flat_quench_speed.spread.W1[1, 6] = 1.0
+flat_quench_speed.spread.w2[1] = 0.0
+# (the dossier's number for flat_quench_speed.spread.w2[1] written inside the parent's line above, the dossier's number)
+flat_quench_speed.spread.W1[2, 6] = 1.0
+flat_quench_speed.spread.b1[2] = -1.386
+flat_quench_speed.spread.w2[2] = 0.0
+# (the dossier's number for flat_quench_speed.spread.w2[2] written inside the parent's line above, the dossier's number)
+
+# bass3: data-informed (train and validation days of bass1, PROTOCOL 13.6). Not yet run.
+x.u_pot1.centre = 0.044
+x.u_pot1.scale = 1.0
+x.u_pot1.lo = 0.01
+x.u_pot1.hi = 0.15
+x.is_one_sided.centre = 0.0
+x.is_one_sided.scale = 1.0
+x.is_one_sided.lo = 0.0
+x.is_one_sided.hi = 1.0
+
+# --- rods, spheres, sections: out at pot 0.31 whatever radius, oxygen, time (22 rods 0.27-0.38,
+# spheres 0.29-0.32). b0 = ln(0.941 * 0.31 * 0.044 m/s). The speed follows the burn's fan curve.
+quench_speed.median.skip[7] = 1.0
+# the setting is reproducible to 0.03 pot in 0.31; with the conversion, ln-sd 0.15.
+
+# --- flat samples, floor level: pot 0.39 at 18 % O2 (films 0.355-0.40), b0 = ln(0.941 * 0.39 * 0.044);
+# -0.6 per e-fold of oxygen (two films at 17.4 %, one at 20.8 %).
+flat_quench_speed.median.skip[7] = 1.0
+# the D1 flag and the bass2 thickness ramp are replaced by the two-class law below.
+# unit 3: g = 30 (z_c - z_x), z_c = -0.204 + 0.147 ln(thickness / 0.5 mm) + 0.28 one_sided:
+# starting oxygen below which a slab reaches its limit during the burn (18.0 % at 2 mm, 20.6 % at
+# 5 mm, two sides; 1.32 times that one-sided). Adds g to ln(median) above the floor level.
+flat_quench_speed.median.W1[3, 0] = -30.0
+flat_quench_speed.median.W1[3, 6] = 4.41
+flat_quench_speed.median.W1[3, 8] = 8.4
+flat_quench_speed.median.b1[3] = -6.12
+flat_quench_speed.median.w2[3] = 1.0
+# unit 4: the cap. Floor level + g never above the working flow of a slab at its limit,
+# 11 cm/s (thickness / 3 mm)^0.3, 1.22 times one-sided: ln = -2.744 + 0.3 z_th + 0.2 one_sided.
+flat_quench_speed.median.W1[4, 0] = -30.6
+flat_quench_speed.median.W1[4, 4] = 0.405
+flat_quench_speed.median.W1[4, 6] = 4.11
+flat_quench_speed.median.W1[4, 7] = 1.0
+flat_quench_speed.median.W1[4, 8] = 8.2
+flat_quench_speed.median.b1[4] = -7.502
+flat_quench_speed.median.w2[4] = -1.0
+# spread: 0.15 at the floor level, 0.80 half-way between the classes, 0.35 at the limit level.
+flat_quench_speed.spread.W1[3, 0] = -30.0
+flat_quench_speed.spread.W1[3, 6] = 4.41
+flat_quench_speed.spread.W1[3, 8] = 8.4
+flat_quench_speed.spread.b1[3] = -6.12
+flat_quench_speed.spread.w2[3] = 0.7
+flat_quench_speed.spread.W1[4, 0] = -30.0
+flat_quench_speed.spread.W1[4, 6] = 4.41
+flat_quench_speed.spread.W1[4, 8] = 8.4
+flat_quench_speed.spread.b1[4] = -7.05
+flat_quench_speed.spread.w2[4] = -1.18
+flat_quench_speed.spread.W1[5, 0] = -30.0
+flat_quench_speed.spread.W1[5, 6] = 4.41
+flat_quench_speed.spread.W1[5, 8] = 8.4
+flat_quench_speed.spread.b1[5] = -7.99
+flat_quench_speed.spread.w2[5] = 0.48
+

@@ -1,0 +1,182 @@
+# efield3 (PROTOCOL 13.6): docs/wsp/research/phys_efield_study.md lines 200-248 (sha256 573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e), the typed block verbatim, on top of the full chain
+# w0-fable -> e1-fable of its parent slug: every line of that chain with each later change written in place
+# (inside the earlier line where that line writes a list; elements a list line of the dossier adds beyond the parent's slice
+# one per line), then the block's new lines. Numbers verbatim; no number chosen.
+# Transcribed verbatim from docs/wsp/research/phys_efield_w0.md, section 7.4, lines 358-436 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/efield/root).
+# efield.wsp: W0, zero-shot. Author claude-fable-5-2. Source: docs/wsp/research/phys_efield_w0.md
+# features z = (z_c, z_x, e, p, z_v, z_m, z_w), columns 0..6
+x.carbon_flow.centre = 10000000000000000000
+x.carbon_flow.scale = 1.0
+x.carbon_flow.lo = 1000000000000000000
+x.carbon_flow.hi = 100000000000000000000
+x.x_fuel.centre = 1.0
+x.x_fuel.scale = 1.0
+x.x_fuel.lo = 0.2
+x.x_fuel.hi = 1.0
+x.is_ethylene.centre = 0.0
+x.is_ethylene.scale = 1.0
+x.is_ethylene.lo = 0.0
+x.is_ethylene.hi = 1.0
+x.mesh_positive.centre = 0.0
+x.mesh_positive.scale = 1.0
+x.mesh_positive.lo = 0.0
+x.mesh_positive.hi = 1.0
+x.voltage.centre = 3000.0
+x.voltage.scale = 1.0
+x.voltage.lo = 100.0
+x.voltage.hi = 10000.0
+x.sweep_v_max.centre = 5000.0
+x.sweep_v_max.scale = 1.0
+x.sweep_v_max.lo = 100.0
+x.sweep_v_max.hi = 10000.0
+x.window.centre = 100.0
+x.window.scale = 1.0
+x.window.lo = 5.0
+x.window.hi = 2000.0
+
+# --- T1, current at a level = min(I_sat, G V^2), falling as 1/V beyond 1.16 V_sat.
+# b0 = ln(1.5e-6 * 1.602e-19 C * 1e19 1/s) = ln(2.403e-6 A). Yield proportional to fuel fraction.
+ion_current.median.b0 = -13.664
+# (form only: ion_current.median.b0[] written inside the parent's line above, the dossier's number)
+ion_current.median.skip[0:7] = [0.0, 0.0, 0.0, 0.9, 1.4, 0.0, 0.0]
+# (form only: ion_current.median.skip[0], ion_current.median.skip[1], ion_current.median.skip[2], ion_current.median.skip[3], ion_current.median.skip[4], ion_current.median.skip[5], ion_current.median.skip[6] written inside the parent's line above, the dossier's number)
+# (form only: ion_current.median.skip[0], ion_current.median.skip[1], ion_current.median.skip[2], ion_current.median.skip[3], ion_current.median.skip[4], ion_current.median.skip[5], ion_current.median.skip[6] written inside the parent's line above, the dossier's number)
+# unit 0: a = ln I_sat - ln I_sc; I_sc = 1.58e-13 A/V2 * (3000 V)^2 = 1.423e-6 A at the centre.
+ion_current.median.W1[0, 0:7] = [-1.0, -0.4, -1.1, -20.0, 1.4, 0.0, 0.0]
+# (form only: ion_current.median.W1[0, 0], ion_current.median.W1[0, 1], ion_current.median.W1[0, 2], ion_current.median.W1[0, 3], ion_current.median.W1[0, 4], ion_current.median.W1[0, 5], ion_current.median.W1[0, 6] written inside the parent's line above, the dossier's number)
+# (form only: ion_current.median.W1[0, 0], ion_current.median.W1[0, 1], ion_current.median.W1[0, 2], ion_current.median.W1[0, 3], ion_current.median.W1[0, 4], ion_current.median.W1[0, 5], ion_current.median.W1[0, 6] written inside the parent's line above, the dossier's number)
+ion_current.median.b1[0] = -0.095
+# (form only: ion_current.median.b1[0] written inside the parent's line above, the dossier's number)
+ion_current.median.w2[0] = -1.0
+# (form only: ion_current.median.w2[0] written inside the parent's line above, the dossier's number)
+# unit 1: past the peak.
+ion_current.median.W1[1, 0:7] = [-0.25, 0.0, -0.95, 20.0, 1.4, 0.0, 0.0]
+# (form only: ion_current.median.W1[1, 0], ion_current.median.W1[1, 1], ion_current.median.W1[1, 2], ion_current.median.W1[1, 3], ion_current.median.W1[1, 4], ion_current.median.W1[1, 5], ion_current.median.W1[1, 6] written inside the parent's line above, the dossier's number)
+# (form only: ion_current.median.W1[1, 0], ion_current.median.W1[1, 1], ion_current.median.W1[1, 2], ion_current.median.W1[1, 3], ion_current.median.W1[1, 4], ion_current.median.W1[1, 5], ion_current.median.W1[1, 6] written inside the parent's line above, the dossier's number)
+ion_current.median.b1[1] = -18.255
+# (form only: ion_current.median.b1[1] written inside the parent's line above, the dossier's number)
+ion_current.median.w2[1] = -1.0
+# (form only: ion_current.median.w2[1] written inside the parent's line above, the dossier's number)
+ion_current.spread.b0 = 0.45
+# (form only: ion_current.spread.b0[] written inside the parent's line above, the dossier's number)
+ion_current.spread.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+ion_current.spread.W1[0, 0:7] = [-1.0, -1.0, 0.0, 0.405, 2.0, 0.0, 0.0]
+ion_current.spread.b1[0] = -0.824
+ion_current.spread.w2[0] = 0.0
+# (form only: ion_current.spread.w2[0] written inside the parent's line above, the dossier's number)
+ion_current.tail_weight = 0.1
+ion_current.tail_width = 3.0
+
+# --- T2, blow-off by the ion wind. ln tau = ln window + ln V_ext - min(ln V_sat, ln V_max).
+# b0 = ln(100 s) + ln(20000 V) - ln(5000 V); V_ext as x^1.5, 3.5 times for ethylene, 0.6 mesh positive.
+flame_end.blowoff.median.b0 = 7.09
+# (form only: flame_end.blowoff.median.b0[] written inside the parent's line above, the dossier's number)
+flame_end.blowoff.median.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0]
+# (form only: flame_end.blowoff.median.skip[0], flame_end.blowoff.median.skip[1], flame_end.blowoff.median.skip[2], flame_end.blowoff.median.skip[3], flame_end.blowoff.median.skip[4], flame_end.blowoff.median.skip[5], flame_end.blowoff.median.skip[6] written inside the parent's line above, the dossier's number)
+# unit 0: the flame saturates below the highest voltage: ln V_max - ln V_sat, V_sat = 3.90 kV at the centre.
+flame_end.blowoff.median.W1[0, 0:7] = [0.0, 0.0, -1.0, -1.0, 0.0, 0.0, 0.0]
+# (form only: flame_end.blowoff.median.W1[0, 0], flame_end.blowoff.median.W1[0, 1], flame_end.blowoff.median.W1[0, 2], flame_end.blowoff.median.W1[0, 3], flame_end.blowoff.median.W1[0, 4], flame_end.blowoff.median.W1[0, 5], flame_end.blowoff.median.W1[0, 6] written inside the parent's line above, the dossier's number)
+flame_end.blowoff.median.b1[0] = 0.0
+# (form only: flame_end.blowoff.median.b1[0] written inside the parent's line above, the dossier's number)
+flame_end.blowoff.median.w2[0] = -2.106
+# (form only: flame_end.blowoff.median.w2[0] written inside the parent's line above, the dossier's number)
+flame_end.blowoff.shape = 12.0
+# (form only: flame_end.blowoff.shape[] written inside the parent's line above, the dossier's number)
+# other ends: median 600 s for a pure fuel, shorter when dilute.
+flame_end.other.median.b0 = 8.006
+# (form only: flame_end.other.median.b0[] written inside the parent's line above, the dossier's number)
+flame_end.other.median.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# (form only: flame_end.other.median.skip[0], flame_end.other.median.skip[1], flame_end.other.median.skip[2], flame_end.other.median.skip[3], flame_end.other.median.skip[4], flame_end.other.median.skip[5], flame_end.other.median.skip[6] written inside the parent's line above, the dossier's number)
+flame_end.other.shape = 1.5
+# (form only: flame_end.other.shape[] written inside the parent's line above, the dossier's number)
+
+# --- secondary: saturation current and its voltage.
+peak_ion_current.median.b0 = -12.939
+peak_ion_current.median.skip[0:7] = [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+peak_ion_current.spread.b0 = 0.55
+peak_ion_current.spread.skip[0:7] = [0.0, -0.5, 0.0, 0.10, 0.0, 0.0, 0.0]
+peak_ion_current.tail_weight = 0.1
+peak_ion_current.tail_width = 3.0
+# b0 = ln(3000 V) + 0.524 / 2: 3.90 kV.
+peak_voltage.median.b0 = 8.268
+peak_voltage.median.skip[0:7] = [0.5, 0.5, 0.0, -0.203, 0.0, 0.0, 0.0]
+peak_voltage.spread.b0 = 0.45
+peak_voltage.spread.skip[0:7] = [0.0, -0.25, 0.0, 0.0, 0.0, 0.0, 0.0]
+peak_voltage.tail_weight = 0.1
+peak_voltage.tail_width = 3.0
+
+# efield E1: runs/dev/gen7/study/efield_e1.wsp (sha256 9c4344adf3598741e0d769d77f2e94acd3de4eceb760e91cde485f5dab6ed39b), verbatim, a revision of
+# efield w0-fable sha256:f78c2ece…efd8 (docs/wsp/research/phys_efield_study.md); every other number is the parent's.
+# efield candidate E1 (numbers on the efield declaration, base W0): ion current only.
+# rising branch 0.25 uA/kV2 below 1 kV, exponent 1.4 above; 2.46 times higher with the mesh positive;
+# cap, mesh negative: 0.8e-6 ion pairs per carbon, x^0.4, ethylene 3 times; cap, mesh positive: 0.5 uA
+# (ethylene 1.3 uA), carbon flow to the power 0.25; no fall after the cap; width 0.45.
+ion_current.median.W1[2, 4] = -1.0
+ion_current.median.b1[2] = -1.0986
+ion_current.median.w2[2] = -0.6
+
+
+# efield3 = E1 with these lines added or replaced. Features z = (z_c, z_x, e, p, z_v, z_m, z_w, gas, scb, strong).
+x.is_gas_jet.centre = 0.0
+x.is_gas_jet.scale = 1.0
+x.is_gas_jet.lo = 0.0
+x.is_gas_jet.hi = 1.0
+x.still_coflow_burner.centre = 0.0
+x.still_coflow_burner.scale = 1.0
+x.still_coflow_burner.lo = 0.0
+x.still_coflow_burner.hi = 1.0
+x.strong_coflow.centre = 0.0
+x.strong_coflow.scale = 1.0
+x.strong_coflow.lo = 0.0
+x.strong_coflow.hi = 1.0
+# ion current: gas-jet rising branch 1.4 times (ln 1.4 = 0.35).
+ion_current.median.skip[7] = 0.35
+ion_current.median.skip[8] = 0.0
+ion_current.median.skip[9] = 0.0
+# (form only: the elements of the dossier's line `ion_current.median.skip[0:10]` that the parent does not write, one per line)
+ion_current.median.W1[0, 7] = 0.35
+ion_current.median.W1[0, 8] = 0.0
+ion_current.median.W1[0, 9] = 0.0
+# (form only: the elements of the dossier's line `ion_current.median.W1[0, 0:10]` that the parent does not write, one per line)
+# positive ceiling of the coflow burner: off for the gas-jet and for a real coflow; 0.3 times in still gas.
+ion_current.median.W1[1, 7] = -20.0
+ion_current.median.W1[1, 8] = 1.2
+ion_current.median.W1[1, 9] = -20.0
+# (form only: the elements of the dossier's line `ion_current.median.W1[1, 0:10]` that the parent does not write, one per line)
+# unit 3: positive ceiling of the gas-jet, 0.45 uA methane, 2.6 uA ethylene.
+ion_current.median.W1[3, 0:10] = [0.0, 0.0, -1.754, 20.0, 1.4, 0.0, 0.0, 20.0, 0.0, 0.0]
+ion_current.median.b1[3] = -37.800
+ion_current.median.w2[3] = -1.0
+# unit 4: positive mesh with a real coflow: the negative ceiling times 0.52.
+ion_current.median.W1[4, 0:10] = [-1.0, -0.4, -1.10, 20.0, 1.4, 0.0, 0.0, 0.0, 0.0, 20.0]
+ion_current.median.b1[4] = -38.545
+ion_current.median.w2[4] = -1.0
+# flame out. blowoff: gas-jet methane, mesh negative, 7.3 kV. b0 = ln(100 s) + ln(60 kV / 5 kV).
+flame_end.blowoff.median.skip[7] = 0.0
+flame_end.blowoff.median.skip[8] = 0.0
+flame_end.blowoff.median.skip[9] = 0.0
+# (form only: the elements of the dossier's line `flame_end.blowoff.median.skip[0:10]` that the parent does not write, one per line)
+flame_end.blowoff.median.W1[0, 7] = 1.0
+flame_end.blowoff.median.W1[0, 8] = 0.0
+flame_end.blowoff.median.W1[0, 9] = 0.0
+# (form only: the elements of the dossier's line `flame_end.blowoff.median.W1[0, 0:10]` that the parent does not write, one per line)
+# press: gas-jet methane, mesh positive, 7.0 kV.
+flame_end.press.median.b0 = 7.090
+flame_end.press.median.skip[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0]
+flame_end.press.median.W1[0, 0:10] = [0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+flame_end.press.median.b1[0] = -1.0
+flame_end.press.median.w2[0] = -2.148
+flame_end.press.shape = 4.0
+# other: starving in still gas on the coflow burner; 45 s mesh positive, 600 s negative, else 3000 s.
+flame_end.other.median.skip[7] = 0.0
+flame_end.other.median.skip[8] = 0.0
+flame_end.other.median.skip[9] = 0.0
+# (form only: the elements of the dossier's line `flame_end.other.median.skip[0:10]` that the parent does not write, one per line)
+flame_end.other.median.W1[0, 0:10] = [0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+flame_end.other.median.b1[0] = -1.0
+flame_end.other.median.w2[0] = -4.2
+flame_end.other.median.W1[1, 0:10] = [0.0, 0.0, -1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+flame_end.other.median.b1[1] = 0.0
+flame_end.other.median.w2[1] = -1.6
+
