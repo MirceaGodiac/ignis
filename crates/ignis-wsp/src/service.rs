@@ -88,6 +88,18 @@ pub trait PrefixSource: Send + Sync {
         input: &ForecastInput,
     ) -> ServiceResult<PrefixBundle>;
 
+    /// The run id a stored-run request means when `run_id` is not one itself: a NASA run name
+    /// (`FLEX-093`) that names exactly one run of the release's split. `None` keeps the request
+    /// as it is (it is an id, or it names nothing; [`Self::provenance`] then says so).
+    fn resolve_run(
+        &self,
+        _scope: &ExecutionScope,
+        _release: &ModelRelease,
+        _run_id: &RunId,
+    ) -> ServiceResult<Option<RunId>> {
+        Ok(None)
+    }
+
     /// Every stored run of the release's frozen split with its partition (no outcome is read).
     /// The service filters it by what the scope may forecast.
     fn runs(&self, release: &ModelRelease) -> ServiceResult<Vec<(RunId, Partition)>> {
@@ -100,6 +112,18 @@ pub trait PrefixSource: Send + Sync {
         ))
     }
 }
+
+/// The comparison form of a run name (as the conditions table compares them): no case, spaces,
+/// `-` or `_`.
+fn run_name_key(name: &str) -> String {
+    name.chars()
+        .filter(|c| !c.is_whitespace() && *c != '-' && *c != '_')
+        .flat_map(char::to_uppercase)
+        .collect()
+}
+
+/// Alias schemes that do not name one run (PI, campaign day, sample number).
+const NOT_A_RUN: &[&str] = &["pi", "campaign_day", "sample_number"];
 
 /// Prefixes held in memory: admitted prefixes by `input_hash` and stored-run prefixes by
 /// `(run_id, cutoff_s)`, each with its provenance. For tests and fixtures; it ignores `policy`
@@ -229,15 +253,85 @@ impl<V: ViewSource + Send + Sync> PrefixSource for ViewSourcePrefixes<V> {
             .partition_of(run_id.as_str())
             .map(Provenance::Partition)
             .ok_or_else(|| {
+                // Examples from the train partition only: naming a sealed run says nothing here.
+                let examples: Vec<String> = split
+                    .run_to_group
+                    .iter()
+                    .filter(|(_, g)| split.train.contains(g))
+                    .map(|(r, _)| format!("`{r}`"))
+                    .take(2)
+                    .collect();
                 envelope(
-                    ErrorCode::ScopeDenied,
+                    ErrorCode::NotFound,
                     format!(
-                        "run {run_id} is not in split {} of release {}: no partition, so no scope \
-                         grants it",
-                        split.id, release.id
+                        "no run {run_id} in split {} of {}: a stored run is named by its run id{} or \
+                         by a NASA run name that names one run of the split; list the runs of an \
+                         investigation with conditions_query investigation_ids (each row's \
+                         run.run_id)",
+                        split.id,
+                        release.model_name,
+                        if examples.is_empty() {
+                            String::new()
+                        } else {
+                            format!(" (e.g. {})", examples.join(", "))
+                        }
                     ),
                 )
             })
+    }
+
+    fn resolve_run(
+        &self,
+        _: &ExecutionScope,
+        release: &ModelRelease,
+        run_id: &RunId,
+    ) -> ServiceResult<Option<RunId>> {
+        // An unavailable split is reported by `provenance`.
+        let Ok(split) = self.source.split(&release.split_id) else {
+            return Ok(None);
+        };
+        if split.run_to_group.contains_key(run_id.as_str()) {
+            return Ok(None);
+        }
+        let key = run_name_key(run_id.as_str());
+        let mut found: BTreeSet<String> = split
+            .run_to_group
+            .keys()
+            .filter(|r| run_name_key(r) == key)
+            .cloned()
+            .collect();
+        if found.is_empty() {
+            // The records' NASA names (aliases); read only when the name is not an id spelling.
+            if let Ok(archives) = self.source.run_archives(release.family) {
+                found = archives
+                    .iter()
+                    .filter(|a| split.run_to_group.contains_key(&a.record.id))
+                    .filter(|a| {
+                        a.record.aliases.iter().any(|al| {
+                            !NOT_A_RUN.contains(&al.scheme.as_str())
+                                && run_name_key(&al.name) == key
+                        })
+                    })
+                    .map(|a| a.record.id.clone())
+                    .collect();
+            }
+        }
+        match found.len() {
+            0 => Ok(None),
+            1 => {
+                let id = found.pop_first().expect("one");
+                RunId::new(id).map(Some).map_err(ErrorEnvelope::from)
+            }
+            _ => Err(envelope(
+                ErrorCode::InvalidRequest,
+                format!(
+                    "run name {run_id} names {} runs of split {}: {}; pass one run id",
+                    found.len(),
+                    split.id,
+                    found.into_iter().collect::<Vec<_>>().join(", ")
+                ),
+            )),
+        }
     }
 
     fn prefix(
@@ -532,6 +626,26 @@ impl<P: PrefixSource> ModelService for WspModelService<P> {
                 ),
             )
         })?;
+        // A NASA run name resolves to the run id it names, as conditions_query resolves it.
+        let resolved;
+        let req = match &req.input {
+            ForecastInput::StoredRun { run_id, cutoff_s } => {
+                match self.prefixes.resolve_run(scope, release, run_id)? {
+                    Some(id) => {
+                        resolved = ForecastRequest {
+                            input: ForecastInput::StoredRun {
+                                run_id: id,
+                                cutoff_s: *cutoff_s,
+                            },
+                            ..req.clone()
+                        };
+                        &resolved
+                    }
+                    None => req,
+                }
+            }
+            ForecastInput::Prefix { .. } => req,
+        };
         let provenance = self.prefixes.provenance(scope, release, &req.input)?;
         if let Provenance::Partition(p) = provenance {
             if !self.may_forecast(scope, release, p) {

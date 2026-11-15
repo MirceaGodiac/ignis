@@ -135,32 +135,64 @@ impl AnswerHost<'_> {
             }
         }
         // A release is citable when it is pinned on the episode or when a forecast of this episode
-        // ran it successfully (the agent cannot pin; the job record is the proof it was used).
-        let ran = if sub
-            .model_releases
-            .iter()
-            .any(|r| !ep.pins.model_releases.contains(r))
-        {
+        // ran it successfully (the agent cannot pin; the job record is the proof it was used). A
+        // release `models_inspect` returned in this episode may be shown and listed too, as long
+        // as no predicted claim rests on it: a prediction needs the forecast.
+        let unpinned = |r: &&ignis_core::contracts::ReleaseId| !ep.pins.model_releases.contains(r);
+        let ran = if sub.model_releases.iter().any(|r| unpinned(&r)) {
             self.store
                 .episode_job_releases(scope, episode, crate::tools::FORECAST_JOB)?
         } else {
             Default::default()
         };
+        let inspected = if sub
+            .model_releases
+            .iter()
+            .any(|r| unpinned(&r) && !ran.contains(r.as_str()))
+        {
+            self.inspected_releases(scope, episode)?
+        } else {
+            Default::default()
+        };
+        let predicts_with = |r: &str| {
+            sub.claims
+                .iter()
+                .filter(|c| c.kind == ignis_core::contracts::ClaimKind::Predicted)
+                .flat_map(|c| {
+                    c.support
+                        .iter()
+                        .filter_map(|s| match s {
+                            ClaimSupport::ArtifactValue { artifact_id, .. } => Some(artifact_id),
+                            _ => None,
+                        })
+                        .chain(c.values.iter().flat_map(|v| v.cited_artifacts()))
+                })
+                .filter_map(|a| artifacts.get(a))
+                .any(|a| a.produced_by.release_id.as_ref().map(|x| x.as_str()) == Some(r))
+        };
         for r in sub
             .model_releases
             .iter()
-            .filter(|r| !ep.pins.model_releases.contains(r) && !ran.contains(r.as_str()))
+            .filter(|r| unpinned(r) && !ran.contains(r.as_str()))
         {
+            if inspected.contains(r.as_str()) && !predicts_with(r.as_str()) {
+                continue;
+            }
             let pinned: Vec<&str> = ep.pins.model_releases.iter().map(|r| r.as_str()).collect();
             let used: Vec<&str> = ran.iter().map(String::as_str).collect();
-            problems.push(problem(
-                AnswerProblemKind::UnpinnedRelease,
+            let detail = if inspected.contains(r.as_str()) {
                 format!(
-                    "release {r} is neither pinned on episode {episode} (pinned: {}) nor used by a successful models_forecast of this episode (used: {}); cite only those releases",
+                    "release {r} was inspected in this episode but a predicted claim rests on it, and no successful models_forecast of this episode ran it (ran: {}); forecast with it here, or drop the prediction",
+                    if used.is_empty() { "none".into() } else { used.join(", ") }
+                )
+            } else {
+                format!(
+                    "release {r} is neither pinned on episode {episode} (pinned: {}), nor run by a successful models_forecast of this episode (ran: {}), nor returned by models_inspect here; inspect or forecast it first, or drop it from model_releases and its release_card",
                     if pinned.is_empty() { "none".into() } else { pinned.join(", ") },
                     if used.is_empty() { "none".into() } else { used.join(", ") }
-                ),
-            ));
+                )
+            };
+            problems.push(problem(AnswerProblemKind::UnpinnedRelease, detail));
         }
         problems.extend(self.pointer_problems(scope, &sub, &artifacts));
         let mut claims = sub.claims;
@@ -914,6 +946,43 @@ impl AnswerHost<'_> {
         Ok(None)
     }
 
+    /// The releases `models_inspect` returned in this episode: the `artifact.created` events of
+    /// the release records it stored here ([`crate::tools::INSPECTED_RELEASE`], produced by that
+    /// release in this episode). A log compacted past them reads as not inspected.
+    fn inspected_releases(
+        &self,
+        scope: &ExecutionScope,
+        episode: &EpisodeId,
+    ) -> ServiceResult<BTreeSet<String>> {
+        let mut out = BTreeSet::new();
+        let mut after = 0u64;
+        loop {
+            let (events, last_seq) = match self.store.replay(scope, episode, after, 1000)? {
+                ignis_research::store::Replay::Events { events, last_seq } => (events, last_seq),
+                ignis_research::store::Replay::Gone { .. } => break,
+            };
+            let Some(last) = events.last().map(|e| e.seq) else {
+                break;
+            };
+            for e in &events {
+                if let EventBody::ArtifactCreated { artifact } = &e.body {
+                    if artifact.contract.as_deref() == Some(crate::tools::INSPECTED_RELEASE)
+                        && artifact.produced_by.episode_id.as_ref() == Some(episode)
+                    {
+                        if let Some(r) = &artifact.produced_by.release_id {
+                            out.insert(r.as_str().to_string());
+                        }
+                    }
+                }
+            }
+            if last >= last_seq {
+                break;
+            }
+            after = last;
+        }
+        Ok(out)
+    }
+
     /// The `ArtifactRef` of a view of a dataset bundle the scope reads, if `id` names one. Its
     /// contract is the bundle's (`DatasetBundle`): a view is one of a bundle's data tables.
     fn dataset_view_ref(&self, scope: &ExecutionScope, id: &ArtifactId) -> Option<ArtifactRef> {
@@ -1173,11 +1242,11 @@ fn chart_rows(doc: &Value, pointer: &str, fields: &[(&str, &str, bool)]) -> Resu
 fn explain(mut p: AnswerProblem) -> AnswerProblem {
     match p.kind {
         AnswerProblemKind::UnknownEvidence => p.detail.push_str(
-            " (cite only evidence a tool returned in this episode, e.g. a sources_search hit)",
+            ": cite the evidence_id of a sources_search hit returned in this episode (to cite text you read with sources_read, search its wording with filters.source_ids and cite that hit), bind a condition as a conditions_cell instead, or drop that support",
         ),
-        AnswerProblemKind::UnknownArtifact => {
-            p.detail.push_str(" (no such artifact in this workspace)")
-        }
+        AnswerProblemKind::UnknownArtifact => p.detail.push_str(
+            ": use an artifact_id a tool returned in this episode (a result's artifact_id or stored_as_artifact, a job output, or a view id datasets_inspect listed), or drop that reference",
+        ),
         _ => {}
     }
     p

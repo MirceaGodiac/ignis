@@ -287,6 +287,15 @@ impl<S: PrefixSource> PrefixSource for ServedPrefixes<S> {
         }
     }
 
+    fn resolve_run(
+        &self,
+        scope: &ExecutionScope,
+        release: &ModelRelease,
+        run_id: &RunId,
+    ) -> ServiceResult<Option<RunId>> {
+        self.stored.resolve_run(scope, release, run_id)
+    }
+
     fn runs(&self, release: &ModelRelease) -> ServiceResult<Vec<(RunId, Partition)>> {
         self.stored.runs(release)
     }

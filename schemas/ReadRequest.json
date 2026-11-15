@@ -143,14 +143,14 @@
       "description": "v2."
     },
     "schema_version": {
-      "$ref": "#/$defs/EvidenceSchema"
+      "$ref": "#/$defs/EvidenceSchema",
+      "default": "evidence.v2"
     },
     "source_id": {
       "$ref": "#/$defs/SourceId"
     }
   },
   "required": [
-    "schema_version",
     "source_id",
     "range"
   ],

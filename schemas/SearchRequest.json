@@ -196,11 +196,11 @@
       "description": "v2."
     },
     "schema_version": {
-      "$ref": "#/$defs/EvidenceSchema"
+      "$ref": "#/$defs/EvidenceSchema",
+      "default": "evidence.v2"
     }
   },
   "required": [
-    "schema_version",
     "query"
   ],
   "title": "SearchRequest",

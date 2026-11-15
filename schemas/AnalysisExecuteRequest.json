@@ -226,12 +226,10 @@
           "type": "array"
         },
         "schema_version": {
-          "$ref": "#/$defs/DatasetSchema"
+          "$ref": "#/$defs/DatasetSchema",
+          "default": "dataset.v2"
         }
       },
-      "required": [
-        "schema_version"
-      ],
       "type": "object"
     },
     "CrewAtmosphere": {
@@ -244,12 +242,17 @@
         },
         {
           "const": "spacesuit",
-          "description": "Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa).",
+          "description": "Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa); IGNIS reads it as oxygen ≥ 0.99 at\n4.1–4.5 psi (28.3–31.0 kPa).",
           "type": "string"
         },
         {
           "const": "iss_earth",
-          "description": "ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa).",
+          "description": "ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa) nominal; IGNIS reads it as the cabin's\nnominal band, oxygen 0.195–0.235 at 97.9–102.7 kPa (14.2–14.9 psi).",
+          "type": "string"
+        },
+        {
+          "const": "exploration",
+          "description": "NASA's proposed exploration atmosphere (a reference, not final for Artemis): 34 % oxygen\nat 8.2 psia (56.5 kPa); IGNIS reads it as oxygen 0.33–0.35 at 55.2–57.9 kPa (8.0–8.4 psi).",
           "type": "string"
         }
       ]

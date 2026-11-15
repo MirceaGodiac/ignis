@@ -803,6 +803,7 @@ pub enum ForecastInput {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ForecastRequest {
+    #[serde(default)]
     pub schema_version: WspSchema,
     pub release_id: ReleaseId,
     pub input: ForecastInput,

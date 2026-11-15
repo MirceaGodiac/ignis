@@ -411,7 +411,8 @@
       "$ref": "#/$defs/WikiPageId"
     },
     "schema_version": {
-      "$ref": "#/$defs/EvidenceSchema"
+      "$ref": "#/$defs/EvidenceSchema",
+      "default": "evidence.v2"
     },
     "title": {
       "description": "Required to create a page; a rename otherwise.",
@@ -422,7 +423,6 @@
     }
   },
   "required": [
-    "schema_version",
     "page_id"
   ],
   "title": "WikiPatch",

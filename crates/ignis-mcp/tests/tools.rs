@@ -295,10 +295,20 @@ fn errors_say_what_to_do_next() {
     let r = h
         .host
         .call(&scope("ws_a"), "sources_search", json!({"query": "x"}));
+    // A missing schema_version takes the only current version.
+    ok(&r);
+    // Every unknown field is named at once, with the closest valid name.
+    let r = h.host.call(
+        &scope("ws_a"),
+        "sources_search",
+        json!({"query": "x", "querry": 1, "page_sise": 3}),
+    );
     refused(&r, ErrorCode::InvalidRequest);
     let m = r.error.unwrap().message;
     assert!(
-        m.contains("schema_version") && m.contains("SearchRequest"),
+        m.contains("`querry`")
+            && m.contains("`page_sise`")
+            && m.contains("did you mean `page_size`"),
         "{m}"
     );
     // A closed value that is not permitted is refused with the permitted values.

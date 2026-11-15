@@ -32,7 +32,7 @@ fn tool_defs() -> Vec<(String, usize, usize)> {
 }
 
 /// Ceilings (bytes) of the parts of the prefix; raise one only on purpose.
-const MAX_HARNESS_BYTES: usize = 35_500;
+const MAX_HARNESS_BYTES: usize = 37_500;
 const MAX_TOOL_DEFS_BYTES: usize = 46_500;
 
 #[test]

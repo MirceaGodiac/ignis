@@ -172,7 +172,8 @@
           "description": "v2: how the support was checked, when it was."
         },
         "claim_id": {
-          "$ref": "#/$defs/ClaimId"
+          "$ref": "#/$defs/ClaimId",
+          "description": "`id` is accepted as an alias."
         },
         "kind": {
           "$ref": "#/$defs/ClaimKind"
