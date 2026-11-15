@@ -152,6 +152,25 @@ async fn capabilities_report_the_runtime_without_crashing() {
         .unwrap()
         .contains("not configured"));
 
+    // A reasoning effort Codex does not know leaves the runtime unavailable, saying why.
+    let dir = tempfile::tempdir().unwrap();
+    let effort = CodexArgs {
+        reasoning_effort: Some("turbo".into()),
+        ..fake()
+    };
+    let (_, caps) = call(
+        &router(dir.path(), effort),
+        "GET",
+        "/api/v1/capabilities",
+        None,
+    )
+    .await;
+    assert_eq!(caps["agent_runtime"]["available"], false);
+    assert!(caps["agent_runtime"]["detail"]
+        .as_str()
+        .unwrap()
+        .contains("reasoning effort"));
+
     let wrong = CodexArgs {
         sha256: Some("00".repeat(32)),
         ..fake()
