@@ -1,14 +1,14 @@
-// T9: the challenge's two direct questions over K1.13 `ConditionsTable`:
-//   1. How near does each investigation's tested envelope come to the Moon/rover, suit and ISS
-//      atmospheres? (reached, outside by how much, or not decidable; never extrapolated)
-//   2. Which conditions did each run record? (value with its original's locator, or an explicit gap)
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+// T9: the Conditions page (by crew atmosphere, the atmosphere map) and the conditions matrix that
+// answers can embed. Both read K1.13 `ConditionsTable`; nothing is extrapolated.
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
+import { flagTags, quotedText } from "../research/conditionCells";
+import { rowWindow } from "../research/windowing";
+import { href } from "../shell/router";
+import { MapView } from "./MapView";
+import { ByAtmosphere } from "./ByAtmosphere";
+import { EvidenceClassTag, words } from "../ui/common";
 import { OpenOriginal, locatorSource } from "../shell/OpenOriginal";
-import type { ConditionCell, ConditionKey, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
-import { axesOf, fitText, gravityStatus, HABITAT_LIST, PARTIAL_G, PSI_PA, rankFor, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
-import { useData } from "../shell/data";
-import { ErrorNote, EvidenceClassTag, Gap, OriginMark, words } from "../ui/common";
 
 const KEY_LABEL: Record<ConditionKey, string> = {
   oxygen_mole_fraction: "O₂",
@@ -23,149 +23,31 @@ const KEY_LABEL: Record<ConditionKey, string> = {
   diagnostics: "Diagnostics",
 };
 
-export function Conditions() {
-  const { client, researchMode, synthetic } = useData();
-  const q = useQuery({
-    queryKey: [researchMode, "conditions"],
-    queryFn: () => client.conditions({ schema_version: "dataset.v2", include_envelopes: true, include_unknown: true }),
-    retry: false,
-  });
+export type ConditionsTab = "habitats" | "map";
+const TABS: [ConditionsTab, string][] = [
+  ["habitats", "By atmosphere"],
+  ["map", "Atmosphere map"],
+];
+
+/** One page for the conditions table (K1.13): its three readings share one service and one header. */
+export function ConditionsPage({ tab, habitat, inv }: { tab: ConditionsTab; habitat?: string | null; inv?: string | null }) {
   return (
     <div className="view">
-      {q.isPending && <p className="muted">Loading conditions…</p>}
-      {q.error && (
-        <>
-          <ErrorNote error={q.error} title="The conditions service did not answer" />
-          <Gap title="Conditions come from the PSI experiment tables and the documents">The service behind this view (conditions query, R9) and its route (M11) are not on this server yet.</Gap>
-        </>
-      )}
-      {q.data && <ConditionsBody t={q.data} synthetic={synthetic} />}
+      <div className="page-title">
+        <h1>Conditions</h1>
+        <nav className="tabs" aria-label="Conditions views">
+          {TABS.map(([t, label]) => (
+            <a key={t} href={href("conditions", null, t === "habitats" ? undefined : { tab: t })} aria-current={t === tab ? "page" : undefined}>
+              {label}
+            </a>
+          ))}
+        </nav>
+      </div>
+      {tab === "map" ? <MapView focus={inv} /> : <ByAtmosphere initial={habitat} />}
     </div>
   );
 }
 
-function ConditionsBody({ t, synthetic }: { t: ConditionsTable; synthetic: boolean }) {
-  const axes = (t.envelopes ?? []).map(axesOf);
-  return (
-    <>
-      <div className="toolbar">
-        <OriginMark origin={t.origin} pageSynthetic={synthetic} />
-        {t.corpus_snapshot && <span className="muted small">corpus {t.corpus_snapshot}</span>}
-      </div>
-      <HabitatRanking axes={axes} />
-      <ConditionsMatrix t={t} />
-    </>
-  );
-}
-
-// ---------------------------------------------------------------- habitat relevance
-
-const pct = (v: number) => `${+(v * 100).toFixed(1)} %`;
-const psi = (pa: number) => `${+(pa / PSI_PA).toFixed(1)} psi`;
-const span = (s: Slot, f: (v: number) => string) => (s.kind === "missing" ? null : s.range.min === s.range.max ? f(s.range.min) : `${f(s.range.min)} – ${f(s.range.max)}`);
-
-function FitCell({ fit }: { fit: Fit }) {
-  if (fit.status === "reached") return <span className="tag tag-ok">within envelope</span>;
-  if (fit.status === "unknown")
-    return (
-      <span className="tag tag-line" title={fitText(fit)}>
-        not decidable
-      </span>
-    );
-  return (
-    <span title={fitText(fit)}>
-      <span className="tag tag-warn">outside</span>
-      <span className="dim small num" style={{ display: "block", marginTop: 2 }}>
-        {fitText(fit).replace("outside tested envelope: ", "")}
-      </span>
-    </span>
-  );
-}
-
-export function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
-  const moon = HABITAT_LIST[0];
-  const ranked = rankFor(axes, moon);
-  return (
-    <section className="panel-sec" aria-labelledby="h-habitats">
-      <h2 id="h-habitats" style={{ fontSize: 15, margin: "8px 0 0" }}>
-        Habitat relevance
-      </h2>
-      <p className="muted small">
-        Each investigation's tested range of O₂ and pressure, compared with the crew atmospheres in the challenge brief. Sorted by nearness to the Moon base and rover atmosphere.
-      </p>
-      {ranked.length === 0 ? (
-        <Gap title="No tested envelopes">The conditions service returned no per-investigation envelope.</Gap>
-      ) : (
-        <div className="tbl-wrap">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Investigation</th>
-                <th className="r">Runs</th>
-                <th>Tested O₂ · pressure</th>
-                <th>Gravity</th>
-                {HABITAT_LIST.map((h) => (
-                  <th key={h.id} title={h.sub} className="wrap">
-                    {h.short}
-                    <div className="dim" style={{ fontWeight: 400 }}>
-                      {h.sub}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ranked.map(({ axes: a }) => {
-                const g = gravityStatus(a);
-                return (
-                  <tr key={a.investigation_id}>
-                    <td>
-                      <code>{a.investigation_id}</code>
-                    </td>
-                    <td className="r num">{a.runs}</td>
-                    <td className="num">
-                      <span title={a.o2.kind === "range" ? `${a.o2.range.runs} of ${a.runs} runs` : undefined}>{span(a.o2, pct) ?? <Missing reason={`O₂ ${(a.o2 as { reason: string }).reason}`} />}</span>
-                      <span className="dim"> · </span>
-                      <span title={a.pa.kind === "range" ? `${a.pa.range.runs} of ${a.runs} runs` : undefined}>{span(a.pa, psi) ?? <Missing reason={`pressure ${(a.pa as { reason: string }).reason}`} />}</span>
-                    </td>
-                    <td>
-                      {g.status === "partial_tested" ? (
-                        <span className="tag tag-ok">partial gravity tested</span>
-                      ) : g.status === "no_partial_data" ? (
-                        <span className="tag tag-warn" title={`tested ${g.tested.min}–${g.tested.max} g`}>
-                          no partial-gravity data
-                        </span>
-                      ) : (
-                        <Missing reason={g.reason} />
-                      )}
-                    </td>
-                    {HABITAT_LIST.map((h) => (
-                      <td key={h.id} className="wrap">
-                        <FitCell fit={rankFor([a], h)[0].fit} />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-      <p className="muted small">
-        "Within envelope": the tested O₂ and pressure ranges reach the atmosphere (to 0.5 points of O₂ and 1 % of pressure). "Outside" says how far the tests would have to move; nothing is
-        extrapolated. Partial gravity means a tested level between {PARTIAL_G[0]} g and {PARTIAL_G[1]} g (Moon 0.17 g, Mars 0.38 g). Hover a tested range to see how many runs gave it.
-      </p>
-    </section>
-  );
-}
-
-function Missing({ reason }: { reason: string }) {
-  return (
-    <span className="tag tag-line" title={reason}>
-      not stated
-    </span>
-  );
-}
 
 // ---------------------------------------------------------------- conditions matrix
 
@@ -177,15 +59,18 @@ function cellText(c: ConditionCell): string {
       return measuredText(c.value);
     case "conflicting":
       return `conflict · ${c.candidates.length}`;
-    case "missing":
-      return "missing";
+    case "missing": {
+      const q = quotedText(c.reason);
+      return q ? `“${q.length > 28 ? `${q.slice(0, 26)}…` : q}”` : "missing";
+    }
     case "not_applicable":
       return "n/a";
   }
 }
 
 function measuredText(m: Measured): string {
-  return typeof m.raw_value === "number" ? `${m.raw_value}${m.raw_unit ? ` ${m.raw_unit}` : ""}` : m.raw_value;
+  // A dimensionless raw unit ("1") is not printed: "0.21", not "0.21 1".
+  return typeof m.raw_value === "number" ? `${m.raw_value}${m.raw_unit && m.raw_unit !== "1" ? ` ${m.raw_unit}` : ""}` : m.raw_value;
 }
 
 function locText(l: SourceLocator | null | undefined): string {
@@ -196,20 +81,52 @@ function locText(l: SourceLocator | null | undefined): string {
   return "asset";
 }
 
+/** From this many rows, the matrix scrolls in its own frame and renders only the rows in view. */
+const WINDOW_FROM = 300;
+const ROW_HEIGHT = 33; // .tbl td height 32px + 1px border; measured below once rows exist
+
 export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
   const [picked, setPicked] = useState<Picked | null>(null);
+  const windowed = t.rows.length >= WINDOW_FROM;
+  const frame = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState({ top: 0, height: 600, rowH: ROW_HEIGHT });
+  useEffect(() => {
+    const el = frame.current;
+    if (!el || !windowed) return;
+    let raf = 0;
+    const read = () => {
+      const row = el.querySelector<HTMLTableRowElement>("tbody tr[aria-rowindex]");
+      const rowH = row?.getBoundingClientRect().height || ROW_HEIGHT;
+      setView({ top: el.scrollTop, height: el.clientHeight, rowH });
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(read);
+    };
+    read();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(el);
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
+  }, [windowed]);
+  const w = windowed ? rowWindow(view.top, view.height, view.rowH, t.rows.length) : { start: 0, end: t.rows.length, top: 0, bottom: 0 };
+  // Stable across renders, so a click re-renders only the rows whose selection changed (memo below).
+  const pick = useCallback((p: Picked) => setPicked((cur) => (cur && cur.run === p.run && cur.cell.key === p.cell.key ? null : p)), []);
   return (
-    <section className="panel-sec" aria-labelledby="h-matrix">
-      <h2 id="h-matrix" style={{ fontSize: 15, margin: "16px 0 0" }}>
-        Conditions per run
-      </h2>
-      <p className="muted small">
-        Inputs, not outcomes. Each value keeps its original's locator; gaps are marked, never filled. {t.total_count != null && `${t.rows.length} of ${t.total_count} runs.`}
-      </p>
-      <div className="tbl-wrap">
-        <table className="tbl">
+    <div className="panel-sec">
+      {t.total_count != null && (
+        <p className="muted small">
+          {t.rows.length} of {t.total_count} runs
+        </p>
+      )}
+      <div className="tbl-wrap" ref={frame} style={windowed ? { maxHeight: "70vh", overflowY: "auto" } : undefined}>
+        <table className="tbl" aria-rowcount={t.rows.length + 1}>
           <thead>
-            <tr>
+            <tr aria-rowindex={1}>
               <th>Investigation</th>
               <th>Run</th>
               {t.keys.map((k) => (
@@ -218,45 +135,59 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
             </tr>
           </thead>
           <tbody>
-            {t.rows.map((r, i) => {
+            {w.top > 0 && <tr aria-hidden="true" style={{ height: w.top }} />}
+            {t.rows.slice(w.start, w.end).map((r, j) => {
+              const i = w.start + j;
               // A run whose identity is not resolved has no id; it is listed, never merged with another.
-              const run = r.run.run_id ?? `unresolved #${i + 1}`;
-              return (
-                <tr key={`${r.investigation_id}/${run}`}>
-                  <td className="dim">{r.investigation_id}</td>
-                  <td>{r.run.run_id ? <code>{run}</code> : <span className="tag tag-line">{run}</span>}</td>
-                  {t.keys.map((k) => {
-                    const c = r.cells.find((x) => x.key === k);
-                    if (!c)
-                      return (
-                        <td key={k} className="dim">
-                          —
-                        </td>
-                      );
-                    const on = !!picked && picked.run === run && picked.cell.key === k;
-                    return (
-                      <td key={k}>
-                        <button
-                          className={`cond cond-${c.status}`}
-                          aria-pressed={on}
-                          onClick={() => setPicked(on ? null : { run, investigation: r.investigation_id, cell: c })}
-                          title={c.status === "value" ? locText(c.value.locator) : "reason" in c ? c.reason : undefined}
-                        >
-                          {cellText(c)}
-                        </button>
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
+              const run = r.run.run_id ?? `unresolved run (row ${i + 1})`;
+              return <MatrixRow key={`${r.investigation_id}/${run}`} index={i + 2} row={r} run={run} keys={t.keys} pickedKey={picked?.run === run ? picked.cell.key : null} onPick={pick} />;
             })}
+            {w.bottom > 0 && <tr aria-hidden="true" style={{ height: w.bottom }} />}
           </tbody>
         </table>
       </div>
       {picked && <CellDetail p={picked} />}
-    </section>
+    </div>
   );
 }
+
+const MatrixRow = memo(function MatrixRow({ index, row: r, run, keys, pickedKey, onPick }: { index: number; row: ConditionsRow; run: string; keys: ConditionKey[]; pickedKey: ConditionKey | null; onPick: (p: Picked) => void }) {
+  return (
+    <tr aria-rowindex={index}>
+      <td className="dim">{r.investigation_id}</td>
+      <td>{r.run.run_id ? <code>{run}</code> : <span className="tag tag-line">{run}</span>}</td>
+      {keys.map((k) => {
+        const c = r.cells.find((x) => x.key === k);
+        if (!c)
+          return (
+            <td key={k} className="dim">
+              —
+            </td>
+          );
+        return (
+          <td key={k}>
+            <button
+              className={`cond cond-${c.status}`}
+              aria-pressed={pickedKey === k}
+              onClick={() => onPick({ run, investigation: r.investigation_id, cell: c })}
+              title={c.status === "value" ? locText(c.value.locator) : "reason" in c ? c.reason : undefined}
+            >
+              {cellText(c)}
+              {c.status === "value" &&
+                flagTags(c.value.flags)
+                  .filter((f) => f.inline)
+                  .map((f, i) => (
+                  <span key={i} className={`tag ${f.notAtmosphere ? "tag-warn" : "tag-line"}`} title={f.title} style={{ marginLeft: 4, height: 16 }}>
+                    {f.label}
+                  </span>
+                ))}
+            </button>
+          </td>
+        );
+      })}
+    </tr>
+  );
+});
 
 function CellDetail({ p }: { p: Picked }) {
   const c = p.cell;
@@ -304,7 +235,11 @@ function CellDetail({ p }: { p: Picked }) {
           {(m.flags ?? []).length > 0 && (
             <>
               <dt>flags</dt>
-              <dd>{m.flags!.join(", ")}</dd>
+              <dd>
+                {flagTags(m.flags).map((f, i) => (
+                  <div key={i}>{f.title}</div>
+                ))}
+              </dd>
             </>
           )}
         </dl>

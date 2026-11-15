@@ -1,6 +1,8 @@
-// "Original ↗": opens the NASA original behind a locator in a new tab (#/original, views/Original),
-// at the cited page, region, record or time. Delivery goes through SourceAccess (M12); the link
-// itself carries only the source id and the locator, never a signed URL.
+// "Original ↗": opens the NASA original behind a locator at the cited page, region, record or time,
+// in one browser tab next to IGNIS that every later click reuses, so the page you were on stays put
+// and you flip between two tabs. Delivery
+// goes through SourceAccess (M12); a link carries only the source id and the locator, never a
+// signed URL.
 import type { SourceLocator } from "../contracts/generated";
 import { href } from "./router";
 
@@ -18,9 +20,27 @@ export function originalHref(sourceId: string, loc?: SourceLocator | null, title
 /** Source id of a locator's asset (`sha256:<hex>`). */
 export const locatorSource = (loc: SourceLocator) => `sha256:${loc.asset_sha256}`;
 
-export function OpenOriginal({ sourceId, loc, title, label = "Original ↗", className = "btn btn-s" }: { sourceId: string; loc?: SourceLocator | null; title?: string | null; label?: string; className?: string }) {
+/** The one browser tab originals open in: every "Original" click reuses it (no rel=noopener, which
+ * would make the browser open a fresh tab each time; it is our own page on our own origin). */
+export const ORIGINAL_TAB = "ignis-original";
+
+export function OpenOriginal({
+  sourceId,
+  loc,
+  title,
+  label = "Original ↗",
+  className = "btn btn-s",
+}: {
+  sourceId: string;
+  loc?: SourceLocator | null;
+  title?: string | null;
+  label?: string;
+  className?: string;
+  /** Accepted for older call sites; every original opens in the shared tab. */
+  newTab?: boolean;
+}) {
   return (
-    <a className={className} href={originalHref(sourceId, loc, title)} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()} title="Open the NASA original at this place in a new tab">
+    <a className={className} href={originalHref(sourceId, loc, title)} target={ORIGINAL_TAB} onClick={(e) => e.stopPropagation()} title="Open the NASA original in the IGNIS originals tab (reused for every original)">
       {label}
     </a>
   );
