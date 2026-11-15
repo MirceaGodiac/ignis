@@ -60,7 +60,7 @@
     },
     "CaseAccounting": {
       "additionalProperties": false,
-      "description": "Every case of the protocol is counted: failures and refusals stay in the denominator.",
+      "description": "Every case of the protocol is counted: failures and refusals stay in the denominator. For a\nharness benchmark a case is one (task, arm, repetition) run.",
       "properties": {
         "failed": {
           "format": "uint64",
@@ -127,6 +127,21 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ClusterBy": {
+      "description": "How tasks are grouped for the cluster bootstrap of paired deltas.",
+      "oneOf": [
+        {
+          "const": "task_cluster",
+          "description": "The task's `cluster` field (study or run group).",
+          "type": "string"
+        },
+        {
+          "const": "task",
+          "description": "Each task its own cluster.",
+          "type": "string"
+        }
+      ]
+    },
     "ComputeUsage": {
       "additionalProperties": false,
       "properties": {
@@ -142,6 +157,24 @@
       },
       "required": [
         "wall_time_s"
+      ],
+      "type": "object"
+    },
+    "CostTotal": {
+      "additionalProperties": false,
+      "description": "A money amount summed from traces. Absent when any run's cost is unknown: never a guess.",
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "description": "ISO 4217 code, e.g. `USD`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
       ],
       "type": "object"
     },
@@ -324,6 +357,11 @@
           "const": "final_test",
           "description": "The lockbox run on the frozen protocol. Results are not shown to authors as feedback.",
           "type": "string"
+        },
+        {
+          "const": "harness_benchmark",
+          "description": "v2: harness variants compared on a gold set (H0/H1 and ablations). Not a model evaluation:\nit never qualifies a release.",
+          "type": "string"
         }
       ]
     },
@@ -338,7 +376,14 @@
           "type": "array"
         },
         "candidate": {
-          "$ref": "#/$defs/ModelUnderTest"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelUnderTest"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "client_request_id": {
           "anyOf": [
@@ -351,18 +396,43 @@
           ]
         },
         "cutoffs_s": {
-          "description": "Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.",
+          "description": "Prefix cutoffs in seconds since the dataset's time origin, strictly increasing. Model\npurposes only (empty for a harness benchmark).",
           "items": {
             "type": "number"
           },
           "type": "array"
         },
         "dataset_hash": {
-          "$ref": "#/$defs/Digest",
-          "description": "`DatasetBundle::content_digest` of the bundle evaluated."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`DatasetBundle::content_digest` of the bundle evaluated. Model purposes only."
         },
         "dataset_id": {
-          "$ref": "#/$defs/DatasetId"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DatasetId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "harness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HarnessBenchmark"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "v2, harness benchmark only."
         },
         "metrics": {
           "items": {
@@ -371,7 +441,8 @@
           "type": "array"
         },
         "partition": {
-          "$ref": "#/$defs/Partition"
+          "$ref": "#/$defs/Partition",
+          "description": "For a harness benchmark: `validation` on a dev set, `test` on the hold-out."
         },
         "protocol": {
           "$ref": "#/$defs/ProtocolRef"
@@ -386,14 +457,28 @@
           "$ref": "#/$defs/EvaluationSchema"
         },
         "split_id": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "target": {
-          "$ref": "#/$defs/Quantity"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Model purposes only (absent for a harness benchmark)."
         },
         "unit": {
-          "description": "SI unit of the target; must equal `target`'s.",
-          "type": "string"
+          "description": "SI unit of the target; must equal `target`'s. Model purposes only.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -401,24 +486,26 @@
         "request_id",
         "purpose",
         "protocol",
-        "target",
-        "unit",
-        "dataset_id",
-        "dataset_hash",
-        "split_id",
         "partition",
-        "candidate",
-        "cutoffs_s",
         "metrics"
       ],
       "type": "object"
     },
     "EvaluationSchema": {
-      "description": "Wire tag of evaluation requests and results.",
-      "enum": [
-        "evaluation.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of gold tasks, evaluation requests and results. Wave K1 writes `evaluation.v2`;\n`evaluation.v1` (C0) documents are still read and keep their `request_hash`, because a document\nis re-serialized with the tag it was read with and v1 documents never carry a v2 field. A v2\naddition (a gold task or set, a harness benchmark) is refused under the v1 tag.",
+      "oneOf": [
+        {
+          "enum": [
+            "evaluation.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evaluation.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "EvidenceId": {
       "minLength": 1,
@@ -484,6 +571,219 @@
       },
       "type": "object"
     },
+    "GoldSetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "GoldSetRef": {
+      "additionalProperties": false,
+      "description": "The gold set a benchmark runs on, pinned by digest.",
+      "properties": {
+        "set_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "set_id": {
+          "$ref": "#/$defs/GoldSetId"
+        },
+        "split": {
+          "$ref": "#/$defs/GoldSplit"
+        },
+        "task_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "set_id",
+        "set_hash",
+        "split",
+        "task_count"
+      ],
+      "type": "object"
+    },
+    "GoldSplit": {
+      "description": "Which half of the gold tasks: the dev set shared with the builders, or the private hold-out kept\nin the evaluator vault, run once on a frozen protocol (LAB-Bench style).",
+      "enum": [
+        "dev",
+        "holdout"
+      ],
+      "type": "string"
+    },
+    "GoldTaskId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "HarnessBenchmark": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline": {
+          "description": "The arm deltas are measured against (H0).",
+          "type": "string"
+        },
+        "cluster_by": {
+          "$ref": "#/$defs/ClusterBy"
+        },
+        "gold_set": {
+          "$ref": "#/$defs/GoldSetRef"
+        },
+        "repetitions": {
+          "description": "Runs per task and arm (seeds); deltas are paired on (task, repetition).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "variants": {
+          "description": "One arm measures a harness; two or more compare harnesses. All arms share the runtime\nbuild, model and effort, so only the harness differs.",
+          "items": {
+            "$ref": "#/$defs/HarnessVariant"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "gold_set",
+        "variants",
+        "baseline",
+        "repetitions",
+        "cluster_by"
+      ],
+      "type": "object"
+    },
+    "HarnessComparison": {
+      "additionalProperties": false,
+      "properties": {
+        "deltas": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PairedDelta"
+          },
+          "type": "array"
+        },
+        "runs": {
+          "description": "Every planned run (task × arm × repetition), including refused and failed ones.",
+          "items": {
+            "$ref": "#/$defs/HarnessRunResult"
+          },
+          "type": "array"
+        },
+        "scores": {
+          "items": {
+            "$ref": "#/$defs/VariantScore"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "runs",
+        "scores"
+      ],
+      "type": "object"
+    },
+    "HarnessRunResult": {
+      "additionalProperties": false,
+      "description": "One (task, arm, repetition) run. Its trace (research.v2 `TraceBundle`) holds the cost and\ntokens; the run refers to it by id.",
+      "properties": {
+        "answered": {
+          "description": "False when the agent chose \"insufficient evidence\" (precision counts only answered runs).",
+          "type": "boolean"
+        },
+        "outcome": {
+          "$ref": "#/$defs/RunOutcome"
+        },
+        "repetition": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "score": {
+          "description": "Task score in [0, 1]; present exactly for a scored run.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "task_id": {
+          "$ref": "#/$defs/GoldTaskId"
+        },
+        "trace_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TraceId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "variant",
+        "task_id",
+        "repetition",
+        "outcome",
+        "answered"
+      ],
+      "type": "object"
+    },
+    "HarnessVariant": {
+      "additionalProperties": false,
+      "description": "One harness arm. Refers to the harness bundle by digest (research.v2 `HarnessRef`), never by\nembedding it.",
+      "properties": {
+        "effort": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "harness_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "model": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Short name (`h0`, `h1`, `h1-no-wiki`); unique in the benchmark.",
+          "type": "string"
+        },
+        "runtime_build": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        }
+      },
+      "required": [
+        "name",
+        "harness_digest",
+        "runtime_build",
+        "model"
+      ],
+      "type": "object"
+    },
+    "Interval": {
+      "additionalProperties": false,
+      "description": "A two-sided interval at `level` (e.g. 0.95).",
+      "properties": {
+        "hi": {
+          "type": "number"
+        },
+        "level": {
+          "type": "number"
+        },
+        "lo": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "lo",
+        "hi",
+        "level"
+      ],
+      "type": "object"
+    },
     "JobId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -493,7 +793,7 @@
       "additionalProperties": false,
       "properties": {
         "metric": {
-          "description": "Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`).",
+          "description": "Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`;\nfor a harness benchmark e.g. `accuracy`, `precision`, `citation_support`, `check_pass`).",
           "type": "string"
         },
         "version": {
@@ -599,6 +899,47 @@
       ],
       "type": "string"
     },
+    "PairedDelta": {
+      "additionalProperties": false,
+      "description": "`variant − baseline` on one metric, paired on (task, repetition), with a cluster-bootstrap\ninterval over `clusters` clusters.",
+      "properties": {
+        "baseline": {
+          "type": "string"
+        },
+        "clusters": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delta": {
+          "type": "number"
+        },
+        "interval": {
+          "$ref": "#/$defs/Interval"
+        },
+        "metric": {
+          "type": "string"
+        },
+        "pairs": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "baseline",
+        "variant",
+        "delta",
+        "interval",
+        "pairs",
+        "clusters"
+      ],
+      "type": "object"
+    },
     "Partition": {
       "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
       "enum": [
@@ -675,7 +1016,7 @@
               "type": "null"
             }
           ],
-          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test."
+          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test\nand for anything that touches the hold-out."
         },
         "protocol_id": {
           "type": "string"
@@ -729,6 +1070,30 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "RunOutcome": {
+      "oneOf": [
+        {
+          "const": "scored",
+          "description": "The run finished and was scored.",
+          "type": "string"
+        },
+        {
+          "const": "refused",
+          "description": "The runtime or host declined (scope, input, unsupported).",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "description": "A technical failure or a timeout: no answer to score.",
+          "type": "string"
+        }
+      ]
+    },
+    "RuntimeBuildId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
     "SourceId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -743,6 +1108,73 @@
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "TraceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "VariantScore": {
+      "additionalProperties": false,
+      "description": "One metric of one arm over its runs.",
+      "properties": {
+        "cost": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CostTotal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Interval"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "metric": {
+          "type": "string"
+        },
+        "n": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "value": {
+          "description": "Absent when undefined (no runs it applies to).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "variant": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "variant",
+        "metric",
+        "version",
+        "n"
+      ],
+      "type": "object"
     },
     "Verdict": {
       "description": "What the result says about the candidate's qualification for the declared target.",
@@ -786,7 +1218,7 @@
       ]
     },
     "coverage": {
-      "description": "`scored / total` for the candidate (0 when there are no cases).",
+      "description": "`scored / total` for the candidate, or over all runs of a harness benchmark (0 when there are\nno cases).",
       "type": "number"
     },
     "created_at": {
@@ -794,13 +1226,25 @@
     },
     "failures": {
       "default": [],
-      "description": "Candidate failures; when `per_case` is absent this list is complete.",
+      "description": "Candidate failures; when `per_case` is absent this list is complete. Empty for a harness\nbenchmark, whose refused and failed runs are in `harness.runs`.",
       "items": {
         "$ref": "#/$defs/CaseFailure"
       },
       "type": "array"
     },
+    "harness": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HarnessComparison"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "v2, harness benchmark only."
+    },
     "metrics": {
+      "description": "Model metrics (subject = a release). Empty for a harness benchmark, whose metrics are in\n`harness`.",
       "items": {
         "$ref": "#/$defs/MetricValue"
       },

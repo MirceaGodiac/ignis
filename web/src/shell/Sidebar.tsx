@@ -1,8 +1,8 @@
 // Left rail: the wordmark, a new question and search, the pages grouped by what a researcher does
-// (router SECTIONS), then the recent questions.
+// (router SECTIONS), then the recent questions (ChatList).
 // A page whose service this deployment does not serve stays reachable and is drawn dimmed.
 import { useState } from "react";
-import type { EpisodeStatus } from "../contracts/generated";
+import { ChatList } from "./ChatList";
 import { useData } from "./data";
 import { href, SECTIONS, VIEW_SERVICE, VIEW_TITLE, type Route, type View } from "./router";
 import { useEpisodes } from "./queries";
@@ -22,7 +22,6 @@ import {
   IconSources,
   IconSun,
   IconSystem,
-  IconThread,
 } from "./icons";
 
 const ICON: Partial<Record<View, typeof IconHome>> = {
@@ -34,9 +33,6 @@ const ICON: Partial<Record<View, typeof IconHome>> = {
   compare: IconCompare,
   models: IconModels,
 };
-
-const ACTIVE: EpisodeStatus[] = ["ready", "running", "waiting_tools", "waiting_approval", "waiting_user"];
-const dotFor = (s: EpisodeStatus) => (ACTIVE.includes(s) ? (s.startsWith("waiting") ? "dot dot-bad" : "dot dot-run") : s === "completed" ? "dot dot-ok" : "dot dot-off");
 
 export function Sidebar({ route, compareCount, onCommand }: { route: Route; compareCount: number; onCommand: () => void }) {
   const { experiments, caps, health } = useData();
@@ -97,23 +93,7 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
           </div>
         ))}
 
-        {(episodes.data?.length ?? 0) > 0 && (
-          <div className="side-section">
-            <div className="side-label">
-              <a href={href("research")} onClick={close}>
-                Recent questions
-              </a>
-            </div>
-            <div className="tree">
-              {episodes.data!.slice(0, 12).map((e) => (
-                <a key={e.episode_id} className="nav-item recent" href={href("research", e.episode_id)} aria-current={route.view === "research" && route.id === e.episode_id ? "page" : undefined} title={e.goal} onClick={close}>
-                  {ACTIVE.includes(e.status) ? <span className={dotFor(e.status)} aria-hidden="true" /> : <IconThread />}
-                  <span className="grow">{e.goal}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+        {(episodes.data?.length ?? 0) > 0 && <ChatList episodes={episodes.data!} route={route} onNavigate={close} />}
       </div>
 
       <div className="side-foot">
