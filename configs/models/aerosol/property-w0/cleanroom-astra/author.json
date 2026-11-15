@@ -1,0 +1,21 @@
+{
+  "private_artifact_schema": "ignis.aerosol-science-author.v1",
+  "author": {"provider": "openai", "model_id": "gpt-6-astra", "effort": "high"},
+  "experiment": "W0",
+  "origin": "system",
+  "trained_on": "not_trained",
+  "state": "experimental",
+  "registered_release": false,
+  "spec_hash": null,
+  "reason_no_spec": "Shared Quantity lacks aerosol concentration, size/moment and detector-signal semantics. These are private literal assignments, not a valid registered HandwrittenWeightPatch.",
+  "outcome_exposure": {"datasets": [], "development_feedback": [], "prior_candidates": [], "test_outcomes": [], "nasa_investigation_outcomes": []},
+  "generic_primary_sources": [
+    "https://physics.nist.gov/cgi-bin/cuu/Value?k%7Csearch_for=Boltzmann",
+    "https://nvlpubs.nist.gov/nistpubs/jres/110/1/j110-1kim.pdf",
+    "https://acp.copernicus.org/articles/11/5867/2011/acp-11-5867-2011.pdf",
+    "https://pages.nist.gov/SCATMECH/docs/rayscat.htm",
+    "https://pages.nist.gov/SCATMECH/code/rayscat.cpp"
+  ],
+  "incidental_exposure": "Generic literature search returned unrelated NASA-hosted Rayleigh/radar theory snippets and non-NASA methods abstracts with generic outcomes. No NASA combustion investigation, project outcome, data payload, prior family forward or feedback was read. Full read extent is in the research note.",
+  "authorship": "Numbers in constants.ops were manually typed by this author after symbolic derivation. No fit, regression, parameter scan, seed, random initialization or optimization was run. Generic published slip coefficients are transcribed with their original conditional domain, not new trained weights."
+}

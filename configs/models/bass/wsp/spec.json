@@ -1,0 +1,190 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "bass-wsp-v1",
+  "family": "bass",
+  "model_name": "bass.wsp",
+  "target": {
+    "quantity": "front_position",
+    "unit": "m",
+    "description": "Position of the luminous flame front after the cutoff, in the camera plane a metric calibration defines: the front contour f(s, t) on the transverse grid of the admitted contours, and its spatial mean with an assumed spread.",
+    "excludes": [
+      "any forecast from pixel-only contours (no metric calibration, no metric target)",
+      "temperature, heat flux, species or soot inferred from image intensity",
+      "the pyrolysis or char front (the camera sees luminous emission)",
+      "extinction or flammability limits (a front leaving view is not an extinction)",
+      "effects of oxygen, flow, pressure or thickness: no metric run exists to support one",
+      "a calibrated posterior: the spread is assumed"
+    ]
+  },
+  "features": [
+    {
+      "name": "a_m",
+      "unit": "m",
+      "source": "observation:contour@prefix_last",
+      "transform": "cosine-mode amplitudes of the last usable contour: trapezoid integral of f * phi_m over xi @1"
+    },
+    {
+      "name": "v_m",
+      "unit": "m/s",
+      "source": "observation:contour@prefix_windows",
+      "transform": "(mean a_m over the last window - mean over the window before it) / (difference of their mean times); windows span enc.window_frac of the prefix duration each @1"
+    },
+    {
+      "name": "lead",
+      "unit": "s",
+      "source": "state:lead_time",
+      "transform": "t - time of the last usable contour @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "op.gain",
+      "shape": [
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.5
+      },
+      "description": "Fraction of each mode's observed velocity that the forecast carries."
+    },
+    {
+      "name": "op.persist_s",
+      "shape": [
+        4
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.01,
+        "max": 100000.0
+      },
+      "description": "Time over which each mode's carried drift persists (large = steady spread)."
+    },
+    {
+      "name": "op.damp_per_s",
+      "shape": [
+        4
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 100.0
+      },
+      "description": "Relaxation rate of each mode's amplitude (front smoothing)."
+    },
+    {
+      "name": "unc.sigma_m",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.05
+      },
+      "description": "Assumed sd of the measured mean front position at zero lead."
+    },
+    {
+      "name": "unc.rel_v",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Assumed relative sd of the carried mean velocity."
+    },
+    {
+      "name": "unc.sigma_v_m_s",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.1
+      },
+      "description": "Assumed absolute sd of the mean velocity, whatever its size."
+    },
+    {
+      "name": "enc.window_frac",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.34
+        ]
+      },
+      "unit": "1",
+      "description": "Each velocity window spans this fraction of the prefix duration."
+    },
+    {
+      "name": "enc.min_frames",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          4.0
+        ]
+      },
+      "unit": "1",
+      "description": "Fewest usable contours for a forecast."
+    },
+    {
+      "name": "enc.max_missing_frac",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.3
+        ]
+      },
+      "unit": "1",
+      "description": "Largest fraction of unresolved nodes of a usable contour."
+    },
+    {
+      "name": "num.max_lead_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          60.0
+        ]
+      },
+      "unit": "s",
+      "description": "Longest lead time after the last usable contour."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::bass::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Usable contour: status single_valued, the transverse grid of the last admitted contour, unresolved nodes at most enc.max_missing_frac (filled by linear interpolation along s, nearest value at the ends). A contour whose derivation notes say UNCALIBRATED or pixel, or that names no calibration, makes the prefix unusable: the forecast is refused, never rescaled. Spread of the mean front: sqrt(sigma_m^2 + (rel_v |gain_0 v_0| + sigma_v)^2 lead^2), Gaussian. Uncertainty kind: assumed_noise."
+}

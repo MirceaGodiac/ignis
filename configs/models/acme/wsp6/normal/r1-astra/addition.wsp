@@ -1,0 +1,11 @@
+# Astra R1. DATA-INFORMED, not zero-shot. Main author typed these literals.
+# Existing committee tensors are copied exactly from wsp5/normal/p1-fable.
+# U: five equally weighted, persistent condition hypotheses AT THE CUTOFF.
+# These are sensitivity scenarios, not a calibrated instrument-error distribution.
+condition.w[0:5] = [1, 1, 1, 1, 1]
+# U: nominal and +/-10% flow. Round author judgment, not the measured train
+# readback correction and not a search. Pressure nodes leave flow nominal.
+condition.flow_multiplier[0:5] = [1, 0.9, 1.1, 1, 1]
+# U: nominal and +/-5% pressure. Conditional on supplied Tad/Zst; no composition
+# perturbation without recomputing those thermochemical inputs.
+condition.pressure_multiplier[0:5] = [1, 1, 1, 0.95, 1.05]

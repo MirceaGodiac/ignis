@@ -1,0 +1,91 @@
+# acme_normal.wsp11 — F2-D1-EARLY: wsp8/normal/d1-early with the fuel table F2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED. No law value below was typed again: they are
+# the stored values of the source release, copied statement by statement by
+# tools/wsp/fuel_member_edits.py. The lines typed for this file are the fuel table:
+
+# The fuel table of normal burner flames, F2, for the HINGE-LAW members (slots a0, a1, c0 to c3).
+# Typed by claude-fable-5-2 (Anthropic). DATA-INFORMED for ethylene: revised once, by PROTOCOL 12.3,
+# after the blind run of F1 on Flame Design (12.8) and from its TRAIN DAYS only
+# (docs/wsp/research/phys_ethylene_held.md; docs/wsp/feedback/flame_design_fuel_table_attribution.md).
+# No validation-day or test-day test of Flame Design was read. Ethane, propane, butane, methane and
+# hydrogen rows are those of F1; ethane, propane and butane forecasts are those of the source release.
+#
+# rows: 0 ethane, 1 propane, 2 butane, 3 ethylene, 4 methane, 5 hydrogen
+fuel.admit[0:6] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
+fuel.mw_g_mol[0:6] = [30.07, 44.1, 58.12, 28.054, 16.043, 2.016]
+# The flow shift of ethylene, changed from F1's -0.085. The hinge law reads a fuel mass flow, and an
+# ethylene flame burns as an ethane flame does at about 0.58 of its flow: on the train days every
+# flame at 36 to 40 % oxygen that ended by itself burned 2.52 mg/s (14) or 1.95 mg/s (1) and none at
+# 1.3 mg/s or below, in six sessions, where ethane on CFI-G train went out at 1.5 mg/s and above and
+# never at 1.0 or below. The train days ask for -0.54 on ln flow (it centres the law on the enriched
+# extinctions and on the air flames at low and at high flow). Theory gives -0.21 of it: the oxygen
+# demand through the flame radius (-0.16) and the adiabatic temperature (-0.05). Typed: the half-step
+# from -0.085, to two figures. Allowed range -0.70 to -0.10.
+fuel.s[0:6] = [0.0, 0.0, 0.0, -0.31, 0.068, 0.757]
+# Self-extinction laws: ethylene at ethane's position. F1 put it half-way to butane on the premise
+# that the butane terms are soot; on the train days ethylene, the sootiest fuel, is the longest-lived,
+# and moving it away from butane helps in 8 of 8 sessions. The train days ask for (1.5, -0.5); typed:
+# the half-step, which is "no butane term". Allowed range: first coordinate 1.0 to 1.5, second -0.5 to 0.
+fuel.se_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 0.0], [0.0, 0.0]]
+fuel.ft_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.9, -0.9], [0.0, 0.0]]
+fuel.dosc[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unchanged: below 1900 K an ethylene or methane flame is refused, not guessed. The six train-day
+# flames it refuses all burned to their stops; answering them needs a weak-flame law for ethylene.
+fuel.tad_min_k[0:6] = [0.0, 0.0, 0.0, 1900.0, 1900.0, 0.0]
+
+# ---- laws of acme_normal.wsp11: the stored values of sha256:b97791bafa558457ded6e5d5cd0f40554abbfec7cd70b8c26d620c0d3800d52c
+#      (54 statements that differ from the parent, sha256:ba50e72621ed5fd3fc194d1114ba1a8b848be25bae5d61b643f42db2b2c8c445)
+se.tau.W1[0, 0] = -0.24
+se.tau.W1[0, 1] = -1.0
+se.tau.W1[0, 2] = 0.65
+se.tau.W1[1, 0] = -0.24
+se.tau.W1[1, 1] = -1.0
+se.tau.W1[1, 2] = 0.65
+se.tau.W1[2, 3] = -1.0
+se.tau.W1[2, 7] = 5.0
+se.tau.W1[3, 3] = -1.0
+se.tau.W1[3, 7] = 5.0
+se.tau.W1[4, 2] = 1.0
+se.tau.W1[4, 7] = 5.0
+se.tau.W1[5, 2] = 1.0
+se.tau.W1[5, 6] = -5.0
+se.tau.W1[5, 7] = -5.0
+se.tau.b1[0] = 0.5
+se.tau.b1[1] = -0.22
+se.tau.b1[2] = -5.0
+se.tau.b1[3] = -5.9
+se.tau.b1[4] = -4.1
+se.tau.b1[5] = 0.9
+se.tau.w2[0] = 1.4
+se.tau.w2[1] = 2.0
+se.tau.w2[2] = -0.35
+se.tau.w2[4] = -0.14
+se.tau.w2[5] = -0.12
+se.tau.skip[0] = -0.28
+se.tau.skip[2] = 0.84
+se.tau.skip[7] = -0.2
+se.tau.b0 = 2.43
+se.flash.skip[4] = -12.0
+se.flash.b0 = -18.0
+se.floor_s = 4.0
+se.shape = 3.0
+ft.atom_t_s[0] = 61.5
+ft.atom_t_s[1] = 98.0
+ft.atom_t_s[2] = 126.5
+ft.atom_t_s[3] = 275.5
+ft.atom_logit[0] = -2.0
+ft.atom_logit[1] = -2.9
+ft.atom_logit[2] = -2.2
+ft.atom_logit[3] = 0.0
+ft.atom_w[0, 1] = -2.0
+ft.log_base = -7.6
+bt.rise.W1[0, 3] = 1.0
+bt.rise.b1[0] = -0.5
+bt.rise.w2[0] = -0.15
+bt.rise.skip[0] = -0.4
+bt.rise.skip[1] = -0.4
+bt.rise.b0 = 5.88
+bt.sigma = 0.12
+bt.limit_c[0] = 455.0
+bt.limit_c[1] = 510.0
+bt.limit_w[1] = 1.0

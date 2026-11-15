@@ -1,0 +1,53 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_normal-wsp-v2-d2-fable",
+  "spec_hash": "sha256:3c9ab8becd5a1c743227fecf4a208545536a41b307185240df42148a93005300",
+  "parent_release_id": "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:runs/dev/RESULTS_p2_acme.md(aggregate-validation-table-of-the-parent:integrated-Brier-scores-only)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only)",
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-the-parent-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.shape",
+      "index": [],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "ft.shape",
+      "index": [],
+      "value": 2.5
+    }
+  ],
+  "rationale": "D2, calibration-only revision of D1 after its single validation look. No clock median changes. D1's aggregate validation Brier scores are about three times its train scores and the validation sessions hold fuel, pressure and dilution combinations outside the train table, so the self-extinction and burner-limit clocks are made wider (se.shape 4 -> 2.5, ft.shape 4 -> 2.5). No per-run validation outcome or score was read.",
+  "origin": "system"
+}

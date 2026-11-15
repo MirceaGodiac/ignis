@@ -1,0 +1,52 @@
+{
+  "author": "gpt-6-astra",
+  "frozen_date": "2026-11-14",
+  "experiment": "literal_one_shot",
+  "trained_on": "not_trained",
+  "qualification_state": "experimental",
+  "file_sha256": {
+    "crates/ignis-wsp/src/property_droplet_cleanroom.rs": "d683f755441a5c730777254421731bfc9e34fe7a99f6bc5a992ba62ce9a69199",
+    "configs/models/droplets/property-w0/cleanroom-astra/spec.json": "1dcc4951d1b67d2aebfd96eb23be1b244f70a5ff6f2f45320a465a7695391244",
+    "configs/models/droplets/property-w0/cleanroom-astra/ops.json": "9d8e809ad3f2c8bcea3a3250e238e0b85227504c23b5f47ec9ff745d14446cf5",
+    "configs/models/droplets/property-w0/cleanroom-astra/meta.json": "ed65f0e043b23a429cb5846319952b53d42c44e67c0c3539b6bd12a46e4264b6",
+    "configs/models/droplets/property-w0/cleanroom-astra/source_inventory.json": "653eede07b3f3c13e9b2b2f62f693c59d14ea73b28004fc7001509153155dfb8",
+    "docs/wsp/research/astra_droplet_cleanroom.md": "5c751c0c9706c183753ebb76bfa0db60d4226c1c9291dee6b6c897f407428a39"
+  },
+  "checks": [
+    {
+      "command": "rustfmt --edition 2021 --check crates/ignis-wsp/src/property_droplet_cleanroom.rs",
+      "executor": "author",
+      "status": "passed"
+    },
+    {
+      "command": "cargo test --offline -p ignis-wsp --lib property_ --quiet",
+      "executor": "coordinator",
+      "cargo_target_dir": "D:\\dev\\SpaceApps-Ardealu\\runs\\tooling\\astra-target",
+      "status": "passed",
+      "property_tests_passed": 46,
+      "droplet_tests_passed": 8,
+      "kernel_hash_verified_before_and_after": true,
+      "evidence": "Coordinator reported final stable-byte command result to author before freezing."
+    },
+    {
+      "check": "independent_thermal_structural_review",
+      "executor": "independent_reviewer_via_coordinator",
+      "status": "no_demonstrated_error_within_declared_assumptions",
+      "scope": "Thermal energy double count and nonunity-Lewis sheet energy structure only. Reviewer reconciled the tested kernel SHA256."
+    }
+  ],
+  "outcome_exposure": {
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": [],
+    "incidental_generic_theory_and_structural_status": "Disclosed in research clean-room ledger; no numeric outcome or coefficient use."
+  },
+  "limitations": [
+    "Synthetic invariant checks are not NASA qualification or predictive accuracy evidence.",
+    "No finite-rate ignition/extinction, cool flames, radiation or optical diameter model.",
+    "Nonzero gravity/motion requires explicit spherical extrapolation.",
+    "Ideal liquid, common gas cp/diffusivity and supplied constant-domain properties only.",
+    "No service registration or content-addressed model release assembly performed by this author."
+  ],
+  "freeze_excludes_self_hash": true
+}

@@ -1,0 +1,958 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "acme_inverse-wsp-v3",
+  "family": "acme_inverse",
+  "model_name": "acme_inverse.wsp3",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "When and why the established hot flame of a burner-stabilised spherical flame ends: cumulative incidence of self-extinction and of flow termination by the operator or the script, as a partition with the flame still active.",
+    "excludes": [
+      "cool flames after the hot flame (the PSI-159 burn time of a self-extinguished test ends with the hot flame)",
+      "flame radius, temperature, radiant emission",
+      "a causal effect of an operator action: the stops are the observed campaign policy",
+      "a calibrated posterior: the spread is an assumed clock distribution"
+    ]
+  },
+  "features": [
+    {
+      "name": "c_logp",
+      "unit": "1",
+      "source": "condition:pressure",
+      "transform": "ln(x / norm.p_ref_pa) @1"
+    },
+    {
+      "name": "c_logm",
+      "unit": "1",
+      "source": "condition:injected_mass_flow",
+      "transform": "ln(x / norm.mdot_ref_kg_s); x is the injected O2 mass flow (PSI-159 'O2 flow rate', setpoint; the O2 alone, not the O2 + N2 stream) @1"
+    },
+    {
+      "name": "c_o2",
+      "unit": "1",
+      "source": "condition:x_o2_role",
+      "transform": "(x - norm.o2_ref) / norm.o2_scale; x is the O2 mole fraction of the INJECTED stream @1"
+    },
+    {
+      "name": "c_xf",
+      "unit": "1",
+      "source": "condition:x_fuel_role",
+      "transform": "ln(x / norm.xf_ref); x is the fuel mole fraction of the AMBIENT (chamber) gas @1"
+    },
+    {
+      "name": "c_tad",
+      "unit": "1",
+      "source": "condition:tad",
+      "transform": "(x - norm.tad_ref_k) / norm.tad_scale_k @1"
+    },
+    {
+      "name": "c_zst",
+      "unit": "1",
+      "source": "condition:zst",
+      "transform": "(x - norm.zst_ref) / norm.zst_scale @1"
+    },
+    {
+      "name": "f_ethane",
+      "unit": "1",
+      "source": "condition:fuel_is_ethane|fuel_species",
+      "transform": "indicator (propane is the reference fuel) @1"
+    },
+    {
+      "name": "f_butane",
+      "unit": "1",
+      "source": "condition:fuel_is_butane|fuel_species",
+      "transform": "indicator @1"
+    },
+    {
+      "name": "b_rss",
+      "unit": "1",
+      "source": "derived:r_ss",
+      "transform": "ln(r_ss / norm.r_ref_mm), r_ss = m_tot / (4 pi rhoD L) in mm with rhoD = se.rho_d_g_m_s; burner feature 0 @1"
+    },
+    {
+      "name": "b_mtot",
+      "unit": "1",
+      "source": "derived:m_tot",
+      "transform": "ln(m_tot / norm.mtot_ref_kg_s), m_tot = injected_mass_flow / Y_R; burner feature 1 @1"
+    }
+  ],
+  "domain": [
+    {
+      "feature": "c_logp",
+      "min": -0.92,
+      "max": 1.25
+    },
+    {
+      "feature": "c_logm",
+      "min": -1.61,
+      "max": 0.88
+    },
+    {
+      "feature": "c_o2",
+      "min": -1.6,
+      "max": 1.6
+    },
+    {
+      "feature": "c_xf",
+      "min": -0.7,
+      "max": 1.61
+    },
+    {
+      "feature": "c_tad",
+      "min": -2.0,
+      "max": 3.0
+    },
+    {
+      "feature": "c_zst",
+      "min": -1.85,
+      "max": 1.5
+    }
+  ],
+  "tensors": [
+    {
+      "name": "se.flux.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the critical burner-side reactant mass flux at radiative extinction, ln(m_cr / 1 g m-2 s-1); row j reads c in feature order."
+    },
+    {
+      "name": "se.flux.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the critical burner-side reactant mass flux at radiative extinction, ln(m_cr / 1 g m-2 s-1) (hinge positions)."
+    },
+    {
+      "name": "se.flux.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the critical burner-side reactant mass flux at radiative extinction, ln(m_cr / 1 g m-2 s-1)."
+    },
+    {
+      "name": "se.flux.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the critical burner-side reactant mass flux at radiative extinction, ln(m_cr / 1 g m-2 s-1) in c; every element is stated."
+    },
+    {
+      "name": "se.flux.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(g m-2 s-1)",
+      "bounds": {
+        "min": -6.0,
+        "max": 6.0
+      },
+      "description": "Value of the critical burner-side reactant mass flux at radiative extinction, ln(m_cr / 1 g m-2 s-1) at c = 0 before hinge terms."
+    },
+    {
+      "name": "se.diff.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the effective diffusivity of the flame-growth clock, ln(D / 1 mm2 s-1); row j reads c in feature order."
+    },
+    {
+      "name": "se.diff.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the effective diffusivity of the flame-growth clock, ln(D / 1 mm2 s-1) (hinge positions)."
+    },
+    {
+      "name": "se.diff.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the effective diffusivity of the flame-growth clock, ln(D / 1 mm2 s-1)."
+    },
+    {
+      "name": "se.diff.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the effective diffusivity of the flame-growth clock, ln(D / 1 mm2 s-1) in c; every element is stated."
+    },
+    {
+      "name": "se.diff.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(mm2 s-1)",
+      "bounds": {
+        "min": -3.0,
+        "max": 10.0
+      },
+      "description": "Value of the effective diffusivity of the flame-growth clock, ln(D / 1 mm2 s-1) at c = 0 before hinge terms."
+    },
+    {
+      "name": "se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the weak-flame class logit; row j reads c in feature order."
+    },
+    {
+      "name": "se.flash.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the weak-flame class logit (hinge positions)."
+    },
+    {
+      "name": "se.flash.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the weak-flame class logit."
+    },
+    {
+      "name": "se.flash.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the weak-flame class logit in c; every element is stated."
+    },
+    {
+      "name": "se.flash.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the weak-flame class logit at c = 0 before hinge terms."
+    },
+    {
+      "name": "se.osc.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the median of the oscillation and quench clock after the floor, ln(tau_osc / 1 s); row j reads c in feature order."
+    },
+    {
+      "name": "se.osc.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the median of the oscillation and quench clock after the floor, ln(tau_osc / 1 s) (hinge positions)."
+    },
+    {
+      "name": "se.osc.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the median of the oscillation and quench clock after the floor, ln(tau_osc / 1 s)."
+    },
+    {
+      "name": "se.osc.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the median of the oscillation and quench clock after the floor, ln(tau_osc / 1 s) in c; every element is stated."
+    },
+    {
+      "name": "se.osc.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -5.0,
+        "max": 14.0
+      },
+      "description": "Value of the median of the oscillation and quench clock after the floor, ln(tau_osc / 1 s) at c = 0 before hinge terms."
+    },
+    {
+      "name": "bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the equilibrium temperature rise of the burner, ln(dT_eq / 1 K); row j reads b in feature order."
+    },
+    {
+      "name": "bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the equilibrium temperature rise of the burner, ln(dT_eq / 1 K) (hinge positions)."
+    },
+    {
+      "name": "bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the equilibrium temperature rise of the burner, ln(dT_eq / 1 K)."
+    },
+    {
+      "name": "bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the equilibrium temperature rise of the burner, ln(dT_eq / 1 K) in b; every element is stated."
+    },
+    {
+      "name": "bt.rise.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(K)",
+      "bounds": {
+        "min": 0.0,
+        "max": 10.0
+      },
+      "description": "Value of the equilibrium temperature rise of the burner, ln(dT_eq / 1 K) at b = 0 before hinge terms."
+    },
+    {
+      "name": "se.rho_d_g_m_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "g m-1 s-1",
+      "bounds": {
+        "min": 0.001,
+        "max": 1.0
+      },
+      "description": "rhoD of the quasi-steady flame radius r_ss = m_tot / (4 pi rhoD L); also enters b_rss."
+    },
+    {
+      "name": "se.sigma_phi",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "sd of ln Phi: how well the reduced flow of a test is known."
+    },
+    {
+      "name": "se.hold_log_rate",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1/s)",
+      "bounds": {
+        "min": -40.0,
+        "max": 5.0
+      },
+      "description": "ln of the constant self-extinction hazard of an established flame after the floor; -40 switches it off."
+    },
+    {
+      "name": "se.floor_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 60.0
+      },
+      "description": "Time after ignition before which the main class cannot self-extinguish (flame establishment)."
+    },
+    {
+      "name": "se.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.5,
+        "max": 30.0
+      },
+      "description": "Log-logistic shape of the growth clock at a given Phi (sd of ln R = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "se.osc_shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.5,
+        "max": 30.0
+      },
+      "description": "Log-logistic shape of the oscillation and quench clock."
+    },
+    {
+      "name": "se.flash_tau_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.05,
+        "max": 30.0
+      },
+      "description": "Median life of a weak flame."
+    },
+    {
+      "name": "se.flash_shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.5,
+        "max": 30.0
+      },
+      "description": "Log-logistic shape of the weak-flame clock."
+    },
+    {
+      "name": "bt.tau_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 1.0,
+        "max": 1000.0
+      },
+      "description": "Heating time constant of the burner: T_b(t) = t0 + dT (1 - exp(-t / tau))."
+    },
+    {
+      "name": "bt.t0_c",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "degC",
+      "bounds": {
+        "min": -50.0,
+        "max": 500.0
+      },
+      "description": "Burner temperature at ignition."
+    },
+    {
+      "name": "bt.sigma",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "sd of ln dT_eq over num.bt_nodes equally likely heating nodes."
+    },
+    {
+      "name": "bt.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.5,
+        "max": 60.0
+      },
+      "description": "Log-logistic shape of the limit time around each (heating node, limit) pair's time."
+    },
+    {
+      "name": "bt.limit_c",
+      "shape": [
+        3
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "degC",
+      "bounds": {
+        "min": 0.0,
+        "max": 1500.0
+      },
+      "description": "Burner temperature limit settings of the campaign."
+    },
+    {
+      "name": "bt.limit_w",
+      "shape": [
+        3
+      ],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weights of the limit settings, normalised by their sum; all zero switches the burner-heating clock off."
+    },
+    {
+      "name": "ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 1000.0
+      },
+      "description": "Times of programmed stops (script durations and time-outs), seconds since the time origin."
+    },
+    {
+      "name": "ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Logit of the probability that a flame burning at ft.atom_t_s[a] is stopped there, at c = 0; -40 switches an atom off."
+    },
+    {
+      "name": "ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Condition dependence of each programmed-stop logit; row a reads c in feature order."
+    },
+    {
+      "name": "ft.log_base",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1/s)",
+      "bounds": {
+        "min": -40.0,
+        "max": 5.0
+      },
+      "description": "ln of the constant background hazard of an operator stop."
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          101325.0
+        ]
+      },
+      "unit": "Pa",
+      "description": "Reference pressure of c_logp."
+    },
+    {
+      "name": "norm.mdot_ref_kg_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          5e-6
+        ]
+      },
+      "unit": "kg/s",
+      "description": "Reference injected mass flow of c_logm."
+    },
+    {
+      "name": "norm.o2_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.5
+        ]
+      },
+      "unit": "1",
+      "description": "Reference O2 mole fraction of c_o2."
+    },
+    {
+      "name": "norm.o2_scale",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.25
+        ]
+      },
+      "unit": "1",
+      "description": "Scale of c_o2."
+    },
+    {
+      "name": "norm.xf_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.1
+        ]
+      },
+      "unit": "1",
+      "description": "Reference fuel mole fraction of c_xf."
+    },
+    {
+      "name": "norm.tad_ref_k",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          2200.0
+        ]
+      },
+      "unit": "K",
+      "description": "Reference adiabatic flame temperature of c_tad."
+    },
+    {
+      "name": "norm.tad_scale_k",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          300.0
+        ]
+      },
+      "unit": "K",
+      "description": "Scale of c_tad."
+    },
+    {
+      "name": "norm.zst_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.45
+        ]
+      },
+      "unit": "1",
+      "description": "Reference stoichiometric mixture fraction of c_zst."
+    },
+    {
+      "name": "norm.zst_scale",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.2
+        ]
+      },
+      "unit": "1",
+      "description": "Scale of c_zst."
+    },
+    {
+      "name": "norm.r_ref_mm",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          25.0
+        ]
+      },
+      "unit": "mm",
+      "description": "Reference quasi-steady radius of b_rss."
+    },
+    {
+      "name": "norm.mtot_ref_kg_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          3e-6
+        ]
+      },
+      "unit": "kg/s",
+      "description": "Reference burner-stream mass flow of b_mtot."
+    },
+    {
+      "name": "phys.mw_ethane",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          30.07
+        ]
+      },
+      "unit": "g/mol",
+      "description": "Molar mass of ethane."
+    },
+    {
+      "name": "phys.mw_propane",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          44.1
+        ]
+      },
+      "unit": "g/mol",
+      "description": "Molar mass of propane."
+    },
+    {
+      "name": "phys.mw_butane",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          58.12
+        ]
+      },
+      "unit": "g/mol",
+      "description": "Molar mass of n-butane."
+    },
+    {
+      "name": "phys.mw_n2",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          28.013
+        ]
+      },
+      "unit": "g/mol",
+      "description": "Molar mass of nitrogen, the diluent of both streams."
+    },
+    {
+      "name": "phys.mw_o2",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          31.998
+        ]
+      },
+      "unit": "g/mol",
+      "description": "Molar mass of oxygen."
+    },
+    {
+      "name": "num.phi_nodes",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          15.0
+        ]
+      },
+      "unit": "1",
+      "description": "Equally likely values of ln Phi the main class is integrated over (standard-normal quantiles at (i + 1/2) / n)."
+    },
+    {
+      "name": "num.bt_nodes",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          7.0
+        ]
+      },
+      "unit": "1",
+      "description": "Equally likely values of ln dT_eq the burner-heating clock is integrated over (standard-normal quantiles at (j + 1/2) / n)."
+    },
+    {
+      "name": "num.tau_cap_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          100000.0
+        ]
+      },
+      "unit": "s",
+      "description": "Largest growth-clock median; a longer one is a held flame for every purpose of the horizon."
+    },
+    {
+      "name": "num.atom_half_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.5
+        ]
+      },
+      "unit": "s",
+      "description": "Half-width over which a programmed stop is spread (burn times are recorded to the second)."
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.1
+        ]
+      },
+      "unit": "s",
+      "description": "Largest integration step."
+    },
+    {
+      "name": "num.horizon_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          600.0
+        ]
+      },
+      "unit": "s",
+      "description": "Model horizon since the time origin."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::flame3::forecast",
+    "version": "3",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "No time series enters: conditions, cutoff and control stages known at the cutoff only. Burner-side quantities: the reactant mass fraction Y_R of the injected stream from its mole fraction and the phys.mw_* constants (fuel in N2 for normal flames, O2 in N2 for inverse); injected_mass_flow is the reactant alone in both configurations (PSI-159 mHC, and O2 flow rate), so m_R = injected_mass_flow and m_tot = m_R / Y_R; normal: L = ln(1 / (1 - zst)); inverse: L = ln(1 / zst). r_ss = m_tot / (4 pi rhoD L), r_ext = sqrt(m_R / (4 pi m_cr)), Phi = (r_ss / r_ext)^2, m_cr = exp(N_flux(c)) g m-2 s-1, D = exp(N_diff(c)) mm2/s, t_g = r_ext^2 / (4 D); growth clock of node i (z_i the standard-normal quantile at (i + 1/2) / num.phi_nodes, ln Phi_i = ln Phi + sigma_phi z_i): R_i = t_g / erfcinv(Phi_i^-1/2)^2 when Phi_i > 1 and R_i < num.tau_cap_s, else none; erfcinv(y) = -normal_quantile(y / 2) / sqrt(2). Self-extinction survival from the time origin, t' = max(t - se.floor_s, 0): S_w(t) = 1 / (1 + (t / se.flash_tau_s)^se.flash_shape); S_i(t) = [1 / (1 + (t' / R_i)^se.shape), or 1 without a growth clock] x 1 / (1 + (t' / exp(N_osc(c)))^se.osc_shape) x exp(-exp(se.hold_log_rate) t'); S_se = p_weak S_w + sum_i ((1 - p_weak) / num.phi_nodes) S_i, p_weak = sigmoid(N_flash(c)). Burner limit: b = (b_rss, b_mtot, c_tad, c_xf, c_logp, f_ethane, f_butane); ln dT_j = N_rise(b) + bt.sigma z_j (z_j at (j + 1/2) / num.bt_nodes); for each limit l with bt.limit_w[l] > 0: t_jl = -bt.tau_s ln(1 - (bt.limit_c[l] - bt.t0_c) / dT_j) when dT_j > bt.limit_c[l] - bt.t0_c, else never; S_bt = sum_jl (bt.limit_w[l] / sum bt.limit_w) / num.bt_nodes x [1 / (1 + (t / t_jl)^bt.shape), or 1 when never]; all weights zero: S_bt = 1; a weighted limit at or below bt.t0_c is a refusal. Stops: S_ps = exp(-exp(ft.log_base) t) prod_a (1 - p_a)^clamp((t - (T_a - num.atom_half_s)) / (2 num.atom_half_s), 0, 1), p_a = sigmoid(ft.atom_logit[a] + ft.atom_w[a, :] . c), atoms with T_a = 0 or p_a <= 1e-9 off. From the cutoff, on a grid with step <= num.dt_s up to each requested time: rho_f = S_f(b) / S_f(a) for f = se, bt, ps; lost = S (1 - rho_se rho_bt rho_ps), S = 1 at the cutoff; the lost mass goes to extinction and operator termination in proportion to -ln rho_se and -(ln rho_bt + ln rho_ps), so the four rows sum to one exactly. p_weak_at_cutoff = p_weak S_w(cutoff) / S_se(cutoff); p_held_at_cutoff = the same ratio summed over the nodes with no growth clock. A survival of zero at the cutoff is a refusal. A fuel indicator other than 0 or 1, or two of them set, is a refusal. A clock that is not finite and positive at the conditions (an overflow of a law network) is a refusal. A stop known at the cutoff (control `scheduled_stop`, `flow_stop`, or an operator action starting `MFCs off`) at or before the cutoff refuses the forecast; a later one moves the mass still active at that time to operator_termination. Beyond num.horizon_s the mass still active is unresolved_support. Uncertainty kind: assumed_noise."
+}

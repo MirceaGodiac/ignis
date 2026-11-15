@@ -1,0 +1,26 @@
+# acme_normal.wsp — W2 literal revision over W1 (parent sha256:a75ba790…251c), spec acme_normal-wsp-v1
+# Author: claude-fable-5-2 (Anthropic).
+#
+# NOT zero-shot. Written after seeing that W1 scored worse than W0 on the extinction row of the
+# validation comparison (aggregate numbers only; no validation run was looked at), and after
+# re-reading the train table (docs/wsp/feedback/acme_normal_w0_train.md). Typed by the author.
+#
+# W1 gave the extinction hazard the shape (1 + t/10 s)^3, which puts 80 % of the extinctions within
+# about +-30 % of the median life. The train table does not support that: at one nominal condition
+# (ethane, 39 % O2, 1 mg/s, 1 atm) the flame lived 158 s, 232 s and, at 0.85 mg/s, 304 s; at
+# 1.5 mg/s and 0.5 atm, 44 s and 88 s. A model that sharp is punished whenever its median is off by
+# a factor of two. W2 keeps the median-life surface L of W1 and flattens the shape to
+# (1 + t/10 s)^1.5, with the level re-derived for that shape, and softens the flow effect.
+#
+#   L = 3.4 + 1.2 c_o2 + 0.7 c_tad - 0.3 c_logp
+#   A = -0.35 - 1.2 L - 0.5 relu(L - 2.0) - 0.6 relu(L - 3.3) + 1.2 relu(-c_tad - 0.33)
+#       + 3.5 [relu(c_logm + 1.67 c_o2 + 0.5) - relu(1.67 c_o2 + 0.5)]
+#   ln(hazard) = A + 1.5 x_t
+ext.b0 = -4.43
+#               c_logp c_logm c_o2   c_xf c_tad  c_zst eth  but  x_t
+ext.skip[0:9] = [0.36, 0.0, -1.44, 0.0, -0.84, 0.0, 0.0, 0.0, 1.5]
+ext.w2[0] = -0.5
+ext.w2[1] = -0.6
+ext.w2[2] = 1.2
+ext.w2[3] = 3.5
+ext.w2[4] = -3.5

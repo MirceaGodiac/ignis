@@ -1,0 +1,78 @@
+{
+  "author": "gpt-6-astra",
+  "retrieved_date": "2026-11-14",
+  "sources": [
+    {
+      "name": "matalon-lecture12.pdf",
+      "url": "https://cefrc.princeton.edu/sites/g/files/toruqf1071/files/Files/2013%20Lecture%20Notes/Matalon/Notes-Lecture-12.pdf",
+      "read_extent": "Web-extracted PDF pages 1-12; theory used pages 3-9. Neighboring page 11 qualitative d2 experimental claim and page 12 empirical convection examples incidentally shown and excluded.",
+      "download_is_not_claim_of_full_read": true,
+      "sha256": "2fb1d345f189ecc8b061f9ce3b01ac7fa0a5f122f0b5679b101deb96d438389e",
+      "bytes": 8595342,
+      "source_id": "author-packet:matalon-cefrc2013-lecture12",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    },
+    {
+      "name": "cantera-species.html",
+      "url": "https://cantera.org/3.1/reference/thermo/species-thermo.html",
+      "read_extent": "Web lines 71-97.",
+      "download_is_not_claim_of_full_read": true,
+      "sha256": "89b0c358132eef7ba437700e1111e5c5fdf791a477a1765169859aceee44648b",
+      "bytes": 57522,
+      "source_id": "author-packet:cantera31-species-thermo",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    },
+    {
+      "name": "cantera-phase.html",
+      "url": "https://cantera.org/3.1/reference/thermo/phase-thermo.html",
+      "read_extent": "Web lines 71-100.",
+      "download_is_not_claim_of_full_read": true,
+      "sha256": "f49b0afe57d00a97e170da3ce5c88528b9733b6537eb561d70d093a3aeda1068",
+      "bytes": 45692,
+      "source_id": "author-packet:cantera31-phase-thermo",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    },
+    {
+      "name": "cantera-governing.html",
+      "url": "https://cantera.org/3.1/reference/onedim/governing-equations.html",
+      "read_extent": "Web lines 71-134.",
+      "download_is_not_claim_of_full_read": true,
+      "sha256": "466280c96ed958862e32496942b6cd8b48b475617e1300e1f9c6ce96d16d7f72",
+      "bytes": 48339,
+      "source_id": "author-packet:cantera31-governing-equations",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    },
+    {
+      "name": "idaes-vle.html",
+      "url": "https://idaes-pse.readthedocs.io/en/2.8.0/reference_guides/model_libraries/generic/property_models/activity_coefficient.html",
+      "read_extent": "Web navigation and lines 267-425.",
+      "download_is_not_claim_of_full_read": true,
+      "sha256": "866aa831803d0ead4821719386fa84454c6711dd7a5032c97ae500f85472fac5",
+      "bytes": 97264,
+      "source_id": "author-packet:idaes28-activity-equilibrium",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    },
+    {
+      "name": "nist-codata-wall.pdf",
+      "url": "https://www.physics.nist.gov/cuu/pdf/wall_2022.pdf",
+      "read_extent": "Search snippet only: molar gas constant NA*k=8.314462618...; fetch for hash only.",
+      "download_is_not_claim_of_full_read": true,
+      "sha256": null,
+      "fetch_error": "HTTP Error 502: Bad Gateway",
+      "source_access": "web tool extraction only; upstream bytes unverified",
+      "source_id": "author-packet:nist2022-wall-chart",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    },
+    {
+      "name": "nist-codata-allascii.txt",
+      "url": "https://physics.nist.gov/cuu/Constants/Table/allascii.txt",
+      "sha256": "77fb90e66c40db3e6eb16630bc9c88e4c7c8beddbe5e71be406f2f26e3f67e67",
+      "bytes": 40801,
+      "read_extent": "Only filtered lines: molar gas constant, Avogadro constant, and Boltzmann constant (including eV/K, Hz/K and inverse metre/K unit variants matched by that prefix). No other property values read.",
+      "download_is_not_claim_of_full_read": true,
+      "source_id": "author-packet:nist-constants-table",
+      "source_id_kind": "author_packet_provenance_alias_not_registered_app_source"
+    }
+  ],
+  "source_id_policy": "Stable author-packet aliases attached to exact URLs and retrieved-byte hashes where available; not claims of registered application Source records."
+}

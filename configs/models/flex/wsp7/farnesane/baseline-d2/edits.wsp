@@ -1,0 +1,96 @@
+# flex_farnesane.wsp7 — reference baseline and lineage root of spec flex_farnesane-wsp-v1, NOT a candidate.
+# The assignment statements below, with their comments, are those of
+# configs/models/flex/wsp5/heptane/baseline-d2/edits.wsp (flex_heptane.wsp5), copied without change by
+# the engineer (claude-opus-5-5) for the forward droplet8.rs, which has the tensors of droplet6.rs; no
+# number was typed. Data-informed candidates of this spec are literal revisions of this release.
+#
+# flex_heptane.wsp5 — reference baseline and lineage root of spec flex_heptane-wsp-v5, NOT a candidate.
+# The assignment statements below, with their comments, are those of
+# configs/models/flex/wsp4/heptane/baseline-d2/edits.wsp, copied without change (the
+# D^2-law baseline of flex_heptane-wsp-v4); the block at the end switches off the entries the sixth
+# droplet forward (droplet6.rs) adds.
+#
+# flex_heptane.wsp4 — reference baseline and lineage root of spec flex_heptane-wsp-v4, NOT a candidate: the classical
+# D^2-law of the third-generation spec, verbatim, with the entries this spec adds switched off.
+#
+# flex_heptane.wsp2 — reference baseline and lineage root, NOT a candidate: the classical D^2-law.
+# Population rate 0.55 mm2/s, replaced by the prefix's own finite-difference rate as the prefix
+# grows; no extinction, no cool flame, no evaporation. Same numbers as the baseline of
+# flex_heptane-wsp-v1; the tensors this spec adds are neutral. Data-informed candidates of this spec
+# are literal revisions of this release.
+rate.b0 = -0.6
+rate.skip[0:7] = 0.0
+crit.b0 = 5.0
+crit.skip[0:4] = 0.0
+class.kappa = 20.0
+class.bias = 0.0
+diff.b0 = 12.0
+diff.skip[0:6] = 0.0
+diff.sharp = 40.0
+rad.b0 = 0.0
+rad.skip[0:6] = 0.0
+rad.sharp = 4.0
+cool.p.b0 = -30.0
+cool.p.skip[0:6] = 0.0
+cool.k.b0 = -1.2
+cool.k.skip[0:5] = 0.0
+cool.d.b0 = -0.7
+cool.d.skip[0:5] = 0.0
+cool.d.sd = 0.1
+post.cool_scale = 1.0
+post.k_inf = 0.0
+post.k_hot = 0.0
+post.tau0_s = 1.0
+post.size_exp = 0.5
+post.hot_exp = 0.0
+post.tau_exp = 1.0
+enc.gain_w[0:3] = [2.0, 0.5, 2.0]
+enc.gain_b = -1.5
+enc.mix[0:2] = [1.0, 0.0]
+enc.e_clip[0:2] = [3.0, 3.0]
+enc.cool_gain = 0.0
+filt.sd_hot = 0.25
+filt.sd_evap = 0.2
+filt.l_floor = 1.0
+filt.gain_w[0:3] = [2.0, 0.5, 2.0]
+filt.gain_b = -1.5
+unc.s_pop = 0.25
+unc.s_floor = 0.08
+unc.sigma_d = 3.0e-5
+unc.sigma_frame = 8.0e-6
+haz.log_disruption = -20.0
+
+# =====================================================================================================
+# Entries added by this spec: switched off
+# =====================================================================================================
+# rob.eps_r = 0: the radiative clock is the law's alone.
+rob.eps_r = 0.0
+# fl.trust = 0: the cameras are not read and the forecast is that of the diameter alone.
+fl.trust = 0.0
+fl.t_min_s = 0.3
+fl.gap_s = 0.25
+fl.min_points = 5.0
+fl.evap_mix = 0.5
+
+# Entries of the sixth droplet forward, all switched off: with them the forecast is that of
+# droplet5.rs. Typed by the author (claude-fable-5-2).
+sc.on = 0.0
+sc.k0_hot_mm2_s = 0.0
+sc.k0_cool_mm2_s = 0.0
+sc.tstar_k = 0.0
+sc.cl_j_kg_k = 0.0
+sc.lat_j_kg = 0.0
+sc.gas[0:3] = [0.0, 0.0, 0.0]
+sc.k_cold_mm2_s = 0.0
+sc.k_warm_mm2_s = 0.0
+sc.tau_warm_s = 1.0
+sc.diff_scale = 1.0
+dy.frac = 0.0
+dy.tau_s = 1.0
+ce.on = 0.0
+ce.g0 = 0.0
+ce.beta_atm = 0.0
+ce.p_ref_atm = 0.0
+ce.eps_atm = 0.01
+ce.c_he = 0.0
+ce.d0_exp = 1.0

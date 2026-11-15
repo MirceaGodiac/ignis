@@ -1,0 +1,287 @@
+{
+ "schema": "wsp-bass-front-track/1",
+ "run_id": "PSI-25:T10",
+ "partition": "train",
+ "time_origin": "igniter-off on the duct-video overlay clock; t_s = seconds after it",
+ "position_unit": "sample_width",
+ "position_origin": "upstream (igniter-side) end of the lit sample band in the top view; positive downstream, the direction the flame travels",
+ "conditions": {
+  "x_o2_initial": 0.164,
+  "x_o2_final": 0.165,
+  "sample_label": "2 cm SIBAL",
+  "restrictor": 2,
+  "gmt_day": "2014-175",
+  "air_display_steps": "5"
+ },
+ "geometry": {
+  "band_width_px": 55.57,
+  "window_length_w": 4.648,
+  "source_view": "top_proof_sheet"
+ },
+ "igniter": {
+  "on_t_s": -7.67,
+  "off_t_s": 0.0
+ },
+ "fan": [
+  {
+   "t_s": -21.91,
+   "fan": 47,
+   "u_cm_s": 5.98
+  },
+  {
+   "t_s": -9.4,
+   "fan": 48,
+   "u_cm_s": 6.37
+  },
+  {
+   "t_s": 1.1,
+   "fan": 47,
+   "u_cm_s": 5.98
+  },
+  {
+   "t_s": 54.6,
+   "fan": 48,
+   "u_cm_s": 6.37
+  },
+  {
+   "t_s": 55.1,
+   "fan": 54,
+   "u_cm_s": 8.67
+  },
+  {
+   "t_s": 55.6,
+   "fan": 59,
+   "u_cm_s": 10.72
+  },
+  {
+   "t_s": 56.1,
+   "fan": 70,
+   "u_cm_s": 15.28
+  },
+  {
+   "t_s": 56.6,
+   "fan": 73,
+   "u_cm_s": 16.53
+  },
+  {
+   "t_s": 57.1,
+   "fan": 79,
+   "u_cm_s": 19.09
+  },
+  {
+   "t_s": 58.1,
+   "fan": 90,
+   "u_cm_s": 23.88
+  },
+  {
+   "t_s": 58.6,
+   "fan": 102,
+   "u_cm_s": 29.74
+  },
+  {
+   "t_s": 59.1,
+   "fan": 113,
+   "u_cm_s": 34.52
+  },
+  {
+   "t_s": 59.6,
+   "fan": 117,
+   "u_cm_s": 36.18
+  },
+  {
+   "t_s": 60.1,
+   "fan": 122,
+   "u_cm_s": 38.25
+  }
+ ],
+ "fan_calibration": [
+  [
+   38,
+   0.0
+  ],
+  [
+   42,
+   3.775
+  ],
+  [
+   46.5,
+   5.788
+  ],
+  [
+   55,
+   9.059
+  ],
+  [
+   72,
+   16.106
+  ],
+  [
+   88.5,
+   23.152
+  ],
+  [
+   105,
+   31.205
+  ],
+  [
+   122,
+   38.251
+  ]
+ ],
+ "fan_calibration_note": "Workbook 'PSI-25_Reference Data_Fan calibration data.xlsx', sheet 'Fan Calibration data', GMT 2014-175 block for 2 flow restrictors (columns AE (Pot), AF (Fan Display), AG (Air Display), rows 26-33); pairs are [FAN display, 1.0066 x AIR display] (cell A33: U = 1.0066(AIR)). The zero-flow row [38, 0] is included but unreliable: the sheet notes the fan turns off at a finite voltage (above 3.8 V) and advises against using the 3.8 V zero-flow value, so flow between it and the lowest non-zero row [42, ...] is not measured. AIR is read on a whole-cm/s display with a ~1 min response, so each row carries about +-0.5 cm/s; all rows are a calibration of the day, not of the test.",
+ "stills": [
+  {
+   "t_s": -8.29,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": -6.96,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": -5.69,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": -4.84,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": -3.17,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": -1.84,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": -0.84,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": 0.63,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null
+  },
+  {
+   "t_s": 2.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 3.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 4.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 5.71,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 7.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 8.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 9.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null
+  },
+  {
+   "t_s": 298.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "posttest",
+   "quality": null
+  },
+  {
+   "t_s": 302.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "posttest",
+   "quality": null
+  },
+  {
+   "t_s": 307.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "posttest",
+   "quality": null
+  },
+  {
+   "t_s": 325.16,
+   "tip_w": null,
+   "base_w": null,
+   "state": "posttest",
+   "quality": null
+  }
+ ],
+ "duct": [],
+ "end": {
+  "kind": "no_spread",
+  "t_s": null
+ },
+ "clock": {
+  "still_minus_overlay_s": -0.31,
+  "uncertainty_s": 2.42
+ },
+ "notes": [
+  "T10: no flame spread. After igniter-off only a small blue/glowing region at the coil remains in the stills: (t_s, area px) = [(np.float64(2.16), 194), (np.float64(3.16), 86), (np.float64(4.16), 24), (np.float64(5.71), 14)]; it shrinks to nothing within about 4 s and cannot be told from the cooling coil. All post-igniter stills are state none. The duct view shows nothing above noise after the igniter (a grey patch at 76.5-102 s video, above the sample plane, was rejected). end.t_s null: there is no track to end.",
+  "time: t_s = overlay-clock seconds after igniter-off. Igniter-off = steepest drop of the igniter-box brightness in the duct video (frame resolution) at video 21.92 s; igniter-on = first frame with the box 99th-percentile red >= dark + 20 at video 14.25 s. Overlay clock from the whole-second readings by local interval intersection (+-15 s), half-width 0.24 s at igniter-off.",
+  "stills: camera stamps are whole seconds; times use a local cadence reconstruction (+-8 neighbouring stamps, their first-to-last cadence; mean cadence 1.2353 s): 8/18 stills placed inside the intersection of their neighbours' whole-second intervals (median interval width 0.09 s), the rest at stamp + 0.5 s. clock.still_minus_overlay_s = camera clock minus overlay clock from the brackets: igniter onset between stills at camera 18.50 and 20.05 s-of-minute (overlay onset 20.98), igniter light gone between stills 28.97 and 30.50 (overlay off 28.65); onset bracket [-2.48, -0.94], off bracket [0.32, 1.85] s; brackets do not overlap; midpoint, half-width of their union. Exposure length is unknown and not included.",
+  "position: x_w = (x_up - x_px)/band_width_px in the 324x216 proof-sheet thumbnails. x_up = 309.7 px = right (igniter-side) edge of the lit band and coil, half-maximum of the green channel in the dimmest igniter-lit still (#10); repeatability across tests about +-3 px (0.05 w) because the coil glare sets this edge. 1 px = 0.0180 w. tip_w from the left (downstream) edge of the largest blue region, base_w from its right (upstream) edge.",
+  "quality: edge = region touches the picture border, the base is within 1 px of x_up (anchored at the igniter end), or the tip within 1 px of the window end; weak = area < 200 px or blue sum < 12000 (dim); else ok. area_px and blue_sum are extra per-still fields (largest blue region, 324x216 px, background-subtracted blue sum).",
+  "duct: 1-s window track from the earlier analysis (brightness R+G+B, z>4, dilated, detection threshold 1.5x dark-null maximum); tip_fw = left (downstream) end, base_fw = right (upstream) end, in fractions of the 720-px frame registered to the overlay (FUEL label at 166 px); x DECREASES downstream. area_px, signal are extra per-window fields. Duct is a second view, not converted to w here.",
+  "fan: displayed FAN after a 3-sample (1.5 s) running median of the 0.5-s overlay readings (removes single misreads and single-sample 41/42 flicker); u_cm_s = 1.0066 x AIR interpolated linearly in that day's 2-restrictor calibration rows, null below the lowest non-zero row (sheet advises against the zero-flow row).",
+  "table: Fan display column = 'pot 1.1', Total Frames Shot = 43, radiometer gain 250, CO2 0.31 -> 0.33 %, CO 9 -> 14 ppm, date 6/24/2014 (video display is one day later).",
+  "geometry: downstream window end at 51.4 px (red-channel half-rise, median of 7 igniter-lit stills; earlier report 54.0/53.7/51.9 px for T5/T16/T10)."
+ ]
+}

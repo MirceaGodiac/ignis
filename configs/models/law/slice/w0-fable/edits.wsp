@@ -1,0 +1,91 @@
+# Transcribed verbatim from docs/wsp/research/phys_slice_w0.md, section 7.4, lines 318-406 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/slice/root).
+# slice.wsp: W0, zero-shot. Author claude-fable-5-2. Source: docs/wsp/research/phys_slice_w0.md
+# features z = (z_co, z_j, z_d, z_x, z_o, e2, e3, z_m), columns 0..7
+x.u_coflow.centre = 0.3
+x.u_coflow.scale = 1.0
+x.u_coflow.lo = 0.02
+x.u_coflow.hi = 1.5
+x.u_jet.centre = 1.0
+x.u_jet.scale = 1.0
+x.u_jet.lo = 0.02
+x.u_jet.hi = 100.0
+x.burner_id.centre = 0.0016
+x.burner_id.scale = 1.0
+x.burner_id.lo = 0.0003
+x.burner_id.hi = 0.004
+x.x_fuel.centre = 1.0
+x.x_fuel.scale = 1.0
+x.x_fuel.lo = 0.3
+x.x_fuel.hi = 1.0
+x.x_o2.centre = 0.21
+x.x_o2.scale = 1.0
+x.x_o2.lo = 0.18
+x.x_o2.hi = 0.25
+x.is_ethane.centre = 0.0
+x.is_ethane.scale = 1.0
+x.is_ethane.lo = 0.0
+x.is_ethane.hi = 1.0
+x.is_propane.centre = 0.0
+x.is_propane.scale = 1.0
+x.is_propane.lo = 0.0
+x.is_propane.hi = 1.0
+x.mdot_jet.centre = 0.000001
+x.mdot_jet.scale = 1.0
+x.mdot_jet.lo = 0.00000002
+x.mdot_jet.hi = 0.00005
+
+# --- lifted: logit = 3.4 ln Phi. ln Phi = -0.987 at the centre (pure methane, coflow 0.3 m/s):
+# 0.66 * 0.3 / (1.4 * 0.38). Coflow +1; dilution lowers S_L (-0.55 on ln Phi per e-fold of x);
+# oxygen raises it as the cube; ethane and propane burn 8 % faster.
+lifted.logit.b0 = -3.356
+lifted.logit.skip[0:8] = [3.4, 0.0, 0.0, -1.87, -10.2, -0.258, -0.258, 0.0]
+# units 0 to 2: the jet term, ln(1 + e^t) in three pieces, t = ln(jet part / coflow part);
+# t = -2.485 at the centre: 8 * 3.3e-6 * 1 / 0.0016 = 0.0165 m/s against 0.198 m/s.
+lifted.logit.W1[0, 0:8] = [-1.0, 1.0, -1.0, -1.3, 0.0, 0.065, 0.088, 0.0]
+lifted.logit.b1[0] = -0.285
+lifted.logit.w2[0] = 1.054
+lifted.logit.W1[1, 0:8] = [-1.0, 1.0, -1.0, -1.3, 0.0, 0.065, 0.088, 0.0]
+lifted.logit.b1[1] = -2.485
+lifted.logit.w2[1] = 1.292
+lifted.logit.W1[2, 0:8] = [-1.0, 1.0, -1.0, -1.3, 0.0, 0.065, 0.088, 0.0]
+lifted.logit.b1[2] = -4.685
+lifted.logit.w2[2] = 1.054
+# unit 3: below 50 % fuel the burning speed falls faster.
+lifted.logit.W1[3, 3] = -1.0
+lifted.logit.b1[3] = -0.693
+lifted.logit.w2[3] = 1.7
+
+# --- blow-off on a line: logit = -2.184 + 2.0 ln Phi (the limit lies inside a 10 % step).
+blow_off.logit.b0 = -4.158
+blow_off.logit.skip[0:8] = [2.0, 0.0, 0.0, -1.10, -6.0, -0.152, -0.152, 0.0]
+blow_off.logit.W1[0, 0:8] = [-1.0, 1.0, -1.0, -1.3, 0.0, 0.065, 0.088, 0.0]
+blow_off.logit.b1[0] = -0.285
+blow_off.logit.w2[0] = 0.62
+blow_off.logit.W1[1, 0:8] = [-1.0, 1.0, -1.0, -1.3, 0.0, 0.065, 0.088, 0.0]
+blow_off.logit.b1[1] = -2.485
+blow_off.logit.w2[1] = 0.76
+blow_off.logit.W1[2, 0:8] = [-1.0, 1.0, -1.0, -1.3, 0.0, 0.065, 0.088, 0.0]
+blow_off.logit.b1[2] = -4.685
+blow_off.logit.w2[2] = 0.62
+blow_off.logit.W1[3, 3] = -1.0
+blow_off.logit.b1[3] = -0.693
+blow_off.logit.w2[3] = 1.0
+
+# --- luminous length = K mdot F / Z_st. b0 = ln(1296) + ln(1e-6) - ln(0.0552): 23.5 mm per mg/s
+# of methane in strong coflow; Z_st rises with dilution (1.3 per e-fold), ethane, propane.
+flame_length.median.b0 = -3.752
+flame_length.median.skip[0:8] = [0.0, 0.0, 0.0, 1.3, 0.0, -0.065, -0.088, 1.0]
+# units 0, 1: ln F = 0.148 clip(ln(0.5 U_j / U_co), 0, 3.219); 0.511 at the centre.
+flame_length.median.W1[0, 0] = -1.0
+flame_length.median.W1[0, 1] = 1.0
+flame_length.median.b1[0] = 0.511
+flame_length.median.w2[0] = 0.148
+flame_length.median.W1[1, 0] = -1.0
+flame_length.median.W1[1, 1] = 1.0
+flame_length.median.b1[1] = -2.708
+flame_length.median.w2[1] = -0.148
+flame_length.spread.b0 = 0.22
+flame_length.spread.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+flame_length.tail_weight = 0.1
+flame_length.tail_width = 3.0

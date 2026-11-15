@@ -1,0 +1,141 @@
+# flex.wsp — W0 literal weights, spec flex-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). One shot: written from the frozen spec, combustion theory and
+# the author's prior knowledge, before this model was run on anything. Every number below is a
+# hypothesis until an evaluation says otherwise.
+#
+# Network input x = (c_o2, c_co2, c_he, c_logp, c_logd0, w, s), columns 0..6:
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20   c_logp = ln(p / 1e5 Pa)
+#   c_logd0 = ln(D0 / 2 mm)     w = 1 - D^2/D0^2     s = t * (1e-6 m2/s) / D0^2
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Burning rate: ln(K / 1e-6 m2/s) = N_rate(x)
+# =====================================================================================================
+# Reference: methanol in air at 1e5 Pa, D0 = 2 mm, quasi-steady: K = 0.56 mm2/s.
+rate.b0 = -0.58
+
+# Linear law. O2 slope 0.16 per 5 % O2 is d ln[ln(1+B)] / dc_o2 of the quasi-steady d2-law with the
+# oxygen MASS fraction in B (0.13) plus the rise of film conductivity with flame temperature (0.03).
+# CO2 lowers the oxygen mass fraction and radiates (-0.075 per 20 %); He raises the oxygen mass
+# fraction per unit mass of gas (+0.11 per 20 %). Pressure acts only weakly through the boiling point
+# (+0.08 per e-fold). Larger droplets lose more heat by gas radiation (-0.08 per e-fold of D0), and
+# that loss relaxes as the droplet shrinks (+0.052 per unit of progress = 0.08 * 0.65).
+rate.skip[0:7] = [0.16, -0.075, 0.11, 0.08, -0.08, 0.052, 0.0]
+
+# Units 0-3: ln(1+B) is concave in oxygen. Slope drops above 25 % and 31 % O2, steepens below 18 % and
+# 15 % O2 (approach to the flammability limit).
+rate.W1[0, 0] = 1.0
+rate.b1[0] = -0.8
+rate.w2[0] = -0.035
+rate.W1[1, 0] = 1.0
+rate.b1[1] = -2.0
+rate.w2[1] = -0.03
+rate.W1[2, 0] = -1.0
+rate.b1[2] = -0.6
+rate.w2[2] = -0.05
+rate.W1[3, 0] = -1.0
+rate.b1[3] = -1.2
+rate.w2[3] = -0.06
+
+# Units 4-5: radiative loss of a large flame. u = ln(current D / 2 mm) is approximated by
+# c_logd0 - 0.65 w; lean oxygen (wider flame), CO2 (a radiating gas) and pressure (optical depth)
+# act like a larger droplet. Knots at u = 0.2 (2.4 mm) and u = 0.6 (3.6 mm).
+rate.W1[4, 0:6] = [-0.05, 0.06, 0.0, 0.15, 1.0, -0.65]
+rate.b1[4] = -0.2
+rate.w2[4] = -0.14
+rate.W1[5, 0:6] = [-0.05, 0.06, 0.0, 0.15, 1.0, -0.65]
+rate.b1[5] = -0.6
+rate.w2[5] = -0.2
+
+# Units 6-7: methanol absorbs the water it produces; the rate sags as water accumulates.
+rate.W1[6, 5] = 1.0
+rate.b1[6] = -0.25
+rate.w2[6] = -0.2
+rate.W1[7, 5] = 1.0
+rate.b1[7] = -0.6
+rate.w2[7] = -0.25
+
+# Unit 8: heat-up and flame establishment. relu(1 - s/0.15): the rate starts at exp(-1) = 37 % of its
+# quasi-steady value and recovers linearly over the first 0.15 of the diffusion clock
+# (1.35 s for a 3 mm droplet).
+rate.W1[8, 6] = -6.6667
+rate.b1[8] = 1.0
+rate.w2[8] = -1.0
+
+# =====================================================================================================
+# 2. Hot-flame extinction: ln(eta) = N_haz(x), eta = extinction intensity per unit burn progress
+# =====================================================================================================
+# Form: ln(eta) = ln(a ln 2) + a (w - w_ext(c)) with a = 12, so w_ext is the median progress at
+# extinction and 80 % of extinctions fall in [w_ext - 0.16, w_ext + 0.10]. The width states how little
+# a one-shot author knows about w_ext, not a measured scatter.
+# Reference (air, 1e5 Pa, D0 = 2 mm): D_ext/D0 = 0.22, w_ext = 0.952.
+# b0 = ln(12 * 0.6931) - 12 * 0.952
+haz.b0 = -9.306
+
+# Linear part = -a * (d w_ext / d x_i), and a on w:
+#   O2: w_ext falls 0.13 per 5 % O2 below air; CO2: -0.08 per 20 %; He: -0.07 per 20 %;
+#   pressure: +0.05 per e-fold; D0: -0.10 per e-fold (water uptake scales with the droplet).
+haz.skip[0:7] = [-1.56, 0.96, 0.84, -0.6, 1.2, 12.0, 0.0]
+
+# Units 0-1: above air the gain in w_ext saturates (slope 0.04, then 0.015 per 5 % O2).
+haz.W1[0, 0] = 1.0
+haz.w2[0] = 1.08
+haz.W1[1, 0] = 1.0
+haz.b1[1] = -0.8
+haz.w2[1] = 0.3
+
+# Units 2-4: towards the limiting oxygen index the flame goes out ever earlier
+# (knots at 18 %, 16 % and 14 % O2).
+haz.W1[2, 0] = -1.0
+haz.b1[2] = -0.6
+haz.w2[2] = 2.4
+haz.W1[3, 0] = -1.0
+haz.b1[3] = -1.0
+haz.w2[3] = 4.2
+haz.W1[4, 0] = -1.0
+haz.b1[4] = -1.4
+haz.w2[4] = 3.6
+
+# Unit 5: beyond 40 % CO2 the suppression steepens.
+haz.W1[5, 1] = 1.0
+haz.b1[5] = -2.0
+haz.w2[5] = 0.96
+
+# Units 6-7: radiative extinction of large droplets. The size threshold (3.1 mm, then 4.7 mm in air)
+# moves to smaller droplets in lean oxygen, with CO2 and with pressure.
+haz.W1[6, 0:5] = [-0.25, 0.08, 0.0, 0.15, 1.0]
+haz.b1[6] = -0.45
+haz.w2[6] = 3.0
+haz.W1[7, 0:5] = [-0.25, 0.08, 0.0, 0.15, 1.0]
+haz.b1[7] = -0.85
+haz.w2[7] = 10.8
+
+# No evidence yet that a run burning faster or slower than the population law extinguishes differently.
+haz.link_b = 0.0
+
+# Disruption: rare, taken constant at 0.008 per second.
+haz.log_disruption = -4.83
+
+# =====================================================================================================
+# 3. Prefix encoder: b = gain * (mix . (e_late, e_early)), gain = sigmoid(gain_b + gain_w . g)
+# =====================================================================================================
+# g = (ln baseline/1 s, ln n/32, progress gate). Slope noise falls as 1/baseline^2 and 1/n; a prefix
+# still inside the heat-up transient (gate < 1) is trusted less. Expected gain: about 0.2 at a 1 s
+# cutoff, 0.9 at 3 s, 0.98 at 5 s.
+enc.gain_w[0:3] = [2.0, 0.5, 2.0]
+enc.gain_b = -1.5
+# The later finite difference is the better predictor of the future rate and is not contaminated by
+# the heat-up transient.
+enc.mix[0:2] = [0.85, 0.15]
+
+# =====================================================================================================
+# 4. Assumed spread and noise
+# =====================================================================================================
+unc.s_pop = 0.22
+unc.s_floor = 0.06
+unc.sigma_d = 2.0e-5
+
+# =====================================================================================================
+# 5. Extinguished droplet: slow evaporation, 0.02 mm2/s
+# =====================================================================================================
+post.k_evap = 2.0e-8

@@ -1,0 +1,21 @@
+{
+  "patch_id": "law-bass1-v1-w0-fable",
+  "parent_release_id": "sha256:5c1fa50f3c133f967897531ffdb583cf096511a3149884a431fd7aba7bf2d21c",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass1_w0.md(zero-shot-W0-law;exposure-in-its-section-8.3)",
+      "published-summaries-of-the-same-burns(BASS-and-BASS-II-documents;set-x_b-and-the-working-volume;blind-to-the-project's-files,not-blind-to-the-literature-on-its-experiment)",
+      "repo:docs/wsp/atlas/cards/PSI-26.json,PSI-25.json(cards)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0 of bass1.wsp: the zero-shot law of docs/wsp/research/phys_bass1_w0.md (quenching and blow-off of PMMA rods, spheres, films and slabs in a slow duct flow), its section 7.4 typed verbatim as a revision of the neutral root. No file under runs/, data/ or holdout/ was opened by the author; two numbers (x_b, the working volume) were set from published summaries of the same burns. Source: docs/wsp/research/phys_bass1_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

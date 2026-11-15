@@ -1,0 +1,12 @@
+{
+  "patch_id": "jets-property-cleanroom-astra-w0-v1",
+  "author": {"provider":"openai","model_id":"gpt-6-astra"},
+  "exposure": {
+    "sources":["matalon-cefrc-2013-lecture10-theory","matalon-cefrc-2013-lecture11-theory","cantera-3.1-governing-equations","incidental-cross-family-author-status"],
+    "datasets":[],
+    "development_feedback":[],
+    "prior_candidates":[]
+  },
+  "rationale":"Outcome-blind W0 physical derivation. Literal pi, two and four supply analytic geometry/transport constants; all scenario properties and initial conditions are explicit source-bearing inputs. No fitted values, fuel-name factors, outcome-driven choices, optimizer or NASA measurements. Generic theory reading extent and incidental captions are disclosed in docs/wsp/research/astra_jets_w0.md. Coupled unequal-speed signed-axial-gravity Boussinesq transport is conditional and unqualified; the infinite-coflow equal-speed analytical solution is a benchmark, not claimed general coverage.",
+  "origin":"system"
+}

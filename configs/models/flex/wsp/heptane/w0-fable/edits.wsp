@@ -1,0 +1,155 @@
+# flex_heptane.wsp — W0 literal weights, spec flex_heptane-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). One shot, written before any n-heptane outcome of PSI-69 was
+# opened: no heptane diameter series, test sheet, comment or endpoint. Sources: the published FLEX
+# literature (docs/wsp/research/exp_flex.md), droplet-combustion theory, and the structure (not the
+# numbers) learned from the methanol train runs. Every number below is a hypothesis.
+#
+# Inputs (columns):
+#   rate net   x = (c_o2, c_co2, c_he, c_logp, c_logd0, w, s)            0..6
+#   crit net   x = (c_o2, c_co2, c_he, c_logp)                           0..3
+#   law nets   x = (c_o2, c_co2, c_he, c_logp, c_logd0, x_exc)           0..5
+#   cool nets  x = (c_o2, c_co2, c_he, c_logp, c_logd0)                  0..4
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20   c_logp = ln(p / 1e5 Pa)
+#   c_logd0 = ln(D0 / 2 mm)     w = 1 - D^2/D0^2     s = t * (1e-6 m2/s) / D0^2
+#   x_exc = ln(D0 / D_crit)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Hot flame: ln(K_h / 1e-6 m2/s) = N_rate(x)
+# =====================================================================================================
+# Reference: n-heptane in air at 1e5 Pa, D0 = 2 mm, quasi-steady: 0.60 mm2/s. The FLEX report's
+# medians are lower (0.53 at 19-22 % O2) because their fits start during heat-up and their droplets
+# are larger.
+rate.b0 = -0.51
+
+# O2: the report's medians by oxygen bin give 0.13 per 5 % O2 above air. CO2 lowers the rate
+# (0.52 against 0.56 mm2/s), helium raises it (0.67 against 0.56) through the gas conductivity.
+# Pressure acts weakly through the boiling point. Larger droplets burn slower (2.1 mm: 0.53,
+# 3.0 mm: 0.49 mm2/s in one atmosphere): -0.22 per e-fold of D0. The rate recovers slightly as the
+# droplet shrinks and the soot shell thins (+0.10 per unit progress).
+rate.skip[0:7] = [0.13, -0.08, 0.15, 0.05, -0.22, 0.10, 0.0]
+
+# Units 0-1: the oxygen law steepens below air (0.19 per 5 % below 21 %, 0.24 below 17.5 %).
+rate.W1[0, 0] = -1.0
+rate.b1[0] = 0.0
+rate.w2[0] = -0.06
+rate.W1[1, 0] = -1.0
+rate.b1[1] = -0.7
+rate.w2[1] = -0.05
+
+# Unit 2: the helium gain saturates above 30 % He.
+rate.W1[2, 2] = 1.0
+rate.b1[2] = -1.5
+rate.w2[2] = -0.05
+
+# Unit 3: radiative and soot loss of a large flame, relaxing as the droplet shrinks.
+# u = c_logd0 - 0.65 w approximates ln(current D / 2 mm); knot at 3 mm.
+rate.W1[3, 4] = 1.0
+rate.W1[3, 5] = -0.65
+rate.b1[3] = -0.4
+rate.w2[3] = -0.3
+
+# Unit 4: heat-up and flame establishment, relu(1 - s/0.2): the rate starts at exp(-0.7) = 50 % and
+# recovers over the first 0.2 of the diffusion clock (1.8 s for a 3 mm droplet).
+rate.W1[4, 6] = -5.0
+rate.b1[4] = 1.0
+rate.w2[4] = -0.7
+
+# =====================================================================================================
+# 2. Critical diameter of radiative extinction: ln(D_crit / 2 mm) = N_crit(x)
+# =====================================================================================================
+# In air at 1 atm droplets above about 3 mm lose the hot flame to radiation; 2.8 mm is the median.
+crit.b0 = 0.34
+# At 25 % O2 and above radiative extinction is avoided (D_crit beyond 4.5 mm): +0.55 per 5 % O2.
+# CO2 radiates and lowers D_crit; helium barely moves the limiting oxygen index of heptane; a
+# sootier flame at higher pressure radiates more.
+crit.skip[0:4] = [0.55, -0.15, -0.05, -0.2]
+# Which side of D_crit a droplet falls on is uncertain by about +-17 % in diameter.
+class.kappa = 6.0
+class.bias = 0.0
+
+# =====================================================================================================
+# 3. Diffusive branch: logit(w_D), the burn progress at which a small droplet's hot flame ends
+# =====================================================================================================
+# Small heptane droplets burn to a small size and then disrupt or burn out: De about 0.4 mm for
+# D0 = 2 mm, w_D = 0.96.
+diff.b0 = 3.2
+# Lower oxygen raises the diffusive extinction diameter; a fixed De makes w_D rise with D0.
+diff.skip[0:6] = [1.5, -0.3, 0.0, 0.0, 2.0, 0.0]
+# Unit 0: no further gain above air.
+diff.W1[0, 0] = 1.0
+diff.b1[0] = 0.0
+diff.w2[0] = -1.2
+# Unit 1: droplets within 35 % of the critical diameter go out earlier.
+diff.W1[1, 5] = 1.0
+diff.b1[1] = 0.3
+diff.w2[1] = -1.0
+diff.sharp = 10.0
+
+# =====================================================================================================
+# 4. Radiative branch: ln(s_R), the clock at which a large droplet's hot flame ends
+# =====================================================================================================
+# A 3.4 mm droplet in 18 % O2 loses its visible flame near 5 s (s = 0.4); a droplet at the critical
+# diameter lasts 0.55 of a clock unit.
+rad.b0 = -0.6
+rad.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: the further above the critical diameter, the sooner.
+rad.W1[0, 5] = 1.0
+rad.b1[0] = -0.1
+rad.w2[0] = -0.8
+rad.sharp = 4.0
+
+# =====================================================================================================
+# 5. Cool flame after a radiative extinction
+# =====================================================================================================
+# Onset: usual in air and N2/CO2 atmospheres down to the limiting oxygen index (0.85 at reference),
+# less likely as oxygen falls below air, transient with heavy helium, more robust at pressure and for
+# droplets well above the critical diameter.
+cool.p.b0 = 1.7
+cool.p.skip[0:6] = [0.0, -0.2, -0.8, 0.5, 0.0, 1.0]
+cool.p.W1[0, 0] = -1.0
+cool.p.b1[0] = 0.0
+cool.p.w2[0] = -1.0
+
+# Rate: 0.8-0.87 of the hot rate for octane and decane; 0.40 mm2/s at reference. Rises with oxygen
+# (decane 0.33 -> 0.25 from 21 % to 14 % O2), with helium (octane 0.38 -> 0.53 at 50 % He) and with
+# the initial diameter.
+cool.k.b0 = -0.92
+cool.k.skip[0:5] = [0.2, -0.05, 0.14, 0.1, 0.2]
+
+# Extinction diameter: 1.13 mm at reference, from a D^2 plateau 23-28 s after ignition for a 3.4 mm
+# droplet in 18 % O2. Scales as [O2]^-3/4, falls steeply with pressure, grows with D0 (taken as
+# D0^0.5) and with helium (shorter cool stage).
+cool.d.b0 = -0.57
+cool.d.skip[0:5] = [-0.18, 0.05, 0.2, -1.0, 0.5]
+cool.d.sd = 0.25
+# After a cool flame the surrounding gas is near 700 K, not 1500 K.
+post.cool_scale = 0.5
+
+# =====================================================================================================
+# 6. Droplet without a flame
+# =====================================================================================================
+# The D^2 curve is reported as nearly flat after extinction.
+post.k_inf = 8.0e-9
+post.k_hot = 4.0e-8
+post.tau0_s = 4.0
+post.size_exp = 0.7
+
+# =====================================================================================================
+# 7. Prefix encoder, state filter, spread
+# =====================================================================================================
+# Trust in the prefix's finite-difference rate: about 0.2 at a 1 s cutoff, 0.9 at 3 s.
+enc.gain_w[0:3] = [2.0, 0.5, 2.0]
+enc.gain_b = -1.5
+enc.mix[0:2] = [0.85, 0.15]
+# A burning droplet is not allowed to be read as slower than half the population rate.
+enc.e_clip[0:2] = [0.7, 1.0]
+filt.sd_evap = 0.15
+filt.l_floor = 0.05
+unc.s_pop = 0.25
+unc.s_floor = 0.08
+# Soot makes the heptane edge less certain than the methanol one.
+unc.sigma_d = 3.0e-5
+unc.sigma_frame = 8.0e-6
+# Disruption is common for small heptane droplets: one in fifty per second.
+haz.log_disruption = -3.9

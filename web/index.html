@@ -6,10 +6,17 @@
     <meta name="color-scheme" content="light dark" />
     <title>IGNIS</title>
     <meta name="description" content="Research workspace for NASA microgravity combustion data: cited answers, runs, forecasts." />
-    <!-- Geist and Geist Mono; the system sans and mono stand in when offline. -->
+    <!-- A pinned theme is applied before the first paint, so a dark choice never flashes light. -->
+    <script>
+      try {
+        var t = localStorage.getItem("ignis.theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <!-- Hanken Grotesk (text), Geist Mono (machine values); system faces stand in offline. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

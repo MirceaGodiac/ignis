@@ -1,0 +1,59 @@
+# Astra R1. DATA-INFORMED, not zero-shot. Main author typed every new value.
+# Exact old tensors come from wsp5/methanol/carry-d3; their exposure is retained.
+# Origins: N nature/property evidence, A apparatus, L closure, S structure,
+# U uncertainty/judgment. Evidence and validity: ASTRA_PROPERTIES.md.
+# S: enable the new mechanism; pure Astra member. Joint patch changes only weight.
+thermal.on = 1
+thermal.member_weight = 1
+# S: unsupported CO2/He mixtures retain the entire predecessor; no invented pair D.
+thermal.nitrogen_only = 1
+# S: do not restart an unknown pre-cutoff thermal history. Only a FUTURE hot
+# radiative ending enters this law; diffusive/water and cool-flame routes stay old.
+thermal.cutoff_on = 0
+thermal.apply[0:3] = [1, 0, 0]
+# S: explicit midpoint step, seconds; numerical convergence is checked, never scored.
+thermal.dt_s = 0.01
+# N: SI molar gas constant and NIST molecular mass, with kg/mol conversion.
+thermal.gas_constant_j_mol_k = 8.314462618
+thermal.molar_mass_kg_mol = 0.0320419
+# N: NIST saturated-liquid 300 K reference values, held constant as an approximation.
+thermal.rho_kg_m3 = 784.5
+thermal.cp_liquid_j_kg_k = 2546
+# N/L: N2 room-temperature Cp approximation for the entire gas film.
+thermal.cp_gas_j_kg_k = 1040
+# N/S: NIST N2 conductivity at 300 K. Last two slots are inert copies, NOT
+# CO2/He properties: nitrogen_only=1 prevents their use for those carriers.
+thermal.k_gas_w_m_k[0:3] = [0.02597, 0.02597, 0.02597]
+# N/S: Tang evaluated methanol diffusivity, rounded at its 298 K reference.
+# 126 Torr cm2/s / 760 -> about 0.166 cm2/s. Last slots inert as above.
+thermal.diffusivity_ref_m2_s[0:3] = [0.0000166, 0.0000166, 0.0000166]
+thermal.transport_ref_k = 298
+thermal.transport_ref_pa = 101325
+# L: Fuller temperature exponent, an external empirical approximation, not an IGNIS fit.
+thermal.diffusivity_exponent = 1.75
+# N: NIST/Ambrose-Sprake Antoine coefficients, log10(p/bar); closed source range.
+thermal.antoine[0:3] = [5.20409, 1581.341, -33.50]
+thermal.antoine_range_k[0:2] = [288.1, 356.83]
+# N: NIST Majer-Svoboda Lmol=A exp(-alpha Tr)(1-Tr)^beta kJ/mol.
+# alpha and beta are DISTINCT. No expression evaluated to manufacture a weight.
+thermal.latent[0:4] = [45.3, -0.31, 0.4241, 512.6]
+thermal.latent_range_k[0:2] = [298, 477]
+# L: explicitly allow boundary Clausius-Clapeyron vapor extension and continuation
+# of the latent correlation. Trace reports actual use; these are extrapolations.
+thermal.vapor_extension = 1
+thermal.latent_extrapolation = 1
+# A/U: room-temperature environment assumption, no measured per-run gas temperature.
+thermal.ambient_k = 300
+# L: no post-flame cloud heating. This deliberately tests cooling alone.
+thermal.cloud_excess_k[0:3] = [0, 0, 0]
+# S: finite unused cloud clocks; zero cloud amplitude makes them inactive.
+thermal.cloud_tau_s[0:3] = [1, 1, 1]
+# U: a rounded sub-boiling hot-liquid scenario, not an inferred liquid temperature.
+# Only first slot active. Pressure saturation cap can lower it, explicitly reported.
+thermal.initial_k[0:3] = [330, 330, 330]
+# L: pure-fuel surface; absorbed water is precisely why diffusive endings are excluded.
+thermal.activity[0:3] = [1, 1, 1]
+# L: fuel-free far field; condensation not represented.
+thermal.x_infinity = 0
+# U: keep an explicit margin from the singular saturated-gas limit; not calibrated.
+thermal.surface_fraction_max = 0.8

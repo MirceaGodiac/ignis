@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ScenarioControl": {
+      "additionalProperties": false,
+      "description": "One control stage of a typed scenario.",
+      "properties": {
+        "control": {
+          "type": "string"
+        },
+        "t_end_s": {
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "t_start_s": {
+          "type": "number"
+        },
+        "value_si": {
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "control",
+        "t_start_s"
+      ],
+      "type": "object"
+    },
+    "ScenarioPoint": {
+      "additionalProperties": false,
+      "description": "One observation of a typed scenario before its cutoff (SI value of the observed quantity).",
+      "properties": {
+        "time_s": {
+          "type": "number"
+        },
+        "value_si": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "time_s",
+        "value_si"
+      ],
+      "type": "object"
+    },
+    "ScenarioValue": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "A condition value of a typed scenario: a number in SI or a text (e.g. a fuel name)."
+    },
+    "WspSchema": {
+      "description": "Wire tag of model specs, patches, build manifests and forecast requests.",
+      "enum": [
+        "wsp.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ScenarioRequest",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Conditions (and, where the release reads them, controls and an early prefix) typed by a person\nfor a served release. The host admits it as a synthetic prefix (`evidence_class = synthetic`,\nnever a NASA run) and returns its `input_hash` for `ForecastInput::Prefix`. There is no agent\ntool for it: a forecast never runs on a prefix a language model assembled from text.",
+  "properties": {
+    "conditions": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ScenarioValue"
+      },
+      "default": {},
+      "type": "object"
+    },
+    "controls": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ScenarioControl"
+      },
+      "type": "array"
+    },
+    "cutoff_s": {
+      "description": "Seconds since the release's time origin up to which the scenario is known.",
+      "type": "number"
+    },
+    "observations": {
+      "default": [],
+      "description": "Observations of the release's observed quantity at or before `cutoff_s`.",
+      "items": {
+        "$ref": "#/$defs/ScenarioPoint"
+      },
+      "type": "array"
+    },
+    "phase_established_at_s": {
+      "default": null,
+      "description": "Seconds since the time origin at which the modelled phase was established (burning\ndroplet, ignited fabric), when the release reads it.",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "release_id": {
+      "$ref": "#/$defs/ReleaseId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/WspSchema"
+    },
+    "test_date": {
+      "default": null,
+      "description": "Test date `YYYY-MM-DD`, for releases whose laws depend on the era of the test.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_id",
+    "cutoff_s"
+  ],
+  "title": "ScenarioRequest",
+  "type": "object"
+}

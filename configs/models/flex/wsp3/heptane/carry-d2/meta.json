@@ -1,0 +1,48 @@
+{
+  "patch_id": "flex_heptane-wsp-v3-carry-d2",
+  "parent_release_id": "sha256:24d751a0c57f18e838e799a2236fc5ffd12b8543cfc9606daaab50fc6f5825a1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+      "sha256:74b3a0f195884a860d28ab41d9fb3250633a346d0b980138ee1c7d84881842a3",
+      "sha256:24d751a0c57f18e838e799a2236fc5ffd12b8543cfc9606daaab50fc6f5825a1",
+      "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d"
+    ]
+  },
+  "rationale": "Neutral carry of the third-generation candidate D2 (flex_heptane.wsp2, sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d), not a candidate and not to be revised: its numbers are those of D2, typed by the author, unchanged; the entries added by flex_heptane-wsp-v3 (art.min_gated, art.d0_tol, art.rise_tol, art.r_band, art.weight, art.sigma_m, art.sigma_rate_m_s, post.he_w, post.seen_max) are neutral and stay so (no artefact component, no helium term, the third-generation clamp). On the fourth-generation forward it gives the train scores of D2 exactly, and stands in for D2 in paired comparisons with the fourth-generation candidates (same prefix policy). Exposure: that of D2.",
+  "origin": "system"
+}

@@ -1,16 +1,14 @@
-// T9: the challenge's two direct questions over K1.13 `ConditionsTable`:
-//   1. How near does each investigation's tested envelope come to the Moon/rover, suit and ISS
-//      atmospheres? (reached, outside by how much, or not decidable; never extrapolated)
-//   2. Which conditions did each run record? (value with its original's locator, or an explicit gap)
+// T9: the Conditions page (by crew atmosphere, the atmosphere map) and the conditions matrix that
+// answers can embed. Both read K1.13 `ConditionsTable`; nothing is extrapolated.
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
-import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, PARTIAL_G, PSI_PA, rankFor, type HabitatId, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
 import { flagTags, quotedText } from "../research/conditionCells";
 import { rowWindow } from "../research/windowing";
+import { href } from "../shell/router";
+import { MapView } from "./MapView";
+import { ByAtmosphere } from "./ByAtmosphere";
+import { EvidenceClassTag, words } from "../ui/common";
 import { OpenOriginal, locatorSource } from "../shell/OpenOriginal";
-import { useData } from "../shell/data";
-import { ErrorNote, EvidenceClassTag, Gap, OriginMark, words } from "../ui/common";
 
 const KEY_LABEL: Record<ConditionKey, string> = {
   oxygen_mole_fraction: "O₂",
@@ -25,193 +23,31 @@ const KEY_LABEL: Record<ConditionKey, string> = {
   diagnostics: "Diagnostics",
 };
 
-const PAGE_SIZE = 200;
+export type ConditionsTab = "habitats" | "map";
+const TABS: [ConditionsTab, string][] = [
+  ["habitats", "By atmosphere"],
+  ["map", "Atmosphere map"],
+];
 
-type Preset = "all" | HabitatId;
-const PRESET_LABEL: Record<Preset, string> = { all: "All runs", moon: "Moon base and rover air", suit: "Suit air", iss: "ISS and Earth air" };
-
-export function Conditions() {
-  const { client, researchMode, synthetic } = useData();
-  const [preset, setPreset] = useState<Preset>("all");
-  const [includeUnknown, setIncludeUnknown] = useState(false);
-  const habitat = HABITAT_LIST.find((h) => h.id === preset);
-  const filters = habitat ? habitatFilters(habitat) : [];
-  // Envelopes (the habitat ranking) cover every investigation; the matrix pages through the filtered runs.
-  const envelopes = useQuery({
-    queryKey: [researchMode, "conditions", "envelopes"],
-    queryFn: () => client.conditions({ schema_version: "dataset.v2", include_envelopes: true, page_size: 1 }),
-    retry: false,
-  });
-  const runs = useInfiniteQuery({
-    queryKey: [researchMode, "conditions", "runs", preset, includeUnknown],
-    queryFn: ({ pageParam }) =>
-      client.conditions({ schema_version: "dataset.v2", filters, include_unknown: preset === "all" ? true : includeUnknown, page_size: PAGE_SIZE, cursor: pageParam ?? null }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (last) => last.next_cursor ?? undefined,
-    retry: false,
-  });
-  const first = runs.data?.pages[0];
-  const table: ConditionsTable | undefined = first && { ...first, rows: runs.data!.pages.flatMap((p) => p.rows) };
+/** One page for the conditions table (K1.13): its three readings share one service and one header. */
+export function ConditionsPage({ tab, habitat, inv }: { tab: ConditionsTab; habitat?: string | null; inv?: string | null }) {
   return (
     <div className="view">
-      {envelopes.isPending && <p className="muted">Loading conditions…</p>}
-      {envelopes.error && (
-        <>
-          <ErrorNote error={envelopes.error} title="The conditions service did not answer" />
-          <Gap title="Conditions come from the PSI experiment tables and the documents">The conditions query (R9) and its route (M11) are not on this server yet.</Gap>
-        </>
-      )}
-      {envelopes.data && (
-        <>
-          <div className="toolbar">
-            <OriginMark origin={envelopes.data.origin} pageSynthetic={synthetic} />
-            {envelopes.data.corpus_snapshot && <span className="muted small">corpus {envelopes.data.corpus_snapshot}</span>}
-          </div>
-          <HabitatRanking axes={(envelopes.data.envelopes ?? []).map(axesOf)} />
-        </>
-      )}
-      <section className="panel-sec" aria-labelledby="h-matrix">
-        <h2 id="h-matrix" style={{ fontSize: 15, margin: "16px 0 0" }}>
-          Conditions per run
-        </h2>
-        <div className="toolbar" role="group" aria-label="Runs to show">
-          {(Object.keys(PRESET_LABEL) as Preset[]).map((p) => (
-            <button key={p} className={`btn btn-s${p === preset ? " btn-primary" : ""}`} aria-pressed={p === preset} onClick={() => setPreset(p)}>
-              {PRESET_LABEL[p]}
-            </button>
+      <div className="page-title">
+        <h1>Conditions</h1>
+        <nav className="tabs" aria-label="Conditions views">
+          {TABS.map(([t, label]) => (
+            <a key={t} href={href("conditions", null, t === "habitats" ? undefined : { tab: t })} aria-current={t === tab ? "page" : undefined}>
+              {label}
+            </a>
           ))}
-          {preset !== "all" && (
-            <label className="small" style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-              <input type="checkbox" checked={includeUnknown} onChange={(e) => setIncludeUnknown(e.target.checked)} /> include runs where O₂ or pressure is not stated
-            </label>
-          )}
-        </div>
-        {habitat && (
-          <p className="muted small">
-            Runs whose recorded O₂ and pressure lie in {habitat.label.toLowerCase()} ({habitat.sub}). A burner-stream O₂ is never counted as the atmosphere.
-          </p>
-        )}
-        {runs.isPending && <p className="muted small">Loading runs…</p>}
-        {runs.error && <ErrorNote error={runs.error} title="The runs could not be loaded" />}
-        {table && <ConditionsMatrix t={table} />}
-        {runs.hasNextPage && (
-          <button className="btn btn-s" disabled={runs.isFetchingNextPage} onClick={() => void runs.fetchNextPage()}>
-            {runs.isFetchingNextPage ? "Loading…" : `Load ${PAGE_SIZE} more`}
-          </button>
-        )}
-      </section>
+        </nav>
+      </div>
+      {tab === "map" ? <MapView focus={inv} /> : <ByAtmosphere initial={habitat} />}
     </div>
   );
 }
 
-// ---------------------------------------------------------------- habitat relevance
-
-const pct = (v: number) => `${+(v * 100).toFixed(1)} %`;
-const psi = (pa: number) => `${+(pa / PSI_PA).toFixed(1)} psi`;
-const span = (s: Slot, f: (v: number) => string) => (s.kind === "missing" ? null : s.range.min === s.range.max ? f(s.range.min) : `${f(s.range.min)} – ${f(s.range.max)}`);
-
-function FitCell({ fit }: { fit: Fit }) {
-  if (fit.status === "reached") return <span className="tag tag-ok">within envelope</span>;
-  if (fit.status === "unknown")
-    return (
-      <span className="tag tag-line" title={fitText(fit)}>
-        not decidable
-      </span>
-    );
-  return (
-    <span title={fitText(fit)}>
-      <span className="tag tag-warn">outside</span>
-      <span className="dim small num" style={{ display: "block", marginTop: 2 }}>
-        {fitText(fit).replace("outside tested envelope: ", "")}
-      </span>
-    </span>
-  );
-}
-
-export function HabitatRanking({ axes }: { axes: EnvelopeAxes[] }) {
-  const moon = HABITAT_LIST[0];
-  const ranked = rankFor(axes, moon);
-  return (
-    <section className="panel-sec" aria-labelledby="h-habitats">
-      <h2 id="h-habitats" style={{ fontSize: 15, margin: "8px 0 0" }}>
-        Habitat relevance
-      </h2>
-      <p className="muted small">
-        Each investigation's tested range of O₂ and pressure, compared with the crew atmospheres in the challenge brief. Sorted by nearness to the Moon base and rover atmosphere.
-      </p>
-      {ranked.length === 0 ? (
-        <Gap title="No tested envelopes">The conditions service returned no per-investigation envelope.</Gap>
-      ) : (
-        <div className="tbl-wrap">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Investigation</th>
-                <th className="r">Runs</th>
-                <th>Tested O₂ · pressure</th>
-                <th>Gravity</th>
-                {HABITAT_LIST.map((h) => (
-                  <th key={h.id} title={h.sub} className="wrap">
-                    {h.short}
-                    <div className="dim" style={{ fontWeight: 400 }}>
-                      {h.sub}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ranked.map(({ axes: a }) => {
-                const g = gravityStatus(a);
-                return (
-                  <tr key={a.investigation_id}>
-                    <td>
-                      <code>{a.investigation_id}</code>
-                    </td>
-                    <td className="r num">{a.runs}</td>
-                    <td className="num">
-                      <span title={a.o2.kind === "range" ? `${a.o2.range.runs} of ${a.runs} runs` : undefined}>{span(a.o2, pct) ?? <Missing reason={`O₂ ${(a.o2 as { reason: string }).reason}`} />}</span>
-                      <span className="dim"> · </span>
-                      <span title={a.pa.kind === "range" ? `${a.pa.range.runs} of ${a.runs} runs` : undefined}>{span(a.pa, psi) ?? <Missing reason={`pressure ${(a.pa as { reason: string }).reason}`} />}</span>
-                    </td>
-                    <td>
-                      {g.status === "partial_tested" ? (
-                        <span className="tag tag-ok">partial gravity tested</span>
-                      ) : g.status === "no_partial_data" ? (
-                        <span className="tag tag-warn" title={`tested ${g.tested.min}–${g.tested.max} g`}>
-                          no partial-gravity data
-                        </span>
-                      ) : (
-                        <Missing reason={g.reason} />
-                      )}
-                    </td>
-                    {HABITAT_LIST.map((h) => (
-                      <td key={h.id} className="wrap">
-                        <FitCell fit={rankFor([a], h)[0].fit} />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-      <p className="muted small">
-        "Within envelope": the tested O₂ and pressure ranges reach the atmosphere (to 0.5 points of O₂ and 1 % of pressure). "Outside" says how far the tests would have to move; nothing is
-        extrapolated. Partial gravity means a tested level between {PARTIAL_G[0]} g and {PARTIAL_G[1]} g (Moon 0.17 g, Mars 0.38 g). Hover a tested range to see how many runs gave it.
-      </p>
-    </section>
-  );
-}
-
-function Missing({ reason }: { reason: string }) {
-  return (
-    <span className="tag tag-line" title={reason}>
-      not stated
-    </span>
-  );
-}
 
 // ---------------------------------------------------------------- conditions matrix
 
@@ -282,9 +118,11 @@ export function ConditionsMatrix({ t }: { t: ConditionsTable }) {
   const pick = useCallback((p: Picked) => setPicked((cur) => (cur && cur.run === p.run && cur.cell.key === p.cell.key ? null : p)), []);
   return (
     <div className="panel-sec">
-      <p className="muted small">
-        Inputs, not outcomes. Each value keeps its original's locator; gaps are marked, never filled. {t.total_count != null && `${t.rows.length} of ${t.total_count} runs.`}
-      </p>
+      {t.total_count != null && (
+        <p className="muted small">
+          {t.rows.length} of {t.total_count} runs
+        </p>
+      )}
       <div className="tbl-wrap" ref={frame} style={windowed ? { maxHeight: "70vh", overflowY: "auto" } : undefined}>
         <table className="tbl" aria-rowcount={t.rows.length + 1}>
           <thead>

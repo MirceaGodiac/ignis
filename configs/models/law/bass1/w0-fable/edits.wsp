@@ -1,0 +1,203 @@
+# Transcribed verbatim from docs/wsp/research/phys_bass1_w0.md, section 7.4, lines 647-847 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/bass1/root).
+# bass1.wsp: W0, zero-shot. Author claude-fable-5-2. Source: docs/wsp/research/phys_bass1_w0.md
+# features z = (z_x, z_u, z_r, z_t, concurrent), columns 0..4
+x.x_o2.centre = 0.18
+x.x_o2.scale = 1.0
+x.x_o2.lo = 0.12
+x.x_o2.hi = 0.25
+x.flow_speed.centre = 0.01
+x.flow_speed.scale = 1.0
+x.flow_speed.lo = 0.003
+x.flow_speed.hi = 0.6
+x.nose_radius.centre = 0.01
+x.nose_radius.scale = 1.0
+x.nose_radius.lo = 0.002
+x.nose_radius.hi = 0.03
+x.heat_time.centre = 200.0
+x.heat_time.scale = 1.0
+x.heat_time.lo = 20.0
+x.heat_time.hi = 4000.0
+x.is_concurrent.centre = 0.0
+x.is_concurrent.scale = 1.0
+x.is_concurrent.lo = 0.0
+x.is_concurrent.hi = 1.0
+
+# --- rod tips and spheres: not quenched. logit = min(l_f, l_th) = l_f - relu(l_f - l_th).
+# l_f = 28 ln(X / 0.134) = 8.26 + 28 z_x: floor 13.4 % O2, sd 0.06 in ln (0.8 % O2).
+holds_low_flow.logit.b0 = 8.26
+holds_low_flow.logit.skip[0:5] = [28.0, 0.0, 0.0, 0.0, 0.0]
+# unit 0: l_f - l_th, l_th = 6.3 (ln X - ln X_th), ln X_th = -1.750 - 0.25 z_u + 0.583 z_r - 0.208 z_t
+# (surface radiation 7.2 kW/m2 plus conduction 110 / sqrt(t) against a supply 62 sqrt(a_e) (X - 0.03)).
+holds_low_flow.logit.W1[0, 0:5] = [21.7, -1.58, 3.67, -1.31, 0.0]
+holds_low_flow.logit.b1[0] = 8.04
+holds_low_flow.logit.w2[0] = -1.0
+
+# --- rod tips and spheres: not blown off. logit = 28 (ln(X / 0.134) - ln(X_k / 0.134)),
+# X_k = 0.134 + 0.00035 a_n, ln a_n = 0.692 + z_u - 0.75 z_r; chords at a_n = 5, 25, 60, 150 /s.
+holds_high_flow.logit.b0 = 8.26
+holds_high_flow.logit.skip[0:5] = [28.0, 0.0, 0.0, 0.0, 0.0]
+holds_high_flow.logit.W1[0, 1] = 1.0
+holds_high_flow.logit.W1[0, 2] = -0.75
+holds_high_flow.logit.b1[0] = -0.917
+holds_high_flow.logit.w2[0] = -1.09
+holds_high_flow.logit.W1[1, 1] = 1.0
+holds_high_flow.logit.W1[1, 2] = -0.75
+holds_high_flow.logit.b1[1] = -2.527
+holds_high_flow.logit.w2[1] = -1.54
+holds_high_flow.logit.W1[2, 1] = 1.0
+holds_high_flow.logit.W1[2, 2] = -0.75
+holds_high_flow.logit.b1[2] = -3.402
+holds_high_flow.logit.w2[2] = -3.00
+holds_high_flow.logit.W1[3, 1] = 1.0
+holds_high_flow.logit.W1[3, 2] = -0.75
+holds_high_flow.logit.b1[3] = -4.319
+holds_high_flow.logit.w2[3] = -3.86
+
+# --- oxygen limit = floor, plus the excess of the thermal limit over it, plus the blow-off rise.
+# b0 = ln 0.134.
+oxygen_limit.median.b0 = -2.010
+oxygen_limit.median.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+# units 0, 1: relu(ln X_th - ln 0.134), rounded at the corner (0.15 of it starts 0.3 earlier).
+oxygen_limit.median.W1[0, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.median.b1[0] = 0.260
+oxygen_limit.median.w2[0] = 0.85
+oxygen_limit.median.W1[1, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.median.b1[1] = 0.560
+oxygen_limit.median.w2[1] = 0.15
+# units 2..5: ln(1 + 0.00035 a_n / 0.134).
+oxygen_limit.median.W1[2, 1] = 1.0
+oxygen_limit.median.W1[2, 2] = -0.75
+oxygen_limit.median.b1[2] = -0.917
+oxygen_limit.median.w2[2] = 0.039
+oxygen_limit.median.W1[3, 1] = 1.0
+oxygen_limit.median.W1[3, 2] = -0.75
+oxygen_limit.median.b1[3] = -2.527
+oxygen_limit.median.w2[3] = 0.055
+oxygen_limit.median.W1[4, 1] = 1.0
+oxygen_limit.median.W1[4, 2] = -0.75
+oxygen_limit.median.b1[4] = -3.402
+oxygen_limit.median.w2[4] = 0.107
+oxygen_limit.median.W1[5, 1] = 1.0
+oxygen_limit.median.W1[5, 2] = -0.75
+oxygen_limit.median.b1[5] = -4.319
+oxygen_limit.median.w2[5] = 0.138
+# spread: 0.06 on the floor; rises to 0.28 once the thermal limit is 0.44 (in ln) above the floor;
+# plus 0.02 per e-fold of stretch beyond 25 /s (the slope s_b is known to 30 %).
+oxygen_limit.spread.b0 = 0.06
+oxygen_limit.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+oxygen_limit.spread.W1[0, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.spread.b1[0] = 0.260
+oxygen_limit.spread.w2[0] = 0.5
+oxygen_limit.spread.W1[1, 0:5] = [0.0, -0.25, 0.583, -0.208, 0.0]
+oxygen_limit.spread.b1[1] = -0.180
+oxygen_limit.spread.w2[1] = -0.5
+oxygen_limit.spread.W1[2, 1] = 1.0
+oxygen_limit.spread.W1[2, 2] = -0.75
+oxygen_limit.spread.b1[2] = -2.527
+oxygen_limit.spread.w2[2] = 0.02
+oxygen_limit.tail_weight = 0.1
+oxygen_limit.tail_width = 2.0
+
+# --- quench speed = 2 R a_q / 3 - D_c / R. b0 = ln(1.71 cm/s) - ln(100): R = 1 cm, 18 % O2, 200 s.
+# skip: a_q ~ (X - 0.03)^-2 -> -2.4 per e-fold of X; R; (1 + 15.3 / sqrt(t))^2 -> -0.5 per e-fold of t.
+quench_speed.median.b0 = -4.067
+quench_speed.median.skip[0:5] = [-2.4, 0.0, 1.0, -0.5, 0.0]
+# units 0..3: ln(1 - exp(-v)), v = 0.666 - 2.4 z_x + 2 z_r - 0.5 z_t = ln(forced part / diffusive part);
+# chords at v = 3.0, 1.2, 0.6, 0.3. Below v = 0 the median runs to zero: no quench while the fan turns.
+quench_speed.median.W1[0, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[0] = 2.334
+quench_speed.median.w2[0] = -0.20
+quench_speed.median.W1[1, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[1] = 0.534
+quench_speed.median.w2[1] = -0.53
+quench_speed.median.W1[2, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[2] = -0.066
+quench_speed.median.w2[2] = -1.12
+quench_speed.median.W1[3, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.median.b1[3] = -0.366
+quench_speed.median.w2[3] = -2.15
+# spread: 0.75 (k_s 25 %, q_r 15 %, b_c 50 %, squared); wider as the two parts cancel.
+quench_speed.spread.b0 = 0.75
+quench_speed.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+quench_speed.spread.W1[0, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.spread.b1[0] = 0.534
+quench_speed.spread.w2[0] = 0.3
+quench_speed.spread.W1[1, 0:5] = [2.4, 0.0, -2.0, 0.5, 0.0]
+quench_speed.spread.b1[1] = -0.066
+quench_speed.spread.w2[1] = 0.6
+quench_speed.tail_weight = 0.1
+quench_speed.tail_width = 2.0
+
+# --- blow-off speed = (X - 0.134) R^0.75 r0^0.25 / (1.5 * 0.00035). b0: R = 1 cm, X = 0.18 on the
+# line through X = 0.21 with slope 2.8; units 0..4 bend it down to ln(X - 0.134) (knots at 19, 18,
+# 17, 16, 15 % O2).
+blowoff_speed.median.b0 = -0.347
+blowoff_speed.median.skip[0:5] = [2.8, 0.0, 0.75, 0.0, 0.0]
+blowoff_speed.median.W1[0, 0] = -1.0
+blowoff_speed.median.b1[0] = 0.054
+blowoff_speed.median.w2[0] = -0.85
+blowoff_speed.median.W1[1, 0] = -1.0
+blowoff_speed.median.b1[1] = 0.0
+blowoff_speed.median.w2[1] = -0.65
+blowoff_speed.median.W1[2, 0] = -1.0
+blowoff_speed.median.b1[2] = -0.057
+blowoff_speed.median.w2[2] = -1.06
+blowoff_speed.median.W1[3, 0] = -1.0
+blowoff_speed.median.b1[3] = -0.118
+blowoff_speed.median.w2[3] = -2.22
+blowoff_speed.median.W1[4, 0] = -1.0
+blowoff_speed.median.b1[4] = -0.182
+blowoff_speed.median.w2[4] = -3.4
+# spread: 0.36 (s_b 30 %, radius exponent); grows below 17 % as the floor's 0.8 % O2 comes to matter.
+blowoff_speed.spread.b0 = 0.36
+blowoff_speed.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+blowoff_speed.spread.W1[0, 0] = -1.0
+blowoff_speed.spread.b1[0] = -0.057
+blowoff_speed.spread.w2[0] = 0.8
+blowoff_speed.spread.W1[1, 0] = -1.0
+blowoff_speed.spread.b1[1] = -0.118
+blowoff_speed.spread.w2[1] = 1.5
+blowoff_speed.tail_weight = 0.1
+blowoff_speed.tail_width = 2.0
+
+# --- films and slabs: not quenched. l_f = 20 ln(X / 0.138) (sd 0.085 in ln);
+# l_th = 4.5 (ln X - ln X_th), ln X_th = -1.711 - 0.833 z_u + 0.338 concurrent (sd 0.38 in ln).
+flat_holds_low_flow.logit.b0 = 5.31
+flat_holds_low_flow.logit.skip[0:5] = [20.0, 0.0, 0.0, 0.0, 0.0]
+flat_holds_low_flow.logit.W1[0, 0:5] = [15.5, -3.75, 0.0, 0.0, 1.52]
+flat_holds_low_flow.logit.b1[0] = 5.33
+flat_holds_low_flow.logit.w2[0] = -1.0
+
+# --- films and slabs: not blown off. X_k = 0.138 + 0.0016 U (cm/s), half the slope concurrent;
+# chords of ln(X_k / 0.138) at U = 1, 5, 10, 20, 40 cm/s.
+flat_holds_high_flow.logit.b0 = 5.31
+flat_holds_high_flow.logit.skip[0:5] = [20.0, 0.0, 0.0, 0.0, 0.0]
+flat_holds_high_flow.logit.W1[0, 1] = 1.0
+flat_holds_high_flow.logit.W1[0, 4] = -0.693
+flat_holds_high_flow.logit.b1[0] = 0.0
+flat_holds_high_flow.logit.w2[0] = -0.56
+flat_holds_high_flow.logit.W1[1, 1] = 1.0
+flat_holds_high_flow.logit.W1[1, 4] = -0.693
+flat_holds_high_flow.logit.b1[1] = -1.609
+flat_holds_high_flow.logit.w2[1] = -0.98
+flat_holds_high_flow.logit.W1[2, 1] = 1.0
+flat_holds_high_flow.logit.W1[2, 4] = -0.693
+flat_holds_high_flow.logit.b1[2] = -2.303
+flat_holds_high_flow.logit.w2[2] = -1.32
+flat_holds_high_flow.logit.W1[3, 1] = 1.0
+flat_holds_high_flow.logit.W1[3, 4] = -0.693
+flat_holds_high_flow.logit.b1[3] = -2.996
+flat_holds_high_flow.logit.w2[3] = -2.10
+flat_holds_high_flow.logit.W1[4, 1] = 1.0
+flat_holds_high_flow.logit.W1[4, 4] = -0.693
+flat_holds_high_flow.logit.b1[4] = -3.689
+flat_holds_high_flow.logit.w2[4] = -2.30
+
+# --- films and slabs: quench speed = c_dir * 0.151 cm/s / (X - 0.03): 1.00 cm/s at 18 % opposed.
+flat_quench_speed.median.b0 = -4.601
+flat_quench_speed.median.skip[0:5] = [-1.2, 0.0, 0.0, 0.0, 0.405]
+flat_quench_speed.spread.b0 = 0.50
+flat_quench_speed.spread.skip[0:5] = [0.0, 0.0, 0.0, 0.0, 0.0]
+flat_quench_speed.tail_weight = 0.15
+flat_quench_speed.tail_width = 2.5

@@ -1,9 +1,11 @@
-// Investigations. An investigation is an object page (Harvey): title, tabs (Thread, Evidence,
-// Route) and a properties column; a selected claim, source or step replaces the properties in the
-// side panel. State comes only from the ordered event log (research/eventLog + stream, tested).
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { EvidenceRef, ResearchAnswer, ResearchEpisode } from "../contracts/generated";
+// Questions. A question reads as a conversation: the researcher's messages, the agent's steps
+// (collapsed), its answers with citation chips, and a composer at the bottom. Sources, a source's
+// original and a step's detail open in the side panel. State comes only from the ordered event log
+// (research/eventLog + stream, tested).
+import { RichText } from "../shell/RichText";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { EpisodeStatus, ResearchAnswer, ResearchEpisode } from "../contracts/generated";
 import { FIXTURES } from "../research/fixtures";
 import { availableActions, DraftKey, TERMINAL_STATUSES } from "../research/episodes";
 import { emptyState, type AnswerState, type EpisodeState } from "../research/eventLog";
@@ -13,19 +15,18 @@ import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
 import { useEpisodes } from "../shell/queries";
 import { go, href } from "../shell/router";
-import { IconArrow, IconChevron } from "../shell/icons";
-import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, Gap, Synthetic, shortId, words } from "../ui/common";
-import { AnswerView, locatorText } from "./Answer";
+import { IconArrow, IconChevron, IconCopy, IconMore, IconSources } from "../shell/icons";
+import { ErrorNote, Gap, Synthetic, words } from "../ui/common";
+import { AnswerView } from "./Answer";
 import { AskBox } from "./AskBox";
 import { elapsed, toTurns, TOOL_LABEL, type Stop, type Turn } from "./turns";
 
 type Notice = StreamNotice & { at: number };
-type Tab = "thread" | "evidence" | "route";
 
-export function Research({ episodeId, newQuestion, wantNew, tab }: { episodeId: string | null; newQuestion: string | null; wantNew: boolean; tab: string | null }) {
+export function Research({ episodeId, newQuestion, wantNew }: { episodeId: string | null; newQuestion: string | null; wantNew: boolean }) {
   const { ready } = useData();
   if (!ready) return <div className="view muted">Connecting…</div>;
-  if (episodeId) return <Episode key={episodeId} episodeId={episodeId} tab={tab === "evidence" || tab === "route" ? tab : "thread"} />;
+  if (episodeId) return <Episode key={episodeId} episodeId={episodeId} />;
   return <Index wantNew={wantNew} question={newQuestion} />;
 }
 
@@ -73,13 +74,10 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
   return (
     <div className="view" style={{ maxWidth: 920 }}>
       <div className="view-head">
-        <h1>{wantNew ? "New investigation" : "Investigations"}</h1>
+        <h1>{wantNew ? "New question" : "Questions"}</h1>
       </div>
       <AskBox onAsk={create} busy={busy} initial={question ?? ""} autoFocus={wantNew} />
-      {researchMode === "mock" && (
-        <Gap title="Read-only replay">No server is reachable, so the recorded fixture investigation is replayed in the browser. Start <code>ignis serve --dev</code> to ask questions.</Gap>
-      )}
-      {error != null && <ErrorNote error={error} title="The investigation was not started" />}
+      {error != null && <ErrorNote error={error} title="The question was not sent" />}
       <div className="tbl-wrap">
         <table className="tbl">
           <thead>
@@ -106,14 +104,14 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
             {episodes.data?.length === 0 && (
               <tr>
                 <td colSpan={4} className="dim">
-                  No investigations yet.
+                  No questions yet.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      {episodes.error && <ErrorNote error={episodes.error} title="Investigations could not be loaded" />}
+      {episodes.error && <ErrorNote error={episodes.error} title="Questions could not be loaded" />}
     </div>
   );
 }
@@ -122,8 +120,8 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
 
 const ACTION_LABEL: Record<EpisodeAction, string> = { pause: "Pause", resume: "Resume", cancel: "Cancel" };
 
-function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
-  const { client, researchMode, replay, caps, synthetic, faults, setFaults, bumpReplay } = useData();
+function Episode({ episodeId }: { episodeId: string }) {
+  const { client, researchMode, replay, caps, faults, setFaults, bumpReplay } = useData();
   const panel = usePanel();
   const qc = useQueryClient();
   const [state, setState] = useState<EpisodeState>(() => emptyState(episodeId));
@@ -158,7 +156,11 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
   const status = state.status ?? episode.data?.status ?? null;
   const runtime = caps.data?.agent_runtime;
   const turns = useMemo(() => toTurns(state), [state]);
-  const allStops = useMemo(() => turns.flatMap((t) => t.stops), [turns]);
+  const answerQueries = useQueries({
+    queries: state.answers
+      .filter((a) => a.artifact.contract === "ResearchAnswer")
+      .map((a) => ({ queryKey: [researchMode, replay, "answer", a.artifact.artifact_id], queryFn: () => client.getArtifactJson(a.artifact.artifact_id) as Promise<ResearchAnswer>, retry: false })),
+  });
   const pending = Object.values(state.approvals).filter((a) => !a.decision);
   const canWrite = researchMode !== "mock";
 
@@ -188,43 +190,120 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
   if (episode.error && state.cursor === 0)
     return (
       <div className="view" style={{ maxWidth: 720 }}>
-        <ErrorNote error={episode.error} title="This investigation is not in the current data source" />
+        <ErrorNote error={episode.error} title="This question is not on this server" />
         <div className="toolbar">
           <a className="btn" href={href("research")}>
-            All investigations
+            All questions
           </a>
         </div>
       </div>
     );
 
-  const statusTag = status === "completed" ? "tag-ok" : status === "failed" || status === "cancelled" ? "tag-bad" : "tag-flame";
   const live = following && !(status && TERMINAL_STATUSES.includes(status));
-  const tabHref = (t: Tab) => href("research", episodeId, t === "thread" ? undefined : { tab: t });
+  const working = live && status !== "waiting_user" && status !== "waiting_approval";
+  const goal = episode.data?.goal ?? turns[0]?.user?.text ?? "";
+  const answersLoaded = answerQueries.flatMap((q) => (q.data ? [q.data] : []));
+  const nSources = new Set(answersLoaded.flatMap((a) => (a.evidence ?? []).map((e) => e.source_id))).size;
 
   return (
-    <div className="page">
-      <div className="page-main">
-        <header className="page-head">
-          <h1 title={episode.data?.goal}>{episode.data?.goal ?? (episode.isPending ? "Loading…" : "Investigation")}</h1>
-          <nav className="tabs" aria-label="Investigation views">
-            <a href={tabHref("thread")} aria-current={tab === "thread" ? "page" : undefined}>
-              Thread
-            </a>
-            <a href={tabHref("evidence")} aria-current={tab === "evidence" ? "page" : undefined}>
-              Evidence <span className="count">{state.answers.length ? "" : "0"}</span>
-            </a>
-            <a href={tabHref("route")} aria-current={tab === "route" ? "page" : undefined}>
-              Route <span className="count">{allStops.length}</span>
-            </a>
-          </nav>
-        </header>
+    <div className="chat">
+      <header className="topbar chat-bar">
+        <nav className="crumbs" aria-label="Breadcrumb">
+          <a href={href("research")}>Questions</a>
+          <IconChevron width={12} height={12} />
+          <span className="here" title={goal}>
+            {goal || "…"}
+          </span>
+        </nav>
+        <span className="spacer" />
+        {nSources > 0 && (
+          <button className={`btn btn-quiet${panel.current?.kind === "sources" ? " on" : ""}`} onClick={() => (panel.current?.kind === "sources" ? panel.close() : panel.open({ kind: "sources", answers: answersLoaded }))}>
+            <IconSources /> Sources <span className="count">{nSources}</span>
+          </button>
+        )}
+        <EpisodeMenu
+          episode={episode.data ?? null}
+          status={status}
+          canWrite={canWrite}
+          act={act}
+          details={
+            <>
+              <dl className="kv">
+                <dt>Status</dt>
+                <dd>{status ? words(status) : "connecting"}</dd>
+                {episode.data && (
+                  <>
+                    <dt>Created</dt>
+                    <dd className="num">{episode.data.created_at.slice(0, 16).replace("T", " ")}</dd>
+                    <dt>Corpus</dt>
+                    <dd>
+                      <code>{episode.data.pins.corpus_snapshot ?? "not pinned"}</code>
+                    </dd>
+                    <dt>Runtime</dt>
+                    <dd>{episode.data.runtime ? words(episode.data.runtime.runtime) : "not attached"}</dd>
+                    <dt>Harness</dt>
+                    <dd>{episode.data.pins.harness ? `${episode.data.pins.harness.label} · ${episode.data.pins.harness.model}` : "not pinned"}</dd>
+                    {episode.data.origin === "synthetic_fixture" && (
+                      <>
+                        <dt>Origin</dt>
+                        <dd>
+                          <Synthetic />
+                        </dd>
+                      </>
+                    )}
+                  </>
+                )}
+                <dt>Events</dt>
+                <dd className="num">{state.cursor}</dd>
+              </dl>
+              {researchMode === "mock" && (
+                <div className="toolbar small" style={{ marginTop: 10 }}>
+                  <label>
+                    Drop after{" "}
+                    <select className="field" value={faults.dropAfterSeq ?? ""} onChange={(e) => setFaults((f) => ({ ...f, dropAfterSeq: e.target.value === "" ? null : Number(e.target.value) }))}>
+                      <option value="">never</option>
+                      {FIXTURES.events.slice(0, -1).map((e) => (
+                        <option key={e.seq} value={e.seq}>
+                          {e.seq}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                    <input type="checkbox" checked={faults.goneOnResume} onChange={(e) => setFaults((f) => ({ ...f, goneOnResume: e.target.checked }))} /> 410 on resume
+                  </label>
+                  <button className="btn btn-s" onClick={bumpReplay}>
+                    Replay
+                  </button>
+                </div>
+              )}
+              {notices.some((n) => n.kind === "error" || n.kind === "gap" || n.kind === "gave_up") && (
+                <ul className="small" style={{ display: "grid", gap: 2, marginTop: 10 }}>
+                  {notices
+                    .filter((n) => n.kind === "error" || n.kind === "gap" || n.kind === "gave_up")
+                    .map((n, k) => (
+                      <li key={k} style={{ listStyle: "none" }}>
+                        {noticeText(n)}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </>
+          }
+        />
+      </header>
 
+      <div className="chat-col">
         {actionError != null && <ErrorNote error={actionError} title="The server refused the action" />}
         {state.missing.map((m) => (
           <Gap key={m.from} title={`Events ${m.from}–${m.to} were not received`}>
-            The log no longer covered this point (HTTP 410); the state continues from the snapshot.
+            The state continues from the snapshot.
           </Gap>
         ))}
+        {turns.map((t, i) => (
+          <TurnView key={i} turn={t} live={live && i === turns.length - 1} />
+        ))}
+        {turns.length === 0 && goal && <div className="msg-user">{goal}</div>}
         {pending.map((a) => (
           <div key={a.approval_id} className="note note-caution" role="alert">
             <b>Approval needed: {a.action}</b>
@@ -238,154 +317,80 @@ function Episode({ episodeId, tab }: { episodeId: string; tab: Tab }) {
             </div>
           </div>
         ))}
-
-        {tab === "thread" && (
-          <div className="thread">
-            {turns.length === 0 && <p className="muted">{following ? "Waiting for the first event…" : "No events yet."}</p>}
-            {turns.map((t, i) => (
-              <TurnView key={i} turn={t} live={live && i === turns.length - 1} />
-            ))}
-            {status && TERMINAL_STATUSES.includes(status) && state.answers.length === 0 && turns.length > 0 && <Gap title="No answer was produced">The investigation ended ({words(status)}).</Gap>}
-            <Composer
-              key={episodeId}
-              disabledReason={!canWrite ? "Read-only replay: start the server to ask follow-ups" : status === "cancelled" || status === "failed" ? `The investigation is ${words(status)}` : null}
-              send={async (text, k) => {
-                await client.postMessage(episodeId, text, k);
-                setFollow((f) => f + 1);
-              }}
-            />
+        {working && (
+          <div className="working" role="status">
+            <span className="dot dot-run" aria-hidden="true" /> Working
           </div>
         )}
-
-        {tab === "evidence" && (
-          <div style={{ display: "grid", gap: 14, paddingBottom: 32 }}>
-            {state.answers.length === 0 && <Gap title="No evidence yet">Claims and their sources appear here when an answer is ready.</Gap>}
-            {state.answers.map((a, i) => (
-              <EvidenceGrid key={a.answer_id} a={a} n={i + 1} />
-            ))}
-          </div>
-        )}
-
-        {tab === "route" && (
-          <div style={{ display: "grid", gap: 14, paddingBottom: 32 }}>
-            {turns.map((t, i) => (
-              <section key={i} className="card" aria-label={`Route of turn ${i + 1}`}>
-                <div className="card-head">
-                  <h2>{t.user ? t.user.text : `Turn ${i + 1}`}</h2>
-                  <span className="muted small">
-                    {t.stops.length} stops{elapsed(t.startedAt, t.endedAt) && ` · ${elapsed(t.startedAt, t.endedAt)}`}
-                  </span>
-                </div>
-                <Stops stops={t.stops} t0={t.startedAt} />
-              </section>
-            ))}
-            {turns.length === 0 && <Gap title="No route yet">Tool calls, jobs and approvals appear here as the agent works.</Gap>}
-            <details className="route">
-              <summary>
-                <b>Stream log</b> <span>{notices.length} notices</span>
-                <IconChevron className="chev" />
-              </summary>
-              <div style={{ padding: "0 12px 12px", display: "grid", gap: 8 }}>
-                <ul style={{ display: "grid", gap: 2 }} className="small">
-                  {notices.map((n, k) => (
-                    <li key={k} style={{ listStyle: "none" }} className={n.kind === "error" || n.kind === "gap" || n.kind === "gave_up" ? "" : "muted"}>
-                      {noticeText(n)}
-                    </li>
-                  ))}
-                </ul>
-                {researchMode === "mock" && (
-                  <div className="toolbar small">
-                    <label>
-                      Drop after event{" "}
-                      <select className="field" value={faults.dropAfterSeq ?? ""} onChange={(e) => setFaults((f) => ({ ...f, dropAfterSeq: e.target.value === "" ? null : Number(e.target.value) }))}>
-                        <option value="">never</option>
-                        {FIXTURES.events.slice(0, -1).map((e) => (
-                          <option key={e.seq} value={e.seq}>
-                            {e.seq}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                      <input type="checkbox" checked={faults.goneOnResume} onChange={(e) => setFaults((f) => ({ ...f, goneOnResume: e.target.checked }))} /> 410 on resume
-                    </label>
-                    <button className="btn btn-s" onClick={bumpReplay}>
-                      Replay
-                    </button>
-                  </div>
-                )}
-              </div>
-            </details>
-          </div>
-        )}
+        {!working && turns.length === 0 && runtime?.available === false && researchMode !== "mock" && <Gap title="No agent is configured on this server">The question is saved; no answer will come until an agent runtime is attached.</Gap>}
+        {status && TERMINAL_STATUSES.includes(status) && state.answers.length === 0 && turns.length > 0 && <Gap title="No answer was produced">The question ended ({words(status)}).</Gap>}
       </div>
 
-      {!panel.current && (
-        <aside className="props" aria-label="Properties">
-          <div className="panel-sec">
-            <h2>Properties</h2>
-            <dl className="kv">
-              <dt>Status</dt>
-              <dd>
-                <span className={`tag ${statusTag}`}>{status ? words(status) : "connecting"}</span>
-              </dd>
-              {episode.data && (
-                <>
-                  <dt>Created</dt>
-                  <dd className="num">{episode.data.created_at.slice(0, 16).replace("T", " ")}</dd>
-                  <dt>Corpus</dt>
-                  <dd>
-                    <code>{episode.data.pins.corpus_snapshot ?? "not pinned"}</code>
-                  </dd>
-                  <dt>Origin</dt>
-                  <dd>{episode.data.origin === "synthetic_fixture" ? <Synthetic /> : "system"}</dd>
-                </>
-              )}
-            </dl>
-          </div>
-          <details>
-            <summary className="muted small" style={{ cursor: "pointer" }}>
-              Details
-            </summary>
-            <dl className="kv" style={{ marginTop: 8 }}>
-              <dt>Stream</dt>
-              <dd>{following ? "live" : "closed"}</dd>
-              <dt>Events</dt>
-              <dd className="num">{state.cursor}</dd>
-              <dt>Answers</dt>
-              <dd className="num">{state.answers.length}</dd>
-              <dt>Runtime</dt>
-              <dd>{episode.data?.runtime ? words(episode.data.runtime.runtime) : "not attached"}</dd>
-              <dt>Releases</dt>
-              <dd>{episode.data?.pins.model_releases?.length ? episode.data.pins.model_releases.map((r) => <code key={r}>{shortId(r, 16)} </code>) : "none pinned"}</dd>
-              <dt>Harness</dt>
-              <dd>
-                {episode.data?.pins.harness ? (
-                  <span title={episode.data.pins.harness.digest}>
-                    <b>{episode.data.pins.harness.label}</b> · {episode.data.pins.harness.model}
-                    {episode.data.pins.harness.effort ? ` · ${episode.data.pins.harness.effort}` : ""} · <code>{shortId(episode.data.pins.harness.digest, 16)}</code>
-                    <div className="dim">runtime {episode.data.pins.harness.runtime_build}</div>
-                  </span>
-                ) : (
-                  "not pinned"
-                )}
-              </dd>
-            </dl>
-          </details>
-          {canWrite && availableActions(status).length > 0 && (
-            <div className="toolbar">
-              {(["pause", "resume", "cancel"] as EpisodeAction[])
-                .filter((a) => availableActions(status).includes(a))
-                .map((a) => (
-                  <button key={a} className="btn btn-s" onClick={() => act(a)}>
-                    {ACTION_LABEL[a]}
-                  </button>
-                ))}
-            </div>
-          )}
-          {runtime?.available === false && researchMode !== "mock" && <p className="muted small">No agent runtime is configured, so no new answer will come.</p>}
-          {!synthetic && episode.data?.origin === "synthetic_fixture" && <Synthetic />}
-        </aside>
+      <Composer
+        key={episodeId}
+        disabledReason={!canWrite ? "Replay only" : status === "cancelled" || status === "failed" ? `This question is ${words(status)}` : null}
+        send={async (text, k) => {
+          await client.postMessage(episodeId, text, k);
+          setFollow((f) => f + 1);
+        }}
+      />
+    </div>
+  );
+}
+
+/** The "…" menu of a question: pause, resume or cancel when the episode allows it, copy its link, details. */
+function EpisodeMenu({ episode, status, canWrite, act, details }: { episode: ResearchEpisode | null; status: EpisodeStatus | null; canWrite: boolean; act: (a: EpisodeAction) => void; details: ReactNode }) {
+  const [open, setOpen] = useState<"menu" | "details" | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const on = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(null);
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null);
+    window.addEventListener("mousedown", on);
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("mousedown", on);
+      window.removeEventListener("keydown", key);
+    };
+  }, [open]);
+  const actions = canWrite ? (["pause", "resume", "cancel"] as EpisodeAction[]).filter((a) => availableActions(status).includes(a)) : [];
+  return (
+    <div className="menu-wrap" ref={ref}>
+      <button className="btn btn-quiet btn-icon" aria-label="More" aria-haspopup="menu" aria-expanded={open === "menu"} onClick={() => setOpen((o) => (o ? null : "menu"))}>
+        <IconMore />
+      </button>
+      {open === "menu" && (
+        <div className="menu" role="menu">
+          {actions.map((a) => (
+            <button
+              key={a}
+              role="menuitem"
+              onClick={() => {
+                setOpen(null);
+                act(a);
+              }}
+            >
+              {ACTION_LABEL[a]}
+            </button>
+          ))}
+          <button
+            role="menuitem"
+            onClick={() => {
+              void navigator.clipboard?.writeText(window.location.href);
+              setOpen(null);
+            }}
+          >
+            <IconCopy /> Copy link
+          </button>
+          <button role="menuitem" onClick={() => setOpen("details")} disabled={!episode}>
+            Details
+          </button>
+        </div>
+      )}
+      {open === "details" && (
+        <div className="menu menu-details" role="dialog" aria-label="Question details">
+          {details}
+        </div>
       )}
     </div>
   );
@@ -395,12 +400,12 @@ function TurnView({ turn, live }: { turn: Turn; live: boolean }) {
   const { synthetic } = useData();
   const replies = turn.replies.filter((m) => m.text.trim());
   return (
-    <>
+    <div className="turn">
       {turn.user && <div className="msg-user">{turn.user.text}</div>}
       {turn.stops.length > 0 && <RouteSummary stops={turn.stops} turn={turn} open={live} />}
       {replies.map((m) => (
         <p key={m.message_id} className="msg-agent">
-          {m.text}
+          <RichText text={m.text} />
           {!m.complete && <span className="muted"> …</span>}
         </p>
       ))}
@@ -409,7 +414,7 @@ function TurnView({ turn, live }: { turn: Turn; live: boolean }) {
           <AnswerLoader a={a} pageSynthetic={synthetic} />
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -430,60 +435,6 @@ function AnswerLoader({ a, pageSynthetic }: { a: AnswerState; pageSynthetic: boo
   if (q.isPending) return <p className="muted">Loading the answer…</p>;
   if (q.error) return <ErrorNote error={q.error} title="The answer could not be loaded" />;
   return <AnswerView client={client} answer={q.data} pageSynthetic={pageSynthetic} />;
-}
-
-// ---------------------------------------------------------------- evidence grid
-
-function EvidenceGrid({ a, n }: { a: AnswerState; n: number }) {
-  const q = useAnswer(a);
-  const panel = usePanel();
-  if (q.isPending) return <p className="muted">Loading answer {n}…</p>;
-  if (q.error) return <ErrorNote error={q.error} title={`Answer ${n} could not be loaded`} />;
-  const ans = q.data;
-  const ev = new Map((ans.evidence ?? []).map((e) => [e.evidence_id, e]));
-  return (
-    <div className="tbl-wrap">
-      <table className="tbl grid-ev">
-        <caption>
-          Answer {n} · {words(ans.status)} · {ans.claims?.length ?? 0} claims
-        </caption>
-        <thead>
-          <tr>
-            <th className="r">#</th>
-            <th>Claim</th>
-            <th>Kind</th>
-            <th>Evidence</th>
-            <th>Where</th>
-            <th>Quote</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(ans.claims ?? []).map((c, i) => {
-            const sup = c.support ?? [];
-            const first = sup[0];
-            const e: EvidenceRef | undefined = first?.kind === "evidence" ? ev.get(first.evidence_id) : undefined;
-            const open = () =>
-              panel.open({ kind: "claim", claim: c, keyLabel: String(i + 1), evidence: sup.flatMap((s) => (s.kind === "evidence" && ev.get(s.evidence_id) ? [ev.get(s.evidence_id)!] : [])), artifacts: ans.artifacts ?? [] });
-            const on = panel.current?.kind === "claim" && panel.current.claim.claim_id === c.claim_id;
-            return (
-              <tr key={c.claim_id} className="clickable" aria-selected={on} onClick={open}>
-                <td className="r dim num">{i + 1}</td>
-                <td className="claim">{c.text}</td>
-                <td>
-                  <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                    <ClaimGlyph kind={c.kind} /> {CLAIM_LABEL[c.kind]}
-                  </span>
-                </td>
-                <td>{e ? <EvidenceClassTag cls={e.evidence_class} /> : first?.kind === "artifact_value" ? <span className="tag tag-flame">artifact value</span> : <span className="dim">none</span>}</td>
-                <td className="dim">{e ? locatorText(e) : first?.kind === "artifact_value" ? <code>{first.pointer}</code> : "—"}</td>
-                <td className="quote-cell">{e?.quote ?? <span className="dim">{e ? "not carried" : "—"}</span>}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------- the route
@@ -575,9 +526,8 @@ function RouteSummary({ stops, turn, open }: { stops: Stop[]; turn: Turn; open: 
   return (
     <details className="route" open={open || undefined}>
       <summary>
-        <b>Route</b>
+        <b>{tools} step{tools === 1 ? "" : "s"}</b>
         <span>
-          {tools} tool call{tools === 1 ? "" : "s"}
           {issues > 0 && ` · ${issues} to check`}
           {elapsed(turn.startedAt, turn.endedAt) && ` · ${elapsed(turn.startedAt, turn.endedAt)}`}
         </span>

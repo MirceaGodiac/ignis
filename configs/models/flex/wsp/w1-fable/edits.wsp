@@ -1,0 +1,90 @@
+# flex.wsp — W1 literal revision over W0 (parent release sha256:fa8eb18c…e28f), spec flex-wsp-v1
+# Author: claude-fable-5-2 (Anthropic).
+#
+# This is NOT zero-shot. It was written after reading development feedback on the TRAIN partition:
+# docs/wsp/feedback/flex_w0_train.md (scores, signed errors by lead time, per-run finite-difference
+# rates and extinction knees). No optimizer, regression or search chose a value: each number below
+# was picked by the author from that table, and each block names the failure it answers.
+# A value not written here keeps its W0 value.
+
+# =====================================================================================================
+# 1. Extinction network — rewritten. W0 put extinction in air at 90-93 % burned (observed knees:
+#    77-84 %), killed the flame almost at once at 12 % O2 (observed: 38 % burned at 2.6 mm, more for
+#    smaller droplets), and had no sharp size threshold.
+# =====================================================================================================
+# Observed structure: a "normal" branch where D_ext/D0 is about 0.45 whatever the size
+# (w_n = 0.80 + 0.09 c_o2 below air, + 0.045 c_o2 above, - 0.03 c_co2), and a radiative branch that a
+# droplet enters once  u = c_logd0 - 0.37 c_o2 + 0.10 c_co2 + 0.10 c_he - 0.80 c_logp - 0.80 > 0:
+# w_ext then falls by 0.4 within du = 0.2 and by 0.5 per unit u after that. Low pressure lowers the
+# critical size (kinetics), as do lean oxygen, CO2 and He.
+# Sharpness a = 15 (W0: 12): 80 % of extinctions within [w_ext - 0.13, w_ext + 0.08].
+# b0 = ln(15 * 0.6931) - 15 * 0.80
+haz.b0 = -9.6585
+haz.skip[0:7] = [-1.35, 0.45, 0.0, 0.0, 0.0, 15.0, 0.0]
+
+# unit 0: relu(c_o2) — above air w_ext rises only 0.045 per 5 % O2
+haz.w2[0] = 0.675
+
+# units 1-5 of W0 (extra oxygen and CO2 knots) are retired
+haz.W1[1, 0] = 0.0
+haz.b1[1] = 0.0
+haz.w2[1] = 0.0
+haz.W1[2, 0] = 0.0
+haz.b1[2] = 0.0
+haz.w2[2] = 0.0
+haz.W1[3, 0] = 0.0
+haz.b1[3] = 0.0
+haz.w2[3] = 0.0
+haz.W1[4, 0] = 0.0
+haz.b1[4] = 0.0
+haz.w2[4] = 0.0
+haz.W1[5, 1] = 0.0
+haz.b1[5] = 0.0
+haz.w2[5] = 0.0
+
+# units 6-7: the radiative branch, relu(u) and relu(u - 0.2)
+haz.W1[6, 0:5] = [-0.37, 0.10, 0.10, -0.80, 1.0]
+haz.b1[6] = -0.80
+haz.w2[6] = 30.0
+haz.W1[7, 0:5] = [-0.37, 0.10, 0.10, -0.80, 1.0]
+haz.b1[7] = -1.0
+haz.w2[7] = -22.5
+
+# A droplet whose prefix shows almost no shrinkage has usually lost its flame already (several train
+# cases at the 5 s cutoff). The run offset b is then near -0.9; with link -8 that adds +7 to ln(eta)
+# and the forecast extinguishes at once instead of burning on at 40 % of the population rate.
+haz.link_b = -8.0
+
+# =====================================================================================================
+# 2. Burning rate — small corrections where the table shows a systematic ratio
+# =====================================================================================================
+# Oxygen: observed mid-burn rates in N2 are about 10 % below W0 at 14-18 % O2 and equal to W0 at
+# 12 % and at 30-34 %. The lean hinge now starts at air (was 18 %) and the second one flattens.
+rate.b1[2] = 0.0
+rate.w2[2] = -0.07
+rate.w2[3] = 0.08
+
+# Size: 3.9-4.3 mm droplets burn 8-11 % slower than W0 said; the first radiative hinge is steeper.
+rate.w2[4] = -0.3
+
+# Water uptake: observed K(w 0.3-0.6)/K(w 0.1-0.3) is about 0.90 and K(w 0.6-0.85)/K(w 0.1-0.3)
+# about 0.80; W0 gave 0.96 and 0.89.
+rate.b1[6] = -0.15
+rate.w2[6] = -0.3
+rate.w2[7] = -0.35
+
+# Heat-up: observed rates over the first second are higher than W0's (shorter, shallower transient),
+# most clearly with He. Now exp(-0.8) = 45 % at t = 0, recovering over 0.13 of the diffusion clock,
+# and helium shortens it.
+rate.W1[8, 2] = -0.25
+rate.W1[8, 6] = -7.6923
+rate.w2[8] = -0.8
+
+# =====================================================================================================
+# 3. Spread and the extinguished droplet
+# =====================================================================================================
+# Coverage of the 90 % interval was 0.83 and 0.81 at the 3 s and 5 s cutoffs: the spread no prefix
+# removes was too small.
+unc.s_floor = 0.09
+# Observed d(D^2)/dt after the knee: 0.02-0.06 mm2/s in the first seconds, then lower.
+post.k_evap = 3.0e-8

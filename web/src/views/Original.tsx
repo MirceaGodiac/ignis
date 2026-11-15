@@ -4,7 +4,7 @@
 // anything else opens at the provider. IGNIS stores nothing. The page is the PDF page with the cited
 // region marked, the video at the cited time, or the table record with its neighbours (read from the
 // start of the file only as far as the cited record).
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { SourceAccess, SourceLocator } from "../contracts/generated";
 import { accessExpired, videoTimeS } from "../research/sourceAccess";
@@ -16,7 +16,7 @@ import { ErrorNote, Gap } from "../ui/common";
 
 const PdfPage = lazy(() => import("../shell/PdfPage"));
 
-const MODE_TEXT: Record<SourceAccess["mode"], string> = {
+export const MODE_TEXT: Record<SourceAccess["mode"], string> = {
   direct: "Streamed from NASA; IGNIS stores no copy",
   proxy: "Through the IGNIS pass-through proxy; nothing is stored",
   link_out: "Opens at the provider",
@@ -98,29 +98,15 @@ export function Original({ sourceId, params }: { sourceId: string | null; params
   );
 }
 
-function OriginalBody({ a, loc, kind, title }: { a: SourceAccess; loc: SourceLocator; kind: ReturnType<typeof locatorKind>; title: string }) {
-  const [page, setPage] = useState(loc.page ?? 1);
+export function OriginalBody({ a, loc, kind, title }: { a: SourceAccess; loc: SourceLocator; kind: ReturnType<typeof locatorKind>; title: string }) {
   if (a.mode === "link_out" || !a.cors) return <Gap title="Not streamed by IGNIS">This source opens at the provider. Use “Open at NASA”.</Gap>;
   const isPdf = kind === "page" || /\.pdf$/i.test(title);
   if (isPdf)
     return (
       <section className="card" style={{ padding: 12 }}>
-        <div className="toolbar" style={{ marginBottom: 8 }}>
-          <button className="btn btn-s" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-            ← Page
-          </button>
-          <span className="num">page {page}</span>
-          <button className="btn btn-s" onClick={() => setPage((p) => p + 1)}>
-            Page →
-          </button>
-          {loc.page != null && page !== loc.page && (
-            <button className="linkish" onClick={() => setPage(loc.page!)}>
-              back to the cited page {loc.page}
-            </button>
-          )}
-        </div>
+        {/* PdfPage has the one pager (bounded by the document's page count) and "Back to cited page". */}
         <Suspense fallback={<p className="muted small">Loading the PDF viewer…</p>}>
-          <PdfPage url={a.url} range={a.range} length={null} page={page} bbox={page === loc.page ? loc.bbox : null} title={title} />
+          <PdfPage url={a.url} range={a.range} length={null} page={loc.page ?? 1} bbox={loc.bbox} title={title} />
         </Suspense>
       </section>
     );

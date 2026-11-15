@@ -1,0 +1,49 @@
+{
+  "patch_id": "acme_inverse-wsp-v10-f1-d5-fable",
+  "parent_release_id": "sha256:dd2028455281e66a5e828ea9ee8fc96a312c092cf3c7a81e2b4d38429d0d88be",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-second-generation-D3-was-not-adopted-on-them)",
+      "repo:docs/wsp/cards/acme_clock.md(states-that-the-validation-sessions-hold-leaner-ambients-than-train;written-in-phase-2;not-used-here)",
+      "repo:docs/wsp/research/phys_acme_inverse.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;a-proposal;the-author-rechecked-what-he-typed)",
+      "analysis:the-author's-recount-of-which-input-separates-the-inverse-train-outcomes(tools/wsp/analysis/inverse_separation.py)",
+      "repo:configs/models/acme/wsp3/inverse/d3-fable(a-pressure-term-tried-the-same-day:worse-on-train,not-taken);repo:configs/models/acme/wsp3/inverse/d2-fable(the-same-scenario-written-in-total-burner-flow:weakened-by-the-recount)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "author:pretraining-knowledge(unverifiable)",
+      "repo:docs/wsp/research/phys_spherical_fuels.md(fuel-descriptors-and-coordinates-typed-from-property-tables-and-theory;its-author-read-CFI-G-train-rows-and-knew-the-aggregate-arms-of-the-Flame-Design-transfer-test;no-per-test-outcome-of-Flame-Design-or-s-Flame)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:04d5503ee0627a42dae648817a3fc0904cd67db66fda549f83d641056517af09",
+      "sha256:6a3d5837ca973eaa91b9813c63ecd6d59dd96fb2195ee365f8dac39031b83cad",
+      "sha256:908d02101e4989954a75b16b01a9beaf4a0930a8b7b0b4a9ed809a98ba4a518a",
+      "sha256:f542f636f140d2a4784cbf030186d95f995aac54d70427835f51d112bfce006d",
+      "sha256:19c156e60036d15f46fa92f7827d1122f8e595f6747ad1d5b7363463777422eb",
+      "sha256:9bdd4d278e217cb978ac764ddd8979749052fefea3db8f7b0adbc3b1056df9bc"
+    ]
+  },
+  "rationale": "A fuel-table member, data-informed like its source: every law value is the stored value of wsp3/inverse/d5-fable; the fuel table is the F1 table of inverse burner flames (zero-shot for the new fuels). For ethane, propane and butane its forecasts are those of the source.",
+  "origin": "system"
+}

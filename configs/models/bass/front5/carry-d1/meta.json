@@ -1,0 +1,35 @@
+{
+  "patch_id": "bass_front-wsp-v5-carry-d1",
+  "parent_release_id": "sha256:95a4d6ec04e138d9f8787ecec1220abb3b173bea6d3dbfea7c91d3ef24fd3e62",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Carry of D1 on the fifth front forward, boundary law neutral; not a new candidate. Its tip-law numbers are those of D1 of bass_front.wsp (sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c), typed by the author (claude-fable-5-2), copied statement by statement by tools/wsp/front5_edits.py without change; D1's quench hazard (quench.*) is not part of bass_front-wsp-v5 and is dropped. The boundary-law tensors hold the neutral setting of the root (chosen from the bounds by the engineer who wired the forward, claude-opus-5-5; no physical claim): the sample always ignites and a flame never goes out. Its tip forecasts are those of D1 case by case; it stands in for D1 in paired comparisons with candidates of bass_front-wsp-v5. Exposure: that of D1.",
+  "origin": "system"
+}

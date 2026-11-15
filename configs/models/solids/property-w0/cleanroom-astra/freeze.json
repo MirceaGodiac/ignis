@@ -1,0 +1,38 @@
+{
+  "author": "gpt-6-astra",
+  "experiment": "W0",
+  "outcome_exposure": [],
+  "standalone_kernel_tests": "10 passed, 0 failed",
+  "formatting": "passed",
+  "core_contract_test": "prepared; coordinator execution pending",
+  "files": [
+    {
+      "path": "crates/ignis-wsp/src/property_solids_w0.rs",
+      "sha256": "fe59a4cb7e15069f1427aaf5cb8e7b7c70043bbb2984b1b308f18342ec8bbc06"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/spec.json",
+      "sha256": "00b391edd51050abecff055c1a368e3833a3acc48283ce9daa59fd2b3a4cc545"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/ops.json",
+      "sha256": "24335e9ed9423b3665e5ed339db4b868dffec8fbc4b401a984d2a8ed8ea52772"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/meta.json",
+      "sha256": "f5b8ddcb7d42a495223f6fcc9f38f89573b95e4e3413ab104e55f0aad59108fe"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/Cargo.toml",
+      "sha256": "e0bf5414f9ae6de9ab95a6d90ea44c41851f38a086c2c2e8c3c71e94d8b77e24"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/literal_contract.rs",
+      "sha256": "c5500ed8d7ac18eb1d0fde8025da16708cb4fe86a3a71033f6a9a67de6d779dc"
+    },
+    {
+      "path": "docs/wsp/research/astra_solids_w0.md",
+      "sha256": "00fa3561afce53f82c978fc9cf2d4bf5111f227c9f2916c1bdbeb865fe757faf"
+    }
+  ]
+}

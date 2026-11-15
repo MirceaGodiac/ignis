@@ -1,0 +1,22 @@
+{
+  "model": "flex_heptane6",
+  "candidate": "joint",
+  "release_id": "sha256:6388a52a4a359681acea1b4d4a2d01350d5cc56f823ca69f800390cd79e033a9",
+  "status": "data-informed; experimental; not_trained; no new validation look",
+  "authored_tensor_capacity": 653,
+  "authored_nonzero": 145,
+  "spec_fixed_elements": 20,
+  "inherited_literal_positions_from_fable": 141,
+  "new_explicit_positions_this_patch": 1,
+  "cumulative_new_positions_by_origin": {
+    "A": 1,
+    "L": 5,
+    "N": 20,
+    "S": 21,
+    "U": 3
+  },
+  "new_direct_train_read_positions_cumulative": 0,
+  "inherited_train_exposure": "all copied Fable positions retain exposure; precise direct-train subset of historical literals not reclassified",
+  "exact_inherited_transcription_verified": true,
+  "forward_hash_matches": true
+}

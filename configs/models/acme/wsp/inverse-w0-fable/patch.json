@@ -1,0 +1,136 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_inverse-wsp-v1-w0-fable",
+  "spec_hash": "sha256:f8afec5917a7e7424c5a310344e466c486014340677d38bdbb30be8ab127bc21",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-acme(code-and-config-only)",
+      "repo:configs/models/acme",
+      "web:rikiyat.github.io/blog/weight-space-programming",
+      "author:pretraining-knowledge(unverifiable;may-include-published-ACME-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(input-metadata-only:conditions)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "ext.b0",
+      "index": [],
+      "value": -4.6
+    },
+    {
+      "op": "set_box",
+      "tensor": "ext.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        9
+      ],
+      "values": [
+        0.5,
+        1.6,
+        0.0,
+        0.0,
+        -0.8,
+        0.0,
+        0.0,
+        0.0,
+        2.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ext.W1",
+      "index": [
+        0,
+        8
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ext.b1",
+      "index": [
+        0
+      ],
+      "value": -1.1
+    },
+    {
+      "op": "set",
+      "tensor": "ext.w2",
+      "index": [
+        0
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "op.b0",
+      "index": [],
+      "value": -11.1
+    },
+    {
+      "op": "set_box",
+      "tensor": "op.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        5.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "op.W1",
+      "index": [
+        0,
+        8
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "op.b1",
+      "index": [
+        0
+      ],
+      "value": -2.08
+    },
+    {
+      "op": "set",
+      "tensor": "op.w2",
+      "index": [
+        0
+      ],
+      "value": -5.0
+    }
+  ],
+  "rationale": "W0, one shot. Two cause-specific log-hazards over the role-aware conditions and elapsed time. Extinction: a radiative-loss index (flow, pressure, adiabatic temperature) and a hazard that rises while the flame grows, then stays flat. Operator termination: a protocol hazard with no dependence on conditions. Every number is a hypothesis written before the model was run; the time scales in particular are guesses that only data can settle. See edits.wsp.",
+  "origin": "system"
+}

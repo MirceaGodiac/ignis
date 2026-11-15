@@ -105,6 +105,8 @@ export interface ExperimentSummary {
   quality_flags: string[];
   synthetic: boolean;
   gaps: string[];
+  /** NASA's own names for the run (test sheet, table test, as-run number); absent from older servers. */
+  aliases?: { scheme: string; name: string }[];
 }
 
 export interface ExperimentList {

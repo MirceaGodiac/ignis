@@ -1,0 +1,659 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "bass_front3-r1-astra",
+  "spec_hash": "sha256:61cd920cf1fcbcb93ce745b4d98e6a350aa5805b6a7c50dee619ae8a9f4de246",
+  "parent_release_id": "sha256:c50c7144e433799b116829cc0f5ff21dbc1e412c9ec38524e2bea6c8c7cba4bc",
+  "author": {
+    "provider": "openai",
+    "model_id": "gpt-6-astra",
+    "effort": "max"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)",
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-the-second-generation-D2)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-both-members-and-of-the-earlier-candidates:integrated-Brier-scores-only;the-two-members-tie;the-weights-are-equal-and-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp2/normal/d3-fable(slot-a0)",
+      "repo:configs/models/acme/wsp2/normal/d3-nostops(slot-a1)",
+      "repo:configs/models/acme/wsp3/normal/d2-fable(slot-b0)",
+      "repo:configs/models/acme/wsp3/normal/d2-nostops(slot-b1)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-planned-stops-from-its-tables:99-of-99-early-ended-train-tests-have-a-planned-stop-later-than-their-burn-time;29-scripted-ends-fall-at-the-stage-sum-minus-0.4-s-after-flame-onset)",
+      "nasa:PSI-159-as-run-script-parameter-files(planned-stage-durations-set-before-ignition;read-into-a-private-copy-of-the-data-root-as-the-condition-programmed_stop-for-train-and-validation-runs-by-tools/wsp/ext/acme_script.py,which-prints-counts-only)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "analysis:the-author's-own-audit-of-the-carried-model's-confident-misses-on-the-train-table(forecasts-of-train-runs-beside-train-outcomes)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "analysis:forecasts-of-the-carried-models-on-the-conditions-of-the-validation-runs(inputs-and-model-outputs-only;no-outcome)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;no-per-test-result-was-read)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-weights-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp3/inverse/d1-fable(slot-b0)",
+      "repo:configs/models/acme/wsp3/inverse/d5-fable(slot-b1)",
+      "repo:configs/models/acme/wsp3/inverse/d1-nostops(slot-b2)",
+      "repo:configs/models/acme/wsp3/inverse/d5-nostops(slot-b3)",
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "repo:docs/wsp/dossier(README,HANDOFF_ASTRA,01,02,03,05,07,10;train-measurements-and-historical-aggregate-validation,-not-per-run-validation)",
+      "repo:docs/wsp/dossier/ASTRA_DESIGN.md",
+      "repo:docs/wsp/dossier/ASTRA_ERROR_BUDGET.md(historical-train-reports;-not-independently-remeasured)",
+      "repo:docs/wsp/dossier/review/F-001-programmed-stop.md",
+      "repo:docs/wsp/dossier/review/F-002-gen5-validation-execution.md",
+      "repo:docs/wsp/dossier/review/F-003-methanol-self-cooling.md",
+      "repo:docs/wsp/dossier/review/F-004-methanol-alias-exposure.md(X23-possible-delegated-raw-file-identity-ambiguity;-all-uncertain-raw-material-excluded;-no-protected-numerical-value-sent-to-author)",
+      "repo:docs/wsp/dossier/review/F-005-ensemble-and-equivalence.md",
+      "repo:docs/wsp/dossier/review/F-006-generalization-and-freedom.md",
+      "repo:docs/wsp/dossier/review/F-007-front-event-cdf-semantics.md",
+      "repo:docs/wsp/dossier/review/F-008-train-feedback-late-partition-filter.md",
+      "repo:docs/wsp/dossier/review/F-009-feedback-pair-key-collision.md(static-scorer-audit-before-candidate-feedback)",
+      "repo:docs/wsp/research/astra_weight_space_research.md",
+      "repo:docs/wsp/research/astra_uncertainty_and_freedom.md",
+      "repo:docs/wsp/research/astra_physical_properties_and_transport.md(X24-class-C-abstract-aggregate-exposure-by-collector,-excluded-from-model-reasoning)",
+      "repo:docs/wsp/research/astra_research_analysis.md(explicit-gpt-6-astra-high-effort)",
+      "repo:docs/wsp/research/astra_physics_analysis.md(explicit-gpt-6-astra-high-effort)",
+      "repo:docs/wsp/research/astra_forward_physics_review.md",
+      "repo:docs/wsp/dossier/ASTRA_PROPERTIES.md(primary-references-and-exact-reading-extents)",
+      "repo:docs/wsp/research/astra_data_and_input_audit.md",
+      "repo:docs/wsp/feedback/astra_property_crosscheck.json(independent-property-library-evaluation-after-literals-typed;-no-candidate-number-emitted-or-changed)",
+      "repo:docs/wsp/research/properties_verified.md(reference-property-cross-check;-no-modelled-series-outcomes)",
+      "repo:docs/wsp/research/phys_bass.md(existing-train-informed-steady-law-proposal)",
+      "author:main-thread-turn_context-model=gpt-6-astra-effort=max;-directly-verified-metadata-only-on-2026-11-14",
+      "provenance:inherited-source-entries-above-retain-Fable's-exposure;-Astra's-direct-readings-are-the-explicitly-named-Astra-records"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-both-members-and-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce",
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+      "sha256:f1f723892493030df0525e3410c7fca42e6709a384b224a69e20d188836b28fb",
+      "sha256:b2f6930fc58ddcc0565f25e3968ffa405a718379584890850794bf5ec34a4e97",
+      "sha256:2181b643430a31aefa8e774e9b9523f6f09b343957f1bdcae04ea435512545be",
+      "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+      "sha256:74b3a0f195884a860d28ab41d9fb3250633a346d0b980138ee1c7d84881842a3",
+      "sha256:03e0f63cf88c1b2c626e7726356746dd16d673a3a208cca5461c9d1ec360bf0b",
+      "sha256:32822270de2ca8a6b25f32fbf1888b5e83475f8e2a9ec3306e2b002ae25894d7",
+      "sha256:b1a334f3ede87d8fa0ff69643305dd2e42f7ef5332cf4c127fd45c77a07f02ea",
+      "sha256:4fa8de0bc17ef8f562b63de1f3494d9df4bf4ee6ad7168ee17f0da5f1d221991",
+      "sha256:9354b037a0a6b7e3771ee30fdfa803f6526dc4ee0716ae29e40d034a2bd16514",
+      "sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad",
+      "sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7",
+      "sha256:6044b69bd5d10a150734bea2b6d549a8903dbdc49ddc911f7ff1b6bf2c0b2bff",
+      "sha256:f71fce5f22f272cc1c336d89e32530f53a21640c91797e6a50e6219f985e69a7",
+      "sha256:04d5503ee0627a42dae648817a3fc0904cd67db66fda549f83d641056517af09",
+      "sha256:19c156e60036d15f46fa92f7827d1122f8e595f6747ad1d5b7363463777422eb",
+      "sha256:9bdd4d278e217cb978ac764ddd8979749052fefea3db8f7b0adbc3b1056df9bc",
+      "sha256:e6fbed49896d863a27560c69df6b3c6befa6b79f874d6d113780e0ba1a9abe0d",
+      "sha256:446e5ba70ed21c6d106abd3bd057bb472f94e020022ffcb57a21f90355be1f23",
+      "sha256:d0a1366034b9f10aa91633c670071bb8029bcf7d9c945608f2cd1d8f5a8b184b",
+      "sha256:3d7d010fd8488d7071e756719f4bf8e7a2fb1f8a768179b063f55ec38d226424",
+      "sha256:d7292e8974eed0f0ade50df68e14e3b9134c5c41ec3b8ddd664e02db7561fcc2",
+      "sha256:c50c7144e433799b116829cc0f5ff21dbc1e412c9ec38524e2bea6c8c7cba4bc"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "speed.skip",
+      "index": [
+        0
+      ],
+      "value": 0.032
+    },
+    {
+      "op": "set",
+      "tensor": "speed.skip",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.skip",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.b0",
+      "index": [],
+      "value": 0.0535
+    },
+    {
+      "op": "set",
+      "tensor": "over.skip",
+      "index": [
+        0
+      ],
+      "value": 0.325
+    },
+    {
+      "op": "set",
+      "tensor": "over.skip",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.skip",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.b0",
+      "index": [],
+      "value": 0.325
+    },
+    {
+      "op": "set",
+      "tensor": "burn.skip",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "burn.skip",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "burn.skip",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "burn.b0",
+      "index": [],
+      "value": 1.84
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.33
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        0
+      ],
+      "value": -2.73
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        1
+      ],
+      "value": -0.9
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        0
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        1
+      ],
+      "value": 12.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.skip",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.skip",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.skip",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b0",
+      "index": [],
+      "value": -7.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.pow",
+      "index": [
+        0
+      ],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "speed.pow",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.pow",
+      "index": [
+        0
+      ],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.pow",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_s",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "ign.gain",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ign.delay_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "end.linger_s",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_w",
+      "index": [
+        0
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_w",
+      "index": [
+        1
+      ],
+      "value": 3.5
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": -2.3
+    },
+    {
+      "op": "set",
+      "tensor": "enc.mix",
+      "index": [
+        0
+      ],
+      "value": 0.8
+    },
+    {
+      "op": "set",
+      "tensor": "enc.mix",
+      "index": [
+        1
+      ],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "enc.e_clip",
+      "index": [
+        0
+      ],
+      "value": 0.7
+    },
+    {
+      "op": "set",
+      "tensor": "enc.e_clip",
+      "index": [
+        1
+      ],
+      "value": 0.7
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.06
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_far",
+      "index": [
+        0
+      ],
+      "value": 0.06
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_far",
+      "index": [
+        1
+      ],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_w",
+      "index": [],
+      "value": 0.04
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_x0_w",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "unc.rel_over",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "unc.drift_w",
+      "index": [],
+      "value": 0.01
+    },
+    {
+      "op": "set",
+      "tensor": "speed.split",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.pow_i",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.kappa",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_up_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_abs_cm_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_rel",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_w",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_w",
+      "index": [
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_w",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.mix",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.member_weight",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.rho_kg_m3",
+      "index": [],
+      "value": 1.15
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.nu_m2_s",
+      "index": [],
+      "value": 0.000178
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.alpha_m2_s",
+      "index": [],
+      "value": 0.000241
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.molar_o2_kg_mol",
+      "index": [],
+      "value": 0.0319988
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.molar_carrier_kg_mol",
+      "index": [],
+      "value": 0.0280134
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.fuel_areal_kg_m2",
+      "index": [],
+      "value": 0.1354
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.faces",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.stoich_kg_o2_kg_fuel",
+      "index": [],
+      "value": 1.185
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.residence_s",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "set",
+      "tensor": "oxygen.reference_width_m",
+      "index": [],
+      "value": 0.022
+    }
+  ],
+  "rationale": "Data-informed new-spec full literal rewrite; parent records ancestry, not tensor inheritance. Astra R1 is a new experiment. Every destination assignment is explicit; inherited values are credited to Fable. Added values are typed once by the main author before candidate feedback; see addition.wsp, ASTRA_DESIGN, ASTRA_ERROR_BUDGET and ASTRA_PROPERTIES. No fitting or search.",
+  "origin": "system"
+}

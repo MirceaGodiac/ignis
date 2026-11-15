@@ -1,0 +1,24 @@
+{
+  "status": "author_checks_passed_independent_rereview_pending",
+  "frozen": false,
+  "scope": "outcome-blind synthetic code and physical-invariant correction review",
+  "independent_predecessor_reproduction": "All four reported failures reproduced before correction; existing coagulation and causal-delay checks also passed.",
+  "compile": "passed: rustc --edition 2021 --test crates/ignis-wsp/src/property_aerosol_v2.rs -o runs/tooling/astra-aerosol-target/aerosol-v2-invariants.exe",
+  "standalone_tests": {"passed":21,"failed":0,"ignored":0,"predecessor_cases":11,"new_regressions":10},
+  "new_regressions": [
+    "Impossible initial occupancy rejected before dilution, including U=1 boundary",
+    "Actual and evolved representative size checked against compact-particle support",
+    "Initial and history particle-volume samples checked against their own diameter domains",
+    "Initial source lineage retained until detector truth selection",
+    "Source-history transitive raw-measurement dependencies retained until observation",
+    "Steady-film boundary solution, signed-drift limits and small-Pe derivative",
+    "Explicit exact-film branch, conservation, applicability domain and predecessor branch comparison",
+    "Same-ID internally valid Liquid-to-Solid context substitution rejected",
+    "Generating phase/composition/T/P/gravity/frame/regime and full context provenance bound",
+    "Legitimate alternate detector and expanded independent truth set accepted; truth removal rejected"
+  ],
+  "scientific_coefficients_modified": false,
+  "registered_release": false,
+  "qualification": "none; synthetic invariants and review do not qualify aerosol accuracy or gravity coverage",
+  "independent_rereview": "pending"
+}

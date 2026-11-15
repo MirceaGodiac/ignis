@@ -1,0 +1,38 @@
+{
+  "patch_id": "acme_inverse-wsp-v1-w1-fable",
+  "parent_release_id": "sha256:843eef56a0746d9f2b6db323627d94aeb45674bcc326ff6ddbbda215a644316a",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-acme(code-and-config-only)",
+      "repo:docs/wsp/feedback/acme_inverse_w0_train.md",
+      "author:pretraining-knowledge(unverifiable;may-include-published-ACME-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "wsp-dev:acme-table:train:acme_inverse-w0:sha256:2970a564e90921d8d120a51b1e6ddbc6091c1f7f5f22a916f35e00fd98cf7248",
+      "ignis-eval:compare:validation:acme_inverse-w0-vs-fitted-baselines(aggregate-metrics-only)"
+    ],
+    "prior_candidates": [
+      "sha256:843eef56a0746d9f2b6db323627d94aeb45674bcc326ff6ddbbda215a644316a",
+      "sha256:c2b9870860fe7b82ea3455a14da959d36c7ce2e07a70dffd87b55cfbaa990ace",
+      "sha256:a60a58f764abf9e4ddd8aa3dfdda6476748611b6d44139364ab8322a9b519617",
+      "sha256:cb16419ceeff23e5430fdae5a29ed8f7aadf16f55a17706cce2ef38b0730efe4",
+      "sha256:b70287b9544139b83f760cfcc8e9b9a04361acd69edd0af690891fd07acc876c"
+    ]
+  },
+  "rationale": "W1, data-informed direct revision (not zero-shot). Rewrites both hazards from the train endpoint table: extinction decided by the ambient fuel fraction (the flow, pressure and temperature terms of W0 removed); an operator hazard with a protocol bump at 62-67.5 s. Train endpoints were read; of validation only the aggregate comparison of W0 was seen. See edits.wsp.",
+  "origin": "system"
+}

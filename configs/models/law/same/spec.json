@@ -1,0 +1,764 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-same-v1",
+  "family": "other",
+  "model_name": "same.wsp",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "W0 law of docs/wsp/research/phys_same_w0.md, section 7.1: the SAME-R network without the temperature, no-flow and heating-time terms, with dibutyl phthalate. Material indicators are derived from material by tools/wsp/ext/law_inputs.py. (no target is a shared quantity); targets: d10, d30, iss_full_scale",
+    "excludes": [
+      "phase_end_time is named here only because ModelSpec.target requires one shared quantity: every target of this model is lane-local and no artifact carries phase_end_time",
+      "same:d10 (positive, m): lane-local target, not a shared quantity",
+      "same:d30 (positive, m): lane-local target, not a shared quantity",
+      "same:iss_full_scale (binary): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "is_kapton",
+      "unit": "1",
+      "source": "condition:is_kapton",
+      "transform": "identity: (x - x.is_kapton.centre) / x.is_kapton.scale; refused unless x.is_kapton.lo <= x <= x.is_kapton.hi @1"
+    },
+    {
+      "name": "is_teflon",
+      "unit": "1",
+      "source": "condition:is_teflon",
+      "transform": "identity: (x - x.is_teflon.centre) / x.is_teflon.scale; refused unless x.is_teflon.lo <= x <= x.is_teflon.hi @1"
+    },
+    {
+      "name": "is_silicone",
+      "unit": "1",
+      "source": "condition:is_silicone",
+      "transform": "identity: (x - x.is_silicone.centre) / x.is_silicone.scale; refused unless x.is_silicone.lo <= x <= x.is_silicone.hi @1"
+    },
+    {
+      "name": "is_dbp",
+      "unit": "1",
+      "source": "condition:is_dbp",
+      "transform": "identity: (x - x.is_dbp.centre) / x.is_dbp.scale; refused unless x.is_dbp.lo <= x <= x.is_dbp.hi @1"
+    },
+    {
+      "name": "inlet_velocity",
+      "unit": "m/s",
+      "source": "condition:inlet_velocity",
+      "transform": "identity: (x - x.inlet_velocity.centre) / x.inlet_velocity.scale; refused unless x.inlet_velocity.lo <= x <= x.inlet_velocity.hi @1"
+    },
+    {
+      "name": "net_aging_time",
+      "unit": "s",
+      "source": "condition:net_aging_time",
+      "transform": "ln: ln(x / x.net_aging_time.centre) / x.net_aging_time.scale; refused unless x.net_aging_time.lo <= x <= x.net_aging_time.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.is_kapton.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_kapton."
+    },
+    {
+      "name": "x.is_kapton.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_kapton."
+    },
+    {
+      "name": "x.is_kapton.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_kapton (raw SI value)."
+    },
+    {
+      "name": "x.is_kapton.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_kapton (raw SI value)."
+    },
+    {
+      "name": "x.is_teflon.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_teflon."
+    },
+    {
+      "name": "x.is_teflon.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_teflon."
+    },
+    {
+      "name": "x.is_teflon.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_teflon (raw SI value)."
+    },
+    {
+      "name": "x.is_teflon.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_teflon (raw SI value)."
+    },
+    {
+      "name": "x.is_silicone.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_silicone."
+    },
+    {
+      "name": "x.is_silicone.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_silicone."
+    },
+    {
+      "name": "x.is_silicone.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_silicone (raw SI value)."
+    },
+    {
+      "name": "x.is_silicone.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_silicone (raw SI value)."
+    },
+    {
+      "name": "x.is_dbp.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_dbp."
+    },
+    {
+      "name": "x.is_dbp.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_dbp."
+    },
+    {
+      "name": "x.is_dbp.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_dbp (raw SI value)."
+    },
+    {
+      "name": "x.is_dbp.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_dbp (raw SI value)."
+    },
+    {
+      "name": "x.inlet_velocity.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of inlet_velocity."
+    },
+    {
+      "name": "x.inlet_velocity.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of inlet_velocity."
+    },
+    {
+      "name": "x.inlet_velocity.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of inlet_velocity (raw SI value)."
+    },
+    {
+      "name": "x.inlet_velocity.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of inlet_velocity (raw SI value)."
+    },
+    {
+      "name": "x.net_aging_time.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of net_aging_time."
+    },
+    {
+      "name": "x.net_aging_time.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of net_aging_time."
+    },
+    {
+      "name": "x.net_aging_time.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of net_aging_time (raw SI value)."
+    },
+    {
+      "name": "x.net_aging_time.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of net_aging_time (raw SI value)."
+    },
+    {
+      "name": "d10.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median d10 / 1 m) at z = 0 before hinge terms (ln(m))."
+    },
+    {
+      "name": "d10.median.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median d10 / 1 m) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "d10.median.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median d10 / 1 m); row j reads z in feature order."
+    },
+    {
+      "name": "d10.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median d10 / 1 m) (hinge positions)."
+    },
+    {
+      "name": "d10.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median d10 / 1 m)."
+    },
+    {
+      "name": "d10.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of d10 at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "d10.spread.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of d10 on z, in feature order; every element is stated."
+    },
+    {
+      "name": "d10.spread.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of d10; row j reads z in feature order."
+    },
+    {
+      "name": "d10.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of d10 (hinge positions)."
+    },
+    {
+      "name": "d10.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of d10."
+    },
+    {
+      "name": "d10.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of d10 (0: one log-normal)."
+    },
+    {
+      "name": "d10.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of d10 over that of the core (1: no wider component)."
+    },
+    {
+      "name": "d30.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median d30 / 1 m) at z = 0 before hinge terms (ln(m))."
+    },
+    {
+      "name": "d30.median.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median d30 / 1 m) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "d30.median.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median d30 / 1 m); row j reads z in feature order."
+    },
+    {
+      "name": "d30.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median d30 / 1 m) (hinge positions)."
+    },
+    {
+      "name": "d30.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median d30 / 1 m)."
+    },
+    {
+      "name": "d30.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of d30 at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "d30.spread.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of d30 on z, in feature order; every element is stated."
+    },
+    {
+      "name": "d30.spread.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of d30; row j reads z in feature order."
+    },
+    {
+      "name": "d30.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of d30 (hinge positions)."
+    },
+    {
+      "name": "d30.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of d30."
+    },
+    {
+      "name": "d30.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of d30 (0: one log-normal)."
+    },
+    {
+      "name": "d30.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of d30 over that of the core (1: no wider component)."
+    },
+    {
+      "name": "iss_full_scale.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(iss_full_scale) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "iss_full_scale.logit.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(iss_full_scale) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "iss_full_scale.logit.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(iss_full_scale); row j reads z in feature order."
+    },
+    {
+      "name": "iss_full_scale.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(iss_full_scale) (hinge positions)."
+    },
+    {
+      "name": "iss_full_scale.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(iss_full_scale)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/same/decl.json (status Declared): {\"slug\":\"same\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-102, SAME (first flight): smoke of overheated spacecraft materials and of dibutyl phthalate, aged and measured\",\"description\":\"W0 law of docs/wsp/research/phys_same_w0.md, section 7.1: the SAME-R network without the temperature, no-flow and heating-time terms, with dibutyl phthalate. Material indicators are derived from material by tools/wsp/ext/law_inputs.py.\",\"features\":[{\"name\":\"is_kapton\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"material indicator\"},{\"name\":\"is_teflon\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"material indicator\"},{\"name\":\"is_silicone\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"material indicator\"},{\"name\":\"is_dbp\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"dibutyl phthalate (lamp wick is the reference)\"},{\"name\":\"inlet_velocity\",\"unit\":\"m/s\",\"transform\":\"identity\",\"description\":\"nominal duct air speed during heating\"},{\"name\":\"net_aging_time\",\"unit\":\"s\",\"transform\":\"ln\",\"description\":\"the horizon: age of the smoke when the row was measured\"}],\"targets\":[{\"name\":\"d10\",\"kind\":\"positive\",\"unit\":\"m\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"count mean diameter M1/M0 at net_aging_time (lane-local)\"},{\"name\":\"d30\",\"kind\":\"positive\",\"unit\":\"m\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"diameter of average mass at net_aging_time (lane-local)\"},{\"name\":\"iss_full_scale\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"ISS detector scatter channel at full scale, |V| >= 6.0 V\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

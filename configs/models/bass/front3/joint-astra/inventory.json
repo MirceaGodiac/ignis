@@ -1,0 +1,22 @@
+{
+  "model": "bass_front3",
+  "candidate": "joint",
+  "release_id": "sha256:79d27b0203a7935f1bdaa275e2f508f24f0d2a52edd67ebe38fd327647c5a1e0",
+  "status": "data-informed; experimental; not_trained; no new validation look",
+  "authored_tensor_capacity": 180,
+  "authored_nonzero": 48,
+  "spec_fixed_elements": 11,
+  "inherited_literal_positions_from_fable": 55,
+  "new_explicit_positions_this_patch": 1,
+  "cumulative_new_positions_by_origin": {
+    "A": 3,
+    "L": 1,
+    "N": 5,
+    "S": 2,
+    "U": 1
+  },
+  "new_direct_train_read_positions_cumulative": 1,
+  "inherited_train_exposure": "all copied Fable positions retain exposure; precise direct-train subset of historical literals not reclassified",
+  "exact_inherited_transcription_verified": true,
+  "forward_hash_matches": true
+}

@@ -1,0 +1,316 @@
+{
+  "checks": [
+    {
+      "check": "spec_valid",
+      "detail": "ModelSpec::validate",
+      "status": "passed"
+    },
+    {
+      "check": "patch_valid",
+      "detail": "HandwrittenWeightPatch::validate_against",
+      "status": "passed"
+    },
+    {
+      "check": "tensors_complete",
+      "detail": "180 authored elements (48 nonzero), 11 constants",
+      "status": "passed"
+    },
+    {
+      "check": "strict_forward_audit",
+      "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)",
+      "status": "passed"
+    },
+    {
+      "check": "finite_forward_on_fixture",
+      "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact",
+      "status": "passed"
+    }
+  ],
+  "construction_method": "literal_revision",
+  "counts": {
+    "authored_nonzero": 48,
+    "authored_total": 180,
+    "constant_total": 11,
+    "per_tensor": {
+      "burn.W1": [
+        18,
+        0
+      ],
+      "burn.b0": [
+        1,
+        1
+      ],
+      "burn.b1": [
+        6,
+        0
+      ],
+      "burn.skip": [
+        3,
+        0
+      ],
+      "burn.w2": [
+        6,
+        0
+      ],
+      "enc.change_cm_s": [
+        1,
+        1
+      ],
+      "enc.e_clip": [
+        2,
+        2
+      ],
+      "enc.end_s": [
+        1,
+        1
+      ],
+      "enc.gain_b": [
+        1,
+        1
+      ],
+      "enc.gain_w": [
+        2,
+        2
+      ],
+      "enc.min_span_s": [
+        1,
+        1
+      ],
+      "enc.mix": [
+        2,
+        2
+      ],
+      "end.linger_s": [
+        1,
+        1
+      ],
+      "ign.delay_s": [
+        1,
+        0
+      ],
+      "ign.gain": [
+        1,
+        1
+      ],
+      "norm.o2_ref": [
+        1,
+        1
+      ],
+      "norm.o2_scale": [
+        1,
+        1
+      ],
+      "norm.u_min_cm_s": [
+        1,
+        1
+      ],
+      "norm.u_ref_cm_s": [
+        1,
+        1
+      ],
+      "norm.v_min": [
+        1,
+        1
+      ],
+      "norm.w_ref_m": [
+        1,
+        1
+      ],
+      "num.dt_s": [
+        1,
+        1
+      ],
+      "num.max_lead_s": [
+        1,
+        1
+      ],
+      "over.W1": [
+        18,
+        0
+      ],
+      "over.b0": [
+        1,
+        1
+      ],
+      "over.b1": [
+        6,
+        0
+      ],
+      "over.pow": [
+        2,
+        2
+      ],
+      "over.skip": [
+        3,
+        1
+      ],
+      "over.tau_s": [
+        1,
+        1
+      ],
+      "over.tau_up_s": [
+        1,
+        0
+      ],
+      "over.w2": [
+        6,
+        0
+      ],
+      "oxygen.alpha_m2_s": [
+        1,
+        1
+      ],
+      "oxygen.faces": [
+        1,
+        1
+      ],
+      "oxygen.fuel_areal_kg_m2": [
+        1,
+        1
+      ],
+      "oxygen.member_weight": [
+        1,
+        1
+      ],
+      "oxygen.mix": [
+        1,
+        1
+      ],
+      "oxygen.molar_carrier_kg_mol": [
+        1,
+        1
+      ],
+      "oxygen.molar_o2_kg_mol": [
+        1,
+        1
+      ],
+      "oxygen.nu_m2_s": [
+        1,
+        1
+      ],
+      "oxygen.reference_width_m": [
+        1,
+        1
+      ],
+      "oxygen.residence_s": [
+        1,
+        1
+      ],
+      "oxygen.rho_kg_m3": [
+        1,
+        1
+      ],
+      "oxygen.stoich_kg_o2_kg_fuel": [
+        1,
+        1
+      ],
+      "quench.W1": [
+        18,
+        3
+      ],
+      "quench.b0": [
+        1,
+        1
+      ],
+      "quench.b1": [
+        6,
+        2
+      ],
+      "quench.skip": [
+        3,
+        0
+      ],
+      "quench.w2": [
+        6,
+        2
+      ],
+      "speed.W1": [
+        18,
+        0
+      ],
+      "speed.b0": [
+        1,
+        1
+      ],
+      "speed.b1": [
+        6,
+        0
+      ],
+      "speed.kappa": [
+        1,
+        0
+      ],
+      "speed.pow": [
+        2,
+        2
+      ],
+      "speed.pow_i": [
+        1,
+        0
+      ],
+      "speed.skip": [
+        3,
+        1
+      ],
+      "speed.split": [
+        1,
+        0
+      ],
+      "speed.w2": [
+        6,
+        0
+      ],
+      "unc.drift_w": [
+        1,
+        1
+      ],
+      "unc.flow_abs_cm_s": [
+        1,
+        0
+      ],
+      "unc.flow_rel": [
+        1,
+        0
+      ],
+      "unc.flow_w": [
+        3,
+        1
+      ],
+      "unc.rel_over": [
+        1,
+        1
+      ],
+      "unc.s_far": [
+        2,
+        2
+      ],
+      "unc.s_floor": [
+        1,
+        1
+      ],
+      "unc.s_pop": [
+        1,
+        1
+      ],
+      "unc.sigma_w": [
+        1,
+        1
+      ],
+      "unc.sigma_x0_w": [
+        1,
+        1
+      ]
+    }
+  },
+  "directory": "artifacts\\models\\01a4edf415434f4f041a91a7b44cde9999ea9afa8f921c28f6200a7d3837c87a",
+  "forward_hash": "sha256:67d1aa2f50f7542fc6023532464520715fb48b9b7da4cc786474a39e0a804285",
+  "model_name": "bass_front.wsp4",
+  "parent_release_id": "sha256:79d27b0203a7935f1bdaa275e2f508f24f0d2a52edd67ebe38fd327647c5a1e0",
+  "patch_hash": "sha256:538d8d8e58b36554edddf5ceaa9c357e72d5ed1789d259e6831ce9bcbd20f65a",
+  "release_id": "sha256:01a4edf415434f4f041a91a7b44cde9999ea9afa8f921c28f6200a7d3837c87a",
+  "rewrite": true,
+  "spec_hash": "sha256:14c1c31a3cedec05a51b2130c636a01b244e672be002442fef2d46ec0f60736b",
+  "state": "experimental",
+  "trained_on": "not_trained",
+  "weights_hash": "sha256:af3736b89b18d7731d50062e5a749898f09a0a45861ddf5ca40ef48e6066bd22"
+}

@@ -1,0 +1,129 @@
+# acme_normal.wsp3 — D1 literal revision of the baseline sha256:3d8d3b7a…15ad, spec acme_normal-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: typed after the author read the TRAIN rows of
+# the PSI-159 normal-flame table (conditions, SE/FT label, burn time, peak burner temperature,
+# comments), the two train-only audits of the second-generation clocks
+# (docs/wsp/feedback/acme_d1_train_audit.md, acme_transfer_audit.md) and a review of the published
+# theory and studies (docs/wsp/research/lit_spherical_flames.md). Not zero-shot. Every number typed by
+# the author; no fit, no search. The author had seen the aggregate validation tables of the earlier
+# candidates (integrated Brier scores only); nothing below was chosen from them.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logp = ln(p / 101325 Pa)        c_logm = ln(fuel mass flow / 1 mg/s)
+#   c_o2 = (ambient x_O2 - 0.30)/0.10  c_xf = ln(fuel mole fraction of the burner gas / 0.30)
+#   c_tad = (T_ad - 2200 K)/300 K     c_zst = (Z_st - 0.25)/0.2      propane is the reference fuel
+# burner features b = (b_rss, b_mtot, c_tad, c_xf, c_logp, f_ethane, f_butane), columns 0..6:
+#   b_rss = ln(r_ss / 25 mm)          b_mtot = ln(total burner mass flow / 3 mg/s)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Radiative self-extinction: the growth clock
+# =====================================================================================================
+# The flame grows towards r_ss = m_tot / (4 pi rhoD L) and goes out when it reaches the radius at which
+# the fuel flux at the flame has fallen to a critical value; if r_ss is inside that radius the flame is
+# held. With the published constants alone (rhoD 0.0334, flux 0.2, D 28 mm2/s) the law puts the
+# holding flow of 30 % ethane in 39 % oxygen at 0.65 mg/s, where the train table shows a flame held at
+# 0.75 mg/s and one that went out after 304 s at 0.85 mg/s, and gives 46, 64 and 165 s at 2.36, 1.5
+# and 1.0 mg/s against the measured 43, 71 and 158-232 s. In air it says the life does not depend on
+# flow, which is what the table shows. The second generation had to type both facts as hinges.
+se.rho_d_g_m_s = 0.0334
+
+# Critical flux. 0.18 g m-2 s-1: the published 0.2 was measured on ethylene. With 0.2 the ethane
+# flames near the holding flow (1.0 and 0.85 mg/s, measured 158-232 and 304 s) come out at 127 and
+# 164 s; 10 % lower, with the clock 15 % faster (below), puts them at 144-185 and 261 s and leaves the
+# flames far from the holding flow where they were (50 s at 2.36 mg/s, measured 43 s).
+se.flux.b0 = -1.715
+se.flux.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: in air above 1 atm the flames go out sooner than the clock (propane at 2-3 atm: 5-7 s in
+# seven tests of one session). Half of what that session asks for: + 0.5 per e-fold of pressure
+# above 1 atm in air, nothing in enriched oxygen, where the holding flow does not move with pressure
+# (0.75 mg/s is held at 0.5 and at 2 atm alike).
+se.flux.W1[0, 0] = 1.0
+se.flux.W1[0, 2] = -1.0
+se.flux.b1[0] = -0.9
+se.flux.w2[0] = 0.5
+
+# Growth diffusivity. Three things the simple theory does not have, each from the train table:
+#  - pressure: the lives of 30 % ethane in 39 % oxygen are 59, 43, 34 s at 0.5, 1, 2 atm (2.36 mg/s)
+#    and 88, 71, 51 s (1.5 mg/s): the clock runs as p^-0.45, where D ~ 1/p alone would lengthen it.
+#    Radiation grows with pressure; the theory's D is not the whole clock. +0.45 per e-fold.
+#  - oxygen: in air the clock runs twice as fast as in 39 % oxygen at the same reduced flow (9-10 s
+#    measured against 18-20 s). -0.385 per 10 % of oxygen. No train flame lies between 22 and 33 %.
+#  - dilution: a more dilute burner gas burns longer than the law (pure ethane -0.5, 50 % -0.3, 25 %
+#    -0.1 in one session; 12.5 % butane +0.35 in another; 3 % butane +0.2 to +1.1). +0.2 per e-fold
+#    of fuel fraction, half of what the two sessions with a range ask for.
+se.diff.b0 = 3.92
+se.diff.skip[0:8] = [0.45, 0.0, -0.385, 0.2, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: butane in enriched oxygen lives 0.5-0.7 of the ethane clock (soot); in air it is on it.
+# + 0.36 per 10 % of oxygen above 21 %: twice as fast at 39 %.
+se.diff.W1[0, 2] = 1.0
+se.diff.W1[0, 7] = 5.0
+se.diff.b1[0] = -4.1
+se.diff.w2[0] = 0.36
+# Unit 1: propane in enriched oxygen has no train test: half of butane's term, by carbon number.
+se.diff.W1[1, 2] = 1.0
+se.diff.W1[1, 6] = -5.0
+se.diff.W1[1, 7] = -5.0
+se.diff.b1[1] = 0.9
+se.diff.w2[1] = 0.18
+
+# How well the reduced flow of a test is known. Near the holding flow it decides everything: at Phi
+# 1.15 a train flame was held for 276 s, at 1.4-1.6 five went out after 120-300 s and one was held.
+se.sigma_phi = 0.25
+# An established flame that the growth clock does not reach: one in 3000 s.
+se.hold_log_rate = -8.0
+# Flames in air at 2-3 atm go out at 5-7 s; nothing in the main class goes out before 5 s.
+se.floor_s = 4.0
+# Lives of one condition differ by 0.15-0.3 in ln; session medians of this law are within 0.35.
+se.shape = 4.0
+
+# The second clock is off for normal flames.
+se.osc.b0 = 13.0
+se.osc.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+se.osc_shape = 3.0
+
+# Weak class: flames whose adiabatic temperature is near the kinetic limit never establish. Train:
+# 1 s at 1602-1618 K (eight tests) and at 1701 K (two); 8-35 s and one held flame at 1785-1795 K. The
+# boundary between 1701 and 1785 K rests on one session, so it is a slope, not a step: a logistic
+# centred at 1740 K, 45 K wide (0.96 at 1600 K, 0.71 at 1700 K, 0.27 at 1785 K, 0.03 at 1900 K).
+se.flash.b0 = -10.2
+se.flash.skip[0:8] = [0.0, 0.0, 0.0, 0.0, -6.7, 0.0, 0.0, 0.0]
+se.flash_tau_s = 1.0
+se.flash_shape = 4.0
+
+# =====================================================================================================
+# 2. The burner temperature limit: a heating law
+# =====================================================================================================
+# The burner warms as T0 + dT (1 - exp(-t / 30 s)) and the test is stopped at a limit. The peak burner
+# temperatures of the train table (a post-run fact, never an input) give dT for some fifty flames:
+#   dT = 2012 K (m_tot / 1 mg/s)^-0.4 (r_ss / 1 mm)^-0.4
+# The total flow through the burner cools it and blows the flame off it; a larger flame is further
+# away. The same two exponents hold for pure, 50 %, 30 % and 25 % ethane, for butane, at 0.5, 1 and
+# 2 atm, and for the inverse flames with butane: session medians of ln(measured / law) are -0.08 to
+# +0.03 in five sessions. The 30 s is read from 1.0 mg/s ethane: 335, 357, 361, 375 C at 61, 123, 158
+# and 232 s. Not described: 3 % butane, which heats the burner four times more than the law says.
+bt.rise.b0 = 5.88
+bt.rise.skip[0:7] = [-0.4, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: undiluted fuel heats 15-20 % less than the law (three flames of one session).
+bt.rise.W1[0, 3] = 1.0
+bt.rise.b1[0] = -0.5
+bt.rise.w2[0] = -0.15
+bt.tau_s = 30.0
+bt.t0_c = 30.0
+# Flames that came within 15 % of a limit went either way.
+bt.sigma = 0.12
+bt.shape = 8.0
+# The limit was not one setting: tests end at 505-512 C in two sessions (and 515-544 C among the
+# inverse flames of July), at 454-460 C in the two last sessions of the campaign.
+bt.limit_c[0:3] = [455.0, 510.0, 0.0]
+bt.limit_w[0:3] = [0.4, 0.6, 0.0]
+
+# =====================================================================================================
+# 3. Programmed stops
+# =====================================================================================================
+# Script durations of the campaign. Of six sessions with a flame burning at 60 s, two stopped flames
+# at 61-62 s; 98 s and 125-127 s come from one session each, 274-276 s from one of the two sessions
+# that had a flame burning then. They are kept weak, as in the second generation.
+ft.atom_t_s[0:8] = [61.5, 98.0, 126.5, 275.5, 0.0, 0.0, 0.0, 0.0]
+ft.atom_logit[0:8] = [-2.0, -2.9, -2.2, 0.0, -40.0, -40.0, -40.0, -40.0]
+# Stops with no script behind them: about one per 1600 flame-seconds.
+ft.log_base = -7.4

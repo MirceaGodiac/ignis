@@ -1,0 +1,54 @@
+{
+  "patch_id": "acme_normal-wsp-v11-f2-d1-early",
+  "parent_release_id": "sha256:ba50e72621ed5fd3fc194d1114ba1a8b848be25bae5d61b643f42db2b2c8c445",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-session-transfer-audit-of-D1-and-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-run-by-run)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D1-and-D2:integrated-Brier-scores-only)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-D2)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-limit-levels-and-the-planned-stops-from-its-tables)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:docs/wsp/research/phys_acme_normal.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;section-5-names-the-conditions-and-dates-of-the-two-validation-sessions)",
+      "repo:docs/wsp/RESULTS_GEN5.md(aggregate-validation-tables-of-the-fifth-generation:integrated-Brier-scores-only)",
+      "repo:docs/wsp/feedback/acme_normal_gen6_train_analysis.md(train-only-analysis-by-a-delegated-analysis-agent,claude-fable-5-2,high-effort;no-fitting;the-author-reran-its-limit-and-stop-tables-and-re-evaluated-the-member-laws-at-the-corrected-inputs)",
+      "repo:docs/wsp/measure/DISCREPANCIES.md(document-lane-cross-check-of-NASA-condition-tables-against-setpoints,readbacks-and-scripts;conditions-only;train-and-validation-rows;no-outcome;the-author-read-that-the-table-errors-of-injection-fields-are-all-on-train-rows)",
+      "repo:docs/wsp/feedback/astra-r2-20261115/results/acme_normal.json(per-case-TRAIN-scores-of-acme_normal.wsp5-P1)",
+      "repo:runs/dev/gen6/acme_normal/author_candidate.py(train-diagnostic-of-the-candidate-through-a-Python-transcription-of-the-forwards;run-once-after-these-numbers-were-typed;no-number-changed-after-it)",
+      "author:pretraining-knowledge(unverifiable)",
+      "repo:docs/wsp/research/phys_ethylene_held.md(revision-of-the-ethylene-row-from-the-TRAIN-DAYS-of-Flame-Design-only,after-the-blind-run-of-12.8;no-validation-day-or-test-day-test-read)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments,raw-channels-and-script-files)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-earlier-candidates-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:3c90129eb746e3530d440822f5d447d8fbc422c590bd9f1bb9aace29d9d549b1",
+      "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab",
+      "sha256:32822270de2ca8a6b25f32fbf1888b5e83475f8e2a9ec3306e2b002ae25894d7",
+      "sha256:f71fce5f22f272cc1c336d89e32530f53a21640c91797e6a50e6219f985e69a7",
+      "sha256:08ad7337b063b5a0bbf505240ea85fa1f02d8682ba940645dd398e85e4855901",
+      "sha256:d42cd5509a078b5dec2a611e0798c754d29998dbf4aac8ed58049b8b07e43995",
+      "sha256:b97791bafa558457ded6e5d5cd0f40554abbfec7cd70b8c26d620c0d3800d52c"
+    ]
+  },
+  "rationale": "A fuel-table member with the F2 table: every law value is the stored value of wsp8/normal/d1-early; the ethylene row was revised once from the train days of Flame Design (data-informed). For ethane, propane and butane its forecasts are those of the source.",
+  "origin": "system"
+}

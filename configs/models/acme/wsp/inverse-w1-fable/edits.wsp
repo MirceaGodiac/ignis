@@ -1,0 +1,49 @@
+# acme_inverse.wsp — W1 literal revision over W0 (parent sha256:843eef56…316a), spec acme_inverse-wsp-v1
+# Author: claude-fable-5-2 (Anthropic).
+#
+# NOT zero-shot: written after reading the train endpoints (docs/wsp/feedback/acme_inverse_w0_train.md).
+# Typed by the author from that table; no optimizer, regression or search chose a value. Of the
+# validation partition only the aggregate scores of W0 were seen.
+#
+# What the table showed. In the inverse configuration the AMBIENT FUEL fraction decides: at 7-9 % fuel
+# the flame goes out after 3-18 s whatever the oxidiser flow, its oxygen content or the pressure;
+# from 14 % fuel upward it almost never goes out by itself and the operator ends the run. The flow,
+# pressure and T_ad terms of W0 (carried over from flame-size reasoning) are not supported and are
+# removed. Many runs are stopped at 65.5-66.5 s: a protocol time, written here as a short bump of the
+# operator hazard because the prefix does not carry the scheduled stop.
+#
+# Extinction: ln(hazard) = A + 3 x_t with A = -4.0 at 8 % fuel (median life about 10 s),
+# -5 per unit c_xf below c_xf = -0.10 and -12 per unit above (14 % fuel: about 75 s; 20 %: minutes).
+ext.b0 = -5.1
+#               c_logp c_logm c_o2 c_xf  c_tad c_zst eth  but  x_t
+ext.skip[0:9] = [0.0, 0.0, 0.0, -5.0, 0.0, 0.0, 0.0, 0.0, 3.0]
+# unit 0 (time flattening of W0) is retired
+ext.W1[0, 8] = 0.0
+ext.b1[0] = 0.0
+ext.w2[0] = 0.0
+# unit 1: relu(c_xf + 0.10)
+ext.W1[1, 3] = 1.0
+ext.b1[1] = 0.1
+ext.w2[1] = -7.0
+
+# Operator termination: about 0.008 per second from 10 s on, a bump of exp(4) between 62 s and 67.5 s
+# (x_t from 1.974 to 2.048), and exp(1.3) above the base afterwards.
+op.b0 = -6.19
+op.skip[0:9] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0]
+# unit 0: relu(x_t - 0.69) ends the early ramp at 10 s
+op.b1[0] = -0.69
+op.w2[0] = -2.0
+# units 1-2: up by 4.0 between 61 s and 62 s
+op.W1[1, 8] = 1.0
+op.b1[1] = -1.96
+op.w2[1] = 285.7
+op.W1[2, 8] = 1.0
+op.b1[2] = -1.974
+op.w2[2] = -285.7
+# units 3-4: down by 2.7 between 67.5 s and 68.5 s
+op.W1[3, 8] = 1.0
+op.b1[3] = -2.048
+op.w2[3] = -192.9
+op.W1[4, 8] = 1.0
+op.b1[4] = -2.062
+op.w2[4] = 192.9

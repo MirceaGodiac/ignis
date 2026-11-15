@@ -42,21 +42,24 @@ export type EvidenceClass1 = "original_observation" | "source_derived" | "ignis_
  * via the `definition` "Quantity".
  */
 export type Quantity =
-  | "liquid_diameter"
-  | "visible_flame_diameter"
-  | "uv_flame_diameter"
-  | "droplet_position"
-  | "pressure"
-  | "mole_fraction"
-  | "temperature"
-  | "mass_flow"
-  | "volume_flow"
-  | "std_volume_flow"
-  | "front_contour"
-  | "front_position"
-  | "spread_rate"
-  | "flow_velocity"
-  | "gravity_level";
+  | (
+      | "liquid_diameter"
+      | "visible_flame_diameter"
+      | "uv_flame_diameter"
+      | "droplet_position"
+      | "pressure"
+      | "mole_fraction"
+      | "temperature"
+      | "mass_flow"
+      | "volume_flow"
+      | "std_volume_flow"
+      | "front_contour"
+      | "front_position"
+      | "spread_rate"
+      | "flow_velocity"
+      | "gravity_level"
+    )
+  | "phase_end_time";
 export type EvidenceClass2 = "original_observation" | "source_derived" | "ignis_derived" | "model_output" | "synthetic";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -1484,6 +1487,51 @@ export type ForecastInput =
       kind: "prefix";
     };
 /**
+ * How the numbers of a served hand-written release were written.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "Authorship".
+ */
+export type Authorship = "zero_shot" | "data_informed";
+/**
+ * Where a forecast input comes from.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ModelInputKind".
+ */
+export type ModelInputKind = "condition" | "control" | "observation" | "test_date" | "phase_start";
+/**
+ * Copied from the release record: `experimental` for a literal release.
+ */
+export type QualificationState2 =
+  | (
+      | "source_only"
+      | "measurement_qualified"
+      | "fit_only"
+      | "forecast_qualified"
+      | "event_qualified"
+      | "acquisition_evaluated"
+      | "unsupported"
+      | "insufficient_inference"
+      | "failed"
+    )
+  | "experimental";
+/**
+ * Copied from the release record: `not_trained` for a literal release.
+ */
+export type TrainedOn1 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
+/**
+ * A condition value of a typed scenario: a number in SI or a text (e.g. a fuel name).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ScenarioValue".
+ */
+export type ScenarioValue = number | string;
+/**
+ * Always `synthetic`: a typed scenario is not a measurement.
+ */
+export type EvidenceClass4 = "original_observation" | "source_derived" | "ignis_derived" | "model_output" | "synthetic";
+/**
  * How tasks are grouped for the cluster bootstrap of paired deltas.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -1654,7 +1702,7 @@ export type Lineage1 =
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "TrainedOn".
  */
-export type TrainedOn1 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
+export type TrainedOn2 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
 /**
  * Which number of a measured cell a value reads.
  *
@@ -1749,6 +1797,9 @@ export interface IgnisContracts {
   HandwrittenWeightPatch?: HandwrittenWeightPatch;
   ModelBuildManifest?: ModelBuildManifest;
   ForecastRequest?: ForecastRequest;
+  ModelCard?: ModelCard;
+  ScenarioRequest?: ScenarioRequest;
+  ScenarioAdmitted?: ScenarioAdmitted;
   EvaluationRequest?: EvaluationRequest;
   EvaluationResult?: EvaluationResult;
   GoldTask?: GoldTask;
@@ -4720,10 +4771,197 @@ export interface ForecastSettings {
   quantile_levels?: number[] | null;
   seed?: number;
   /**
+   * Which declared target to forecast, for releases that declare several (the generic law
+   * forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+   * of every other request is unchanged.
+   */
+  target?: string | null;
+  /**
    * Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one
    * time grid so that event metrics compare like with like.
    */
   times_s?: number[] | null;
+}
+/**
+ * What the server states about a served hand-written release besides its immutable record. Read
+ * from the deployment's served list (`configs/models/served.json`), never from a request.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ModelCard".
+ */
+export interface ModelCard {
+  authorship: Authorship;
+  /**
+   * One line on how it was written (zero-shot parts, revisions).
+   */
+  authorship_note: string;
+  /**
+   * The candidate name the authoring lane uses (D3, F2, ...).
+   */
+  candidate: string;
+  /**
+   * Model card (repository path).
+   */
+  card_doc?: string | null;
+  /**
+   * How to cite it.
+   */
+  cite: string;
+  family: Family;
+  /**
+   * What it forecasts, in one sentence.
+   */
+  forecasts: string;
+  inputs: ModelInput[];
+  /**
+   * What a stored run or a typed scenario must give, and why one may not be enough.
+   */
+  inputs_note: string;
+  /**
+   * NASA investigation(s) the release is written for, e.g. "FLEX (PSI-69)".
+   */
+  investigation: string;
+  limits: string[];
+  model_name: string;
+  release_id: ReleaseId;
+  schema_version: WspSchema;
+  scores: ReportedScore[];
+  state: QualificationState2;
+  /**
+   * Whether this deployment builds its prefix from a stored NASA run.
+   */
+  stored_runs: boolean;
+  trained_on: TrainedOn1;
+}
+/**
+ * One input a served release reads.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ModelInput".
+ */
+export interface ModelInput {
+  /**
+   * Example value for a typed scenario (never a measurement).
+   */
+  example?: {
+    [k: string]: unknown;
+  };
+  kind: ModelInputKind;
+  /**
+   * Condition key, control name, or quantity of the observations.
+   */
+  name: string;
+  /**
+   * What it is, in one line.
+   */
+  note: string;
+  /**
+   * The forward refuses a prefix without it.
+   */
+  required: boolean;
+  /**
+   * A text value (e.g. a fuel name), not a number.
+   */
+  text?: boolean;
+  /**
+   * SI unit of the value (`1` for dimensionless and text values).
+   */
+  unit_si: string;
+}
+/**
+ * A score as the authoring lane reported it, with where it was reported. Development numbers
+ * only: no score on a test partition is carried here.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ReportedScore".
+ */
+export interface ReportedScore {
+  /**
+   * Comparison as reported (baselines, intervals), if any.
+   */
+  comparison?: string | null;
+  /**
+   * Metric and the data it is measured on.
+   */
+  metric: string;
+  /**
+   * Document (repository path) and section the number is quoted from.
+   */
+  source: string;
+  /**
+   * The value as reported, with its unit, e.g. "40.0 µm".
+   */
+  value: string;
+}
+/**
+ * Conditions (and, where the release reads them, controls and an early prefix) typed by a person
+ * for a served release. The host admits it as a synthetic prefix (`evidence_class = synthetic`,
+ * never a NASA run) and returns its `input_hash` for `ForecastInput::Prefix`. There is no agent
+ * tool for it: a forecast never runs on a prefix a language model assembled from text.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ScenarioRequest".
+ */
+export interface ScenarioRequest {
+  conditions?: {
+    [k: string]: ScenarioValue;
+  };
+  controls?: ScenarioControl[];
+  /**
+   * Seconds since the release's time origin up to which the scenario is known.
+   */
+  cutoff_s: number;
+  /**
+   * Observations of the release's observed quantity at or before `cutoff_s`.
+   */
+  observations?: ScenarioPoint[];
+  /**
+   * Seconds since the time origin at which the modelled phase was established (burning
+   * droplet, ignited fabric), when the release reads it.
+   */
+  phase_established_at_s?: number | null;
+  release_id: ReleaseId;
+  schema_version: WspSchema;
+  /**
+   * Test date `YYYY-MM-DD`, for releases whose laws depend on the era of the test.
+   */
+  test_date?: string | null;
+}
+/**
+ * One control stage of a typed scenario.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ScenarioControl".
+ */
+export interface ScenarioControl {
+  control: string;
+  t_end_s?: number | null;
+  t_start_s: number;
+  value_si?: number | null;
+}
+/**
+ * One observation of a typed scenario before its cutoff (SI value of the observed quantity).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ScenarioPoint".
+ */
+export interface ScenarioPoint {
+  time_s: number;
+  value_si: number;
+}
+/**
+ * An admitted typed scenario: forecast it with `ForecastInput::Prefix { input_hash }`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ScenarioAdmitted".
+ */
+export interface ScenarioAdmitted {
+  condition_keys: string[];
+  cutoff_s: number;
+  evidence_class: EvidenceClass4;
+  input_hash: string;
+  observation_count: number;
+  release_id: ReleaseId;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -4782,6 +5020,12 @@ export interface ForecastSettings1 {
   n_points?: number | null;
   quantile_levels?: number[] | null;
   seed?: number;
+  /**
+   * Which declared target to forecast, for releases that declare several (the generic law
+   * forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+   * of every other request is unchanged.
+   */
+  target?: string | null;
   /**
    * Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one
    * time grid so that event metrics compare like with like.
@@ -5263,6 +5507,12 @@ export interface ForecastSettings2 {
   n_points?: number | null;
   quantile_levels?: number[] | null;
   seed?: number;
+  /**
+   * Which declared target to forecast, for releases that declare several (the generic law
+   * forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+   * of every other request is unchanged.
+   */
+  target?: string | null;
   /**
    * Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one
    * time grid so that event metrics compare like with like.

@@ -1,0 +1,17 @@
+{
+  "patch_id": "flex_heptane-wsp-v2-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-heptane-burning-rate)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the classical D^2-law with a population rate of 0.55 mm2/s, replaced by the prefix's own finite-difference rate as the prefix grows; no extinction, no cool flame and no evaporation. Same numbers as the baseline of flex_heptane-wsp-v1, with the tensors added by flex_heptane-wsp-v2 set to their neutral values. Data-informed candidates of flex_heptane-wsp-v2 are literal revisions of this release.",
+  "origin": "system"
+}

@@ -1,0 +1,254 @@
+{
+  "id": "sha256:9ed0451d6819839fe5c9a2825ba5ef08bcb01df025c6c20f37ccdff5bcf29e0a",
+  "family": "bass",
+  "model_name": "bass.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::bass::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 13,
+      "authored_total": 15,
+      "constant_total": 4,
+      "per_tensor": {
+        "enc.max_missing_frac": [
+          1,
+          1
+        ],
+        "enc.min_frames": [
+          1,
+          1
+        ],
+        "enc.window_frac": [
+          1,
+          1
+        ],
+        "num.max_lead_s": [
+          1,
+          1
+        ],
+        "op.damp_per_s": [
+          4,
+          3
+        ],
+        "op.gain": [
+          4,
+          3
+        ],
+        "op.persist_s": [
+          4,
+          4
+        ],
+        "unc.rel_v": [
+          1,
+          1
+        ],
+        "unc.sigma_m": [
+          1,
+          1
+        ],
+        "unc.sigma_v_m_s": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:fe03eb0d05cce37d2a49c3c4012b0bd3365d92ac2c4576998d69ae5685934cd1",
+    "spec_id": "bass-wsp-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "a_m",
+    "v_m",
+    "lead"
+  ],
+  "units": {
+    "a_m": "m",
+    "lead": "s",
+    "v_m": "m/s"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "not_inferred": "temperature, species, pyrolysis front, extinction",
+    "prefix": "single-valued contours on one transverse grid, at or before the cutoff",
+    "units": "metres only; a pixel contour is refused, never rescaled"
+  },
+  "numerics": {
+    "projection": "trapezoid integrals against four cosine modes (declared quadrature, no fit)",
+    "propagation": "closed form per mode",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "enc.max_missing_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "enc.min_frames",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "enc.window_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e580866d9f27d7d212fa36fb9be2c2c429064305ffdea838d1bb12aca9ca4764",
+      "trainable": false
+    },
+    {
+      "name": "num.max_lead_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e99ded87fd7d04c1f70ac034379c377c0aa3f68c23f3e18ad6fe4c058f91d4be",
+      "trainable": false
+    },
+    {
+      "name": "op.damp_per_s",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "0620a0b3afe07bf8bc650cccd98478cc9d93ef350e5f3f4264181696638a7205",
+      "trainable": false
+    },
+    {
+      "name": "op.gain",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "efa4c3cd7d4689cd097b05ab911cf424fc272de46fd2075ac07bb2ec24e908ea",
+      "trainable": false
+    },
+    {
+      "name": "op.persist_s",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "580cc9d7e3fffa33cb2d59a1571748e5ee4f9993de5bf410349fe22e48530d1c",
+      "trainable": false
+    },
+    {
+      "name": "unc.rel_v",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "455eccc24ae37a41bea50acbf4fdb2b29812bcb8a8d92dc3ac838e5e08156de7",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_v_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "94c77aa9ca2481019d6542fbf464d7c53cf6b641a3ab56eebf6b4f8bd14e83a5",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:f66dc826dc830db0efeec395ef4f2f57c6fe3b0b15853c6cc2fb9d2afc06b278",
+  "split_id": "sha256:4083156d5b18dab45889b274812d12fa9c144dec5880fb3a8906e380468b043a",
+  "source_manifest_hash": "sha256:405c774caa6926ecb5fa6c79969b092e713fffea79df3d724b6d19ac08ca48aa",
+  "code_version": "ignis-wsp@0.1.0+fwd.79b2690f33d1d901",
+  "applicability": {
+    "observable": "luminous front position in a metrically calibrated camera plane",
+    "qualification": "none possible today: no BASS run of the cohort has a metric calibration, so no metric forecast has been or can be scored; the release is runnable and unevaluated",
+    "refuses": "pixel-only contours, contours without a calibration, fewer than four usable contours",
+    "time_origin": "video PTS of the mapped main-view recording (attached by the vision lane; not yet adjudicated)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": null,
+  "lineage": "literal_authoring",
+  "lineage_note": "W0, one shot. A diagonal operator on four cosine modes of the front contour: the mean front keeps the velocity the prefix shows, the shape modes relax at curvature-smoothing rates and their drift fades. Twelve coefficients and three assumed",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-13T19:37:16.847808Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_one_shot",
+    "spec_id": "bass-wsp-v1",
+    "spec_hash": "sha256:fe03eb0d05cce37d2a49c3c4012b0bd3365d92ac2c4576998d69ae5685934cd1",
+    "patch_id": "bass-wsp-v1-w0-fable",
+    "patch_hash": "sha256:5c7fbf642f87b232e5f3c1fa078fbdacb9e1aad3be177504253a967676b7426b",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/design/IGNIS_MASTER_V2.md",
+        "repo:crates/ignis-bass(code-and-config-only)",
+        "repo:crates/ignis-vision(code-only)",
+        "repo:configs/models/bass",
+        "web:rikiyat.github.io/blog/weight-space-programming",
+        "author:pretraining-knowledge(unverifiable)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "bass-4083156d5b18dab4(input-metadata-only:conditions,calibration-status)",
+          "partitions": [
+            "train"
+          ]
+        }
+      ],
+      "development_feedback": [],
+      "prior_candidates": []
+    },
+    "weights_hash": "sha256:55a4c3f3911f9a5c33b2cf2b424bb3acbf2671a9bc78cf31fafe4599ce11297f",
+    "forward": {
+      "entry_point": "ignis_wsp::bass::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:79b2690f33d1d901e3efae99f78346b68b72e60ed640878775907714d4f12311",
+    "code_version": "ignis-wsp@0.1.0+fwd.79b2690f33d1d901",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "15 authored elements (13 nonzero), 4 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

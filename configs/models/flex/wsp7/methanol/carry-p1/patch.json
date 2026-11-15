@@ -1,0 +1,95 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "flex_methanol-wsp-v8-carry-p1",
+  "spec_hash": "sha256:2a4bff4ca4beb939c0acab4bf252b5abf551bf0ee48b167861efa1812c330f2b",
+  "parent_release_id": "sha256:371cec17a50c780b76adb7b890c13c4eab24973dee8730097ff4921fd64b86cb",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "repo:docs/wsp/research/phys_flex_methanol.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-runs-and-published-theory;a-proposal;no-independent-check-was-made-of-it)",
+      "repo:docs/wsp/research/properties_verified.md;repo:docs/wsp/research/properties(property-values-looked-up-in-standard-sources-by-a-delegated-agent,claude-fable-5-2:vapour-pressure,latent-heat,liquid-heat-capacity,evaporation-constants)",
+      "analysis:the-author's-evaluation-of-the-self-cooling-law-against-the-after-flame-rates-of-the-train-runs-at-two-sizes(windows-of-the-physics-dossier)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:configs/models/flex/wsp4/methanol/f1-fable(the-camera-and-heavy-tail-values,typed-there-first)",
+      "author:pretraining-knowledge(unverifiable)",
+      "repo:crates/ignis-wsp/src/droplet8.rs(forward-and-spec;the-law-of-droplet6.rs-for-eight-fuels)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce",
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+      "sha256:f1f723892493030df0525e3410c7fca42e6709a384b224a69e20d188836b28fb",
+      "sha256:b2f6930fc58ddcc0565f25e3968ffa405a718379584890850794bf5ec34a4e97",
+      "sha256:2181b643430a31aefa8e774e9b9523f6f09b343957f1bdcae04ea435512545be",
+      "sha256:2e4c55f44b78b5eaae555b879358c22fafc675002d6f441255acbe8af4989397"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "rob.eps_r",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "fl.trust",
+      "index": [],
+      "value": 0.95
+    },
+    {
+      "op": "set",
+      "tensor": "fl.t_min_s",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "fl.gap_s",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "fl.min_points",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "fl.evap_mix",
+      "index": [],
+      "value": 0.5
+    }
+  ],
+  "rationale": "Neutral carry, not a candidate: flex_methanol.wsp5 P1 (sha256:7884e61c9995d40b7f12f140a68b782aa02a811e774143cd128f6e71e25c141a) on droplet8.rs, the law of droplet6.rs for eight fuels. Its statements and those of its lineage in configs/models/flex/wsp5/methanol copied without change by the engineer (claude-opus-5-5); no number was changed or added. Inside the domain of droplet6.rs, at forecast times before 45 s, it gives the forecasts of that release and stands in for it in paired comparisons with candidates of spec flex_methanol-wsp-v8.",
+  "origin": "system"
+}

@@ -1,0 +1,83 @@
+# flex_methanol.wsp5 — P0 literal revision of the carry of D3 sha256:2181b643…45be, spec flex_methanol-wsp-v6
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. The carried numbers
+# (flex_methanol.wsp2 D3) with three laws revised from the physical mechanism: a physics dossier on
+# these droplets (docs/wsp/research/phys_flex_methanol.md), property values looked up in standard
+# sources (docs/wsp/research/properties_verified.md), and the author's own evaluation against the
+# TRAIN runs. Every number typed by the author; no fit, no search. The author had seen the aggregate
+# validation tables of the earlier candidates and the CONDITIONS of the validation runs (inputs
+# only); no validation outcome was read and nothing below was chosen from a score. The flame cameras
+# are not read by this candidate.
+#
+# c = (c_o2, c_co2, c_he, c_logp), as in the carried model: c_o2 = (x_O2 - 0.21)/0.05,
+# c_logp = ln(p / 1e5 Pa).
+
+# =====================================================================================================
+# 1. An unlit droplet evaporates on its own stored heat
+# =====================================================================================================
+# When the flame leaves, the liquid is close to its boiling point and evaporates fast; the latent
+# heat comes out of the liquid, which cools, and the rate falls. The rate K obeys K0 / (1 + t/t0)
+# with t0 = T* c_l D^2 / (1.5 K0 L): the decay time grows as the square of the diameter, which the
+# carried law (an amplitude growing as D^0.45, a time as D^0.2) could only imitate.
+#   K0 = 0.30 mm2/s   evaporation constant of methanol in nitrogen at 1 atm with the liquid at 330 K,
+#                     8 K below boiling (standard vapour pressure and diffusivity: 0.30 to 0.32)
+#   T* = 16 K         cooling that lowers that constant by e, between 330 and 300 K (0.30 to 0.045)
+#   c_l = 2650 J/kg/K, L = 1.118 MJ/kg   liquid methanol between 300 and 330 K
+# Against the train runs, with these values and nothing adjusted (D2 rate in mm2/s over 0.3-2, 2-5,
+# 5-10 and 10-20 s after the flame, with the floor below):
+#   flame lost early at about 3 mm     0.152  0.078  0.048  0.032   measured 0.143  0.085  0.052  0.035
+#   water extinction at about 1.3 mm   0.046  0.023  0.016  0.011   measured 0.057  0.029  0.010  0.006
+# (the carried law: 0.128 0.072 0.035 0.022 and 0.081 0.040 0.018 0.012).
+# After a water extinction the liquid holds about 30 % water and is less volatile: half.
+# A floor remains when the stored heat is spent: the gas the flame left is warm for some seconds
+# (0.025 mm2/s, fading over 15 s), and the droplet then evaporates near its wet-bulb temperature.
+# Pure methanol would give 0.018 mm2/s at 285 K by the same tables; the liquid holds water by then
+# and the small train droplets show 0.006-0.010 late: 0.012.
+# Gas: fuel vapour diffuses faster through helium (1.27 times at 30 %, 1.46 at 45 %, for a hot
+# droplet); CO2 changes it by less than a tenth, with a sign the two standard forms of the law
+# disagree on (zero typed); at the boiling point of each pressure the constant rises slightly with
+# pressure (0.95 at 0.7 atm, 1.12 at 2 atm).
+sc.on = 1.0
+sc.k0_hot_mm2_s = 0.3
+sc.tstar_k = 16.0
+sc.cl_j_kg_k = 2650.0
+sc.lat_j_kg = 1118000.0
+sc.gas[0:3] = [0.8, 0.0, 0.15]
+sc.k_cold_mm2_s = 0.012
+sc.k_warm_mm2_s = 0.025
+sc.tau_warm_s = 15.0
+sc.diff_scale = 0.5
+
+# =====================================================================================================
+# 2. The critical diameter above 15 % oxygen, and above 1 atm
+# =====================================================================================================
+# The carried law, ln(D_crit / 2 mm) = 1.51 + 0.75 c_o2 ..., was typed from train pairs that bracket
+# the critical diameter at 12, 14 and 15 % oxygen, and extrapolates to 5.8 mm at 18 % and 9 mm in
+# air. Train says nothing there except that droplets up to 3.9 mm burned on. Physics does: the
+# margin of the flame temperature over its extinction temperature grows more slowly with oxygen
+# above 15 %, and gives 3.9 mm at 18 % and 4.5 mm in air; drop-tower and earlier space experiments
+# put the critical diameter in air at 4 to 4.5 mm. Typed: no growth above 18 % oxygen. In nitrogen
+# at 1 atm that is 5.8 mm for every oxygen fraction from 18 % up (the value the carried law has at
+# 18 %); the largest train droplet that burned on there, 4.3 mm, is at 0.74 of it. It is a cap, not
+# the physical value: the bracket at 18 % is open, and the cap keeps what train supports.
+# A first version of this file began the flattening at 15 % and made train worse by 3 micrometres:
+# at 18 % oxygen in 40 % CO2 and 0.7 atm two train droplets pin the critical diameter near 3.3 mm,
+# and the flatter slope moved it to 2.5 mm. Below 18 % the carried slope is train's and stays.
+crit.W1[0, 0] = 1.0
+crit.b1[0] = 0.6
+crit.w2[0] = -0.75
+# Pressure. The carried term (+0.7 per e-fold) was typed from runs at 0.7 atm, all of them in 40-50 %
+# CO2 or 45 % helium, where it separates the train outcomes; it stays below 1 atm. Above 1 atm it
+# gives 11 mm at 3 atm, and radiation, whose emission grows with pressure, says the opposite: a
+# 3.0 mm train droplet at 3 atm lost its flame early. Above 1e5 Pa the slope becomes -0.25.
+crit.W1[1, 3] = 1.0
+crit.b1[1] = 0.0
+crit.w2[1] = -0.95
+
+# =====================================================================================================
+# 3. The water extinction has no pressure term
+# =====================================================================================================
+# The carried -0.6 per e-fold of pressure in the diffusive law was typed from the run at 3 atm whose
+# early flame-out is radiative (section 2 now covers it); at 0.7 atm it moved the extinction from
+# 0.455 to 0.425 of the initial diameter with no run behind it. The liquid water fraction at which
+# the flame goes out (about 0.30) does not depend on pressure in the theory.
+diff.skip[0:6] = [0.12, 0.0, 0.0, 0.0, 0.0, 0.0]

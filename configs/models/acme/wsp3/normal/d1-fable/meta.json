@@ -1,0 +1,42 @@
+{
+  "patch_id": "acme_normal-wsp-v3-d1-fable",
+  "parent_release_id": "sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only)",
+      "repo:docs/wsp/cards/acme_clock.md(states-which-fuel-and-pressure-combinations-the-validation-sessions-hold;written-in-phase-2;not-used-here)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7",
+      "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab",
+      "sha256:3c90129eb746e3530d440822f5d447d8fbc422c590bd9f1bb9aace29d9d549b1",
+      "sha256:32822270de2ca8a6b25f32fbf1888b5e83475f8e2a9ec3306e2b002ae25894d7"
+    ]
+  },
+  "rationale": "D1 of the growth-clock spec, data-informed (not zero-shot). The radiative self-extinction time is the published physics of a growing spherical flame: a quasi-steady radius, a critical fuel flux, a reduced flow below which the flame is held, and the time for the flame to reach its extinction radius. With the published constants it already places the holding flow and the lives of the enriched ethane flames; the train table adds what the simple theory lacks (the clock runs faster with pressure and in air, slower for a dilute burner gas, faster for butane in enriched oxygen). The burner limit is a heating law written from the peak burner temperatures of the train flames (a post-run fact used to write the law, never an input) and two limit settings. The weak class is a soft boundary in adiabatic temperature. Every number typed by the author; no fit, no search; nothing chosen from validation.",
+  "origin": "system"
+}

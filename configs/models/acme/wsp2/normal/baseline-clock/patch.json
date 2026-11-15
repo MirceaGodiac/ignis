@@ -1,0 +1,130 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_normal-wsp-v2-baseline-clock",
+  "spec_hash": "sha256:3c9ab8becd5a1c743227fecf4a208545536a41b307185240df42148a93005300",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/flame.rs(forward-and-spec)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.tau.b0",
+      "index": [],
+      "value": 3.4
+    },
+    {
+      "op": "fill_box",
+      "tensor": "se.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -40.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "se.flash.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.b0",
+      "index": [],
+      "value": 4.6
+    },
+    {
+      "op": "fill_box",
+      "tensor": "ft.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.floor_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.shape",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_tau_s",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.shape",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "ft.atom_t_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "ft.atom_logit",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": -40.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -40.0
+    }
+  ],
+  "rationale": "Reference baseline and lineage root, not a candidate: one condition-free clock per cause (self-extinction median 30 s, flow termination median 100 s, shape 1), no weak class, no programmed stop. Data-informed candidates of acme_normal-wsp-v2 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

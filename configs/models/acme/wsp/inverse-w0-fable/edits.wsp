@@ -1,0 +1,37 @@
+# acme_inverse.wsp — W0 literal weights, spec acme_inverse-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). One shot: written from the frozen spec and flame theory,
+# before this model was run on anything and before any ACME endpoint was looked at.
+#
+# Inverse configuration: OXIDISER (O2/N2) issues from the porous burner into a fuel/N2 chamber. The
+# roles of the streams are the opposite of the normal configuration; this parameter set is written
+# for these roles and shares no value with the normal one by construction. Network input x:
+#   c_logp = ln(p / 101325 Pa)          c_logm = ln(O2 mass flow / 5 mg/s)
+#   c_o2 = (injected x_O2 - 0.50)/0.25  c_xf = ln(ambient fuel fraction / 0.10)
+#   c_tad = (T_ad - 2200 K)/300 K       c_zst = (Z_st - 0.45)/0.20
+#   f_ethane, f_butane (propane = 0)    x_t = ln(1 + t / 10 s)
+
+# -----------------------------------------------------------------------------------------------------
+# Spontaneous (radiative) extinction
+# -----------------------------------------------------------------------------------------------------
+# At the reference (5 mg/s of O2 at 50 % in N2 into 10 % propane) the flame-sheet estimate gives
+# r_f = 18 mm for about 65 W, a radiative fraction close to the normal reference. In an inverse flame
+# the hot products and soot precursors lie OUTSIDE the sheet, in the fuel-rich gas, so the radiating
+# volume is taken somewhat larger: median extinction at 17 s instead of 20 s.
+ext.b0 = -4.6
+#            c_logp c_logm c_o2 c_xf c_tad  c_zst eth  but  x_t
+ext.skip[0:9] = [0.5, 1.6, 0.0, 0.0, -0.8, 0.0, 0.0, 0.0, 2.0]
+ext.W1[0, 8] = 1.0
+ext.b1[0] = -1.1
+ext.w2[0] = -2.0
+# Flow here is the OXIDISER flow: the flame radius scales with it exactly as it scales with the fuel
+# flow in the normal configuration, hence the same exponent; pressure and T_ad as for any optically
+# thin flame.
+
+# -----------------------------------------------------------------------------------------------------
+# Operator termination — same protocol assumption as the normal configuration
+# -----------------------------------------------------------------------------------------------------
+op.b0 = -11.1
+op.skip[0:9] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0]
+op.W1[0, 8] = 1.0
+op.b1[0] = -2.08
+op.w2[0] = -5.0

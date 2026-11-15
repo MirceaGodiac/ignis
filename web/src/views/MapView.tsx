@@ -1,135 +1,240 @@
-// Atmosphere map (T9): runs by recorded ambient oxygen and pressure against the crew atmospheres,
-// from the conditions table of the 19 flight investigations (K1.13). Only recorded values are placed;
-// every run that cannot be placed is counted with the reason.
-import { useMemo, useState } from "react";
+// Atmosphere map tab: the interactive map, its layers (investigations, crew atmospheres), and beside it
+// the test points nearest the chosen atmosphere and the selected point's runs.
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ConditionsRow, ConditionsTable } from "../contracts/generated";
-import { pointsFromConditions } from "../research/mapPoints";
+import { invColor, invName, INVESTIGATIONS } from "../data/investigations";
+import { HABITAT_LIST, type HabitatId } from "../research/habitats";
+import { conditionsView, offset, offsetText, type ConditionsView, type Standing, type TestPoint } from "../research/testPoints";
 import { useData } from "../shell/data";
-import { href } from "../shell/router";
-import { ErrorNote, Gap, OriginMark } from "../ui/common";
-import { AtmosMap, HABITATS, moonDistance, PSI } from "./AtmosMap";
+import { usePanel } from "../shell/inspector";
+import { keep, readKept } from "../shell/persist";
+import { Gap } from "../ui/common";
+import { ConditionsMap, HOME, ShapeSwatch, type Domain } from "./ConditionsMap";
 
 const PAGE = 1000;
 
-export function MapView() {
-  const { client, researchMode, synthetic } = useData();
-  const [inv, setInv] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
-  // The map needs every run, so it reads all pages; only the three keys it draws or labels.
-  const table = useQuery({
-    queryKey: [researchMode, "conditions", "map"],
-    queryFn: async (): Promise<ConditionsTable> => {
+/** A run's own name: the id without investigation, family token and day. */
+const runLabel = (id: string) => id.split(":").slice(1).filter((p) => !/^(acme_normal|acme_inverse|flex|bass)$/.test(p) && !/^\d{4}-\d{2}-\d{2}$/.test(p)).join(" ") || id;
+
+/** The test points on screen as CSV: one row per test point, every run id kept. */
+function downloadCsv(points: TestPoint[]) {
+  const q = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const rows = [["investigation", "name", "fuel", "oxygen_percent", "pressure_kpa", "pressure_psi", "runs", "run_ids"]];
+  for (const p of points)
+    rows.push([p.investigation, invName(p.investigation), p.fuel ?? "", (p.o2 * 100).toFixed(2), p.kpa.toFixed(2), (p.kpa / 6.894757).toFixed(2), String(p.runs.length), p.runs.join(" ")]);
+  const blob = new Blob([rows.map((r) => r.map(q).join(",")).join("\n") + "\n"], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ignis-test-points.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+type KeptView = Omit<ConditionsView, "byInvestigation"> & { byInvestigation: [string, Standing][] };
+
+/**
+ * Every row of the conditions table (the keys the views read), reduced to test points and standings,
+ * shared by the map and the atmosphere ranking. The reduced view (tens of kilobytes) is kept in this
+ * browser and shown at once on the next visit while the table loads again.
+ */
+export function useConditionsView() {
+  const { client, researchMode } = useData();
+  const key = `conditions-view:${researchMode}`;
+  const [kept, setKept] = useState<ConditionsView | undefined>();
+  useEffect(() => {
+    let live = true;
+    void readKept<KeptView>(key).then((k) => live && k && setKept({ ...k.value, byInvestigation: new Map(k.value.byInvestigation) }));
+    return () => {
+      live = false;
+    };
+  }, [key]);
+  return useQuery({
+    queryKey: [researchMode, "conditions", "view"],
+    queryFn: async (): Promise<ConditionsView> => {
       const rows: ConditionsRow[] = [];
       let cursor: string | null = null;
-      let first: ConditionsTable | null = null;
       do {
         const page: ConditionsTable = await client.conditions({ schema_version: "dataset.v2", keys: ["oxygen_mole_fraction", "pressure", "fuel"], include_unknown: true, page_size: PAGE, cursor });
-        first ??= page;
         rows.push(...page.rows);
         cursor = page.next_cursor ?? null;
       } while (cursor);
-      return { ...first!, rows, next_cursor: null };
+      const v = conditionsView(rows);
+      void keep<KeptView>(key, { ...v, byInvestigation: [...v.byInvestigation] });
+      return v;
     },
-    retry: false,
+    placeholderData: kept,
+    retry: 2,
+    staleTime: 10 * 60_000,
   });
-  const { points, unplaced } = useMemo(() => pointsFromConditions(table.data ?? { rows: [] }), [table.data]);
-  const counts = useMemo(() => points.reduce<Record<string, number>>((m, p) => ((m[p.investigation] = (m[p.investigation] ?? 0) + 1), m), {}), [points]);
-  const kpaSpan = Math.max(110, ...points.map((p) => p.kpa));
-  const nearest = useMemo(() => points.map((p) => ({ p, d: moonDistance(p.o2, p.kpa, kpaSpan) })).sort((a, b) => a.d - b.d).slice(0, 8), [points, kpaSpan]);
-  const picked = points.find((p) => p.id === selected) ?? null;
-  const total = table.data?.rows.length ?? 0;
+}
+
+export function MapView({ focus }: { focus?: string | null }) {
+  const q = useConditionsView();
+  const panel = usePanel();
+  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
+  const [habitats, setHabitats] = useState<Set<HabitatId>>(() => new Set(["moon", "suit", "iss"]));
+  const [near, setNear] = useState<HabitatId>("moon");
+  const [selected, setSelected] = useState<string | null>(null);
+  const [domain, setDomain] = useState<Domain>(HOME);
+
+  const v = q.data;
+  const invs = useMemo(() => {
+    if (!v) return [];
+    const m = new Map<string, number>();
+    for (const p of v.points) m.set(p.investigation, (m.get(p.investigation) ?? 0) + p.runs.length);
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  }, [v]);
+  // An investigation opened from a card: only it, framed.
+  const [focused, setFocused] = useState<string | null>(null);
+  if (v && focus && focus !== focused) {
+    setFocused(focus);
+    setHidden(new Set(invs.map(([id]) => id).filter((id) => id !== focus)));
+    const ps = v.points.filter((p) => p.investigation === focus);
+    if (ps.length) {
+      const ks = ps.map((p) => p.kpa);
+      setDomain({ x: [0.1, 1.03], y: [0, Math.max(150, Math.max(...ks) * 1.1)] });
+    }
+  }
+  if (q.isPending) return <p className="muted">Loading…</p>;
+  if (q.error || !v) return <Gap title="Conditions are not available on this server">{(q.error as Error)?.message}</Gap>;
+
+  const maxKpa = Math.max(150, ...v.points.map((p) => p.kpa));
+  const h = HABITAT_LIST.find((x) => x.id === near)!;
+  const nearest = v.points
+    .filter((p) => !hidden.has(p.investigation))
+    .map((p) => ({ p, o: offset(p.o2, p.kpa, h) }))
+    .sort((a, b) => a.o.distance - b.o.distance || b.p.runs.length - a.p.runs.length)
+    .slice(0, 8);
+  const sel = v.points.find((p) => p.key === selected) ?? null;
+  const toggle = (id: string) => setHidden((s) => (s.has(id) ? new Set([...s].filter((x) => x !== id)) : new Set([...s, id])));
+  const center = (o2: number, kpa: number) =>
+    setDomain((d) => {
+      const wx = d.x[1] - d.x[0];
+      const wy = d.y[1] - d.y[0];
+      return { x: [o2 - wx / 2, o2 + wx / 2], y: [Math.max(0, kpa - wy / 2), Math.max(0, kpa - wy / 2) + wy] };
+    });
 
   return (
-    <div className="view">
-      <div className="view-head">
-        <h1>Atmosphere map</h1>
-        <div className="toolbar">
-          {table.data && <OriginMark origin={table.data.origin} pageSynthetic={synthetic} />}
-          <a className="btn btn-s" href={href("conditions")}>
-            Conditions table
-          </a>
+    <div className="mapv">
+      <div className="mapv-layers">
+        <div className="chips" role="group" aria-label="Investigations shown">
+          {invs.map(([id, n]) => (
+            <button key={id} className={`chip-t${hidden.has(id) ? " off" : ""}`} aria-pressed={!hidden.has(id)} onClick={() => toggle(id)} title={INVESTIGATIONS.get(id)?.title ?? id}>
+              <ShapeSwatch id={id} />
+              {invName(id)}
+              <span className="n">{n}</span>
+            </button>
+          ))}
+          <span className="chips-sep" />
+          <button className="linkish small" onClick={() => setHidden(new Set())}>
+            All
+          </button>
+          <button className="linkish small" onClick={() => setHidden(new Set(invs.map(([id]) => id)))}>
+            None
+          </button>
+        </div>
+        <div className="chips" role="group" aria-label="Crew atmospheres shown">
+          {HABITAT_LIST.map((x) => (
+            <button
+              key={x.id}
+              className={`chip-t${habitats.has(x.id) ? "" : " off"}`}
+              aria-pressed={habitats.has(x.id)}
+              onClick={() => setHabitats((s) => (s.has(x.id) ? new Set([...s].filter((y) => y !== x.id)) : new Set([...s, x.id])))}
+            >
+              <span className={`hab-sw hab-${x.id}`} aria-hidden="true" />
+              {x.label}
+            </button>
+          ))}
         </div>
       </div>
-      {table.isPending && <p className="muted">Loading conditions…</p>}
-      {table.error && (
-        <>
-          <ErrorNote error={table.error} title="The conditions service did not answer" />
-          <Gap title="The map reads the conditions table">The conditions query (R9) and its route (M11) are not on this server yet.</Gap>
-        </>
-      )}
-      {table.data && (
-        <>
-          <div className="seg" role="group" aria-label="Highlight an investigation" style={{ flexWrap: "wrap" }}>
-            <button aria-pressed={inv === null} onClick={() => setInv(null)}>
-              All <span className="count">{points.length}</span>
+
+      <div className="mapv-grid">
+        <div className="card mapv-chart">
+          <ConditionsMap points={v.points} hidden={hidden} habitats={habitats} selected={selected} onSelect={setSelected} domain={domain} setDomain={setDomain} maxKpa={maxKpa} />
+          <p className="mapv-foot">
+            <button className="linkish" onClick={() => downloadCsv(v.points.filter((p) => !hidden.has(p.investigation)))}>
+              Download CSV
             </button>
-            {Object.entries(counts)
-              .sort((a, b) => b[1] - a[1])
-              .map(([i, n]) => (
-                <button key={i} aria-pressed={inv === i} onClick={() => setInv(inv === i ? null : i)}>
-                  {i} <span className="count">{n}</span>
+            {" · "}
+            {v.points.length} test points from {v.placedRuns} of {v.runs} runs · {v.unplaced.o2 + v.unplaced.pressure + v.unplaced.both} without both O₂ and pressure · {v.unplaced.notAtmosphere} with O₂ only in the burner stream · no partial-gravity tests
+          </p>
+        </div>
+
+        <aside className="card mapv-side">
+          {sel ? (
+            <div className="panel-sec">
+              <div className="mapv-sel-head">
+                <ShapeSwatch id={sel.investigation} size={14} />
+                <b>{invName(sel.investigation)}</b>
+                <button className="btn btn-quiet btn-s" style={{ marginLeft: "auto" }} onClick={() => setSelected(null)}>
+                  Close
                 </button>
-              ))}
-          </div>
-          <section className="card map-grid" aria-label="Runs by oxygen and pressure">
-            <div>
-              <div className="card-body">
-                <AtmosMap points={points} selected={selected} filter={inv} onSelect={(id) => setSelected(selected === id ? null : id)} />
               </div>
-              <div className="map-legend">
-                <span>
-                  {points.length} of {total} runs placed
-                  {unplaced.both + unplaced.o2 + unplaced.pressure > 0 && ` · ${unplaced.both + unplaced.o2 + unplaced.pressure} lack O₂ or pressure`}
-                  {unplaced.notAtmosphere > 0 && ` · ${unplaced.notAtmosphere} with burner-stream O₂ (not the atmosphere)`}
-                </span>
-                <span>Moon base and rovers {HABITATS.moon.sub}</span>
-                <span>No partial-gravity data in the tables</span>
+              <p className="muted small">{INVESTIGATIONS.get(sel.investigation)?.title}</p>
+              <dl className="kv">
+                <dt>Fuel</dt>
+                <dd>{sel.fuel ?? "not stated"}</dd>
+                <dt>Oxygen</dt>
+                <dd className="num">{(sel.o2 * 100).toFixed(1)} %</dd>
+                <dt>Pressure</dt>
+                <dd className="num">
+                  {sel.kpa.toFixed(1)} kPa · {(sel.kpa / 6.894757).toFixed(1)} psi
+                </dd>
+                {HABITAT_LIST.map((x) => (
+                  <div key={x.id} style={{ display: "contents" }}>
+                    <dt>{x.short}</dt>
+                    <dd className="num">{offsetText(offset(sel.o2, sel.kpa, x))}</dd>
+                  </div>
+                ))}
+              </dl>
+              <h3>
+                {sel.runs.length} run{sel.runs.length === 1 ? "" : "s"}
+              </h3>
+              <div className="run-chips">
+                {sel.runs.map((id) => (
+                  <button key={id} className="linkish small" onClick={() => panel.open({ kind: "run", id })}>
+                    {runLabel(id)}
+                  </button>
+                ))}
               </div>
             </div>
-            <aside className="map-side" aria-label="Selected run and the runs closest to the Moon-base atmosphere">
-              {picked && (
-                <div className="panel-sec">
-                  <h3>Selected run</h3>
-                  <dl className="kv">
-                    <dt>run</dt>
-                    <dd>
-                      <code>{picked.id}</code>
-                    </dd>
-                    <dt>investigation</dt>
-                    <dd>{picked.investigation}</dd>
-                    <dt>fuel</dt>
-                    <dd>{picked.fuel ?? "not stated"}</dd>
-                    <dt>O₂</dt>
-                    <dd className="num">
-                      {picked.approximate ? "~" : ""}
-                      {(picked.o2 * 100).toFixed(1)} %
-                    </dd>
-                    <dt>pressure</dt>
-                    <dd className="num">
-                      {picked.kpa.toFixed(1)} kPa ({(picked.kpa / PSI).toFixed(1)} psi)
-                    </dd>
-                  </dl>
-                </div>
-              )}
-              <div className="panel-sec">
-                <h3>Closest to Moon-base air</h3>
-                <ol className="rank">
-                  {nearest.map(({ p, d }) => (
-                    <li key={p.id}>
-                      <button onClick={() => setSelected(p.id)} aria-pressed={selected === p.id}>
-                        <span className="cell-id">{p.id}</span>
-                        <span className="v">{d === 0 ? "inside" : `${(p.o2 * 100).toFixed(0)}% · ${p.kpa.toFixed(0)} kPa`}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ol>
-                <p className="muted small">Distance on both axes; geometry, not a model.</p>
+          ) : (
+            <div className="panel-sec">
+              <h3>Nearest tests</h3>
+              <div className="seg" role="group" aria-label="Atmosphere">
+                {HABITAT_LIST.map((x) => (
+                  <button key={x.id} aria-pressed={near === x.id} onClick={() => setNear(x.id)}>
+                    {x.short}
+                  </button>
+                ))}
               </div>
-            </aside>
-          </section>
-        </>
-      )}
+              <p className="muted small">{h.sub}</p>
+              <ol className="near">
+                {nearest.map(({ p, o }) => (
+                  <li key={p.key}>
+                    <button
+                      onClick={() => {
+                        setSelected(p.key);
+                        center(p.o2, p.kpa);
+                      }}
+                    >
+                      <span className="dotc" style={{ background: invColor(p.investigation) }} aria-hidden="true" />
+                      <span className="t">
+                        <b>{invName(p.investigation)}</b> {p.fuel ?? ""}
+                        <span className="muted">
+                          {(p.o2 * 100).toFixed(1)} % · {p.kpa.toFixed(0)} kPa · {p.runs.length} run{p.runs.length === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                      <span className={o.inside ? "tag tag-ok" : "v"}>{o.inside ? "inside" : offsetText(o)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

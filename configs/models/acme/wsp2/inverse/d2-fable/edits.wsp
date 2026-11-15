@@ -1,0 +1,14 @@
+# acme_inverse.wsp2 — D2 literal revision of D1 sha256:6a3d5837…3cad, spec acme_inverse-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED. Calibration only: no clock median of D1 changes.
+#
+# What was seen before writing this: the aggregate validation table of D1 (integrated Brier scores)
+# and the validation run CONDITIONS (inputs). No per-run validation outcome or score was read. The
+# two validation sessions hold fuel, pressure and dilution combinations that the train sessions do
+# not, and D1's validation scores are three times its train scores: clocks typed against the train
+# table are less sure of their medians on a new session than their train residuals say. The clocks
+# keep their medians and are made wider.
+
+# Radiative self-extinction clock: sd of ln R from 0.60 to 0.82.
+se.shape = 2.2
+# Burner-limit clock.
+ft.shape = 2.5

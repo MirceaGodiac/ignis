@@ -1,0 +1,40 @@
+# bass_front.wsp — D2 literal revision of D1 sha256:ac15e49f…855c, spec bass_front-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED AND VALIDATION-INFORMED. Written after the
+# author read the aggregate validation table of D1 (docs/wsp/RESULTS.md): the tip forecast held
+# (CRPS 0.117 sample widths against 0.234 for persistence) and the quench law did not: on "spread or
+# no spread from the conditions alone" D1 scores 0.170 where saying "it spreads" every time scores
+# 0.125. No per-burn score, position or outcome of a validation burn was read; the author does not
+# know which burns the law got wrong.
+#
+# What this revision does: it withdraws the part of the quench law that places a boundary in oxygen,
+# and keeps the part that needs no boundary. Nothing else changes; the spread rate, the overhang,
+# the burn-through time, the encoder and the bands are D1's, so the tip forecast is D1's.
+#
+# Why the boundary goes and nothing is typed in its place. D1 put the quench velocity on the
+# published curve for tissue moved up by 3 % oxygen, and a step below 17.2 % oxygen at any flow.
+# Both rested on one train burn that never spread (16.4 %, 6 cm/s) and one that did (17.6 %): the
+# limit of this fabric lies somewhere between, and where it lies was a guess typed as a sharp line.
+# A second guess typed after one aggregate score would be no better founded. A hazard is also the
+# wrong shape for it: a sample either carries a flame at its conditions or does not, and a flame
+# seen spreading at the cutoff has answered that question. This forward has no such class.
+#
+# features (u, c_o2, c_w), columns 0..2:  u = U / 5 cm/s - 1,  c_o2 = (X_O2 - 0.19) / 0.02
+# ln(quench rate / 1 per s) = b0 + sum_j w2[j] relu(b1[j] + W1[j, :] . c)
+
+# The background rate stays: a flame that is spreading, one quench in 1100 s (D1: three train flames
+# spread for 100 s, one of them gone at the end of the sample).
+#   quench.b0 = -7.0   (unchanged, not restated)
+
+# Unit 0: what holds at any oxygen up to 21 %. The lowest quench velocity of the published boundary
+# of a thin fuel is 1.0 cm/s (tissue at 21 % oxygen; it is higher at every lower oxygen), and in
+# train turning the fan off always put the flame out within seconds. Below 1 cm/s:
+# ln rate + 5.4 per cm/s of deficit, so with the fan off the flame lasts five seconds
+# (exp(-7 + 5.4) = 0.2 per s) and at 0.5 cm/s about 70 s. relu(-4 - 5 u) = relu(1 - U / 1 cm/s).
+quench.W1[0, 1] = 0.0
+quench.b1[0] = -4.0
+quench.w2[0] = 5.4
+
+# Unit 1 (the step below 17.2 % oxygen) is withdrawn.
+quench.W1[1, 1] = 0.0
+quench.b1[1] = 0.0
+quench.w2[1] = 0.0

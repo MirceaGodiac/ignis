@@ -1,0 +1,287 @@
+{
+  "$defs": {
+    "Authorship": {
+      "description": "How the numbers of a served hand-written release were written.",
+      "oneOf": [
+        {
+          "const": "zero_shot",
+          "description": "Typed before any outcome of the data it is scored on was opened (W0, reference laws).",
+          "type": "string"
+        },
+        {
+          "const": "data_informed",
+          "description": "Typed after its author read development (train) data or development feedback.",
+          "type": "string"
+        }
+      ]
+    },
+    "Family": {
+      "enum": [
+        "flex",
+        "acme_normal",
+        "acme_inverse",
+        "bass",
+        "other"
+      ],
+      "type": "string"
+    },
+    "ModelInput": {
+      "additionalProperties": false,
+      "description": "One input a served release reads.",
+      "properties": {
+        "example": {
+          "description": "Example value for a typed scenario (never a measurement)."
+        },
+        "kind": {
+          "$ref": "#/$defs/ModelInputKind"
+        },
+        "name": {
+          "description": "Condition key, control name, or quantity of the observations.",
+          "type": "string"
+        },
+        "note": {
+          "description": "What it is, in one line.",
+          "type": "string"
+        },
+        "required": {
+          "description": "The forward refuses a prefix without it.",
+          "type": "boolean"
+        },
+        "text": {
+          "default": false,
+          "description": "A text value (e.g. a fuel name), not a number.",
+          "type": "boolean"
+        },
+        "unit_si": {
+          "description": "SI unit of the value (`1` for dimensionless and text values).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "unit_si",
+        "required",
+        "note"
+      ],
+      "type": "object"
+    },
+    "ModelInputKind": {
+      "description": "Where a forecast input comes from.",
+      "oneOf": [
+        {
+          "const": "condition",
+          "description": "A known condition of the test (`PrefixBundle.known_conditions`).",
+          "type": "string"
+        },
+        {
+          "const": "control",
+          "description": "A known control history (`PrefixBundle.known_controls`).",
+          "type": "string"
+        },
+        {
+          "const": "observation",
+          "description": "Observations of the run before the cutoff (`PrefixBundle.observations`).",
+          "type": "string"
+        },
+        {
+          "const": "test_date",
+          "description": "The test date (selects laws that depend on the era of the test).",
+          "type": "string"
+        },
+        {
+          "const": "phase_start",
+          "description": "When the modelled phase was established, seconds since the time origin\n(`ScenarioRequest.phase_established_at_s`).",
+          "type": "string"
+        }
+      ]
+    },
+    "QualificationState": {
+      "oneOf": [
+        {
+          "enum": [
+            "source_only",
+            "measurement_qualified",
+            "fit_only",
+            "forecast_qualified",
+            "event_qualified",
+            "acquisition_evaluated",
+            "unsupported",
+            "insufficient_inference",
+            "failed"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "experimental",
+          "description": "Executes, not qualified by any evaluation. Every literal (WSP) release is created in this\nstate; qualification is recorded by an `EvaluationResult`, never by rewriting the release.",
+          "type": "string"
+        }
+      ]
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ReportedScore": {
+      "additionalProperties": false,
+      "description": "A score as the authoring lane reported it, with where it was reported. Development numbers\nonly: no score on a test partition is carried here.",
+      "properties": {
+        "comparison": {
+          "description": "Comparison as reported (baselines, intervals), if any.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "metric": {
+          "description": "Metric and the data it is measured on.",
+          "type": "string"
+        },
+        "source": {
+          "description": "Document (repository path) and section the number is quoted from.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The value as reported, with its unit, e.g. \"40.0 µm\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "value",
+        "source"
+      ],
+      "type": "object"
+    },
+    "TrainedOn": {
+      "description": "What data conventionally trained the release's parameters. There is deliberately no default:\nschema 2.0.0 defaulted to `nasa`, which labels any release that omits the field (a handwritten\none, say) as NASA-trained. Writers must state it. Legacy files without the field are read by\n[`crate::registry::parse_release`] with their old meaning, and only when they carry no\n`construction` record.",
+      "oneOf": [
+        {
+          "enum": [
+            "nasa",
+            "synthetic",
+            "pretrained"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "not_trained",
+          "description": "No conventional training: the values were written literally (WSP). Requires a literal\n`ModelRelease.construction` manifest.",
+          "type": "string"
+        }
+      ]
+    },
+    "WspSchema": {
+      "description": "Wire tag of model specs, patches, build manifests and forecast requests.",
+      "enum": [
+        "wsp.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ModelCard",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "What the server states about a served hand-written release besides its immutable record. Read\nfrom the deployment's served list (`configs/models/served.json`), never from a request.",
+  "properties": {
+    "authorship": {
+      "$ref": "#/$defs/Authorship"
+    },
+    "authorship_note": {
+      "description": "One line on how it was written (zero-shot parts, revisions).",
+      "type": "string"
+    },
+    "candidate": {
+      "description": "The candidate name the authoring lane uses (D3, F2, ...).",
+      "type": "string"
+    },
+    "card_doc": {
+      "description": "Model card (repository path).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cite": {
+      "description": "How to cite it.",
+      "type": "string"
+    },
+    "family": {
+      "$ref": "#/$defs/Family"
+    },
+    "forecasts": {
+      "description": "What it forecasts, in one sentence.",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "$ref": "#/$defs/ModelInput"
+      },
+      "type": "array"
+    },
+    "inputs_note": {
+      "description": "What a stored run or a typed scenario must give, and why one may not be enough.",
+      "type": "string"
+    },
+    "investigation": {
+      "description": "NASA investigation(s) the release is written for, e.g. \"FLEX (PSI-69)\".",
+      "type": "string"
+    },
+    "limits": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "model_name": {
+      "type": "string"
+    },
+    "release_id": {
+      "$ref": "#/$defs/ReleaseId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/WspSchema"
+    },
+    "scores": {
+      "items": {
+        "$ref": "#/$defs/ReportedScore"
+      },
+      "type": "array"
+    },
+    "state": {
+      "$ref": "#/$defs/QualificationState",
+      "description": "Copied from the release record: `experimental` for a literal release."
+    },
+    "stored_runs": {
+      "description": "Whether this deployment builds its prefix from a stored NASA run.",
+      "type": "boolean"
+    },
+    "trained_on": {
+      "$ref": "#/$defs/TrainedOn",
+      "description": "Copied from the release record: `not_trained` for a literal release."
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_id",
+    "model_name",
+    "family",
+    "investigation",
+    "candidate",
+    "forecasts",
+    "authorship",
+    "authorship_note",
+    "trained_on",
+    "state",
+    "inputs",
+    "stored_runs",
+    "inputs_note",
+    "scores",
+    "limits",
+    "cite"
+  ],
+  "title": "ModelCard",
+  "type": "object"
+}

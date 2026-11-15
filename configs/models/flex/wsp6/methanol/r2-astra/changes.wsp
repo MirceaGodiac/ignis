@@ -1,0 +1,9 @@
+# Astra R2. DATA-INFORMED, not zero-shot. One authored scalar; no search or scoring.
+# Parent: configs/models/flex/wsp6/methanol/r1-astra/release.json
+# Parent id: sha256:ef2339fe8a8e0fa377adf9ff3aa9e44308f1161dc2792675698e2dcfe3ac2311
+# N/L: Stefan-flow enthalpy transport uses fuel-vapor Cp, not carrier-N2 Cp.
+# NIST WebBook methanol gas: 44.17 J/mol/K at 300 K, M=0.0320419 kg/mol.
+# Author-rounded SI transcription, held constant at the inherited 300 K reference.
+# Source: https://webbook.nist.gov/cgi/cbook.cgi?ID=C67561&Mask=1
+# Derivation, limits and preregistration: docs/wsp/research/astra_r2_droplet_loss_analysis.md
+thermal.cp_gas_j_kg_k = 1380

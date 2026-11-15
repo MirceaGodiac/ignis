@@ -1,0 +1,29 @@
+{
+  "patch_id": "flex-wsp-v1-w0-fable",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:docs/implementation/HANDOFF_IANCU.md",
+      "repo:crates/ignis-flex(code-and-config-only)",
+      "repo:crates/ignis-data/src/families/flex.rs(header)",
+      "web:rikiyat.github.io/blog/weight-space-programming",
+      "web:github.com/RikiyaT/lm_understand-logs",
+      "web:github.com/flecart/weight-programming",
+      "author:pretraining-knowledge(unverifiable;may-include-published-FLEX-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(input-metadata-only:conditions,time-stamps)",
+        "partitions": ["train"]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0, one shot. A hinge network in log space on top of the quasi-steady d2-law: the linear part is the B-number law (oxygen mass fraction, diluent, pressure, size); nine hidden units add the concavity in oxygen, radiative loss of large flames, water uptake and the heat-up transient. Extinction is an intensity per unit burn progress centred on a hand-written extinction progress w_ext(conditions, size) with deliberately wide spread. The run's own rate enters through two finite differences of the prefix with a hand-written gain. Every number is a hypothesis written before the model was run; see edits.wsp and MODEL_CARD.md.",
+  "origin": "system"
+}

@@ -1,0 +1,11 @@
+# acme_inverse.wsp5 — CARRY of acme_inverse.wsp3 D1: literal revision of the baseline sha256:00000000…0000,
+# spec acme_inverse-wsp-v5
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like the model it carries. Not a candidate: it is
+# the carried inverse-flame model (acme_inverse.wsp3 D1) alone in one slot of the committee spec, so
+# that its cases can be paired with the committee candidates. The script's planned stop is not read.
+#
+# The slot values below were not typed again: they are the stored values of the releases named in the
+# slot blocks, copied statement by statement by tools/wsp/committee_edits.py. The lines typed here:
+mix.w[0:6] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_script[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+script.onset_s = 0.0

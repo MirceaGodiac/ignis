@@ -1,0 +1,383 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "bass_front-wsp-v2-carry-d1",
+  "spec_hash": "sha256:9681bdb9834e066342d7fdb19922a5ad5ef2c403bb4601b184fa5c14a25cb9a7",
+  "parent_release_id": "sha256:a100f728646296dabc3dc7c5ee42478a433bd4a64397dec04784bd3ef4b871f7",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "speed.b0",
+      "index": [],
+      "value": 0.0535
+    },
+    {
+      "op": "set_box",
+      "tensor": "speed.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.032,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "speed.pow",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        1.5,
+        -1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "over.b0",
+      "index": [],
+      "value": 0.325
+    },
+    {
+      "op": "set_box",
+      "tensor": "over.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.325,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "over.pow",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        3.0,
+        -1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_s",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "burn.b0",
+      "index": [],
+      "value": 1.84
+    },
+    {
+      "op": "set_box",
+      "tensor": "burn.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ign.gain",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ign.delay_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "end.linger_s",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b0",
+      "index": [],
+      "value": -7.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "quench.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.33
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        0
+      ],
+      "value": -2.73
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        0
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        1
+      ],
+      "value": -0.9
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        1
+      ],
+      "value": 12.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        2.5,
+        3.5
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": -2.3
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.mix",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.8,
+        0.2
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.e_clip",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.06
+    },
+    {
+      "op": "set_box",
+      "tensor": "unc.s_far",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.06,
+        0.25
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_w",
+      "index": [],
+      "value": 0.04
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_x0_w",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "unc.rel_over",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "unc.drift_w",
+      "index": [],
+      "value": 0.01
+    },
+    {
+      "op": "set",
+      "tensor": "speed.split",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.pow_i",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.kappa",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_up_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_abs_cm_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_rel",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "unc.flow_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  ],
+  "rationale": "Carry of D1 on the second front forward, new entries off; not a new candidate. Its numbers are those of D1 of bass_front.wsp (sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c), typed by the author, copied statement by statement without change; the entries added by bass_front-wsp-v2 (speed.split, speed.pow_i, speed.kappa, over.tau_up_s, unc.flow_abs_cm_s, unc.flow_rel, unc.flow_w) are switched off (one oxygen power, one overhang time, no slow-down downstream, one run on the flow as read). With them off the second front forward returns what the first returns, so this release gives the forecasts of D1 case by case and stands in for D1 in paired comparisons with candidates of bass_front-wsp-v2. Exposure: that of D1.",
+  "origin": "system"
+}

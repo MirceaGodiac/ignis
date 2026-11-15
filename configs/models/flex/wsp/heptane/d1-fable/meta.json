@@ -1,0 +1,36 @@
+{
+  "patch_id": "flex_heptane-wsp-v1-d1-fable",
+  "parent_release_id": "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_heptane_w0.json(train-feedback-of-the-parent)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f"
+    ]
+  },
+  "rationale": "D1, data-informed revision of the literature-informed W0 after reading the heptane train runs. What the train data changed: the critical diameter of radiative extinction in air is 3.7 mm, not 2.8, and CO2 lowers it three times more than assumed; the hot-flame rate of a large droplet rises for 0.6 of a diffusion-clock unit while its flame develops; radiative extinction comes at 0.85 of a clock unit at the critical diameter and falls steeply above it; a cool flame follows essentially always in N2 and N2/CO2 between 15 and 21 % O2 and never with 30 % helium; the droplet keeps evaporating at 0.03-0.06 mm2/s after the cool flame. What it confirmed: the published cool-flame extinction-diameter scaling and the cool-flame rate. Numbers typed from train tables by the author; no fit, no search.",
+  "origin": "system"
+}

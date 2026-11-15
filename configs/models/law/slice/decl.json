@@ -1,0 +1,22 @@
+{
+  "slug": "slice",
+  "status": "declared",
+  "family": "other",
+  "investigation": "PSI-106, SLICE: laminar coflow jet diffusion flames in the Microgravity Science Glovebox, stepped up line by line to blow-off",
+  "description": "W0 law of docs/wsp/research/phys_slice_w0.md, section 7: lifting and blow-off of a jet flame base held by an edge that burns against the gas speed it feels. One case is one logged line (one setting of one flame); the per-line blow-off probability builds in a fixed step of 10 %. Derived case inputs (SI conversions, fuel indicators) are written by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "u_coflow", "unit": "m/s", "transform": "ln", "description": "duct air velocity (u_coflow_cm_s / 100)"},
+    {"name": "u_jet", "unit": "m/s", "transform": "ln", "description": "mean jet exit velocity (u_jet_m_s)"},
+    {"name": "burner_id", "unit": "m", "transform": "ln", "description": "burner tube inner diameter (burner_id_mm / 1000)"},
+    {"name": "x_fuel", "unit": "1", "transform": "ln", "description": "hydrocarbon mole fraction of the jet gas"},
+    {"name": "x_o2", "unit": "1", "transform": "ln", "description": "cabin oxygen mole fraction (x_o2_cabin)"},
+    {"name": "is_ethane", "unit": "1", "transform": "identity", "description": "1 for ethane"},
+    {"name": "is_propane", "unit": "1", "transform": "identity", "description": "1 for propane (methane is the reference)"},
+    {"name": "mdot_jet", "unit": "kg/s", "transform": "ln", "description": "jet gas mass flow (mdot_jet_mg_s / 1e6); read by flame_length only"}
+  ],
+  "targets": [
+    {"name": "blow_off", "kind": "binary", "description": "the flame blows off at this logged setting, or during the adjustment noted on its line"},
+    {"name": "lifted", "kind": "binary", "description": "the flame base has left the rim at this setting"},
+    {"name": "flame_length", "kind": "positive", "unit": "m", "shared_quantity": null, "description": "luminous length (lane-local; not scorable from text)"}
+  ]
+}
