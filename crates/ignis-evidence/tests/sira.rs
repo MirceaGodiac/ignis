@@ -245,7 +245,8 @@ fn term_stats_count_chunks_and_publications_and_go_stale_with_the_catalog() {
 fn expected_terms_need_v2() {
     use ignis_core::contracts::{EvidenceSchema, ExpectedTerm, SearchRequest, TermImportance};
     let mut r: SearchRequest =
-        serde_json::from_value(json!({"schema_version": "evidence.v1", "query": "flame spread"})).unwrap();
+        serde_json::from_value(json!({"schema_version": "evidence.v1", "query": "flame spread"}))
+            .unwrap();
     r.expected_terms = vec![ExpectedTerm {
         term: "limiting oxygen index".into(),
         importance: Some(TermImportance::High),
