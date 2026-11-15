@@ -80,7 +80,12 @@ const trainQuery = (base: string | null, legacy: "registry" | "fixtures", releas
  * ("sealed"), or nothing because no model is written for its family ("none").
  */
 export type Reach = "ready" | "conditions" | "typed" | "sealed" | "none";
-export function useReach(runs: ExperimentSummary[]): Map<string, Reach> | null {
+/** Each run's reach, and for some a short reason: what the record lacks ("typed"), or why the model leaves it out. */
+export interface Reaches {
+  reach: Map<string, Reach>;
+  why: Map<string, string>;
+}
+export function useReach(runs: ExperimentSummary[]): Reaches | null {
   const { origin } = useData();
   const { base, cards } = useModelCards();
   const tables = useTables(cards.data);
@@ -91,29 +96,42 @@ export function useReach(runs: ExperimentSummary[]): Map<string, Reach> | null {
   const readable = stored.map((c, k) => ({ c, ids: new Set((trains[k].data?.experiments ?? []).map((x) => x.id)), needsSeries: c.inputs.some((i) => i.kind === "observation") }));
   const typed = cards.data.filter((c) => !c.stored_runs);
   const storedFamilies = new Set(stored.map((c) => c.family));
-  const m = new Map<string, Reach>();
+  const reach = new Map<string, Reach>();
+  const why = new Map<string, string>();
   for (const r of runs) {
     const ready = readable.some(({ c, ids, needsSeries }) => c.family === r.family && ids.has(r.id) && (!needsSeries || hasSeries(r)));
-    const mine = typed.filter((c) => fit(c, r).score >= 0);
+    const fitting = typed.filter((c) => fit(c, r).score >= 0);
+    const mine = fitting.filter((c) => !excludedWhy(c, r, tables));
     // "conditions" only when the record fills every required input; otherwise the user types the rest.
     const filled = mine.some((c) => complete(c, r, tables));
-    m.set(r.id, ready ? "ready" : filled ? "conditions" : mine.length ? "typed" : storedFamilies.has(r.family) ? "sealed" : "none");
+    // Every typed model that fits leaves the run out: "none", with the model's reason (a candle, a wake-lit sphere...).
+    const outside = !ready && fitting.length && !mine.length ? fitting.map((c) => excludedWhy(c, r, tables)).find(Boolean) : null;
+    const k: Reach = ready ? "ready" : filled ? "conditions" : mine.length ? "typed" : outside ? "none" : storedFamilies.has(r.family) ? "sealed" : "none";
+    reach.set(r.id, k);
+    const lacking = k === "typed" ? mine.map((c) => lacks(c, r, tables)).find(Boolean) : null;
+    if (lacking ?? outside) why.set(r.id, (lacking ?? outside)!);
   }
-  return m;
+  return { reach, why };
 }
 
 /**
- * Inputs the WSP lane derived per run, for models whose features the registry does not hold as conditions
- * (fan curve at pot 1, material class, sides burning...). Built by tools/web/<slug>_inputs.py from the
- * lane's case input files only; keyed by the lane's case id.
+ * Inputs derived per run from NASA's records, for models whose features the registry does not hold as
+ * conditions (fan curve at pot 1, material class, sides burning...). Built by tools/web/<slug>_inputs.py
+ * with the WSP lane's derivation; keyed by IGNIS run id. A "partial" row lists the inputs the records do
+ * not hold (the user types them); `excluded` names the runs the model is not written for, with the reason.
  */
 interface TableRow {
-  coverage: string;
+  coverage: "complete" | "partial";
+  /** Which of the model's targets apply: "nose" rod tips and spheres, "flat" films and slabs, "fabric". */
+  kind: string;
   material?: string;
   inputs: Record<string, number>;
+  missing?: string[];
+  note?: string;
 }
 interface RecordTable {
   runs: Record<string, TableRow>;
+  excluded?: Record<string, string>;
 }
 export type Tables = Map<string, RecordTable>;
 const TABLES: Record<string, string> = { "bass5.wsp": "data/bass5_inputs.json" };
@@ -137,19 +155,25 @@ export function useTables(cards: ModelCard[] | undefined): Tables {
   return m;
 }
 
-/** A run's row in a lane table: the same id, or (PSI-26) the lane's "<investigation>:<date>:<test>". */
 function tableRow(t: RecordTable | undefined, r: ExperimentSummary): TableRow | null {
-  if (!t) return null;
-  if (t.runs[r.id]) return t.runs[r.id];
-  const test = (r.aliases ?? []).find((a) => a.scheme === "test_number")?.name;
-  const date = r.session_id?.match(/\d{4}-\d{2}-\d{2}/)?.[0];
-  if (!test || !date) return null;
-  const exact = t.runs[`${r.investigation_id}:${date}:${test}`];
-  if (exact) return exact;
-  // A mistyped year in the registry (2103 for 2013): the same test on the same month and day.
-  const near = Object.keys(t.runs).filter((k) => k.startsWith(`${r.investigation_id}:`) && k.endsWith(`-${date.slice(5)}:${test}`));
-  return near.length === 1 ? t.runs[near[0]] : null;
+  return t?.runs[r.id] ?? null;
 }
+
+/** Why a model's table leaves a run out (the burn is not one the model is written for), or null. */
+function excludedWhy(card: ModelCard, r: ExperimentSummary, tables: Tables): string | null {
+  return tables.get(card.model_name)?.excluded?.[r.id] ?? null;
+}
+
+/** What the NASA record lacks for a model's inputs on a run, in a few words, or null. */
+function lacks(card: ModelCard, r: ExperimentSummary, tables: Tables): string | null {
+  const row = tableRow(tables.get(card.model_name), r);
+  if (!row?.missing?.length) return null;
+  return row.note ?? `not in the NASA record: ${row.missing.map(words).join(", ")}`;
+}
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Whether a law target applies to the sample kind of a table row (fabrics: the flat kept-burning pair only). */
+const appliesTo = (t: LawTarget, kind: string) => t.applies === null || t.applies === kind || (kind === "fabric" && t.applies === "flat" && t.kind === "binary");
 
 /** Whether the record fills every required input of a model for a run. */
 export function complete(card: ModelCard, r: ExperimentSummary, tables: Tables): boolean {
@@ -193,12 +217,15 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
   const [pickByRun, setPickByRun] = useState<Record<string, string>>({});
   // With no run picked, the panel stays closed until the user asks to type conditions.
   const [typing, setTyping] = useState(false);
-  const ranked = useMemo(() => {
+  const ranked = useMemo((): { c: ModelCard; score: number; why: string[]; outside?: string }[] => {
     const all = cards.data ?? [];
-    if (!run) return all.map((c) => ({ c, score: 0, why: [] as string[] }));
+    if (!run) return all.map((c) => ({ c, score: 0, why: [] }));
     return all
       .map((c) => {
         const f = fit(c, run);
+        // A model whose table leaves the run out is not written for this burn (a candle, a wake-lit sphere...).
+        const outside = f.score >= 0 ? excludedWhy(c, run, tables) : null;
+        if (outside) return { c, score: -1, why: [], outside };
         // A model the record fills completely beats one that needs values typed in.
         if (f.score >= 0 && !c.stored_runs && complete(c, run, tables)) return { c, score: f.score + 3, why: [...f.why, "every input from the NASA record"] };
         return { c, ...f };
@@ -275,9 +302,16 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
           ) : null}
         </p>
       )}
-      {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (
-        <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the list and type its conditions.</Gap>
-      )}
+      {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (() => {
+        const out = ranked.find((x) => x.outside);
+        return out?.outside ? (
+          <Gap title={`${out.c.title} is not written for this run`}>
+            {cap(out.outside)}. Choose another run, or pick a model in the list and type its conditions.
+          </Gap>
+        ) : (
+          <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the list and type its conditions.</Gap>
+        );
+      })()}
       {open && card && (!run || chosen!.score >= 0 || manual) && (
         <ModelPanel key={`${card.release_id}|${run?.id ?? ""}`} card={card} base={base} legacy={origin} run={run && chosen!.score >= 0 ? run : null} pickRun={pickRun} allRuns={runs} tables={tables} />
       )}
@@ -291,7 +325,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   const release = useReleases().data?.find((r) => r.id === card.release_id) ?? null;
   const limits = readerLimits(card);
   const row = fixed ? tableRow(tables.get(card.model_name), fixed) : null;
-  const targets = law.filter((t) => !row || t.applies === null || t.applies === row.coverage);
+  const targets = law.filter((t) => !row || appliesTo(t, row.kind));
   const obsInput = card.inputs.find((i) => i.kind === "observation");
   const unit = obsInput?.unit_si ?? "";
   const d = display(unit);
@@ -576,6 +610,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
           {!lawAuto && (
             <Caution title={fixed ? `Conditions from ${runLabel(fixed)}, entered as your own input` : "Your conditions are a synthetic input, not a NASA run"}>
               {fixed ? "Values the NASA record holds are filled in; complete the rest. The forecast is model output for these values, not a reading of the run." : "The forecast is model output for the values you enter."}
+              {row?.note && row.missing?.length ? ` ${cap(row.note)}.` : ""}
             </Caution>
           )}
           {(() => {
@@ -591,7 +626,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
             return lawAuto ? (
               <details className="fc-about">
                 <summary>
-                  The {card.inputs.length} inputs, all from the NASA record of this {row?.coverage === "nose" ? "rod or sphere" : "sample"}
+                  The {card.inputs.length} inputs, all from the NASA record of this {row?.kind === "nose" ? "rod or sphere" : "sample"}
                 </summary>
                 {fields}
               </details>
