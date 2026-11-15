@@ -14,6 +14,14 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
 
 ## 2. Compute once, reproducibly
 
+- Mount data by reference, never by pasting it into the program: each entry of `inputs` has a `name`
+  (the file `/in/<name>`) and exactly one of `artifact_id` (an artifact a tool returned),
+  `dataset_view` (`{"dataset_id", "view"}` from `datasets_inspect`; a Parquet file) or `conditions`
+  (a `conditions_query` without `cursor`; the complete table, every page, as one JSON document).
+  Compute over many runs this way instead of reading tables into the conversation.
+- `/job/inputs.json` lists what was mounted: per input its artifact (sha256) and, for a view, the
+  columns with units, `time_origin`, partitions and row count. Read units from there, not from memory.
+  The execution record keeps the same list, so a result names exactly the data it read.
 - Write one short Python program for `analysis_execute`: read inputs from `/in/<name>`, write results
   as JSON (and figures or tables as files) under `/out`. Put every number you will report in the JSON
   output with its unit, e.g. `{"burning_rate": {"value": 1.23, "unit": "mm2/s", "n": 14}}`.

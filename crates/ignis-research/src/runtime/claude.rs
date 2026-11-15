@@ -64,6 +64,74 @@ const FIXED_ARGS: &[&str] = &[
     "--exclude-dynamic-system-prompt-sections",
 ];
 
+/// Claude Code's native subagent tool. With delegation on it is the one built-in tool enabled.
+pub const DELEGATION_TOOL: &str = "Agent";
+/// Names of the subagent tool across Claude Code versions (`Task` before the rename).
+const DELEGATION_TOOLS: &[&str] = &["Agent", "Task"];
+/// The one subagent IGNIS defines (`--agents`).
+pub const SUBAGENT_NAME: &str = "ignis-subinvestigator";
+/// IGNIS tools a subagent never gets: the answer is the investigator's alone.
+const PARENT_ONLY_TOOLS: &[&str] = &["answer_submit"];
+const SUBAGENT_DESCRIPTION: &str = "Hand ONE bounded, self-contained subtask to a \
+sub-investigator with the same IGNIS tools and scope, e.g. an aggregation over many runs computed \
+with analysis_execute, or a source survey of one sub-question. It returns a report whose findings \
+cite the ids its tools returned. Not for a single lookup or a single tool call: call that tool \
+directly.";
+const SUBAGENT_PROMPT: &str = "You are an IGNIS sub-investigator. The investigator gave you one \
+bounded subtask; do only that. Use only the IGNIS tools. Every finding cites the ids a tool \
+returned to you (evidence ids, artifact ids with a JSON Pointer, job ids, locators) exactly as \
+returned; a value without such an id is not a finding. Mount data into analysis_execute by \
+reference instead of copying it. You cannot delegate further and you never submit the answer. End \
+with one report: (1) what you did, (2) findings, each with its supporting ids, (3) what you could \
+not establish and why (refusals, missing, conflicting or not-applicable data).";
+
+/// Whether this configuration runs with depth-1 delegation (it needs the IGNIS tools).
+fn delegates(cfg: &ClaudeConfig) -> bool {
+    cfg.delegation && cfg.mcp.is_some()
+}
+
+/// The fixed arguments of this configuration: [`FIXED_ARGS`] with the subagent tool enabled when
+/// delegation is on.
+fn fixed_args(cfg: &ClaudeConfig) -> Vec<String> {
+    let mut a: Vec<String> = FIXED_ARGS.iter().map(|s| s.to_string()).collect();
+    if delegates(cfg) {
+        let i = a.iter().position(|x| x == "--tools").expect("--tools") + 1;
+        a[i] = DELEGATION_TOOL.into();
+    }
+    a
+}
+
+/// What the build id covers: the fixed arguments and, with delegation, the subagent tool and its
+/// definition. It follows the configured switch (preflight runs before the MCP server is attached).
+fn build_args(cfg: &ClaudeConfig) -> Vec<String> {
+    let mut a: Vec<String> = FIXED_ARGS.iter().map(|s| s.to_string()).collect();
+    if cfg.delegation {
+        let i = a.iter().position(|x| x == "--tools").expect("--tools") + 1;
+        a[i] = DELEGATION_TOOL.into();
+        a.push(format!("agents:{SUBAGENT_NAME}"));
+        a.push(sha256_hex(
+            format!("{SUBAGENT_DESCRIPTION}\u{1f}{SUBAGENT_PROMPT}").as_bytes(),
+        ));
+    }
+    a
+}
+
+/// The `--agents` definition: one subagent with the IGNIS tools the investigator may call without
+/// asking, minus the parent-only ones. Its tool list has no subagent tool, so it cannot delegate
+/// (Claude Code gives subagents none either, and the translator checks it).
+fn subagents(approved_tools: &[String]) -> Value {
+    let tools: Vec<String> = approved_tools
+        .iter()
+        .filter(|t| !PARENT_ONLY_TOOLS.contains(&t.as_str()))
+        .map(|t| format!("mcp__{IGNIS_MCP_SERVER}__{t}"))
+        .collect();
+    json!({SUBAGENT_NAME: {
+        "description": SUBAGENT_DESCRIPTION,
+        "prompt": SUBAGENT_PROMPT,
+        "tools": tools,
+    }})
+}
+
 /// Variables a process needs to start on the host OS (no secrets); everything else is cleared.
 const OS_ENV: &[&str] = &[
     "PATH",
@@ -99,6 +167,12 @@ pub struct ClaudeConfig {
     /// The harness bundle appended to Claude Code's system prompt (`--append-system-prompt-file`).
     /// `None`: no IGNIS instructions, and no harness pin on the episode.
     pub harness: Option<super::harness::HarnessBundle>,
+    /// Depth-1 delegation (M9): the investigator may hand one bounded subtask to Claude Code's
+    /// native subagent tool. The subagent has the same IGNIS tools over the same MCP token (so the
+    /// same host-derived scope) minus `answer_submit`, cannot delegate further, and runs inside
+    /// this turn's budget; its tool calls are recorded in the parent episode. Off by default (an
+    /// ablation arm); the build id says which.
+    pub delegation: bool,
 }
 
 impl ClaudeConfig {
@@ -112,6 +186,7 @@ impl ClaudeConfig {
             mcp: None,
             turn_timeout: Duration::from_secs(60 * 60),
             harness: None,
+            delegation: false,
         }
     }
 
@@ -163,7 +238,8 @@ pub fn claude_preflight(cfg: &ClaudeConfig) -> Result<RuntimeBuildManifest, Stri
         .ok_or_else(|| format!("unexpected `claude --version` output: {}", text.trim()))?
         .to_string();
     let binary_sha256 = sha256_file(bin).map_err(|e| format!("hash {}: {e}", bin.display()))?;
-    let args_sha256 = sha256_hex(FIXED_ARGS.join("\u{1f}").as_bytes());
+    let fixed = build_args(cfg);
+    let args_sha256 = sha256_hex(fixed.join("\u{1f}").as_bytes());
     let id = format!(
         "claude-code-{version}+{}.{}",
         &binary_sha256[..12],
@@ -179,7 +255,7 @@ pub fn claude_preflight(cfg: &ClaudeConfig) -> Result<RuntimeBuildManifest, Stri
         protocol_schema_sha256: args_sha256,
         transport: "stdio stream-json (one process per turn)".into(),
         profile: RuntimeProfile::Public,
-        config_overrides: FIXED_ARGS.iter().map(|s| s.to_string()).collect(),
+        config_overrides: fixed,
         model: cfg.model.clone(),
         forwarded_env: cfg.pass_env.clone(),
         credentials: cfg.credentials(),
@@ -196,6 +272,9 @@ pub struct Translator {
     tools: HashMap<String, (String, String)>,
     /// Text the model wrote right before a `tool_use` becomes that call's `step.rationale`.
     preamble: Preamble,
+    /// Set when a subagent tried to delegate further (depth 1 is the limit): the bridge stops the
+    /// turn with this reason.
+    depth_violation: Option<String>,
 }
 
 /// `mcp__<server>__<tool>` → (server, tool); anything else is reported under server `claude`.
@@ -225,7 +304,13 @@ impl Translator {
             turn: turn.into(),
             tools: HashMap::new(),
             preamble: Preamble::default(),
+            depth_violation: None,
         }
+    }
+
+    /// Why the turn must stop because a subagent tried to delegate, once that happened.
+    pub fn depth_violation(&self) -> Option<&str> {
+        self.depth_violation.as_deref()
     }
 
     /// Map one stream-json line. The `result` line is returned separately; it ends the turn.
@@ -244,6 +329,10 @@ impl Translator {
                     .and_then(Value::as_str)
                     .unwrap_or("msg")
                     .to_string();
+                // A subagent's line names the subagent tool call it runs under. Its tool calls are
+                // recorded like the investigator's (same episode, same scope); its text is archived
+                // under that call, never as an assistant message of the episode.
+                let parent = v.get("parent_tool_use_id").and_then(Value::as_str);
                 let mut out = vec![];
                 for (i, block) in msg
                     .get("content")
@@ -258,6 +347,19 @@ impl Translator {
                             if text.is_empty() {
                                 continue;
                             }
+                            if let Some(p) = parent {
+                                out.push(Mapped::Opaque {
+                                    method: "claude/subagent_message".into(),
+                                    payload: json!({"parent_tool_use_id": p, "text": text}),
+                                    causation: Causation {
+                                        runtime_turn_id: Some(self.turn.clone()),
+                                        runtime_item_id: Some(format!("{mid}-{i}")),
+                                        ..Default::default()
+                                    },
+                                    mark: Some(format!("subagent:{mid}-{i}")),
+                                });
+                                continue;
+                            }
                             out.extend(map_item(
                                 turn,
                                 &json!({"id": format!("{mid}-{i}"), "type": "agentMessage", "text": text}),
@@ -268,8 +370,15 @@ impl Translator {
                             let Some(id) = block.get("id").and_then(Value::as_str) else {
                                 continue;
                             };
-                            let (server, tool) =
-                                split_tool(block.get("name").and_then(Value::as_str).unwrap_or(""));
+                            let name = block.get("name").and_then(Value::as_str).unwrap_or("");
+                            if parent.is_some() && DELEGATION_TOOLS.contains(&name) {
+                                self.depth_violation.get_or_insert_with(|| {
+                                    format!(
+                                        "a subagent tried to delegate further ({name}); delegation is depth 1"
+                                    )
+                                });
+                            }
+                            let (server, tool) = split_tool(name);
                             self.tools
                                 .insert(id.to_string(), (server.clone(), tool.clone()));
                             out.extend(map_item(
@@ -697,7 +806,7 @@ impl Inner {
                 .map_err(|e| unavailable(format!("create {}: {e}", d.display())))?;
         }
         let mut cmd = Command::new(&self.cfg.binary);
-        cmd.args(FIXED_ARGS);
+        cmd.args(fixed_args(&self.cfg));
         if new {
             cmd.args(["--session-id", session]);
         } else {
@@ -733,12 +842,17 @@ impl Inner {
                 "url": m.url,
                 "headers": {"Authorization": format!("Bearer ${{{MCP_TOKEN_ENV}}}")},
             }}});
-            let allowed: Vec<String> = m
+            let mut allowed: Vec<String> = m
                 .approved_tools
                 .iter()
                 .map(|t| format!("mcp__{IGNIS_MCP_SERVER}__{t}"))
                 .collect();
             cmd.arg("--mcp-config").arg(config.to_string());
+            if delegates(&self.cfg) {
+                cmd.arg("--agents")
+                    .arg(subagents(&m.approved_tools).to_string());
+                allowed.push(DELEGATION_TOOL.into());
+            }
             if !allowed.is_empty() {
                 cmd.arg("--allowedTools").arg(allowed.join(","));
             }
@@ -877,6 +991,15 @@ impl Inner {
             }
             if r.is_some() {
                 result = r;
+            }
+            if let Some(why) = tr.depth_violation() {
+                // Depth 1 is enforced by the host too: stop the turn, say why.
+                let _ = child.lock().unwrap_or_else(|p| p.into_inner()).kill();
+                result = Some(
+                    json!({"type": "result", "subtype": "error_delegation_depth",
+                                     "is_error": true, "result": why}),
+                );
+                break;
             }
         }
         let exit = child
