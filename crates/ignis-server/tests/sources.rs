@@ -90,7 +90,10 @@ fn geode_answering(answer: Answer) -> Geode {
             let fresh = format!("Expires={}", now() + 3600);
             let (status, body) = match answer {
                 Answer::Hang => {
-                    std::thread::sleep(Duration::from_secs(5));
+                    // Hold the connection open, unanswered, far past any bound the test checks;
+                    // the client's timeout is the only thing that can end the request.
+                    std::thread::sleep(Duration::from_secs(120));
+                    drop(s);
                     continue;
                 }
                 Answer::Status(code) => (code, "<html>error</html>".to_string()),
@@ -117,6 +120,13 @@ fn geode_answering(answer: Answer) -> Geode {
     }
 }
 
+/// Generous geode timeout for every test whose stand-in answers: on a loaded machine the stand-in
+/// thread may be scheduled late, and a late answer must not turn into a timeout (503). Only the
+/// timeout test itself uses [`HANG_TIMEOUT_S`].
+const TEST_TIMEOUT_S: u64 = 60;
+/// The timeout under test: the hanging stand-in never answers, so only this can end the request.
+const HANG_TIMEOUT_S: u64 = 1;
+
 fn source_args(geode: &str, public: Option<&str>) -> SourceArgs {
     SourceArgs {
         manifests: data().join("manifests"),
@@ -125,7 +135,7 @@ fn source_args(geode: &str, public: Option<&str>) -> SourceArgs {
         geode_url: geode.into(),
         margin_s: 300,
         geode_concurrency: 2,
-        geode_timeout_s: 1,
+        geode_timeout_s: TEST_TIMEOUT_S,
     }
 }
 
@@ -590,11 +600,11 @@ fn file(name: &str) -> PsiFile {
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn resolver_is_single_flight_with_ttl_below_expiry() {
     let margin = Duration::from_secs(300);
-    // Valid for the margin + 1 s: cached for about one second.
+    // Valid for an hour: no expiry can interfere with single-flight, however slow the machine.
     let fake = Arc::new(Fake {
         calls: AtomicUsize::new(0),
         delay: Duration::from_millis(200),
-        valid_s: 301,
+        valid_s: 3600,
         fail_first: false,
     });
     let urls = Arc::new(SignedUrls::new(fake.clone(), margin, 100, 2));
@@ -614,11 +624,22 @@ async fn resolver_is_single_flight_with_ttl_below_expiry() {
     // Another file version is another key.
     urls.get(&file("b.ts"), false).await.unwrap();
     assert_eq!(fake.calls.load(Ordering::SeqCst), 2);
-    // Past expiry minus margin the entry is gone and the URL is re-resolved.
+
+    // Valid for the margin + 1 s: cached for about one second, then re-resolved. A cache hit
+    // inside the second is not asserted (a loaded machine may take longer than that between
+    // calls); the elapsed time past expiry is a lower bound, so the re-resolve is deterministic.
+    let ttl = Arc::new(Fake {
+        calls: AtomicUsize::new(0),
+        delay: Duration::ZERO,
+        valid_s: 301,
+        fail_first: false,
+    });
+    let urls = SignedUrls::new(ttl.clone(), margin, 100, 2);
+    let first = urls.get(&file("a.ts"), false).await.unwrap();
     tokio::time::sleep(Duration::from_millis(1300)).await;
     let later = urls.get(&file("a.ts"), false).await.unwrap();
-    assert_ne!(later.url, got[0].url);
-    assert_eq!(fake.calls.load(Ordering::SeqCst), 3);
+    assert_ne!(later.url, first.url);
+    assert_eq!(ttl.calls.load(Ordering::SeqCst), 2);
 
     // A URL already inside the margin is handed out but never cached.
     let short = Arc::new(Fake {
@@ -812,7 +833,9 @@ async fn each_failure_outcome_is_distinct_and_never_a_url() {
 
     // Upstream timeout: unavailable with a retry hint.
     let g = geode_answering(Answer::Hang);
-    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+    let mut args = source_args(&g.url, Some(PUBLIC));
+    args.geode_timeout_s = HANG_TIMEOUT_S;
+    let r = router(dir.path(), args);
     let t0 = std::time::Instant::now();
     let (st, _, body) = get(&r, &path).await;
     assert!(
