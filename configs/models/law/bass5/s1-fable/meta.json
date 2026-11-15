@@ -1,0 +1,34 @@
+{
+  "patch_id": "law-bass5-v1-s1-fable",
+  "parent_release_id": "sha256:1558a1c15d26b900b459ba473bc0f0c42ed332c22c896777b3af3d636643cf52",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_post_final.md(sha256:7135fe26bf992b15a3c7d47cbc1a9a5b547c4979e59d9ab7415a1fb3ff0352ce;Edits)",
+      "repo:runs/dev/gen7/study/bass5_block.wsp(sha256:43117f8fdd0f9951576375e99a39bd99832178dbe1e250dff669d86ebba608c9)",
+      "runs:transfer_bass1/cases_test_*_v2.jsonl(the-plastics-test-day-cases-with-their-outcomes;read-by-the-author-after-the-final-run-as-study-data-by-PROTOCOL-13.8;the-exposure-contract-has-no-test-partition-entry,so-it-is-recorded-here)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass1-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.7-final-run-scores",
+      "PROTOCOL-13.8-test-days-as-study-data",
+      "what-if-run-of-the-width-candidate"
+    ],
+    "prior_candidates": [
+      "sha256:ceefc15d4cb8cf658772ec3603c9dabd6565fb3db6528bb35c2205f0d3bdab86"
+    ]
+  },
+  "rationale": "bass5 (PROTOCOL 13.8): typed after the final run with every partition seen; in-sample on all data; no held-out score exists. docs/wsp/research/phys_bass_post_final.md (sha256 7135fe26bf992b15a3c7d47cbc1a9a5b547c4979e59d9ab7415a1fb3ff0352ce), every line of bass4 s1-fable plus the Edits block, verbatim. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

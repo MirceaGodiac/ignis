@@ -37,7 +37,7 @@ on a frozen list, lower is better, beside the baseline:
 | `bre.wsp` D3 | BRE (PSI-20) | target `lasts` only (`flame_end` is refused: it is not the model). Extinction by time h = 1 - lasts(h) / lasts(cutoff) | extinction 0.139 vs incidence 0.222 (95 cases) |
 | `cld.wsp` D1 | CLD Flame (PSI-21) | flame lost, radiometer level | 0.073 vs 0.102; 0.115 vs 0.144 (63 cases). D1 was chosen after the test run, where the newer law lost on timing |
 | `efield3.wsp` S1 | E-FIELD (PSI-22) | ion current, flame out in window | 0.319 µA vs space-charge 0.575 (788 levels); 0.055 vs 0.133 |
-| `bass4.wsp` S1 | BASS / BASS-II plastics and fabrics | does the sample keep burning (targets `flat_holds_*` for films, slabs, fabrics; `holds_*` for rods, spheres) | 0.048 vs 0.071 (42 burns, fabrics included) |
+| `bass5.wsp` S1 | BASS / BASS-II plastics and fabrics | kept burning (`flat_holds_*`, `holds_*`) and the quench speed (`quench_speed`, `flat_quench_speed`); typed after the final run with every partition seen; in-sample on all data; no held-out score exists for the quench speed | kept burning 0.048 vs 0.071 (42 burns, held, fabrics included); quench speed in-sample 0.114 / 0.108 / 0.126 cm/s vs constant 0.671 / 0.547 / 0.916 (train / validation / test, corrected coding) |
 | `slice2.wsp` S1 | SLICE (PSI-106) | blow-off, lifting = lift_noted x (past_lift - past_blow) / (1 - past_blow) | 31 test lines with no blow-off or lifting event: the test says little |
 | `spice.wsp` P3 | SPICE (PSI-107) | smoke-point length, flame length | 4.18 mm vs 10.3; 1.18 vs 2.56 (6 points); not blind to the published fit |
 | `samer.wsp` S1 | SAME-R (PSI-101) | particle diameter, detector at full scale | 0.167 vs 0.256; 0.014 vs 0.019 (33 rows) |
@@ -50,11 +50,11 @@ helium, which it refuses); the BASS front model covers Saffire I to III as blind
 n-dodecane model for CFI (PSI-39) exists but is not served. Report a target that did not beat its
 baseline as such.
 
-**Not forecast, refuse with this reason:** the flow speed at which a sample goes out (quench speed):
-the flight record gives a fan setting, not a calibrated speed, below about 4 cm/s, and no model beat
-a constant on held data. Do not use `bass_front.wsp` for whether a fabric keeps burning, its quench
-or its ignition outcome (worse than a constant: 0.170 against 0.125); use it for the flame-tip
-position only, and `bass4.wsp` for kept burning.
+**Quench speed:** answered by `bass5.wsp`, but say it was typed after the final run with every
+partition seen (in-sample, no held-out score), and that below about 4 cm/s the recorded outcome is a
+fan setting, not a calibrated speed. Do not use `bass_front.wsp` for whether a fabric keeps burning,
+its quench or its ignition outcome (worse than a constant: 0.170 against 0.125); use it for the
+flame-tip position only, and `bass5.wsp` for kept burning.
 
 ## 2. Procedure
 
