@@ -1174,4 +1174,21 @@ fn a_number_from_a_dataset_view_is_read_back_from_its_row() {
         all.contains("value_si"),
         "the unknown column lists the permitted ones: {all}"
     );
+
+/// A malformed submission is refused with the JSON path of the offending field, so the model fixes
+/// that field (seen live: four retries that moved `kind` between blocks and claims without a path).
+#[test]
+fn a_malformed_submission_names_the_field_path() {
+    let w = world();
+    search(&w, &w.ep);
+    let mut s = observed(vec![]);
+    s["claims"][0]["support"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("kind");
+    let r = submit(&w, &w.ep, s);
+    assert_eq!(r.execution_status, ExecutionStatus::Refused);
+    let e = r.error.unwrap();
+    assert_eq!(e.code, ErrorCode::InvalidRequest);
+    assert!(e.message.contains("`claims[0].support[0]"), "{}", e.message);
 }

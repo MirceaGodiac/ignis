@@ -169,13 +169,22 @@ fn refusal(code: ErrorCode) -> bool {
     )
 }
 
+/// Decode tool arguments; a failure names the JSON path of the offending field (`claims[0].kind`),
+/// so the model fixes that field instead of guessing where it belongs.
 fn decode<T: DeserializeOwned>(contract: &str, args: Value) -> ServiceResult<T> {
-    serde_json::from_value(args).map_err(|e| {
+    serde_path_to_error::deserialize(args).map_err(|e| {
+        let path = e.path().to_string();
+        let at = if path.is_empty() || path == "." {
+            "at the top level".to_string()
+        } else {
+            format!("at `{path}`")
+        };
         envelope(
             ErrorCode::InvalidRequest,
             format!(
-                "arguments are not a valid {contract}: {e}. The tool's input schema is the \
-                 {contract} contract; fix that field and call again."
+                "arguments are not a valid {contract}: {at}: {}. The tool's input schema is the \
+                 {contract} contract; fix that field and call again.",
+                e.inner()
             ),
         )
     })
