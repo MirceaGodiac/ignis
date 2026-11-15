@@ -1,0 +1,31 @@
+/* Forecast lab: run picker, chosen run, automatic model note. */
+.lab-sub { font-size: 13.5px; max-width: 70ch; margin-top: 4px; }
+.lab.lab-one { grid-template-columns: minmax(0, 1fr); }
+.lab-chart-empty { display: grid; place-items: center; min-height: 240px; font-size: 13px; }
+.lab-what { display: grid; gap: 12px; }
+.lab-run { display: flex; gap: 10px; align-items: baseline; }
+.lab-run b { font-size: 15px; }
+.lab-why { font-size: 12.5px; margin: 4px 0 10px; }
+
+.runpick { display: grid; gap: 10px; }
+.runpick-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.runpick-bar .field { flex: 1 1 280px; }
+.runpick-toggle { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.runpick .seg { flex-wrap: wrap; justify-self: start; max-width: 100%; }
+.runpick-list { list-style: none; margin: 0; padding: 0; max-height: 340px; overflow: auto; border: 1px solid var(--rule); border-radius: var(--r-c); background: var(--sheet); }
+.runpick-list > li + li { border-top: 1px solid var(--rule); }
+.runpick-empty { padding: 14px; font-size: 13px; }
+.runpick-row { display: flex; width: 100%; gap: 10px; align-items: center; padding: 8px 12px; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; font: inherit; }
+.runpick-row:hover { background: var(--hover); }
+.runpick-row.on { background: var(--wash); }
+.runpick-main { display: grid; flex: 1; min-width: 0; }
+.runpick-main b { font-size: 13.5px; font-weight: 500; }
+.runpick-main code { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+#hw-model { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+.lab > * { min-width: 0; }
+
+@media (max-width: 640px) {
+  #hw-model { width: 100%; }
+  .runpick-toggle { white-space: normal; }
+}
