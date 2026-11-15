@@ -233,6 +233,81 @@ async fn only_verified_assertions_open_a_workspace() {
     assert_eq!(st, StatusCode::NOT_FOUND, "bob cannot see ana's episode");
 }
 
+/// Right after a restart the key set is empty and a page sends several requests at once: the ones
+/// that arrive while the first fetches the keys wait for it; none is refused "unknown signing key".
+#[tokio::test(flavor = "multi_thread")]
+async fn concurrent_first_requests_wait_for_the_key_fetch() {
+    use std::io::{Read, Write};
+    // The published set, served again slowly enough that every request overlaps the fetch.
+    let jwks = {
+        let url = access().args.certs_url.clone().unwrap();
+        let addr = url
+            .trim_start_matches("http://")
+            .split('/')
+            .next()
+            .unwrap()
+            .to_string();
+        let mut s = std::net::TcpStream::connect(&addr).unwrap();
+        write!(
+            s,
+            "GET /cdn-cgi/access/certs HTTP/1.1\r\nhost: {addr}\r\nconnection: close\r\n\r\n"
+        )
+        .unwrap();
+        // The fixture server closes right after writing; Windows may report that as a reset.
+        let mut resp = Vec::new();
+        let mut chunk = [0u8; 4096];
+        loop {
+            match s.read(&mut chunk) {
+                Ok(0) => break,
+                Ok(k) => resp.extend_from_slice(&chunk[..k]),
+                Err(_) if !resp.is_empty() => break,
+                Err(e) => panic!("{e}"),
+            }
+        }
+        let resp = String::from_utf8(resp).unwrap();
+        resp.split("\r\n\r\n").nth(1).unwrap().to_string()
+    };
+    let slow = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let port = slow.local_addr().unwrap().port();
+    let fetches = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let n = fetches.clone();
+    std::thread::spawn(move || {
+        for mut s in slow.incoming().flatten() {
+            n.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            let mut buf = [0u8; 4096];
+            let _ = s.read(&mut buf);
+            std::thread::sleep(std::time::Duration::from_millis(400));
+            let _ = write!(
+                s,
+                "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+                jwks.len(),
+                jwks
+            );
+        }
+    });
+    let dir = tempfile::tempdir().unwrap();
+    let mut a = args(dir.path());
+    a.access.certs_url = Some(format!("http://127.0.0.1:{port}/cdn-cgi/access/certs"));
+    let r = router(a);
+    let calls: Vec<_> = (0..8)
+        .map(|_| {
+            let r = r.clone();
+            tokio::spawn(async move {
+                get(&r, "/api/v1/episodes", &access().headers("ana@example.org")).await
+            })
+        })
+        .collect();
+    for c in calls {
+        let (st, e) = c.await.unwrap();
+        assert_eq!(st, StatusCode::OK, "{e}");
+    }
+    assert_eq!(
+        fetches.load(std::sync::atomic::Ordering::SeqCst),
+        1,
+        "one fetch serves every waiting request"
+    );
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn unreachable_keys_fail_closed_and_misconfiguration_does_not_start() {
     let dir = tempfile::tempdir().unwrap();
