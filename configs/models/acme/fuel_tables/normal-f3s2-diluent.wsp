@@ -1,0 +1,20 @@
+# The diluent table of F3 STAGE 2, every member: the helium lines of docs/wsp/research/phys_sflame_f3.md E4,
+# transcribed verbatim (rows: 0 nitrogen, 1 helium); the hinge members read dlogm, dlnr, the growth members d_far, dflux.
+# Zero-shot (Part A). No helium-diluted ethylene or methane flame has been read.
+dil.admit[0:2] = [1.0, 1.0]
+dil.mw_g_mol[0:2] = [28.013, 4.0026]
+# rho D of oxygen: 1.2 to 1.5 times nitrogen's in the ambient, 0.8 at the flame (T).
+dil.rho_d[0:2] = [1.0, 1.15]
+# Binary diffusion of oxygen in the cold ambient: 0.73 against 0.21 cm2/s (P).
+dil.d_far[0:2] = [1.0, 3.5]
+# Lewis number of oxygen, 1.45 in helium against 1.06 in nitrogen (T, P): the flame burns below its adiabatic
+# temperature by (1 - (1 - Zst)^(1/Le)) / Zst.
+dil.le_o2[0:2] = [1.0, 1.37]
+# Critical flux in helium: two derivations, -0.15 to +0.1 and +0.4 to +0.8 (J).
+dil.dflux[0:2] = [0.0, 0.3]
+# What the hinge law is told, since it reads no mass fraction: the reduced flow of a helium flame is a seventh
+# of a nitrogen flame's at one fuel flow (T), and its clock runs 3.5 times faster (P).
+dil.dlogm[0:2] = [0.0, -1.9]
+dil.dlnr[0:2] = [0.0, -1.25]
+# Thermal conductivity relative to nitrogen (P).
+dil.k_rel[0:2] = [1.0, 5.8]

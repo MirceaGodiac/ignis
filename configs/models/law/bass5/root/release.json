@@ -1,0 +1,1929 @@
+{
+  "id": "sha256:1558a1c15d26b900b459ba473bc0f0c42ed332c22c896777b3af3d636643cf52",
+  "family": "other",
+  "model_name": "bass5.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 56,
+      "authored_total": 1556,
+      "constant_total": 1,
+      "per_tensor": {
+        "blowoff_speed.median.W1": [
+          96,
+          0
+        ],
+        "blowoff_speed.median.b0": [
+          1,
+          0
+        ],
+        "blowoff_speed.median.b1": [
+          8,
+          0
+        ],
+        "blowoff_speed.median.skip": [
+          12,
+          0
+        ],
+        "blowoff_speed.median.w2": [
+          8,
+          0
+        ],
+        "blowoff_speed.spread.W1": [
+          96,
+          0
+        ],
+        "blowoff_speed.spread.b0": [
+          1,
+          1
+        ],
+        "blowoff_speed.spread.b1": [
+          8,
+          0
+        ],
+        "blowoff_speed.spread.skip": [
+          12,
+          0
+        ],
+        "blowoff_speed.spread.w2": [
+          8,
+          0
+        ],
+        "blowoff_speed.tail_weight": [
+          1,
+          0
+        ],
+        "blowoff_speed.tail_width": [
+          1,
+          1
+        ],
+        "flat_holds_high_flow.logit.W1": [
+          96,
+          0
+        ],
+        "flat_holds_high_flow.logit.b0": [
+          1,
+          0
+        ],
+        "flat_holds_high_flow.logit.b1": [
+          8,
+          0
+        ],
+        "flat_holds_high_flow.logit.skip": [
+          12,
+          0
+        ],
+        "flat_holds_high_flow.logit.w2": [
+          8,
+          0
+        ],
+        "flat_holds_low_flow.logit.W1": [
+          96,
+          0
+        ],
+        "flat_holds_low_flow.logit.b0": [
+          1,
+          0
+        ],
+        "flat_holds_low_flow.logit.b1": [
+          8,
+          0
+        ],
+        "flat_holds_low_flow.logit.skip": [
+          12,
+          0
+        ],
+        "flat_holds_low_flow.logit.w2": [
+          8,
+          0
+        ],
+        "flat_quench_speed.median.W1": [
+          96,
+          0
+        ],
+        "flat_quench_speed.median.b0": [
+          1,
+          0
+        ],
+        "flat_quench_speed.median.b1": [
+          8,
+          0
+        ],
+        "flat_quench_speed.median.skip": [
+          12,
+          0
+        ],
+        "flat_quench_speed.median.w2": [
+          8,
+          0
+        ],
+        "flat_quench_speed.spread.W1": [
+          96,
+          0
+        ],
+        "flat_quench_speed.spread.b0": [
+          1,
+          1
+        ],
+        "flat_quench_speed.spread.b1": [
+          8,
+          0
+        ],
+        "flat_quench_speed.spread.skip": [
+          12,
+          0
+        ],
+        "flat_quench_speed.spread.w2": [
+          8,
+          0
+        ],
+        "flat_quench_speed.tail_weight": [
+          1,
+          0
+        ],
+        "flat_quench_speed.tail_width": [
+          1,
+          1
+        ],
+        "holds_high_flow.logit.W1": [
+          96,
+          0
+        ],
+        "holds_high_flow.logit.b0": [
+          1,
+          0
+        ],
+        "holds_high_flow.logit.b1": [
+          8,
+          0
+        ],
+        "holds_high_flow.logit.skip": [
+          12,
+          0
+        ],
+        "holds_high_flow.logit.w2": [
+          8,
+          0
+        ],
+        "holds_low_flow.logit.W1": [
+          96,
+          0
+        ],
+        "holds_low_flow.logit.b0": [
+          1,
+          0
+        ],
+        "holds_low_flow.logit.b1": [
+          8,
+          0
+        ],
+        "holds_low_flow.logit.skip": [
+          12,
+          0
+        ],
+        "holds_low_flow.logit.w2": [
+          8,
+          0
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "oxygen_limit.median.W1": [
+          96,
+          0
+        ],
+        "oxygen_limit.median.b0": [
+          1,
+          0
+        ],
+        "oxygen_limit.median.b1": [
+          8,
+          0
+        ],
+        "oxygen_limit.median.skip": [
+          12,
+          0
+        ],
+        "oxygen_limit.median.w2": [
+          8,
+          0
+        ],
+        "oxygen_limit.spread.W1": [
+          96,
+          0
+        ],
+        "oxygen_limit.spread.b0": [
+          1,
+          1
+        ],
+        "oxygen_limit.spread.b1": [
+          8,
+          0
+        ],
+        "oxygen_limit.spread.skip": [
+          12,
+          0
+        ],
+        "oxygen_limit.spread.w2": [
+          8,
+          0
+        ],
+        "oxygen_limit.tail_weight": [
+          1,
+          0
+        ],
+        "oxygen_limit.tail_width": [
+          1,
+          1
+        ],
+        "quench_speed.median.W1": [
+          96,
+          0
+        ],
+        "quench_speed.median.b0": [
+          1,
+          0
+        ],
+        "quench_speed.median.b1": [
+          8,
+          0
+        ],
+        "quench_speed.median.skip": [
+          12,
+          0
+        ],
+        "quench_speed.median.w2": [
+          8,
+          0
+        ],
+        "quench_speed.spread.W1": [
+          96,
+          0
+        ],
+        "quench_speed.spread.b0": [
+          1,
+          1
+        ],
+        "quench_speed.spread.b1": [
+          8,
+          0
+        ],
+        "quench_speed.spread.skip": [
+          12,
+          0
+        ],
+        "quench_speed.spread.w2": [
+          8,
+          0
+        ],
+        "quench_speed.tail_weight": [
+          1,
+          0
+        ],
+        "quench_speed.tail_width": [
+          1,
+          1
+        ],
+        "x.flat_thickness.centre": [
+          1,
+          1
+        ],
+        "x.flat_thickness.hi": [
+          1,
+          1
+        ],
+        "x.flat_thickness.lo": [
+          1,
+          1
+        ],
+        "x.flat_thickness.scale": [
+          1,
+          1
+        ],
+        "x.flat_width.centre": [
+          1,
+          1
+        ],
+        "x.flat_width.hi": [
+          1,
+          1
+        ],
+        "x.flat_width.lo": [
+          1,
+          1
+        ],
+        "x.flat_width.scale": [
+          1,
+          1
+        ],
+        "x.flow_speed.centre": [
+          1,
+          1
+        ],
+        "x.flow_speed.hi": [
+          1,
+          1
+        ],
+        "x.flow_speed.lo": [
+          1,
+          1
+        ],
+        "x.flow_speed.scale": [
+          1,
+          1
+        ],
+        "x.heat_time.centre": [
+          1,
+          1
+        ],
+        "x.heat_time.hi": [
+          1,
+          1
+        ],
+        "x.heat_time.lo": [
+          1,
+          1
+        ],
+        "x.heat_time.scale": [
+          1,
+          1
+        ],
+        "x.is_concurrent.centre": [
+          1,
+          1
+        ],
+        "x.is_concurrent.hi": [
+          1,
+          1
+        ],
+        "x.is_concurrent.lo": [
+          1,
+          1
+        ],
+        "x.is_concurrent.scale": [
+          1,
+          1
+        ],
+        "x.is_nomex_ultem.centre": [
+          1,
+          1
+        ],
+        "x.is_nomex_ultem.hi": [
+          1,
+          1
+        ],
+        "x.is_nomex_ultem.lo": [
+          1,
+          1
+        ],
+        "x.is_nomex_ultem.scale": [
+          1,
+          1
+        ],
+        "x.is_one_sided.centre": [
+          1,
+          1
+        ],
+        "x.is_one_sided.hi": [
+          1,
+          1
+        ],
+        "x.is_one_sided.lo": [
+          1,
+          1
+        ],
+        "x.is_one_sided.scale": [
+          1,
+          1
+        ],
+        "x.is_rod.centre": [
+          1,
+          1
+        ],
+        "x.is_rod.hi": [
+          1,
+          1
+        ],
+        "x.is_rod.lo": [
+          1,
+          1
+        ],
+        "x.is_rod.scale": [
+          1,
+          1
+        ],
+        "x.is_sibal.centre": [
+          1,
+          1
+        ],
+        "x.is_sibal.hi": [
+          1,
+          1
+        ],
+        "x.is_sibal.lo": [
+          1,
+          1
+        ],
+        "x.is_sibal.scale": [
+          1,
+          1
+        ],
+        "x.nose_radius.centre": [
+          1,
+          1
+        ],
+        "x.nose_radius.hi": [
+          1,
+          1
+        ],
+        "x.nose_radius.lo": [
+          1,
+          1
+        ],
+        "x.nose_radius.scale": [
+          1,
+          1
+        ],
+        "x.u_pot1.centre": [
+          1,
+          1
+        ],
+        "x.u_pot1.hi": [
+          1,
+          1
+        ],
+        "x.u_pot1.lo": [
+          1,
+          1
+        ],
+        "x.u_pot1.scale": [
+          1,
+          1
+        ],
+        "x.x_o2.centre": [
+          1,
+          1
+        ],
+        "x.x_o2.hi": [
+          1,
+          1
+        ],
+        "x.x_o2.lo": [
+          1,
+          1
+        ],
+        "x.x_o2.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:e61575773015bfd8c938a311ede7c8e3ced013c10cc610aa3f67008667bb0ba8",
+    "spec_id": "law-bass5-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "x_o2",
+    "flow_speed",
+    "nose_radius",
+    "heat_time",
+    "is_concurrent",
+    "is_rod",
+    "flat_thickness",
+    "u_pot1",
+    "is_one_sided",
+    "is_sibal",
+    "is_nomex_ultem",
+    "flat_width"
+  ],
+  "units": {
+    "flat_thickness": "m",
+    "flat_width": "m",
+    "flow_speed": "m/s",
+    "heat_time": "s",
+    "is_concurrent": "1",
+    "is_nomex_ultem": "1",
+    "is_one_sided": "1",
+    "is_rod": "1",
+    "is_sibal": "1",
+    "nose_radius": "m",
+    "u_pot1": "m/s",
+    "x_o2": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "rod tip or sphere: flame not quenched by heat loss at the end of the step",
+        "kind": "binary",
+        "label": "bass5:holds_low_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "holds_low_flow",
+        "unit": null
+      },
+      {
+        "description": "rod tip or sphere: stagnation flame not blown off",
+        "kind": "binary",
+        "label": "bass5:holds_high_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "holds_high_flow",
+        "unit": null
+      },
+      {
+        "description": "rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time",
+        "kind": "positive",
+        "label": "bass5:oxygen_limit",
+        "shared_quantity": "mole_fraction",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "oxygen_limit",
+        "unit": "1"
+      },
+      {
+        "description": "rod tip or sphere: duct speed below which the flame goes out",
+        "kind": "positive",
+        "label": "bass5:quench_speed",
+        "shared_quantity": "flow_velocity",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "quench_speed",
+        "unit": "m/s"
+      },
+      {
+        "description": "rod tip or sphere: duct speed at which the stagnation flame blows off",
+        "kind": "positive",
+        "label": "bass5:blowoff_speed",
+        "shared_quantity": "flow_velocity",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "blowoff_speed",
+        "unit": "m/s"
+      },
+      {
+        "description": "film or slab: flame not quenched",
+        "kind": "binary",
+        "label": "bass5:flat_holds_low_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "flat_holds_low_flow",
+        "unit": null
+      },
+      {
+        "description": "film or slab: flame not blown off",
+        "kind": "binary",
+        "label": "bass5:flat_holds_high_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "flat_holds_high_flow",
+        "unit": null
+      },
+      {
+        "description": "film or slab: duct speed below which the flame goes out",
+        "kind": "positive",
+        "label": "bass5:flat_quench_speed",
+        "shared_quantity": "flow_velocity",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "flat_quench_speed",
+        "unit": "m/s"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "blowoff_speed.median.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.median.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.spread.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.spread.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "blowoff_speed.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_high_flow.logit.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_high_flow.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_high_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_high_flow.logit.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_high_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_low_flow.logit.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_low_flow.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_low_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_low_flow.logit.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "flat_holds_low_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.median.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.median.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.spread.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.spread.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "flat_quench_speed.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "holds_high_flow.logit.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "holds_high_flow.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "holds_high_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "holds_high_flow.logit.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "holds_high_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "holds_low_flow.logit.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "holds_low_flow.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "holds_low_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "holds_low_flow.logit.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "holds_low_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.median.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.median.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.spread.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.spread.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "oxygen_limit.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.median.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.median.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.spread.W1",
+      "shape": [
+        8,
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "a3516482af9c9a719f9c16c9035221d00da58f7f022158220266491fcb1f0526",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.spread.skip",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "c6089d91ae9800f13e06e9d61e986f5eab6c7c3f0b289c5c1def7112d0bd1e19",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "quench_speed.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_thickness.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_thickness.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_thickness.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_thickness.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_width.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_width.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_width.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.flat_width.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.flow_speed.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.flow_speed.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.flow_speed.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.flow_speed.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.heat_time.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.heat_time.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.heat_time.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.heat_time.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_concurrent.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_concurrent.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_concurrent.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_concurrent.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_nomex_ultem.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_nomex_ultem.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_nomex_ultem.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_nomex_ultem.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_one_sided.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_one_sided.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_one_sided.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_one_sided.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_rod.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_rod.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_rod.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_rod.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_sibal.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_sibal.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_sibal.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_sibal.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.nose_radius.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.nose_radius.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.nose_radius.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.nose_radius.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.u_pot1.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.u_pot1.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.u_pot1.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.u_pot1.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-26+PSI-25-solids:catalogue",
+  "split_id": "sha256:b09d8f8f67ebd5e51e0efdaa88e55ed88550bfd0ca1b79106bf54359402600bd",
+  "source_manifest_hash": "sha256:432de55500c43586c8187264db5fb8be9db020d1b58dfd08dca97c2164d0c57d",
+  "code_version": "ignis-wsp@0.1.0+fwd.9baddddb61236c25",
+  "applicability": {
+    "declaration": {
+      "description": "Post-final plastics revision (docs/wsp/research/phys_bass_post_final.md, PROTOCOL 13.8; typed after the final run with every partition seen; in-sample on all data; no held-out score exists): the eleven bass4 features plus flat_width. Derived by tools/wsp/ext/law_inputs.py from condition fields only.",
+      "family": "other",
+      "features": [
+        {
+          "description": "oxygen mole fraction of the gas entering the duct during the step",
+          "name": "x_o2",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "duct speed of the step",
+          "name": "flow_speed",
+          "transform": "ln",
+          "unit": "m/s"
+        },
+        {
+          "description": "radius of the rod, sphere or spherical section as installed; 0.01 for a flat sample (weight zero in the flat targets)",
+          "name": "nose_radius",
+          "transform": "ln",
+          "unit": "m"
+        },
+        {
+          "description": "time from ignition of this burn to the end of the step (for quench and blow-off speeds: to the event); 200 where it is not recorded",
+          "name": "heat_time",
+          "transform": "ln",
+          "unit": "s"
+        },
+        {
+          "description": "flat samples: 1 if the flame spreads with the flow, 0 against it; 0 for rods and spheres",
+          "name": "is_concurrent",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 if the sample is a rod (any flow configuration); 0 for spheres, sections and flat samples",
+          "name": "is_rod",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "flat samples: thickness as installed; rods, spheres and sections: 0.0005 (weight zero)",
+          "name": "flat_thickness",
+          "transform": "ln",
+          "unit": "m"
+        },
+        {
+          "description": "the burn's fan curve at fan display 46.5 (pot 1), m/s",
+          "name": "u_pot1",
+          "transform": "ln",
+          "unit": "m/s"
+        },
+        {
+          "description": "flat samples: 1 if sides_burning is 1, else 0; rods, spheres, sections: 0",
+          "name": "is_one_sided",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 if material_class is fabric_sibal, else 0",
+          "name": "is_sibal",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 if material_class is fabric_nomex (any Nomex) or ultem_sheet, else 0",
+          "name": "is_nomex_ultem",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "PMMA films and slabs: width_m as installed. Everything else (rods, spheres, sections, fabrics, Ultem), and a flat PMMA sample with no width recorded: 0.02",
+          "name": "flat_width",
+          "transform": "ln",
+          "unit": "m"
+        }
+      ],
+      "investigation": "PSI-26 BASS and PSI-25 BASS-II (non-fabric solids): PMMA rods, spheres, spherical sections, films and slabs in a slow duct flow in the Microgravity Science Glovebox",
+      "slug": "bass5",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [],
+          "description": "rod tip or sphere: flame not quenched by heat loss at the end of the step",
+          "kind": "binary",
+          "name": "holds_low_flow",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "rod tip or sphere: stagnation flame not blown off",
+          "kind": "binary",
+          "name": "holds_high_flow",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time",
+          "kind": "positive",
+          "name": "oxygen_limit",
+          "scheduled_stop": null,
+          "shared_quantity": "mole_fraction",
+          "unit": "1"
+        },
+        {
+          "causes": [],
+          "description": "rod tip or sphere: duct speed below which the flame goes out",
+          "kind": "positive",
+          "name": "quench_speed",
+          "scheduled_stop": null,
+          "shared_quantity": "flow_velocity",
+          "unit": "m/s"
+        },
+        {
+          "causes": [],
+          "description": "rod tip or sphere: duct speed at which the stagnation flame blows off",
+          "kind": "positive",
+          "name": "blowoff_speed",
+          "scheduled_stop": null,
+          "shared_quantity": "flow_velocity",
+          "unit": "m/s"
+        },
+        {
+          "causes": [],
+          "description": "film or slab: flame not quenched",
+          "kind": "binary",
+          "name": "flat_holds_low_flow",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "film or slab: flame not blown off",
+          "kind": "binary",
+          "name": "flat_holds_high_flow",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "film or slab: duct speed below which the flame goes out",
+          "kind": "positive",
+          "name": "flat_quench_speed",
+          "scheduled_stop": null,
+          "shared_quantity": "flow_velocity",
+          "unit": "m/s"
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/bass5/decl.json",
+    "features": [
+      {
+        "description": "oxygen mole fraction of the gas entering the duct during the step",
+        "name": "x_o2",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "duct speed of the step",
+        "name": "flow_speed",
+        "transform": "ln",
+        "unit": "m/s"
+      },
+      {
+        "description": "radius of the rod, sphere or spherical section as installed; 0.01 for a flat sample (weight zero in the flat targets)",
+        "name": "nose_radius",
+        "transform": "ln",
+        "unit": "m"
+      },
+      {
+        "description": "time from ignition of this burn to the end of the step (for quench and blow-off speeds: to the event); 200 where it is not recorded",
+        "name": "heat_time",
+        "transform": "ln",
+        "unit": "s"
+      },
+      {
+        "description": "flat samples: 1 if the flame spreads with the flow, 0 against it; 0 for rods and spheres",
+        "name": "is_concurrent",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 if the sample is a rod (any flow configuration); 0 for spheres, sections and flat samples",
+        "name": "is_rod",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "flat samples: thickness as installed; rods, spheres and sections: 0.0005 (weight zero)",
+        "name": "flat_thickness",
+        "transform": "ln",
+        "unit": "m"
+      },
+      {
+        "description": "the burn's fan curve at fan display 46.5 (pot 1), m/s",
+        "name": "u_pot1",
+        "transform": "ln",
+        "unit": "m/s"
+      },
+      {
+        "description": "flat samples: 1 if sides_burning is 1, else 0; rods, spheres, sections: 0",
+        "name": "is_one_sided",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 if material_class is fabric_sibal, else 0",
+        "name": "is_sibal",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 if material_class is fabric_nomex (any Nomex) or ultem_sheet, else 0",
+        "name": "is_nomex_ultem",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "PMMA films and slabs: width_m as installed. Everything else (rods, spheres, sections, fabrics, Ultem), and a flat PMMA sample with no width recorded: 0.02",
+        "name": "flat_width",
+        "transform": "ln",
+        "unit": "m"
+      }
+    ],
+    "investigation": "PSI-26 BASS and PSI-25 BASS-II (non-fabric solids): PMMA rods, spheres, spherical sections, films and slabs in a slow duct flow in the Microgravity Science Glovebox",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "bass5",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "rod tip or sphere: flame not quenched by heat loss at the end of the step",
+        "kind": "binary",
+        "label": "bass5:holds_low_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "holds_low_flow",
+        "unit": null
+      },
+      {
+        "description": "rod tip or sphere: stagnation flame not blown off",
+        "kind": "binary",
+        "label": "bass5:holds_high_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "holds_high_flow",
+        "unit": null
+      },
+      {
+        "description": "rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time",
+        "kind": "positive",
+        "label": "bass5:oxygen_limit",
+        "shared_quantity": "mole_fraction",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "oxygen_limit",
+        "unit": "1"
+      },
+      {
+        "description": "rod tip or sphere: duct speed below which the flame goes out",
+        "kind": "positive",
+        "label": "bass5:quench_speed",
+        "shared_quantity": "flow_velocity",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "quench_speed",
+        "unit": "m/s"
+      },
+      {
+        "description": "rod tip or sphere: duct speed at which the stagnation flame blows off",
+        "kind": "positive",
+        "label": "bass5:blowoff_speed",
+        "shared_quantity": "flow_velocity",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "blowoff_speed",
+        "unit": "m/s"
+      },
+      {
+        "description": "film or slab: flame not quenched",
+        "kind": "binary",
+        "label": "bass5:flat_holds_low_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "flat_holds_low_flow",
+        "unit": null
+      },
+      {
+        "description": "film or slab: flame not blown off",
+        "kind": "binary",
+        "label": "bass5:flat_holds_high_flow",
+        "shared_quantity": null,
+        "slug": "bass5",
+        "status": "declared",
+        "target": "flat_holds_high_flow",
+        "unit": null
+      },
+      {
+        "description": "film or slab: duct speed below which the flame goes out",
+        "kind": "positive",
+        "label": "bass5:flat_quench_speed",
+        "shared_quantity": "flow_velocity",
+        "slug": "bass5",
+        "status": "declared",
+        "target": "flat_quench_speed",
+        "unit": "m/s"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": null,
+  "lineage": "literal_authoring",
+  "lineage_note": "Neutral root of a law slug, generated from the spec alone by `ignis wsp law-root`: no claim (no feature weight, no hinge, the widest spread and clock shapes the spec allows, domain at the tensor bounds). A lineage root for literal revisions",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_one_shot",
+    "spec_id": "law-bass5-v1",
+    "spec_hash": "sha256:e61575773015bfd8c938a311ede7c8e3ced013c10cc610aa3f67008667bb0ba8",
+    "patch_id": "law-bass5-v1-root",
+    "patch_hash": "sha256:7e1f0e26c898b3a20f77aa7c749387fdd24a704fbbc35499ea60da95e5bac527",
+    "author": {
+      "provider": "ignis",
+      "model_id": "ignis-wsp-law-root"
+    },
+    "exposure": {
+      "sources": [],
+      "datasets": [],
+      "development_feedback": [],
+      "prior_candidates": []
+    },
+    "weights_hash": "sha256:9156d4dd80d9ea665787412cd4eccfdb324a5e46aeaf2247cc85a88c03af8fa2",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:9baddddb61236c25f7c6eef83de0abebea0af23281d14c45aae35c9b0b8ddd70",
+    "code_version": "ignis-wsp@0.1.0+fwd.9baddddb61236c25",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "1556 authored elements (56 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 8 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}

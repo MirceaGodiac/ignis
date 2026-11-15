@@ -1,0 +1,686 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-cld3-v1-s1-fable",
+  "spec_hash": "sha256:d808d93671125000cd082ee1869887c2d19342489bab141f53520f1b53a0dcd2",
+  "parent_release_id": "sha256:1dc481742265689ecef0a738023c1cd3631a4bb606bd0ec7a795873cd1a8e2f4",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_cld_study.md(sha256:fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6;section-5)",
+      "repo:runs/dev/gen7/study/cld3_block.wsp(sha256:be59cbbb214fbaa7c7106481f47a6d57000a1b0a5757479a8f71a87dfd61bd0f)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "cld-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores",
+      "what-if-run-of-C1"
+    ],
+    "prior_candidates": [
+      "sha256:0995df666bdabfa546607fcba565da166a28839ed984f2f1226bc62274eefe4e",
+      "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+      "sha256:541e9b2a232e0d33f1638650d69198a4153e2ba8d8d6257632e96285c7d99ab6"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_final.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_final.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_final.lo",
+      "index": [],
+      "value": 0.04
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_final.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_coflow_final.centre",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_coflow_final.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_coflow_final.lo",
+      "index": [],
+      "value": 0.02
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_coflow_final.hi",
+      "index": [],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "x.window.centre",
+      "index": [],
+      "value": 60.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.window.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.window.lo",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.window.hi",
+      "index": [],
+      "value": 600.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethylene.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethylene.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethylene.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethylene.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_stage.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_stage.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_stage.lo",
+      "index": [],
+      "value": 0.04
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel_stage.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_fuel_stage.centre",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_fuel_stage.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_fuel_stage.lo",
+      "index": [],
+      "value": 0.02
+    },
+    {
+      "op": "set",
+      "tensor": "x.v_fuel_stage.hi",
+      "index": [],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.b0",
+      "index": [],
+      "value": 4.094
+    },
+    {
+      "op": "set_box",
+      "tensor": "loss.blowoff.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": 2.6
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 3.092
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.b1",
+      "index": [
+        0
+      ],
+      "value": 3.246
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.w2",
+      "index": [
+        0
+      ],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -2.6
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        1,
+        3
+      ],
+      "value": -3.092
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.b1",
+      "index": [
+        1
+      ],
+      "value": -3.246
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.w2",
+      "index": [
+        1
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        2,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        2,
+        3
+      ],
+      "value": -0.47
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.b1",
+      "index": [
+        2
+      ],
+      "value": -1.204
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.w2",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        3,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        3,
+        3
+      ],
+      "value": -0.47
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.b1",
+      "index": [
+        3
+      ],
+      "value": -1.609
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.w2",
+      "index": [
+        3
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.other.median.b0",
+      "index": [],
+      "value": 11.156
+    },
+    {
+      "op": "set_box",
+      "tensor": "loss.other.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "loss.other.shape",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set_box",
+      "tensor": "loss.stop.offset_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "loss.stop.offset_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.b0",
+      "index": [],
+      "value": -0.66
+    },
+    {
+      "op": "set_box",
+      "tensor": "radiometer.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 0.847
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.b1",
+      "index": [
+        0
+      ],
+      "value": 3.299
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.31
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.W1",
+      "index": [
+        1,
+        3
+      ],
+      "value": 0.847
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.W1",
+      "index": [
+        1,
+        4
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.b1",
+      "index": [
+        1
+      ],
+      "value": 1.099
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.w2",
+      "index": [
+        1
+      ],
+      "value": 0.38
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.W1",
+      "index": [
+        2,
+        3
+      ],
+      "value": 0.847
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.W1",
+      "index": [
+        2,
+        4
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.b1",
+      "index": [
+        2
+      ],
+      "value": -1.101
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.w2",
+      "index": [
+        2
+      ],
+      "value": 0.31
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.spread.b0",
+      "index": [],
+      "value": 0.8
+    },
+    {
+      "op": "set_box",
+      "tensor": "radiometer.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.tail_width",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.t_severe.centre",
+      "index": [],
+      "value": 20.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.t_severe.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.t_severe.lo",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.t_severe.hi",
+      "index": [],
+      "value": 600.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.median.b0",
+      "index": [],
+      "value": 6.242
+    },
+    {
+      "op": "set_box",
+      "tensor": "loss.crossing.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        2.6,
+        -1.0,
+        0.0,
+        3.092,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.median.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": 2.6
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.median.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.median.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 3.092
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.median.b1",
+      "index": [
+        0
+      ],
+      "value": 3.246
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.median.w2",
+      "index": [
+        0
+      ],
+      "value": 41.0
+    },
+    {
+      "op": "set",
+      "tensor": "loss.crossing.shape",
+      "index": [],
+      "value": 6.0
+    }
+  ],
+  "rationale": "cld3 (PROTOCOL 13.6): data-informed from the development days (train and validation); cld3 = C1 (configs/models/law/cld/c1-fable, its lines runs/dev/gen7/study/cld_c1.wsp) with t_severe and the cause crossing added; docs/wsp/research/phys_cld_study.md section 5 (sha256 fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6), the typed block verbatim on the full chain of cld C1. Typed, not run, by its author before this assembly. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-spice-v1-p2-fable",
+  "parent_release_id": "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_spice_study.md(sha256:df53f43e936b41877b3ed74c0d611d4ff2975174a78396fe3ca5a10027185bcb;candidate-P2)",
+      "repo:runs/dev/gen7/study/spice_p2.wsp(sha256:63530856c22440ae2096655f03d1e9343538799161cd504ff6e92b065d98105c)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-P2)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "spice-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-P2"
+    ],
+    "prior_candidates": [
+      "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8"
+    ]
+  },
+  "rationale": "spice P2 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/spice_p2.wsp verbatim as a revision of spice w0-fable (docs/wsp/research/phys_spice_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

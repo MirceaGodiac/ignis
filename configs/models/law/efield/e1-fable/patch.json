@@ -1,0 +1,175 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-efield-v1-e1-fable",
+  "spec_hash": "sha256:b267040c99bad560616fa8f4d1b0b3332e429cd5306947f8d356cc486181e378",
+  "parent_release_id": "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_efield_study.md(sha256:573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e;candidate-E1)",
+      "repo:runs/dev/gen7/study/efield_e1.wsp(sha256:9c4344adf3598741e0d769d77f2e94acd3de4eceb760e91cde485f5dab6ed39b)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-E1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "efield-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-E1"
+    ],
+    "prior_candidates": [
+      "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "ion_current.median.b0",
+      "index": [],
+      "value": -13.664
+    },
+    {
+      "op": "set_box",
+      "tensor": "ion_current.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.9,
+        1.4,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "ion_current.median.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -1.0,
+        -0.4,
+        -1.1,
+        -20.0,
+        1.4,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.b1",
+      "index": [
+        0
+      ],
+      "value": -0.095
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.w2",
+      "index": [
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "ion_current.median.W1",
+      "start": [
+        1,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -0.25,
+        0.0,
+        -0.95,
+        20.0,
+        1.4,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.b1",
+      "index": [
+        1
+      ],
+      "value": -18.255
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.w2",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.W1",
+      "index": [
+        2,
+        4
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.b1",
+      "index": [
+        2
+      ],
+      "value": -1.0986
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.median.w2",
+      "index": [
+        2
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.spread.b0",
+      "index": [],
+      "value": 0.45
+    },
+    {
+      "op": "set",
+      "tensor": "ion_current.spread.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    }
+  ],
+  "rationale": "efield E1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/efield_e1.wsp verbatim as a revision of efield w0-fable (docs/wsp/research/phys_efield_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

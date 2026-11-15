@@ -105,6 +105,56 @@ pub fn release_notes12(family: Family) -> (BTreeMap<&'static str, Value>, Value,
     )
 }
 
+/// [`notes`] of a release of a forward with the second fuel table and the diluent table.
+fn fuel_table2_notes(
+    family: Family,
+    domain: Value,
+    integrator: &str,
+) -> (BTreeMap<&'static str, Value>, Value, Value) {
+    let (mut a, o, n) = notes(family, domain, integrator);
+    a.insert(
+        "fuels",
+        json!("the rows of the release's fuel table with fuel.admit = 1 (rows: ethane, propane, butane, ethylene, methane, hydrogen), and blends of two admitted rows (fuel_species a+b with fuel_blend_x); diluents: the rows of the diluent table with dil.admit = 1 (nitrogen, helium)"),
+    );
+    (a, o, n)
+}
+
+/// [`release_notes`] of a hinge-law release with the second tables (`flame8.rs`).
+pub fn release_notes14(family: Family) -> (BTreeMap<&'static str, Value>, Value, Value) {
+    fuel_table2_notes(
+        family,
+        json!(crate::flame8::spec(family).domain),
+        "midpoint hazards, step <= num.dt_s, exact competing-risk split within a step, two latent classes re-weighted by survival to the cutoff; each law network evaluated at the alkane vertices with a non-zero weight of the fuel's coordinates and its outputs weighed",
+    )
+}
+
+/// [`release_notes`] of a growth-clock release with the second tables and the heating law (`flame9.rs`).
+pub fn release_notes15(family: Family) -> (BTreeMap<&'static str, Value>, Value, Value) {
+    fuel_table2_notes(
+        family,
+        json!(crate::flame9::spec(family).domain),
+        "closed-form survival of three independent families (self-extinction: the weak class and num.phi_nodes equally likely values of the reduced flow; burner limit: num.bt_nodes heating nodes times the weighted limits, moved by the script's setting; programmed stops and background), conditioned on the cutoff; step <= num.dt_s; each law network evaluated at the alkane vertices with a non-zero weight of the fuel's coordinates and its outputs weighed",
+    )
+}
+
+/// [`release_notes`] of a hinge-law release with the heating law and the second tables (`flame10.rs`).
+pub fn release_notes16(family: Family) -> (BTreeMap<&'static str, Value>, Value, Value) {
+    fuel_table2_notes(
+        family,
+        json!(crate::flame10::spec(family).domain),
+        "midpoint hazards, step <= num.dt_s, exact competing-risk split within a step, two latent classes re-weighted by survival to the cutoff; the burner limit enters each step as the hazard ln(S_bt(t) / S_bt(t + h)) / h of the closed-form burner-heating survival, its limits moved by the script's setting; each law network evaluated at the alkane vertices with a non-zero weight of the fuel's coordinates and its outputs weighed",
+    )
+}
+
+/// [`release_notes`] of a release of the fourth committee (`committee4.rs`).
+pub fn release_notes13(family: Family) -> (BTreeMap<&'static str, Value>, Value, Value) {
+    fuel_table2_notes(
+        family,
+        json!(crate::committee4::spec(family).domain),
+        "weighted mean of the members' event tables at the requested times (the rules of committee3.rs), formed once or, with two oxygen candidates, twice and mixed with mix.o2_b_w; flame8.rs, flame9.rs and flame10.rs members, each with its own step and constants",
+    )
+}
+
 /// [`release_notes`] of a blend (`blend.rs`) release.
 pub fn release_notes4(family: Family) -> (BTreeMap<&'static str, Value>, Value, Value) {
     notes(

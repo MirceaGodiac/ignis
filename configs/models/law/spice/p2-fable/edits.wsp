@@ -1,0 +1,30 @@
+# spice P2: runs/dev/gen7/study/spice_p2.wsp (sha256 63530856c22440ae2096655f03d1e9343538799161cd504ff6e92b065d98105c), verbatim, a revision of
+# spice w0-fable sha256:93e75024…f2a8 (docs/wsp/research/phys_spice_study.md); every other number is the parent's.
+# spice candidate P1 (numbers on the spice declaration, base w0-fable = variant B): smoke-point length only.
+# L_sp = max(L0, c u^0.55 (d/1.6 mm)^-0.33 / x) * (d_c / d)^3 for d < d_c.
+# L0 21, 28, 14 mm (ethylene, propane, propylene); c 8.08, 10.3, 2.87 mm at 1 cm/s on 1.6 mm;
+# d_c 0.96, 0.80, 0.56 mm, as x^-1.1 with dilution (the nozzle at which the jet's own residence time
+# is twice the fuel's soot time).
+smoke_point_length.median.b0 = -3.863
+smoke_point_length.median.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.288, -0.405, 2.0]
+smoke_point_length.median.W1[0, 0:7] = [-0.33, 0.55, 0.0, -1.0, -0.045, -0.630, 0.0]
+smoke_point_length.median.b1[0] = 0.970
+smoke_point_length.median.w2[0] = 1.0
+smoke_point_length.median.W1[1, 0:7] = [-1.0, 0.0, 0.0, -1.1, -0.182, -0.539, 0.0]
+smoke_point_length.median.b1[1] = -0.041
+smoke_point_length.median.w2[1] = 3.0
+smoke_point_length.spread.b0 = 0.18
+# P2 = P1 plus the flame length: L = K mdot F / Z_st + 2 d (the far-field law treats the nozzle as a point;
+# the jet core adds about two diameters), and no soot term (every case is a smoke point).
+# units 2 to 4: ln(1 + 2 d / L_far) in three pieces; t = ln(2 d / L_far) = -2.320 at the centre
+# (2 mm against 20.3 mm).
+flame_length.median.W1[2, 0:7] = [1.0, 0.0, -1.0, -0.66, -0.055, 0.0, -0.143]
+flame_length.median.b1[2] = -0.120
+flame_length.median.w2[2] = 0.31
+flame_length.median.W1[3, 0:7] = [1.0, 0.0, -1.0, -0.66, -0.055, 0.0, -0.143]
+flame_length.median.b1[3] = -2.320
+flame_length.median.w2[3] = 0.38
+flame_length.median.W1[4, 0:7] = [1.0, 0.0, -1.0, -0.66, -0.055, 0.0, -0.143]
+flame_length.median.b1[4] = -4.520
+flame_length.median.w2[4] = 0.31
+flame_length.spread.b0 = 0.14

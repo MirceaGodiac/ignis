@@ -1,0 +1,20 @@
+{
+ "slug": "cld",
+ "candidate": "c1-fable",
+ "label": "C1",
+ "edits": "runs/dev/gen7/study/cld_c1.wsp",
+ "edits_sha256": "f7f10d4b52ad04486bd22a1cb3f5f616e16ae00f047366f39870b23bbd091979",
+ "study": "docs/wsp/research/phys_cld_study.md",
+ "study_sha256": "fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6",
+ "parent": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+ "release": "sha256:541e9b2a232e0d33f1638650d69198a4153e2ba8d8d6257632e96285c7d99ab6",
+ "elements_written": 20,
+ "elements_written_equal_to_parent": [
+  "('loss.blowoff.median.skip', (2,))",
+  "('loss.blowoff.median.skip', (4,))",
+  "('loss.blowoff.median.skip', (5,))"
+ ],
+ "elements_differing_from_parent": 17,
+ "differing_not_written": [],
+ "mismatches": {}
+}

@@ -1,0 +1,440 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bre-v1-d3m-fable",
+  "spec_hash": "sha256:a27a3dafa38c9824a7335b7fc7581011e275e01713abfa171e926df8b63d9248",
+  "parent_release_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bre_study.md(sha256:dbdced679233e2aee34d82094c1dc35da558d67cce75da205fe5ade28577d10a)",
+      "runs/dev/gen7/whatif_log.jsonl(logged-candidates)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bre-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores"
+    ],
+    "prior_candidates": [
+      "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.lo",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_mass_flux.lo",
+      "index": [],
+      "value": 0.0003
+    },
+    {
+      "op": "set",
+      "tensor": "lasts.logit.b0",
+      "index": [],
+      "value": -2.83
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        -5.56,
+        -2.59,
+        5.12,
+        0.0,
+        -2.37,
+        -1.65,
+        0.0
+      ]
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": 2.05
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        1
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": 1.12
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        2
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": -0.03
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        3
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        4
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": 1.12
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.b1",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        2.51,
+        0.26,
+        -0.35,
+        -0.86,
+        -1.3,
+        -1.72
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.w2",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.97,
+        0.56,
+        0.67,
+        0.87,
+        1.14,
+        1.62
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        6,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -1.0,
+        -1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "lasts.logit.b1",
+      "index": [
+        6
+      ],
+      "value": -1.41
+    },
+    {
+      "op": "set",
+      "tensor": "lasts.logit.w2",
+      "index": [
+        6
+      ],
+      "value": -9.0
+    },
+    {
+      "op": "set",
+      "tensor": "lasts.logit.w2",
+      "index": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.median.b0",
+      "index": [],
+      "value": 2.09
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        1.39,
+        0.81,
+        0.57,
+        0.0,
+        0.84,
+        -0.8,
+        0.0
+      ]
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "value": -1.01
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        1
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "value": -0.47
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        2
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "value": 0.93
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        3
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        4
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "value": -0.43
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        5
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.b1",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        1.286,
+        0.786,
+        0.486,
+        0.256,
+        0.056,
+        -0.114,
+        -0.264
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.w2",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.29,
+        0.36,
+        0.49,
+        0.7,
+        1.09,
+        2.09,
+        5.03
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        7,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -1.0,
+        -1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.median.b1",
+      "index": [
+        7
+      ],
+      "value": -1.41
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.median.w2",
+      "index": [
+        7
+      ],
+      "value": -6.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.median.b0",
+      "index": [],
+      "value": -3.28
+    },
+    {
+      "op": "set_box",
+      "tensor": "height_at_end.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        1.03,
+        0.56,
+        -0.02,
+        0.0,
+        0.56,
+        -0.24,
+        0.0
+      ]
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        5
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": -0.6
+    }
+  ],
+  "rationale": "bre d3m-fable (PROTOCOL 13.6): d3 with the methane block of phys_bre_study.md section 5 written in place of the lines it replaces, a revision of W0. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "origin": "system"
+}

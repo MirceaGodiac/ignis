@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-bass4-v1-s1-fable",
+  "parent_release_id": "sha256:27898a87318921a4ba165a65a18be41379873e3c7305bff6ed16d51891c4ce8b",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_study2.md(sha256:c360d112399edc92bacebf5efc3ec70c8c683f5e57b67cefd8183b7fe3230c75;section-E)",
+      "repo:runs/dev/gen7/study/bass4_block.wsp(sha256:632803c1c1be2f1ba3358c00c3a059acd6735c55c2a8f5de651a7b8fb8de3fab)",
+      "repo:docs/wsp/research/phys_bass_study.md(section-4;the-bass3-lines)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass1-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores",
+      "what-if-runs-S1-and-Q1-on-bass3"
+    ],
+    "prior_candidates": [
+      "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1"
+    ]
+  },
+  "rationale": "bass4 (PROTOCOL 13.6): docs/wsp/research/phys_bass_study2.md section E (sha256 c360d112399edc92bacebf5efc3ec70c8c683f5e57b67cefd8183b7fe3230c75), every line of bass3 s1-fable plus the section's new lines, verbatim. The SIBAL numbers are zero-shot by their author (expectation written before any fabric case was opened, section A); the single Nomex and Ultem floor is data-informed (ten development burns). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

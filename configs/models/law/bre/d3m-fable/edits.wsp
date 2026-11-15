@@ -1,0 +1,52 @@
+# bre d3m-fable (docs/wsp/research/phys_bre_study.md sha256 dbdced679233e2aee34d82094c1dc35da558d67cce75da205fe5ade28577d10a; d3 file sha256 defb7d19fc3730baa53011fe4c4840488f2b7af3a54a7d0c895ad05c9dbe3e04): d3 with the methane block of phys_bre_study.md section 5 written in place of the lines it replaces;
+# a revision of W0 sha256:aa0eef5b…2b4d; every number not written is W0's. Read through the lasts rule (phys_bre2.md section 2).
+# bre d3-fable: the third law (parent W0). lasts lines = candidate C3; flame_end and height_at_end brought to the same law; domain widened.
+# z = (z_d, z_m, z_o, z_p, z_f, z_c, z_t)
+# size ratio  b    = 0.514 + 1.01 z_d + 0.47 z_m - 0.93 z_o + 0.43 z_f + 0.11 z_c          (no pressure; burner share at the extinction temperature)
+# clock       base = 2.451 + 2.05 z_d + 1.12 z_m - 0.03 z_o + 1.12 z_f + 0.08 z_c          (ln s; 0.42 of the W0 diffusion time; no pressure)
+# stand-off   s    = 2.307 + z_d + z_m + z_f = ln(Lambda0 d / 25 mm); penalty below 0.90
+x.x_fuel.lo = 0.2
+x.burner_mass_flux.lo = 0.0003
+
+# lasts: logit = 5.5 (H(v) - b) - 9 relu(0.90 - s), v = 0.950 + z_t - base(z)
+lasts.logit.b0 = -2.83
+lasts.logit.skip[0:7] = [-5.56, -2.59, 5.12, 0.0, -2.37, -1.65, 0.0]
+# (form only, the dossier's number for lasts.logit.skip[5] written inside the parent's line above, the dossier's number)
+lasts.logit.W1[0:6, 0] = 2.05
+lasts.logit.W1[0:6, 1] = 1.12
+lasts.logit.W1[0:6, 2] = -0.03
+lasts.logit.W1[0:6, 3] = 0.0
+lasts.logit.W1[0:6, 4] = 1.12
+lasts.logit.b1[0:6] = [2.51, 0.26, -0.35, -0.86, -1.30, -1.72]
+lasts.logit.w2[0:6] = [0.97, 0.56, 0.67, 0.87, 1.14, 1.62]
+lasts.logit.W1[6, 0:7] = [-1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0]
+lasts.logit.b1[6] = -1.41
+lasts.logit.w2[6] = -9.0
+lasts.logit.w2[7] = 0.0
+
+# flame_end: ln tau = base + G(b) - 6 relu(0.90 - s); G on knots 1.8, 1.3, 1.0, 0.77, 0.57, 0.40, 0.25; 2.09 = 2.451 - 0.03 - 0.65 * 0.514
+flame_end.extinction.median.b0 = 2.09
+flame_end.extinction.median.skip[0:7] = [1.39, 0.81, 0.57, 0.0, 0.84, -0.8, 0.0]
+# (form only, the dossier's number for flame_end.extinction.median.skip[5] written inside the parent's line above, the dossier's number)
+flame_end.extinction.median.W1[0:7, 0] = -1.01
+flame_end.extinction.median.W1[0:7, 1] = -0.47
+flame_end.extinction.median.W1[0:7, 2] = 0.93
+flame_end.extinction.median.W1[0:7, 3] = 0.0
+flame_end.extinction.median.W1[0:7, 4] = -0.43
+flame_end.extinction.median.W1[0:7, 5] = -0.3
+# (form only, the dossier's number for flame_end.extinction.median.W1[0, 5], flame_end.extinction.median.W1[1, 5], flame_end.extinction.median.W1[2, 5], flame_end.extinction.median.W1[3, 5], flame_end.extinction.median.W1[4, 5], flame_end.extinction.median.W1[5, 5], flame_end.extinction.median.W1[6, 5] written inside the parent's line above, the dossier's number)
+flame_end.extinction.median.b1[0:7] = [1.286, 0.786, 0.486, 0.256, 0.056, -0.114, -0.264]
+flame_end.extinction.median.w2[0:7] = [0.29, 0.36, 0.49, 0.70, 1.09, 2.09, 5.03]
+flame_end.extinction.median.W1[7, 0:7] = [-1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0]
+flame_end.extinction.median.b1[7] = -1.41
+flame_end.extinction.median.w2[7] = -6.0
+flame_end.extinction.shape = 3.0
+
+# height_at_end: ln(R xi_e / 1 m); -3.28 = ln(0.0125 * 3.01)
+height_at_end.median.b0 = -3.28
+height_at_end.median.skip[0:7] = [1.03, 0.56, -0.02, 0.0, 0.56, -0.24, 0.0]
+# (form only, the dossier's number for height_at_end.median.skip[5] written inside the parent's line above, the dossier's number)
+
+# methane: critical flux 1.7 x ethylene. b: 0.11 -> 0.30 on is_methane; base: 0.08 -> -0.60
+lasts.logit.W1[0:6, 5] = -0.60
+

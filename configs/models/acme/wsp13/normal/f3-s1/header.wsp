@@ -1,0 +1,57 @@
+# acme_normal.wsp13 — F3, STAGE 1, spec acme_normal-wsp-v13
+# Author of the numbers: claude-fable-5-2 (Anthropic), docs/wsp/research/phys_sflame_f3.md (E4). DATA-INFORMED.
+# Transcribed by an engineer (claude-opus-5-5) without choosing any number.
+# Stage 1 of the owner's three: the parts that concern the flames F2 already answers. The burner limit is an
+# input of the test (condition burner_limit_c); the heating law has its flame-temperature factor and the
+# stream-conductivity power; the methane row step with the weak-flame shift column; the ethylene dilution term
+# of the growth members. Left out (stage 2 and 3): the helium row of the diluent table, the hydrogen row and
+# the blends; those inputs are refused, as in F2. The slot law values are F2's, copied statement by statement
+# by tools/wsp/committee4_edits.py; the fuel and diluent tables are configs/models/acme/fuel_tables/
+# normal-f3s1-*.wsp.
+#
+# The committee lines of F2, unchanged:
+mix.w_early[0:10] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+era.last_early_day = 2021235.0
+era.first_late_day = 2021256.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.15
+script.offset_s[0:3] = [-1.0, 0.0, 1.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]
+
+# Two candidate oxygen fractions and nothing to choose between them (s-Flame day 20160): equal weight.
+# (Not read in stage 1: the tests with two oxygen candidates are not handed over.)
+mix.o2_b_w = 0.5
+
+# Heat reaches the burner by conduction through the burner stream: the equilibrium rise goes as the stream's
+# conductivity to this power (J, then D: hydrogen at 15 to 45 % in nitrogen on one day asks about 0.42,
+# hydrogen in helium about 0.5).
+# ... and in proportion to the temperature difference between flame and burner (T). The law was typed from
+# flames at 2490 to 2700 K; this is the temperature at which it is left as it was (D).
+# The script setting under which this member's limits were typed: its limits moved by (burner_limit_c - this).
+b0.bt.kappa_exp = 0.45
+b0.bt.tflame_ref_k = 2650.0
+b1.bt.kappa_exp = 0.45
+b1.bt.tflame_ref_k = 2650.0
+b2.bt.kappa_exp = 0.45
+b2.bt.tflame_ref_k = 2650.0
+b3.bt.kappa_exp = 0.45
+b3.bt.tflame_ref_k = 2650.0
+c0.bt.kappa_exp = 0.45
+c0.bt.tflame_ref_k = 2650.0
+c1.bt.kappa_exp = 0.45
+c1.bt.tflame_ref_k = 2650.0
+c2.bt.kappa_exp = 0.45
+c2.bt.tflame_ref_k = 2650.0
+c3.bt.kappa_exp = 0.45
+c3.bt.tflame_ref_k = 2650.0
+b0.bt.limit_script_c = 500.0
+b2.bt.limit_script_c = 500.0
+c0.bt.limit_script_c = 500.0
+c2.bt.limit_script_c = 500.0
+b1.bt.limit_script_c = 450.0
+b3.bt.limit_script_c = 450.0
+c1.bt.limit_script_c = 450.0
+c3.bt.limit_script_c = 450.0

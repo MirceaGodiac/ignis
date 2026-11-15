@@ -1,0 +1,83 @@
+{
+  "patch_id": "acme_normal-wsp-v13-f3-s1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-session-transfer-audit-of-D1-and-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-run-by-run)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D1-and-D2:integrated-Brier-scores-only)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-D2)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-limit-levels-and-the-planned-stops-from-its-tables)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:docs/wsp/research/phys_acme_normal.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;section-5-names-the-conditions-and-dates-of-the-two-validation-sessions)",
+      "repo:docs/wsp/RESULTS_GEN5.md(aggregate-validation-tables-of-the-fifth-generation:integrated-Brier-scores-only)",
+      "repo:docs/wsp/feedback/acme_normal_gen6_train_analysis.md(train-only-analysis-by-a-delegated-analysis-agent,claude-fable-5-2,high-effort;no-fitting;the-author-reran-its-limit-and-stop-tables-and-re-evaluated-the-member-laws-at-the-corrected-inputs)",
+      "repo:docs/wsp/measure/DISCREPANCIES.md(document-lane-cross-check-of-NASA-condition-tables-against-setpoints,readbacks-and-scripts;conditions-only;train-and-validation-rows;no-outcome;the-author-read-that-the-table-errors-of-injection-fields-are-all-on-train-rows)",
+      "repo:docs/wsp/feedback/astra-r2-20261115/results/acme_normal.json(per-case-TRAIN-scores-of-acme_normal.wsp5-P1)",
+      "repo:runs/dev/gen6/acme_normal/author_candidate.py(train-diagnostic-of-the-candidate-through-a-Python-transcription-of-the-forwards;run-once-after-these-numbers-were-typed;no-number-changed-after-it)",
+      "author:pretraining-knowledge(unverifiable)",
+      "repo:docs/wsp/research/phys_spherical_fuels.md(fuel-descriptors-and-coordinates-typed-from-property-tables-and-theory;its-author-read-CFI-G-train-rows-and-knew-the-aggregate-arms-of-the-Flame-Design-transfer-test;no-per-test-outcome-of-Flame-Design-or-s-Flame)",
+      "repo:docs/wsp/research/phys_ethylene_held.md(revision-of-the-ethylene-row-from-the-TRAIN-DAYS-of-Flame-Design-only,after-the-blind-run-of-12.8;no-validation-day-or-test-day-test-read)",
+      "repo:docs/wsp/feedback/acme_planned_stop_v2.md(the-planned-stop-computed-from-the-script-parameter-file-alone;checked-on-TRAIN-tests-that-ran-to-the-scripted-end;burner-limit-setting-by-session-from-the-script-log,an-input)",
+      "repo:docs/wsp/research/phys_sflame_f3.md(F3-dossier:s-Flame-train-days,aggregates-of-the-s-Flame-validation-days-in-PROTOCOL-13.1,CFI-G-train,Flame-Design-train-days)",
+      "repo:configs/models/acme/wsp12/normal/f2-fable(the-slot-law-values-and-the-committee-lines-of-F2)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments,raw-channels-and-script-files)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-earlier-candidates-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:1336c6307fc9023f2434994f49e56cada9ff844000b3ebda29e23bc6bb9a77f4",
+      "sha256:cc0a32705ad977683cf5a9936a7a080a83dec4fa44065d17ebab0c80f2f600ce",
+      "sha256:d0cd7a59cce166379d20066ae889463af40df17548a85cd9fbc4ce443d397311",
+      "sha256:c59118f6f4915e03b16e9acc0e8b8d2989a102f1506f94df6fa76c573bc699fe",
+      "sha256:90e4b4f91e8f969c365344dfc877840ad9dfcd9ef9557e8e652da3f4987de6ef",
+      "sha256:788cce50e49649b7e94dc1f40b4fe19708dec3b345a828635a623c50aa2887b8",
+      "sha256:4591bc22c168b6e20d11be4a83cefe2136a79f94cc68301ed041ac9a0a690099",
+      "sha256:ab3a97134371d4c9e730d2dede05334a96b1ed7d68ed3c33bcb7efd418d7095b",
+      "sha256:75453aca9cab3093ba72c4a0d7a21fae9823936495b395111fbe019a1e76ba44",
+      "sha256:d6934dee6cf628f18c83d255f83d1c1bde3fa824111e0470e74518fc37bdcde3",
+      "sha256:6949a65eae6c3419693b6fc6f2b70f516243e8d19afa5d332147283034de6169",
+      "sha256:f465961b615fb375191f915c138cb05039cc34ca1159987d0d7c1ed9cccfeea3",
+      "sha256:4d324982a99d572e973dabb7fbd1a0e9adfe28b450bacc8e4db06be11ddd810a",
+      "sha256:342c1ebb6577abf17006814556f7b414713c4c487f98520f6bd365e17d6be773",
+      "sha256:5d265f5e12ad5a27b11266080945bb94cfbde8cb4808c4543c6625a222436494",
+      "sha256:56f0e4ee06d4d183928d0c901cf8a67a9e78a0b56e4619079cc3d53af46f128c",
+      "sha256:dd4d96717828e9b2fd80b6b33f4db5112b84402db755ae2a50dfeadd5d7763c5",
+      "sha256:5bd65a2595c736cbbc95352a505824e86e9c50cc5b972c8ead444714ebc36c48",
+      "sha256:7e490e41e79b800ea9e0d51d9d389fca5370957018d41fb6f0b91816abae9cee",
+      "sha256:cc3e20eeac6579214c30f3ec6d2181996a6bb65a725c983407d4704b8e633d29",
+      "sha256:120240cf06296efe2b23778a22ded7cde41d2e6e397886082abfc199164f0cb6",
+      "sha256:d57e7c4e60afbe29a45bca37129301d37ca91e61f941e27bad12e0e41184d28e",
+      "sha256:37cbf3282239496185d995e149d531d21ee6703fce643c60088d138b27f904fd",
+      "sha256:f9e678416dc65a7a8a7ae158a245d9756634442d0141c2e2348dd105f26c8560",
+      "sha256:0ffade46b0bbc73f14ff7131800e669bf7063e01b7a9c2535163bca3479a5acf",
+      "sha256:74bbddaf2c0802d92e07ea412dfde69cad3e88167400e159a7cc7bd4538f84da",
+      "sha256:ad167739296aea073ea0b6742808b55f7075ca3053aa43a7583ef6bf1b9a0de2",
+      "sha256:54d6877ef18125810decf6694b0acf09b8e70eb57fc5183063119b87f016540b",
+      "sha256:9162d388945c465070bf15f82fe9f2e29f35f4955f964d8b14038d3fc0f1079c",
+      "sha256:76c20a68d733de24a88cfa087ee2b6c96a2034ab934929c2fcfb99519c91385a",
+      "sha256:d407135806b90d7ca00143362b71d0a9592de54245e869ece6aaa8d7c91c4507",
+      "sha256:4d0acb8e517871879fa0dea5230c7b75c93232466f8b101a791e752a1deb4b8b"
+    ]
+  },
+  "rationale": "F3 stage 1: F2 with the burner limit as an input, the heating law's flame-temperature factor and conductivity power, the methane step with the weak-flame shift and the ethylene dilution term of docs/wsp/research/phys_sflame_f3.md, transcribed by an engineer; helium, hydrogen and blends left out and refused.",
+  "origin": "system",
+  "parent_release_id": "sha256:9e2c18165d2e0db13beed17b3aec8d19ad609b126dd13a424916da2f30c76591"
+}

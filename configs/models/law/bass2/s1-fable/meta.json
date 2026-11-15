@@ -1,0 +1,29 @@
+{
+  "patch_id": "law-bass2-v1-s1-fable",
+  "parent_release_id": "sha256:8d21f3272e06d5ff36d4089c7c75ea0781f82aea4399ca473f08f6855806fd2a",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass2.md(sha256:f2bdb28c05bbe83f23fe12820d0c068e02e0e17cf407eccdb885318c51574b17;second-law;data-informed-from-train-and-validation-days-via-gen7_failure_analysis.md)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass2-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-and-13.3-validation-aggregates",
+      "docs/wsp/feedback/gen7_failure_analysis.md"
+    ],
+    "prior_candidates": []
+  },
+  "rationale": "Second law bass2 of PROTOCOL 13.4: docs/wsp/research/phys_bass2.md (sha256 f2bdb28c05bbe83f23fe12820d0c068e02e0e17cf407eccdb885318c51574b17), the parent's block with the dossier's lines, verbatim. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

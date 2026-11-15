@@ -1,0 +1,223 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-slice2-v1-s2-fable",
+  "spec_hash": "sha256:0aeda7655f9b7839e195771b13e007b648e0e2ccadf4d28f991b9c5b09d43a94",
+  "parent_release_id": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_slice_study.md(sha256:a3bd91b2bad5dac175fae201526822ab557163f92abea418ff490546704d6384;candidate-S2)",
+      "repo:runs/dev/gen7/study/slice2_s2.wsp(sha256:06e2f3b5c1d66d446127efa463fe9c60960e66b0b1c660e50362233c861974c6)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S2)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "slice2-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-S2"
+    ],
+    "prior_candidates": [
+      "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b0",
+      "index": [],
+      "value": -5.232
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        4.0,
+        0.0,
+        -1.8,
+        -4.4,
+        -12.0,
+        -0.608,
+        -0.608,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -0.25,
+        -2.6,
+        0.0,
+        0.13,
+        0.177,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        0
+      ],
+      "value": -0.608
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        0
+      ],
+      "value": 1.24
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        1,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -0.25,
+        -2.6,
+        0.0,
+        0.13,
+        0.177,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        1
+      ],
+      "value": -2.808
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        1
+      ],
+      "value": 1.52
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -0.25,
+        -2.6,
+        0.0,
+        0.13,
+        0.177,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        2
+      ],
+      "value": -5.008
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        2
+      ],
+      "value": 1.24
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        3
+      ],
+      "value": 4.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        4,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        0.0,
+        1.0,
+        -0.7,
+        -3.7,
+        -3.0,
+        -0.022,
+        0.025,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        4
+      ],
+      "value": -3.816
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        4
+      ],
+      "value": -4.0
+    }
+  ],
+  "rationale": "slice2 S2 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/slice2_s2.wsp verbatim as a revision of slice2 s1-fable (docs/wsp/research/phys_slice_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

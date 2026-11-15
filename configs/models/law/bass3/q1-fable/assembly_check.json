@@ -1,0 +1,16 @@
+{
+ "slug": "bass3",
+ "candidate": "q1-fable",
+ "label": "Q1",
+ "edits": "runs/dev/gen7/study/bass3_q1.wsp",
+ "edits_sha256": "ef6bcbd80bd7bb6be6f169b07a447f8ea416bb414ec93909bd8d2f2d4a466aad",
+ "study": "docs/wsp/research/phys_bass_study2.md",
+ "study_sha256": "c360d112399edc92bacebf5efc3ec70c8c683f5e57b67cefd8183b7fe3230c75",
+ "parent": "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1",
+ "release": "sha256:3c0a5aaeaa67fb01d7c7f56f1041d9853c87cf599315c7a91a14323048b49b6a",
+ "elements_written": 10,
+ "elements_written_equal_to_parent": [],
+ "elements_differing_from_parent": 10,
+ "differing_not_written": [],
+ "mismatches": {}
+}

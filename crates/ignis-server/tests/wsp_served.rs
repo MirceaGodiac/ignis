@@ -22,7 +22,7 @@ use tower::ServiceExt;
 
 const FLEX_METHANOL: &str =
     "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654";
-const ACME_NORMAL: &str = "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52";
+const ACME_NORMAL: &str = "sha256:54caac195d9ed24f8fece9e2ca6752822c7dfa80f0a24157323c972485eabda9";
 const ACME_INVERSE: &str =
     "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7";
 const BASS_FRONT: &str = "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c";
@@ -209,11 +209,7 @@ async fn served_releases_and_cards_are_listed_honestly() {
             BASS_FRONT
         ]
     );
-    assert_eq!(
-        ids.len(),
-        14,
-        "five family releases and nine generic-law releases"
-    );
+    assert_eq!(ids.len(), 14, "the final release of every investigation");
     let (st, cards) = http(&h, "GET", "/model-cards", None).await;
     assert_eq!(st, StatusCode::OK, "{cards}");
     let cards: Vec<ModelCard> = serde_json::from_value(cards).unwrap();
@@ -303,6 +299,59 @@ async fn typed_scenarios_run_the_strict_forward_of_each_family_type() {
         assert!(!art.event_cdf.is_empty());
     }
 
+    // F3 with the burner temperature limit of the script (degC, as the lane writes it): admitted,
+    // and different from the forecast that omits it (each member then uses its own setting).
+    let f3 = |limit: Option<f64>| {
+        let mut c = json!({"fuel_species": "propane", "injected_mass_flow": 1e-6,
+            "pressure": 101325.0, "tad": 2300.0, "x_fuel_role": 0.3, "x_o2_role": 0.3, "zst": 0.25});
+        if let Some(l) = limit {
+            c["burner_limit_c"] = json!(l);
+        }
+        json!({"cutoff_s": 3.0, "phase_established_at_s": 0.0, "conditions": c})
+    };
+    let mut cdfs = vec![];
+    for (key, limit) in [("f3-own", None), ("f3-250", Some(250.0))] {
+        let (st, a) = admit(&h, ACME_NORMAL, f3(limit)).await;
+        assert_eq!(st, StatusCode::OK, "{a}");
+        let hash = a["input_hash"].as_str().unwrap();
+        let art = forecast_http(
+            &h,
+            ACME_NORMAL,
+            json!({"kind": "prefix", "input_hash": hash}),
+            key,
+        )
+        .await;
+        assert!(art.support.admitted, "{key}: {:?}", art.support);
+        cdfs.push(art.event_cdf.clone());
+    }
+    assert_ne!(cdfs[0], cdfs[1], "the burner limit changes the forecast");
+
+    // F4: hydrogen in helium is answered; a hydrogen and methane blend is refused at admission.
+    let mut c = f3(None);
+    c["conditions"]["fuel_species"] = json!("hydrogen");
+    c["conditions"]["diluent_species"] = json!("helium");
+    let (st, a) = admit(&h, ACME_NORMAL, c.clone()).await;
+    assert_eq!(st, StatusCode::OK, "{a}");
+    let art = forecast_http(
+        &h,
+        ACME_NORMAL,
+        json!({"kind": "prefix", "input_hash": a["input_hash"]}),
+        "f4-h2-he",
+    )
+    .await;
+    assert!(
+        art.support.admitted,
+        "hydrogen in helium: {:?}",
+        art.support
+    );
+    c["conditions"]["fuel_species"] = json!("hydrogen+methane");
+    let (st, e) = admit(&h, ACME_NORMAL, c).await;
+    assert_eq!(st, StatusCode::UNPROCESSABLE_ENTITY, "{e}");
+    assert!(
+        e["message"].as_str().unwrap().contains("no blend law"),
+        "{e}"
+    );
+
     // Front forward (front.rs): conditions, fan history and tip positions.
     let tips: Vec<Value> = (0..10)
         .map(|i| json!({"time_s": 11.0 + i as f64, "value_si": 0.002 * (i as f64 + 1.0)}))
@@ -368,7 +417,35 @@ async fn typed_scenarios_run_the_strict_forward_of_each_family_type() {
         .await;
         assert_eq!(st, StatusCode::OK, "{}: {a}", card.model_name);
         let hash = a["input_hash"].as_str().unwrap().to_string();
+        let list = ignis_wsp_serve::ServedList::read(&served_dir().join("served.json")).unwrap();
+        let served = list
+            .releases
+            .iter()
+            .find(|e| e.release_id == card.release_id)
+            .and_then(|e| e.targets.clone());
         for t in &ignis_wsp::law::decl(i).targets {
+            if served.as_ref().is_some_and(|s| !s.contains(&t.name)) {
+                // A declared target that is not the model is refused, never forecast.
+                let (_, tr) = http(
+                    &h,
+                    "POST",
+                    "/analyses",
+                    Some(json!({"schema_version": "wsp.v1",
+                    "release_id": card.release_id, "input": {"kind": "prefix", "input_hash": hash},
+                    "settings": {"target": t.name, "times_s": [1.0, 10.0, 100.0]},
+                    "client_request_id": format!("{}-{}-refused", card.model_name, t.name)})),
+                )
+                .await;
+                let job = finished(&h, tr["job"]["job_id"].as_str().unwrap()).await;
+                assert_eq!(
+                    job.status,
+                    JobStatus::Failed,
+                    "{} {}",
+                    card.model_name,
+                    t.name
+                );
+                continue;
+            }
             let (st, tr) = http(
                 &h,
                 "POST",
@@ -426,7 +503,7 @@ async fn stored_runs_respect_the_partition_and_the_mcp_tools_reach_the_forward()
     for name in ["models_inspect", "models_forecast"] {
         let t = tools.iter().find(|t| t.descriptor.name == name).unwrap();
         assert!(t.unavailable.is_none());
-        assert!(t.descriptor.summary.contains("acme_normal.wsp12"), "{name}");
+        assert!(t.descriptor.summary.contains("acme_normal.wsp13"), "{name}");
         assert!(
             t.descriptor.summary.contains("never substitute a number") || name == "models_inspect"
         );

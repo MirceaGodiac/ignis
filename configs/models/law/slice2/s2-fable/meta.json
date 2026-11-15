@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-slice2-v1-s2-fable",
+  "parent_release_id": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_slice_study.md(sha256:a3bd91b2bad5dac175fae201526822ab557163f92abea418ff490546704d6384;candidate-S2)",
+      "repo:runs/dev/gen7/study/slice2_s2.wsp(sha256:06e2f3b5c1d66d446127efa463fe9c60960e66b0b1c660e50362233c861974c6)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S2)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "slice2-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-S2"
+    ],
+    "prior_candidates": [
+      "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61"
+    ]
+  },
+  "rationale": "slice2 S2 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/slice2_s2.wsp verbatim as a revision of slice2 s1-fable (docs/wsp/research/phys_slice_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

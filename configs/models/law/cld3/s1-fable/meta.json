@@ -1,0 +1,34 @@
+{
+  "patch_id": "law-cld3-v1-s1-fable",
+  "parent_release_id": "sha256:1dc481742265689ecef0a738023c1cd3631a4bb606bd0ec7a795873cd1a8e2f4",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_cld_study.md(sha256:fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6;section-5)",
+      "repo:runs/dev/gen7/study/cld3_block.wsp(sha256:be59cbbb214fbaa7c7106481f47a6d57000a1b0a5757479a8f71a87dfd61bd0f)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "cld-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores",
+      "what-if-run-of-C1"
+    ],
+    "prior_candidates": [
+      "sha256:0995df666bdabfa546607fcba565da166a28839ed984f2f1226bc62274eefe4e",
+      "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+      "sha256:541e9b2a232e0d33f1638650d69198a4153e2ba8d8d6257632e96285c7d99ab6"
+    ]
+  },
+  "rationale": "cld3 (PROTOCOL 13.6): data-informed from the development days (train and validation); cld3 = C1 (configs/models/law/cld/c1-fable, its lines runs/dev/gen7/study/cld_c1.wsp) with t_severe and the cause crossing added; docs/wsp/research/phys_cld_study.md section 5 (sha256 fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6), the typed block verbatim on the full chain of cld C1. Typed, not run, by its author before this assembly. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

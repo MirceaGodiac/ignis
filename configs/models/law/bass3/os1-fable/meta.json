@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-bass3-v1-os1-fable",
+  "parent_release_id": "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_study2.md(sha256:c360d112399edc92bacebf5efc3ec70c8c683f5e57b67cefd8183b7fe3230c75;candidate-S1)",
+      "repo:runs/dev/gen7/study/bass3_s1.wsp(sha256:cb27400ba1f53214164fb66b88282cf0a305bf9063ccaeafe824730ffa2f6f45)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass3-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-S1"
+    ],
+    "prior_candidates": [
+      "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1"
+    ]
+  },
+  "rationale": "bass3 S1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/bass3_s1.wsp verbatim as a revision of bass3 s1-fable (docs/wsp/research/phys_bass_study2.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

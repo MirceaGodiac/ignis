@@ -1,0 +1,73 @@
+{
+  "slug": "cld3",
+  "status": "declared",
+  "family": "other",
+  "investigation": "PSI-21, ACME CLD Flame: methane and ethylene coflow flames diluted with nitrogen, on a 2.18 mm tube in a 25 mm air annulus",
+  "description": "Third law of PSI-21 (docs/wsp/research/phys_cld_study.md section 5, PROTOCOL 13.6): the declaration of cld with t_severe appended (index 6) and the cause crossing added to loss. Time origin of loss: flame onset; the planned fuel-off is the scheduled stop, as in cld. Derived by tools/wsp/ext/law_inputs.py from condition fields only.",
+  "features": [
+    {
+      "name": "x_fuel_final",
+      "unit": "1",
+      "transform": "ln",
+      "description": "lowest fuel fraction the script reaches (section 7.1)"
+    },
+    {
+      "name": "v_coflow_final",
+      "unit": "m/s",
+      "transform": "ln",
+      "description": "highest coflow speed the script reaches (section 7.1)"
+    },
+    {
+      "name": "window",
+      "unit": "s",
+      "transform": "ln",
+      "description": "planned fuel-off, seconds since flame onset (at_cutoff.planned_fuel_off_from_onset_s)"
+    },
+    {
+      "name": "is_ethylene",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 when fuel = ethylene"
+    },
+    {
+      "name": "x_fuel_stage",
+      "unit": "1",
+      "transform": "ln",
+      "description": "x_fuel of the first constant-flow segment of the schedule"
+    },
+    {
+      "name": "v_fuel_stage",
+      "unit": "m/s",
+      "transform": "ln",
+      "description": "v_fuel_m_s of the first constant-flow segment of the schedule"
+    },
+    {
+      "name": "t_severe",
+      "unit": "s",
+      "transform": "ln",
+      "description": "seconds from flame onset at which the schedule first holds both its lowest x_fuel and its highest v_coflow_m_s (the later of the two times, less at_cutoff.onset_from_ignition_command_s), and not less than 2 s"
+    }
+  ],
+  "targets": [
+    {
+      "name": "loss",
+      "kind": "event",
+      "causes": [
+        "blowoff",
+        "other",
+        "crossing"
+      ],
+      "scheduled_stop": {
+        "condition": "planned_fuel_off_from_onset"
+      },
+      "description": "the flame goes out while the fuel still flows, seconds since flame onset"
+    },
+    {
+      "name": "radiometer",
+      "kind": "positive",
+      "unit": "V",
+      "shared_quantity": null,
+      "description": "excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)"
+    }
+  ]
+}
