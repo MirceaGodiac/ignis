@@ -39,6 +39,14 @@ run sources samples
 run evidence corpus fetch --execute
 run evidence corpus status
 run evidence corpus ingest
+# R7a: parse views of the stored corpus (data/raw/samples) made by the sidecars (sidecar/pdfium for
+# every PDF, sidecar/docling where structure or OCR is needed) under data/views/<parser>-<version>/<inv>/.
+# Incremental; a Docling view ends active over the PDFium one; refused views are listed, not fatal.
+views=()
+for d in "$base"/data/views/*/; do [ -d "$d" ] && views+=("/data/work/views/$(basename "$d")"); done
+if [ ${#views[@]} -gt 0 ] && [ -d "$base/data/raw/samples" ]; then
+  run evidence import-views "${views[@]}" --pdf-root /data/work/raw/samples
+fi
 run evidence verify
 run evidence corpus snapshot
 run data ingest
