@@ -110,12 +110,29 @@
     {
       "claim_id": "fixture-claim-03",
       "kind": "predicted",
-      "text": "Synthetic fixture: predicted liquid diameter at the horizon.",
-      "support": [
+      "text": "Synthetic fixture: predicted liquid diameter at the horizon, 0.69 m.",
+      "support": [],
+      "values": [
         {
-          "kind": "artifact_value",
-          "artifact_id": "fixture-artifact-forecast-01",
-          "pointer": "/mean/3"
+          "value": 0.69,
+          "unit": "m",
+          "source": {
+            "kind": "artifact_cell",
+            "artifact_id": "fixture-artifact-forecast-01",
+            "sha256": "sha256:f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+            "rows": [
+              {
+                "table": "",
+                "where": [
+                  {
+                    "field": "/times_s",
+                    "equals": 3.0
+                  }
+                ]
+              }
+            ],
+            "column": "/mean"
+          }
         }
       ]
     },
