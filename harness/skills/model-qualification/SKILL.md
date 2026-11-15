@@ -22,7 +22,7 @@ model is not served.
 |---|---|---|---|---|
 | `flex_methanol.wsp2` D3 | FLEX (PSI-69), methanol | droplet diameter after the cutoff (quantiles) through hot flame, cool flame, no flame | data-informed | conditions (fuel, pressure, x_o2, x_co2, x_he) and diameters before the cutoff; stored runs work |
 | `flex_heptane.wsp2` D2 | FLEX (PSI-69), n-heptane | same, for n-heptane | data-informed | same; stored runs of the heptane cohort work |
-| `acme_normal.wsp13` F3 stage 1 | ACME CFI-G (PSI-159), Flame Design, s-Flame nitrogen flames | same | data-informed | conditions; optional burner temperature limit of the script (`burner_limit_c`) and diluent; refuses helium |
+| `acme_normal.wsp13` F4 (f4-hydrogen) | ACME CFI-G (PSI-159), Flame Design, s-Flame (PSI-23) | same | data-informed; methane, helium and hydrogen parts typed after the final run with every partition seen (in-sample on all data; no held-out score) | conditions incl. `diluent_species` (nitrogen or helium); optional `burner_limit_c` (degC), `x_o2_role_b`/`tad_b`/`zst_b` for a day with two oxygen candidates; **blends refused; flow-ramped tests outside the model** |
 | `acme_inverse.wsp12` F2 | same, inverse flames | same | data-informed (ethylene row zero-shot) | same |
 | `bass_front.wsp` D1 | BASS (PSI-25), thin fabric | flame tip position after the cutoff (quantiles) only; not its quench or ignition outcome | data-informed | x_o2, width in metres, flow history, tip positions; **stored runs are refused** (no stored run has them) |
 
@@ -45,8 +45,10 @@ on a frozen list, lower is better, beside the baseline:
 | `daft.wsp` W0 | DAFT (PSI-47) | number concentration | held whole: 0.777 vs 2.678 |
 
 Transfers of the family releases: the n-heptane FLEX model covers FLEX-2 (PSI-68); the normal
-burner-flame F3 covers s-Flame nitrogen flames (validation 0.205 vs incidence 0.279; its test days are
-helium, which it refuses); the BASS front model covers Saffire I to III as blind transfers. A zero-shot
+burner-flame F4 covers s-Flame: nitrogen flames as F3 (validation 0.205 vs incidence 0.279), helium
+and hydrogen answered in-sample (helium validation 0.111 vs 0.330; helium test days without ramped
+tests 0.242 vs 0.414, with them 0.708 vs 0.481; hydrogen train 0.314 vs 0.909); a hydrogen and methane
+blend is refused (no blend law) and a test whose flow is ramped after ignition is outside the model; the BASS front model covers Saffire I to III as blind transfers. A zero-shot
 n-dodecane model for CFI (PSI-39) exists but is not served. Report a target that did not beat its
 baseline as such.
 

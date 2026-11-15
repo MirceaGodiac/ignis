@@ -22,7 +22,7 @@ use tower::ServiceExt;
 
 const FLEX_METHANOL: &str =
     "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654";
-const ACME_NORMAL: &str = "sha256:a9986fb93275fe264d76ee1b632f59898e51052ba4bfdb89980bf51a0a3b6177";
+const ACME_NORMAL: &str = "sha256:54caac195d9ed24f8fece9e2ca6752822c7dfa80f0a24157323c972485eabda9";
 const ACME_INVERSE: &str =
     "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7";
 const BASS_FRONT: &str = "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c";
@@ -325,6 +325,32 @@ async fn typed_scenarios_run_the_strict_forward_of_each_family_type() {
         cdfs.push(art.event_cdf.clone());
     }
     assert_ne!(cdfs[0], cdfs[1], "the burner limit changes the forecast");
+
+    // F4: hydrogen in helium is answered; a hydrogen and methane blend is refused at admission.
+    let mut c = f3(None);
+    c["conditions"]["fuel_species"] = json!("hydrogen");
+    c["conditions"]["diluent_species"] = json!("helium");
+    let (st, a) = admit(&h, ACME_NORMAL, c.clone()).await;
+    assert_eq!(st, StatusCode::OK, "{a}");
+    let art = forecast_http(
+        &h,
+        ACME_NORMAL,
+        json!({"kind": "prefix", "input_hash": a["input_hash"]}),
+        "f4-h2-he",
+    )
+    .await;
+    assert!(
+        art.support.admitted,
+        "hydrogen in helium: {:?}",
+        art.support
+    );
+    c["conditions"]["fuel_species"] = json!("hydrogen+methane");
+    let (st, e) = admit(&h, ACME_NORMAL, c).await;
+    assert_eq!(st, StatusCode::UNPROCESSABLE_ENTITY, "{e}");
+    assert!(
+        e["message"].as_str().unwrap().contains("no blend law"),
+        "{e}"
+    );
 
     // Front forward (front.rs): conditions, fan history and tip positions.
     let tips: Vec<Value> = (0..10)

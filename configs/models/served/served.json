@@ -235,14 +235,14 @@
       "card_doc": "docs/wsp/cards/flex_droplet3.md"
     },
     {
-      "release_id": "sha256:a9986fb93275fe264d76ee1b632f59898e51052ba4bfdb89980bf51a0a3b6177",
+      "release_id": "sha256:54caac195d9ed24f8fece9e2ca6752822c7dfa80f0a24157323c972485eabda9",
       "model_name": "acme_normal.wsp13",
       "family": "acme_normal",
-      "investigation": "ACME CFI-G (PSI-159), Flame Design (PSI-10), s-Flame (PSI-23) nitrogen flames: normal burner flames",
-      "candidate": "F3 stage 1",
+      "investigation": "ACME CFI-G (PSI-159), Flame Design (PSI-10), s-Flame (PSI-23): normal burner flames, in nitrogen or helium, ethane, propane, butane, ethylene, methane, hydrogen",
+      "candidate": "F4 (f4-hydrogen)",
       "forecasts": "For a normal (fuel into oxidizer) burner flame, the probability over time that it ends by extinction or by a flow stop (event probabilities), from the conditions of the test; optionally from the planned stop of the test script.",
       "authorship": "data_informed",
-      "authorship_note": "F2 with a second typed fuel table (diluent species, fuel blends) and the burner temperature limit of the test script as an optional input; data-informed.",
+      "authorship_note": "F3 stage 1 plus a step on the methane, helium and hydrogen rows; every forecast for ethane, propane, butane and ethylene in nitrogen is identical to F3 stage 1 (CFI-G: 0 of 210 cases moved; Flame Design: 0 of 444 tables moved).",
       "inputs": [
         {
           "name": "fuel_species",
@@ -250,7 +250,7 @@
           "unit_si": "1",
           "required": true,
           "text": true,
-          "note": "fuel: ethane, propane, butane, ethylene or methane",
+          "note": "fuel: ethane, propane, butane, ethylene, methane or hydrogen (a blend such as hydrogen+methane is refused)",
           "example": "propane"
         },
         {
@@ -337,35 +337,87 @@
           "unit_si": "1",
           "required": false,
           "text": true,
-          "note": "diluent of the fuel stream (e.g. nitrogen), optional"
+          "note": "diluent of the burner stream and the ambient: nitrogen or helium (optional; other texts are refused by the forward)"
+        },
+        {
+          "name": "x_o2_role_b",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": false,
+          "note": "for a day with two possible oxygen fractions: the higher candidate (x_o2_role, tad, zst then hold the lower one)"
+        },
+        {
+          "name": "tad_b",
+          "kind": "condition",
+          "unit_si": "K",
+          "required": false,
+          "note": "adiabatic flame temperature of the higher oxygen candidate"
+        },
+        {
+          "name": "zst_b",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": false,
+          "note": "stoichiometric mixture fraction of the higher oxygen candidate"
         }
       ],
       "stored_runs": true,
       "inputs_note": "A stored CFI-G run gives the conditions. The planned stop is not in the shared records, so stored runs answer without it. A typed scenario needs the conditions and the time the flame was established (no observations).",
       "scores": [
         {
-          "metric": "Integrated Brier sum, s-Flame validation days",
-          "value": "0.205",
-          "comparison": "incidence baseline 0.279",
-          "source": "docs/wsp/COVERAGE_19.md on the lane branch"
+          "metric": "Nitrogen ethane/propane/butane/ethylene (forecasts of F3 stage 1): CFI-G validation, extinction / flow termination",
+          "value": "0.154 / 0.096",
+          "source": "docs/wsp/README.md"
         },
         {
-          "metric": "s-Flame test days",
-          "value": "not scored",
-          "comparison": "all s-Flame test days are helium flames, which F3 refuses",
-          "source": "lane docs/wsp/RESULTS_FINAL_GEN7.md (test days of the seventh generation, scored once on a frozen list)"
+          "metric": "s-Flame nitrogen flames, validation days, sum",
+          "value": "0.205",
+          "comparison": "incidence 0.279",
+          "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
+        },
+        {
+          "metric": "Helium, validation days, sum of extinction and termination (35 cases)",
+          "value": "0.111",
+          "comparison": "incidence 0.330; in-sample",
+          "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
+        },
+        {
+          "metric": "Helium, test days with the flow-ramped tests excluded (31 cases)",
+          "value": "0.242",
+          "comparison": "incidence 0.414; in-sample",
+          "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
+        },
+        {
+          "metric": "Helium, test days as first built, ramped tests included (the result of the final run)",
+          "value": "0.708",
+          "comparison": "0.481: worse than the incidence",
+          "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
+        },
+        {
+          "metric": "Hydrogen, train days, sum",
+          "value": "0.314",
+          "comparison": "0.909; in-sample",
+          "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
+        },
+        {
+          "metric": "Methane in nitrogen, validation days, sum",
+          "value": "0.092",
+          "comparison": "0.293; in-sample",
+          "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
         }
       ],
       "limits": [
-        "Helium-diluted flames are refused (all s-Flame test days).",
-        "On CFI-G and Flame Design it answers as F2 does where F2 answered (see its predecessor's development scores in docs/wsp/README.md).",
+        "typed after the final run with every partition seen; in-sample on all data; no held-out score exists (for the methane, helium and hydrogen parts; the nitrogen ethane, propane, butane and ethylene forecasts are those of F3 stage 1)",
+        "Typed for constant-flow tests: a test whose flow is ramped after ignition is outside the model; do not forecast it (the one held result with ramped tests included was worse than the incidence).",
+        "A hydrogen and methane blend is refused: no blend law in this release.",
         "On CFI-G validation with the planned stop it is worse than the model before it (sum 0.2271 against 0.2191, two sessions).",
         "On the Flame Design validation days every normal-flame case ended by a flow stop, so extinction there only measures false extinction; two or three validation days are few.",
         "A nitrogen-diluted ethylene flame lives longer than the growth law says; ethylene below 1900 K is refused.",
         "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp."
       ],
-      "cite": "acme_normal.wsp13 F3 stage 1, hand-written (literal WSP) release sha256:a9986fb9…6177, experimental, not trained; event probabilities are model output, not a measurement.",
-      "card_doc": "docs/wsp/cards/acme_committee.md"
+      "cite": "acme_normal.wsp13 F4 (f4-hydrogen), hand-written (literal WSP) release sha256:54caac19…bda9, experimental, not trained; its methane, helium and hydrogen parts were typed after the final run with every partition seen; event probabilities are model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/acme_committee.md",
+      "refuse_blends": true
     },
     {
       "release_id": "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7",
