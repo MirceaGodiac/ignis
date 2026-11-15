@@ -86,6 +86,10 @@ pub struct AccessVerifier {
     service_token_id: String,
     user_aud: String,
     keys: Arc<RwLock<Keys>>,
+    /// One key fetch at a time: a request that finds the set missing its `kid` while a fetch is in
+    /// flight waits for that fetch instead of being refused (a page fires several requests at once
+    /// right after a restart, when the set is still empty).
+    fetching: Arc<tokio::sync::Mutex<()>>,
 }
 
 impl std::fmt::Debug for AccessVerifier {
@@ -124,6 +128,7 @@ impl AccessVerifier {
             user_aud: need(&a.user_aud, "--access-user-aud")?,
             issuer,
             keys: Default::default(),
+            fetching: Default::default(),
         };
         if v.origin_aud == v.user_aud {
             return Err("origin and UI must be separate Access applications (distinct AUD tags): a user JWT must not open the origin directly".into());
@@ -180,7 +185,7 @@ impl AccessVerifier {
     }
 
     async fn key(&self, kid: &str) -> Result<RsaKey, AccessError> {
-        let (hit, stale, may_fetch) = {
+        let look = || {
             let k = self.keys.read().unwrap_or_else(|p| p.into_inner());
             (
                 k.by_kid.get(kid).cloned(),
@@ -188,6 +193,16 @@ impl AccessVerifier {
                 k.attempted_at.is_none_or(|t| t.elapsed() > REFETCH_GAP),
             )
         };
+        if let (Some(key), false, _) = look() {
+            return Ok(key);
+        }
+        // Missing or stale: take the fetch slot, then look again (a fetch that finished while this
+        // request waited may already hold the key, and then no second fetch is made).
+        let _slot = self.fetching.lock().await;
+        let (hit, stale, may_fetch) = look();
+        if let (Some(key), false) = (&hit, stale) {
+            return Ok(key.clone());
+        }
         if (hit.is_none() || stale) && may_fetch {
             let url = self.certs_url.clone();
             let keys = self.keys.clone();
