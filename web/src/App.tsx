@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { CompareProvider, useCompare } from "./shell/compare";
 import { CommandMenu } from "./shell/CommandMenu";
-import { DataProvider } from "./shell/data";
+import { DataProvider, useData } from "./shell/data";
+import { runLabel } from "./views/RunPicker";
 import { PanelProvider, usePanel } from "./shell/inspector";
 import { Panel } from "./shell/Panel";
 import { go, href, useRoute, VIEW_SECTION, VIEW_TITLE } from "./shell/router";
@@ -57,6 +58,7 @@ function Shell() {
   }, [route.view, route.params]);
 
   // A new view starts with a closed side panel; the panel belongs to what was selected on it.
+  const { experiments } = useData();
   const { close } = panel;
   useEffect(() => close(), [route.view, route.id, close]);
 
@@ -64,6 +66,8 @@ function Shell() {
   useEffect(() => {
     document.title = `${goal ?? VIEW_TITLE[route.view]} · IGNIS`;
   }, [route.view, goal]);
+
+  const labRun = route.view === "lab" && route.id ? experiments.data?.experiments.find((x) => x.id === route.id) : null;
 
   return (
     <div className={`shell${panel.current ? " has-panel" : ""}`}>
@@ -86,7 +90,7 @@ function Shell() {
                 <>
                   <a href={href("lab")}>Forecast lab</a>
                   <IconChevron width={12} height={12} />
-                  <span className="here">{route.id}</span>
+                  <span className="here">{labRun ? runLabel(labRun) : route.id}</span>
                 </>
               ) : (
                 <span className="here">{VIEW_TITLE[route.view]}</span>
