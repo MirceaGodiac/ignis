@@ -1,0 +1,58 @@
+{
+  "conditions_f1": 0.5125,
+  "confusion": {
+    "conference_paper": {
+      "conference_paper": 3
+    },
+    "data_description": {
+      "data_description": 1,
+      "engineering_document": 1
+    },
+    "data_table": {
+      "data_description": 4,
+      "data_table": 2
+    },
+    "engineering_document": {
+      "data_description": 1,
+      "engineering_document": 14,
+      "operations_document": 1,
+      "requirements_document": 5,
+      "technical_report": 1
+    },
+    "operations_document": {
+      "engineering_document": 1,
+      "operations_document": 10
+    },
+    "other": {
+      "data_description": 2,
+      "data_table": 3,
+      "other": 2
+    },
+    "outreach": {
+      "outreach": 1
+    },
+    "presentation": {
+      "engineering_document": 1,
+      "presentation": 15
+    },
+    "requirements_document": {
+      "requirements_document": 13
+    },
+    "technical_report": {
+      "technical_report": 17
+    },
+    "thesis": {
+      "thesis": 2
+    }
+  },
+  "doc_type_accuracy": 0.8,
+  "family_f1": 0.6914893617021277,
+  "investigation_accuracy": 0.69,
+  "labelled": 100,
+  "missing_labels": 0,
+  "resolved_doc_type_accuracy": 0.8152173913043478,
+  "resolved_scored": 92,
+  "runs_f1": 0.13262599469496023,
+  "scored": 100,
+  "unlabelled": 0
+}

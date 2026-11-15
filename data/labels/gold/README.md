@@ -71,3 +71,24 @@ RFC 3339 `labelled_at`; a person did not review the rows.
     file name and storage folder, low confidence, and say so in `notes`.
   - `conditions_mentioned` is a judgement from keyword searches and reading the stated settings;
     it is the least reliable field.
+
+## Measurement: Sonnet through the pipeline (2026-11-15)
+
+`ignis evidence labels <the 100 gold ids> --model sonnet --execute` (two independent passes per
+document via `claude -p`, 200 requests, 10 min, none failed): 92 resolved, 8 unresolved
+conflicts. Labels in `measurements/sonnet-pipeline.source_labels.jsonl`, score in
+`measurements/sonnet-pipeline.gold_eval.json`:
+
+| | vs. the gold set |
+|---|---|
+| document type | 0.80 (0.82 on the 92 resolved) |
+| investigation set, exact | 0.69 |
+| families F1 | 0.69 |
+| conditions F1 | 0.51 |
+| runs F1 | 0.13 |
+
+**What this measures:** the gold set was also written by Sonnet 5.5, but as an agent that read
+each document freely; the pipeline sees only its fixed excerpt and rules. So these numbers are
+**agreement between two Sonnet procedures, not accuracy**. The low runs/conditions agreement
+says the pipeline's excerpt or rules miss what the agent found (or the agent over-reported);
+it needs a human check of a sample before either is trusted.
