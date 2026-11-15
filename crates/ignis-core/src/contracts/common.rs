@@ -580,6 +580,10 @@ pub enum ErrorCode {
     NotFound,
     /// A referenced source/asset is not materialized (listing or metadata only).
     SourceMissing,
+    /// The id is known (its manifest entry exists) but the upstream provider no longer serves the
+    /// object (HTTP 404/410): a corpus-integrity problem. Never retryable; distinct from
+    /// `not_found` (unknown id) and `upstream_unavailable` (outage, retry later).
+    SourceGone,
     Unsupported,
     /// A required service or backend is not available in this deployment.
     CapabilityUnavailable,
@@ -615,6 +619,15 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// A source gone upstream is never retryable: retrying cannot bring the object back.
+    pub fn validate(&self) -> Result<(), ContractError> {
+        ensure(
+            self.code != ErrorCode::SourceGone || self.retry == RetryPolicy::Never,
+            "ErrorEnvelope",
+            || "source_gone is never retryable (retry must be `never`)".into(),
+        )
+    }
+
     pub fn new(code: ErrorCode, message: impl Into<String>, retry: RetryPolicy) -> Self {
         ErrorEnvelope {
             code,
