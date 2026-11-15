@@ -66,6 +66,7 @@ Unitățile: datele sunt stocate în SI (`Quantity::unit_si`); afișarea în mm 
 | W0 contaminat | W0 fără parent, fără feedback, fără candidatul celuilalt autor; literal ⇒ forward `strict_no_fitting`, fără `calibrated_prediction` | `ModelBuildManifest::validate` |
 | acces la final-test | doar `ScopeRole::Evaluation` poate avea `Partition::Test`; scope-ul copil ⊆ părinte; authoring fără `execute_code`; bundle `builder` fără `test`; `development_feedback` nu rulează pe `test` | `ExecutionScope::{validate, require_partition, derive_child}`, `DatasetBundle::validate`, `EvaluationRequest::validate` |
 | eroare tehnică amestecată cu rezultat științific | `execution_status` ≠ `scientific_status`; `accepted` ⇒ job; `failed/refused/cancelled` ⇒ eroare, fără rezultat, `not_assessed` | `ToolResult::validate` |
+| sursă dispărută la furnizor reîncercată la nesfârșit | `source_gone` (id cunoscut în manifest, furnizorul răspunde 404/410) ⇒ `retry: never`; distinct de `not_found` (id necunoscut) și `upstream_unavailable` (pană) | `ErrorEnvelope::validate` |
 | preview luat drept rezultat complet | `partial = true` ⇒ `full: ArtifactRef` | `InlinePayload::validate` |
 | predicție raportată ca măsurătoare | `observed` ⇒ doar evidență `original_observation`/`source_derived`; `predicted` ⇒ valoare dintr-un `AnalysisArtifact`; `computed` ⇒ valoare de artefact | `ResearchAnswer::validate` |
 | evenimente pierdute la reconectare | `seq` contiguu per episod, id-uri unice, tranziții de status consistente, job-urile nu ies din stări terminale | `check_event_log` |

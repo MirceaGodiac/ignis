@@ -110,7 +110,8 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 || base == "ModelSpec"
                 || base == "WikiPatch"
                 || base == "AnswerSubmission"
-                || base == "Capabilities",
+                || base == "Capabilities"
+                || base == "ErrorEnvelope",
             "{path}: no origin label"
         );
 
@@ -120,6 +121,7 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "ResearchEpisode" => drop(check::<ResearchEpisode>(&v, ResearchEpisode::validate)),
             "ResearchEvent[]" => drop(check::<Vec<ResearchEvent>>(&v, |e| check_event_log(e))),
             "ToolResult" => drop(check::<ToolResult>(&v, ToolResult::validate)),
+            "ErrorEnvelope" => drop(check::<ErrorEnvelope>(&v, ErrorEnvelope::validate)),
             "ExecutionRecord" => drop(check::<ExecutionRecord>(&v, ExecutionRecord::validate)),
             "ResearchAnswer" => drop(check::<ResearchAnswer>(&v, ResearchAnswer::validate)),
             "AnswerSubmission" => drop(check::<AnswerSubmission>(&v, AnswerSubmission::validate)),
@@ -1027,4 +1029,26 @@ fn k1_research_contracts_bind_views_and_keep_versions_honest() {
     ] {
         assert!(names.contains(n), "{n}");
     }
+}
+
+/// A source gone upstream is a corpus-integrity problem: no retry policy may promise it comes back.
+#[test]
+fn source_gone_is_never_retryable() {
+    let gone = |retry| ErrorEnvelope::new(ErrorCode::SourceGone, "gone", retry);
+    gone(RetryPolicy::Never).validate().unwrap();
+    for retry in [
+        RetryPolicy::AfterDelay { seconds: 60 },
+        RetryPolicy::AfterUserAction,
+        RetryPolicy::Reconcile,
+    ] {
+        assert!(gone(retry).validate().is_err());
+    }
+    // Other codes keep whatever policy their producer chose.
+    ErrorEnvelope::new(
+        ErrorCode::UpstreamUnavailable,
+        "outage",
+        RetryPolicy::AfterDelay { seconds: 30 },
+    )
+    .validate()
+    .unwrap();
 }
