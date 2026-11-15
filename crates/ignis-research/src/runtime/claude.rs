@@ -34,7 +34,9 @@ use serde_json::{json, Value};
 use super::bridge::CommitHook;
 use super::grants::{McpAttachment, MCP_TOKEN_ENV};
 use super::harness::{self, HarnessBundle};
-use super::mapping::{self, map_item, map_turn_completed, Mapped, StopReason, IGNIS_MCP_SERVER};
+use super::mapping::{
+    self, map_item, map_turn_completed, Mapped, Preamble, StopReason, IGNIS_MCP_SERVER,
+};
 use super::preflight::{
     sha256_file, RuntimeBuildManifest, RuntimeCredentials, RuntimeProfile, LIVE,
 };
@@ -192,6 +194,8 @@ pub struct Translator {
     turn: String,
     /// tool_use id → (server, tool)
     tools: HashMap<String, (String, String)>,
+    /// Text the model wrote right before a `tool_use` becomes that call's `step.rationale`.
+    preamble: Preamble,
 }
 
 /// `mcp__<server>__<tool>` → (server, tool); anything else is reported under server `claude`.
@@ -220,11 +224,17 @@ impl Translator {
         Translator {
             turn: turn.into(),
             tools: HashMap::new(),
+            preamble: Preamble::default(),
         }
     }
 
     /// Map one stream-json line. The `result` line is returned separately; it ends the turn.
     pub fn line(&mut self, v: &Value) -> (Vec<Mapped>, Option<Value>) {
+        let (mapped, result) = self.translate(v);
+        (self.preamble.link(mapped), result)
+    }
+
+    fn translate(&mut self, v: &Value) -> (Vec<Mapped>, Option<Value>) {
         let turn = Some(self.turn.as_str());
         match v.get("type").and_then(Value::as_str).unwrap_or("") {
             "assistant" => {
@@ -265,11 +275,12 @@ impl Translator {
                             out.extend(map_item(
                                 turn,
                                 &json!({"id": id, "type": "mcpToolCall", "server": server,
-                                        "tool": tool, "status": "inProgress"}),
+                                        "tool": tool, "status": "inProgress",
+                                        "arguments": block.get("input").cloned().unwrap_or(Value::Null)}),
                                 false,
                             ));
                         }
-                        // Thinking and other blocks carry no event.
+                        // Thinking and other blocks carry no event (and are never a rationale).
                         _ => {}
                     }
                 }
@@ -962,11 +973,17 @@ mod tests {
                     RuntimeChange::Event(EventBody::AssistantMessage { text, .. }) => {
                         format!("message:{text}")
                     }
-                    RuntimeChange::Event(EventBody::ToolStarted { tool, .. }) => {
-                        format!("tool.started:{tool}")
+                    RuntimeChange::Event(EventBody::StepRationale { call_id, text, .. }) => {
+                        format!("rationale:{}:{text}", call_id.as_ref().unwrap())
                     }
                     RuntimeChange::Status { to, .. } => format!("status:{to:?}"),
                     other => format!("{other:?}"),
+                },
+                Mapped::ToolStarted {
+                    tool, arguments, ..
+                } => match arguments {
+                    Some(a) => format!("tool.started:{tool}:{a}"),
+                    None => format!("tool.started:{tool}"),
                 },
                 Mapped::ToolFinished { tool, error, .. } => {
                     format!("tool.finished:{tool}:{}", error.is_some())
@@ -998,7 +1015,9 @@ mod tests {
             events(&all),
             [
                 "message:Searching.",
-                "tool.started:sources_search",
+                "rationale:tu1:Searching.",
+                r#"tool.started:sources_search:{"query":"x"}"#,
+                // Seen again with the result; the recorder keeps the first (its mark).
                 "tool.started:sources_search",
                 "tool.finished:sources_search:false",
                 "message:Done."
@@ -1007,6 +1026,29 @@ mod tests {
         let (_, r) = t.line(&json!({"type":"result","subtype":"success","is_error":false}));
         let snap = turn_snapshot("t1", r.as_ref(), "exit 0", "");
         assert_eq!(snap["status"], "completed");
+    }
+
+    #[test]
+    fn hidden_thinking_is_never_a_rationale() {
+        let mut t = Translator::new("t4");
+        let (m, _) = t.line(&json!({"type":"assistant","message":{"id":"m","content":[
+            {"type":"thinking","thinking":"private reasoning about the query"},
+            {"type":"tool_use","id":"tu","name":"mcp__ignis__sources_search","input":{"query":"q"}}]}}));
+        assert_eq!(events(&m), [r#"tool.started:sources_search:{"query":"q"}"#]);
+        // A message linked once is not reused for the next call.
+        let (m, _) = t.line(&json!({"type":"assistant","message":{"id":"m2","content":[
+            {"type":"text","text":"Reading the top hit."},
+            {"type":"tool_use","id":"a","name":"mcp__ignis__sources_read","input":{}},
+            {"type":"tool_use","id":"b","name":"mcp__ignis__sources_read","input":{}}]}}));
+        assert_eq!(
+            events(&m),
+            [
+                "message:Reading the top hit.",
+                "rationale:a:Reading the top hit.",
+                "tool.started:sources_read:{}",
+                "tool.started:sources_read:{}"
+            ]
+        );
     }
 
     #[test]

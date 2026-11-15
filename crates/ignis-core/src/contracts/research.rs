@@ -17,13 +17,14 @@ use std::fmt;
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{de, Deserialize, Deserializer, Serialize};
 
+use super::common::RunId;
 use super::common::{
     check_id, ensure, opaque_id, schema_tag, AnswerId, ApprovalId, ArtifactId, ArtifactRef,
     Capability, ClaimId, ClientRequestId, ContractError, CorpusSnapshotId, Digest, EpisodeId,
     ErrorEnvelope, EventId, EvidenceId, Finite, InlinePayload, JobId, MessageId, Origin, ReleaseId,
     RuntimeBuildId, ScopeId, SourceId, Timestamp, ToolCallId, WorkspaceId,
 };
-use super::{EvidenceClass, EvidenceRef, Partition};
+use super::{ConditionKey, EvidenceClass, EvidenceRef, Partition, SourceLocator};
 
 /// Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`
 /// (C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a
@@ -665,23 +666,23 @@ pub fn tool_catalog() -> Vec<ToolDescriptor> {
         domain_owner: owner,
     };
     vec![
-        t("sources_search", "Hybrid search over the pinned corpus snapshot; returns a page of evidence hits, not documents.", E::Read, true, &[C::ReadSources], "SearchRequest", "SearchPage", false, Lane::Raul),
-        t("sources_read", "Read a page range, passage or table of one source version; says how to continue.", E::Read, true, &[C::ReadSources], "ReadRequest", "ReadResult", false, Lane::Raul),
-        t("datasets_inspect", "Describe a dataset bundle: views, columns, units, time origin, partitions.", E::Read, true, &[C::ReadData], "DatasetRef", "DatasetBundle", false, Lane::Raul),
-        t("models_inspect", "A model release with its construction manifest, domain and state.", E::Read, true, &[C::RunModels], "ReleaseRef", "ModelRelease", false, Lane::Iancu),
-        t("models_forecast", "Strict forward of a pinned release on an admitted prefix.", E::Compute, true, &[C::RunModels, C::ReadData], "ForecastRequest", "AnalysisArtifact", true, Lane::Iancu),
-        t("analysis_execute", "Run a Python program once in the isolated runner (no network, read-only inputs from workspace artifacts); stdout, stderr and files written under /out become artifacts of an ExecutionRecord. Returns a job; follow it with jobs_get.", E::Compute, true, &[C::ExecuteCode], "AnalysisExecuteRequest", "ExecutionRecord", true, Lane::Mircea),
-        t("artifacts_read", "Read a byte range or JSON Pointer of a stored artifact.", E::Read, true, &[], "ArtifactReadRequest", "InlinePayload", false, Lane::Mircea),
-        t("jobs_get", "State of a job this workspace submitted (e.g. by models_forecast): status, progress, output artifacts or error.", E::Read, true, &[], "JobLookup", "JobRef", false, Lane::Mircea),
-        t("wiki_patch", "Write a wiki revision against a base revision (compare-and-swap).", E::WorkspaceWrite, false, &[C::WikiWrite], "WikiPatch", "WikiRevision", false, Lane::Raul),
+        t("sources_search", "Ranked passages from the pinned NASA microgravity-combustion corpus for `query` (`mode` hybrid by default, or lexical/dense). Each hit is a citable EvidenceRef with title and short snippet, never the full passage: read it with sources_read before quoting or citing. Use for documentary questions and to locate tables; for per-run conditions use conditions_query. Paged: pass `next_cursor` with the same query and filters. An empty page does not prove absence; a backend `unavailable` means degraded results. `response_format`: `concise` (default) omits scores; `detailed` (schema_version evidence.v2) keeps them.", E::Read, true, &[C::ReadSources], "SearchRequest", "SearchPage", false, Lane::Raul),
+        t("sources_read", "Text of one source version for `range`: pages (1-based, inclusive), the passage of an evidence_id, or a table by table_id. Returns segments with locators; when `complete` is false, `next` is the range to request next. Use after sources_search to get the exact wording you cite; to find sources use sources_search instead. Segments are never cut.", E::Read, true, &[C::ReadSources], "ReadRequest", "ReadResult", false, Lane::Raul),
+        t("datasets_inspect", "Metadata of one curated dataset bundle by `dataset_id`: family, cohort, split, partitions, the time_origin of its experimental times (seconds), views (each an artifact with typed columns, SI units and row count) and quality report. Use before analysis_execute to learn columns and units and which view artifact_id to mount. Returns no measurement rows; refused (scope_denied) when a partition is not granted to this session.", E::Read, true, &[C::ReadData], "DatasetRef", "DatasetBundle", false, Lane::Raul),
+        t("models_inspect", "One model release by `release_id`: family (FLEX/ACME/BASS), construction manifest, applicability domain, training and qualification state. Use before models_forecast to check the run lies in the release's domain. A release's outputs are model_output, never measurements.", E::Read, true, &[C::RunModels], "ReleaseRef", "ModelRelease", false, Lane::Iancu),
+        t("models_forecast", "Queue a strict forward run of `release_id` on an admitted prefix (`input`: a stored run up to `cutoff_s`, seconds after its time_origin, or an uploaded prefix by input_hash). Use after models_inspect, to compare a release with data. Answers `accepted` with a job: poll jobs_get, then read the AnalysisArtifact with artifacts_read. Idempotent on `client_request_id`. The forecast is model_output, not a measurement; inputs outside the release's admitted domain are refused with the reason.", E::Compute, true, &[C::RunModels, C::ReadData], "ForecastRequest", "AnalysisArtifact", true, Lane::Iancu),
+        t("analysis_execute", "Run a Python `source` once in the isolated runner: no network, read-only root, `inputs` are artifacts of this workspace mounted read-only at /in/<name>. Use for every computation you report (unit conversions, fits, statistics) so the number is an artifact with code identity. stdout, stderr and files under /out become artifacts of an ExecutionRecord. Answers `accepted` with a job: poll jobs_get, then artifacts_read. Idempotent on `client_request_id`. A non-zero exit or timeout is the program's outcome, not a tool failure.", E::Compute, true, &[C::ExecuteCode], "AnalysisExecuteRequest", "ExecutionRecord", true, Lane::Mircea),
+        t("artifacts_read", "Part of a stored artifact of this workspace by `artifact_id`: `json_pointer` into a JSON artifact (\"\" = whole) or `byte_offset`/`byte_length` of any artifact. Use to continue a `partial` preview and to read job outputs or analysis stdout. Reading never makes content citable evidence.", E::Read, true, &[], "ArtifactReadRequest", "InlinePayload", false, Lane::Mircea),
+        t("jobs_get", "State of a job this workspace submitted (models_forecast, analysis_execute) by `job_id`: status, progress, output artifacts or error. Use after an `accepted` result: poll until succeeded, failed or cancelled, then read outputs with artifacts_read. A job of another workspace is not found.", E::Read, true, &[], "JobLookup", "JobRef", false, Lane::Mircea),
+        t("wiki_patch", "Write a revision of wiki page `page_id` against `base_revision` (compare-and-swap) with itemized `ops`; `title` creates or renames. Use wiki_read first for the head revision. A moved head is refused as `conflict`: read the page with wiki_read and reapply. Author and episode come from the session, never from arguments.", E::WorkspaceWrite, false, &[C::WikiWrite], "WikiPatch", "WikiRevision", false, Lane::Raul),
         // Wave K1 (K1.9). Request/response types stay in their families.
-        t("answer_submit", "Submit this turn's answer: text and view blocks bound to claims, claims bound to evidence or artifact values returned in this episode. The host validates it and stores the ResearchAnswer; a refusal lists each problem so the answer can be fixed and resubmitted.", E::Compute, true, &[], "AnswerSubmission", "ResearchAnswer", false, Lane::Mircea),
-        t("sources_outline", "Section tree of one source version (titles, page spans; summaries labelled generated).", E::Read, true, &[C::ReadSources], "OutlineRequest", "SourceOutline", false, Lane::Raul),
-        t("conditions_query", "Experimental conditions per run and the tested envelope per investigation, gaps explicit (missing, conflicting, not applicable).", E::Read, true, &[C::ReadData], "ConditionsQuery", "ConditionsTable", false, Lane::Raul),
-        t("graph_neighbors", "Typed links around a run, source, release or concept in the combustion graph.", E::Read, true, &[C::ReadSources], "GraphNeighborsRequest", "GraphNeighborsPage", false, Lane::Raul),
-        t("wiki_read", "Read a wiki page (itemized, with its revision) or list pages.", E::Read, true, &[C::ReadSources], "WikiReadRequest", "WikiReadResult", false, Lane::Raul),
-        t("web_search", "Search the web for candidate sources outside the corpus; results are candidates, never corpus evidence.", E::NetworkFetch, true, &[C::NetworkFetch], "WebSearchRequest", "WebSearchPage", false, Lane::Raul),
-        t("web_fetch", "Fetch one http(s) page into a snapshot artifact under the SSRF policy; never promoted into the corpus.", E::NetworkFetch, true, &[C::NetworkFetch], "WebFetchRequest", "ExternalSourceCandidate", false, Lane::Raul),
+        t("answer_submit", "Store this turn's answer once it is ready: `blocks` (text and views) bound to `claims`, each claim bound to evidence returned in this episode by sources_search, sources_read, datasets_inspect or conditions_query, or to values of artifacts produced in it; `limitations` that change the interpretation. Bind every number to its reference in the claim's `values` (an artifact cell by digest, row keys and column, a conditions cell, or a returned quote); the host records what each resolves to and never takes a bare numeral. Use once per turn, last; evidence from other episodes or seen only through artifacts_read is refused. The host validates it; a refusal lists every problem at once, so fix all of them and submit again.", E::Compute, true, &[], "AnswerSubmission", "ResearchAnswer", false, Lane::Mircea),
+        t("sources_outline", "Section tree of one source version by `source_id` (headings, 1-based page spans; summaries are labelled generated text, never evidence). Use to pick pages for sources_read in a long document; `node_id` returns a subtree, `depth` limits levels and cut children are flagged.", E::Read, true, &[C::ReadSources], "OutlineRequest", "SourceOutline", false, Lane::Raul),
+        t("conditions_query", "Experimental conditions per flight run (inputs such as oxygen mole fraction, pressure, flow velocity, gravity level, fuel, diluent; never outcomes) and, with `include_envelopes`, each investigation's tested envelope. Filter by `investigation_ids`, `run_ids`, `keys`; numeric keys with `min_si`/`max_si` (SI units), categorical ones with `any_of`. Gaps are explicit statuses (missing, conflicting, not applicable), never zero. Paged with `next_cursor`. Use to check a question's conditions were tested before extrapolating.", E::Read, true, &[C::ReadData], "ConditionsQuery", "ConditionsTable", false, Lane::Raul),
+        t("graph_neighbors", "Typed links around one `node` (run, source, release or concept) in the combustion graph, filtered by `relations` and `direction`. Use to move between related runs, sources and releases; read a linked source with sources_read before citing it. Paged with `next_cursor`.", E::Read, true, &[C::ReadSources], "GraphNeighborsRequest", "GraphNeighborsPage", false, Lane::Raul),
+        t("wiki_read", "One wiki page by `page_id` (itemized, at its head or a given `revision`), or the page index when `page_id` is absent (paged with `cursor`). Use for workspace notes kept across episodes. Items this session may not read are withheld and counted. Wiki text is workspace notes, not corpus evidence.", E::Read, true, &[C::ReadSources], "WikiReadRequest", "WikiReadResult", false, Lane::Raul),
+        t("web_search", "Candidate sources on the web for `query`, outside the corpus. Use only when sources_search finds nothing relevant; results are candidates, never citable corpus evidence. Paged with `cursor`; refused for evaluation sessions and without network_fetch.", E::NetworkFetch, true, &[C::NetworkFetch], "WebSearchRequest", "WebSearchPage", false, Lane::Raul),
+        t("web_fetch", "Fetch one http(s) `url` into a snapshot artifact under the SSRF policy. Use on a web_search candidate you need to read; the snapshot is never promoted into the corpus or citable as corpus evidence. Refused without network_fetch.", E::NetworkFetch, true, &[C::NetworkFetch], "WebFetchRequest", "ExternalSourceCandidate", false, Lane::Raul),
     ]
 }
 
@@ -1081,9 +1082,324 @@ pub struct Claim {
     pub text: String,
     #[serde(default)]
     pub support: Vec<ClaimSupport>,
+    /// v2 (M7b): every number the claim states, each bound to the cell it was read from. The host
+    /// resolves each binding against the pinned artifact and compares the stated value, so a number
+    /// in this slot is never a bare numeral.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub values: Vec<ClaimValue>,
     /// v2: how the support was checked, when it was.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub checked_by: Option<SupportCheck>,
+}
+
+/// A number a claim states, bound to the reference it is read from (M7b). The reference is the
+/// source of truth: the host resolves it and records what it found in `resolved`, which is the value
+/// the answer shows. A stated `value` is an assertion, compared on resolve in SI (exactly, or after
+/// rounding to `significant_digits`); the only tolerance is the floating-point error of a unit
+/// conversion. What a failed resolution does (refuse, or only record it in the answer's
+/// `grounding` report) is the host's `GroundingMode`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ClaimValue {
+    /// The number as the claim states it, in `unit`. Absent: the host renders the resolved value.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<Finite>,
+    /// The unit of `value` (`mm`, `s`, `kPa`, `1` for dimensionless); present exactly with `value`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
+    /// `value` is the referenced number rounded to this many significant decimal digits (1..=17).
+    /// Absent: `value` is the number itself.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub significant_digits: Option<u8>,
+    pub source: ValueSource,
+    /// Required exactly when the cited artifact was written by an `analysis_execute` run: the run
+    /// that computed the number and everything it read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub derivation: Option<ValueDerivation>,
+    /// Set by the host: what the reference resolved to. Never submitted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resolved: Option<ResolvedValue>,
+}
+
+/// Where a number is read from. A new kind (e.g. a dataset snapshot cell, once the v1 data routes
+/// publish snapshot ids; a PDF table cell, once table parse views exist) is a contract change.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ValueSource {
+    /// One cell of a JSON artifact (a `ConditionsTable`, a `DatasetBundle`, an analysis output),
+    /// addressed by key fields, never by position. Cell-level grounding.
+    ArtifactCell {
+        artifact_id: ArtifactId,
+        /// The content digest the value was read from: the pinned snapshot. A different digest
+        /// (another version of the table) is stale.
+        sha256: Digest,
+        /// Row selection, outermost first. Empty when the artifact (or the object `column` starts
+        /// from) is itself the record.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        rows: Vec<RowSelector>,
+        /// RFC 6901 JSON Pointer from the selected record to the cell. It never steps through an
+        /// array: an element is selected by a `RowSelector`. The cell is a number (its unit is the
+        /// sibling `unit`/`unit_si`/`raw_unit`, or the nearest enclosing `unit`) or an object
+        /// holding `value_si` + `unit_si` or `value` + `unit`.
+        column: String,
+    },
+    /// One cell of the experimental conditions (`conditions_query`, `/api/v1/conditions`), read
+    /// under a conditions snapshot. Cell-level grounding: the host queries the conditions service
+    /// with the episode's scope and reads the cell back.
+    ConditionsCell {
+        /// The `DatasetService::conditions_snapshot` the value was read under (the
+        /// `x-ignis-snapshot` of the conditions routes). The host reads the current one from the
+        /// service; a different one is stale.
+        snapshot: Digest,
+        investigation_id: String,
+        /// The run. Absent for an investigation-level test point; `locator` then selects the row.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        run_id: Option<RunId>,
+        key: ConditionKey,
+        /// The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to
+        /// pick one candidate of a conflicting cell and to select a row that has no run id.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        locator: Option<SourceLocator>,
+        /// Which number of the cell: its SI value (default) or the raw value as the source wrote it.
+        #[serde(default)]
+        reading: CellReading,
+    },
+    /// A number written in the quote of evidence a retrieval tool returned in this episode (PDF
+    /// text). Text-level grounding only: the host checks that the stated number, followed by its
+    /// unit, occurs in the quote the tool returned, not what the number measures. Numbers in PDF
+    /// tables are not covered until table parse views exist.
+    EvidenceQuote { evidence_id: EvidenceId },
+}
+
+/// Which number of a measured cell a value reads.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CellReading {
+    /// `value_si` in `unit_si`.
+    #[default]
+    Si,
+    /// `raw_value` in `raw_unit`, as the source wrote it.
+    Raw,
+}
+
+/// How deep a resolved number was checked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum GroundingLevel {
+    /// Read from a pinned table cell (raw or SI, with the unit the table states).
+    Cell,
+    /// Found as text in a retrieved quote.
+    Text,
+}
+
+/// What a value reference resolved to, written by the host.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ResolvedValue {
+    pub level: GroundingLevel,
+    pub value: Finite,
+    pub unit: String,
+}
+
+/// Selects exactly one row of a table by its key fields.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct RowSelector {
+    /// JSON Pointer from the current record to the table: an array of records (row layout), or an
+    /// object of equal-length column arrays (column layout, e.g. `times_s` and `mean`).
+    pub table: String,
+    /// Key fields the selected row holds; at least one, each named once. Exactly one row must
+    /// match. In row layout `field` points inside a record (`/run/run_id`); in column layout it
+    /// names a column array of the table (`/times_s`).
+    #[serde(rename = "where")]
+    pub keys: Vec<KeyEquals>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct KeyEquals {
+    pub field: String,
+    pub equals: KeyValue,
+}
+
+/// A key value, compared for equality with the stored JSON value (numbers exactly).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(untagged)]
+pub enum KeyValue {
+    Bool(bool),
+    Number(Finite),
+    Text(String),
+}
+
+/// How a derived number was computed: the `ExecutionRecord` of the `analysis_execute` run whose
+/// output holds the cell, and every input that run mounted.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ValueDerivation {
+    pub computation: ArtifactId,
+    #[serde(default)]
+    pub inputs: Vec<ArtifactId>,
+}
+
+/// What `answer_submit` does with a grounding problem.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum GroundingMode {
+    /// Store the answer and record every grounding problem in its `grounding` report.
+    #[default]
+    Log,
+    /// Refuse the answer with the grounding problems among the others.
+    Enforce,
+}
+
+/// What the host found when it resolved an answer's numbers (M7b), under the mode it ran in.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct GroundingReport {
+    pub mode: GroundingMode,
+    /// Value references that resolved (and matched, where a value was stated).
+    pub grounded: u32,
+    /// The grounding problems (`AnswerProblemKind::is_grounding`). Under `enforce` an answer with
+    /// any is refused, so a stored one has none.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub problems: Vec<AnswerProblem>,
+}
+
+impl GroundingReport {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "GroundingReport";
+        ensure(
+            self.problems.iter().all(|p| p.kind.is_grounding()),
+            c,
+            || "the report lists grounding problems only".into(),
+        )?;
+        ensure(
+            self.mode == GroundingMode::Log || self.problems.is_empty(),
+            c,
+            || "an enforced answer with grounding problems is refused, not stored".into(),
+        )
+    }
+}
+
+/// Contracts of the data tables an observed claim may bind a number from (measured values with their
+/// raw value, SI value and locator).
+pub const OBSERVED_TABLES: &[&str] = &["ConditionsTable", "DatasetBundle"];
+
+/// Significant decimal digits a stated value may be rounded to.
+pub const MAX_SIGNIFICANT_DIGITS: u8 = 17;
+
+impl ClaimValue {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ClaimValue";
+        ensure(self.value.is_some() == self.unit.is_some(), c, || {
+            "a stated value names its unit (\"1\" when dimensionless), and a unit belongs to a stated value".into()
+        })?;
+        ensure(
+            self.unit.as_ref().is_none_or(|u| !u.trim().is_empty()),
+            c,
+            || "empty unit (\"1\" when dimensionless)".into(),
+        )?;
+        ensure(
+            self.significant_digits
+                .is_none_or(|d| self.value.is_some() && (1..=MAX_SIGNIFICANT_DIGITS).contains(&d)),
+            c,
+            || format!("significant_digits (1..={MAX_SIGNIFICANT_DIGITS}) rounds a stated value"),
+        )?;
+        if let Some(r) = &self.resolved {
+            ensure(!r.unit.trim().is_empty(), c, || {
+                "a resolved value has a unit".into()
+            })?;
+        }
+        let (rows, column) = match &self.source {
+            ValueSource::ArtifactCell { rows, column, .. } => (rows, column),
+            ValueSource::ConditionsCell {
+                investigation_id,
+                run_id,
+                locator,
+                ..
+            } => {
+                ensure(!investigation_id.trim().is_empty(), c, || {
+                    "a conditions cell names its investigation".into()
+                })?;
+                ensure(run_id.is_some() || locator.is_some(), c, || {
+                    "a row without a run id is selected by its cells' locator (never by position)"
+                        .into()
+                })?;
+                return ensure(self.derivation.is_none(), c, || {
+                    "a derivation belongs to a number computed by analysis_execute (an artifact cell)"
+                        .into()
+                });
+            }
+            ValueSource::EvidenceQuote { .. } => {
+                ensure(self.value.is_some(), c, || {
+                    "a quoted number is stated (value and unit): the host finds it in the quote"
+                        .into()
+                })?;
+                return ensure(self.derivation.is_none(), c, || {
+                    "a derivation belongs to a number computed by analysis_execute (an artifact cell)"
+                        .into()
+                });
+            }
+        };
+        ensure(is_json_pointer(column), c, || {
+            format!("column {column:?} is not a JSON Pointer (RFC 6901)")
+        })?;
+        for r in rows {
+            ensure(is_json_pointer(&r.table), c, || {
+                format!("table {:?} is not a JSON Pointer (RFC 6901)", r.table)
+            })?;
+            ensure(!r.keys.is_empty(), c, || {
+                format!(
+                    "rows of {:?} are selected by at least one key field (never by position)",
+                    r.table
+                )
+            })?;
+            let mut fields = BTreeSet::new();
+            for k in &r.keys {
+                ensure(!k.field.is_empty() && is_json_pointer(&k.field), c, || {
+                    format!("key field {:?} is not a non-empty JSON Pointer", k.field)
+                })?;
+                ensure(fields.insert(k.field.as_str()), c, || {
+                    format!("key field {:?} is named twice", k.field)
+                })?;
+            }
+        }
+        if let Some(d) = &self.derivation {
+            let inputs: BTreeSet<_> = d.inputs.iter().collect();
+            ensure(inputs.len() == d.inputs.len(), c, || {
+                "a derivation names each input once".into()
+            })?;
+            ensure(!inputs.contains(&d.computation), c, || {
+                "the computation is not its own input".into()
+            })?;
+        }
+        Ok(())
+    }
+
+    /// The artifact a cell is read from.
+    pub fn artifact_id(&self) -> Option<&ArtifactId> {
+        match &self.source {
+            ValueSource::ArtifactCell { artifact_id, .. } => Some(artifact_id),
+            _ => None,
+        }
+    }
+
+    /// The evidence a quoted number is read from.
+    pub fn evidence_id(&self) -> Option<&EvidenceId> {
+        match &self.source {
+            ValueSource::EvidenceQuote { evidence_id } => Some(evidence_id),
+            _ => None,
+        }
+    }
+
+    /// Every artifact the binding names: the cell's, and the computation and its inputs.
+    pub fn cited_artifacts(&self) -> impl Iterator<Item = &ArtifactId> {
+        self.artifact_id().into_iter().chain(
+            self.derivation
+                .iter()
+                .flat_map(|d| std::iter::once(&d.computation).chain(&d.inputs)),
+        )
+    }
 }
 
 /// What a plotted series is. Fixed against the artifact it reads: a predicted series comes only from
@@ -1209,6 +1525,10 @@ pub struct ResearchAnswer {
     pub model_releases: Vec<ReleaseId>,
     #[serde(default)]
     pub limitations: Vec<String>,
+    /// v2 (M7b): what the host found when it resolved the claims' numbers; absent when the answer
+    /// states none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grounding: Option<GroundingReport>,
     pub origin: Origin,
     pub created_at: Timestamp,
 }
@@ -1234,9 +1554,46 @@ pub enum AnswerProblemKind {
     UnknownClaim,
     /// A view reads an artifact of the wrong contract.
     ViewContractMismatch,
+    /// M7b: a single number is cited by pointer without being stated; bind it in the claim's
+    /// `values` (stated value, unit, row keys, column) so the host can check it.
+    UngroundedNumber,
+    /// M7b: a value binding names a digest other than the artifact's (another version of the
+    /// table), or the artifact was built from a corpus snapshot other than the episode's pin.
+    StaleSnapshot,
+    /// M7b: the row keys select no row or more than one, or a table is not an array or object of
+    /// columns, or a pointer steps through an array by position.
+    UnresolvedRow,
+    /// M7b: the column does not resolve in the selected row, or holds no number.
+    UnknownColumn,
+    /// M7b: the cell states no unit, a unit is not registered, or the stated unit measures another
+    /// dimension.
+    UnitMismatch,
+    /// M7b: the stated value differs from the cell in SI.
+    ValueMismatch,
+    /// M7b: a number computed by `analysis_execute` does not cite that run's `ExecutionRecord` and
+    /// its exact inputs, or a derivation is cited for a number no such run computed.
+    UngroundedDerivation,
     /// Anything else structural (duplicate ids, empty answer, missing limitations, a support check
     /// written by the agent).
     InvalidStructure,
+}
+
+impl AnswerProblemKind {
+    /// Problems of resolving a stated number (M7b). Under `GroundingMode::Log` they are recorded in
+    /// the answer's grounding report instead of refusing it.
+    pub fn is_grounding(self) -> bool {
+        use AnswerProblemKind as K;
+        matches!(
+            self,
+            K::UngroundedNumber
+                | K::StaleSnapshot
+                | K::UnresolvedRow
+                | K::UnknownColumn
+                | K::UnitMismatch
+                | K::ValueMismatch
+                | K::UngroundedDerivation
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -1404,15 +1761,26 @@ fn structural_problems(
                 }
             }
         }
+        for v in &claim.values {
+            if let Err(e) = v.validate() {
+                out.push(AnswerProblem::claim(K::InvalidStructure, id, e.to_string()));
+            }
+        }
+        // A bound value supports a computed or predicted claim like a pointer does; an observed
+        // claim may bind a number from a data table (checked against the artifact's contract once
+        // resolved), never by pointer.
+        let bound = !claim.values.is_empty();
         let need = match claim.kind {
             ClaimKind::SourceReports => (!evidence).then_some("cite evidence"),
             ClaimKind::Observed if !evidence => Some("cite the measured value's evidence"),
             ClaimKind::Observed if value => Some(
                 "cite evidence only (an artifact value is computed or predicted, not observed)",
             ),
-            ClaimKind::Computed => (!value).then_some("cite the artifact value it reports"),
+            ClaimKind::Computed => {
+                (!value && !bound).then_some("cite the artifact value it reports")
+            }
             ClaimKind::Predicted => {
-                (!value).then_some("cite the AnalysisArtifact value it reports")
+                (!value && !bound).then_some("cite the AnalysisArtifact value it reports")
             }
             _ => None,
         };
@@ -1511,6 +1879,17 @@ impl AnswerSubmission {
                 "checked_by is set by the host or evaluator, not submitted".into(),
             ));
         }
+        for c in self
+            .claims
+            .iter()
+            .filter(|c| c.values.iter().any(|v| v.resolved.is_some()))
+        {
+            out.push(AnswerProblem::claim(
+                K::InvalidStructure,
+                &c.claim_id,
+                "values[].resolved is written by the host, not submitted".into(),
+            ));
+        }
         out
     }
 
@@ -1531,6 +1910,11 @@ impl AnswerSubmission {
                 ClaimSupport::Evidence { evidence_id } => Some(evidence_id),
                 ClaimSupport::ArtifactValue { .. } => None,
             });
+        let quotes = self
+            .claims
+            .iter()
+            .flat_map(|c| &c.values)
+            .filter_map(ClaimValue::evidence_id);
         let views = self.blocks.iter().filter_map(|b| match b {
             AnswerBlock::View {
                 view: ViewSpec::SourceExcerpt { evidence_id },
@@ -1538,7 +1922,7 @@ impl AnswerSubmission {
             } => Some(evidence_id),
             _ => None,
         });
-        claims.chain(views).collect()
+        claims.chain(quotes).chain(views).collect()
     }
 
     /// Artifact ids the host must resolve (claim values, artifact blocks, views).
@@ -1551,12 +1935,17 @@ impl AnswerSubmission {
                 ClaimSupport::ArtifactValue { artifact_id, .. } => Some(artifact_id),
                 ClaimSupport::Evidence { .. } => None,
             });
+        let values = self
+            .claims
+            .iter()
+            .flat_map(|c| &c.values)
+            .flat_map(ClaimValue::cited_artifacts);
         let blocks = self.blocks.iter().flat_map(|b| match b {
             AnswerBlock::Artifact { artifact_id, .. } => vec![artifact_id],
             AnswerBlock::View { view, .. } => view_artifacts(view),
             AnswerBlock::Text { .. } => vec![],
         });
-        claims.chain(blocks).collect()
+        claims.chain(values).chain(blocks).collect()
     }
 }
 
@@ -1621,6 +2010,87 @@ impl ResearchAnswer {
                                 }
                             }
                             Some(_) => {}
+                        }
+                    }
+                }
+            }
+            for v in &claim.values {
+                if let Some(e) = v.evidence_id() {
+                    if !evidence.contains_key(e) {
+                        out.push(AnswerProblem::claim(
+                            K::UnknownEvidence,
+                            id,
+                            format!("claim {id} quotes a number from unknown evidence {e}"),
+                        ));
+                    }
+                    if matches!(claim.kind, ClaimKind::Computed | ClaimKind::Predicted) {
+                        out.push(AnswerProblem::claim(
+                            K::KindSupportMismatch,
+                            id,
+                            format!(
+                                "{:?} claim {id} quotes a number from a passage; a computed or predicted number is read from its artifact",
+                                claim.kind
+                            ),
+                        ));
+                    }
+                }
+                if matches!(v.source, ValueSource::ConditionsCell { .. })
+                    && matches!(claim.kind, ClaimKind::Computed | ClaimKind::Predicted)
+                {
+                    out.push(AnswerProblem::claim(
+                        K::KindSupportMismatch,
+                        id,
+                        format!(
+                            "{:?} claim {id} reads an experimental condition; a condition is observed, not computed or predicted",
+                            claim.kind
+                        ),
+                    ));
+                }
+                for a in v.cited_artifacts().filter(|a| !artifacts.contains_key(a)) {
+                    out.push(AnswerProblem::claim(
+                        K::UnknownArtifact,
+                        id,
+                        format!("claim {id} binds a value to unknown artifact {a}"),
+                    ));
+                }
+                let Some((cell, a)) = v
+                    .artifact_id()
+                    .and_then(|cell| Some((cell, *artifacts.get(cell)?)))
+                else {
+                    continue;
+                };
+                let fits = match claim.kind {
+                    ClaimKind::Predicted => is_model(a),
+                    ClaimKind::Computed => !is_model(a),
+                    ClaimKind::Observed => a
+                        .contract
+                        .as_deref()
+                        .is_some_and(|c| OBSERVED_TABLES.contains(&c)),
+                    ClaimKind::SourceReports | ClaimKind::Interpretation => true,
+                };
+                if !fits {
+                    out.push(AnswerProblem::claim(
+                        K::KindSupportMismatch,
+                        id,
+                        format!(
+                            "{:?} claim {id} binds a value read from {cell} ({:?}): a predicted value comes only from an AnalysisArtifact, a computed one never does, an observed one only from a data table ({})",
+                            claim.kind,
+                            a.contract,
+                            OBSERVED_TABLES.join(", ")
+                        ),
+                    ));
+                }
+                if is_model(a) {
+                    prediction = true;
+                    if let Some(r) = &a.produced_by.release_id {
+                        if !pinned.contains(r) {
+                            out.push(AnswerProblem::claim(
+                                K::UnpinnedRelease,
+                                id,
+                                format!(
+                                    "claim {id} uses release {r}, not listed in model_releases"
+                                ),
+                            ));
                         }
                     }
                 }
@@ -1727,6 +2197,10 @@ impl ResearchAnswer {
         }
         if self.claims.iter().any(|cl| cl.checked_by.is_some()) {
             self.schema_version.require_v2(c, "a support check")?;
+        }
+        if let Some(g) = &self.grounding {
+            self.schema_version.require_v2(c, "a grounding report")?;
+            g.validate()?;
         }
         match self.problems().into_iter().next() {
             Some(p) => Err(ContractError::new(c, p.detail)),
