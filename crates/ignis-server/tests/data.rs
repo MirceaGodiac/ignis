@@ -240,6 +240,7 @@ fn args(dir: &Path) -> ServeArgs {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        sources: Default::default(),
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: support::access().args.clone(),
