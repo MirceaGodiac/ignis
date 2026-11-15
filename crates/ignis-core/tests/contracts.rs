@@ -1132,6 +1132,14 @@ fn k1_knowledge_contracts_keep_identity_gaps_and_versions_honest() {
     let first = twice["ops"][0].clone();
     twice["ops"].as_array_mut().unwrap().push(first);
     assert!(typed::<WikiPatch>(&twice).validate().is_err());
+    // An item's provenance is a revision up to this one; an item this revision wrote is dated by it.
+    for w in [3, 1] {
+        let mut rev: WikiRevision = typed(&fixture("evidence/wiki_revision.json"));
+        rev.items[0].written_in = Some(w);
+        rev.content_digest = WikiRevision::digest_of(&rev.title, &rev.items);
+        let e = rev.validate().unwrap_err().to_string();
+        assert!(e.contains("item fixture-item-time-zero written"), "{e}");
+    }
 
     // A web excerpt is never promoted; only http(s) is fetched.
     let mut excerpt = fixture("evidence/web_search_page.json")["candidates"][0].clone();

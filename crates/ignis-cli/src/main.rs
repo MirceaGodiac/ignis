@@ -138,9 +138,27 @@ fn acquisition_scorer() -> ignis_server::AcquisitionScorer {
 /// Models (I2) are not wired yet and stay behind `--enable-models` when they are.
 fn research_services() -> ignis_server::v1::ResearchServices {
     use std::sync::Arc;
+    let mut wiki = false;
     let knowledge = if ignis_evidence::catalog::default_db().exists() {
         match ignis_evidence::service::EvidenceService::open_default() {
-            Ok(s) => Some(Arc::new(s) as Arc<dyn ignis_core::services::KnowledgeService>),
+            Ok(s) => {
+                // The research wiki (R4) lives under the runs root, next to the other run state.
+                let path = ignis_evidence::wiki::default_path();
+                let s = match ignis_evidence::wiki::WikiStore::open(
+                    &path,
+                    ignis_core::contracts::Origin::System,
+                ) {
+                    Ok(w) => {
+                        wiki = true;
+                        s.with_wiki(w)
+                    }
+                    Err(e) => {
+                        eprintln!("wiki not configured ({}): {e:#}", path.display());
+                        s
+                    }
+                };
+                Some(Arc::new(s) as Arc<dyn ignis_core::services::KnowledgeService>)
+            }
             Err(e) => {
                 eprintln!("KnowledgeService not configured: {e:#}");
                 None
@@ -169,6 +187,7 @@ fn research_services() -> ignis_server::v1::ResearchServices {
         knowledge,
         datasets,
         conditions,
+        wiki,
         ..Default::default()
     }
 }
