@@ -252,6 +252,7 @@ fn queries_filter_project_page_and_keep_the_lockbox() {
             filters: vec![],
             include_unknown: false,
             include_envelopes: true,
+            near: None,
             page_size: None,
             cursor: None,
         };
@@ -363,6 +364,7 @@ fn a_run_named_as_nasa_names_it_resolves_to_its_row() {
         filters: vec![],
         include_unknown: false,
         include_envelopes: false,
+        near: None,
         page_size: None,
         cursor: None,
     };
@@ -377,4 +379,119 @@ fn a_run_named_as_nasa_names_it_resolves_to_its_row() {
     assert_eq!(q.run_ids, vec![id.clone()]);
     let q = ignis_data::conditions::resolve_run_names(&full, &ask(&["FLEX-9999"]), &names);
     assert!(query(&full, &q, all).unwrap().rows.is_empty());
+}
+
+#[test]
+fn near_ranks_rows_by_distance_to_a_crew_atmosphere() {
+    use ignis_core::contracts::{AtmosphereTarget, CrewAtmosphere};
+    let _g = LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    std::env::set_var("IGNIS_DATA", data_root());
+    let specs: Vec<_> = SPECS
+        .iter()
+        .copied()
+        .filter(|s| ["PSI-20", "PSI-23", "PSI-68", "PSI-98"].contains(&s.investigation))
+        .collect();
+    let built = build_from(&[], &specs).unwrap();
+    // The fixtures state O2 and pressure on no single row: place copies of one real row at known
+    // atmospheres (O2 fraction, Pa).
+    let seed = built
+        .rows
+        .iter()
+        .find_map(|r| {
+            r.cells.iter().find_map(|c| match c {
+                ConditionCell::Value {
+                    key: K::OxygenMoleFraction,
+                    value,
+                } => Some((r.clone(), value.clone())),
+                _ => None,
+            })
+        })
+        .expect("a row with an O2 value");
+    let at = |o2: f64, pa: f64| {
+        let (mut r, mut m) = seed.clone();
+        m.flags.clear();
+        m.value_si = Some(o2);
+        let mut p = m.clone();
+        p.value_si = Some(pa);
+        p.unit_si = Some("Pa".into());
+        r.cells = vec![
+            ConditionCell::Value {
+                key: K::OxygenMoleFraction,
+                value: m,
+            },
+            ConditionCell::Value {
+                key: K::Pressure,
+                value: p,
+            },
+        ];
+        r
+    };
+    let mut full = built.clone();
+    full.rows = vec![
+        at(0.21, 101_325.0),
+        at(0.35, 51_000.0),
+        at(0.40, 120_000.0),
+        at(0.18, 70_000.0),
+    ];
+    let target = |atmosphere: Option<CrewAtmosphere>, o2: Option<f64>| AtmosphereTarget {
+        atmosphere,
+        oxygen_min: o2.map(|x| Finite::new(x).unwrap()),
+        oxygen_max: None,
+        pressure_min_pa: o2.map(|_| Finite::new(101_325.0).unwrap()),
+        pressure_max_pa: None,
+    };
+    let ask = |near: AtmosphereTarget| ConditionsQuery {
+        schema_version: DatasetSchema::V2,
+        investigation_ids: vec![],
+        run_ids: vec![],
+        keys: vec![K::OxygenMoleFraction, K::Pressure],
+        filters: vec![],
+        include_unknown: false,
+        include_envelopes: false,
+        near: Some(near),
+        page_size: Some(500),
+        cursor: None,
+    };
+    let all = |_: &RunId| true;
+    let t = query(
+        &full,
+        &ask(target(Some(CrewAtmosphere::MoonBase), None)),
+        all,
+    )
+    .unwrap();
+    assert_eq!(t.rows.len(), 4);
+    assert!(
+        t.rows[0].nearness.as_ref().unwrap().inside,
+        "35 % at 51 kPa is Moon-base air"
+    );
+    assert!(!t.rows[1].nearness.as_ref().unwrap().inside);
+    let d: Vec<f64> = t
+        .rows
+        .iter()
+        .map(|r| {
+            r.nearness
+                .as_ref()
+                .expect("every ranked row says how near")
+                .distance
+                .get()
+        })
+        .collect();
+    assert!(d.windows(2).all(|w| w[0] <= w[1]), "nearest first");
+    for r in &t.rows {
+        let n = r.nearness.as_ref().unwrap();
+        assert_eq!(n.inside, n.distance.get() == 0.0);
+    }
+    // Explicit bounds: Earth air ranks a 21 % / 1 atm row at distance ~0.
+    let e = query(&full, &ask(target(None, Some(0.21))), all).unwrap();
+    assert!(e.rows[0].nearness.as_ref().unwrap().distance.get() < 0.02);
+    // A target without both bounds is refused with a way forward.
+    let bad = AtmosphereTarget {
+        atmosphere: None,
+        oxygen_min: Some(Finite::new(0.3).unwrap()),
+        oxygen_max: None,
+        pressure_min_pa: None,
+        pressure_max_pa: None,
+    };
+    let err = query(&full, &ask(bad), all).unwrap_err();
+    assert!(err.contains("moon_base"), "{err}");
 }

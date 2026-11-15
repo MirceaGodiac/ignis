@@ -399,6 +399,7 @@ fn conditions_query(investigation: Option<String>, runs: Vec<RunId>) -> Conditio
         filters: vec![],
         include_unknown: false,
         include_envelopes: false,
+        near: None,
         page_size: None,
         cursor: None,
     }

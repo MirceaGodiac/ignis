@@ -911,6 +911,13 @@ export type Digest6 = string;
  */
 export type PageCursor = string;
 /**
+ * A crew atmosphere named by the Flame in Freefall challenge.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CrewAtmosphere".
+ */
+export type CrewAtmosphere = "moon_base" | "spacesuit" | "iss_earth";
+/**
  * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
  * `dataset.v1` (C0) documents are still read, and keep their content digests because a
  * document is re-serialized with the tag it was read with. New document types require v2.
@@ -3165,6 +3172,11 @@ export interface ConditionsQuery {
    * Columns; empty = every key.
    */
   keys?: ConditionKey[];
+  /**
+   * Rank the matching rows by how near their ambient oxygen and pressure are to this target,
+   * nearest first (each row then carries `nearness`). Rows without both values are left out.
+   */
+  near?: AtmosphereTarget | null;
   page_size?: number | null;
   run_ids?: RunId[];
   schema_version: DatasetSchema;
@@ -3187,6 +3199,20 @@ export interface ConditionFilter {
    * Numeric keys, SI.
    */
   min_si?: number | null;
+}
+/**
+ * `ConditionsQuery::near`: a named crew atmosphere, or explicit oxygen and pressure bounds
+ * (a point when min = max).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AtmosphereTarget".
+ */
+export interface AtmosphereTarget {
+  atmosphere?: CrewAtmosphere | null;
+  oxygen_max?: number | null;
+  oxygen_min?: number | null;
+  pressure_max_pa?: number | null;
+  pressure_min_pa?: number | null;
 }
 /**
  * A view of a dataset bundle by name.
@@ -4680,7 +4706,30 @@ export interface InvestigationEnvelope {
 export interface ConditionsRow {
   cells: ConditionCell[];
   investigation_id: string;
+  /**
+   * With `ConditionsQuery::near`: how far this row's atmosphere is from the target.
+   */
+  nearness?: Nearness | null;
   run: RunIdentity;
+}
+/**
+ * How far a run's ambient oxygen and pressure are from a target atmosphere. Gaps are what the
+ * run would have to change to reach the target (positive = the target is higher); 0 = inside.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "Nearness".
+ */
+export interface Nearness {
+  /**
+   * Rank: oxygen gap and pressure gap as a fraction of one atmosphere, combined.
+   */
+  distance: number;
+  inside: boolean;
+  /**
+   * Oxygen mole fraction (0–1).
+   */
+  oxygen_gap: number;
+  pressure_gap_pa: number;
 }
 /**
  * Complete specification an author writes against: target, domain, features in order, every

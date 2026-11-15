@@ -925,21 +925,83 @@ impl ToolHost {
             },
             &mut bytes.as_slice(),
         )?;
-        let keys: Vec<&String> = v
-            .as_object()
-            .map(|o| o.keys().collect())
-            .unwrap_or_default();
+        let (head, cut) = preview_of(&v, PREVIEW_BYTES);
         Ok(InlinePayload {
             value: json!({
                 "stored_as_artifact": full.artifact_id,
                 "total_bytes": bytes.len(),
-                "top_level_fields": keys,
-                "how_to_read": "artifacts_read with this artifact_id and a json_pointer (e.g. \"/hits/0\"), or by byte range",
+                "preview": head,
+                "cut": cut,
+                "how_to_read": "the preview holds every small field whole and the first items of each long list (`cut` says how many of how many); read the rest with artifacts_read, this artifact_id and a json_pointer (e.g. \"/rows/40\"), or narrow the call (filters, a page_size) and call again",
             }),
             partial: true,
             full: Some(full),
         })
     }
+}
+
+/// How much of an oversized result travels inline as its preview.
+pub const PREVIEW_BYTES: usize = 24 << 10;
+
+fn size_of(v: &Value) -> usize {
+    serde_json::to_vec(v).map_or(usize::MAX, |b| b.len())
+}
+
+/// The head of a large result: every top-level field that is small travels whole; each long
+/// array keeps its first items while the budget lasts; an object too large to keep is listed by
+/// its keys. `cut` names each shortened field with how many items were kept of how many, so the
+/// model knows what it has not seen and where to read it.
+fn preview_of(v: &Value, budget: usize) -> (Value, Value) {
+    let Some(o) = v.as_object() else {
+        return (
+            Value::Null,
+            json!({"whole": "not an object; read it by byte range"}),
+        );
+    };
+    let mut head = serde_json::Map::new();
+    let mut cut = serde_json::Map::new();
+    let mut used = 0usize;
+    let mut big: Vec<(&String, &Value)> = Vec::new();
+    for (k, x) in o {
+        let n = size_of(x);
+        if n <= 2048 {
+            used += n + k.len() + 4;
+            head.insert(k.clone(), x.clone());
+        } else {
+            big.push((k, x));
+        }
+    }
+    // Smaller fields first, so one huge list does not crowd out the rest.
+    big.sort_by_key(|(_, x)| size_of(x));
+    let share = budget.saturating_sub(used) / big.len().max(1);
+    for (k, x) in big {
+        match x {
+            Value::Array(items) => {
+                let mut kept = Vec::new();
+                let mut n = 2usize;
+                for it in items {
+                    let m = size_of(it) + 1;
+                    if n + m > share {
+                        break;
+                    }
+                    n += m;
+                    kept.push(it.clone());
+                }
+                cut.insert(k.clone(), json!({"kept": kept.len(), "of": items.len()}));
+                head.insert(k.clone(), Value::Array(kept));
+            }
+            Value::Object(m) if size_of(x) > share => {
+                cut.insert(k.clone(), json!({"keys": m.keys().collect::<Vec<_>>()}));
+            }
+            _ if size_of(x) > share => {
+                cut.insert(k.clone(), json!({"bytes": size_of(x)}));
+            }
+            _ => {
+                head.insert(k.clone(), x.clone());
+            }
+        }
+    }
+    (Value::Object(head), Value::Object(cut))
 }
 
 /// Every evidence reference inside a retrieval tool's result value ([`RETRIEVES_EVIDENCE`]),
