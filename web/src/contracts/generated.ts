@@ -1027,6 +1027,11 @@ export type RuntimeCredentials = "environment" | "shared_login_home" | "none";
  * via the `definition` "RuntimeProfile".
  */
 export type RuntimeProfile = "public";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TermImportance".
+ */
+export type TermImportance = "high" | "medium" | "low";
 export type SearchMode = "hybrid" | "lexical" | "dense";
 /**
  * How much a search or read returns per item: `concise` keeps ids, locators and short text for
@@ -3344,6 +3349,13 @@ export interface SearchRequest {
    */
   corpus_snapshot?: CorpusSnapshotId | null;
   cursor?: PageCursor | null;
+  /**
+   * v2. SIRA query expansion (LANES_V2 R12a): concepts, equivalent phrasings and discriminative
+   * terms a relevant passage would contain, never a guessed answer. The service keeps those the
+   * corpus holds, rarest first, and adds them to the lexical score with IDF weights; the page
+   * reports which ones it kept.
+   */
+  expected_terms?: ExpectedTerm[];
   filters?: SearchFilters;
   mode?: SearchMode;
   /**
@@ -3356,6 +3368,16 @@ export interface SearchRequest {
    */
   response_format?: ResponseFormat | null;
   schema_version: EvidenceSchema;
+}
+/**
+ * One expected term of a [`SearchRequest`] and how important the caller thinks it is.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ExpectedTerm".
+ */
+export interface ExpectedTerm {
+  importance?: TermImportance | null;
+  term: string;
 }
 export interface SearchFilters {
   families?: Family[];

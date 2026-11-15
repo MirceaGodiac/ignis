@@ -443,13 +443,54 @@ pub fn lexical_from(
     offset: usize,
     limit: usize,
 ) -> Result<Vec<LexHit>> {
-    let (where_, mut args) = filters.sql();
+    lexical_expanded(con, query, &[], filters, offset, limit)
+}
+
+/// [`lexical_from`] with SIRA expansion (crates/ignis-evidence/src/sira.rs). The score of a chunk is
+///
+/// `bm25(text; query) + w_doc * bm25(expansion; query) + sum_e w_e * bm25(text; e)`
+///
+/// - the document-side expansion (`expansion_fts`, filled by `ignis evidence enrich`) is matched by
+///   the query words with weight [`crate::sira::DOC_EXPANSION_WEIGHT`]; an empty table adds nothing;
+/// - each query-side expression `e` (the finalizer's choice from the agent's expected terms) is
+///   matched as a phrase in the chunk text with its weight `w_e` (1.0 = a query word).
+///
+/// FTS5's bm25 is negative (more negative = more relevant), so a chunk matched by several parts
+/// sums them; ties break by chunk id, so pages still partition one order.
+pub fn lexical_expanded(
+    con: &Connection,
+    query: &str,
+    expressions: &[(String, f64)],
+    filters: &Filters,
+    offset: usize,
+    limit: usize,
+) -> Result<Vec<LexHit>> {
+    let (where_, fargs) = filters.sql();
+    let q = fts_query(query)?;
+    let mut parts = vec![
+        "SELECT rowid AS rid, bm25(chunks_fts) AS s FROM chunks_fts WHERE chunks_fts MATCH ?".to_string(),
+        "SELECT rowid AS rid, ? * bm25(expansion_fts) AS s FROM expansion_fts WHERE expansion_fts MATCH ?".to_string(),
+    ];
+    let mut args = vec![
+        SqlValue::Text(q.clone()),
+        SqlValue::Real(crate::sira::DOC_EXPANSION_WEIGHT),
+        SqlValue::Text(q),
+    ];
+    for (e, w) in expressions {
+        let Ok(phrase) = crate::sira::phrase_query(e) else {
+            continue;
+        };
+        parts.push("SELECT rowid AS rid, ? * bm25(chunks_fts) AS s FROM chunks_fts WHERE chunks_fts MATCH ?".into());
+        args.push(SqlValue::Real(*w));
+        args.push(SqlValue::Text(phrase));
+    }
     let sql = format!(
-        "SELECT c.id, bm25(chunks_fts) FROM chunks_fts JOIN chunks c ON c.rowid = chunks_fts.rowid \
-         JOIN publications p ON p.id = c.publication_id WHERE chunks_fts MATCH ?{where_} \
-         ORDER BY bm25(chunks_fts) ASC, c.id ASC LIMIT ? OFFSET ?"
+        "SELECT c.id, SUM(u.s) AS score FROM ({}) u JOIN chunks c ON c.rowid = u.rid \
+         JOIN publications p ON p.id = c.publication_id WHERE 1=1{where_} \
+         GROUP BY c.id ORDER BY score ASC, c.id ASC LIMIT ? OFFSET ?",
+        parts.join(" UNION ALL ")
     );
-    args.insert(0, SqlValue::Text(fts_query(query)?));
+    args.extend(fargs);
     args.push(SqlValue::Integer(limit as i64));
     args.push(SqlValue::Integer(offset as i64));
     let mut st = con.prepare(&sql)?;
