@@ -73,6 +73,10 @@ pub struct ServedEntry {
     pub cite: String,
     #[serde(default)]
     pub card_doc: Option<String>,
+    /// For a generic law release: the declared targets that are the model (others are refused,
+    /// and the first is the default). Absent = every declared target.
+    #[serde(default)]
+    pub targets: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -246,6 +250,8 @@ pub struct ServedModels<S> {
     inner: WspModelService<ServedPrefixes<S>>,
     /// Releases of the generic law forward (no expert, so not runnable through `inner`), loaded.
     law: BTreeMap<String, Arc<registry::LoadedRelease>>,
+    /// Served targets of law releases that restrict them (release id -> targets).
+    targets: BTreeMap<String, Vec<String>>,
     records: Vec<ModelRelease>,
     cards: Vec<ModelCard>,
     policies: BTreeMap<String, ProspectivePolicy>,
@@ -319,9 +325,32 @@ impl<S: PrefixSource> ServedModels<S> {
                 scenarios: scenarios.clone(),
             },
         );
+        let mut targets = BTreeMap::new();
+        for e in &list.releases {
+            if let Some(t) = &e.targets {
+                let i = law_index(&e.model_name).with_context(|| {
+                    format!(
+                        "{}: targets are listed for a release that is not a law release",
+                        e.release_id
+                    )
+                })?;
+                let d = ignis_wsp::law::decl(i);
+                for name in t {
+                    ensure!(
+                        d.target(name).is_some(),
+                        "{}: target {name} is not declared by {}",
+                        e.release_id,
+                        e.model_name
+                    );
+                }
+                ensure!(!t.is_empty(), "{}: empty target list", e.release_id);
+                targets.insert(e.release_id.as_str().to_string(), t.clone());
+            }
+        }
         Ok(ServedModels {
             inner,
             law,
+            targets,
             records,
             cards,
             policies,
@@ -581,7 +610,24 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
                 format!("scenario {input_hash} was admitted for another family"),
             ));
         }
-        let artifact = ignis_wsp::artifact_of(loaded, &prefix, &req.settings.value())
+        let mut settings = req.settings.clone();
+        if let Some(served) = self.targets.get(&release.id) {
+            match &settings.target {
+                None => settings.target = Some(served[0].clone()),
+                Some(t) if served.contains(t) => {}
+                Some(t) => {
+                    return Err(envelope(
+                        ErrorCode::InvalidRequest,
+                        format!(
+                            "target {t} of {} is not served (it is not the model); served: {}",
+                            release.model_name,
+                            served.join(", ")
+                        ),
+                    ))
+                }
+            }
+        }
+        let artifact = ignis_wsp::artifact_of(loaded, &prefix, &settings.value())
             .map_err(ignis_wsp::service::envelope_of)?;
         ignis_core::analysis::validate_artifact(&artifact, release, &prefix)
             .map_err(ignis_wsp::service::envelope_of)?;

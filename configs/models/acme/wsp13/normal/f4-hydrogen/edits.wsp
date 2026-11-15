@@ -1,0 +1,79 @@
+# acme_normal.wsp13 — F4 STAGE 3, hydrogen, a COMPARATOR (PROTOCOL 13.6), spec acme_normal-wsp-v13
+# Author of the numbers: claude-fable-5-2 (Anthropic), docs/wsp/research/phys_sflame_f4.md. DATA-INFORMED (class D, development
+# days of s-Flame, train and validation). Transcribed by an engineer (claude-opus-5-5); revision of f4-helium.
+#
+# The hydrogen row of docs/wsp/research/phys_sflame_f4.md, section 6, stage 3: seven lines per slot, as run (the last 70 lines of the
+# edit file sha256 25d9e25a9686fbe29a87c19f0962b6daea31d894f0fd1cf8e4b41d19f915dfee): hydrogen admitted, fuel.s 1.9 (growth) and -2.0 (hinge), coordinates (1, 0),
+# tad_min_k 1100, dtad_k +600 K, k_rel 7.0. Blends are refused by the lane's adapter (sflame_cases.py),
+# not by this release: it holds no blend law.
+
+a0.fuel.admit[5] = 1.0
+a0.fuel.s[5] = -2.0
+a0.fuel.se_coord[5, 0] = 1.0
+a0.fuel.ft_coord[5, 0] = 1.0
+a0.fuel.tad_min_k[5] = 1100.0
+a0.fuel.dtad_k[5] = 600.0
+a0.fuel.k_rel[5] = 7.0
+a1.fuel.admit[5] = 1.0
+a1.fuel.s[5] = -2.0
+a1.fuel.se_coord[5, 0] = 1.0
+a1.fuel.ft_coord[5, 0] = 1.0
+a1.fuel.tad_min_k[5] = 1100.0
+a1.fuel.dtad_k[5] = 600.0
+a1.fuel.k_rel[5] = 7.0
+b0.fuel.admit[5] = 1.0
+b0.fuel.s[5] = 1.9
+b0.fuel.se_coord[5, 0] = 1.0
+b0.fuel.ft_coord[5, 0] = 1.0
+b0.fuel.tad_min_k[5] = 1100.0
+b0.fuel.dtad_k[5] = 600.0
+b0.fuel.k_rel[5] = 7.0
+b1.fuel.admit[5] = 1.0
+b1.fuel.s[5] = 1.9
+b1.fuel.se_coord[5, 0] = 1.0
+b1.fuel.ft_coord[5, 0] = 1.0
+b1.fuel.tad_min_k[5] = 1100.0
+b1.fuel.dtad_k[5] = 600.0
+b1.fuel.k_rel[5] = 7.0
+b2.fuel.admit[5] = 1.0
+b2.fuel.s[5] = 1.9
+b2.fuel.se_coord[5, 0] = 1.0
+b2.fuel.ft_coord[5, 0] = 1.0
+b2.fuel.tad_min_k[5] = 1100.0
+b2.fuel.dtad_k[5] = 600.0
+b2.fuel.k_rel[5] = 7.0
+b3.fuel.admit[5] = 1.0
+b3.fuel.s[5] = 1.9
+b3.fuel.se_coord[5, 0] = 1.0
+b3.fuel.ft_coord[5, 0] = 1.0
+b3.fuel.tad_min_k[5] = 1100.0
+b3.fuel.dtad_k[5] = 600.0
+b3.fuel.k_rel[5] = 7.0
+c0.fuel.admit[5] = 1.0
+c0.fuel.s[5] = -2.0
+c0.fuel.se_coord[5, 0] = 1.0
+c0.fuel.ft_coord[5, 0] = 1.0
+c0.fuel.tad_min_k[5] = 1100.0
+c0.fuel.dtad_k[5] = 600.0
+c0.fuel.k_rel[5] = 7.0
+c1.fuel.admit[5] = 1.0
+c1.fuel.s[5] = -2.0
+c1.fuel.se_coord[5, 0] = 1.0
+c1.fuel.ft_coord[5, 0] = 1.0
+c1.fuel.tad_min_k[5] = 1100.0
+c1.fuel.dtad_k[5] = 600.0
+c1.fuel.k_rel[5] = 7.0
+c2.fuel.admit[5] = 1.0
+c2.fuel.s[5] = -2.0
+c2.fuel.se_coord[5, 0] = 1.0
+c2.fuel.ft_coord[5, 0] = 1.0
+c2.fuel.tad_min_k[5] = 1100.0
+c2.fuel.dtad_k[5] = 600.0
+c2.fuel.k_rel[5] = 7.0
+c3.fuel.admit[5] = 1.0
+c3.fuel.s[5] = -2.0
+c3.fuel.se_coord[5, 0] = 1.0
+c3.fuel.ft_coord[5, 0] = 1.0
+c3.fuel.tad_min_k[5] = 1100.0
+c3.fuel.dtad_k[5] = 600.0
+c3.fuel.k_rel[5] = 7.0

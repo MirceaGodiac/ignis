@@ -1,0 +1,32 @@
+{
+  "patch_id": "law-bass2-v1-k1-fable",
+  "parent_release_id": "sha256:e008cba3f5101f218c1e7f353fed928a8e11a22500ebf1197dc9f050c57ca4c9",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_study.md(sha256:08b20a41160c880a43c98fcabef63539d96bdc3dfcd6012b2d19eadcab894b21;section-3)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-K1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass1-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-K1"
+    ],
+    "prior_candidates": [
+      "sha256:e008cba3f5101f218c1e7f353fed928a8e11a22500ebf1197dc9f050c57ca4c9"
+    ]
+  },
+  "rationale": "bass2 K1 (PROTOCOL 13.6): the fifteen lines of runs/dev/gen7/study/bass_k1.wsp verbatim as a revision of bass2 s1. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "origin": "system"
+}

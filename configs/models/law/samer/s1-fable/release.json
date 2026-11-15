@@ -1,0 +1,1136 @@
+{
+  "id": "sha256:e33ee7665b599e7e6c8c978f61ebf3bf106b2b6a94c3a0821dbdf42cf47a1b5f",
+  "family": "other",
+  "model_name": "samer.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 145,
+      "authored_total": 530,
+      "constant_total": 1,
+      "per_tensor": {
+        "d10.median.W1": [
+          72,
+          19
+        ],
+        "d10.median.b0": [
+          1,
+          1
+        ],
+        "d10.median.b1": [
+          8,
+          8
+        ],
+        "d10.median.skip": [
+          9,
+          8
+        ],
+        "d10.median.w2": [
+          8,
+          8
+        ],
+        "d10.spread.W1": [
+          72,
+          1
+        ],
+        "d10.spread.b0": [
+          1,
+          1
+        ],
+        "d10.spread.b1": [
+          8,
+          1
+        ],
+        "d10.spread.skip": [
+          9,
+          1
+        ],
+        "d10.spread.w2": [
+          8,
+          1
+        ],
+        "d10.tail_weight": [
+          1,
+          1
+        ],
+        "d10.tail_width": [
+          1,
+          1
+        ],
+        "d30.median.W1": [
+          72,
+          17
+        ],
+        "d30.median.b0": [
+          1,
+          1
+        ],
+        "d30.median.b1": [
+          8,
+          7
+        ],
+        "d30.median.skip": [
+          9,
+          8
+        ],
+        "d30.median.w2": [
+          8,
+          7
+        ],
+        "d30.spread.W1": [
+          72,
+          1
+        ],
+        "d30.spread.b0": [
+          1,
+          1
+        ],
+        "d30.spread.b1": [
+          8,
+          1
+        ],
+        "d30.spread.skip": [
+          9,
+          1
+        ],
+        "d30.spread.w2": [
+          8,
+          1
+        ],
+        "d30.tail_weight": [
+          1,
+          1
+        ],
+        "d30.tail_width": [
+          1,
+          1
+        ],
+        "iss_full_scale.logit.W1": [
+          72,
+          8
+        ],
+        "iss_full_scale.logit.b0": [
+          1,
+          1
+        ],
+        "iss_full_scale.logit.b1": [
+          8,
+          3
+        ],
+        "iss_full_scale.logit.skip": [
+          9,
+          8
+        ],
+        "iss_full_scale.logit.w2": [
+          8,
+          2
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "x.heating_duration.centre": [
+          1,
+          1
+        ],
+        "x.heating_duration.hi": [
+          1,
+          1
+        ],
+        "x.heating_duration.lo": [
+          1,
+          1
+        ],
+        "x.heating_duration.scale": [
+          1,
+          1
+        ],
+        "x.inlet_velocity.centre": [
+          1,
+          1
+        ],
+        "x.inlet_velocity.hi": [
+          1,
+          1
+        ],
+        "x.inlet_velocity.lo": [
+          1,
+          0
+        ],
+        "x.inlet_velocity.scale": [
+          1,
+          1
+        ],
+        "x.is_kapton.centre": [
+          1,
+          0
+        ],
+        "x.is_kapton.hi": [
+          1,
+          1
+        ],
+        "x.is_kapton.lo": [
+          1,
+          0
+        ],
+        "x.is_kapton.scale": [
+          1,
+          1
+        ],
+        "x.is_pyrell.centre": [
+          1,
+          0
+        ],
+        "x.is_pyrell.hi": [
+          1,
+          1
+        ],
+        "x.is_pyrell.lo": [
+          1,
+          0
+        ],
+        "x.is_pyrell.scale": [
+          1,
+          1
+        ],
+        "x.is_silicone.centre": [
+          1,
+          0
+        ],
+        "x.is_silicone.hi": [
+          1,
+          1
+        ],
+        "x.is_silicone.lo": [
+          1,
+          0
+        ],
+        "x.is_silicone.scale": [
+          1,
+          1
+        ],
+        "x.is_teflon.centre": [
+          1,
+          0
+        ],
+        "x.is_teflon.hi": [
+          1,
+          1
+        ],
+        "x.is_teflon.lo": [
+          1,
+          0
+        ],
+        "x.is_teflon.scale": [
+          1,
+          1
+        ],
+        "x.net_aging_time.centre": [
+          1,
+          1
+        ],
+        "x.net_aging_time.hi": [
+          1,
+          1
+        ],
+        "x.net_aging_time.lo": [
+          1,
+          1
+        ],
+        "x.net_aging_time.scale": [
+          1,
+          1
+        ],
+        "x.no_flow.centre": [
+          1,
+          0
+        ],
+        "x.no_flow.hi": [
+          1,
+          1
+        ],
+        "x.no_flow.lo": [
+          1,
+          0
+        ],
+        "x.no_flow.scale": [
+          1,
+          1
+        ],
+        "x.sample_temperature.centre": [
+          1,
+          1
+        ],
+        "x.sample_temperature.hi": [
+          1,
+          1
+        ],
+        "x.sample_temperature.lo": [
+          1,
+          1
+        ],
+        "x.sample_temperature.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:1ac8d550b9f92f76f349dcb69e9cd93f2aad11aaa0bd7b342906563d91232312",
+    "spec_id": "law-samer-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "is_kapton",
+    "is_teflon",
+    "is_silicone",
+    "is_pyrell",
+    "sample_temperature",
+    "inlet_velocity",
+    "no_flow",
+    "net_aging_time",
+    "heating_duration"
+  ],
+  "units": {
+    "heating_duration": "s",
+    "inlet_velocity": "m/s",
+    "is_kapton": "1",
+    "is_pyrell": "1",
+    "is_silicone": "1",
+    "is_teflon": "1",
+    "net_aging_time": "s",
+    "no_flow": "1",
+    "sample_temperature": "K"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "count mean diameter M1/M0 at net_aging_time (lane-local)",
+        "kind": "positive",
+        "label": "samer:d10",
+        "shared_quantity": null,
+        "slug": "samer",
+        "status": "declared",
+        "target": "d10",
+        "unit": "m"
+      },
+      {
+        "description": "diameter of average mass at net_aging_time (lane-local)",
+        "kind": "positive",
+        "label": "samer:d30",
+        "shared_quantity": null,
+        "slug": "samer",
+        "status": "declared",
+        "target": "d30",
+        "unit": "m"
+      },
+      {
+        "description": "ISS detector scatter channel at full scale, |V| >= 6.0 V",
+        "kind": "binary",
+        "label": "samer:iss_full_scale",
+        "shared_quantity": null,
+        "slug": "samer",
+        "status": "declared",
+        "target": "iss_full_scale",
+        "unit": null
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "d10.median.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "84244a3735dcb9f7f584fe2a08c42ee96bbda7589a9c3a11706af036861ad265",
+      "trainable": false
+    },
+    {
+      "name": "d10.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9da7e4f4c6c4429e1a64a2780f60dec082867bae58d1d17d9eee70868607138b",
+      "trainable": false
+    },
+    {
+      "name": "d10.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "7213111372421ed8f962eb26e7e43bea2e76793d0ee7afb3a94bd9c8a15ef8ae",
+      "trainable": false
+    },
+    {
+      "name": "d10.median.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "2d16554762b58d23c56c3686c89ed90678f209e8ab4b7fea977a0bc16481f571",
+      "trainable": false
+    },
+    {
+      "name": "d10.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4b5ede0e6ccc0e649cccfcf2a53fc052b28a91d3f7ddf1a070f7cc80b9a88d30",
+      "trainable": false
+    },
+    {
+      "name": "d10.spread.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "d4d4d65b930ad1e5106c7d4d1dc69bdb7197755cb8e73c231863f1acedf1fc00",
+      "trainable": false
+    },
+    {
+      "name": "d10.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "aca00703e2942178d76d87385c03215de6863c5484bed194d7fab365450173df",
+      "trainable": false
+    },
+    {
+      "name": "d10.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "676252fb21ac1d94943f0d2be59bd22210bd83491d8a36c778b5200fd16e1632",
+      "trainable": false
+    },
+    {
+      "name": "d10.spread.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "91f96c4a179361261abbbbe6779b7f337182bf07a873c2ca6bf713a6b08a781d",
+      "trainable": false
+    },
+    {
+      "name": "d10.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "445ca8d97daa27760cb99dbe9a9d924c765a48c2207b931c6df8835326832bd3",
+      "trainable": false
+    },
+    {
+      "name": "d10.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "d10.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "87e3d13a61afa18ddded4bc98b09258b2d9607ece4625cd028f29b249545cb93",
+      "trainable": false
+    },
+    {
+      "name": "d30.median.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "3dc65243d8f7c2c28752c9402a5aa6e33abc802069c99169e6bac41842e5f93e",
+      "trainable": false
+    },
+    {
+      "name": "d30.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a8a2e743bf90d664918c8c96c91c50838ea96522aaed1af6bc948982b024d4b1",
+      "trainable": false
+    },
+    {
+      "name": "d30.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "de2a5ce38001fcfa93e09acad6b34b624e6a59c593fd1dc185b75b867639f87f",
+      "trainable": false
+    },
+    {
+      "name": "d30.median.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "3d208db062886daba83a07dec37af4f2e2325a464c32bdf29e7d1677ca4a9f60",
+      "trainable": false
+    },
+    {
+      "name": "d30.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "2fb5da5f9630b96c0071830ad512d404bc61a545dd52c22f5c19a2b11a8eccd4",
+      "trainable": false
+    },
+    {
+      "name": "d30.spread.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "d4d4d65b930ad1e5106c7d4d1dc69bdb7197755cb8e73c231863f1acedf1fc00",
+      "trainable": false
+    },
+    {
+      "name": "d30.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2fe443185182fce2461c29e613aaf93245fd512189ed5e2baa5bf975378dafc5",
+      "trainable": false
+    },
+    {
+      "name": "d30.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "676252fb21ac1d94943f0d2be59bd22210bd83491d8a36c778b5200fd16e1632",
+      "trainable": false
+    },
+    {
+      "name": "d30.spread.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "91f96c4a179361261abbbbe6779b7f337182bf07a873c2ca6bf713a6b08a781d",
+      "trainable": false
+    },
+    {
+      "name": "d30.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "445ca8d97daa27760cb99dbe9a9d924c765a48c2207b931c6df8835326832bd3",
+      "trainable": false
+    },
+    {
+      "name": "d30.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "d30.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "87e3d13a61afa18ddded4bc98b09258b2d9607ece4625cd028f29b249545cb93",
+      "trainable": false
+    },
+    {
+      "name": "iss_full_scale.logit.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "064ba41c879cf61bb6006c87b72bbb8b8b127916e4ea7a012ba3887c70b972ba",
+      "trainable": false
+    },
+    {
+      "name": "iss_full_scale.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9dad096f63005841d4fcd1645458e48c20037aed3a58c95af2c719a98f055b9a",
+      "trainable": false
+    },
+    {
+      "name": "iss_full_scale.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "5acf572357a86e0731b5facd48a70aec06fae590b0e7b76144ccc695aa8c05aa",
+      "trainable": false
+    },
+    {
+      "name": "iss_full_scale.logit.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "057195fd3551555df6f40a2b68f39c520fdbe8ff13adc671d501cd0be1b9616c",
+      "trainable": false
+    },
+    {
+      "name": "iss_full_scale.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "862b1819a333e8548ff7b511e7d4b441112bb7cabe52b9d4cd74ca19d2ba7d64",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "x.heating_duration.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e99ded87fd7d04c1f70ac034379c377c0aa3f68c23f3e18ad6fe4c058f91d4be",
+      "trainable": false
+    },
+    {
+      "name": "x.heating_duration.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "x.heating_duration.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0bf2706a926f584df16747da2564d349e02767bbf3ac135a88130ee1574254e8",
+      "trainable": false
+    },
+    {
+      "name": "x.heating_duration.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.inlet_velocity.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "74b17c9813c13c782b1cc7a5a7c0dc4d3a7591461f3d1f7819d0364f1e287f40",
+      "trainable": false
+    },
+    {
+      "name": "x.inlet_velocity.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f6ebfaecd5cb7c8a124f1819efc554dafd19926f4a021b4e4946eaad31f59037",
+      "trainable": false
+    },
+    {
+      "name": "x.inlet_velocity.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.inlet_velocity.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f40a7c54b4a1366724e4a4d108951f3daf38409c9fccfed00e1f0bb268605fc3",
+      "trainable": false
+    },
+    {
+      "name": "x.is_kapton.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_kapton.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_kapton.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_kapton.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_pyrell.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_pyrell.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_pyrell.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_pyrell.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_silicone.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_silicone.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_silicone.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_silicone.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_teflon.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_teflon.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_teflon.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_teflon.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.net_aging_time.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "85bd2f47c626143ba679f805ca4cdafd05f1c153db410338601804b39e783273",
+      "trainable": false
+    },
+    {
+      "name": "x.net_aging_time.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1bc9223f1a10923533f1d24da7206cc61f0b4a816622ddd181efbaba7de1592",
+      "trainable": false
+    },
+    {
+      "name": "x.net_aging_time.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "x.net_aging_time.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.no_flow.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.no_flow.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.no_flow.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.no_flow.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.sample_temperature.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "36ae261be13c7407ee98fbc2954e6b90fc6f69dab81d7d9bba405545a46d69a4",
+      "trainable": false
+    },
+    {
+      "name": "x.sample_temperature.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0995c53762a2e2ec13a5d26c42f93ec7625f81a34a3ba622849a01675c46223c",
+      "trainable": false
+    },
+    {
+      "name": "x.sample_temperature.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6ce8f12669d3be5357394fdf1d9add4c4eb3b2c13cdb6fca36ae9e891b5d7e0e",
+      "trainable": false
+    },
+    {
+      "name": "x.sample_temperature.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7a261925ddaf4b8f356c3529981914eb771fec63e347b8a1ba0830b9aceb8ae8",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-101:catalogue",
+  "split_id": "sha256:66a554b3d85373d84f9cd540d8aba3339ccd9fec9742da4f0e9770760e9d6a1f",
+  "source_manifest_hash": "sha256:553f9d23d23dd1dc3f882c8d826878d91a7081e37ee44bd45795bc213783c4ee",
+  "code_version": "ignis-wsp@0.1.0+fwd.c805dec770460188",
+  "applicability": {
+    "declaration": {
+      "description": "W0 law of docs/wsp/research/phys_samer_w0.md, section 7.1: smoke size by condensation and Brownian coagulation, and the ISS detector scatter channel. Material indicators and no_flow are derived from material and inlet_velocity by tools/wsp/ext/law_inputs.py; the other features are case inputs under their own names.",
+      "family": "other",
+      "features": [
+        {
+          "description": "material indicator",
+          "name": "is_kapton",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "material indicator",
+          "name": "is_teflon",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "material indicator",
+          "name": "is_silicone",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "material indicator (lamp wick is the reference)",
+          "name": "is_pyrell",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "sample temperature during heating",
+          "name": "sample_temperature",
+          "transform": "identity",
+          "unit": "K"
+        },
+        {
+          "description": "nominal duct air speed during heating",
+          "name": "inlet_velocity",
+          "transform": "identity",
+          "unit": "m/s"
+        },
+        {
+          "description": "1 when the inlet velocity is 0",
+          "name": "no_flow",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "the horizon: age of the smoke when the row was measured",
+          "name": "net_aging_time",
+          "transform": "ln",
+          "unit": "s"
+        },
+        {
+          "description": "heating time of the sample",
+          "name": "heating_duration",
+          "transform": "ln",
+          "unit": "s"
+        }
+      ],
+      "investigation": "PSI-101, SAME-R: smoke of overheated spacecraft materials, aged and measured in the Microgravity Science Glovebox",
+      "slug": "samer",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [],
+          "description": "count mean diameter M1/M0 at net_aging_time (lane-local)",
+          "kind": "positive",
+          "name": "d10",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "m"
+        },
+        {
+          "causes": [],
+          "description": "diameter of average mass at net_aging_time (lane-local)",
+          "kind": "positive",
+          "name": "d30",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "m"
+        },
+        {
+          "causes": [],
+          "description": "ISS detector scatter channel at full scale, |V| >= 6.0 V",
+          "kind": "binary",
+          "name": "iss_full_scale",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/samer/decl.json",
+    "features": [
+      {
+        "description": "material indicator",
+        "name": "is_kapton",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "material indicator",
+        "name": "is_teflon",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "material indicator",
+        "name": "is_silicone",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "material indicator (lamp wick is the reference)",
+        "name": "is_pyrell",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "sample temperature during heating",
+        "name": "sample_temperature",
+        "transform": "identity",
+        "unit": "K"
+      },
+      {
+        "description": "nominal duct air speed during heating",
+        "name": "inlet_velocity",
+        "transform": "identity",
+        "unit": "m/s"
+      },
+      {
+        "description": "1 when the inlet velocity is 0",
+        "name": "no_flow",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "the horizon: age of the smoke when the row was measured",
+        "name": "net_aging_time",
+        "transform": "ln",
+        "unit": "s"
+      },
+      {
+        "description": "heating time of the sample",
+        "name": "heating_duration",
+        "transform": "ln",
+        "unit": "s"
+      }
+    ],
+    "investigation": "PSI-101, SAME-R: smoke of overheated spacecraft materials, aged and measured in the Microgravity Science Glovebox",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "samer",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "count mean diameter M1/M0 at net_aging_time (lane-local)",
+        "kind": "positive",
+        "label": "samer:d10",
+        "shared_quantity": null,
+        "slug": "samer",
+        "status": "declared",
+        "target": "d10",
+        "unit": "m"
+      },
+      {
+        "description": "diameter of average mass at net_aging_time (lane-local)",
+        "kind": "positive",
+        "label": "samer:d30",
+        "shared_quantity": null,
+        "slug": "samer",
+        "status": "declared",
+        "target": "d30",
+        "unit": "m"
+      },
+      {
+        "description": "ISS detector scatter channel at full scale, |V| >= 6.0 V",
+        "kind": "binary",
+        "label": "samer:iss_full_scale",
+        "shared_quantity": null,
+        "slug": "samer",
+        "status": "declared",
+        "target": "iss_full_scale",
+        "unit": null
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+  "lineage": "weight_edit",
+  "lineage_note": "samer S1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/samer_s1.wsp verbatim as a revision of samer w0-fable (docs/wsp/research/phys_samer_study.md). Transcribed by the assembly enginee",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "law-samer-v1",
+    "spec_hash": "sha256:1ac8d550b9f92f76f349dcb69e9cd93f2aad11aaa0bd7b342906563d91232312",
+    "patch_id": "law-samer-v1-s1-fable",
+    "patch_hash": "sha256:f619208e8d5d663474c35906fdc123cdbed34788db290410bdaa78a6402a40aa",
+    "parent_release_id": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/wsp/research/phys_samer_study.md(sha256:e9687b7b782354b0b0ecaa96af88983971190a76543ea48ded07a50eafaa884f;candidate-S1)",
+        "repo:runs/dev/gen7/study/samer_s1.wsp(sha256:b9a15a814a4ca024dfc61045d4503adedb3ce2acffc80b57749f564f0d5e4872)",
+        "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S1)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "samer-train-and-validation-cases",
+          "partitions": [
+            "train",
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [
+        "PROTOCOL-13.2-13.3-13.4-development-scores",
+        "what-if-run-of-S1"
+      ],
+      "prior_candidates": [
+        "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0"
+      ]
+    },
+    "weights_hash": "sha256:57414cc925875c06f87cec540c4b1fc19d23c2c7c459477780ae507fb68fe6eb",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:c805dec77046018844eabad8935056c628c4ab0abbce63d52d59a7712b9230d1",
+    "code_version": "ignis-wsp@0.1.0+fwd.c805dec770460188",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "530 authored elements (145 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 3 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}

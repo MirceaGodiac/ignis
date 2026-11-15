@@ -7,9 +7,8 @@ use std::path::{Path, PathBuf};
 use ignis_wsp::MemoryPrefixes;
 use ignis_wsp_serve::{ServedList, ServedModels};
 
-/// The adopted releases: the five of `docs/wsp/README.md` (feat/handwritten-science), then
-/// the nine generic-law releases of `docs/wsp/COVERAGE_19.md`, in full.
-const PINNED: [(&str, &str); 14] = [
+/// The final served release of each investigation (lane feat/handwritten-science), in full.
+const PINNED: [(&str, &str); 15] = [
     (
         "flex_methanol.wsp2",
         "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
@@ -19,8 +18,8 @@ const PINNED: [(&str, &str); 14] = [
         "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
     ),
     (
-        "acme_normal.wsp12",
-        "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52",
+        "acme_normal.wsp13",
+        "sha256:a9986fb93275fe264d76ee1b632f59898e51052ba4bfdb89980bf51a0a3b6177",
     ),
     (
         "acme_inverse.wsp12",
@@ -29,22 +28,6 @@ const PINNED: [(&str, &str); 14] = [
     (
         "bass_front.wsp",
         "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
-    ),
-    (
-        "bre.wsp",
-        "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
-    ),
-    (
-        "spice.wsp",
-        "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8",
-    ),
-    (
-        "efield.wsp",
-        "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
-    ),
-    (
-        "samer.wsp",
-        "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
     ),
     (
         "same.wsp",
@@ -59,12 +42,32 @@ const PINNED: [(&str, &str); 14] = [
         "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
     ),
     (
-        "slice.wsp",
-        "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e",
-    ),
-    (
         "cld.wsp",
         "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+    ),
+    (
+        "bre.wsp",
+        "sha256:27e2af51340e7ba2a8ba73894abcec1c1342e8116834eda1aa7a0a5454d7b955",
+    ),
+    (
+        "efield3.wsp",
+        "sha256:8575550b310950efde7da2f00a1964c9a4d0c393fd3fbcaf4e4f2f1f8f046f04",
+    ),
+    (
+        "slice2.wsp",
+        "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+    ),
+    (
+        "spice.wsp",
+        "sha256:000b88b8232a4c6b7ec04e403b192e2aedc6488aa6e11b3b4be6bb6ae0b398a0",
+    ),
+    (
+        "samer.wsp",
+        "sha256:e33ee7665b599e7e6c8c978f61ebf3bf106b2b6a94c3a0821dbdf42cf47a1b5f",
+    ),
+    (
+        "bass4.wsp",
+        "sha256:ceefc15d4cb8cf658772ec3603c9dabd6565fb3db6528bb35c2205f0d3bdab86",
     ),
 ];
 
@@ -87,7 +90,7 @@ fn served_ids_are_the_adopted_ids_and_verify() {
     assert_eq!(ids, PINNED);
     // The README quotes each adopted id as `sha256:<first 8>…<last 4>`.
     let readme = std::fs::read_to_string(repo().join("docs/wsp/README.md")).unwrap();
-    for (_, id) in &PINNED[..5] {
+    for (_, id) in [PINNED[0], PINNED[1], PINNED[3], PINNED[4]] {
         let hex = &id[7..];
         let quoted = format!("sha256:{}…{}", &hex[..8], &hex[hex.len() - 4..]);
         assert!(

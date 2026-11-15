@@ -1,0 +1,20 @@
+# bass2 K1: runs/dev/gen7/study/bass_k1.wsp (sha256 2f79405172725a2a426e09e994ee69f59febbcba845b57479b65c36167b408eb), verbatim, a revision of
+# bass2 s1 sha256:e008cba3…a4c9 (docs/wsp/research/phys_bass_study.md section 3); every other number is the parent's.
+# K1 (bass physicist, PROTOCOL 13.6): the fan floor without the day's scale.
+# Rods and spheres: one setting (pot 0.31, about 1.2 cm/s on the lane's scale) whatever radius, oxygen, time.
+quench_speed.median.b0 = -4.42
+quench_speed.median.skip[0] = 0.0
+quench_speed.median.skip[2] = 0.0
+quench_speed.median.skip[3] = 0.0
+quench_speed.median.skip[5] = 0.0
+quench_speed.median.w2[0] = 0.0
+quench_speed.median.w2[1] = 0.0
+quench_speed.median.w2[2] = 0.0
+quench_speed.median.w2[3] = 0.0
+quench_speed.spread.b0 = 0.30
+quench_speed.spread.w2[0] = 0.0
+quench_speed.spread.w2[1] = 0.0
+# Films: same floor, narrower band (0.50 -> 0.30); slabs of 2 mm and more kept at 0.80.
+flat_quench_speed.spread.b0 = 0.30
+flat_quench_speed.spread.w2[1] = 0.36
+flat_quench_speed.spread.w2[2] = -0.36

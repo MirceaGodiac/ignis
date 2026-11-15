@@ -1,0 +1,945 @@
+{
+  "id": "sha256:429f47431773d02e9608a2fdfd9e24ec4af171ffe9bea98400beb44ea4f18340",
+  "family": "other",
+  "model_name": "bre.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 177,
+      "authored_total": 351,
+      "constant_total": 1,
+      "per_tensor": {
+        "flame_end.extinction.median.W1": [
+          56,
+          42
+        ],
+        "flame_end.extinction.median.b0": [
+          1,
+          1
+        ],
+        "flame_end.extinction.median.b1": [
+          8,
+          7
+        ],
+        "flame_end.extinction.median.skip": [
+          7,
+          6
+        ],
+        "flame_end.extinction.median.w2": [
+          8,
+          7
+        ],
+        "flame_end.extinction.shape": [
+          1,
+          1
+        ],
+        "height_at_end.median.W1": [
+          56,
+          0
+        ],
+        "height_at_end.median.b0": [
+          1,
+          1
+        ],
+        "height_at_end.median.b1": [
+          8,
+          0
+        ],
+        "height_at_end.median.skip": [
+          7,
+          6
+        ],
+        "height_at_end.median.w2": [
+          8,
+          0
+        ],
+        "height_at_end.spread.W1": [
+          56,
+          0
+        ],
+        "height_at_end.spread.b0": [
+          1,
+          1
+        ],
+        "height_at_end.spread.b1": [
+          8,
+          0
+        ],
+        "height_at_end.spread.skip": [
+          7,
+          0
+        ],
+        "height_at_end.spread.w2": [
+          8,
+          0
+        ],
+        "height_at_end.tail_weight": [
+          1,
+          1
+        ],
+        "height_at_end.tail_width": [
+          1,
+          1
+        ],
+        "lasts.logit.W1": [
+          56,
+          54
+        ],
+        "lasts.logit.b0": [
+          1,
+          1
+        ],
+        "lasts.logit.b1": [
+          8,
+          8
+        ],
+        "lasts.logit.skip": [
+          7,
+          6
+        ],
+        "lasts.logit.w2": [
+          8,
+          8
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "x.burner_diameter.centre": [
+          1,
+          1
+        ],
+        "x.burner_diameter.hi": [
+          1,
+          1
+        ],
+        "x.burner_diameter.lo": [
+          1,
+          1
+        ],
+        "x.burner_diameter.scale": [
+          1,
+          1
+        ],
+        "x.burner_mass_flux.centre": [
+          1,
+          1
+        ],
+        "x.burner_mass_flux.hi": [
+          1,
+          1
+        ],
+        "x.burner_mass_flux.lo": [
+          1,
+          1
+        ],
+        "x.burner_mass_flux.scale": [
+          1,
+          1
+        ],
+        "x.is_methane.centre": [
+          1,
+          0
+        ],
+        "x.is_methane.hi": [
+          1,
+          1
+        ],
+        "x.is_methane.lo": [
+          1,
+          0
+        ],
+        "x.is_methane.scale": [
+          1,
+          1
+        ],
+        "x.pressure.centre": [
+          1,
+          1
+        ],
+        "x.pressure.hi": [
+          1,
+          1
+        ],
+        "x.pressure.lo": [
+          1,
+          1
+        ],
+        "x.pressure.scale": [
+          1,
+          1
+        ],
+        "x.stated_time.centre": [
+          1,
+          1
+        ],
+        "x.stated_time.hi": [
+          1,
+          1
+        ],
+        "x.stated_time.lo": [
+          1,
+          1
+        ],
+        "x.stated_time.scale": [
+          1,
+          1
+        ],
+        "x.x_fuel.centre": [
+          1,
+          1
+        ],
+        "x.x_fuel.hi": [
+          1,
+          1
+        ],
+        "x.x_fuel.lo": [
+          1,
+          1
+        ],
+        "x.x_fuel.scale": [
+          1,
+          1
+        ],
+        "x.x_o2.centre": [
+          1,
+          1
+        ],
+        "x.x_o2.hi": [
+          1,
+          1
+        ],
+        "x.x_o2.lo": [
+          1,
+          1
+        ],
+        "x.x_o2.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:a27a3dafa38c9824a7335b7fc7581011e275e01713abfa171e926df8b63d9248",
+    "spec_id": "law-bre-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "burner_diameter",
+    "burner_mass_flux",
+    "x_o2",
+    "pressure",
+    "x_fuel",
+    "is_methane",
+    "stated_time"
+  ],
+  "units": {
+    "burner_diameter": "m",
+    "burner_mass_flux": "kg/m2/s",
+    "is_methane": "1",
+    "pressure": "Pa",
+    "stated_time": "s",
+    "x_fuel": "1",
+    "x_o2": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "the flame goes out by itself while the fuel flow is still at its first setpoint, seconds since ignition; no scheduled_stop condition (a stop comes from known_controls when one is known)",
+        "kind": "event",
+        "label": "bre:flame_end",
+        "shared_quantity": null,
+        "slug": "bre",
+        "status": "declared",
+        "target": "flame_end",
+        "unit": "s"
+      },
+      {
+        "description": "the flame is still burning stated_time seconds after ignition, flow unchanged",
+        "kind": "binary",
+        "label": "bre:lasts",
+        "shared_quantity": null,
+        "slug": "bre",
+        "status": "declared",
+        "target": "lasts",
+        "unit": null
+      },
+      {
+        "description": "height of the flame above the burner centre in the last second before self-extinction (lane-local)",
+        "kind": "positive",
+        "label": "bre:height_at_end",
+        "shared_quantity": null,
+        "slug": "bre",
+        "status": "declared",
+        "target": "height_at_end",
+        "unit": "m"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "flame_end.extinction.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "1fc2edd0ffeef6fa3e0c0f55d6a53d46e3dc8de7de6e6513038c249f623c4f2f",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e197f15b938d2f9b801a6fba2bf7b74e9018f7ce7c0d6ca1f0e5f57549b96d61",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "c61f901b3885144416b796f8db9731eea0ed80ff5fbb095d4a680e15af16c8e4",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9b7f49151aa116239cb0ad57293a7edfb103253feb183cf927b556c92ce0324f",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "50718f2a90b8b421662f4b2fdd8a9e1cba33b5b26b1db979741f89b0b222afd3",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "fee2053d1d203bc6717e441b5037712f85c9ca38a2b0717b4f649c6cf8df6aa7",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "c16a2f6818ddb69bca03a130b224f81f287afc69e81e86546e709c92780a2f7a",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e68fa1f20b0eacd2ee06751e0b260e119bbe784f3c5faa349dde771917da5ea3",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.median.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9dba06e13edeb7c1a7076c8602476c714ab683fa6f8b0a1c18b37717e9973bbd",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.spread.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "c16a2f6818ddb69bca03a130b224f81f287afc69e81e86546e709c92780a2f7a",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.spread.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "da5a5b60b0766c2ffe57242f83724dbda5179d46a8bc119e41510fa10e17d0d9",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "height_at_end.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "lasts.logit.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9fba36103ec2b328a217aef4ea914b7ac45ec1bb370dbace63a8afa55f8fb7df",
+      "trainable": false
+    },
+    {
+      "name": "lasts.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4126542431f70e626ab170f6481d6cb930fb147d8a73b49950c4be5e81356428",
+      "trainable": false
+    },
+    {
+      "name": "lasts.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ce17818946854c540bf8f4383f31a3c7b395c84c13badfefb462398c6e3e4f50",
+      "trainable": false
+    },
+    {
+      "name": "lasts.logit.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9bfb744553d460741de0388cf2c650621df716bcd29f78fe8f8cc00cb3b16940",
+      "trainable": false
+    },
+    {
+      "name": "lasts.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "01c71656686a0fb0d9476f238edc074c66d2607e0a17a03fe101609ee6cb1436",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_diameter.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8b30399ee0cfe022a216476cee83a6117c6911f630d04be900e5dd4cfeb556a8",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_diameter.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5d1bbb4565da7813c1cfd448043e5e9767aa0c6fed89785c0da4f0e4f9aafb13",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_diameter.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "dc6d34984056732a6bd6a63f2c35504415c6e213ae06f170fc1c58bf2f26f07e",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_diameter.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_mass_flux.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "19fa5fc95b3066c765aaacc5fb7d25728f17391a58e18def8bf4732905936109",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_mass_flux.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c58c8e4acfff875011b0ebc0c55953aac7f5fcc42b9fb56171bec55344809330",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_mass_flux.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "84ad83436ece62b6d807e38d08291088fe39565e2106d37c0e6963e517721443",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_mass_flux.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_methane.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_methane.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_methane.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_methane.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bb4e466e2ea34d3f81b33a3a58e64b11541fc9ffa1eb1a1ec50862e31c4a50a9",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6363d0b9c8f3ff38e79254e3a3a79b5539dceb2495ec28c308b5b58f09e1762f",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.stated_time.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "x.stated_time.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7ee93f3c1eacb9cf7d7f5f97626164e4073e081604d8cf68296eb9f90e04691d",
+      "trainable": false
+    },
+    {
+      "name": "x.stated_time.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.stated_time.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "457641c0c8b096de6eb4d98c2895f313c7090a40138f88f5f6bec75a53b3a358",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "29cac4be5bff5d5dd9e379bb3afaa5929fcac4c168a9ad67b7a066ec304e2afb",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-20:catalogue",
+  "split_id": "sha256:bb87c94d1cfd31b7ef0d5eee49be63721abaea6a34745f5ca6e982fa66ec7c4c",
+  "source_manifest_hash": "sha256:2264f4414c6ba585f264555cec5499a5b2eede40448a4a953bf130df6fad1695",
+  "code_version": "ignis-wsp@0.1.0+fwd.be70d6a2dbebdab1",
+  "applicability": {
+    "declaration": {
+      "description": "W0 law of docs/wsp/research/phys_bre_w0.md, section 7.1: self-extinction of a flame over a porous burner by radiation as it grows by diffusion. Time origin: ignition. Derived case inputs (burner_mass_flux, is_methane, stated_time and the renamed conditions) are written by tools/wsp/ext/law_inputs.py.",
+      "family": "other",
+      "features": [
+        {
+          "description": "diameter of the porous face (0.025 or 0.050)",
+          "name": "burner_diameter",
+          "transform": "ln",
+          "unit": "m"
+        },
+        {
+          "description": "mass flow of the burner gas (fuel plus its nitrogen) at the first setpoint, per unit face area",
+          "name": "burner_mass_flux",
+          "transform": "ln",
+          "unit": "kg/m2/s"
+        },
+        {
+          "description": "oxygen mole fraction of the chamber gas just before ignition",
+          "name": "x_o2",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "chamber pressure just before ignition",
+          "name": "pressure",
+          "transform": "ln",
+          "unit": "Pa"
+        },
+        {
+          "description": "fuel mole fraction of the burner gas (1 for a pure fuel, 0.5 for the 50 % bottle)",
+          "name": "x_fuel",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "1 for methane, 0 for ethylene",
+          "name": "is_methane",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "the time asked about by lasts; any admissible value for the other targets, which give it no weight",
+          "name": "stated_time",
+          "transform": "ln",
+          "unit": "s"
+        }
+      ],
+      "investigation": "PSI-20, ACME Burning Rate Emulator (BRE): porous-disc burner of 25 or 50 mm in a quiescent microgravity chamber",
+      "slug": "bre",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [
+            "extinction"
+          ],
+          "description": "the flame goes out by itself while the fuel flow is still at its first setpoint, seconds since ignition; no scheduled_stop condition (a stop comes from known_controls when one is known)",
+          "kind": "event",
+          "name": "flame_end",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "the flame is still burning stated_time seconds after ignition, flow unchanged",
+          "kind": "binary",
+          "name": "lasts",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "height of the flame above the burner centre in the last second before self-extinction (lane-local)",
+          "kind": "positive",
+          "name": "height_at_end",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "m"
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/bre/decl.json",
+    "features": [
+      {
+        "description": "diameter of the porous face (0.025 or 0.050)",
+        "name": "burner_diameter",
+        "transform": "ln",
+        "unit": "m"
+      },
+      {
+        "description": "mass flow of the burner gas (fuel plus its nitrogen) at the first setpoint, per unit face area",
+        "name": "burner_mass_flux",
+        "transform": "ln",
+        "unit": "kg/m2/s"
+      },
+      {
+        "description": "oxygen mole fraction of the chamber gas just before ignition",
+        "name": "x_o2",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "chamber pressure just before ignition",
+        "name": "pressure",
+        "transform": "ln",
+        "unit": "Pa"
+      },
+      {
+        "description": "fuel mole fraction of the burner gas (1 for a pure fuel, 0.5 for the 50 % bottle)",
+        "name": "x_fuel",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "1 for methane, 0 for ethylene",
+        "name": "is_methane",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "the time asked about by lasts; any admissible value for the other targets, which give it no weight",
+        "name": "stated_time",
+        "transform": "ln",
+        "unit": "s"
+      }
+    ],
+    "investigation": "PSI-20, ACME Burning Rate Emulator (BRE): porous-disc burner of 25 or 50 mm in a quiescent microgravity chamber",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "bre",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "the flame goes out by itself while the fuel flow is still at its first setpoint, seconds since ignition; no scheduled_stop condition (a stop comes from known_controls when one is known)",
+        "kind": "event",
+        "label": "bre:flame_end",
+        "shared_quantity": null,
+        "slug": "bre",
+        "status": "declared",
+        "target": "flame_end",
+        "unit": "s"
+      },
+      {
+        "description": "the flame is still burning stated_time seconds after ignition, flow unchanged",
+        "kind": "binary",
+        "label": "bre:lasts",
+        "shared_quantity": null,
+        "slug": "bre",
+        "status": "declared",
+        "target": "lasts",
+        "unit": null
+      },
+      {
+        "description": "height of the flame above the burner centre in the last second before self-extinction (lane-local)",
+        "kind": "positive",
+        "label": "bre:height_at_end",
+        "shared_quantity": null,
+        "slug": "bre",
+        "status": "declared",
+        "target": "height_at_end",
+        "unit": "m"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+  "lineage": "weight_edit",
+  "lineage_note": "bre d2-fable (PROTOCOL 13.4): docs/wsp/research/phys_bre2.md (sha256 23372bd3a57c733bab552e53815b289672646350d51b14712b275aa0d07b6ebb), the changed lines verbatim as a revision of W0. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "law-bre-v1",
+    "spec_hash": "sha256:a27a3dafa38c9824a7335b7fc7581011e275e01713abfa171e926df8b63d9248",
+    "patch_id": "law-bre-v1-d2-fable",
+    "patch_hash": "sha256:a247581b95898852cd5f2de1b63f303f06528d26be06957421aac6279c95a28c",
+    "parent_release_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/wsp/research/phys_bre2.md(sha256:23372bd3a57c733bab552e53815b289672646350d51b14712b275aa0d07b6ebb)",
+        "repo:docs/wsp/feedback/gen7_failure_analysis.md"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "bre-train-and-validation-cases",
+          "partitions": [
+            "train",
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [
+        "PROTOCOL-13.2-and-13.3-validation-aggregates"
+      ],
+      "prior_candidates": [
+        "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d"
+      ]
+    },
+    "weights_hash": "sha256:21edd3663ed5f4d15872622ce03582cac90eb250f17a540e2ea8f5d75bb3a5eb",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:be70d6a2dbebdab11c1aa190d9cdefd5460bd7599b445aa64c83fa61e20992ca",
+    "code_version": "ignis-wsp@0.1.0+fwd.be70d6a2dbebdab1",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "351 authored elements (177 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 3 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "patch_id": "law-bass3-v1-s1-fable",
+  "parent_release_id": "sha256:15e6f7c689c90a3b0e2bfa350186b82c7da0dbbaa27d17a2f6ca6cc8617bbfb9",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_study.md(sha256:08b20a41160c880a43c98fcabef63539d96bdc3dfcd6012b2d19eadcab894b21;section-4)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass1-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores",
+      "what-if-run-of-K1"
+    ],
+    "prior_candidates": []
+  },
+  "rationale": "bass3 (PROTOCOL 13.6): docs/wsp/research/phys_bass_study.md section 4 (sha256 08b20a41160c880a43c98fcabef63539d96bdc3dfcd6012b2d19eadcab894b21), the bass2 s1 block with the dossier's lines, verbatim. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "origin": "system"
+}

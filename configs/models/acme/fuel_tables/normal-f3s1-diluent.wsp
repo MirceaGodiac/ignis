@@ -1,0 +1,12 @@
+# The diluent table of F3 STAGE 1, every member. The helium lines of docs/wsp/research/phys_sflame_f3.md E4 are stage 2 and LEFT OUT.
+# rows: 0 nitrogen, 1 helium. NEUTRAL: helium is refused (dil.admit 0) and its row repeats nitrogen's, which
+# it does not read; nitrogen is the identity (factors 1, shifts 0, the molar mass of phys.mw_n2).
+dil.admit[0:2] = [1.0, 0.0]
+dil.mw_g_mol[0:2] = [28.013, 28.013]
+dil.rho_d[0:2] = [1.0, 1.0]
+dil.d_far[0:2] = [1.0, 1.0]
+dil.le_o2[0:2] = [1.0, 1.0]
+dil.dflux[0:2] = [0.0, 0.0]
+dil.dlogm[0:2] = [0.0, 0.0]
+dil.dlnr[0:2] = [0.0, 0.0]
+dil.k_rel[0:2] = [1.0, 1.0]

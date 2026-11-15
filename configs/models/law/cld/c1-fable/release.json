@@ -1,0 +1,900 @@
+{
+  "id": "sha256:541e9b2a232e0d33f1638650d69198a4153e2ba8d8d6257632e96285c7d99ab6",
+  "family": "other",
+  "model_name": "cld.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 63,
+      "authored_total": 318,
+      "constant_total": 1,
+      "per_tensor": {
+        "loss.blowoff.median.W1": [
+          48,
+          10
+        ],
+        "loss.blowoff.median.b0": [
+          1,
+          1
+        ],
+        "loss.blowoff.median.b1": [
+          8,
+          4
+        ],
+        "loss.blowoff.median.skip": [
+          6,
+          1
+        ],
+        "loss.blowoff.median.w2": [
+          8,
+          2
+        ],
+        "loss.blowoff.shape": [
+          1,
+          1
+        ],
+        "loss.other.median.W1": [
+          48,
+          0
+        ],
+        "loss.other.median.b0": [
+          1,
+          1
+        ],
+        "loss.other.median.b1": [
+          8,
+          0
+        ],
+        "loss.other.median.skip": [
+          6,
+          0
+        ],
+        "loss.other.median.w2": [
+          8,
+          0
+        ],
+        "loss.other.shape": [
+          1,
+          1
+        ],
+        "loss.stop.offset_s": [
+          3,
+          0
+        ],
+        "loss.stop.offset_w": [
+          3,
+          1
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "radiometer.median.W1": [
+          48,
+          6
+        ],
+        "radiometer.median.b0": [
+          1,
+          1
+        ],
+        "radiometer.median.b1": [
+          8,
+          3
+        ],
+        "radiometer.median.skip": [
+          6,
+          3
+        ],
+        "radiometer.median.w2": [
+          8,
+          3
+        ],
+        "radiometer.spread.W1": [
+          48,
+          0
+        ],
+        "radiometer.spread.b0": [
+          1,
+          1
+        ],
+        "radiometer.spread.b1": [
+          8,
+          0
+        ],
+        "radiometer.spread.skip": [
+          6,
+          0
+        ],
+        "radiometer.spread.w2": [
+          8,
+          0
+        ],
+        "radiometer.tail_weight": [
+          1,
+          1
+        ],
+        "radiometer.tail_width": [
+          1,
+          1
+        ],
+        "x.is_ethylene.centre": [
+          1,
+          0
+        ],
+        "x.is_ethylene.hi": [
+          1,
+          1
+        ],
+        "x.is_ethylene.lo": [
+          1,
+          0
+        ],
+        "x.is_ethylene.scale": [
+          1,
+          1
+        ],
+        "x.v_coflow_final.centre": [
+          1,
+          1
+        ],
+        "x.v_coflow_final.hi": [
+          1,
+          1
+        ],
+        "x.v_coflow_final.lo": [
+          1,
+          1
+        ],
+        "x.v_coflow_final.scale": [
+          1,
+          1
+        ],
+        "x.v_fuel_stage.centre": [
+          1,
+          1
+        ],
+        "x.v_fuel_stage.hi": [
+          1,
+          1
+        ],
+        "x.v_fuel_stage.lo": [
+          1,
+          1
+        ],
+        "x.v_fuel_stage.scale": [
+          1,
+          1
+        ],
+        "x.window.centre": [
+          1,
+          1
+        ],
+        "x.window.hi": [
+          1,
+          1
+        ],
+        "x.window.lo": [
+          1,
+          1
+        ],
+        "x.window.scale": [
+          1,
+          1
+        ],
+        "x.x_fuel_final.centre": [
+          1,
+          1
+        ],
+        "x.x_fuel_final.hi": [
+          1,
+          1
+        ],
+        "x.x_fuel_final.lo": [
+          1,
+          1
+        ],
+        "x.x_fuel_final.scale": [
+          1,
+          1
+        ],
+        "x.x_fuel_stage.centre": [
+          1,
+          1
+        ],
+        "x.x_fuel_stage.hi": [
+          1,
+          1
+        ],
+        "x.x_fuel_stage.lo": [
+          1,
+          1
+        ],
+        "x.x_fuel_stage.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:bb23a7b334500ac5f2a4800b5232356704fe4b9ddea49780445f74f36674cc9a",
+    "spec_id": "law-cld-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "x_fuel_final",
+    "v_coflow_final",
+    "window",
+    "is_ethylene",
+    "x_fuel_stage",
+    "v_fuel_stage"
+  ],
+  "units": {
+    "is_ethylene": "1",
+    "v_coflow_final": "m/s",
+    "v_fuel_stage": "m/s",
+    "window": "s",
+    "x_fuel_final": "1",
+    "x_fuel_stage": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "the flame goes out while the fuel still flows, seconds since flame onset",
+        "kind": "event",
+        "label": "cld:loss",
+        "shared_quantity": null,
+        "slug": "cld",
+        "status": "declared",
+        "target": "loss",
+        "unit": "s"
+      },
+      {
+        "description": "excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)",
+        "kind": "positive",
+        "label": "cld:radiometer",
+        "shared_quantity": null,
+        "slug": "cld",
+        "status": "declared",
+        "target": "radiometer",
+        "unit": "V"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "loss.blowoff.median.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "493daf15883f75227f2ad214e4e78e08de1b75bc4f8b1ee2e203f6c8ae432ccd",
+      "trainable": false
+    },
+    {
+      "name": "loss.blowoff.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bb6abc6638102938f811b515d29fe8e538ebb6714c67d7f484fd40d2ff32ee21",
+      "trainable": false
+    },
+    {
+      "name": "loss.blowoff.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ec1fbf9e7472a33c93a0bf082538e4c0dd03b20ac12d864c17f5c03547d3d951",
+      "trainable": false
+    },
+    {
+      "name": "loss.blowoff.median.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "3d30019dae6c73e8f8edb108c2279fd4598dd567f88f4047df0fe01807876f25",
+      "trainable": false
+    },
+    {
+      "name": "loss.blowoff.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "922123618c3b4a8be546cccf7b7dc42071d26dc06e0a3146b6702db34095c7eb",
+      "trainable": false
+    },
+    {
+      "name": "loss.blowoff.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "loss.other.median.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "7135955bfbffeb86efab3d01fa2041bdc781914eb37468761592934a8a02a7bb",
+      "trainable": false
+    },
+    {
+      "name": "loss.other.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "050fd7b4f4a61ee421ad74a2784d5c4289a3c0edbc9685c241a2bd2eb2173d49",
+      "trainable": false
+    },
+    {
+      "name": "loss.other.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "loss.other.median.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "loss.other.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "loss.other.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "loss.stop.offset_s",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "loss.stop.offset_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "fe4e64be1abb6f4ac977cf26a8c4622fbf621a4aa8bac30453248025040cc2f9",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.median.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "24b802069c3b1a11bcf8b32807bbe1e9ed9ab2c84e80ad19de3b885082a058e7",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a5a8f0a86080e057b49abac2c3f8bc91b8103c03b54c210ba3b0c33abc7673e1",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "f25e8880a74b7d90d731d4636875b3efcd6cb60fc87d819e8be35298e397692e",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.median.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "465bc6c3f68ccd5dd684c74fba300c987876e6606c3697faa811c0d44314c1b2",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "50041ce8e80ce513f060080233d44a45bbbe50c9f14ffe3dcd807e080e28fc72",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.spread.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "7135955bfbffeb86efab3d01fa2041bdc781914eb37468761592934a8a02a7bb",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4a5b1df243c2d05760a8c031ec7bd751ad21cc58f3c73264e3478fd54ecf9551",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.spread.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "radiometer.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethylene.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.v_coflow_final.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "x.v_coflow_final.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "x.v_coflow_final.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "dc6d34984056732a6bd6a63f2c35504415c6e213ae06f170fc1c58bf2f26f07e",
+      "trainable": false
+    },
+    {
+      "name": "x.v_coflow_final.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.v_fuel_stage.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "x.v_fuel_stage.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "x.v_fuel_stage.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "dc6d34984056732a6bd6a63f2c35504415c6e213ae06f170fc1c58bf2f26f07e",
+      "trainable": false
+    },
+    {
+      "name": "x.v_fuel_stage.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.window.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e99ded87fd7d04c1f70ac034379c377c0aa3f68c23f3e18ad6fe4c058f91d4be",
+      "trainable": false
+    },
+    {
+      "name": "x.window.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "x.window.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "x.window.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_final.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_final.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_final.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4e2e6ac7206131b6b606033b63764910742b23eecd1773cb770aa47d8ba2be7",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_final.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_stage.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_stage.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_stage.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4e2e6ac7206131b6b606033b63764910742b23eecd1773cb770aa47d8ba2be7",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel_stage.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-21:catalogue",
+  "split_id": "sha256:fd9aa7d0b03a3039022dd7364a23a915408db1512797eef36274ccdf70c690af",
+  "source_manifest_hash": "sha256:1fcd97e54c4e26022aa1f1ed9188905e1198110ac0fb7d9810a1be7d884c0305",
+  "code_version": "ignis-wsp@0.1.0+fwd.8d6e4c99aa7e9711",
+  "applicability": {
+    "declaration": {
+      "description": "W0 law of docs/wsp/research/phys_cld_w0.md, section 7 (W0 with the exceptions stated in its section 8.3): loss of a dilute coflow flame by blow-off, and its radiometer excess. Time origin of loss: flame onset. The planned fuel-off (planned_fuel_off_from_onset, seconds since onset) is declared as the scheduled stop, which the typed edits of section 7.4 address. Derived case inputs (the most severe fraction and coflow of the schedule, the first constant-flow stage, the window and the stop) are written by tools/wsp/ext/law_inputs.py.",
+      "family": "other",
+      "features": [
+        {
+          "description": "lowest fuel fraction the script reaches (section 7.1)",
+          "name": "x_fuel_final",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "highest coflow speed the script reaches (section 7.1)",
+          "name": "v_coflow_final",
+          "transform": "ln",
+          "unit": "m/s"
+        },
+        {
+          "description": "planned fuel-off, seconds since flame onset (at_cutoff.planned_fuel_off_from_onset_s)",
+          "name": "window",
+          "transform": "ln",
+          "unit": "s"
+        },
+        {
+          "description": "1 when fuel = ethylene",
+          "name": "is_ethylene",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "x_fuel of the first constant-flow segment of the schedule",
+          "name": "x_fuel_stage",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "v_fuel_m_s of the first constant-flow segment of the schedule",
+          "name": "v_fuel_stage",
+          "transform": "ln",
+          "unit": "m/s"
+        }
+      ],
+      "investigation": "PSI-21, ACME CLD Flame: methane and ethylene coflow flames diluted with nitrogen, on a 2.18 mm tube in a 25 mm air annulus",
+      "slug": "cld",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [
+            "blowoff",
+            "other"
+          ],
+          "description": "the flame goes out while the fuel still flows, seconds since flame onset",
+          "kind": "event",
+          "name": "loss",
+          "scheduled_stop": {
+            "condition": "planned_fuel_off_from_onset"
+          },
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)",
+          "kind": "positive",
+          "name": "radiometer",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "V"
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/cld/decl.json",
+    "features": [
+      {
+        "description": "lowest fuel fraction the script reaches (section 7.1)",
+        "name": "x_fuel_final",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "highest coflow speed the script reaches (section 7.1)",
+        "name": "v_coflow_final",
+        "transform": "ln",
+        "unit": "m/s"
+      },
+      {
+        "description": "planned fuel-off, seconds since flame onset (at_cutoff.planned_fuel_off_from_onset_s)",
+        "name": "window",
+        "transform": "ln",
+        "unit": "s"
+      },
+      {
+        "description": "1 when fuel = ethylene",
+        "name": "is_ethylene",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "x_fuel of the first constant-flow segment of the schedule",
+        "name": "x_fuel_stage",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "v_fuel_m_s of the first constant-flow segment of the schedule",
+        "name": "v_fuel_stage",
+        "transform": "ln",
+        "unit": "m/s"
+      }
+    ],
+    "investigation": "PSI-21, ACME CLD Flame: methane and ethylene coflow flames diluted with nitrogen, on a 2.18 mm tube in a 25 mm air annulus",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "cld",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "the flame goes out while the fuel still flows, seconds since flame onset",
+        "kind": "event",
+        "label": "cld:loss",
+        "shared_quantity": null,
+        "slug": "cld",
+        "status": "declared",
+        "target": "loss",
+        "unit": "s"
+      },
+      {
+        "description": "excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)",
+        "kind": "positive",
+        "label": "cld:radiometer",
+        "shared_quantity": null,
+        "slug": "cld",
+        "status": "declared",
+        "target": "radiometer",
+        "unit": "V"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+  "lineage": "weight_edit",
+  "lineage_note": "cld C1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/cld_c1.wsp verbatim as a revision of cld d1-fable (docs/wsp/research/phys_cld_study.md). Transcribed by the assembly engineer (claud",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "law-cld-v1",
+    "spec_hash": "sha256:bb23a7b334500ac5f2a4800b5232356704fe4b9ddea49780445f74f36674cc9a",
+    "patch_id": "law-cld-v1-c1-fable",
+    "patch_hash": "sha256:c8d38e736a139d92dacffa3e68039f8306a6f53d75486e8d4df42e7ae74d5867",
+    "parent_release_id": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/wsp/research/phys_cld_study.md(sha256:fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6;candidate-C1)",
+        "repo:runs/dev/gen7/study/cld_c1.wsp(sha256:f7f10d4b52ad04486bd22a1cb3f5f616e16ae00f047366f39870b23bbd091979)",
+        "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-C1)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "cld-train-and-validation-cases",
+          "partitions": [
+            "train",
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [
+        "PROTOCOL-13.2-13.3-13.4-development-scores",
+        "what-if-run-of-C1"
+      ],
+      "prior_candidates": [
+        "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f"
+      ]
+    },
+    "weights_hash": "sha256:399f6ae74f839d4a3f4c1375a67a2aaccbca429af7da0fe1d155985793944655",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:8d6e4c99aa7e971105865903b01461fd7a8e63e74b456a3859118f0f0d01c24a",
+    "code_version": "ignis-wsp@0.1.0+fwd.8d6e4c99aa7e9711",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "318 authored elements (63 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 2 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}

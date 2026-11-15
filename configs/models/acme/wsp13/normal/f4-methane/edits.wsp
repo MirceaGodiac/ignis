@@ -1,0 +1,16 @@
+# acme_normal.wsp13 — F4 STAGE 1, methane, a COMPARATOR (PROTOCOL 13.6), spec acme_normal-wsp-v13
+# Author of the numbers: claude-fable-5-2 (Anthropic), docs/wsp/research/phys_sflame_f4.md. DATA-INFORMED (class D, development
+# days of s-Flame, train and validation). Transcribed by an engineer (claude-opus-5-5); revision of f3-s1.
+#
+# The eight lines of docs/wsp/research/phys_sflame_f4.md, section 6, stage 1, as run (edit file sha256 29d2d98868e30d6251a647987993c2760252c122cb2d06ff9d3ff3342282f66a): methane's
+# fuel.s in the hinge members with the heating law (c0 to c3) 0.35 -> 1.0, in the growth members (b0 to b3)
+# -0.35 -> -0.6. a0 and a1 (weight zero) are left at 0.35, as run.
+
+c0.fuel.s[4] = 1.0
+c1.fuel.s[4] = 1.0
+c2.fuel.s[4] = 1.0
+c3.fuel.s[4] = 1.0
+b0.fuel.s[4] = -0.6
+b1.fuel.s[4] = -0.6
+b2.fuel.s[4] = -0.6
+b3.fuel.s[4] = -0.6

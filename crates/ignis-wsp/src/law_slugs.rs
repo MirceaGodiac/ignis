@@ -45,6 +45,16 @@ pub const SLUGS: &[Slug] = &[
     slug!("same"),
     slug!("daft"),
     slug!("bass1"),
+    // second laws of PROTOCOL 13.4 (new declarations: the parent's features plus the procedure inputs)
+    slug!("cld2"),
+    slug!("efield2"),
+    slug!("slice2"),
+    slug!("bass2"),
+    slug!("bass3"),
+    // third laws of PROTOCOL 13.6 (phys_efield_study.md section 4, phys_cld_study.md section 5)
+    slug!("efield3"),
+    slug!("cld3"),
+    slug!("bass4"),
 ];
 
 /// Index of a slug by its model key (the slug itself).

@@ -1,0 +1,86 @@
+{
+  "slug": "slice2",
+  "status": "declared",
+  "family": "other",
+  "investigation": "PSI-106, SLICE: laminar coflow jet diffusion flames in the Microgravity Science Glovebox, stepped up line by line to blow-off",
+  "description": "Second law of PROTOCOL 13.4 (docs/wsp/research/phys_slice2.md): the eight features of slice; the log's lifted label is scored as p_lift_noted * (p_past_lift - p_past_blow) / (1 - p_past_blow), a scoring-time rule.",
+  "features": [
+    {
+      "name": "u_coflow",
+      "unit": "m/s",
+      "transform": "ln",
+      "description": "duct air velocity (u_coflow_cm_s / 100)"
+    },
+    {
+      "name": "u_jet",
+      "unit": "m/s",
+      "transform": "ln",
+      "description": "mean jet exit velocity (u_jet_m_s)"
+    },
+    {
+      "name": "burner_id",
+      "unit": "m",
+      "transform": "ln",
+      "description": "burner tube inner diameter (burner_id_mm / 1000)"
+    },
+    {
+      "name": "x_fuel",
+      "unit": "1",
+      "transform": "ln",
+      "description": "hydrocarbon mole fraction of the jet gas"
+    },
+    {
+      "name": "x_o2",
+      "unit": "1",
+      "transform": "ln",
+      "description": "cabin oxygen mole fraction (x_o2_cabin)"
+    },
+    {
+      "name": "is_ethane",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 for ethane"
+    },
+    {
+      "name": "is_propane",
+      "unit": "1",
+      "transform": "identity",
+      "description": "1 for propane (methane is the reference)"
+    },
+    {
+      "name": "mdot_jet",
+      "unit": "kg/s",
+      "transform": "ln",
+      "description": "jet gas mass flow (mdot_jet_mg_s / 1e6); read by flame_length only"
+    }
+  ],
+  "targets": [
+    {
+      "name": "blow_off",
+      "kind": "binary",
+      "description": "as slice"
+    },
+    {
+      "name": "past_lift",
+      "kind": "binary",
+      "description": "the condition is past the lifting limit (the network W0 called lifted)"
+    },
+    {
+      "name": "past_blow",
+      "kind": "binary",
+      "description": "the condition is past the blow-off limit, cumulative"
+    },
+    {
+      "name": "lift_noted",
+      "kind": "binary",
+      "description": "a lifted flame is written down as lifted; no feature dependence"
+    },
+    {
+      "name": "flame_length",
+      "kind": "positive",
+      "unit": "m",
+      "shared_quantity": null,
+      "description": "as slice (lane-local)"
+    }
+  ]
+}

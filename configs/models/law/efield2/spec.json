@@ -1,0 +1,1120 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-efield2-v1",
+  "family": "other",
+  "model_name": "efield2.wsp",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "Second law of PROTOCOL 13.4 (docs/wsp/research/phys_efield2.md): the declaration of efield with has_coflow appended (index 7). (PhaseEndTime is the first target with a shared quantity); targets: ion_current, flame_end, peak_ion_current, peak_voltage",
+    "excludes": [
+      "efield2:ion_current (positive, A): lane-local target, not a shared quantity",
+      "efield2:peak_ion_current (positive, A): lane-local target, not a shared quantity",
+      "efield2:peak_voltage (positive, V): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "carbon_flow",
+      "unit": "1/s",
+      "source": "condition:carbon_flow",
+      "transform": "ln: ln(x / x.carbon_flow.centre) / x.carbon_flow.scale; refused unless x.carbon_flow.lo <= x <= x.carbon_flow.hi @1"
+    },
+    {
+      "name": "x_fuel",
+      "unit": "1",
+      "source": "condition:x_fuel",
+      "transform": "ln: ln(x / x.x_fuel.centre) / x.x_fuel.scale; refused unless x.x_fuel.lo <= x <= x.x_fuel.hi @1"
+    },
+    {
+      "name": "is_ethylene",
+      "unit": "1",
+      "source": "condition:is_ethylene",
+      "transform": "identity: (x - x.is_ethylene.centre) / x.is_ethylene.scale; refused unless x.is_ethylene.lo <= x <= x.is_ethylene.hi @1"
+    },
+    {
+      "name": "mesh_positive",
+      "unit": "1",
+      "source": "condition:mesh_positive",
+      "transform": "identity: (x - x.mesh_positive.centre) / x.mesh_positive.scale; refused unless x.mesh_positive.lo <= x <= x.mesh_positive.hi @1"
+    },
+    {
+      "name": "voltage",
+      "unit": "V",
+      "source": "condition:voltage",
+      "transform": "ln: ln(x / x.voltage.centre) / x.voltage.scale; refused unless x.voltage.lo <= x <= x.voltage.hi @1"
+    },
+    {
+      "name": "sweep_v_max",
+      "unit": "V",
+      "source": "condition:sweep_v_max",
+      "transform": "ln: ln(x / x.sweep_v_max.centre) / x.sweep_v_max.scale; refused unless x.sweep_v_max.lo <= x <= x.sweep_v_max.hi @1"
+    },
+    {
+      "name": "window",
+      "unit": "s",
+      "source": "condition:window",
+      "transform": "ln: ln(x / x.window.centre) / x.window.scale; refused unless x.window.lo <= x <= x.window.hi @1"
+    },
+    {
+      "name": "has_coflow",
+      "unit": "1",
+      "source": "condition:has_coflow",
+      "transform": "identity: (x - x.has_coflow.centre) / x.has_coflow.scale; refused unless x.has_coflow.lo <= x <= x.has_coflow.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.carbon_flow.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of carbon_flow."
+    },
+    {
+      "name": "x.carbon_flow.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of carbon_flow."
+    },
+    {
+      "name": "x.carbon_flow.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of carbon_flow (raw SI value)."
+    },
+    {
+      "name": "x.carbon_flow.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of carbon_flow (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_fuel."
+    },
+    {
+      "name": "x.x_fuel.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_fuel."
+    },
+    {
+      "name": "x.x_fuel.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_fuel (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_fuel (raw SI value)."
+    },
+    {
+      "name": "x.is_ethylene.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_ethylene."
+    },
+    {
+      "name": "x.is_ethylene.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_ethylene."
+    },
+    {
+      "name": "x.is_ethylene.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_ethylene (raw SI value)."
+    },
+    {
+      "name": "x.is_ethylene.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_ethylene (raw SI value)."
+    },
+    {
+      "name": "x.mesh_positive.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of mesh_positive."
+    },
+    {
+      "name": "x.mesh_positive.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of mesh_positive."
+    },
+    {
+      "name": "x.mesh_positive.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of mesh_positive (raw SI value)."
+    },
+    {
+      "name": "x.mesh_positive.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of mesh_positive (raw SI value)."
+    },
+    {
+      "name": "x.voltage.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "V",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of voltage."
+    },
+    {
+      "name": "x.voltage.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of voltage."
+    },
+    {
+      "name": "x.voltage.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "V",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of voltage (raw SI value)."
+    },
+    {
+      "name": "x.voltage.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "V",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of voltage (raw SI value)."
+    },
+    {
+      "name": "x.sweep_v_max.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "V",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of sweep_v_max."
+    },
+    {
+      "name": "x.sweep_v_max.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of sweep_v_max."
+    },
+    {
+      "name": "x.sweep_v_max.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "V",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of sweep_v_max (raw SI value)."
+    },
+    {
+      "name": "x.sweep_v_max.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "V",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of sweep_v_max (raw SI value)."
+    },
+    {
+      "name": "x.window.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of window."
+    },
+    {
+      "name": "x.window.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of window."
+    },
+    {
+      "name": "x.window.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of window (raw SI value)."
+    },
+    {
+      "name": "x.window.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of window (raw SI value)."
+    },
+    {
+      "name": "x.has_coflow.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of has_coflow."
+    },
+    {
+      "name": "x.has_coflow.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of has_coflow."
+    },
+    {
+      "name": "x.has_coflow.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of has_coflow (raw SI value)."
+    },
+    {
+      "name": "x.has_coflow.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of has_coflow (raw SI value)."
+    },
+    {
+      "name": "ion_current.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(A)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median ion_current / 1 A) at z = 0 before hinge terms (ln(A))."
+    },
+    {
+      "name": "ion_current.median.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median ion_current / 1 A) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "ion_current.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median ion_current / 1 A); row j reads z in feature order."
+    },
+    {
+      "name": "ion_current.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median ion_current / 1 A) (hinge positions)."
+    },
+    {
+      "name": "ion_current.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median ion_current / 1 A)."
+    },
+    {
+      "name": "ion_current.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of ion_current at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "ion_current.spread.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of ion_current on z, in feature order; every element is stated."
+    },
+    {
+      "name": "ion_current.spread.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of ion_current; row j reads z in feature order."
+    },
+    {
+      "name": "ion_current.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of ion_current (hinge positions)."
+    },
+    {
+      "name": "ion_current.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of ion_current."
+    },
+    {
+      "name": "ion_current.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of ion_current (0: one log-normal)."
+    },
+    {
+      "name": "ion_current.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of ion_current over that of the core (1: no wider component)."
+    },
+    {
+      "name": "flame_end.blowoff.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 25.0
+      },
+      "description": "Value of ln(median time of cause blowoff of flame_end alone / 1 s), since the time origin at z = 0 before hinge terms (ln(s))."
+    },
+    {
+      "name": "flame_end.blowoff.median.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median time of cause blowoff of flame_end alone / 1 s), since the time origin on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flame_end.blowoff.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median time of cause blowoff of flame_end alone / 1 s), since the time origin; row j reads z in feature order."
+    },
+    {
+      "name": "flame_end.blowoff.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median time of cause blowoff of flame_end alone / 1 s), since the time origin (hinge positions)."
+    },
+    {
+      "name": "flame_end.blowoff.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median time of cause blowoff of flame_end alone / 1 s), since the time origin."
+    },
+    {
+      "name": "flame_end.blowoff.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.1,
+        "max": 50.0
+      },
+      "description": "Log-logistic shape of cause blowoff of flame_end (sd of ln T = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "flame_end.other.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 25.0
+      },
+      "description": "Value of ln(median time of cause other of flame_end alone / 1 s), since the time origin at z = 0 before hinge terms (ln(s))."
+    },
+    {
+      "name": "flame_end.other.median.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median time of cause other of flame_end alone / 1 s), since the time origin on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flame_end.other.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median time of cause other of flame_end alone / 1 s), since the time origin; row j reads z in feature order."
+    },
+    {
+      "name": "flame_end.other.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median time of cause other of flame_end alone / 1 s), since the time origin (hinge positions)."
+    },
+    {
+      "name": "flame_end.other.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median time of cause other of flame_end alone / 1 s), since the time origin."
+    },
+    {
+      "name": "flame_end.other.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.1,
+        "max": 50.0
+      },
+      "description": "Log-logistic shape of cause other of flame_end (sd of ln T = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "peak_ion_current.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(A)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median peak_ion_current / 1 A) at z = 0 before hinge terms (ln(A))."
+    },
+    {
+      "name": "peak_ion_current.median.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median peak_ion_current / 1 A) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "peak_ion_current.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median peak_ion_current / 1 A); row j reads z in feature order."
+    },
+    {
+      "name": "peak_ion_current.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median peak_ion_current / 1 A) (hinge positions)."
+    },
+    {
+      "name": "peak_ion_current.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median peak_ion_current / 1 A)."
+    },
+    {
+      "name": "peak_ion_current.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of peak_ion_current at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "peak_ion_current.spread.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of peak_ion_current on z, in feature order; every element is stated."
+    },
+    {
+      "name": "peak_ion_current.spread.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of peak_ion_current; row j reads z in feature order."
+    },
+    {
+      "name": "peak_ion_current.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of peak_ion_current (hinge positions)."
+    },
+    {
+      "name": "peak_ion_current.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of peak_ion_current."
+    },
+    {
+      "name": "peak_ion_current.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of peak_ion_current (0: one log-normal)."
+    },
+    {
+      "name": "peak_ion_current.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of peak_ion_current over that of the core (1: no wider component)."
+    },
+    {
+      "name": "peak_voltage.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(V)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median peak_voltage / 1 V) at z = 0 before hinge terms (ln(V))."
+    },
+    {
+      "name": "peak_voltage.median.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median peak_voltage / 1 V) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "peak_voltage.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median peak_voltage / 1 V); row j reads z in feature order."
+    },
+    {
+      "name": "peak_voltage.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median peak_voltage / 1 V) (hinge positions)."
+    },
+    {
+      "name": "peak_voltage.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median peak_voltage / 1 V)."
+    },
+    {
+      "name": "peak_voltage.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of peak_voltage at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "peak_voltage.spread.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of peak_voltage on z, in feature order; every element is stated."
+    },
+    {
+      "name": "peak_voltage.spread.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of peak_voltage; row j reads z in feature order."
+    },
+    {
+      "name": "peak_voltage.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of peak_voltage (hinge positions)."
+    },
+    {
+      "name": "peak_voltage.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of peak_voltage."
+    },
+    {
+      "name": "peak_voltage.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of peak_voltage (0: one log-normal)."
+    },
+    {
+      "name": "peak_voltage.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of peak_voltage over that of the core (1: no wider component)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/efield2/decl.json (status Declared): {\"slug\":\"efield2\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-22, ACME E-FIELD Flames: coflow and gas-jet diffusion flames under a burner-to-mesh electric field\",\"description\":\"Second law of PROTOCOL 13.4 (docs/wsp/research/phys_efield2.md): the declaration of efield with has_coflow appended (index 7).\",\"features\":[{\"name\":\"carbon_flow\",\"unit\":\"1/s\",\"transform\":\"ln\",\"description\":\"fuel carbon atoms per second (case input carbon_flow_atoms_s)\"},{\"name\":\"x_fuel\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"fuel mole fraction of the fuel stream\"},{\"name\":\"is_ethylene\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 when fuel = ethylene\"},{\"name\":\"mesh_positive\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 when polarity = positive\"},{\"name\":\"voltage\",\"unit\":\"V\",\"transform\":\"ln\",\"description\":\"magnitude of the level's v_cmd; for the targets without a level, the highest magnitude of the sweep\"},{\"name\":\"sweep_v_max\",\"unit\":\"V\",\"transform\":\"ln\",\"description\":\"largest magnitude of v_cmd over the programme\"},{\"name\":\"window\",\"unit\":\"s\",\"transform\":\"ln\",\"description\":\"window_s of the field programme\"},{\"name\":\"has_coflow\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 if u_coflow_m_s > 0, else 0\"}],\"targets\":[{\"name\":\"ion_current\",\"kind\":\"positive\",\"unit\":\"A\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"flame current at a planned voltage level, positive in the direction the field drives it, given that the flame still burns (lane-local)\"},{\"name\":\"flame_end\",\"kind\":\"event\",\"unit\":null,\"shared_quantity\":null,\"causes\":[\"blowoff\",\"other\"],\"scheduled_stop\":null,\"description\":\"the flame goes out under the field, seconds since the field is switched on; no scheduled stop declared\"},{\"name\":\"peak_ion_current\",\"kind\":\"positive\",\"unit\":\"A\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"largest current of the sweep (lane-local)\"},{\"name\":\"peak_voltage\",\"kind\":\"positive\",\"unit\":\"V\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"voltage at which the largest current is reached (lane-local)\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

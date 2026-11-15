@@ -1,0 +1,41 @@
+# acme_normal.wsp13 — the NEUTRAL CARRY of F2, spec acme_normal-wsp-v13. Not a candidate.
+# F2's slot law values (copied by tools/wsp/committee4_edits.py), F2's fuel tables with the new columns inert
+# (configs/models/acme/fuel_tables/normal-f2carry-*.wsp), the neutral diluent table, the heating law's new
+# terms switched off (bt.kappa_exp 0, bt.tflame_ref_k 0) and the script setting of each member's era
+# (b0 b2 c0 c2: 500 C, b1 b3 c1 c3: 450 C, docs/wsp/research/phys_sflame_f3.md B2). On every prefix F2
+# answers, with no burner_limit_c or the setting of the member's era, it returns F2's tables bit for bit.
+mix.w_early[0:10] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+era.last_early_day = 2021235.0
+era.first_late_day = 2021256.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.15
+script.offset_s[0:3] = [-1.0, 0.0, 1.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]
+mix.o2_b_w = 0.5
+b0.bt.kappa_exp = 0.0
+b0.bt.tflame_ref_k = 0.0
+b1.bt.kappa_exp = 0.0
+b1.bt.tflame_ref_k = 0.0
+b2.bt.kappa_exp = 0.0
+b2.bt.tflame_ref_k = 0.0
+b3.bt.kappa_exp = 0.0
+b3.bt.tflame_ref_k = 0.0
+c0.bt.kappa_exp = 0.0
+c0.bt.tflame_ref_k = 0.0
+c1.bt.kappa_exp = 0.0
+c1.bt.tflame_ref_k = 0.0
+c2.bt.kappa_exp = 0.0
+c2.bt.tflame_ref_k = 0.0
+c3.bt.kappa_exp = 0.0
+c3.bt.tflame_ref_k = 0.0
+b0.bt.limit_script_c = 500.0
+b2.bt.limit_script_c = 500.0
+c0.bt.limit_script_c = 500.0
+c2.bt.limit_script_c = 500.0
+b1.bt.limit_script_c = 450.0
+b3.bt.limit_script_c = 450.0
+c1.bt.limit_script_c = 450.0
+c3.bt.limit_script_c = 450.0

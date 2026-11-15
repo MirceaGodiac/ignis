@@ -1,0 +1,1178 @@
+{
+  "id": "sha256:0f5763f5749bb669b6ed9b70ac2629c8923838b3308f6094b2efcd7d8313388a",
+  "family": "other",
+  "model_name": "slice2.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 152,
+      "authored_total": 568,
+      "constant_total": 1,
+      "per_tensor": {
+        "blow_off.logit.W1": [
+          64,
+          25
+        ],
+        "blow_off.logit.b0": [
+          1,
+          1
+        ],
+        "blow_off.logit.b1": [
+          8,
+          5
+        ],
+        "blow_off.logit.skip": [
+          8,
+          6
+        ],
+        "blow_off.logit.w2": [
+          8,
+          5
+        ],
+        "flame_length.median.W1": [
+          64,
+          4
+        ],
+        "flame_length.median.b0": [
+          1,
+          1
+        ],
+        "flame_length.median.b1": [
+          8,
+          2
+        ],
+        "flame_length.median.skip": [
+          8,
+          4
+        ],
+        "flame_length.median.w2": [
+          8,
+          2
+        ],
+        "flame_length.spread.W1": [
+          64,
+          0
+        ],
+        "flame_length.spread.b0": [
+          1,
+          1
+        ],
+        "flame_length.spread.b1": [
+          8,
+          0
+        ],
+        "flame_length.spread.skip": [
+          8,
+          0
+        ],
+        "flame_length.spread.w2": [
+          8,
+          0
+        ],
+        "flame_length.tail_weight": [
+          1,
+          1
+        ],
+        "flame_length.tail_width": [
+          1,
+          1
+        ],
+        "lift_noted.logit.W1": [
+          64,
+          0
+        ],
+        "lift_noted.logit.b0": [
+          1,
+          0
+        ],
+        "lift_noted.logit.b1": [
+          8,
+          0
+        ],
+        "lift_noted.logit.skip": [
+          8,
+          0
+        ],
+        "lift_noted.logit.w2": [
+          8,
+          0
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "past_blow.logit.W1": [
+          64,
+          19
+        ],
+        "past_blow.logit.b0": [
+          1,
+          1
+        ],
+        "past_blow.logit.b1": [
+          8,
+          4
+        ],
+        "past_blow.logit.skip": [
+          8,
+          5
+        ],
+        "past_blow.logit.w2": [
+          8,
+          4
+        ],
+        "past_lift.logit.W1": [
+          64,
+          19
+        ],
+        "past_lift.logit.b0": [
+          1,
+          1
+        ],
+        "past_lift.logit.b1": [
+          8,
+          4
+        ],
+        "past_lift.logit.skip": [
+          8,
+          5
+        ],
+        "past_lift.logit.w2": [
+          8,
+          4
+        ],
+        "x.burner_id.centre": [
+          1,
+          1
+        ],
+        "x.burner_id.hi": [
+          1,
+          1
+        ],
+        "x.burner_id.lo": [
+          1,
+          1
+        ],
+        "x.burner_id.scale": [
+          1,
+          1
+        ],
+        "x.is_ethane.centre": [
+          1,
+          0
+        ],
+        "x.is_ethane.hi": [
+          1,
+          1
+        ],
+        "x.is_ethane.lo": [
+          1,
+          0
+        ],
+        "x.is_ethane.scale": [
+          1,
+          1
+        ],
+        "x.is_propane.centre": [
+          1,
+          0
+        ],
+        "x.is_propane.hi": [
+          1,
+          1
+        ],
+        "x.is_propane.lo": [
+          1,
+          0
+        ],
+        "x.is_propane.scale": [
+          1,
+          1
+        ],
+        "x.mdot_jet.centre": [
+          1,
+          1
+        ],
+        "x.mdot_jet.hi": [
+          1,
+          1
+        ],
+        "x.mdot_jet.lo": [
+          1,
+          1
+        ],
+        "x.mdot_jet.scale": [
+          1,
+          1
+        ],
+        "x.u_coflow.centre": [
+          1,
+          1
+        ],
+        "x.u_coflow.hi": [
+          1,
+          1
+        ],
+        "x.u_coflow.lo": [
+          1,
+          1
+        ],
+        "x.u_coflow.scale": [
+          1,
+          1
+        ],
+        "x.u_jet.centre": [
+          1,
+          1
+        ],
+        "x.u_jet.hi": [
+          1,
+          1
+        ],
+        "x.u_jet.lo": [
+          1,
+          1
+        ],
+        "x.u_jet.scale": [
+          1,
+          1
+        ],
+        "x.x_fuel.centre": [
+          1,
+          1
+        ],
+        "x.x_fuel.hi": [
+          1,
+          1
+        ],
+        "x.x_fuel.lo": [
+          1,
+          1
+        ],
+        "x.x_fuel.scale": [
+          1,
+          1
+        ],
+        "x.x_o2.centre": [
+          1,
+          1
+        ],
+        "x.x_o2.hi": [
+          1,
+          1
+        ],
+        "x.x_o2.lo": [
+          1,
+          1
+        ],
+        "x.x_o2.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:0aeda7655f9b7839e195771b13e007b648e0e2ccadf4d28f991b9c5b09d43a94",
+    "spec_id": "law-slice2-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "u_coflow",
+    "u_jet",
+    "burner_id",
+    "x_fuel",
+    "x_o2",
+    "is_ethane",
+    "is_propane",
+    "mdot_jet"
+  ],
+  "units": {
+    "burner_id": "m",
+    "is_ethane": "1",
+    "is_propane": "1",
+    "mdot_jet": "kg/s",
+    "u_coflow": "m/s",
+    "u_jet": "m/s",
+    "x_fuel": "1",
+    "x_o2": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "as slice",
+        "kind": "binary",
+        "label": "slice2:blow_off",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "blow_off",
+        "unit": null
+      },
+      {
+        "description": "the condition is past the lifting limit (the network W0 called lifted)",
+        "kind": "binary",
+        "label": "slice2:past_lift",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "past_lift",
+        "unit": null
+      },
+      {
+        "description": "the condition is past the blow-off limit, cumulative",
+        "kind": "binary",
+        "label": "slice2:past_blow",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "past_blow",
+        "unit": null
+      },
+      {
+        "description": "a lifted flame is written down as lifted; no feature dependence",
+        "kind": "binary",
+        "label": "slice2:lift_noted",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "lift_noted",
+        "unit": null
+      },
+      {
+        "description": "as slice (lane-local)",
+        "kind": "positive",
+        "label": "slice2:flame_length",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "flame_length",
+        "unit": "m"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "blow_off.logit.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "c12da549d84c7489b0d4f6456918201c9718073d3af032f7ba92f20fd5a545b2",
+      "trainable": false
+    },
+    {
+      "name": "blow_off.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e0101e3063c4a598241136c9d1b0c39267d1756958fc6dfed75a245d5d136c41",
+      "trainable": false
+    },
+    {
+      "name": "blow_off.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "102725a56e28ba5f8c9bd07a135dbf313a468ba0c9a1391d73021596406e9aad",
+      "trainable": false
+    },
+    {
+      "name": "blow_off.logit.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "45fdb03c5b8d64f5e82f6b2527cae8db870c5f9fade2a854af09d44b13344cef",
+      "trainable": false
+    },
+    {
+      "name": "blow_off.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "488728338b9e7610e626b09d020e048cf4124bfe7c38abd7edea5d8323bf4452",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "1e9e6e244b051647b1af626a7e7a677d5b8751148b1c8158a2c8548cc75ceafc",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b8ab41ea9d2987a65d67067aab174e1ba3d2bba3cae8573652cfbc35e877cdb9",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "94d09f34b93259c8cddc1ef4066c75a1548c708fb2975fa2646c2616d46769c1",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "e8d653c01da400c5ae9576e9de146d1f09317097d15693281fb761e376eca0b8",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "54a9d9c411c63fc8967a30a58e3d14db67f4ce49c41fd3906592130b174fd921",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bf9f3802c203f238a962c635aad01954171550f7eebda3ab19e234dfe2bb702d",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "lift_noted.logit.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "lift_noted.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "lift_noted.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "lift_noted.logit.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "lift_noted.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "past_blow.logit.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "19f67d76c39b78f1440dd9023b20226263e86c774ae3b84f89a26e67d77770a2",
+      "trainable": false
+    },
+    {
+      "name": "past_blow.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5d25a57aeb4a43f5b88468285df87906904dd400ef8a29f85558a3e67543c0cd",
+      "trainable": false
+    },
+    {
+      "name": "past_blow.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "c2865aeb2d1363301602c7ddd3c0b93f9f77a4655b97b52b8e50e15d1b6458ee",
+      "trainable": false
+    },
+    {
+      "name": "past_blow.logit.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "2f00e5ea3b3a5b2695ebe13e06792b80f92e54a6003322360208a2fff0b5a571",
+      "trainable": false
+    },
+    {
+      "name": "past_blow.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "5e82c08cd567394308070fadf62a0e82beb9c9c1e79ee49ff1f645329ce0f455",
+      "trainable": false
+    },
+    {
+      "name": "past_lift.logit.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "19f67d76c39b78f1440dd9023b20226263e86c774ae3b84f89a26e67d77770a2",
+      "trainable": false
+    },
+    {
+      "name": "past_lift.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7145b5cc1a10196317b45d3c886aec36dcf9743cd0c96c9cef8653cc285ff0e3",
+      "trainable": false
+    },
+    {
+      "name": "past_lift.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "c2865aeb2d1363301602c7ddd3c0b93f9f77a4655b97b52b8e50e15d1b6458ee",
+      "trainable": false
+    },
+    {
+      "name": "past_lift.logit.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "2f00e5ea3b3a5b2695ebe13e06792b80f92e54a6003322360208a2fff0b5a571",
+      "trainable": false
+    },
+    {
+      "name": "past_lift.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "5e82c08cd567394308070fadf62a0e82beb9c9c1e79ee49ff1f645329ce0f455",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_id.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2de6f8da55fea90c63150cde9b19945ddcc15ba12c172ebb0e67f230ec2c8ee4",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_id.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "19fa5fc95b3066c765aaacc5fb7d25728f17391a58e18def8bf4732905936109",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_id.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "455eccc24ae37a41bea50acbf4fdb2b29812bcb8a8d92dc3ac838e5e08156de7",
+      "trainable": false
+    },
+    {
+      "name": "x.burner_id.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethane.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethane.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethane.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_ethane.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_propane.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_propane.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_propane.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_propane.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.mdot_jet.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "x.mdot_jet.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e9fccc0c72536c2391ccbf4e2494c5f3a27cef82f6fed75ff4a5699fb43bed3e",
+      "trainable": false
+    },
+    {
+      "name": "x.mdot_jet.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0ebe7df3068dfab5a022b58040a60af903aa932fe2f49bf2de55b737d2989df7",
+      "trainable": false
+    },
+    {
+      "name": "x.mdot_jet.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.u_coflow.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "x.u_coflow.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "x.u_coflow.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "dc6d34984056732a6bd6a63f2c35504415c6e213ae06f170fc1c58bf2f26f07e",
+      "trainable": false
+    },
+    {
+      "name": "x.u_coflow.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.u_jet.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.u_jet.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "85bd2f47c626143ba679f805ca4cdafd05f1c153db410338601804b39e783273",
+      "trainable": false
+    },
+    {
+      "name": "x.u_jet.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "dc6d34984056732a6bd6a63f2c35504415c6e213ae06f170fc1c58bf2f26f07e",
+      "trainable": false
+    },
+    {
+      "name": "x.u_jet.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "x.x_fuel.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c05cfc6efd3c19c49cc64bf5c4de29066800894af0e4c7b0bb17d631dd2c882c",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "29cac4be5bff5d5dd9e379bb3afaa5929fcac4c168a9ad67b7a066ec304e2afb",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-106:catalogue",
+  "split_id": "sha256:ea8c6391851b2412fc4b58179c272845a635049024cbcda6676569c0e10fdc65",
+  "source_manifest_hash": "sha256:a163c5db364a3f3e5172e5b45541a0ad424c242233c068de335d2b613bfee78c",
+  "code_version": "ignis-wsp@0.1.0+fwd.dbf4c795d70c8c28",
+  "applicability": {
+    "declaration": {
+      "description": "Second law of PROTOCOL 13.4 (docs/wsp/research/phys_slice2.md): the eight features of slice; the log's lifted label is scored as p_lift_noted * (p_past_lift - p_past_blow) / (1 - p_past_blow), a scoring-time rule.",
+      "family": "other",
+      "features": [
+        {
+          "description": "duct air velocity (u_coflow_cm_s / 100)",
+          "name": "u_coflow",
+          "transform": "ln",
+          "unit": "m/s"
+        },
+        {
+          "description": "mean jet exit velocity (u_jet_m_s)",
+          "name": "u_jet",
+          "transform": "ln",
+          "unit": "m/s"
+        },
+        {
+          "description": "burner tube inner diameter (burner_id_mm / 1000)",
+          "name": "burner_id",
+          "transform": "ln",
+          "unit": "m"
+        },
+        {
+          "description": "hydrocarbon mole fraction of the jet gas",
+          "name": "x_fuel",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "cabin oxygen mole fraction (x_o2_cabin)",
+          "name": "x_o2",
+          "transform": "ln",
+          "unit": "1"
+        },
+        {
+          "description": "1 for ethane",
+          "name": "is_ethane",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "1 for propane (methane is the reference)",
+          "name": "is_propane",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "jet gas mass flow (mdot_jet_mg_s / 1e6); read by flame_length only",
+          "name": "mdot_jet",
+          "transform": "ln",
+          "unit": "kg/s"
+        }
+      ],
+      "investigation": "PSI-106, SLICE: laminar coflow jet diffusion flames in the Microgravity Science Glovebox, stepped up line by line to blow-off",
+      "slug": "slice2",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [],
+          "description": "as slice",
+          "kind": "binary",
+          "name": "blow_off",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "the condition is past the lifting limit (the network W0 called lifted)",
+          "kind": "binary",
+          "name": "past_lift",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "the condition is past the blow-off limit, cumulative",
+          "kind": "binary",
+          "name": "past_blow",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "a lifted flame is written down as lifted; no feature dependence",
+          "kind": "binary",
+          "name": "lift_noted",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [],
+          "description": "as slice (lane-local)",
+          "kind": "positive",
+          "name": "flame_length",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "m"
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/slice2/decl.json",
+    "features": [
+      {
+        "description": "duct air velocity (u_coflow_cm_s / 100)",
+        "name": "u_coflow",
+        "transform": "ln",
+        "unit": "m/s"
+      },
+      {
+        "description": "mean jet exit velocity (u_jet_m_s)",
+        "name": "u_jet",
+        "transform": "ln",
+        "unit": "m/s"
+      },
+      {
+        "description": "burner tube inner diameter (burner_id_mm / 1000)",
+        "name": "burner_id",
+        "transform": "ln",
+        "unit": "m"
+      },
+      {
+        "description": "hydrocarbon mole fraction of the jet gas",
+        "name": "x_fuel",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "cabin oxygen mole fraction (x_o2_cabin)",
+        "name": "x_o2",
+        "transform": "ln",
+        "unit": "1"
+      },
+      {
+        "description": "1 for ethane",
+        "name": "is_ethane",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "1 for propane (methane is the reference)",
+        "name": "is_propane",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "jet gas mass flow (mdot_jet_mg_s / 1e6); read by flame_length only",
+        "name": "mdot_jet",
+        "transform": "ln",
+        "unit": "kg/s"
+      }
+    ],
+    "investigation": "PSI-106, SLICE: laminar coflow jet diffusion flames in the Microgravity Science Glovebox, stepped up line by line to blow-off",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "slice2",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "as slice",
+        "kind": "binary",
+        "label": "slice2:blow_off",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "blow_off",
+        "unit": null
+      },
+      {
+        "description": "the condition is past the lifting limit (the network W0 called lifted)",
+        "kind": "binary",
+        "label": "slice2:past_lift",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "past_lift",
+        "unit": null
+      },
+      {
+        "description": "the condition is past the blow-off limit, cumulative",
+        "kind": "binary",
+        "label": "slice2:past_blow",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "past_blow",
+        "unit": null
+      },
+      {
+        "description": "a lifted flame is written down as lifted; no feature dependence",
+        "kind": "binary",
+        "label": "slice2:lift_noted",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "lift_noted",
+        "unit": null
+      },
+      {
+        "description": "as slice (lane-local)",
+        "kind": "positive",
+        "label": "slice2:flame_length",
+        "shared_quantity": null,
+        "slug": "slice2",
+        "status": "declared",
+        "target": "flame_length",
+        "unit": "m"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+  "lineage": "weight_edit",
+  "lineage_note": "slice2 S2 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/slice2_s2.wsp verbatim as a revision of slice2 s1-fable (docs/wsp/research/phys_slice_study.md). Transcribed by the assembly engi",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "law-slice2-v1",
+    "spec_hash": "sha256:0aeda7655f9b7839e195771b13e007b648e0e2ccadf4d28f991b9c5b09d43a94",
+    "patch_id": "law-slice2-v1-s2-fable",
+    "patch_hash": "sha256:aa80d7d10915752f5b2c821814b4cdfcce01243e55a7560930191d61315cda38",
+    "parent_release_id": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/wsp/research/phys_slice_study.md(sha256:a3bd91b2bad5dac175fae201526822ab557163f92abea418ff490546704d6384;candidate-S2)",
+        "repo:runs/dev/gen7/study/slice2_s2.wsp(sha256:06e2f3b5c1d66d446127efa463fe9c60960e66b0b1c660e50362233c861974c6)",
+        "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S2)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "slice2-train-and-validation-cases",
+          "partitions": [
+            "train",
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [
+        "PROTOCOL-13.2-13.3-13.4-development-scores",
+        "what-if-run-of-S2"
+      ],
+      "prior_candidates": [
+        "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61"
+      ]
+    },
+    "weights_hash": "sha256:8cf8637dce51f5be3a8dd9d6f897b0ae0ef11285552f8623d5f26c9ac2946d75",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:dbf4c795d70c8c28ac5be9686bd98297890fef33237666f50d1415063f4a01d4",
+    "code_version": "ignis-wsp@0.1.0+fwd.dbf4c795d70c8c28",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "568 authored elements (152 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 5 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}

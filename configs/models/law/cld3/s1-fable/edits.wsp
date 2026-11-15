@@ -1,0 +1,133 @@
+# cld3 (PROTOCOL 13.6): docs/wsp/research/phys_cld_study.md lines 198-209 (sha256 fd966ea8a5c2fb2e73ca0d29c4f5128268a0942e20709956f961479e88754bf6), the typed block verbatim, on top of the full chain
+# w0-fable -> d1-fable -> c1-fable of its parent slug: every line of that chain with each later change written in place
+# (inside the earlier line where that line writes a list; elements a list line of the dossier adds beyond the parent's slice
+# one per line), then the block's new lines. Numbers verbatim; no number chosen.
+# Transcribed verbatim from docs/wsp/research/phys_cld_w0.md, section 7.4, lines 315-397 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/cld/root).
+# cld.wsp: W0 with stated exceptions. Author claude-fable-5-2. Source: docs/wsp/research/phys_cld_w0.md
+# features z = (z_x, z_u, z_w, e, z_s, z_v), columns 0..5
+x.x_fuel_final.centre = 1.0
+x.x_fuel_final.scale = 1.0
+x.x_fuel_final.lo = 0.04
+x.x_fuel_final.hi = 1.0
+x.v_coflow_final.centre = 0.2
+x.v_coflow_final.scale = 1.0
+x.v_coflow_final.lo = 0.02
+x.v_coflow_final.hi = 1.5
+x.window.centre = 60.0
+x.window.scale = 1.0
+x.window.lo = 5.0
+x.window.hi = 600.0
+x.is_ethylene.centre = 0.0
+x.is_ethylene.scale = 1.0
+x.is_ethylene.lo = 0.0
+x.is_ethylene.hi = 1.0
+x.x_fuel_stage.centre = 1.0
+x.x_fuel_stage.scale = 1.0
+x.x_fuel_stage.lo = 0.04
+x.x_fuel_stage.hi = 1.0
+x.v_fuel_stage.centre = 0.2
+x.v_fuel_stage.scale = 1.0
+x.v_fuel_stage.lo = 0.02
+x.v_fuel_stage.hi = 1.5
+
+# --- loss by blow-off: ln tau = ln window + ln 2.5 - ln Phi_final.
+# b0 = ln(60 s) + ln(2.5) - ln(0.66 * 0.2 / (1.4 * 0.38)): 604 s for pure methane at 0.2 m/s.
+# skip: S_L falls 0.55 per e-fold of dilution; more coflow, sooner; longer window, later;
+# ethylene: ln(0.68 / 0.38) + 0.55 * 0.47.
+loss.blowoff.median.b0 = 4.094
+# (form only: loss.blowoff.median.b0[] written inside the parent's line above, the dossier's number)
+# (form only: loss.blowoff.median.b0[] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.skip[0:6] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+# (form only: loss.blowoff.median.skip[0], loss.blowoff.median.skip[1], loss.blowoff.median.skip[2], loss.blowoff.median.skip[3], loss.blowoff.median.skip[4], loss.blowoff.median.skip[5] written inside the parent's line above, the dossier's number)
+# (form only: loss.blowoff.median.skip[3] written inside the parent's line above, the dossier's number)
+# unit 0: no gain above the pure fuel (ethylene above 62 %).
+loss.blowoff.median.W1[0, 0] = 2.6
+# (form only: loss.blowoff.median.W1[0, 0] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.W1[0, 3] = 3.092
+# (form only: loss.blowoff.median.W1[0, 3] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.b1[0] = 3.246
+# (form only: loss.blowoff.median.b1[0] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.w2[0] = 5.0
+# (form only: loss.blowoff.median.w2[0] written inside the parent's line above, the dossier's number)
+# units 1 to 3: S_L falls faster below 50, 30 and 20 % methane (31, 19 and 12.5 % ethylene).
+loss.blowoff.median.W1[1, 0] = -2.6
+# (form only: loss.blowoff.median.W1[1, 0] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.W1[1, 3] = -3.092
+# (form only: loss.blowoff.median.W1[1, 3] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.b1[1] = -3.246
+# (form only: loss.blowoff.median.b1[1] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.w2[1] = -2.0
+# (form only: loss.blowoff.median.w2[1] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.W1[2, 0] = -1.0
+loss.blowoff.median.W1[2, 3] = -0.47
+loss.blowoff.median.b1[2] = -1.204
+loss.blowoff.median.w2[2] = 0.0
+# (form only: loss.blowoff.median.w2[2] written inside the parent's line above, the dossier's number)
+loss.blowoff.median.W1[3, 0] = -1.0
+loss.blowoff.median.W1[3, 3] = -0.47
+loss.blowoff.median.b1[3] = -1.609
+loss.blowoff.median.w2[3] = 0.0
+# (form only: loss.blowoff.median.w2[3] written inside the parent's line above, the dossier's number)
+loss.blowoff.shape = 4.0
+# (form only: loss.blowoff.shape[] written inside the parent's line above, the dossier's number)
+# other losses: 4 % in 120 s, hazard falling with time.
+loss.other.median.b0 = 11.156
+loss.other.median.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+loss.other.shape = 0.5
+# only if the planned fuel-off is declared as the scheduled stop:
+loss.stop.offset_s[0:3] = [0.0, 0.0, 0.0]
+loss.stop.offset_w[0:3] = [1.0, 0.0, 0.0]
+
+# --- radiometer excess = c_V * chi * Q. b0 = ln(0.5 V/W * 0.05 * 26.72 W) = ln(0.668 V).
+# skip: proportional to fuel-stream speed and to fuel fraction; ethylene releases 1.65 times
+# the heat per volume of fuel.
+radiometer.median.b0 = -0.66
+# (form only: radiometer.median.b0[] written inside the parent's line above, the dossier's number)
+radiometer.median.skip[0:6] = [0.0, 0.0, 0.0, 0.5, 1.0, 1.0]
+# units 0 to 2: soot, ln(1 + chi_soot x^2.5 / 0.05) in three pieces; 1.099 = ln(0.15 / 0.05),
+# ethylene 0.847 = ln(0.35 / 0.15) more.
+radiometer.median.W1[0, 3] = 0.847
+radiometer.median.W1[0, 4] = 2.5
+radiometer.median.b1[0] = 3.299
+radiometer.median.w2[0] = 0.31
+radiometer.median.W1[1, 3] = 0.847
+radiometer.median.W1[1, 4] = 2.5
+radiometer.median.b1[1] = 1.099
+radiometer.median.w2[1] = 0.38
+radiometer.median.W1[2, 3] = 0.847
+radiometer.median.W1[2, 4] = 2.5
+radiometer.median.b1[2] = -1.101
+radiometer.median.w2[2] = 0.31
+radiometer.spread.b0 = 0.8
+radiometer.spread.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+radiometer.tail_weight = 0.1
+radiometer.tail_width = 3.0
+
+# D1 of cld.wsp: the Edits block of docs/wsp/research/phys_cld_d1.md (lines 67-69, sha256 6144d2fb3bf0734c99655acae5705191fd690467ea19ab99ba9ca5e01114c86e),
+# verbatim, as a revision of the registered W0 release sha256:1dc48174…e2f4; every other number is the parent's.
+
+
+# cld C1: runs/dev/gen7/study/cld_c1.wsp (sha256 f7f10d4b52ad04486bd22a1cb3f5f616e16ae00f047366f39870b23bbd091979), verbatim, a revision of
+# cld d1-fable sha256:a03ec603…2d4f (docs/wsp/research/phys_cld_study.md); every other number is the parent's.
+# cld candidate C1 (numbers on the cld declaration, base D1): the blow-off clock as a sharp limit
+# R = U_co / (10.2 s/m * S_L^2), S_L linear in ln x (slope 1.3), R_c 0.93 methane, 1.8 ethylene.
+# ln tau = ln W + 5 relu(-g) - 2 relu(g), g = ln(R / R_c); shape 4.
+loss.blowoff.median.W1[0, 1] = -1.0
+loss.blowoff.median.W1[1, 1] = 1.0
+
+
+# cld3 = C1 with these lines added (typed, NOT run: the tool cannot run a declaration that does not exist)
+x.t_severe.centre = 20.0
+x.t_severe.scale = 1.0
+x.t_severe.lo = 2.0
+x.t_severe.hi = 600.0
+loss.crossing.median.b0 = 6.242
+loss.crossing.median.skip[0:7] = [2.6, -1.0, 0.0, 3.092, 0.0, 0.0, 1.0]
+loss.crossing.median.W1[0, 0] = 2.6
+loss.crossing.median.W1[0, 1] = -1.0
+loss.crossing.median.W1[0, 3] = 3.092
+loss.crossing.median.b1[0] = 3.246
+loss.crossing.median.w2[0] = 41.0
+loss.crossing.shape = 6.0
+

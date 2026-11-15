@@ -1,0 +1,406 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-samer-v1-s1-fable",
+  "spec_hash": "sha256:1ac8d550b9f92f76f349dcb69e9cd93f2aad11aaa0bd7b342906563d91232312",
+  "parent_release_id": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_samer_study.md(sha256:e9687b7b782354b0b0ecaa96af88983971190a76543ea48ded07a50eafaa884f;candidate-S1)",
+      "repo:runs/dev/gen7/study/samer_s1.wsp(sha256:b9a15a814a4ca024dfc61045d4503adedb3ce2acffc80b57749f564f0d5e4872)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "samer-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-S1"
+    ],
+    "prior_candidates": [
+      "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        3,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        4,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        5,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        6,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.b1",
+      "start": [
+        3
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.996,
+        -0.604,
+        -2.404,
+        -4.004
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.w2",
+      "start": [
+        3
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.11,
+        0.165,
+        0.165,
+        0.11
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        3,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        4,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        5,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        6,
+        0
+      ],
+      "shape": [
+        1,
+        9
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.3,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.b1",
+      "start": [
+        3
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.996,
+        -0.604,
+        -2.404,
+        -4.004
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.b0",
+      "index": [],
+      "value": -15.412
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        -1.416,
+        -1.133,
+        0.125,
+        0.704
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.W1",
+      "index": [
+        7,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.W1",
+      "index": [
+        7,
+        6
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.b1",
+      "index": [
+        7
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.w2",
+      "index": [
+        7
+      ],
+      "value": -0.5
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.skip",
+      "index": [
+        8
+      ],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.b0",
+      "index": [],
+      "value": 3.956
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.skip",
+      "index": [
+        0
+      ],
+      "value": -7.57
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.skip",
+      "index": [
+        1
+      ],
+      "value": -7.56
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.skip",
+      "index": [
+        6
+      ],
+      "value": -2.6
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        1,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.w2",
+      "index": [
+        1
+      ],
+      "value": 1.5
+    }
+  ],
+  "rationale": "samer S1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/samer_s1.wsp verbatim as a revision of samer w0-fable (docs/wsp/research/phys_samer_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}
