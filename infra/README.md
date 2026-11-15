@@ -249,7 +249,7 @@ Normally done by the VM itself: see [Automatic deploys](#automatic-deploys). By 
 ## Automatic deploys
 
 The VM pulls its own releases: `ignis-autodeploy.timer` runs `ignis-autodeploy.service` every
-5 minutes, which runs [`scripts/autodeploy.sh`](scripts/autodeploy.sh) (installed as
+minute, which runs [`scripts/autodeploy.sh`](scripts/autodeploy.sh) (installed as
 `/usr/local/sbin/ignis-autodeploy`). When the tip of `main` differs from the commit the running
 image was built from (its `org.opencontainers.image.revision` label), it does the
 [Release](#release-and-rollback) steps itself, each one fail-closed:
@@ -263,7 +263,10 @@ image was built from (its `org.opencontainers.image.revision` label), it does th
    `/opt/ignis-cli/claude` is reused; refresh it by hand with `fetch-claude.sh`). Manifests are kept
    in `/var/lib/ignis-deploy/releases/`. If the Docker disk has less than `MIN_FREE_GB` free, it
    prunes dangling images and week-old build cache first, and stops if that is not enough.
-3. Backup: `systemctl start ignis-backup` (pushed to R2; the local copy is the rollback point).
+3. Snapshot: `ignis state backup` of the live store into `/srv/ignis/backups` (local, about 3 s; it is
+   the rollback point). The R2 upload (`ignis-backup.service`, about 6 min) starts after a good switch,
+   in the background. A commit that changes only `web/`, `infra/worker/`, `docs/` or top-level
+   Markdown skips steps 2-7: the running image keeps serving, only the UI step runs.
 4. Smoke test of the **new** image against that snapshot: `ignis state restore` into a scratch
    directory on the data disk, then `ignis serve` on it with no network (no model call, no R2
    write), local auth on loopback, the real `ignis.env` otherwise. The store must open (and
