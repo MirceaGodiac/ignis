@@ -11,9 +11,10 @@
 #
 # Installed as /usr/local/sbin/ignis-autodeploy by infra/scripts/autodeploy-setup.sh and run by
 # ignis-autodeploy.service (timer: ignis-autodeploy.timer). Steps, each one fail-closed:
-#   fetch (read-only deploy key) → build in a separate worktree (build-server.sh, Codex fetched when
-#   its pin changed) → backup (ignis-backup.service) → smoke test of the NEW image against a
-#   restore of that backup (store opens/migrates, /livez, /api/v1/capabilities, no network) →
+#   fetch (read-only deploy key) → (a commit that touches only web/, infra/worker/, docs/ or top-level
+#   Markdown skips straight to the UI) → build in a separate worktree (build-server.sh, Codex fetched
+#   when its pin changed) → local snapshot (seconds; the R2 upload runs after the switch) → smoke
+#   test of the NEW image against a restore of that snapshot (store opens/migrates, /livez, /api/v1/capabilities, no network) →
 #   wait until no turn or job is running → switch IGNIS_IMAGE and the checkout → restart → health
 #   checks → on failure, automatic rollback to the previous image and checkout (and, if the old
 #   image cannot open the store the new one migrated, a restore of the pre-release snapshot).
@@ -106,8 +107,19 @@ main() {
   cur_image="$(env_get IGNIS_IMAGE)"
   cur_commit="$(image_commit "$cur_image")"
   if [ "$force" = 0 ] && [ -z "$commit" ]; then
-    if [ "$target" = "$cur_commit" ]; then
+    if [ "$target" = "$cur_commit" ] || [ "$target" = "$(cat "$STATE/served_commit" 2>/dev/null)" ]; then
       ui_catch_up "$target" || true
+      return 0
+    fi
+    # Commits that change nothing the server image is built from (web/, docs, the Worker) need no
+    # build, backup or restart: the running image serves them; only the UI is deployed.
+    if server_unchanged "$cur_commit" "$target"; then
+      echo "$target" > "$STATE/served_commit"
+      T0=$(date +%s)
+      DEPLOY_ID="$(date -u +%Y%m%dT%H%M%SZ)-${target:0:12}-ui"
+      log "$target changes no server input since $cur_commit: no server deploy"
+      record "$target" server_unchanged
+      deploy_ui "$target" || true
       return 0
     fi
     if [ "$(cat "$STATE/failed" 2>/dev/null)" = "$target" ]; then
@@ -143,13 +155,13 @@ main() {
   [ -n "$new_image" ] || { fail_record "$target" "no image id in the manifest"; return 1; }
   log "built $new_image in ${BUILD_S}s"
 
-  # 2. Backup of the live store (the rollback point), then 3. smoke test against a copy of it.
-  systemctl start ignis-backup.service
+  # 2. Snapshot of the live store (the rollback point), then 3. smoke test against a copy of it.
+  # Local only (about 3 s): the R2 upload took 6 minutes of every deploy, and rollback and the
+  # smoke test read the local copy. The upload runs after the switch (ignis-backup.service).
   local snap
-  snap="$(find /srv/ignis/backups -mindepth 1 -maxdepth 1 -type d -name 'state-*' | sort | tail -n 1)"
-  [ -n "$snap" ] || { fail_record "$target" "no local snapshot after the backup"; return 1; }
+  snap="$(local_snapshot)" || { fail_record "$target" "local snapshot failed"; return 1; }
   echo "$snap" > "$STATE/last_snapshot"
-  log "backup $snap"
+  log "snapshot $snap (local; pushed to R2 after the switch)"
   if ! smoke_test "$new_image" "$snap"; then
     fail_record "$target" "smoke test failed"
     return 1
@@ -179,6 +191,8 @@ main() {
     prune_images "$new_image" "$cur_image"
     record "$target" deployed
     log "deployed $target in $(( $(date +%s) - T0 ))s (build ${BUILD_S}s, restart-to-healthy ${DOWN_S}s)"
+    # Off-site copy of the new state, in the background (snapshot + R2 upload, ~6 min).
+    systemctl start --no-block ignis-backup.service || log "could not start ignis-backup.service"
     # The server is live either way: a failed UI deploy is recorded and retried with --ui.
     deploy_ui "$target" || true
     return 0
@@ -212,6 +226,28 @@ main() {
 }
 
 log() { echo "ignis-autodeploy: $*"; }
+
+# True when every path changed between the running image's commit and the target lies outside the
+# server image: the web UI, the Worker, docs and top-level Markdown. Anything else (crates, configs,
+# schemas, data, infra/server, Cargo files, scripts) builds a new image. Unknown history -> false.
+server_unchanged() {
+  local from="$1" to="$2" changed
+  [ -n "$from" ] || return 1
+  git -C "$REPO" merge-base --is-ancestor "$from" "$to" 2>/dev/null || return 1
+  changed="$(git -C "$REPO" diff --name-only "$from" "$to")" || return 1
+  [ -n "$changed" ] || return 1
+  ! grep -qvE '^(web/|infra/worker/|docs/|[^/]+\.md$)' <<< "$changed"
+}
+
+# A consistent snapshot of the live store under /srv/ignis/backups, no upload; keeps the last 3.
+local_snapshot() {
+  local name
+  name="state-$(date -u +%Y%m%dT%H%M%SZ)"
+  "${COMPOSE[@]}" exec -T ignis ignis state backup --state-dir /srv/ignis/state --out "/srv/ignis/backups/$name" >&2 || return 1
+  [ -d "/srv/ignis/backups/$name" ] || return 1
+  find /srv/ignis/backups -mindepth 1 -maxdepth 1 -type d -name 'state-*' | sort | head -n -3 | xargs -r rm -rf --
+  echo "/srv/ignis/backups/$name"
+}
 
 # The build worktree at a commit, clean (the serving checkout never moves for a build).
 build_tree() {
