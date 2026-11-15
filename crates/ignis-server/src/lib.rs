@@ -144,6 +144,11 @@ pub struct ServeArgs {
     /// says why. The legacy `/api` lab routes (fitted baselines) are not affected.
     #[arg(long, env = "IGNIS_ENABLE_MODELS")]
     pub enable_models: bool,
+    /// What `answer_submit` does with a number that does not resolve to its reference (M7b):
+    /// `log` stores the answer and records the problems in its grounding report; `enforce` refuses
+    /// it. Starts as `log` until the grounding outcomes have been reviewed on real turns.
+    #[arg(long, env = "IGNIS_ANSWER_GROUNDING", default_value = "log", value_parser = parse_grounding)]
+    pub answer_grounding: ignis_core::contracts::GroundingMode,
     /// Largest single upload accepted by `/api/v1/uploads` (a storage budget, not a result limit).
     #[arg(long, env = "IGNIS_MAX_UPLOAD_BYTES", default_value_t = 2 << 30)]
     pub max_upload_bytes: u64,
@@ -160,6 +165,9 @@ pub struct ServeArgs {
     /// Isolated analysis runner (`analysis_execute`); unset image = not configured.
     #[command(flatten)]
     pub runner: v1::sandbox::RunnerArgs,
+    /// Source access without copies (`/api/v1/sources/{id}/content`, M12).
+    #[command(flatten)]
+    pub sources: v1::sources::SourceArgs,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -221,6 +229,11 @@ fn origin(
 
 /// Apply `--enable-models`: when off, no `ModelService` reaches `/api/v1` or the tools, and the
 /// catalog reports the model tools as disabled rather than unconfigured.
+fn parse_grounding(s: &str) -> Result<ignis_core::contracts::GroundingMode, String> {
+    serde_json::from_value(serde_json::Value::String(s.into()))
+        .map_err(|_| format!("{s:?} is not a grounding mode (log, enforce)"))
+}
+
 fn model_gate(s: v1::ResearchServices, enabled: bool) -> v1::ResearchServices {
     if enabled {
         return s;
@@ -447,7 +460,8 @@ fn v1_instance(
                 Arc::new(move || wake.notify_one()),
             )
             // `answer_submit` appends `answer.completed`: wake the episode's SSE readers.
-            .with_commit_hook(Arc::new(move |ep, seq| h.notify(ep, seq))),
+            .with_commit_hook(Arc::new(move |ep, seq| h.notify(ep, seq)))
+            .with_grounding(args.answer_grounding),
         )
     };
     let attachment = mcp.map(|m| m.mount(name, tools.clone()));
@@ -478,6 +492,14 @@ fn v1_instance(
         runner_report,
         mcp_url,
         artifact_backend: args.artifact_backend,
+        // Real NASA sources only on the registry instance; the C0 fixture has none to open.
+        sources: (origin == ignis_core::contracts::Origin::System).then(|| {
+            Arc::new(v1::sources::SourceDelivery::new(
+                &args.sources,
+                &args.root,
+                origin,
+            ))
+        }),
     })
 }
 

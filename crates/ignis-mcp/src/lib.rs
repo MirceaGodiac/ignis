@@ -14,12 +14,13 @@
 //! grants) lives in the Codex bridge (`ignis_research::runtime`).
 
 mod answer;
+mod grounding;
 pub mod http;
 pub mod schemas;
 pub mod tools;
 
 pub use http::{router, IgnisMcp};
 pub use tools::{
-    catalog, CommitHook, ToolAvailability, ToolHost, ToolServices, ANALYSIS_JOB, FORECAST_JOB,
-    MODELS_DISABLED,
+    catalog, CommitHook, ToolAvailability, ToolHost, ToolServices, ANALYSIS_JOB,
+    CONDITIONS_NOT_BUILT, FORECAST_JOB, MODELS_DISABLED,
 };
