@@ -14,11 +14,13 @@
 
 pub mod attribution;
 pub mod catalog;
+pub mod combined;
 pub mod corpus;
 pub mod deepinfra;
 pub mod dense;
 pub mod docling_view;
 pub mod firewall;
+pub mod labels;
 pub mod llm_pass;
 pub mod outline;
 #[cfg(feature = "pdf")]
@@ -248,6 +250,67 @@ pub enum EvidenceCmd {
         /// Where the requests are written for review.
         #[arg(long)]
         requests: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        execute: bool,
+    },
+    /// Document labels (R8), two passes per document: build the requests and print the cost
+    /// estimate; with `--execute`, run the missing passes (`claude -p`) into
+    /// `<catalog dir>/label_answers.jsonl`. Then (always) combine the answers present into
+    /// `<catalog dir>/source_labels.jsonl` (SourceLabel JSONL) and print the counts.
+    Labels {
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        #[arg(long, default_value = "haiku")]
+        model: String,
+        #[arg(long, default_value_t = 1.0)]
+        usd_per_mtok_in: f64,
+        #[arg(long, default_value_t = 5.0)]
+        usd_per_mtok_out: f64,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        execute: bool,
+    },
+    /// Gold set (R8): select about N documents stratified across investigations and kinds and
+    /// write them as a labelling template with EMPTY labels (a person fills them in).
+    GoldSelect {
+        #[arg(long, default_value_t = 100)]
+        n: usize,
+        #[arg(long, default_value_t = 2026)]
+        seed: u64,
+        /// Default `data/labels/gold/gold_template.jsonl`; an existing file is never overwritten.
+        #[arg(long)]
+        out: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// Score a labeller's SourceLabel JSONL against the person-labelled rows of a gold file.
+    GoldEval {
+        #[arg(long)]
+        gold: PathBuf,
+        /// Default `<catalog dir>/source_labels.jsonl`.
+        #[arg(long)]
+        labels: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// The combined model pass (R7b summaries + R8 label pass a + R12b expansion vocabulary), one
+    /// call per leaf section: requests + cost estimate; `--execute` runs it and splits the answers
+    /// into `outline_summaries.jsonl`, `label_answers.jsonl` and an expansion pack
+    /// (`<catalog dir>/expansion-llm/`, load with `ignis evidence enrich`). Needs approved spend.
+    LlmPass {
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        #[arg(long, default_value = "haiku")]
+        model: String,
+        #[arg(long, default_value_t = 1.0)]
+        usd_per_mtok_in: f64,
+        #[arg(long, default_value_t = 5.0)]
+        usd_per_mtok_out: f64,
         #[arg(long)]
         db: Option<PathBuf>,
         #[arg(long)]
@@ -637,6 +700,91 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             if execute {
                 let r = llm_pass::run(&reqs, &llm_pass::ClaudeCli::new(&model), &out, 5)?;
                 print(&serde_json::to_value(&r)?)?;
+            }
+            Ok(())
+        }
+        EvidenceCmd::Labels { sources, all, model, usd_per_mtok_in, usd_per_mtok_out, db, execute } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let reqs = labels::label_requests(&con, &pubs)?;
+            let answers_path = db.with_file_name(service::LABEL_ANSWERS_FILE);
+            let done: BTreeSet<String> = llm_pass::read_answers(&answers_path)?.into_iter().map(|a| a.custom_id).collect();
+            let todo: Vec<llm_pass::Request> = reqs.iter().filter(|r| !done.contains(&r.custom_id)).cloned().collect();
+            let req_path = db.with_file_name("label_requests.jsonl");
+            llm_pass::write_requests(&req_path, &todo)?;
+            print(&json!({"publications": pubs.len(), "passes_to_run": todo.len(), "passes_done": reqs.len() - todo.len(),
+                "requests_file": req_path.display().to_string(), "model": model,
+                "estimate": llm_pass::estimate(&todo, usd_per_mtok_in, usd_per_mtok_out),
+                "status": if execute { "running" } else { "dry run: nothing was sent to a model; add --execute after the spend is approved" }}))?;
+            if execute {
+                let r = llm_pass::run(&todo, &llm_pass::ClaudeCli::new(&model), &answers_path, 5)?;
+                print(&serde_json::to_value(&r)?)?;
+            }
+            let built = labels::build_labels(&llm_pass::read_answers(&answers_path)?)?;
+            let out = db.with_file_name(service::LABELS_FILE);
+            let mut text = String::new();
+            for l in &built.labels {
+                text.push_str(&serde_json::to_string(l)?);
+                text.push('\n');
+            }
+            std::fs::write(&out, text)?;
+            print(&json!({"labels": out.display().to_string(), "counts": built.counts, "problems": built.problems}))
+        }
+        EvidenceCmd::GoldSelect { n, seed, out, db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = catalog::publications(&con)?;
+            let rows = labels::gold_select(&pubs, n, seed);
+            let out = out.unwrap_or_else(|| PathBuf::from("data/labels/gold/gold_template.jsonl"));
+            if out.exists() {
+                bail!("{} exists: a gold file may hold labels written by a person; choose another --out", out.display());
+            }
+            if let Some(d) = out.parent() {
+                std::fs::create_dir_all(d)?;
+            }
+            let mut text = String::new();
+            for r in &rows {
+                text.push_str(&serde_json::to_string(r)?);
+                text.push('\n');
+            }
+            std::fs::write(&out, text)?;
+            let mut strata = std::collections::BTreeMap::<String, usize>::new();
+            for r in &rows {
+                *strata.entry(format!("{} / {}", r.stratum_investigation, r.stratum_kind)).or_default() += 1;
+            }
+            print(&json!({"template": out.display().to_string(), "documents": rows.len(), "of": pubs.len(), "seed": seed, "strata": strata,
+                "next": "a person fills doc_type, families, investigation_ids, runs, labelled_by, labelled_at; then `ignis evidence gold-eval --gold <file>`"}))
+        }
+        EvidenceCmd::GoldEval { gold, labels: labels_path, db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let labels_path = labels_path.unwrap_or_else(|| db.with_file_name(service::LABELS_FILE));
+            let g = labels::read_gold(&gold)?;
+            let l = labels::read_labels(&labels_path)?;
+            print(&labels::to_value(&labels::gold_eval(&g, &l)?))
+        }
+        EvidenceCmd::LlmPass { sources, all, model, usd_per_mtok_in, usd_per_mtok_out, db, execute } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let reqs = combined::combined_requests(&con, &pubs)?;
+            let req_path = db.with_file_name("combined_requests.jsonl");
+            llm_pass::write_requests(&req_path, &reqs)?;
+            let answers = db.with_file_name("combined_answers.jsonl");
+            print(&json!({"publications": pubs.len(), "requests_file": req_path.display().to_string(), "model": model,
+                "estimate": llm_pass::estimate(&reqs, usd_per_mtok_in, usd_per_mtok_out),
+                "then": "label pass b: `ignis evidence labels --all --execute` (runs only the missing passes)",
+                "status": if execute { "running" } else { "dry run: nothing was sent to a model; add --execute after the spend is approved" }}))?;
+            if execute {
+                let r = llm_pass::run(&reqs, &llm_pass::ClaudeCli::new(&model), &answers, 5)?;
+                print(&serde_json::to_value(&r)?)?;
+                let s = combined::split(
+                    &llm_pass::read_answers(&answers)?,
+                    &db.with_file_name(service::SUMMARIES_FILE),
+                    &db.with_file_name("expansion-llm"),
+                    &db.with_file_name(service::LABEL_ANSWERS_FILE),
+                )?;
+                print(&serde_json::to_value(&s)?)?;
             }
             Ok(())
         }
