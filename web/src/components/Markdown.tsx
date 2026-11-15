@@ -6,8 +6,11 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import { useRunIndex } from "../shell/RichText";
 import { usePanel } from "../shell/inspector";
 import { isEmptyCell, parseInline, parseMarkdown, type InlinePart, type MdBlock } from "../research/markdown";
+import { shortId } from "../ui/common";
 
 type OpenRun = (id: string) => void;
+
+const HASH_ID = /^(sha256:[0-9a-f]{16,}|(art|artifact|rel|release)[_-][0-9a-f]{12,}\S*|[0-9a-f]{32,})$/i;
 
 export function Markdown({ text, tail: chips }: { text: string; tail?: ReactNode }) {
   const tail = (Array.isArray(chips) ? chips.some(Boolean) : !!chips) ? chips : null;
@@ -121,7 +124,12 @@ export function renderInline(p: InlinePart, i: number, openRun: OpenRun): ReactN
     case "italic":
       return <em key={i}>{p.parts.map((q, j) => renderInline(q, j, openRun))}</em>;
     case "code":
-      return (
+      // A content hash or artifact id the agent quoted reads as a short token; the full id is its tooltip.
+      return HASH_ID.test(p.text.trim()) ? (
+        <code key={i} className="md-ic md-id" title={p.text}>
+          {shortId(p.text.trim(), 16)}
+        </code>
+      ) : (
         <code key={i} className="md-ic">
           {p.text}
         </code>

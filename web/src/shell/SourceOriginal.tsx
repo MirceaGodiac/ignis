@@ -8,15 +8,32 @@ import type { EvidenceRef, SourceAccess } from "../contracts/generated";
 import { accessExpired, videoTimeS, viewerFor } from "../research/sourceAccess";
 import { ErrorNote } from "../ui/common";
 import { useData } from "./data";
+import { IconExternal } from "./icons";
 import { OpenOriginal } from "./OpenOriginal";
 
-const PdfPage = lazy(() => import("./PdfPage"));
+/** The PDF viewer chunk (PDF.js). Fetched on first use, or early when a page is about to be opened;
+ * the PDF.js worker itself starts only when a document is opened. */
+export const loadPdfPage = () => import("./PdfPage");
+const PdfPage = lazy(loadPdfPage);
 
-const MODE_TEXT: Record<SourceAccess["mode"], string> = {
-  direct: "Streamed from NASA",
-  proxy: "Through the IGNIS proxy; nothing is stored",
+/** How the bytes travel, for a tooltip: a reader needs the page, not the delivery. */
+export const MODE_TEXT: Record<SourceAccess["mode"], string> = {
+  direct: "Streamed from NASA; IGNIS stores no copy",
+  proxy: "Through the IGNIS pass-through proxy; nothing is stored",
   link_out: "Opens at the provider",
 };
+
+/** A letter-size page placeholder while the viewer or the original is on its way. */
+export function PdfSkeleton({ label = "Opening the page…" }: { label?: string }) {
+  return (
+    <div className="pdf" aria-busy="true">
+      <div className="toolbar">
+        <span className="small num muted">{label}</span>
+      </div>
+      <div className="pdf-page" data-loading="" />
+    </div>
+  );
+}
 
 export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
   const { client, researchMode } = useData();
@@ -40,7 +57,7 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
       void access.refetch();
     }
   }, [expired, access]);
-  if (access.isPending) return <p className="muted small">Finding the original…</p>;
+  if (access.isPending) return <PdfSkeleton label="Finding the original…" />;
   if (access.error || !a) return <ErrorNote error={access.error} title="The original cannot be opened from here; the parsed text below is what IGNIS read" />;
   const kind = viewerFor(a, evidence.locator);
   const loc = evidence.locator;
@@ -48,11 +65,10 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
     <div className="panel-sec">
       <div className="toolbar">
         <h3 style={{ margin: 0 }}>Original</h3>
-        <span className="muted small">{MODE_TEXT[a.mode]}</span>
-        <OpenOriginal sourceId={evidence.source_id} loc={loc} label="Originals tab ↗" className="btn btn-s" />
+        <OpenOriginal sourceId={evidence.source_id} loc={loc} label="New tab" className="btn btn-s btn-quiet" />
         {httpUrl(a.landing_url) && (
-          <a className="btn btn-s" style={{ marginLeft: "auto" }} href={a.landing_url} target="_blank" rel="noopener noreferrer">
-            Open at NASA ↗
+          <a className="btn btn-s" style={{ marginLeft: "auto" }} href={a.landing_url} target="_blank" rel="noopener noreferrer" title={MODE_TEXT[a.mode]}>
+            Open at NASA <IconExternal width={13} height={13} />
           </a>
         )}
       </div>
@@ -64,8 +80,8 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
           </button>
         </p>
       ) : kind === "pdf" && loc?.page != null ? (
-        <Suspense fallback={<p className="muted small">Loading the PDF viewer…</p>}>
-          <PdfPage url={a.url} range={a.range} length={null} page={loc.page} bbox={loc.bbox} title={`Source ${evidence.source_id}`} />
+        <Suspense fallback={<PdfSkeleton />}>
+          <PdfPage url={a.url} range={a.range} length={null} hidesLength={a.mode === "direct"} page={loc.page} bbox={loc.bbox} title={`Source ${evidence.source_id}`} />
         </Suspense>
       ) : kind === "video" ? (
         <VideoOriginal url={a.url} startS={videoTimeS(loc)} title={`Source ${evidence.source_id}`} />

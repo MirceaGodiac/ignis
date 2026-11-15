@@ -21,6 +21,7 @@
 .runpick-main { display: grid; flex: 1; min-width: 0; }
 .runpick-main b { font-size: 13.5px; font-weight: 500; }
 .runpick-main code { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.runpick-why { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .lab > * { min-width: 0; }
 

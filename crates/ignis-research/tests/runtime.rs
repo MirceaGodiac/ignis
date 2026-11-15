@@ -854,6 +854,8 @@ fn the_base_prompt_replaces_codex_defaults_and_the_whole_prefix_is_stable() {
             "include_permissions_instructions=false",
             "include_collaboration_mode_instructions=false",
             "include_apps_instructions=false",
+            "agents.enabled=false",
+            "include_environment_context=false",
             "web_search=\"disabled\"",
         ] {
             assert!(o.contains(&off), "{off} missing from {o:?}");

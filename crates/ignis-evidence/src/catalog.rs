@@ -151,13 +151,20 @@ pub fn has_content_class(con: &Connection) -> Result<bool> {
 /// many changed.
 pub fn reclassify(con: &mut Connection) -> Result<Value> {
     let tx = con.transaction()?;
-    let rows: Vec<(i64, Option<String>, String, String, String)> = {
+    let rows: Vec<(i64, Option<String>, String, String, String, String)> = {
         let mut st = tx.prepare(
-            "SELECT rowid, section, kind, text, content_class FROM chunks ORDER BY rowid",
+            "SELECT c.rowid, c.section, c.kind, c.text, c.content_class, p.parser_version              FROM chunks c JOIN publications p ON p.id = c.publication_id ORDER BY c.rowid",
         )?;
         let rows = st
             .query_map([], |r| {
-                Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?))
+                Ok((
+                    r.get(0)?,
+                    r.get(1)?,
+                    r.get(2)?,
+                    r.get(3)?,
+                    r.get(4)?,
+                    r.get(5)?,
+                ))
             })?
             .collect::<rusqlite::Result<Vec<_>>>()?;
         rows
@@ -166,8 +173,8 @@ pub fn reclassify(con: &mut Connection) -> Result<Value> {
     let mut changed = 0usize;
     {
         let mut up = tx.prepare("UPDATE chunks SET content_class = ?1 WHERE rowid = ?2")?;
-        for (rowid, section, kind, text, old) in &rows {
-            let c = content_class::classify(section.as_deref(), kind, text);
+        for (rowid, section, kind, text, old, parser) in &rows {
+            let c = class_of(parser, section.as_deref(), kind, text);
             *per.entry(c).or_default() += 1;
             if c != old {
                 up.execute(params![c, rowid])?;
@@ -177,6 +184,15 @@ pub fn reclassify(con: &mut Connection) -> Result<Value> {
     }
     tx.commit()?;
     Ok(json!({"chunks": rows.len(), "classes": per, "changed": changed}))
+}
+
+/// A chunk's content class. A PSI investigation record is written one fact per line on purpose
+/// (DOI, size, hardware): every line is a finding, never a fragment to rank down.
+fn class_of(parser_version: &str, section: Option<&str>, kind: &str, text: &str) -> &'static str {
+    if parser_version.starts_with("psi-record-") {
+        return content_class::BODY;
+    }
+    content_class::classify(section, kind, text)
 }
 
 /// What ranking needs of a chunk besides its scores.
@@ -290,7 +306,7 @@ pub fn upsert_publication(
                 c.outcome_bearing as i64,
                 c.evidence_class,
                 js(&c.continues_runs),
-                content_class::classify(c.section.as_deref(), &c.kind, &c.text)
+                class_of(&p.parser_version, c.section.as_deref(), &c.kind, &c.text)
             ])?;
         }
     }
@@ -465,7 +481,7 @@ pub fn add_inactive_view(
                 c.outcome_bearing as i64,
                 c.evidence_class,
                 js(&c.continues_runs),
-                content_class::classify(c.section.as_deref(), &c.kind, &c.text)
+                class_of(&p.parser_version, c.section.as_deref(), &c.kind, &c.text)
             ])?;
         }
         let mut st = tx.prepare(

@@ -10,7 +10,7 @@ import { go, href, useRoute, VIEW_SECTION, VIEW_TITLE } from "./shell/router";
 import { Original } from "./views/Original";
 import { Sidebar } from "./shell/Sidebar";
 import { IconChevron } from "./shell/icons";
-import { useEpisodes } from "./shell/queries";
+import { useEpisodes, usePrefetchStarterSearch } from "./shell/queries";
 import { Compare } from "./views/Compare";
 import { Home } from "./views/Home";
 import { Lab } from "./views/Lab";
@@ -38,6 +38,7 @@ function Shell() {
   const panel = usePanel();
   const cmp = useCompare();
   const episodes = useEpisodes();
+  usePrefetchStarterSearch();
   const [cmd, setCmd] = useState(false);
 
   useEffect(() => {

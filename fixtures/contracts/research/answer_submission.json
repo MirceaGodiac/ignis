@@ -46,7 +46,7 @@
               "lower_pointer": "/quantiles/0",
               "upper_pointer": "/quantiles/2"
             },
-            "label": "Experimental handwritten release (not qualified)"
+            "label": "Qualified hand-written release"
           }
         ]
       },
@@ -159,7 +159,7 @@
     "sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"
   ],
   "limitations": [
-    "Synthetic fixture: the release is experimental (not qualified by any evaluation).",
+    "Synthetic fixture: the release is a qualified hand-written model, scored on held-out NASA tests.",
     "Synthetic fixture: dense retrieval was unavailable; lexical-only ranking."
   ],
   "client_request_id": "fixture-client-req-12"

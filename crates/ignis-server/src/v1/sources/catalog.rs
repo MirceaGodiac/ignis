@@ -161,7 +161,41 @@ impl Catalog {
                 cat.read_lines(&corpus, Catalog::corpus_row)?;
             }
         }
+        // PSI investigation records (`ignis evidence corpus records`) are built on the data host
+        // into `work/evidence/psi_records/records.jsonl`, next to the manifests directory: each
+        // record is cited by the hash of its text and opens the investigation's PSI landing page.
+        if let Some(records) = dir.parent().map(|d| {
+            d.join("work")
+                .join("evidence")
+                .join("psi_records")
+                .join("records.jsonl")
+        }) {
+            if records.is_file() {
+                cat.read_lines(&records, Catalog::psi_record_row)?;
+            }
+        }
         Ok(cat)
+    }
+
+    fn psi_record_row(&mut self, line: &str) -> Option<()> {
+        let v: Value = serde_json::from_str(line).ok()?;
+        let id = v.get("source_id").and_then(Value::as_str)?;
+        let inv = v.get("investigation").and_then(Value::as_str)?;
+        // The landing page is rebuilt from the investigation, never taken from the file.
+        let landing = psi_landing(inv);
+        if v.get("landing_url").and_then(Value::as_str) != Some(landing.as_str()) {
+            return None;
+        }
+        // A record carries no run outcome: it is not an original of the investigation, so the
+        // lockbox rule for originals does not apply (`investigation: None`).
+        self.insert(
+            id,
+            Entry {
+                address: Address::LinkOut,
+                landing_url: landing,
+                investigation: None,
+            },
+        )
     }
 
     fn corpus_row(&mut self, line: &str) -> Option<()> {

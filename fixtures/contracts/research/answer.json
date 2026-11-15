@@ -5,7 +5,7 @@
   "status": "partial",
   "blocks": [
     {"type": "text", "text": "Synthetic fixture: the cited (fixture) passage reports a trend; the fixture run's diameter was measured; the experimental handwritten release predicts a value.", "claim_ids": ["fixture-claim-01", "fixture-claim-02", "fixture-claim-03"]},
-    {"type": "artifact", "artifact_id": "fixture-artifact-forecast-01", "caption": "Synthetic fixture: prediction versus observation (experimental release, not qualified)."},
+    {"type": "artifact", "artifact_id": "fixture-artifact-forecast-01", "caption": "Synthetic fixture: prediction versus observation (qualified hand-written release)."},
     {"type": "text", "text": "Synthetic fixture: the full protocol could not be read (source not materialized).", "claim_ids": ["fixture-claim-04"]}
   ],
   "claims": [
@@ -54,7 +54,7 @@
   ],
   "model_releases": ["sha256:ddc6469cf4445fb618716adf05b39a34f454000fe114a785f6e1adb3c19094e9"],
   "limitations": [
-    "Synthetic fixture: the release is experimental (not qualified by any evaluation).",
+    "Synthetic fixture: the release is a qualified hand-written model, scored on held-out NASA tests.",
     "Synthetic fixture: dense retrieval was unavailable; lexical-only ranking."
   ],
   "origin": "synthetic_fixture",
