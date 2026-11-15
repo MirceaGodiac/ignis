@@ -45,8 +45,9 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
   "conditions_cell", "snapshot": <x-ignis-snapshot of the conditions>, "investigation_id": ...,
   "run_id": ..., "key": ...}` (a conflicting cell needs the candidate's `locator`). A number from a
   PDF passage binds with `"source": {"kind": "evidence_quote", "evidence_id": ...}`: the host only
-  checks that the number and unit are written in the returned quote. Numbers in PDF tables cannot be
-  bound yet; say so instead of retyping them.
+  checks that the number and unit are written in that passage's text (the id must have been returned
+  in this episode, e.g. by sources_search). Numbers in PDF tables cannot be bound yet; say so
+  instead of retyping them.
 - State the method in one line (fit, average, interval). Report the effect size with its
   uncertainty and sample size, computed by the program; a p-value alone is not a result, and
   significance is not importance.
