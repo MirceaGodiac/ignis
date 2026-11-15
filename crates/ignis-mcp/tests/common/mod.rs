@@ -127,12 +127,13 @@ pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host
 
 /// [`host`] with a DatasetService.
 pub fn host_with_datasets(datasets: Arc<FakeDatasets>) -> Host {
-    host_full(None, Some(datasets))
+    host_full(None, Some(datasets as Arc<dyn DatasetService>))
 }
 
-fn host_full(
+/// A host with an optional runner and any DatasetService.
+pub fn host_full(
     sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>,
-    datasets: Option<Arc<FakeDatasets>>,
+    datasets: Option<Arc<dyn DatasetService>>,
 ) -> Host {
     let dir = tempfile::tempdir().unwrap();
     let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
@@ -143,7 +144,7 @@ fn host_full(
     let host = Arc::new(ToolHost::new(
         ToolServices {
             knowledge: Some(knowledge.clone()),
-            datasets: datasets.map(|d| d as Arc<dyn DatasetService>),
+            datasets,
             models: Some(Arc::new(FakeModels)),
             sandbox,
             models_disabled: false,
