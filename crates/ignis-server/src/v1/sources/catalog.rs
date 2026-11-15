@@ -83,6 +83,8 @@ pub fn psi_landing(investigation: &str) -> String {
 #[derive(Debug, Default)]
 pub struct Catalog {
     entries: HashMap<SourceId, Entry>,
+    /// NTRS discovery entries by NTRS record id (for evidence-corpus aliases).
+    ntrs_by_record: HashMap<String, Entry>,
     /// Lines that could not be read, by file (reported at load, never silently dropped).
     pub rejected: Vec<(String, usize)>,
 }
@@ -147,7 +149,46 @@ impl Catalog {
                 cat.read_lines(p, Catalog::ntrs_row)?;
             }
         }
+        // The evidence corpus (`data/corpus/manifest.jsonl`, next to the manifests directory)
+        // cites its documents by byte hash; a document fetched from NTRS is reached through the
+        // NTRS discovery record with the same record id (its PDF address), else it links out to
+        // its NTRS landing page. An address is still never built from an id.
+        if let Some(corpus) = dir
+            .parent()
+            .map(|d| d.join("corpus").join("manifest.jsonl"))
+        {
+            if corpus.is_file() {
+                cat.read_lines(&corpus, Catalog::corpus_row)?;
+            }
+        }
         Ok(cat)
+    }
+
+    fn corpus_row(&mut self, line: &str) -> Option<()> {
+        let v: Value = serde_json::from_str(line).ok()?;
+        let Some(id) = v.get("source_id").and_then(Value::as_str) else {
+            // A seed without bytes (discovered, metadata only) has nothing to open.
+            return Some(());
+        };
+        let Some(record) = v.get("ntrs_id").and_then(Value::as_str) else {
+            // Not an NTRS document: the PSI manifests address it (or nothing does).
+            return Some(());
+        };
+        let entry = match self.ntrs_by_record.get(record) {
+            Some(e) => e.clone(),
+            None => {
+                let landing = v
+                    .get("canonical_url")
+                    .and_then(Value::as_str)
+                    .filter(|u| u.starts_with("https://ntrs.nasa.gov/"))?;
+                Entry {
+                    address: Address::LinkOut,
+                    landing_url: landing.to_string(),
+                    investigation: None,
+                }
+            }
+        };
+        self.insert(id, entry)
     }
 
     fn read_lines(
@@ -217,6 +258,11 @@ impl Catalog {
             .and_then(Value::as_str)
             .map(String::from);
         let entry = Catalog::entry_of(&s, Some(pdf))?;
+        if let Some(record) = v.pointer("/record/ntrs_id").and_then(Value::as_str) {
+            self.ntrs_by_record
+                .entry(record.to_string())
+                .or_insert_with(|| entry.clone());
+        }
         self.insert(&s.id, entry)
     }
 
