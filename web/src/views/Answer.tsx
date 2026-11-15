@@ -281,7 +281,7 @@ function SourcesRow({ answer, srcNo }: { answer: ResearchAnswer; srcNo: Map<stri
                       {placeShort(e)}
                     </button>
                   ))}
-                  {evs[0]?.locator && <OpenOriginal sourceId={id} loc={evs[0].locator} label="Original" className="linkish" />}
+                  {evs[0]?.locator && <OpenOriginal sourceId={id} loc={evs[0].locator} label="Original ↗" className="linkish" />}
                 </span>
               </span>
             </li>
