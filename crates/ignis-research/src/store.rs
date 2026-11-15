@@ -100,7 +100,12 @@ CREATE TABLE IF NOT EXISTS runtime_turns (
     -- starting | running | finished
     state           TEXT NOT NULL,
     outcome         TEXT,
-    created_ms      INTEGER NOT NULL
+    created_ms      INTEGER NOT NULL,
+    -- the episode's last seq when the turn began: an `answer.completed` after it answers this turn
+    start_seq       INTEGER NOT NULL DEFAULT 0,
+    -- 1: a host continuation of the previous turn (sends a host note, no user message); never
+    -- continued again by the host
+    continuation    INTEGER NOT NULL DEFAULT 0
 );
 -- At most one unfinished turn per episode, whatever process asks.
 CREATE UNIQUE INDEX IF NOT EXISTS runtime_turns_active ON runtime_turns (episode_id)
@@ -121,16 +126,23 @@ CREATE TABLE IF NOT EXISTS runtime_marks (
     seq        INTEGER NOT NULL,
     PRIMARY KEY (episode_id, mark)
 ) WITHOUT ROWID;
+-- The host-derived scope of an episode's latest user message: what recovery after a restart drives
+-- a message with when no turn ever received it (a turn row carries its own scope).
+CREATE TABLE IF NOT EXISTS episode_drivers (
+    episode_id TEXT PRIMARY KEY REFERENCES episodes (episode_id),
+    scope      TEXT NOT NULL
+) WITHOUT ROWID;
 "#;
 
 /// 1 -> 2: `jobs.priority`, `uploads`. 2 -> 3: `runtime_turns`, `runtime_marks`.
-/// 3 -> 4: `episode_evidence`.
-const SCHEMA_VERSION: &str = "4";
+/// 3 -> 4: `episode_evidence`. 4 -> 5: `runtime_turns.start_seq` / `.continuation`,
+/// `episode_drivers`.
+const SCHEMA_VERSION: &str = "5";
 
 /// Upgrade an older store in place (additive changes only; new tables come from `SCHEMA`).
 fn migrate(conn: &Connection, from: &str) -> ServiceResult<()> {
     match from {
-        "1" | "2" | "3" => {}
+        "1" | "2" | "3" | "4" => {}
         _ => {
             return Err(internal(
                 "state store",
@@ -146,6 +158,24 @@ fn migrate(conn: &Connection, from: &str) -> ServiceResult<()> {
         if !has_priority {
             conn.execute_batch("ALTER TABLE jobs ADD COLUMN priority INTEGER NOT NULL DEFAULT 1;")
                 .map_err(db("migrate"))?;
+        }
+    }
+    for (column, ddl) in [
+        (
+            "start_seq",
+            "ALTER TABLE runtime_turns ADD COLUMN start_seq INTEGER NOT NULL DEFAULT 0;",
+        ),
+        (
+            "continuation",
+            "ALTER TABLE runtime_turns ADD COLUMN continuation INTEGER NOT NULL DEFAULT 0;",
+        ),
+    ] {
+        let has = conn
+            .prepare("SELECT 1 FROM pragma_table_info('runtime_turns') WHERE name = ?1")
+            .and_then(|mut st| st.exists([column]))
+            .map_err(db("migrate"))?;
+        if !has {
+            conn.execute_batch(ddl).map_err(db("migrate"))?;
         }
     }
     conn.execute(
@@ -485,12 +515,20 @@ impl ResearchStore {
             if let Some(prev) = prior_request(tx, scope, client_request_id, &op, &fp)? {
                 return Ok((load_event(tx, &prev)?, false));
             }
+            // A turn the runtime could not finish leaves the episode `waiting_user`, never ended:
+            // the conversation goes on with this message. Only a cancel or a policy violation ends it.
             if matches!(ep.status, EpisodeStatus::Cancelled | EpisodeStatus::Failed) {
                 return Err(conflict(format!(
                     "episode {id} is {}; start a new episode",
                     wire(&ep.status)
                 )));
             }
+            tx.execute(
+                "INSERT INTO episode_drivers (episode_id, scope) VALUES (?1, ?2)
+                 ON CONFLICT (episode_id) DO UPDATE SET scope = excluded.scope",
+                params![id.as_str(), to_json(scope)?],
+            )
+            .map_err(db("episode driver"))?;
             let causation = Causation {
                 client_request_id: Some(client_request_id.clone()),
                 ..Default::default()
@@ -1168,13 +1206,136 @@ pub enum HarnessPinChange {
     Replaced(HarnessRef),
 }
 
-/// The user messages handed to a new runtime turn.
+/// The input handed to a new runtime turn.
 #[derive(Debug, Clone)]
 pub struct TurnStart {
     pub turn_key: String,
     pub episode: ResearchEpisode,
-    /// `(seq, text)` of every user message not yet handed to a turn, in order.
+    /// `(seq, text)` of every user message not yet handed to a turn, in order; for a continuation,
+    /// the one host note (with the seq of the last message handed to a turn).
     pub messages: Vec<(u64, String)>,
+    /// A host continuation of the previous turn (see [`ResearchStore::begin_turn`]).
+    pub continuation: bool,
+}
+
+/// The previous turn of an episode, as [`ResearchStore::begin_turn`] judges it.
+struct LastTurn {
+    through_seq: i64,
+    start_seq: i64,
+    continuation: bool,
+    outcome: Option<String>,
+}
+
+fn last_turn(c: &Connection, id: &EpisodeId) -> ServiceResult<Option<LastTurn>> {
+    c.query_row(
+        "SELECT through_seq, start_seq, continuation, outcome FROM runtime_turns
+         WHERE episode_id = ?1 ORDER BY rowid DESC LIMIT 1",
+        [id.as_str()],
+        |r| {
+            Ok(LastTurn {
+                through_seq: r.get(0)?,
+                start_seq: r.get(1)?,
+                continuation: r.get::<_, i64>(2)? != 0,
+                outcome: r.get(3)?,
+            })
+        },
+    )
+    .optional()
+    .map_err(db("last turn"))
+}
+
+/// Whether an `answer.completed` was appended after `seq`.
+fn answered_after(c: &Connection, id: &EpisodeId, seq: i64) -> ServiceResult<bool> {
+    c.query_row(
+        "SELECT 1 FROM events WHERE episode_id = ?1 AND kind = 'answer.completed' AND seq > ?2 LIMIT 1",
+        params![id.as_str(), seq],
+        |_| Ok(()),
+    )
+    .optional()
+    .map(|r| r.is_some())
+    .map_err(db("answered"))
+}
+
+/// The error message of the last `answer_submit` the runtime was refused after `seq`.
+fn last_answer_refusal(c: &Connection, id: &EpisodeId, seq: i64) -> ServiceResult<Option<String>> {
+    let mut st = c
+        .prepare(
+            "SELECT record FROM events WHERE episode_id = ?1 AND kind = 'tool.finished' AND seq > ?2
+             ORDER BY seq DESC",
+        )
+        .map_err(db("answer refusal"))?;
+    let rows = st
+        .query_map(params![id.as_str(), seq], |r| r.get::<_, String>(0))
+        .map_err(db("answer refusal"))?;
+    for row in rows {
+        let ev: ResearchEvent = from_json(&row.map_err(db("answer refusal"))?)?;
+        if let EventBody::ToolFinished { result } = ev.body {
+            if result.tool == "answer_submit" {
+                return Ok(result.error.map(|e| e.message));
+            }
+        }
+    }
+    Ok(None)
+}
+
+/// The text of the last user message at or before `seq`.
+fn user_message_text(c: &Connection, id: &EpisodeId, seq: i64) -> ServiceResult<Option<String>> {
+    let rec: Option<String> = c
+        .query_row(
+            "SELECT record FROM events WHERE episode_id = ?1 AND kind = 'message.user' AND seq <= ?2
+             ORDER BY seq DESC LIMIT 1",
+            params![id.as_str(), seq],
+            |r| r.get(0),
+        )
+        .optional()
+        .map_err(db("user message"))?;
+    Ok(
+        match rec.map(|r| from_json::<ResearchEvent>(&r)).transpose()? {
+            Some(ResearchEvent {
+                body: EventBody::UserMessage { text, .. },
+                ..
+            }) => Some(text),
+            _ => None,
+        },
+    )
+}
+
+/// `text` as a quoted block (`> ` lines): what the host repeats in a note, set apart from the note.
+fn quoted(text: &str) -> String {
+    text.lines()
+        .map(|l| format!("> {l}"))
+        .collect::<Vec<_>>()
+        .join(
+            "
+",
+        )
+}
+
+/// The host note of a continuation after a turn that ended without an accepted answer.
+fn answer_note(refusal: Option<&str>) -> String {
+    match refusal {
+        Some(r) => format!(
+            "IGNIS host: this turn ended without an accepted answer. answer_submit refused your last submission:
+{}
+Correct what it names and submit the answer with answer_submit again.",
+            quoted(r)
+        ),
+        None => "IGNIS host: this turn ended without an accepted answer. Submit your answer with answer_submit now, citing the ids returned to you; if the question cannot be answered, submit that as the answer.".into(),
+    }
+}
+
+/// The host note of a continuation after a resume.
+fn resume_note(question: Option<&str>) -> String {
+    let mut s = "IGNIS host: the previous turn was stopped before it finished. Continue the interrupted question from where you stopped.".to_string();
+    if let Some(q) = question {
+        s.push_str(
+            "
+The question was:
+",
+        );
+        s.push_str(&quoted(q));
+    }
+    s
 }
 
 /// A turn that has not finished (for interrupts, resume and recovery).
@@ -1356,11 +1517,26 @@ impl ResearchStore {
     /// Before an episode's first turn, only the user messages after its last assistant output
     /// (`message.completed` or `answer.completed`) count: an imported log may hold messages that
     /// were already answered. `note` is added to the reason of the status change.
+    ///
+    /// With no message to send, one host continuation of the previous turn may open instead (a
+    /// host note as its only input, `continuation = true`; a continuation is never continued by the
+    /// host again, so this is at most one extra paid round):
+    ///
+    /// - the episode is still `running` with no open turn: the bridge ended a turn without an
+    ///   accepted answer and left the status for this continuation (see
+    ///   [`Self::continuation_due`]); the note quotes the last `answer_submit` refusal. When the
+    ///   continuation is no longer due (an answer arrived late), the episode completes here.
+    /// - the episode is `ready` after a resume, and the previous turn ended without an answer
+    ///   (`answer_tool`: no `answer.completed` since it began; otherwise it did not complete): the
+    ///   note asks to continue the interrupted question and quotes it.
+    ///
+    /// `answer_tool`: the runtime is attached to `answer_submit`.
     pub fn begin_turn(
         &self,
         scope: &ExecutionScope,
         id: &EpisodeId,
         note: Option<&str>,
+        answer_tool: bool,
     ) -> ServiceResult<Option<TurnStart>> {
         use EpisodeStatus as S;
         self.write(|tx| {
@@ -1381,15 +1557,15 @@ impl ResearchStore {
                 return Ok(None);
             }
             // Messages already handed to a turn are never re-sent, whatever that turn's outcome.
-            let turns: Option<i64> = tx
-                .query_row(
-                    "SELECT MAX(through_seq) FROM runtime_turns WHERE episode_id = ?1",
-                    [id.as_str()],
-                    |r| r.get(0),
-                )
-                .map_err(db("begin turn"))?;
-            let sent: i64 = match turns {
-                Some(s) => s,
+            let last = last_turn(tx, id)?;
+            let sent: i64 = match &last {
+                Some(_) => tx
+                    .query_row(
+                        "SELECT MAX(through_seq) FROM runtime_turns WHERE episode_id = ?1",
+                        [id.as_str()],
+                        |r| r.get(0),
+                    )
+                    .map_err(db("begin turn"))?,
                 None => tx
                     .query_row(
                         "SELECT COALESCE(MAX(seq), 0) FROM events WHERE episode_id = ?1
@@ -1399,7 +1575,7 @@ impl ResearchStore {
                     )
                     .map_err(db("begin turn"))?,
             };
-            let messages: Vec<(u64, String)> = {
+            let mut messages: Vec<(u64, String)> = {
                 let mut st = tx
                     .prepare(
                         "SELECT seq, record FROM events WHERE episode_id = ?1 AND kind = 'message.user' AND seq > ?2 ORDER BY seq",
@@ -1420,34 +1596,91 @@ impl ResearchStore {
                 }
                 out
             };
+            let mut continuation = None;
+            if messages.is_empty() {
+                let Some(last) = last else {
+                    return Ok(None);
+                };
+                let answered = answered_after(tx, id, last.start_seq)?;
+                let completed = last.outcome.as_deref() == Some("completed");
+                match ep.status {
+                    S::Running if answer_tool && completed => {
+                        if answered || last.continuation {
+                            // Nothing more to do for that turn: it ends as it ended.
+                            let from = ep.status;
+                            append_tx(
+                                tx,
+                                &mut ep,
+                                vec![(
+                                    Causation::default(),
+                                    EventBody::StatusChanged {
+                                        from,
+                                        to: S::Completed,
+                                        reason: Some("turn completed".into()),
+                                    },
+                                )],
+                            )?;
+                            return Ok(None);
+                        }
+                        let refusal = last_answer_refusal(tx, id, last.start_seq)?;
+                        continuation = Some(answer_note(refusal.as_deref()));
+                    }
+                    S::Ready if !(if answer_tool { answered } else { completed }) => {
+                        let question = user_message_text(tx, id, last.through_seq)?;
+                        continuation = Some(resume_note(question.as_deref()));
+                    }
+                    _ => return Ok(None),
+                }
+                let text = continuation.clone().expect("set above");
+                messages.push((sent.max(0) as u64, text));
+            }
             let (Some(&(first, _)), Some(&(through, _))) = (messages.first(), messages.last())
             else {
                 return Ok(None);
             };
             let turn_key = new_id("rt");
             tx.execute(
-                "INSERT INTO runtime_turns (turn_key, episode_id, workspace_id, scope, through_seq, state, created_ms)
-                 VALUES (?1, ?2, ?3, ?4, ?5, 'starting', ?6)",
-                params![turn_key, id.as_str(), scope.workspace_id.as_str(), to_json(scope)?, through as i64, now_ms()],
+                "INSERT INTO runtime_turns (turn_key, episode_id, workspace_id, scope, through_seq, state, created_ms, start_seq, continuation)
+                 VALUES (?1, ?2, ?3, ?4, ?5, 'starting', ?6, ?7, ?8)",
+                params![
+                    turn_key,
+                    id.as_str(),
+                    scope.workspace_id.as_str(),
+                    to_json(scope)?,
+                    through as i64,
+                    now_ms(),
+                    ep.last_seq as i64,
+                    continuation.is_some() as i64
+                ],
             )
             .map_err(db("begin turn"))?;
-            if ep.status != S::Running {
+            // A continuation always says so, also when the episode is still `running`.
+            if ep.status != S::Running || continuation.is_some() {
                 let from = ep.status;
+                let started = if continuation.is_some() {
+                    "runtime turn continued by the host"
+                } else {
+                    "runtime turn started"
+                };
+                let mut reason = match note {
+                    Some(n) => format!("{started}; {n}"),
+                    None => started.to_string(),
+                };
+                if let Some(c) = &continuation {
+                    reason.push_str(&format!(": {c}"));
+                }
                 append_tx(
                     tx,
                     &mut ep,
                     vec![(
                         Causation {
-                            caused_by_seq: Some(first),
+                            caused_by_seq: (first > 0).then_some(first),
                             ..Default::default()
                         },
                         EventBody::StatusChanged {
                             from,
                             to: S::Running,
-                            reason: Some(match note {
-                                Some(n) => format!("runtime turn started; {n}"),
-                                None => "runtime turn started".into(),
-                            }),
+                            reason: Some(reason),
                         },
                     )],
                 )?;
@@ -1456,7 +1689,112 @@ impl ResearchStore {
                 turn_key,
                 episode: ep,
                 messages,
+                continuation: continuation.is_some(),
             }))
+        })
+    }
+
+    /// Whether the turn `turn_key` of episode `id`, ending now as completed, leaves room for the
+    /// host's one continuation: it is not a continuation itself, no `answer.completed` was appended
+    /// since it began, and no user message waits for the next turn (which then answers). When it
+    /// is due, the bridge leaves the episode `running` and [`Self::begin_turn`] opens it.
+    pub fn continuation_due(&self, id: &EpisodeId, turn_key: &str) -> ServiceResult<bool> {
+        self.read(|c| {
+            let row: Option<(i64, i64, i64)> = c
+                .query_row(
+                    "SELECT through_seq, start_seq, continuation FROM runtime_turns
+                     WHERE turn_key = ?1 AND episode_id = ?2",
+                    params![turn_key, id.as_str()],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .optional()
+                .map_err(db("continuation"))?;
+            let Some((through, start, continuation)) = row else {
+                return Ok(false);
+            };
+            if continuation != 0 || answered_after(c, id, start)? {
+                return Ok(false);
+            }
+            let waiting = c
+                .query_row(
+                    "SELECT 1 FROM events WHERE episode_id = ?1 AND kind = 'message.user' AND seq > ?2 LIMIT 1",
+                    params![id.as_str(), through],
+                    |_| Ok(()),
+                )
+                .optional()
+                .map_err(db("continuation"))?
+                .is_some();
+            Ok(!waiting)
+        })
+    }
+
+    /// Episodes a runtime should drive although no turn of theirs is open (host-internal, for
+    /// recovery at startup): a user message no turn has received (the kick that should have sent it
+    /// failed, or the host stopped first), or a host continuation left pending (`running` with no
+    /// open turn). Paused and ended episodes are left alone. Each comes with the host-derived scope
+    /// of its latest message (or of its latest turn).
+    pub fn episodes_to_drive(&self) -> ServiceResult<Vec<(EpisodeId, ExecutionScope)>> {
+        use EpisodeStatus as S;
+        self.read(|c| {
+            let mut st = c
+                .prepare(
+                    "SELECT e.episode_id, e.record,
+                        (SELECT d.scope FROM episode_drivers d WHERE d.episode_id = e.episode_id),
+                        (SELECT t.scope FROM runtime_turns t WHERE t.episode_id = e.episode_id ORDER BY t.rowid DESC LIMIT 1),
+                        EXISTS (SELECT 1 FROM events v WHERE v.episode_id = e.episode_id AND v.kind = 'message.user'
+                            AND v.seq > COALESCE(
+                                (SELECT MAX(t.through_seq) FROM runtime_turns t WHERE t.episode_id = e.episode_id),
+                                (SELECT COALESCE(MAX(w.seq), 0) FROM events w WHERE w.episode_id = e.episode_id
+                                    AND w.kind IN ('message.completed', 'answer.completed'))))
+                     FROM episodes e
+                     WHERE NOT EXISTS (SELECT 1 FROM runtime_turns t WHERE t.episode_id = e.episode_id
+                        AND t.state IN ('starting', 'running'))",
+                )
+                .map_err(db("episodes to drive"))?;
+            let rows = st
+                .query_map([], |r| {
+                    Ok((
+                        r.get::<_, String>(0)?,
+                        r.get::<_, String>(1)?,
+                        r.get::<_, Option<String>>(2)?,
+                        r.get::<_, Option<String>>(3)?,
+                        r.get::<_, bool>(4)?,
+                    ))
+                })
+                .map_err(db("episodes to drive"))?;
+            let mut out = Vec::new();
+            for row in rows {
+                let (id, rec, driver, turn, unsent) = row.map_err(db("episodes to drive"))?;
+                let ep: ResearchEpisode = from_json(&rec)?;
+                if matches!(ep.status, S::Paused | S::Cancelled | S::Failed) {
+                    continue;
+                }
+                let pending = ep.status == S::Running && turn.is_some();
+                if !unsent && !pending {
+                    continue;
+                }
+                let Some(scope) = driver.or(turn) else {
+                    continue;
+                };
+                out.push((
+                    EpisodeId::new(id).map_err(|e| internal("stored id", e))?,
+                    from_json(&scope)?,
+                ));
+            }
+            Ok(out)
+        })
+    }
+
+    /// Record a runtime fact as known without an event (host-internal bookkeeping, e.g. that a
+    /// runtime session was never opened). Idempotent.
+    pub fn set_runtime_mark(&self, id: &EpisodeId, mark: &str) -> ServiceResult<()> {
+        self.write(|tx| {
+            tx.execute(
+                "INSERT OR IGNORE INTO runtime_marks (episode_id, mark, seq) VALUES (?1, ?2, 0)",
+                params![id.as_str(), mark],
+            )
+            .map_err(db("runtime mark"))?;
+            Ok(())
         })
     }
 

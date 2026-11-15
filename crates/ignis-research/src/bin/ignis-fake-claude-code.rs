@@ -4,8 +4,10 @@
 //! `tool` (one IGNIS tool call), `usage` (the result carries usage and cost), `delegate` (a subtask through the subagent tool), `nested` (a
 //! subagent that tries to delegate again), `explain` (a message, then a call it introduces, with arguments
 //! larger than an event inlines), `slow` (runs 30 s), `limit` (plan limit result), `crash` (exits
-//! without a result). It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log` and the text of
-//! `--append-system-prompt-file` to `<CLAUDE_CONFIG_DIR>/system-prompts.jsonl`.
+//! without a result), `mute` (exits before any output, leaving no session). Quoted prompt lines
+//! (`> `) choose nothing. It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log`, the text of
+//! `--append-system-prompt-file` to `<CLAUDE_CONFIG_DIR>/system-prompts.jsonl` and every prompt to
+//! `<CLAUDE_CONFIG_DIR>/prompts.jsonl`.
 
 use std::io::{Read, Write};
 use std::path::PathBuf;
@@ -109,16 +111,38 @@ fn main() {
     }
     let mut prompt = String::new();
     std::io::stdin().read_to_string(&mut prompt).unwrap();
+    let mut f = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(cfg.join("prompts.jsonl"))
+        .unwrap();
+    writeln!(
+        f,
+        "{}",
+        serde_json::json!({"session": session, "prompt": prompt})
+    )
+    .unwrap();
+    // Quoted lines (`> `, what a host note repeats) choose no scenario.
+    let said: String = prompt
+        .lines()
+        .filter(|l| !l.starts_with("> "))
+        .collect::<Vec<_>>()
+        .join("\n");
+    if said.contains("mute") {
+        // Dies before saying anything: the session was never created.
+        let _ = std::fs::remove_file(cfg.join("sessions").join(&session));
+        fail("API Error: 529 overloaded");
+    }
 
     emit(
         serde_json::json!({"type":"system","subtype":"init","session_id":session,"mcp_servers":[],"model":"fake-claude-model"}),
     );
-    if prompt.contains("crash") {
+    if said.contains("crash") {
         fail("Invalid API key · Please run /login");
     }
     // `delegate`: one subtask through the subagent tool, the subagent makes an IGNIS call and
     // reports; `nested` adds a subagent trying to delegate again (the host must stop the turn).
-    if prompt.contains("delegate") || prompt.contains("nested") {
+    if said.contains("delegate") || said.contains("nested") {
         if flag("--agents").is_none() {
             fail("delegation requested without a subagent definition");
         }
@@ -137,7 +161,7 @@ fn main() {
             serde_json::json!({"type":"user","parent_tool_use_id":sub,"message":{"content":[
             {"type":"tool_result","tool_use_id":"tu-sub-1","content":[{"type":"text","text":"{\"hits\":[]}"}]}]}}),
         );
-        if prompt.contains("nested") {
+        if said.contains("nested") {
             emit(
                 serde_json::json!({"type":"assistant","parent_tool_use_id":sub,"message":{"id":"m-sub-2","content":[
                 {"type":"tool_use","id":"tu-sub-2","name":"Agent","input":{"prompt":"go deeper"}}]}}),
@@ -150,7 +174,7 @@ fn main() {
             {"type":"tool_result","tool_use_id":sub,"content":[{"type":"text","text":"Report: no hits for burn rate."}]}]}}),
         );
     }
-    if prompt.contains("tool") {
+    if said.contains("tool") {
         emit(
             serde_json::json!({"type":"assistant","message":{"id":"m-tool","content":[
             {"type":"tool_use","id":"tu-1","name":"mcp__ignis__sources_search","input":{"query":"q"}}]}}),
@@ -158,7 +182,7 @@ fn main() {
         emit(serde_json::json!({"type":"user","message":{"content":[
             {"type":"tool_result","tool_use_id":"tu-1","content":[{"type":"text","text":"{\"hits\":[]}"}]}]}}));
     }
-    if prompt.contains("explain") {
+    if said.contains("explain") {
         let source = format!(
             "print(1)
 {}",
@@ -176,13 +200,13 @@ fn main() {
         emit(serde_json::json!({"type":"user","message":{"content":[
             {"type":"tool_result","tool_use_id":"tu-x","content":[{"type":"text","text":"{\"ok\":true}"}]}]}}));
     }
-    if prompt.contains("slow") {
+    if said.contains("slow") {
         emit(
             serde_json::json!({"type":"assistant","message":{"id":"m-slow","content":[{"type":"text","text":"Working."}]}}),
         );
         std::thread::sleep(std::time::Duration::from_secs(30));
     }
-    if prompt.contains("limit") {
+    if said.contains("limit") {
         emit(
             serde_json::json!({"type":"result","subtype":"success","is_error":true,"result":"Claude usage limit reached","session_id":session}),
         );
@@ -193,7 +217,7 @@ fn main() {
         serde_json::json!({"type":"assistant","message":{"id":format!("m-{}", uuid_like()),"content":[{"type":"text","text":format!("Answer: {first}")}]}}),
     );
     let mut result = serde_json::json!({"type":"result","subtype":"success","is_error":false,"result":"ok","session_id":session});
-    if prompt.contains("usage") {
+    if said.contains("usage") {
         // What Claude Code reports: Anthropic usage (cache reads/writes apart from input) and
         // per-model usage with its own cost.
         result["usage"] = serde_json::json!({"input_tokens": 200, "cache_read_input_tokens": 6000,

@@ -36,7 +36,7 @@ use super::bridge::CommitHook;
 use super::grants::{McpAttachment, MCP_TOKEN_ENV};
 use super::harness::{self, HarnessBundle};
 use super::mapping::{
-    self, map_item, map_turn_completed, Mapped, Preamble, StopReason, IGNIS_MCP_SERVER,
+    self, map_item, map_turn_completed, Mapped, Preamble, StopReason, ANSWER_TOOL, IGNIS_MCP_SERVER,
 };
 use super::preflight::{
     sha256_file, RuntimeBuildManifest, RuntimeCredentials, RuntimeProfile, LIVE,
@@ -72,7 +72,7 @@ const DELEGATION_TOOLS: &[&str] = &["Agent", "Task"];
 /// The one subagent IGNIS defines (`--agents`).
 pub const SUBAGENT_NAME: &str = "ignis-subinvestigator";
 /// IGNIS tools a subagent never gets: the answer is the investigator's alone.
-const PARENT_ONLY_TOOLS: &[&str] = &["answer_submit"];
+const PARENT_ONLY_TOOLS: &[&str] = &[ANSWER_TOOL];
 const SUBAGENT_DESCRIPTION: &str = "Hand ONE bounded, self-contained subtask to a \
 sub-investigator with the same IGNIS tools and scope, e.g. an aggregation over many runs computed \
 with analysis_execute, or a source survey of one sub-question. It returns a report whose findings \
@@ -562,7 +562,19 @@ impl Translator {
     }
 }
 
-/// The Codex-shaped turn snapshot of a finished turn, for [`map_turn_completed`].
+/// A turn budget as people say it (`60 min`, `90 s`).
+fn budget(d: Duration) -> String {
+    let s = d.as_secs();
+    if s >= 60 && s % 60 == 0 {
+        format!("{} min", s / 60)
+    } else {
+        format!("{:.1} s", d.as_secs_f64())
+    }
+}
+
+/// The Codex-shaped turn snapshot of a finished turn, for [`map_turn_completed`]. A turn without a
+/// successful result (an API error, a rate limit, a process that exited without one) is `failed`,
+/// which leaves the episode waiting for the user, never ended.
 pub fn turn_snapshot(turn: &str, result: Option<&Value>, exit: &str, stderr: &str) -> Value {
     match result {
         Some(r) => {
@@ -729,8 +741,24 @@ impl AgentRuntime for ClaudeBridge {
             self.inner.settle_foreign(&open.scope, &open.episode_id)?;
             self.inner.drive(&open.scope, &open.episode_id)?;
         }
+        // Messages no turn received, and continuations left pending, when the host stopped.
+        for (ep, scope) in self.inner.store.episodes_to_drive()? {
+            if let Err(e) = self.inner.drive(&scope, &ep) {
+                tracing::warn!(episode = %ep, error = %e, "runtime recovery failed");
+            }
+        }
         Ok(())
     }
+}
+
+/// Mark of a Claude session whose first turn produced no output at all: the session was never
+/// created, so the next turn starts it (`--session-id`) instead of resuming it.
+fn unopened_mark(session: &str) -> String {
+    format!("claude-session:{session}:unopened")
+}
+
+fn opened_mark(session: &str) -> String {
+    format!("claude-session:{session}:opened")
 }
 
 impl Inner {
@@ -784,6 +812,22 @@ impl Inner {
                         Ok(false) => break,
                         Err(e) => {
                             tracing::warn!(episode = %ep, error = %e, "claude turn");
+                            // Never silent: the episode says why its messages wait.
+                            let origin = me.store.episode(&scope, &ep).map(|e| e.origin);
+                            me.rec.commit(
+                                &scope,
+                                &ep,
+                                origin.unwrap_or(Origin::System),
+                                vec![Mapped::Record(RuntimeRecord {
+                                    mark: None,
+                                    causation: Causation::default(),
+                                    change: RuntimeChange::Status {
+                                        to: EpisodeStatus::WaitingUser,
+                                        reason: Some(mapping::not_started(&e.message)),
+                                        from_any: mapping::IDLE.to_vec(),
+                                    },
+                                })],
+                            );
                             break;
                         }
                     }
@@ -832,7 +876,14 @@ impl Inner {
     fn session(&self, scope: &ExecutionScope, ep: &EpisodeId) -> ServiceResult<(String, bool)> {
         let episode = self.store.episode(scope, ep)?;
         match &episode.runtime {
-            Some(t) if t.runtime == RuntimeKind::ClaudeCode => Ok((t.thread_id.clone(), false)),
+            Some(t) if t.runtime == RuntimeKind::ClaudeCode => {
+                let sid = t.thread_id.clone();
+                // A first turn that died before Claude Code said anything left no session to
+                // resume: start it again under the same id.
+                let unopened = self.store.runtime_marked(ep, &unopened_mark(&sid))?
+                    && !self.store.runtime_marked(ep, &opened_mark(&sid))?;
+                Ok((sid, unopened))
+            }
             other => {
                 let sid = uuid::Uuid::new_v4().to_string();
                 self.store.set_runtime_thread(
@@ -955,7 +1006,17 @@ impl Inner {
         Ok(cmd)
     }
 
-    /// Run one turn for the pending messages. `Ok(false)`: nothing to do.
+    /// Whether the runtime is attached to `answer_submit` (only then can a turn end without an
+    /// accepted answer it could have submitted).
+    fn answer_tool(&self) -> bool {
+        self.cfg
+            .mcp
+            .as_ref()
+            .is_some_and(|m| m.approved_tools.iter().any(|t| t == ANSWER_TOOL))
+    }
+
+    /// Run one turn for the pending messages (or the host's continuation). `Ok(false)`: nothing
+    /// to do.
     fn start_one(&self, scope: &ExecutionScope, ep: &EpisodeId) -> ServiceResult<bool> {
         self.settle_foreign(scope, ep)?;
         let origin = self.store.episode(scope, ep)?.origin;
@@ -975,7 +1036,11 @@ impl Inner {
             )?,
             None => None,
         };
-        let Some(ts) = self.store.begin_turn(scope, ep, note.as_deref())? else {
+        let Some(ts) = self
+            .store
+            .begin_turn(scope, ep, note.as_deref(), self.answer_tool())?
+        else {
+            (self.on_commit)(ep, self.store.episode(scope, ep)?.last_seq);
             return Ok(false);
         };
         (self.on_commit)(ep, ts.episode.last_seq);
@@ -1049,31 +1114,40 @@ impl Inner {
             }
             s[cut..].to_string()
         });
-        // Turn budget: kill the process when it runs too long.
+        // Turn budget: kill the process when it runs too long (and say so).
+        let timed_out = Arc::new(std::sync::atomic::AtomicBool::new(false));
         let watchdog = {
             let child = child.clone();
             let limit = self.cfg.turn_timeout;
             let done = Arc::new(std::sync::atomic::AtomicBool::new(false));
-            let d = done.clone();
+            let (d, t) = (done.clone(), timed_out.clone());
             std::thread::spawn(move || {
                 let t0 = std::time::Instant::now();
                 while !d.load(std::sync::atomic::Ordering::Relaxed) {
                     if t0.elapsed() > limit {
+                        t.store(true, std::sync::atomic::Ordering::Relaxed);
                         let _ = child.lock().unwrap_or_else(|p| p.into_inner()).kill();
                         return;
                     }
-                    std::thread::sleep(Duration::from_millis(200));
+                    std::thread::sleep(Duration::from_millis(50));
                 }
             });
             done
         };
         let mut tr = Translator::new(turn.clone());
         let mut result = None;
+        let mut opened = false;
         for line in BufReader::new(stdout).lines() {
             let Ok(line) = line else { break };
             let Ok(v) = serde_json::from_str::<Value>(&line) else {
                 continue;
             };
+            if !opened {
+                opened = true;
+                if let Err(e) = self.store.set_runtime_mark(ep, &opened_mark(&session)) {
+                    tracing::warn!(episode = %ep, error = %e, "claude session mark");
+                }
+            }
             self.pin_reported_model(scope, ep, &v);
             let (mapped, r) = tr.line(&v);
             if !mapped.is_empty() {
@@ -1083,7 +1157,11 @@ impl Inner {
                 result = r;
             }
             if let Some(why) = tr.depth_violation() {
-                // Depth 1 is enforced by the host too: stop the turn, say why.
+                // Depth 1 is enforced by the host too: stop the turn, say why. A policy
+                // violation: the episode fails.
+                if let Some(slot) = self.lock().slots.get_mut(ep) {
+                    slot.stop = Some(StopReason::Policy);
+                }
                 let _ = child.lock().unwrap_or_else(|p| p.into_inner()).kill();
                 result = Some(
                     json!({"type": "result", "subtype": "error_delegation_depth",
@@ -1099,8 +1177,19 @@ impl Inner {
             .map(|s| s.to_string())
             .unwrap_or_else(|e| e.to_string());
         watchdog.store(true, std::sync::atomic::Ordering::Relaxed);
-        let stderr = err_tail.join().unwrap_or_default();
+        let mut stderr = err_tail.join().unwrap_or_default();
         drop(lease);
+        if new && !opened {
+            if let Err(e) = self.store.set_runtime_mark(ep, &unopened_mark(&session)) {
+                tracing::warn!(episode = %ep, error = %e, "claude session mark");
+            }
+        }
+        if timed_out.load(std::sync::atomic::Ordering::Relaxed) && result.is_none() {
+            stderr = format!(
+                "the turn ran past its budget of {} and was stopped",
+                budget(self.cfg.turn_timeout)
+            );
+        }
         self.finish(
             scope,
             ep,
@@ -1161,12 +1250,32 @@ impl Inner {
             })
         };
         let snapshot = match (result, stop) {
+            (_, Some(StopReason::Policy)) => {
+                let why = result
+                    .and_then(|r| r.get("result"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("the runtime broke the profile's policy");
+                json!({"id": turn, "status": "interrupted", "error": {"message": why}})
+            }
             (None, Some(_)) => json!({"id": turn, "status": "interrupted"}),
             _ => turn_snapshot(turn, result, exit, stderr),
         };
-        let (_, outcome, _) = mapping::turn_outcome(&snapshot, stop);
-        self.rec
-            .commit(scope, ep, origin, map_turn_completed(&snapshot, stop));
+        let (to, outcome, _) = mapping::turn_outcome(&snapshot, stop);
+        // A turn that completed without an accepted answer it could have submitted: the episode
+        // stays `running` for the host's one continuation (opened by the next `begin_turn`).
+        let continues = to == EpisodeStatus::Completed
+            && self.answer_tool()
+            && self
+                .store
+                .continuation_due(ep, turn_key)
+                .unwrap_or_else(|e| {
+                    tracing::warn!(episode = %ep, error = %e, "continuation check");
+                    false
+                });
+        if !continues {
+            self.rec
+                .commit(scope, ep, origin, map_turn_completed(&snapshot, stop));
+        }
         if let Err(e) = self.store.finish_turn(turn_key, &outcome) {
             tracing::warn!(episode = %ep, error = %e, "finish claude turn");
         }

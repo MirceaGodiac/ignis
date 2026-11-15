@@ -14,7 +14,8 @@
 //!   an `analysis_execute` call it introduces, with arguments larger than an event inlines, and
 //!   a secret-like member), `slowtool` (the tool call takes 150 ms), `usage` (running
 //!   `thread/tokenUsage/updated` totals, one partial and one final per turn); plain text just
-//!   answers.
+//!   answers. Quoted input lines (`> `) choose nothing. Every turn input is appended to
+//!   `$CODEX_HOME/fake-inputs.jsonl`.
 //!   `hang` also persists the items produced so far, so a restart can replay them.
 //! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`; the
 //!   `developerInstructions` of each `thread/start` / `thread/resume`, with the base instructions
@@ -425,6 +426,13 @@ fn handle(sh: &Arc<Shared>, method: &str, id: Value, params: Value) {
                 .filter_map(|i| i["text"].as_str())
                 .collect::<Vec<_>>()
                 .join("\n");
+            if let Ok(mut f) = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(sh.home.join("fake-inputs.jsonl"))
+            {
+                let _ = writeln!(f, "{}", json!({"threadId": tid, "text": text}));
+            }
             let turn_id = sh.id("turn");
             let turn = json!({"id": turn_id, "status": "inProgress", "items": [], "error": null});
             {
@@ -481,7 +489,13 @@ fn ask(sh: &Shared, method: &str, params: Value) -> Option<Value> {
 }
 
 fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
-    let has = |w: &str| text.contains(w);
+    // Quoted lines (`> `, what a host note repeats) choose no scenario.
+    let said: String = text
+        .lines()
+        .filter(|l| !l.starts_with("> "))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let has = |w: &str| said.contains(w);
     let base = |extra: Value| {
         let mut p = json!({"threadId": tid, "turnId": turn});
         if let (Some(p), Some(e)) = (p.as_object_mut(), extra.as_object()) {

@@ -257,24 +257,191 @@ fn unknown_notifications_are_archived_as_runtime_opaque() {
     assert_eq!(a.origin, Origin::SyntheticFixture);
 }
 
-#[test]
-fn a_failed_turn_fails_the_episode_with_its_reason() {
-    let dir = tempfile::tempdir().unwrap();
-    let h = Harness::new(dir.path());
-    let sc = scope("ws-f", false);
-    let ep = h.episode(&sc, "fail");
-    h.say(&sc, &ep, "this will fail");
-    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Failed);
-    let reason = evs
-        .iter()
+fn last_reason(evs: &[ResearchEvent]) -> String {
+    evs.iter()
         .rev()
         .find_map(|e| match &e.body {
             EventBody::StatusChanged { reason, .. } => reason.clone(),
             _ => None,
         })
-        .unwrap();
+        .unwrap_or_default()
+}
+
+/// `(from, to)` of every status change, in order.
+fn transitions(evs: &[ResearchEvent]) -> Vec<(EpisodeStatus, EpisodeStatus)> {
+    evs.iter()
+        .filter_map(|e| match &e.body {
+            EventBody::StatusChanged { from, to, .. } => Some((*from, *to)),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The turn inputs the fake app-server of `ws` received, in order.
+fn inputs(dir: &std::path::Path, ws: &str) -> Vec<String> {
+    fake_log(dir, ws, "fake-inputs.jsonl")
+        .iter()
+        .map(|v| v["text"].as_str().unwrap().to_string())
+        .collect()
+}
+
+/// A turn the runtime fails (model or API error) does not end the conversation: the episode waits
+/// for the user with the reason, and the next message continues the same thread.
+#[test]
+fn a_failed_turn_waits_for_the_user_and_the_next_message_continues() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = Harness::new(dir.path());
+    let sc = scope("ws-f", false);
+    let ep = h.episode(&sc, "fail");
+    h.say(&sc, &ep, "this will fail");
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::WaitingUser);
+    let reason = last_reason(&evs);
     assert!(reason.contains("model refused"), "{reason}");
+    assert!(
+        reason.contains("continues with the next message"),
+        "{reason}"
+    );
     assert!(completed_texts(&evs).is_empty());
+    let thread = h
+        .store
+        .episode(&sc, &ep)
+        .unwrap()
+        .runtime
+        .unwrap()
+        .thread_id;
+
+    h.say(&sc, &ep, "go on");
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    check_event_log(&evs).unwrap();
+    assert_eq!(completed_texts(&evs), vec!["Fixture answer"]);
+    assert_eq!(
+        h.store
+            .episode(&sc, &ep)
+            .unwrap()
+            .runtime
+            .unwrap()
+            .thread_id,
+        thread
+    );
+    // The failed turn's message was not re-sent.
+    assert_eq!(inputs(dir.path(), "ws-f"), vec!["this will fail", "go on"]);
+}
+
+/// Resume after a pause continues the interrupted question (one host turn quoting it), even
+/// though no new message arrived.
+#[test]
+fn resume_continues_the_interrupted_question() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = Harness::new(dir.path());
+    let sc = scope("ws-pr", false);
+    let ep = h.episode(&sc, "pause-resume");
+    h.say(&sc, &ep, "hang until told");
+    h.wait(&sc, &ep, "first delta", |e| count(e, "message.delta") >= 1);
+    h.store.act(&sc, &ep, EpisodeAction::Pause).unwrap();
+    h.bridge.interrupt(&sc, &ep, StopReason::Pause).unwrap();
+    h.wait(&sc, &ep, "turn closed", |_| {
+        h.store.active_turn(&sc, &ep).unwrap().is_none()
+    });
+    h.store.act(&sc, &ep, EpisodeAction::Resume).unwrap();
+    h.bridge.resume(&sc, &ep).unwrap();
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    check_event_log(&evs).unwrap();
+    assert_eq!(completed_texts(&evs), vec!["Fixture answer"]);
+    let sent = inputs(dir.path(), "ws-pr");
+    assert_eq!(sent.len(), 2, "{sent:?}");
+    assert!(sent[1].starts_with("IGNIS host:"), "{}", sent[1]);
+    assert!(sent[1].contains("> hang until told"), "{}", sent[1]);
+    assert!(evs.iter().any(|e| matches!(&e.body,
+        EventBody::StatusChanged { from: EpisodeStatus::Ready, to: EpisodeStatus::Running, reason: Some(r) }
+            if r.contains("continued by the host"))));
+}
+
+/// A message no turn ever received (the host stopped, or the kick failed) is sent by the next
+/// process's recovery.
+#[test]
+fn a_message_no_turn_received_is_sent_on_recovery() {
+    let dir = tempfile::tempdir().unwrap();
+    let sc = scope("ws-s", false);
+    let ep = {
+        let h = Harness::new(dir.path());
+        let ep = h.episode(&sc, "stranded");
+        h.store
+            .post_message(
+                &sc,
+                &ep,
+                "nobody sent me",
+                &ClientRequestId::new("s1").unwrap(),
+            )
+            .unwrap();
+        h.bridge.shutdown();
+        ep
+    };
+    let h = Harness::new(dir.path());
+    h.bridge.recover().unwrap();
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    check_event_log(&evs).unwrap();
+    assert_eq!(completed_texts(&evs), vec!["Fixture answer"]);
+    assert_eq!(inputs(dir.path(), "ws-s"), vec!["nobody sent me"]);
+}
+
+/// The IGNIS MCP server as the bridge sees it (nothing listens: the fake never connects), with
+/// `answer_submit` attached.
+fn with_answers(dir: &std::path::Path) -> ignis_research::runtime::CodexConfig {
+    use ignis_research::runtime::{McpAttachment, McpGrants};
+    let mut cfg = config(dir);
+    cfg.mcp = Some(McpAttachment {
+        url: "http://127.0.0.1:9/mcp".into(),
+        grants: McpGrants::new(),
+        enabled_tools: vec!["sources_search".into(), "answer_submit".into()],
+        approved_tools: vec!["sources_search".into(), "answer_submit".into()],
+    });
+    cfg
+}
+
+/// A turn that ends without an accepted answer gets one host continuation quoting the last
+/// `answer_submit` refusal, without the episode looking completed in between; when that turn
+/// also ends without one, the episode completes (no further round).
+#[test]
+fn a_turn_without_an_accepted_answer_is_continued_once() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = Harness::with_config(dir.path(), with_answers(dir.path()));
+    let sc = scope("ws-a", false);
+    let ep = h.episode(&sc, "answer");
+    h.say(&sc, &ep, "refusal please");
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    check_event_log(&evs).unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    let evs2 = h.events(&sc, &ep);
+    assert_eq!(evs2.len(), evs.len(), "nothing after completion");
+    use EpisodeStatus as S;
+    assert_eq!(
+        transitions(&evs),
+        vec![
+            (S::Ready, S::Running),
+            (S::Running, S::Running),
+            (S::Running, S::Completed)
+        ]
+    );
+    let sent = inputs(dir.path(), "ws-a");
+    assert_eq!(sent.len(), 2, "one continuation: {sent:?}");
+    assert!(sent[1].starts_with("IGNIS host:"), "{}", sent[1]);
+    assert!(sent[1].contains("> answer refused"), "{}", sent[1]);
+    assert_eq!(
+        completed_texts(&evs),
+        vec!["Fixture answer", "Fixture answer"]
+    );
+
+    // A plain question: the note asks for the answer through answer_submit.
+    let ep = h.episode(&sc, "plain");
+    h.say(&sc, &ep, "a question");
+    h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    let sent = inputs(dir.path(), "ws-a");
+    assert_eq!(sent.len(), 4, "{sent:?}");
+    assert!(
+        sent[3].contains("Submit your answer with answer_submit"),
+        "{}",
+        sent[3]
+    );
 }
 
 #[test]

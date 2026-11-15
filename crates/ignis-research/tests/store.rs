@@ -467,16 +467,50 @@ fn a_version_1_store_is_migrated_in_place() {
             |r| r.get(0),
         )
         .unwrap();
-    assert_eq!(v, "4");
-    // 2 -> 3 adds the agent-runtime tables, 3 -> 4 the episode evidence of `answer_submit`.
+    assert_eq!(v, "5");
+    // 2 -> 3 adds the agent-runtime tables, 3 -> 4 the episode evidence of `answer_submit`,
+    // 4 -> 5 the scopes recovery drives unsent messages with.
     let tables: i64 = c
         .query_row(
-            "SELECT COUNT(*) FROM sqlite_master WHERE name IN ('runtime_turns', 'runtime_marks', 'episode_evidence')",
+            "SELECT COUNT(*) FROM sqlite_master WHERE name IN ('runtime_turns', 'runtime_marks', 'episode_evidence', 'episode_drivers')",
             [],
             |r| r.get(0),
         )
         .unwrap();
-    assert_eq!(tables, 3);
+    assert_eq!(tables, 4);
+}
+
+/// 4 -> 5: an existing `runtime_turns` gains the columns that bound the host's continuation, and
+/// turns run on it.
+#[test]
+fn a_version_4_store_gains_the_turn_columns() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("state.sqlite");
+    {
+        let c = rusqlite::Connection::open(&path).unwrap();
+        c.execute_batch(
+            "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+             INSERT INTO meta VALUES ('schema_version', '4');
+             CREATE TABLE runtime_turns (turn_key TEXT PRIMARY KEY, episode_id TEXT NOT NULL,
+               workspace_id TEXT NOT NULL, scope TEXT NOT NULL, runtime_turn_id TEXT,
+               through_seq INTEGER NOT NULL, state TEXT NOT NULL, outcome TEXT,
+               created_ms INTEGER NOT NULL);",
+        )
+        .unwrap();
+    }
+    let store = ResearchStore::open(&path).unwrap();
+    let sc = scope("ws");
+    let (ep, _) = store
+        .create_episode(&sc, "g", &crid("c"), Default::default(), Origin::System)
+        .unwrap();
+    store
+        .post_message(&sc, &ep.episode_id, "q", &crid("m"))
+        .unwrap();
+    let t = store
+        .begin_turn(&sc, &ep.episode_id, None, true)
+        .unwrap()
+        .unwrap();
+    assert!(store.continuation_due(&ep.episode_id, &t.turn_key).unwrap());
 }
 
 #[test]
@@ -565,15 +599,130 @@ fn a_first_turn_receives_unanswered_messages_even_after_job_events() {
         .unwrap();
     // A job attached to the episode is not an answer to the message.
     store.submit_job(&sc, job(Some(&id), true)).unwrap();
-    let t = store.begin_turn(&sc, &id, None).unwrap().expect("a turn");
+    let t = store
+        .begin_turn(&sc, &id, None, false)
+        .unwrap()
+        .expect("a turn");
     assert_eq!(
         t.messages.iter().map(|m| m.1.as_str()).collect::<Vec<_>>(),
         vec!["first question"]
     );
     // One open turn per episode; its messages are never handed out again.
-    assert!(store.begin_turn(&sc, &id, None).unwrap().is_none());
+    assert!(store.begin_turn(&sc, &id, None, false).unwrap().is_none());
     store.finish_turn(&t.turn_key, "completed").unwrap();
-    assert!(store.begin_turn(&sc, &id, None).unwrap().is_none());
+    assert!(store.begin_turn(&sc, &id, None, false).unwrap().is_none());
+}
+
+/// The host continues a turn at most once, and only when it ended without an accepted answer: a
+/// turn with an `answer.completed` is not continued (a pending continuation then completes), and a
+/// continuation is never continued again. A resume continues an unanswered question once.
+#[test]
+fn a_turn_is_continued_once_and_only_without_an_answer() {
+    let dir = tempfile::tempdir().unwrap();
+    let store = ResearchStore::open(dir.path().join("state.sqlite")).unwrap();
+    let artifacts = LocalArtifactStore::open(dir.path().join("artifacts")).unwrap();
+    let sc = scope("ws");
+    let (ep, _) = store
+        .create_episode(&sc, "g", &crid("c"), Default::default(), Origin::System)
+        .unwrap();
+    let id = ep.episode_id;
+    let status = |s: &ResearchStore| s.episode(&sc, &id).unwrap().status;
+
+    // No answer: due; the continuation's input is one host note, and it is never continued.
+    store.post_message(&sc, &id, "q1", &crid("m1")).unwrap();
+    let t1 = store.begin_turn(&sc, &id, None, true).unwrap().unwrap();
+    assert!(!t1.continuation);
+    assert!(store.continuation_due(&id, &t1.turn_key).unwrap());
+    store.finish_turn(&t1.turn_key, "completed").unwrap();
+    let c1 = store.begin_turn(&sc, &id, None, true).unwrap().unwrap();
+    assert!(c1.continuation);
+    assert_eq!(c1.messages.len(), 1);
+    assert!(
+        c1.messages[0].1.contains("answer_submit"),
+        "{:?}",
+        c1.messages
+    );
+    assert!(!store.continuation_due(&id, &c1.turn_key).unwrap());
+    store.finish_turn(&c1.turn_key, "completed").unwrap();
+    // Left running by a bridge that skipped the status: completes, no third round.
+    assert!(store.begin_turn(&sc, &id, None, true).unwrap().is_none());
+    assert_eq!(status(&store), EpisodeStatus::Completed);
+
+    // An accepted answer: not due; a pending continuation completes instead.
+    store.post_message(&sc, &id, "q2", &crid("m2")).unwrap();
+    let t2 = store.begin_turn(&sc, &id, None, true).unwrap().unwrap();
+    let art = artifacts.put(&sc, draft(), &mut &b"{}"[..]).unwrap();
+    store
+        .complete_answer(
+            &sc,
+            &id,
+            None,
+            Causation::default(),
+            EventBody::AnswerCompleted {
+                answer_id: AnswerId::new("ans_1").unwrap(),
+                status: AnswerStatus::Complete,
+                answer: art,
+            },
+        )
+        .unwrap();
+    assert!(!store.continuation_due(&id, &t2.turn_key).unwrap());
+    store.finish_turn(&t2.turn_key, "completed").unwrap();
+    assert!(store.begin_turn(&sc, &id, None, true).unwrap().is_none());
+    assert_eq!(status(&store), EpisodeStatus::Completed);
+
+    // Paused mid-question, then resumed: one continuation quoting the question.
+    store.post_message(&sc, &id, "q3", &crid("m3")).unwrap();
+    let t3 = store.begin_turn(&sc, &id, None, true).unwrap().unwrap();
+    store.act(&sc, &id, EpisodeAction::Pause).unwrap();
+    store.finish_turn(&t3.turn_key, "interrupted").unwrap();
+    assert!(store.begin_turn(&sc, &id, None, true).unwrap().is_none());
+    store.act(&sc, &id, EpisodeAction::Resume).unwrap();
+    let c3 = store.begin_turn(&sc, &id, None, true).unwrap().unwrap();
+    assert!(c3.continuation);
+    assert!(c3.messages[0].1.contains("> q3"), "{:?}", c3.messages);
+    check_event_log(&all_events(&store, &sc, &id)).unwrap();
+}
+
+/// After a restart, an episode whose message no turn received is driven again (with the scope of
+/// that message); a paused one, or one whose messages were all handed to a turn, is not.
+#[test]
+fn messages_no_turn_received_are_found_for_recovery() {
+    let dir = tempfile::tempdir().unwrap();
+    let store = ResearchStore::open(dir.path().join("state.sqlite")).unwrap();
+    let sc = scope("ws");
+    let new = |k: &str| {
+        store
+            .create_episode(&sc, k, &crid(k), Default::default(), Origin::System)
+            .unwrap()
+            .0
+            .episode_id
+    };
+    // `d` was created and never messaged: an idle conversation, not a stranded one.
+    let (stranded, paused, sent, _idle) = (new("a"), new("b"), new("c"), new("d"));
+    for (ep, k) in [(&stranded, "m1"), (&paused, "m2"), (&sent, "m3")] {
+        store.post_message(&sc, ep, "q", &crid(k)).unwrap();
+    }
+    store.act(&sc, &paused, EpisodeAction::Pause).unwrap();
+    let t = store.begin_turn(&sc, &sent, None, false).unwrap().unwrap();
+    store.finish_turn(&t.turn_key, "completed").unwrap();
+    store
+        .append(
+            &sc,
+            &sent,
+            vec![(
+                Causation::default(),
+                EventBody::StatusChanged {
+                    from: EpisodeStatus::Running,
+                    to: EpisodeStatus::Completed,
+                    reason: None,
+                },
+            )],
+        )
+        .unwrap();
+    let found = store.episodes_to_drive().unwrap();
+    let ids: Vec<&EpisodeId> = found.iter().map(|(e, _)| e).collect();
+    assert_eq!(ids, vec![&stranded], "{found:?}");
+    assert_eq!(found[0].1, sc);
 }
 
 /// A job submitted through the MCP server knows only its workspace; the runtime's tool result that
