@@ -160,6 +160,9 @@ pub struct ServeArgs {
     /// Isolated analysis runner (`analysis_execute`); unset image = not configured.
     #[command(flatten)]
     pub runner: v1::sandbox::RunnerArgs,
+    /// Source access without copies (`/api/v1/sources/{id}/content`, M12).
+    #[command(flatten)]
+    pub sources: v1::sources::SourceArgs,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -367,6 +370,9 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     };
     app.route("/livez", axum::routing::get(|| async { "ok" }))
         .layer(TraceLayer::new_for_http())
+        // JSON shrinks about tenfold (the run list is 1.4 MB, a conditions page 1.9 MB). The default
+        // predicate leaves event streams, images and small bodies alone.
+        .layer(tower_http::compression::CompressionLayer::new())
         .layer(tower::limit::ConcurrencyLimitLayer::new(256))
 }
 
@@ -475,6 +481,14 @@ fn v1_instance(
         runner_report,
         mcp_url,
         artifact_backend: args.artifact_backend,
+        // Real NASA sources only on the registry instance; the C0 fixture has none to open.
+        sources: (origin == ignis_core::contracts::Origin::System).then(|| {
+            Arc::new(v1::sources::SourceDelivery::new(
+                &args.sources,
+                &args.root,
+                origin,
+            ))
+        }),
     })
 }
 

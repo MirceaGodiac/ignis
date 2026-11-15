@@ -19,6 +19,18 @@ use crate::ResearchStore;
 /// Tool results larger than this (serialized) go to an artifact; the event keeps a reference.
 pub(super) const INLINE_MAX: usize = 64 * 1024;
 
+/// The IGNIS `ToolResult` in an MCP call result: its structured content, or the JSON text of a
+/// content block (clients that only keep text content).
+fn ignis_result(v: &Value) -> Option<ToolResult> {
+    if let Ok(r) = serde_json::from_value::<ToolResult>(v.clone()) {
+        return Some(r);
+    }
+    v.as_array()?.iter().find_map(|block| {
+        let text = block.get("text").and_then(Value::as_str)?;
+        serde_json::from_str::<ToolResult>(text).ok()
+    })
+}
+
 pub(super) struct Recorder {
     pub store: Arc<ResearchStore>,
     pub artifacts: Arc<dyn ArtifactStore>,
@@ -63,11 +75,22 @@ impl Recorder {
     ) -> ToolResult {
         // Results of the IGNIS MCP server are already `ToolResult`s (M3 adapters). The server does
         // not know the runtime's item id, so the result is re-keyed to the call it finishes.
+        // A failed call carries the server's refusal or failure (with its reason) this way; it is
+        // trusted only if it does not claim success.
         if !tool.contains('.') {
             if let Some(mut r) = value
                 .as_ref()
-                .and_then(|v| serde_json::from_value::<ToolResult>(v.clone()).ok())
+                .and_then(ignis_result)
                 .filter(|r| r.validate().is_ok() && r.tool == tool)
+                .filter(|r| {
+                    error.is_none()
+                        || matches!(
+                            r.execution_status,
+                            ExecutionStatus::Refused
+                                | ExecutionStatus::Failed
+                                | ExecutionStatus::Cancelled
+                        )
+                })
             {
                 r.call_id = call_id;
                 return r;

@@ -47,6 +47,7 @@ fn args(dir: &Path, auth: AuthMode) -> ServeArgs {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        sources: Default::default(),
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: support::access().args.clone(),
@@ -362,6 +363,16 @@ async fn unconfigured_services_are_capability_status_not_results() {
     let (st, e) = call(&r, "GET", "/api/v1/models", None, None).await;
     assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
     assert_eq!(e["code"], "capability_unavailable");
+    let (st, e) = call(
+        &r,
+        "POST",
+        "/api/v1/conditions",
+        None,
+        Some(json!({"schema_version": "dataset.v2"})),
+    )
+    .await;
+    assert_eq!(st, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(e["code"], "capability_unavailable");
 
     let (st, doc) = call(&r, "GET", "/api/v1/openapi.json", None, None).await;
     assert_eq!(st, StatusCode::OK);
@@ -375,6 +386,7 @@ async fn unconfigured_services_are_capability_status_not_results() {
         "/uploads/initiate",
         "/uploads/{id}/content",
         "/uploads/complete",
+        "/conditions",
     ] {
         assert!(
             paths.contains_key(p),
@@ -914,4 +926,29 @@ async fn fixture_mode_serves_the_c0_contract_fixtures_through_the_same_routes() 
     // The registry-side /api/v1 is untouched by the fixture.
     let (_, real) = call(&r, "GET", "/api/v1/episodes", None, None).await;
     assert_eq!(real, json!([]));
+}
+
+/// JSON answers are compressed when the client accepts it (the run list and conditions pages are
+/// megabytes of JSON); a client that does not ask gets plain JSON.
+#[tokio::test]
+async fn json_is_compressed_when_accepted() {
+    let dir = tempfile::tempdir().unwrap();
+    let r = router(dir.path(), AuthMode::Local, None);
+    let get = |enc: Option<&'static str>| {
+        let mut b = Request::builder().uri("/api/v1/capabilities");
+        if let Some(e) = enc {
+            b = b.header("accept-encoding", e);
+        }
+        b.body(Body::empty()).unwrap()
+    };
+    let res = r.clone().oneshot(get(Some("gzip"))).await.unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(
+        res.headers()
+            .get("content-encoding")
+            .map(|v| v.to_str().unwrap()),
+        Some("gzip")
+    );
+    let res = r.oneshot(get(None)).await.unwrap();
+    assert!(res.headers().get("content-encoding").is_none());
 }
