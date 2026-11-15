@@ -58,6 +58,9 @@ for d in "$base"/data/views/*/; do [ -d "$d" ] && views+=("/data/work/views/$(ba
 if [ ${#views[@]} -gt 0 ] && [ -d "$base/data/raw/samples" ]; then
   run evidence import-views "${views[@]}" --pdf-root /data/work/raw/samples
 fi
+# Content classes (body | fragment | glossary | references | contents) of every stored chunk, from
+# its section and text: views imported before the classes existed, or skipped as already stored.
+run evidence reclassify
 run evidence verify
 run evidence corpus snapshot
 for family in flex acme_normal acme_inverse bass; do

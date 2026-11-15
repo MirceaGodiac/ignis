@@ -25,6 +25,7 @@ use rusqlite::{params, params_from_iter, Connection, OpenFlags};
 use serde_json::{json, Value};
 use unicode_normalization::UnicodeNormalization;
 
+use crate::content_class;
 use crate::records::{locator_json, Chunk, Finding, Publication};
 
 /// 2: parse-view page texts (`pages`) and `asset_locations`. 3: several parse views per
@@ -90,6 +91,13 @@ pub fn connect(path: &Path, readonly: bool) -> Result<Connection> {
                 "ALTER TABLE chunks ADD COLUMN continues_runs_json TEXT NOT NULL DEFAULT '[]'",
             )?;
         }
+        // catalogs created before `chunks.content_class`: additive, every chunk `body` until
+        // `ignis evidence reclassify` derives the class from the stored section and text
+        if !has_content_class(&con)? {
+            con.execute_batch(
+                "ALTER TABLE chunks ADD COLUMN content_class TEXT NOT NULL DEFAULT 'body'",
+            )?;
+        }
         con
     };
     con.execute_batch("PRAGMA foreign_keys = ON")?;
@@ -125,6 +133,96 @@ fn migrate_pages_v3(con: &Connection) -> Result<()> {
          DROP TABLE pages; ALTER TABLE pages_v3 RENAME TO pages; COMMIT;",
     )?;
     Ok(())
+}
+
+/// Whether the catalog stores `chunks.content_class`. A catalog written before it and opened
+/// read-only is searched without the demotion until `ignis evidence reclassify` runs on it.
+pub fn has_content_class(con: &Connection) -> Result<bool> {
+    Ok(con.query_row(
+        "SELECT count(*) FROM pragma_table_info('chunks') WHERE name = 'content_class'",
+        [],
+        |r| r.get::<_, i64>(0),
+    )? > 0)
+}
+
+/// Recompute `chunks.content_class` of every stored chunk (every view) from its section, kind and
+/// text ([`content_class::classify`]); no PDF is parsed. Neither the FTS index nor the corpus
+/// snapshot depends on the class, so both stay as they are. Returns the chunks per class and how
+/// many changed.
+pub fn reclassify(con: &mut Connection) -> Result<Value> {
+    let tx = con.transaction()?;
+    let rows: Vec<(i64, Option<String>, String, String, String)> = {
+        let mut st = tx.prepare(
+            "SELECT rowid, section, kind, text, content_class FROM chunks ORDER BY rowid",
+        )?;
+        let rows = st
+            .query_map([], |r| {
+                Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?))
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        rows
+    };
+    let mut per: std::collections::BTreeMap<&str, usize> = Default::default();
+    let mut changed = 0usize;
+    {
+        let mut up = tx.prepare("UPDATE chunks SET content_class = ?1 WHERE rowid = ?2")?;
+        for (rowid, section, kind, text, old) in &rows {
+            let c = content_class::classify(section.as_deref(), kind, text);
+            *per.entry(c).or_default() += 1;
+            if c != old {
+                up.execute(params![c, rowid])?;
+                changed += 1;
+            }
+        }
+    }
+    tx.commit()?;
+    Ok(json!({"chunks": rows.len(), "classes": per, "changed": changed}))
+}
+
+/// What ranking needs of a chunk besides its scores.
+#[derive(Debug, Clone)]
+pub struct ChunkShape {
+    pub publication_id: String,
+    pub page: i64,
+    /// length of the text in characters
+    pub chars: i64,
+    /// `body` for a catalog without the column
+    pub content_class: String,
+}
+
+/// [`ChunkShape`] of the given chunk ids (absent ids are left out).
+pub fn chunk_shapes(con: &Connection, ids: &[String]) -> Result<HashMap<String, ChunkShape>> {
+    let mut out = HashMap::new();
+    if ids.is_empty() {
+        return Ok(out);
+    }
+    let class = if has_content_class(con)? {
+        "content_class"
+    } else {
+        "'body'"
+    };
+    for part in ids.chunks(500) {
+        let q = vec!["?"; part.len()].join(",");
+        let mut st = con.prepare(&format!(
+            "SELECT id, publication_id, page, length(text), {class} FROM chunks WHERE id IN ({q})"
+        ))?;
+        let rows = st.query_map(params_from_iter(part.iter()), |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                ChunkShape {
+                    publication_id: r.get(1)?,
+                    page: r.get(2)?,
+                    chars: r.get(3)?,
+                    content_class: r.get(4)?,
+                },
+            ))
+        })?;
+        for r in rows {
+            let (id, s) = r?;
+            out.insert(id, s);
+        }
+    }
+    Ok(out)
 }
 
 /// Index/query normalization: NFKC (splits ligatures, folds compatibility forms).
@@ -171,8 +269,8 @@ pub fn upsert_publication(
     {
         let mut st = tx.prepare(
             "INSERT INTO chunks(id, publication_id, ordinal, kind, page, char_start, char_end, section, text, text_norm, \
-             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json) \
-             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16)",
+             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json, \
+             content_class) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17)",
         )?;
         for c in chunks {
             st.execute(params![
@@ -191,7 +289,8 @@ pub fn upsert_publication(
                 js(&c.describes_runs),
                 c.outcome_bearing as i64,
                 c.evidence_class,
-                js(&c.continues_runs)
+                js(&c.continues_runs),
+                content_class::classify(c.section.as_deref(), &c.kind, &c.text)
             ])?;
         }
     }
@@ -345,8 +444,8 @@ pub fn add_inactive_view(
     {
         let mut st = tx.prepare(
             "INSERT INTO chunks(id, publication_id, ordinal, kind, page, char_start, char_end, section, text, text_norm, \
-             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json) \
-             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16)",
+             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json, \
+             content_class) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17)",
         )?;
         for c in chunks {
             st.execute(params![
@@ -365,7 +464,8 @@ pub fn add_inactive_view(
                 js(&c.describes_runs),
                 c.outcome_bearing as i64,
                 c.evidence_class,
-                js(&c.continues_runs)
+                js(&c.continues_runs),
+                content_class::classify(c.section.as_deref(), &c.kind, &c.text)
             ])?;
         }
         let mut st = tx.prepare(
@@ -544,6 +644,11 @@ pub struct Filters {
     /// any of these assets (bare sha256 of the PDF bytes)
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub source_sha256: Vec<String>,
+    /// content classes ranked with the body ([`content_class::tier`]; by default glossary rows and
+    /// fragments follow the body, reference lists and contents pages follow those). Not a filter:
+    /// nothing is excluded either way.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ranked_with_body: Vec<String>,
 }
 
 impl Filters {
@@ -750,8 +855,19 @@ pub fn lexical_weighted(
         args.push(SqlValue::Real(*w));
         args.push(SqlValue::Text(phrase));
     }
+    // Body matches first, then glossary rows and fragments, then reference lists and contents
+    // pages (a page of references is dense with topic words and would outrank the finding), in
+    // BM25 order within each tier. One total order, so consecutive windows still partition it.
+    let demote = if has_content_class(con)? {
+        format!(
+            "{} ASC, ",
+            content_class::tier_sql("c.content_class", &filters.ranked_with_body)
+        )
+    } else {
+        String::new()
+    };
     let sql = format!(
-        "SELECT c.id, SUM(u.s) AS score FROM ({}) u JOIN chunks c ON c.rowid = u.rid          JOIN publications p ON p.id = c.publication_id WHERE {ACTIVE_VIEW}{where_}          GROUP BY c.id ORDER BY score ASC, c.id ASC LIMIT ? OFFSET ?",
+        "SELECT c.id, SUM(u.s) AS score FROM ({}) u JOIN chunks c ON c.rowid = u.rid          JOIN publications p ON p.id = c.publication_id WHERE {ACTIVE_VIEW}{where_}          GROUP BY c.id ORDER BY {demote}score ASC, c.id ASC LIMIT ? OFFSET ?",
         parts.join(" UNION ALL ")
     );
     args.extend(fargs);

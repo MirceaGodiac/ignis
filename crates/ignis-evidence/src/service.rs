@@ -668,8 +668,30 @@ impl EvidenceService {
         take: usize,
     ) -> ServiceResult<(Vec<RankedHit>, bool)> {
         let seen: BTreeSet<&str> = r.hits.iter().map(|h| h.chunk_id.as_str()).collect();
+        // the tail keeps the head's limit of hits per (source, page): a further hit of a page
+        // already shown PER_PAGE_HITS times is deferred after every other match (same order on
+        // every call, so pages still partition one list)
+        let head = r.hits.len() - r.moved;
+        let mut per_page: HashMap<(String, i64), usize> = HashMap::new();
+        for h in &r.hits[..head] {
+            if let Some(c) = self.chunk(&h.chunk_id).map_err(internal)? {
+                *per_page.entry((c.publication_id, c.page)).or_default() += 1;
+            }
+        }
+        let mut deferred: Vec<RankedHit> = r.hits[head..].to_vec();
         let mut out = Vec::new();
         let mut kept = 0usize;
+        // emit `h` at the next position; true when the page is full and one more exists
+        let mut emit = |h: RankedHit, out: &mut Vec<RankedHit>| -> bool {
+            if kept >= skip {
+                if out.len() == take {
+                    return true;
+                }
+                out.push(h);
+            }
+            kept += 1;
+            false
+        };
         let mut pos = r.lexical_depth;
         // Each window re-runs the ranked query (FTS5 + expansion, grouped and sorted in full), so
         // the window doubles: a page behind many withheld or filtered-out matches (lockbox
@@ -682,6 +704,11 @@ impl EvidenceService {
                     .map_err(internal)?
             };
             if batch.is_empty() {
+                for h in deferred {
+                    if emit(h, &mut out) {
+                        return Ok((out, true));
+                    }
+                }
                 return Ok((out, false));
             }
             pos += batch.len();
@@ -690,25 +717,28 @@ impl EvidenceService {
                 if seen.contains(h.chunk_id.as_str()) {
                     continue;
                 }
-                match self.chunk(&h.chunk_id).map_err(internal)? {
-                    Some(c) if !self.withheld(sealed, &c) => {}
+                let c = match self.chunk(&h.chunk_id).map_err(internal)? {
+                    Some(c) if !self.withheld(sealed, &c) => c,
                     _ => continue,
+                };
+                let hit = RankedHit {
+                    chunk_id: h.chunk_id,
+                    bm25: Some(h.bm25),
+                    lexical_rank: Some(h.lexical_rank),
+                    cosine: None,
+                    dense_rank: None,
+                    rrf: None,
+                    rerank: None,
+                };
+                let n = per_page.entry((c.publication_id, c.page)).or_default();
+                if *n >= crate::search::PER_PAGE_HITS {
+                    deferred.push(hit);
+                    continue;
                 }
-                if kept >= skip {
-                    if out.len() == take {
-                        return Ok((out, true));
-                    }
-                    out.push(RankedHit {
-                        chunk_id: h.chunk_id,
-                        bm25: Some(h.bm25),
-                        lexical_rank: Some(h.lexical_rank),
-                        cosine: None,
-                        dense_rank: None,
-                        rrf: None,
-                        rerank: None,
-                    });
+                *n += 1;
+                if emit(hit, &mut out) {
+                    return Ok((out, true));
                 }
-                kept += 1;
             }
         }
     }
@@ -737,6 +767,9 @@ impl EvidenceService {
                 .iter()
                 .map(|s| s.as_str().trim_start_matches("sha256:").to_string())
                 .collect(),
+            // a query about references (or acronyms) ranks those passages with the body;
+            // otherwise they follow it
+            ranked_with_body: crate::content_class::ranked_with_body(&req.query),
             ..Default::default()
         })
     }
@@ -985,15 +1018,20 @@ impl KnowledgeService for EvidenceService {
                 RetryPolicy::AfterUserAction,
             ));
         }
-        let n = ranked.hits.len();
-        let mut picked: Vec<RankedHit> = ranked
-            .hits
+        let tail_possible = ranked.lexical_used && ranked.lexical_count >= ranked.lexical_depth;
+        // with a tail, the hits the per-page limit moved to the end of the head are served
+        // after the tail's own matches instead (lexical_tail)
+        let n = if tail_possible {
+            ranked.hits.len() - ranked.moved
+        } else {
+            ranked.hits.len()
+        };
+        let mut picked: Vec<RankedHit> = ranked.hits[..n]
             .iter()
             .skip(offset)
             .take(page_size)
             .cloned()
             .collect();
-        let tail_possible = ranked.lexical_used && ranked.lexical_count >= ranked.lexical_depth;
         let mut more = offset + picked.len() < n;
         if picked.len() < page_size && tail_possible {
             let skip = offset.saturating_sub(n);
