@@ -106,6 +106,10 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         // C0: evaluation (evaluation.v1)
         one::<EvaluationRequest>("EvaluationRequest"),
         one::<EvaluationResult>("EvaluationResult"),
+        // K1: evaluation (evaluation.v2)
+        one::<GoldTask>("GoldTask"),
+        one::<GoldSet>("GoldSet"),
+        one::<GoldPromptSet>("GoldPromptSet"),
     ]
 }
 

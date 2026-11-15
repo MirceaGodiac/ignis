@@ -1,0 +1,45 @@
+{
+  "schema_version": "evaluation.v2",
+  "task_id": "fixture-gold-ana-01",
+  "class": "analytical",
+  "topic": "computation",
+  "split": "dev",
+  "question": "Synthetic fixture: compute the burning rate constant of the (fixture) run from its diameter series.",
+  "investigations": [
+    "PSI-159"
+  ],
+  "cluster": "PSI-159",
+  "answer": {
+    "kind": "analytical",
+    "check": {
+      "artifact_id": "fixture-art-check-01",
+      "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "media_type": "text/x-python",
+      "byte_length": 512,
+      "origin": "synthetic_fixture",
+      "created_at": "2026-11-14T18:00:00Z"
+    },
+    "inputs": [
+      {
+        "artifact_id": "fixture-art-series-02",
+        "sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+        "media_type": "application/vnd.apache.parquet",
+        "byte_length": 40960,
+        "origin": "synthetic_fixture",
+        "created_at": "2026-11-14T18:00:00Z"
+      }
+    ],
+    "expected": [
+      {
+        "name": "burning_rate_constant",
+        "value_si": 8.1e-07,
+        "unit": "m2/s",
+        "rel_tol": 0.05
+      }
+    ]
+  },
+  "authored_by": "fixture-evaluator",
+  "reviewed_by": [],
+  "origin": "synthetic_fixture",
+  "created_at": "2026-11-14T18:00:00Z"
+}
