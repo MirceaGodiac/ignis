@@ -136,15 +136,20 @@ fn acquisition_scorer() -> ignis_server::AcquisitionScorer {
 /// The lane services `/api/v1` and the IGNIS tools run on, each present only when its data is
 /// there; an absent one is reported by `/api/v1/capabilities`, never answered with empty results.
 /// Models (I2) are not wired yet and stay behind `--enable-models` when they are.
-fn research_services() -> ignis_server::v1::ResearchServices {
+/// Web discovery (R4) is attached only with `IGNIS_ENABLE_WEB=1` and a store for its snapshots
+/// (`web_store`: the registry instance's artifact store).
+fn research_services(
+    web_store: Option<std::sync::Arc<dyn ignis_core::services::ArtifactStore>>,
+) -> ignis_server::v1::ResearchServices {
     use std::sync::Arc;
+    let mut web = ignis_server::v1::WebTools::Disabled;
     let mut wiki = false;
     let knowledge = if ignis_evidence::catalog::default_db().exists() {
         match ignis_evidence::service::EvidenceService::open_default() {
             Ok(s) => {
                 // The research wiki (R4) lives under the runs root, next to the other run state.
                 let path = ignis_evidence::wiki::default_path();
-                let s = match ignis_evidence::wiki::WikiStore::open(
+                let mut s = match ignis_evidence::wiki::WikiStore::open(
                     &path,
                     ignis_core::contracts::Origin::System,
                 ) {
@@ -157,6 +162,33 @@ fn research_services() -> ignis_server::v1::ResearchServices {
                         s
                     }
                 };
+                if ignis_evidence::web::enabled_from_env() {
+                    match web_store {
+                        Some(store) => {
+                            let provider = ignis_evidence::web::provider::ParallelSearch::from_env(
+                            )
+                            .map(|p| {
+                                Arc::new(p)
+                                    as Arc<dyn ignis_evidence::web::provider::SearchProvider>
+                            });
+                            web = if provider.is_some() {
+                                ignis_server::v1::WebTools::SearchAndFetch
+                            } else {
+                                ignis_server::v1::WebTools::FetchOnly
+                            };
+                            s = s.with_web(Arc::new(ignis_evidence::web::WebDiscovery::new(
+                                store,
+                                ignis_evidence::web::fetch_log_for(
+                                    &ignis_evidence::catalog::default_db(),
+                                ),
+                                provider,
+                                Default::default(),
+                                ignis_core::contracts::Origin::System,
+                            )));
+                        }
+                        None => eprintln!("web discovery not configured: no snapshot store here"),
+                    }
+                }
                 Some(Arc::new(s) as Arc<dyn ignis_core::services::KnowledgeService>)
             }
             Err(e) => {
@@ -187,6 +219,7 @@ fn research_services() -> ignis_server::v1::ResearchServices {
         knowledge,
         datasets,
         conditions,
+        web,
         wiki,
         ..Default::default()
     }
@@ -198,15 +231,35 @@ fn main() -> anyhow::Result<()> {
             let n = ignis_core::schema::export(&out)?;
             println!("exported {n} schemas to {}", out.display());
         }
-        Cmd::Serve(args) => ignis_server::run(
-            args,
-            ignis_server::Services {
-                experts: experts(),
-                fixture_experts: ignis_server::fixture::experts(),
-                acquisition: Some(acquisition_scorer()),
-                research: research_services(),
-            },
-        )?,
+        Cmd::Serve(args) => {
+            // web snapshots go to the registry instance's artifact store (same backend and root)
+            let web_store = if ignis_evidence::web::enabled_from_env() {
+                match ignis_server::ops::artifact_store(
+                    args.artifact_backend,
+                    &args.r2,
+                    args.root.join(&args.state_dir).join("artifacts"),
+                    "registry",
+                ) {
+                    Ok(s) => Some(s),
+                    Err(e) => {
+                        eprintln!("web discovery not configured: artifact store: {e}");
+                        None
+                    }
+                }
+            } else {
+                None
+            };
+            let research = research_services(web_store);
+            ignis_server::run(
+                args,
+                ignis_server::Services {
+                    experts: experts(),
+                    fixture_experts: ignis_server::fixture::experts(),
+                    acquisition: Some(acquisition_scorer()),
+                    research,
+                },
+            )?
+        }
         Cmd::State(c) => ignis_server::ops::run_state(c)?,
         Cmd::Metrics(c) => ignis_server::observe::run_metrics(c)?,
         Cmd::Harness(c) => ignis_server::harness_run::run(
@@ -215,7 +268,7 @@ fn main() -> anyhow::Result<()> {
                 experts: experts(),
                 fixture_experts: ignis_server::fixture::experts(),
                 acquisition: Some(acquisition_scorer()),
-                research: research_services(),
+                research: research_services(None),
             },
         )?,
         Cmd::Eval(c) => {
@@ -231,6 +284,27 @@ fn main() -> anyhow::Result<()> {
         Cmd::Vision(c) => ignis_vision::run(c)?,
         Cmd::Sources(c) => c.run()?,
         Cmd::Data(c) => c.run()?,
+        Cmd::Evidence(ignis_evidence::EvidenceCmd::Web(w)) => {
+            // snapshots of the CLI go to the local server state (`runs/server/artifacts`)
+            let store = if w.needs_store() {
+                Some(
+                    ignis_server::ops::artifact_store(
+                        ignis_server::ops::ArtifactBackend::Local,
+                        &Default::default(),
+                        std::path::PathBuf::from("runs/server/artifacts"),
+                        "registry",
+                    )
+                    .map_err(|e| anyhow::anyhow!(e))?,
+                )
+            } else {
+                None
+            };
+            ignis_evidence::web::cli::run(
+                w,
+                store,
+                ignis_evidence::web::fetch_log_for(&ignis_evidence::catalog::default_db()),
+            )?
+        }
         Cmd::Evidence(c) => ignis_evidence::run(c)?,
         Cmd::Accel(cmd) => ignis_accel::run(cmd)?,
         Cmd::Fit(cmd) => ignis_train::fit::run(

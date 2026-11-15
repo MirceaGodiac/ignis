@@ -33,6 +33,7 @@ pub mod service;
 pub mod sira;
 #[cfg(feature = "pdf")]
 pub mod verify;
+pub mod web;
 pub mod wiki;
 
 use std::collections::BTreeSet;
@@ -117,6 +118,9 @@ pub enum GraphCmd {
 pub enum EvidenceCmd {
     #[command(subcommand)]
     Corpus(CorpusCmd),
+    /// Web discovery (R4): `search`, `fetch` into a snapshot, read a `snapshot` back.
+    #[command(subcommand)]
+    Web(web::cli::WebCmd),
     #[command(subcommand)]
     Graph(GraphCmd),
     /// Parse PDFs (page texts, char spans, bboxes, captions) and upsert their parse views into the catalog.
@@ -502,6 +506,8 @@ fn ingest_one(
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
         EvidenceCmd::Corpus(c) => run_corpus(c),
+        // the CLI composition root opens the artifact store and calls `web::cli::run`
+        EvidenceCmd::Web(_) => bail!("`ignis evidence web` runs through the `ignis` binary"),
         EvidenceCmd::Graph(GraphCmd::Build { db, manifests, conditions, out }) => {
             let db = db.unwrap_or_else(catalog::default_db);
             let con = catalog::connect(&db, true)?;
