@@ -902,6 +902,28 @@ impl KnowledgeService for EvidenceService {
             backends: self.backends(req.mode, Some(&ranked), &sealed),
             origin: Origin::System,
         };
+        // A family filter never hides silently: documents left out only because they have no
+        // family label yet (R8 labels fill them) are counted on the lexical backend's note.
+        let unlabelled = {
+            let ret = self.retriever.lock().expect("retriever");
+            catalog::unlabelled_family_matches(&ret.con, &req.query, &filters).map_err(internal)?
+        };
+        let mut page = page;
+        if unlabelled > 0 {
+            if let Some(b) = page
+                .backends
+                .iter_mut()
+                .find(|b| b.backend == RetrievalBackend::Lexical)
+            {
+                let note = format!(
+                    "family filter: excluded_unlabelled: {unlabelled} documents match the query but have no family label yet; omit filters.families to include them"
+                );
+                b.detail = Some(match b.detail.take() {
+                    Some(d) => format!("{d}; {note}"),
+                    None => note,
+                });
+            }
+        }
         page.validate()?;
         Ok(page)
     }
