@@ -580,6 +580,25 @@ impl Filters {
     }
 }
 
+/// Documents a family filter excludes only because they carry no family label: publications with
+/// an empty `families_json` whose text matches `query` and every filter except the family ones.
+/// Zero when no family filter is set.
+pub fn unlabelled_family_matches(con: &Connection, query: &str, filters: &Filters) -> Result<i64> {
+    if filters.families.is_empty() && filters.family.is_none() {
+        return Ok(0);
+    }
+    let mut f = filters.clone();
+    f.families.clear();
+    f.family = None;
+    let (where_, fargs) = f.sql();
+    let sql = format!(
+        "SELECT count(DISTINCT c.publication_id) FROM chunks_fts JOIN chunks c ON c.rowid = chunks_fts.rowid          JOIN publications p ON p.id = c.publication_id          WHERE chunks_fts MATCH ? AND coalesce(json_array_length(p.families_json), 0) = 0{where_}"
+    );
+    let mut args = vec![SqlValue::Text(fts_query(query)?)];
+    args.extend(fargs);
+    Ok(con.query_row(&sql, rusqlite::params_from_iter(args), |r| r.get(0))?)
+}
+
 #[derive(Debug, Clone)]
 pub struct LexHit {
     pub chunk_id: String,
