@@ -23,11 +23,11 @@ use std::time::{Duration, Instant};
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
     Author, AuthorKind, Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef,
-    EpisodeId, ErrorCode, ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus,
-    ForecastRequest, GraphNeighborsRequest, GroundingMode, InlinePayload, JobLookup, JobRef,
-    Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef, ResponseFormat, RetryPolicy,
-    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
-    WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
+    EpisodeId, ErrorCode, ErrorEnvelope, EvidenceRef, ExecutionRecord, ExecutionScope,
+    ExecutionStatus, ForecastRequest, GraphNeighborsRequest, GroundingMode, InlinePayload,
+    JobLookup, JobRef, Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef, ResponseFormat,
+    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
+    ToolsSchema, WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
 };
 use ignis_core::contracts::{SkillRef, SkillText};
 use ignis_core::services::{
@@ -798,13 +798,27 @@ impl ToolHost {
             Ok(Outcome::Job(job)) => {
                 // The job may have ended while the host waited (or before an idempotent
                 // resubmission): say how, with the job's own error.
+                // The job carries its outputs; they are not repeated in `artifact_refs`.
                 use ignis_core::contracts::JobStatus;
                 let mut r = match (job.status, &job.error) {
-                    (JobStatus::Succeeded, _) => base(ExecutionStatus::Completed, None),
+                    (JobStatus::Succeeded, _) => {
+                        let mut r = base(ExecutionStatus::Completed, None);
+                        if job.kind == ANALYSIS_JOB {
+                            r.result = Some(self.analysis_summary(scope, &job));
+                        }
+                        r
+                    }
                     (JobStatus::Failed | JobStatus::Cancelled, Some(e)) => failed(e.clone()),
+                    (JobStatus::Failed, None) => failed(envelope(
+                        ErrorCode::Internal,
+                        format!("job {} failed without recording why", job.job_id),
+                    )),
+                    (JobStatus::Cancelled, None) => failed(envelope(
+                        ErrorCode::Cancelled,
+                        format!("job {} was cancelled before it finished", job.job_id),
+                    )),
                     _ => base(ExecutionStatus::Accepted, None),
                 };
-                r.artifact_refs = job.outputs.clone();
                 r.job = Some(job);
                 r
             }
@@ -839,23 +853,44 @@ impl ToolHost {
                 r
             }
             Ok(Outcome::Inline(p)) => {
+                // A read of a stored artifact (already its own reference): one that is still
+                // too large to inline answers a preview of itself, pointing at the same artifact.
+                let p = match (size_of(&p.value) > INLINE_RESULT_BYTES, p.full) {
+                    (true, Some(full)) => {
+                        let (head, cut) = preview_of(&p.value, PREVIEW_BYTES);
+                        InlinePayload {
+                            value: json!({
+                                "artifact_id": full.artifact_id,
+                                "total_bytes": size_of(&p.value),
+                                "preview": head,
+                                "cut": cut,
+                                "how_to_read": HOW_TO_READ_LARGE_READ,
+                            }),
+                            partial: true,
+                            full: Some(full),
+                        }
+                    }
+                    (_, full) => InlinePayload { full, ..p },
+                };
                 let mut r = base(ExecutionStatus::Completed, None);
                 r.artifact_refs = p.full.iter().cloned().collect();
                 r.result = Some(p);
                 r
             }
             Ok(Outcome::Concise { shown, full }) => {
-                let small = serde_json::to_vec(&shown)
-                    .map(|b| b.len() <= INLINE_RESULT_BYTES)
-                    .unwrap_or(false);
-                let p = if small {
+                let p = if size_of(&shown) <= INLINE_RESULT_BYTES {
                     Ok(InlinePayload {
                         value: shown,
                         partial: false,
                         full: None,
                     })
                 } else {
-                    self.inline_or_store(scope, &call_id, tool, full)
+                    // The agent previews the view it reads; the artifact keeps the full answer.
+                    serde_json::to_vec(&full)
+                        .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))
+                        .and_then(|bytes| {
+                            self.store_previewed(scope, &call_id, tool, bytes, &shown)
+                        })
                 };
                 match p {
                     Ok(p) => {
@@ -886,6 +921,87 @@ impl ToolHost {
         }
     }
 
+    /// What a succeeded `analysis_execute` job answers: its [`ExecutionRecord`] reference, how the
+    /// program ended, each kept output by path, and the `derivation` a computed claim binds
+    /// (`computation` = the record, `inputs` = exactly the mounted inputs), so the agent needs no
+    /// extra `artifacts_read` of the record to cite a number.
+    fn analysis_summary(&self, scope: &ExecutionScope, job: &JobRef) -> InlinePayload {
+        let id = |a: &ArtifactRef| json!(a.artifact_id);
+        let found = job
+            .outputs
+            .iter()
+            .find(|a| a.contract.as_deref() == Some("ExecutionRecord"));
+        let record = found
+            .ok_or_else(|| "the job stored no ExecutionRecord".to_string())
+            .and_then(|meta| {
+                ignis_research::artifacts::read_json_pointer(
+                    self.artifacts.as_ref(),
+                    scope,
+                    meta,
+                    "",
+                )
+                .map_err(|e| e.message)
+                .and_then(|p| {
+                    serde_json::from_value::<ExecutionRecord>(p.value).map_err(|e| e.to_string())
+                })
+                .map(|r| (meta, r))
+            });
+        let (meta, rec) = match record {
+            Ok(x) => x,
+            Err(why) => {
+                return InlinePayload {
+                    value: json!({
+                        "outputs": job.outputs.iter().map(id).collect::<Vec<_>>(),
+                        "note": format!("the run's ExecutionRecord could not be read ({why}); read job.outputs with artifacts_read"),
+                    }),
+                    partial: false,
+                    full: None,
+                }
+            }
+        };
+        let stream = |s: &ignis_core::contracts::CapturedStream| {
+            s.artifact.as_ref().map(|a| {
+                json!({"artifact_id": a.artifact_id, "total_bytes": s.total_bytes, "truncated": s.truncated})
+            })
+        };
+        let mut value = json!({
+            "execution_record": meta.artifact_id,
+            "outcome": rec.outcome,
+            "outputs": rec.outputs.iter().map(|o| json!({
+                "path": o.path,
+                "artifact_id": o.artifact.artifact_id,
+                "sha256": o.artifact.sha256,
+            })).collect::<Vec<_>>(),
+            "stdout": stream(&rec.stdout),
+            "stderr": stream(&rec.stderr),
+            "derivation": {
+                "computation": meta.artifact_id,
+                "inputs": rec.inputs.iter().map(|m| id(&m.artifact)).collect::<Vec<_>>(),
+            },
+        });
+        if !rec.rejected_outputs.is_empty() {
+            value["rejected_outputs"] = json!(rec.rejected_outputs);
+        }
+        if size_of(&value) <= INLINE_RESULT_BYTES {
+            return InlinePayload {
+                value,
+                partial: false,
+                full: None,
+            };
+        }
+        let (head, cut) = preview_of(&value, PREVIEW_BYTES);
+        InlinePayload {
+            value: json!({
+                "artifact_id": meta.artifact_id,
+                "preview": head,
+                "cut": cut,
+                "how_to_read": "the run's summary is too large to inline; the ExecutionRecord artifact holds it whole: read its /outputs, /inputs or /rejected_outputs with artifacts_read and item_offset",
+            }),
+            partial: true,
+            full: Some(meta.clone()),
+        }
+    }
+
     /// Small values travel inline; large ones become an artifact with a preview that says how to
     /// read the rest.
     fn inline_or_store(
@@ -904,6 +1020,19 @@ impl ToolHost {
                 full: None,
             });
         }
+        self.store_previewed(scope, call_id, tool, bytes, &v)
+    }
+
+    /// Store `full` (its serialized `bytes`) as an artifact and answer a preview of `shown`, the
+    /// view the agent reads (the full value itself, or its concise view), paired with that artifact.
+    fn store_previewed(
+        &self,
+        scope: &ExecutionScope,
+        call_id: &ToolCallId,
+        tool: &str,
+        bytes: Vec<u8>,
+        shown: &Value,
+    ) -> ServiceResult<InlinePayload> {
         let contract = self
             .registered
             .iter()
@@ -925,20 +1054,24 @@ impl ToolHost {
             },
             &mut bytes.as_slice(),
         )?;
-        let (head, cut) = preview_of(&v, PREVIEW_BYTES);
+        let (head, cut) = preview_of(shown, PREVIEW_BYTES);
         Ok(InlinePayload {
             value: json!({
                 "stored_as_artifact": full.artifact_id,
                 "total_bytes": bytes.len(),
                 "preview": head,
                 "cut": cut,
-                "how_to_read": "the preview holds every small field whole and the first items of each long list (`cut` says how many of how many); read the rest with artifacts_read, this artifact_id and a json_pointer (e.g. \"/rows/40\"), or narrow the call (filters, a page_size) and call again",
+                "how_to_read": HOW_TO_READ_STORED,
             }),
             partial: true,
             full: Some(full),
         })
     }
 }
+
+const HOW_TO_READ_STORED: &str = "the preview holds every small field whole and the first items of each long list (`cut` says how many of how many); the stored artifact is the full (detailed) result: read the rest with artifacts_read, this artifact_id and a json_pointer to an item (\"/rows/40\") or to a list with item_offset (\"/rows\", item_offset 40), or narrow the call (filters, a page_size) and call again";
+
+const HOW_TO_READ_LARGE_READ: &str = "this read is larger than one tool result carries inline; the preview holds every small field whole and the first items of each long list (`cut` says how many of how many); read a narrower part of the same artifact: a json_pointer to a list with item_offset/item_count, a deeper json_pointer, or a byte_length of at most 24576";
 
 /// How much of an oversized result travels inline as its preview.
 pub const PREVIEW_BYTES: usize = 24 << 10;
@@ -952,6 +1085,11 @@ fn size_of(v: &Value) -> usize {
 /// its keys. `cut` names each shortened field with how many items were kept of how many, so the
 /// model knows what it has not seen and where to read it.
 fn preview_of(v: &Value, budget: usize) -> (Value, Value) {
+    if let Value::Array(items) = v {
+        let kept = head_items(items, budget);
+        let cut = json!({"kept": kept.len(), "of": items.len()});
+        return (Value::Array(kept), cut);
+    }
     let Some(o) = v.as_object() else {
         return (
             Value::Null,
@@ -977,16 +1115,7 @@ fn preview_of(v: &Value, budget: usize) -> (Value, Value) {
     for (k, x) in big {
         match x {
             Value::Array(items) => {
-                let mut kept = Vec::new();
-                let mut n = 2usize;
-                for it in items {
-                    let m = size_of(it) + 1;
-                    if n + m > share {
-                        break;
-                    }
-                    n += m;
-                    kept.push(it.clone());
-                }
+                let kept = head_items(items, share);
                 cut.insert(k.clone(), json!({"kept": kept.len(), "of": items.len()}));
                 head.insert(k.clone(), Value::Array(kept));
             }
@@ -1002,6 +1131,21 @@ fn preview_of(v: &Value, budget: usize) -> (Value, Value) {
         }
     }
     (Value::Object(head), Value::Object(cut))
+}
+
+/// The first `items` that fit `budget` serialized bytes.
+fn head_items(items: &[Value], budget: usize) -> Vec<Value> {
+    let mut kept = Vec::new();
+    let mut n = 2usize;
+    for it in items {
+        let m = size_of(it).saturating_add(1);
+        if n.saturating_add(m) > budget {
+            break;
+        }
+        n += m;
+        kept.push(it.clone());
+    }
+    kept
 }
 
 /// Every evidence reference inside a retrieval tool's result value ([`RETRIEVES_EVIDENCE`]),

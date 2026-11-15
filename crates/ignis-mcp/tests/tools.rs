@@ -434,13 +434,110 @@ fn a_large_result_is_stored_and_previewed_not_inlined() {
     assert_eq!(full.contract.as_deref(), Some("SearchPage"));
     assert_eq!(r.artifact_refs, vec![full.clone()]);
     assert!(serde_json::to_vec(&r).unwrap().len() < ignis_mcp::tools::INLINE_RESULT_BYTES);
-    // The full page is the service's answer, readable by the agent.
+    // The preview is of the concise view the agent reads (no locator internals per hit) ...
+    let preview = &p.value["preview"]["hits"];
+    assert!(!preview.as_array().unwrap().is_empty());
+    assert!(preview[0].get("evidence_id").is_some(), "{preview:#}");
+    assert!(preview[0].get("evidence").is_none(), "{preview:#}");
+    // ... while the stored artifact is the service's full answer, readable by the agent.
     let first = h.host.call(
         &s,
         "artifacts_read",
         json!({"artifact_id": full.artifact_id, "json_pointer": "/hits/0"}),
     );
     ok(&first);
+    assert!(first.result.unwrap().value.get("evidence").is_some());
+}
+
+/// Every read of a large artifact stays a bounded inline page: a pointer to a long array answers a
+/// slice that says where the next one starts, a pointer to a large object a preview of it, and a
+/// byte page without a length a page well under the inline limit.
+#[test]
+fn artifacts_read_never_inlines_a_whole_large_artifact() {
+    let h = host();
+    let s = scope("ws_a");
+    let rows: Vec<Value> = (0..2_000)
+        .map(|i| json!({"run": format!("r{i:04}"), "value": i, "note": "x".repeat(70)}))
+        .collect();
+    let doc = json!({"rows": rows, "meta": {"n": 2000}});
+    let art = put_json(&h, &s, &doc);
+    assert!(art.byte_length > 200_000, "{}", art.byte_length);
+    let limit = ignis_mcp::tools::INLINE_RESULT_BYTES;
+    let read = |args: Value| {
+        let r = h.host.call(&s, "artifacts_read", args);
+        ok(&r);
+        assert!(
+            serde_json::to_vec(&r).unwrap().len() < limit,
+            "inline: {r:?}"
+        );
+        r.result.unwrap()
+    };
+
+    // A pointer to the list: a default slice under the page budget, then the next ones by offset.
+    let p = read(json!({"artifact_id": art.artifact_id, "json_pointer": "/rows"}));
+    assert!(p.partial);
+    assert_eq!(p.full.as_ref().unwrap().artifact_id, art.artifact_id);
+    assert_eq!(p.value["of"], json!(2000));
+    assert_eq!(p.value["item_offset"], json!(0));
+    let first = p.value["items"].as_array().unwrap().len();
+    assert!(first > 10 && first < 2000, "{first}");
+    assert_eq!(p.value["next_item"], json!(first));
+    let mut seen = first;
+    let mut next = p.value["next_item"].as_u64();
+    while let Some(o) = next {
+        let p = read(
+            json!({"artifact_id": art.artifact_id, "json_pointer": "/rows", "item_offset": o}),
+        );
+        let items = p.value["items"].as_array().unwrap();
+        assert_eq!(items[0]["value"], json!(o));
+        seen += items.len();
+        next = p.value["next_item"].as_u64();
+    }
+    assert_eq!(seen, 2000, "following next_item reads every item once");
+
+    // An explicit slice.
+    let p = read(
+        json!({"artifact_id": art.artifact_id, "json_pointer": "/rows", "item_offset": 1995, "item_count": 10}),
+    );
+    assert_eq!(p.value["items"].as_array().unwrap().len(), 5);
+    assert_eq!(p.value["next_item"], Value::Null);
+    let p = read(
+        json!({"artifact_id": art.artifact_id, "json_pointer": "/rows", "item_offset": 10, "item_count": 3}),
+    );
+    assert_eq!(p.value["items"][0]["value"], json!(10));
+    assert_eq!(p.value["next_item"], json!(13));
+
+    // The whole document: a preview of itself that points at the same artifact.
+    let p = read(json!({"artifact_id": art.artifact_id, "json_pointer": ""}));
+    assert!(p.partial);
+    assert_eq!(p.full.as_ref().unwrap().artifact_id, art.artifact_id);
+    assert_eq!(p.value["preview"]["meta"], json!({"n": 2000}));
+    assert_eq!(p.value["cut"]["rows"]["of"], json!(2000));
+
+    // A byte page without a length.
+    let p = read(json!({"artifact_id": art.artifact_id}));
+    assert!(p.value["byte_length"].as_u64().unwrap() <= 24 << 10);
+    assert!(p.value["next_offset"].as_u64().is_some());
+
+    // Slicing needs a pointer to an array.
+    let r = h.host.call(
+        &s,
+        "artifacts_read",
+        json!({"artifact_id": art.artifact_id, "json_pointer": "/meta", "item_count": 1}),
+    );
+    refused(&r, ErrorCode::InvalidRequest);
+    let r = h.host.call(
+        &s,
+        "artifacts_read",
+        json!({"artifact_id": art.artifact_id, "item_offset": 1}),
+    );
+    refused(&r, ErrorCode::InvalidRequest);
+    let r = h.host.call(
+        &s,
+        "artifacts_read",
+        json!({"artifact_id": art.artifact_id, "json_pointer": "/rows", "item_offset": 2001}),
+    );
+    refused(&r, ErrorCode::InvalidRequest);
 }
 
 /// A second host over the same store that waits up to `wait` for jobs (as `ignis serve` does).
