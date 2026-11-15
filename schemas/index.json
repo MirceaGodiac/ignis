@@ -86,6 +86,7 @@
     "ModelCard",
     "ScenarioRequest",
     "ScenarioAdmitted",
+    "StoredRunList",
     "EvaluationRequest",
     "EvaluationResult",
     "GoldTask",

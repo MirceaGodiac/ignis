@@ -32,11 +32,13 @@ interface Props {
   autoFocus?: boolean;
   /** What a served model can do with each run; null while it is being worked out or when no model is served. */
   reach: Map<string, Reach> | null;
+  /** Runs a model forecasts that are validation or test runs (held out: the model never read them). */
+  heldOut?: Set<string>;
 }
 
 const REACH_ORDER: Record<Reach, number> = { ready: 0, conditions: 1, typed: 2, sealed: 3, none: 4 };
 
-export function RunPicker({ runs, value, onPick, loading, autoFocus, reach }: Props) {
+export function RunPicker({ runs, value, onPick, loading, autoFocus, reach, heldOut }: Props) {
   const [q, setQ] = useState("");
   const [family, setFamily] = useState<string>("all");
   const [onlyReady, setOnlyData] = useState(true);
@@ -115,6 +117,11 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus, reach }: Pr
               <span className="runpick-main">
                 <b>{runLabel(r)}</b>
                 <code>{r.id}</code>
+                {heldOut?.has(r.id) && (
+                  <span className="muted runpick-part" title="Validation or test run: the model was written without reading it">
+                    held out
+                  </span>
+                )}
               </span>
               <ReachTag r={r} reach={reach?.get(r.id) ?? null} />
             </button>

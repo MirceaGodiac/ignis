@@ -657,6 +657,7 @@ list, never from a request.
 | `scores` | list of `ReportedScore` |
 | `limits` | stated limits (a line starting "Do not use" is surfaced in the agent's tool description) |
 | `cite`, `card_doc` | how to cite it; the model card document |
+| `open_partitions`, `open_reason` | the partitions of the release's split whose stored runs research scopes (the forecast lab, its agents) may forecast; `["train"]` unless the served list opened more, with its reason |
 
 **`ModelInput`**: `name`, `kind`, `unit_si`, `required`, `text` (a text value such as a fuel name),
 `note`, `example` (never a measurement). The **input kinds**:
@@ -689,6 +690,28 @@ An entry carries the card fields above plus three serving rules for law releases
 `targets`, `targets_note` and `refuse_blends` (refuse a scenario whose fuel is a blend when the release
 has no blend law). The release bytes sit beside it in `models/<hex>/`. **Adding a release is a list
 entry and its directory**; a rebuild is needed only when it runs on a forward the build lacks.
+
+**Opened partitions.** An entry may set `"open_partitions": ["train", "validation", "test"]` with an
+`open_reason`. Absent, a release forecasts train runs only: that is the default of every new
+deployment. `ServedList::read` refuses an opening without `train` or without a reason, and a reason
+without an opening. The committed list opens all three partitions for `flex_methanol.wsp2`,
+`flex_heptane.wsp2`, `acme_normal.wsp13`, `acme_inverse.wsp12` and `bass_front.wsp`. The reason: the
+sealed test partitions of their splits were spent in the one final run of 15 November (PROTOCOL
+12.11, [RESULTS_FINAL.md](RESULTS_FINAL.md)), and validation was already used for selection. A
+forecast on those runs therefore contaminates no evaluation. What the opening changes:
+
+- a **research scope** (the lab, the agents' `models_forecast`) may forecast a validation or test run
+  of that release. The scope itself still grants `train` only. Authoring and evaluation scopes keep
+  their own grants;
+- `GET /api/v1/models/{id}/runs` ([`StoredRunList`](../../crates/ignis-core/src/contracts/wsp.rs))
+  lists every run of the opened partitions, each with its `partition` and `held_out`
+  (validation or test: no author of the release read it);
+- the legacy registry routes serve the outcomes of those runs (series, endpoint, recording) as they do
+  for train runs, so the lab can draw what was recorded beside the forecast. A run stays sealed while
+  any split it belongs to keeps its partition closed.
+
+Evaluator bundles, `ignis eval`, `/seal` and `/reveal` never read the opening. A new generation that
+needs a sealed test again freezes a new split. It does not close this one.
 
 ---
 
@@ -738,7 +761,8 @@ models (the host prints why) instead of serving some of them.
   [`WspModelService`](../../crates/ignis-wsp/src/service.rs). It routes a release to its forward by
   `model_name` (never by family alone), loads each release once per id, asks the prefix source where
   the data come from, checks that against the host's `ExecutionScope`, and only then asks for the
-  prefix. **A test-partition run is refused before its prefix is built.** A prefix hash the host has
+  prefix. **A test-partition run is refused before its prefix is built**, unless the served list
+  opened that partition of the release to research scopes (9.2, opened partitions). A prefix hash the host has
   not admitted as a scenario is refused: the core crate keeps no other store of prefixes by hash.
 - **Typed scenarios** (`POST /api/v1/models/{id}/scenarios`, [`v1/wsp.rs`](../../crates/ignis-server/src/v1/wsp.rs)):
   a person types the conditions (and, where the release reads them, controls, an early prefix, a
@@ -754,8 +778,9 @@ models (the host prints why) instead of serving some of them.
   the stored `AnalysisArtifact` is at `GET /api/v1/artifacts/{id}`. The legacy `/api/forecast` and
   `/api/analysis/{id}` routes serve the fitted lab and are not WSP.
 - **Release routes**: `GET /api/v1/models` and `GET /api/v1/models/{id}` return the records;
-  `GET /api/v1/model-cards` returns the cards. A model name given in place of a release id gets an
-  error that names the correct id.
+  `GET /api/v1/model-cards` returns the cards; `GET /api/v1/models/{id}/runs` lists the stored runs the
+  caller may forecast with the release, each with its partition. A model name given in place of a
+  release id gets an error that names the correct id.
 
 ### 10.3 How the web shows releases
 
@@ -764,10 +789,12 @@ models (the host prints why) instead of serving some of them.
 - [`web/src/views/LabModels.tsx`](../../web/src/views/LabModels.tsx) is the forecast lab. It shows
   each card with the tags "experimental" and "hand-written · zero-shot / data-informed", the
   `forecasts` sentence, the authorship note, the reported scores with their sources, and the limits.
-  The input can be "The NASA run" (train-partition runs, for releases with `stored_runs`) or
-  "Conditions I type", which admits a scenario and then submits `/analyses`. The lab polls the job,
-  draws the quantile bands or event stack, and for a train run of a data-informed release says that
-  this is inspection, not a test.
+  The input can be "The NASA run" (the runs `/models/{id}/runs` lists, for releases with
+  `stored_runs`: train, plus validation and test runs where the served list opened them) or
+  "Conditions I type", which admits a scenario and then submits `/analyses`. The lab polls the job and
+  draws the quantile bands or event stack. On a validation or test run it shows a "Held-out run" badge:
+  the model never read that run. On a train run of a data-informed release it says that this is
+  inspection, not a test.
 
 ---
 
@@ -782,7 +809,7 @@ models (the host prints why) instead of serving some of them.
 | **The candidate is committed before validation.** The edits file and the rule that will judge it are committed (hash in the commit message) before any score on unseen data exists | PROTOCOL sections 4, 8, 12.1; every registration names its commit |
 | **Validation adopts or vetoes; it never tunes.** A validation score decides only whether a candidate replaces the carried model, by a rule written beforehand; a near miss is a refusal | PROTOCOL sections 8, 12.4; failed candidates stay in the tables as negative results |
 | **Band widths are not chosen on train** | set from the residuals of earlier batches with a stated margin (PROTOCOL 8, 12.3) |
-| **The test partition is sealed** | `DataExposure::validate` refuses an exposure that lists it; `ExecutionScope::require_partition` refuses test-partition runs outside an evaluation scope; `holdout/` vaults are write-once and never opened by an author; every reveal is logged in `runs/evaluation/reveal_log.jsonl`; `--final-test`, `--partition test` and `--partition all` are never passed in development |
+| **The test partition is sealed** | `DataExposure::validate` refuses an exposure that lists it; `ExecutionScope::require_partition` refuses test-partition runs outside an evaluation scope (forecasts on a split whose final test was spent are opened per release in `served.json`, 9.2); `holdout/` vaults are write-once and never opened by an author; every reveal is logged in `runs/evaluation/reveal_log.jsonl`; `--final-test`, `--partition test` and `--partition all` are never passed in development |
 | **New data is scored blind once, then studied** | PROTOCOL 12.2: freeze, measure blind, score once, then study the train groups for one revision; the validation groups judge that revision once |
 | **Typed back-propagation**: a revision is one damped step per batch | PROTOCOL 12.3: forward, decompose the loss, attribute (a script perturbs each physical block and reports, writing no weight), reason and type (pattern across sessions, inside the source range, about half the suggested step, 2–3 significant figures, a physical reason) |
 | **Predict, then check** (seventh generation) | PROTOCOL 13.6: the author writes the expected effect per stratum before a logged what-if run (`tools/wsp/ext/law_whatif.py`, log `runs/dev/gen7/whatif_log.jsonl`); a candidate whose effect was not predicted in sign is dropped, not tuned; at most five logged candidates per law |

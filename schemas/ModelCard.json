@@ -96,6 +96,15 @@
         }
       ]
     },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
     "Qualification": {
       "additionalProperties": false,
       "description": "The served state of a release and what it rests on.",
@@ -262,6 +271,22 @@
     },
     "model_name": {
       "type": "string"
+    },
+    "open_partitions": {
+      "default": [],
+      "description": "Partitions of the release's frozen split whose stored runs a research scope (the forecast\nlab, its agents) may forecast here. `train` alone unless the deployment opened more for this\nrelease in its served list, with [`ModelCard::open_reason`]. Evaluator bundles and `ignis\neval` are unaffected: they never read this.",
+      "items": {
+        "$ref": "#/$defs/Partition"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "open_reason": {
+      "description": "Why the deployment opened validation or test runs of this release (e.g. the final test was\nspent). Present exactly when `open_partitions` holds more than `train`.",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "qualification": {
       "$ref": "#/$defs/Qualification",

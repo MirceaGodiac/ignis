@@ -21,7 +21,8 @@ its forecast with uncertainty next to what was recorded. Pick a run and the mode
 chosen for you; move the cutoff and the forecast follows. Two kinds of release are served:
 
 - **Hand-written models** (the research service, `/api/v1`): literal-weight releases, each with a
-  model card. They forecast a stored run of their training partition, or a scenario you type.
+  model card. They forecast a stored run the server lists for them (train, and held-out validation and
+  test runs where the deployment opened them), or a scenario you type.
 - **Fitted releases** of the run registry (`/api`), listed on the run's record: these add a five-step
   protocol to seal a prediction and then reveal the recorded continuation.
 
@@ -48,7 +49,8 @@ releases, a **Model release** select lists them ("`<model>` · `<state>`").
     - **forecast · N points** / **forecast**: a served model reads this run directly;
     - **forecast from conditions**: a model forecasts from the run's conditions, filled in for you;
     - **you type its data**: a model is written for the family but needs values the record lacks;
-    - **sealed for evaluation**: a validation or test run, kept from the models;
+    - **sealed for evaluation**: a validation or test run, kept from the models (only where the
+      deployment keeps them closed; see "Held-out runs" below);
     - **no model**: no served model is written for the family;
     - **N points** / **conditions only**: shown while reach is unknown.
     Runs are sorted by reach (ready first), then by having a series, then by number of points.
@@ -75,8 +77,9 @@ releases, a **Model release** select lists them ("`<model>` · `<state>`").
   - **What this model forecasts, its scores and limits** (folded): the card's forecast text,
     authorship note, *Reported development scores* (metric, value, comparison, source), *Limits*,
     inputs note, citation and model card document.
-  - **Stored run mode**: if the run is not in the model's training partition, a note "This run is
-    sealed for evaluation" and up to six training runs to pick instead.
+  - **Stored run mode**: if the run is not among the model's runs, a note "This run is sealed for
+    evaluation" (or "not one of the model's runs" where validation and test are opened) and up to six
+    runs to pick instead.
   - **Typed mode**: a note on what is filled in; the inputs grouped as *Conditions*, *Controls over
     time*, *Measured before the cutoff*, *Timing*. Each field has a label from the card, its SI unit,
     an "optional" tag, an example placeholder, and a source note: "from the NASA record" or "not in
@@ -147,8 +150,7 @@ Shown when the run's record lists releases (`ExperimentDetail.releases`).
 | Runs for the picker | `GET /api/experiments` |
 | Run record, fitted releases, endpoint | `GET /api/experiments/{id}` → `ExperimentDetail` |
 | Hand-written model cards | `GET /api/v1/model-cards` → `ModelCard[]` |
-| A release's split | `GET /api/v1/models/{release id}` (`split_id`) |
-| Training runs of a split | `GET /api/experiments?split=<split>&partition=train` |
+| Runs a release may forecast | `GET /api/v1/models/{release id}/runs` → `StoredRunList` (each run with its `partition` and `held_out`) |
 | Observations at the cutoff | `GET /api/experiments/{id}/observations?cutoff_s=` → `ObservationsAtCutoff` |
 | Typed scenario | `POST /api/v1/models/{release id}/scenarios` (`wsp.v1`: conditions, controls, observations, test date, phase start, cutoff) → `ScenarioAdmitted.input_hash` |
 | Hand-written forecast | `POST /api/v1/analyses` (`release_id`, `input` = `stored_run` or `prefix`, optional `settings.target`), poll `GET /api/v1/jobs/{id}` every 400 ms, then `GET /api/v1/artifacts/{id}` → `AnalysisArtifact` |
@@ -159,10 +161,12 @@ Shown when the run's record lists releases (`ExperimentDetail.releases`).
 
 Client-side:
 
-- **Reach** (`useReach`): *ready* when a stored-run model of the run's family lists the run in its
-  training partition (and the run has a series if the model reads observations); *conditions* when a
-  typed model fits and the record fills every required input; *typed* when a typed model fits;
-  *sealed* when a stored-run model exists for the family; else *none*.
+- **Reach** (`useReach`): *ready* when a stored-run model of the run's family lists the run (and
+  the run has a series if the model reads observations); *conditions* when a typed model fits and
+  the record fills every required input; *typed* when a typed model fits, or a stored-run model lists
+  the run but it has no series; *sealed* when a stored-run model of the family keeps validation and
+  test closed; else *none*. `useReach` also returns `heldOut`: the ready runs in a validation or test
+  partition.
 - **Fit score** (`fit`): +4 same family (or +3 for an `other` model written for the run's
   investigation), +2 when the run's fuel appears in the card, −1 when the card names droplets,
   fabric or plastics and the fuel does not match, +1 for stored-run models; +3 more when the record
@@ -172,7 +176,16 @@ Client-side:
   ("2 cm wide"), control stages from condition values, the test date from the session id.
 - **Summary sentence** (`quantileSummary`): median and outer band at the last forecast time.
 - Display: metres as mm (× 1000).
-- With a stored training run, the forecast runs automatically 350 ms after the cutoff changes.
+- With a stored run the model lists, the forecast runs automatically 350 ms after the cutoff changes.
+
+**Held-out runs.** Where the deployment's served list opens validation and test runs for a release
+(`open_partitions`; in the committed list for the FLEX, ACME normal and inverse and BASS releases,
+because their final test was spent on 15 November 2026, PROTOCOL 12.11), the lab offers every run of
+the family. BASS reads typed conditions, so for BASS the opening only serves the recorded outcomes. A
+validation or test run is a held-out run: the picker row says *held out* in muted text, and the
+forecast shows the badge "Held-out run · the model never read it". A forecast on data the model never
+saw is the strongest thing the lab can show. The recorded series and the endpoint of those runs are
+served like train runs, so the forecast is drawn against what was measured.
 
 ## Flows
 
@@ -206,7 +219,9 @@ Run side panel (run id), [Models](models.md) for release details, [Runs](runs.md
 ## What the UI marks
 
 Hand-written models carry an **experimental** tag; every forecast reads "Model output, not a
-measurement"; a run outside a model's training partition is shown as *sealed for evaluation*.
+measurement"; a run outside a model's runs is shown as *sealed for evaluation* where the deployment
+keeps validation and test closed; a validation or test run the model forecasts carries *held out*
+and the "Held-out run" badge.
 
 ## Developer notes
 

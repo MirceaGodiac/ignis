@@ -949,6 +949,42 @@ pub struct ModelCard {
     /// Model card (repository path).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub card_doc: Option<String>,
+    /// Partitions of the release's frozen split whose stored runs a research scope (the forecast
+    /// lab, its agents) may forecast here. `train` alone unless the deployment opened more for this
+    /// release in its served list, with [`ModelCard::open_reason`]. Evaluator bundles and `ignis
+    /// eval` are unaffected: they never read this.
+    #[serde(default)]
+    pub open_partitions: BTreeSet<Partition>,
+    /// Why the deployment opened validation or test runs of this release (e.g. the final test was
+    /// spent). Present exactly when `open_partitions` holds more than `train`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_reason: Option<String>,
+}
+
+/// One stored run a release may forecast in this deployment, with its partition in the release's
+/// frozen split. `held_out` = the partition is validation or test: no author of the release read
+/// the run while writing it.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct StoredRunEntry {
+    pub run_id: RunId,
+    pub partition: Partition,
+    pub held_out: bool,
+}
+
+/// The stored runs of a release's frozen split that the caller's scope may forecast with it
+/// (`GET /api/v1/models/{id}/runs`): every run of the partitions [`ModelCard::open_partitions`]
+/// names. Empty for a release that reads no stored run.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct StoredRunList {
+    pub schema_version: WspSchema,
+    pub release_id: ReleaseId,
+    pub split_id: String,
+    pub open_partitions: BTreeSet<Partition>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_reason: Option<String>,
+    pub runs: Vec<StoredRunEntry>,
 }
 
 /// One control stage of a typed scenario.
