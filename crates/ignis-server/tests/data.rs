@@ -710,3 +710,53 @@ async fn answers_are_citable_against_a_named_snapshot() {
     let (_, h5, _) = raw(&r, "GET", "/api/v1/runs", None).await;
     assert_eq!(h5["x-ignis-snapshot"], want.as_str());
 }
+
+/// The conditions service keeps its parsed table while the file keeps its length and modification
+/// time. A rewrite that keeps both (same-length edit, timestamp restored) must not produce an
+/// answer naming one table and holding another: the snapshot changes exactly when the cells do.
+#[tokio::test(flavor = "multi_thread")]
+async fn the_snapshot_always_names_the_table_the_cells_came_from() {
+    let _data = DATA.lock().await;
+    let root = data_root();
+    let dir = tempfile::tempdir().unwrap();
+    let s = store(dir.path());
+    let r = router(dir.path(), Some(s.service.clone()));
+    let pressure = |b: &[u8]| -> f64 {
+        let t: Value = serde_json::from_slice(b).unwrap();
+        let cells = t["rows"][0]["cells"].as_array().unwrap();
+        let c = cells.iter().find(|c| c["key"] == "pressure").unwrap();
+        c["value"]["value_si"].as_f64().unwrap()
+    };
+    let (st, h0, b0) = raw(&r, "GET", "/api/v1/runs", None).await;
+    assert_eq!(st, StatusCode::OK);
+
+    let table = root.join("work/conditions/conditions_table.json");
+    let before = std::fs::read(&table).unwrap();
+    let mtime = std::fs::metadata(&table).unwrap().modified().unwrap();
+    let text = String::from_utf8(before.clone()).unwrap();
+    assert!(text.contains("101352.9"));
+    let edited = text.replace("101352.9", "101352.8");
+    assert_eq!(edited.len(), before.len());
+    std::fs::write(&table, &edited).unwrap();
+    std::fs::File::options()
+        .write(true)
+        .open(&table)
+        .unwrap()
+        .set_modified(mtime)
+        .unwrap();
+    let (st, h1, b1) = raw(&r, "GET", "/api/v1/runs", None).await;
+    std::fs::write(&table, &before).unwrap();
+    assert_eq!(st, StatusCode::OK);
+
+    let cells_changed = pressure(&b0) != pressure(&b1);
+    let snapshot_changed = h0["x-ignis-snapshot"] != h1["x-ignis-snapshot"];
+    assert_eq!(
+        cells_changed,
+        snapshot_changed,
+        "snapshot {:?} -> {:?} while pressure {} -> {}",
+        h0["x-ignis-snapshot"],
+        h1["x-ignis-snapshot"],
+        pressure(&b0),
+        pressure(&b1)
+    );
+}
