@@ -17,6 +17,11 @@
 //! * PSI-26 `Experimental table_BASS.csv` (122 rows): `Date, GMT, As Run Test #, Test #, Sample #, Fuel
 //!   Sample Material`; `As Run_Test Matrix.xlsx` adds 'Date on videos and images' and 'Approx Start Time'.
 //!   PSI-26 videos are named by recording time only: `<yyyymmdd> <hh.mm.ss> iss035m<id>.mp4`.
+//!   Its sheets 2012/2013 also give each burn's 'O2 % by volume' (written as a fraction, 0.221) and
+//!   'pressure, atm' (0.97-0.98): the measured atmosphere of the burn (verified 2026-11-15).
+//! * PSI-25 has no per-test pressure. The BASS-II Summary Report states "Ambient pressure was 1 atm" for
+//!   the T'ien tests (p. 102) and takes P = 1 atm for the MSG work volume in its O2 consumption
+//!   analysis of every test (p. 19); that 1 atm is kept as a report value, flagged approximate.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::Path;
@@ -25,8 +30,8 @@ use std::sync::OnceLock;
 use calamine::{Data, Reader};
 use chrono::{Datelike, NaiveDate, NaiveDateTime, NaiveTime};
 use ignis_core::contracts::{
-    Alias, ExperimentRecord, Family, Measured, Method, Resolution, Session, Source, SourceLocator,
-    Specimen,
+    Alias, EvidenceClass, ExperimentRecord, Family, Measured, Method, Resolution, Session, Source,
+    SourceLocator, Specimen,
 };
 use ignis_core::interpret::FieldRule;
 use ignis_core::prefix::{ProspectivePolicy, ALWAYS_FORBIDDEN};
@@ -47,6 +52,10 @@ const V: &str = "1";
 pub const T25: &str = "PSI-25_Experimental table_BASS-II.csv";
 pub const T26: &str = "PSI-26_Experimental table_BASS.csv";
 pub const ASRUN26: &str = "PSI-26_Science Documents_As Run_Test Matrix.xlsx";
+/// The BASS-II Summary Report (PSI-25 Reports): the only source of a PSI-25 pressure. Not a sample file of
+/// the manifest; located by its file hash, which is also its source id in the evidence corpus.
+pub const REPORT25: &str = "PSI-25_Reports_BASS-II Summary Report.pdf";
+pub const REPORT25_SHA: &str = "5ffa911fd9b6356f204646003fb9342e341810dcdfdf5cb15756e7f01ec5f770";
 
 pub fn policy() -> ProspectivePolicy {
     let mut f = vec!["x_o2_final", "x_co2_final", "x_co_final", "total_frames"];
@@ -55,6 +64,7 @@ pub fn policy() -> ProspectivePolicy {
         Family::Bass,
         &[
             "x_o2",
+            "pressure",
             "x_co2",
             "x_co",
             "flow_velocity",
@@ -70,6 +80,14 @@ pub fn rules() -> Vec<FieldRule> {
     let mut v = vec![
         r(FAM, "x_o2", Deterministic, "bass.cond.o2_vol_pct",
           "'Calibrated initial O2 % by vol' /100; volume % taken as mole fraction (ideal gas), flagged"),
+        r(FAM, "pressure", Deterministic, "bass.cond.pressure",
+          "PSI-26: the as-run matrix 'pressure, atm' of the burn (bass.cond.pressure_asrun), an original \
+           observation. PSI-25: no per-test reading; the BASS-II Summary Report's 1 atm (stated for the T'ien \
+           tests p. 102, assumed for the MSG work volume p. 19) as source_derived, flagged approximate \
+           (bass.cond.pressure_report)"),
+        r(FAM, "x_o2_asrun", Deterministic, "bass.cond.o2_asrun",
+          "PSI-26: the as-run matrix 'O2 % by volume' of the burn; the sheet writes fractions (0.221) under a % \
+           header, so a value <= 1 is a fraction and a value > 1 is percent; both flagged with the reading"),
         r(FAM, "flow_velocity", Deterministic, "bass.cond.air_display",
           "'Air display' is duct flow speed in cm/s (ReadMe). A single number -> m/s; a sequence of settings has no \
            times in the table -> kept as text, unresolved (needs the video overlay)"),
@@ -302,6 +320,28 @@ fn bass2(
                     .notes(
                         "sensor offset-corrected against the ISS MCA reading of the day (ReadMe)",
                     ),
+            ),
+        );
+        let pi = lower(strip(row.get("PI")));
+        let tien = pi.starts_with("t'ien") || pi.starts_with("tien") || pi.starts_with("t’ien");
+        let (page, how, note) = if tien {
+            (102, "stated_by_report", "BASS-II Summary Report, T'ien chapter: 'Ambient pressure was 1 atm'; no per-test reading")
+        } else {
+            (19, "assumed_by_report", "BASS-II Summary Report takes P = 1 atm for the MSG work volume in its O2 consumption analysis; no per-test reading")
+        };
+        conds.insert(
+            "pressure".into(),
+            measured(
+                1.0,
+                Some("atm"),
+                Some(SourceLocator {
+                    page: Some(page),
+                    ..loc(REPORT25_SHA, REPORT25, None, None)
+                }),
+                M::new("bass.cond.pressure_report")
+                    .evidence(EvidenceClass::SourceDerived)
+                    .flags(&["approximate", how])
+                    .notes(note),
             ),
         );
         conds.insert(
@@ -568,6 +608,10 @@ pub struct AsRun {
     pub test: String,
     pub video_date: Option<NaiveDate>,
     pub start: Option<NaiveTime>,
+    /// 'O2 % by volume' as written (a fraction on these sheets).
+    pub o2: Option<f64>,
+    /// 'pressure, atm' as written.
+    pub pressure_atm: Option<f64>,
 }
 
 fn alias<'a>(r: &'a ExperimentRecord, scheme: &str) -> &'a str {
@@ -868,6 +912,84 @@ fn first_clock(s: &str) -> Option<NaiveTime> {
     None
 }
 
+const O2_ASRUN: &str = "O2 % by volume";
+const P_ASRUN: &str = "pressure, atm";
+
+/// PSI-26 burns get the atmosphere the as-run matrix measured for them: the row with the same as-run and
+/// test numbers. A run with no such row, or with several, keeps no value (never a neighbour's).
+pub fn atmosphere26(b: &mut Bundle, asrun: &[AsRun], sha: &str) -> (usize, usize) {
+    let mut by_key: HashMap<(String, String), Vec<&AsRun>> = HashMap::new();
+    for a in asrun {
+        by_key
+            .entry((norm_num(&a.asrun), norm_num(&a.test)))
+            .or_default()
+            .push(a);
+    }
+    let (mut o2n, mut pn) = (0, 0);
+    for r in b
+        .records
+        .iter_mut()
+        .filter(|r| r.investigation_id == "PSI-26")
+    {
+        let key = (
+            norm_num(alias(r, "as_run_number")),
+            norm_num(alias(r, "test_number")),
+        );
+        let Some([a]) = by_key.get(&key).map(|v| v.as_slice()) else {
+            continue;
+        };
+        let at = |h: &str| {
+            Some(loc(
+                sha,
+                ASRUN26,
+                Some(a.row),
+                Some(&format!("{}!{h}", a.sheet)),
+            ))
+        };
+        if let Some(x) = a.o2 {
+            let (unit, how) = if x <= 1.0 {
+                ("1", "percent_header_fraction_values")
+            } else {
+                ("%", "volume_percent_as_mole_fraction")
+            };
+            r.conditions.insert(
+                "x_o2".into(),
+                measured(
+                    x,
+                    Some(unit),
+                    at(O2_ASRUN),
+                    M::new("bass.cond.o2_asrun")
+                        .flags(&[how])
+                        .notes("as-run matrix O2 of this burn"),
+                ),
+            );
+            o2n += 1;
+        }
+        if let Some(p) = a.pressure_atm {
+            r.conditions.insert(
+                "pressure".into(),
+                measured(
+                    p,
+                    Some("atm"),
+                    at(P_ASRUN),
+                    M::new("bass.cond.pressure_asrun").notes("as-run matrix pressure of this burn"),
+                ),
+            );
+            pn += 1;
+        }
+    }
+    (o2n, pn)
+}
+
+/// "12" and "12.0" are the same test number; text ids ("12-R2", "53a") stay as written.
+fn norm_num(s: &str) -> String {
+    let t = strip(s);
+    match t.parse::<f64>() {
+        Ok(x) if x.fract() == 0.0 => format!("{}", x as i64),
+        _ => t.to_string(),
+    }
+}
+
 pub fn parse_asrun26(raw_path: &Path) -> anyhow::Result<Vec<AsRun>> {
     let mut wb = calamine::open_workbook_auto(raw_path)?;
     let names = wb.sheet_names().to_vec();
@@ -914,6 +1036,14 @@ pub fn parse_asrun26(raw_path: &Path) -> anyhow::Result<Vec<AsRun>> {
             ix("As run test no.")?,
             ix("Test no.")?,
         );
+        let opt = |k: &str| header.iter().position(|h| h == k);
+        let (i_o2, i_p) = (opt(O2_ASRUN), opt(P_ASRUN));
+        let num = |r: &Vec<Data>, i: Option<usize>| match i.and_then(|i| r.get(i)) {
+            Some(Data::Float(x)) => Some(*x),
+            Some(Data::Int(x)) => Some(*x as f64),
+            Some(Data::String(s)) => strip(s).parse::<f64>().ok(),
+            _ => None,
+        };
         for (k, r) in rows.iter().enumerate().skip(hi + 1) {
             if is_empty(r.get(i_act)) {
                 continue;
@@ -936,6 +1066,8 @@ pub fn parse_asrun26(raw_path: &Path) -> anyhow::Result<Vec<AsRun>> {
                 test: strip(&r.get(i_t).map(cell_str).unwrap_or_else(|| "None".into())).to_string(),
                 video_date,
                 start: first_clock(&st),
+                o2: num(r, i_o2),
+                pressure_atm: num(r, i_p),
             });
         }
     }
@@ -952,7 +1084,11 @@ pub fn ingest() -> anyhow::Result<Bundle> {
         vec![]
     };
     let asrun = match s26.get(ASRUN26) {
-        Some(src) => parse_asrun26(&mf::local_path(src))?,
+        Some(src) => {
+            let rows = parse_asrun26(&mf::local_path(src))?;
+            atmosphere26(&mut b, &rows, &mf::sha_of(src));
+            rows
+        }
         None => vec![],
     };
     let listing = |inv: &str| -> anyhow::Result<Vec<RemoteFile>> {
