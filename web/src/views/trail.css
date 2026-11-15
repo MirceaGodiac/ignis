@@ -1,0 +1,117 @@
+/* The agent's route inside a question, read like a researcher's notebook: one closed line, a calm
+   trail of plain sentences when opened, the current step live while it works. Tokens only (dark
+   mode follows them); motion is opacity/transform only and stops under reduced motion. */
+
+.trail { display: grid; gap: 2px; min-width: 0; }
+
+/* the one line: "Searched 3 times, read 2 sources · 32 s >" */
+.trail-head { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; justify-self: start; max-width: 100%; min-height: 30px; padding: 2px 8px; margin: 0 -8px; border: 0; border-radius: 8px; background: none; color: var(--ink-3); font-size: 13.5px; text-align: left; cursor: pointer; transition: background 140ms, color 140ms; }
+.trail-head:hover { background: var(--hover); color: var(--ink-2); }
+.trail-sum { color: var(--ink-2); font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.trail-total { color: var(--ink-3); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.trail-head .chev { width: 13px; height: 13px; flex: none; color: var(--ink-3); transition: transform 160ms var(--ease); }
+.trail-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+/* the trail */
+.trail-list { display: grid; padding: 4px 0 2px; margin: 0; animation: trail-in 180ms var(--ease); }
+.trail-list > li { list-style: none; position: relative; min-width: 0; }
+/* the thread between markers, behind them */
+.trail-list > li::before { content: ""; position: absolute; left: 18px; top: 0; bottom: 0; width: 1px; background: var(--rule); }
+.trail-list > li:first-child::before { top: 18px; }
+.trail-list > li:last-child::before { bottom: calc(100% - 18px); }
+.trail-list > li:only-child::before { display: none; }
+
+.trail-step, .trail-live { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 0 10px; align-items: start; width: 100%; padding: 7px 8px; border: 0; border-radius: 9px; background: none; color: var(--ink-2); font-size: 13.5px; line-height: 1.45; text-align: left; }
+button.trail-step { cursor: pointer; transition: background 140ms, color 140ms; }
+button.trail-step:hover { background: var(--hover); color: var(--ink); }
+.trail-step.on { background: var(--wash); color: var(--ink); }
+
+.trail-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 22px; height: 20px; background: var(--paper); color: var(--ink-3); }
+.trail-icon svg { width: 14px; height: 14px; }
+button.trail-step:hover .trail-icon { background: var(--hover); }
+.trail-step.on .trail-icon { background: var(--wash); }
+.trail-icon.tone-bad { color: var(--bad); }
+.trail-icon.tone-warn { color: var(--ink); }
+.trail-icon.tone-quiet { color: var(--ink-3); opacity: 0.8; }
+
+.trail-text { min-width: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-top: 1px; }
+.trail-sentence { color: inherit; }
+.trail-detail { color: var(--ink-3); }
+.trail-state { display: inline-block; margin-left: 4px; font-size: 12px; font-weight: 500; color: var(--ink-3); }
+.trail-state.tone-bad { color: var(--bad); }
+.trail-state.tone-warn { color: var(--ink); }
+.trail-dur { flex: none; padding-top: 2px; color: var(--ink-3); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* the end marker: the answer, with bookkeeping folded into it */
+.trail-end { color: var(--ink); }
+.trail-end .trail-icon { color: var(--ink-2); }
+
+/* narration and notes, said where they were said: muted and folded */
+.trail-aside { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 0 10px; padding: 6px 8px; }
+.trail-aside-body { display: grid; gap: 2px; min-width: 0; }
+.trail-aside-text { color: var(--ink-3); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.trail-aside.open .trail-aside-text { display: block; }
+.trail-more { justify-self: start; border: 0; background: none; padding: 0; color: var(--ink-3); font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule-2); }
+.trail-more:hover { color: var(--ink); }
+
+/* the current step, live */
+.trail-live { padding-left: 0; color: var(--ink-2); }
+.trail.open .trail-live { padding-left: 8px; }
+.trail-live .trail-icon { background: transparent; }
+.trail-spin { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--rule-2); border-top-color: var(--flame); animation: trail-spin 900ms linear infinite; }
+.trail-dots { display: inline-block; margin-left: 1px; color: var(--ink-3); animation: trail-breathe 1.6s var(--ease) infinite; }
+@keyframes trail-spin { to { transform: rotate(360deg); } }
+@keyframes trail-breathe { 50% { opacity: 0.25; } }
+@keyframes trail-in { from { opacity: 0; transform: translateY(-2px); } }
+
+/* earlier answers of the same turn, folded */
+.trail-earlier > summary { list-style: none; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.trail-earlier > summary::-webkit-details-marker { display: none; }
+.trail-earlier > summary .chev { width: 12px; height: 12px; transition: transform 160ms var(--ease); }
+.trail-earlier[open] > summary .chev { transform: rotate(90deg); }
+.trail-earlier[open] > summary { margin-bottom: 12px; }
+
+/* the answer's limits: a calm note under the text */
+.answer-limits { display: grid; gap: 4px; width: 100%; padding: 12px 14px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--rule); font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+.answer-limits > b { font-size: 13px; font-weight: 600; color: var(--ink); }
+.answer-limits ul { display: grid; gap: 4px; margin: 0; padding: 0; }
+.answer-limits li { list-style: none; overflow-wrap: anywhere; }
+.answer-limits .linkish { color: var(--ink-3); font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule-2); }
+.answer-limits .linkish:hover { color: var(--ink); }
+
+/* ------------------------------------------------------------------ the step panel */
+.step-lead { gap: 6px; }
+.step-sentence { font-size: 15px; font-weight: 500; line-height: 1.45; color: var(--ink); overflow-wrap: anywhere; }
+.step-query { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--wash); font-size: 14px; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+.step-source { font-size: 14px; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+.step-hits { display: grid; gap: 2px; margin: 0; padding: 0; }
+.step-hits li { list-style: none; }
+.step-hit { display: grid; gap: 2px; width: calc(100% + 20px); margin: 0 -10px; padding: 8px 10px; border: 0; border-radius: 9px; background: none; text-align: left; cursor: pointer; color: var(--ink); transition: background 140ms; }
+.step-hit:hover { background: var(--hover); }
+.step-hit-title { font-size: 13.5px; font-weight: 500; overflow-wrap: anywhere; }
+.step-hit-snippet { font-size: 13px; line-height: 1.5; color: var(--ink-2); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.step-passage { display: grid; gap: 4px; margin: 0; }
+.step-passage .quote { font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 15em; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent); mask-image: linear-gradient(to bottom, #000 70%, transparent); }
+.step-passage.open .quote { max-height: none; -webkit-mask-image: none; mask-image: none; }
+.step-passage .linkish { justify-self: start; }
+.step-why { font-size: 13.5px; color: var(--ink-2); }
+
+.step-tech { border-top: 1px solid var(--rule); padding-top: 12px; }
+.step-tech > summary { list-style: none; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: var(--ink-3); cursor: pointer; }
+.step-tech > summary::-webkit-details-marker { display: none; }
+.step-tech > summary:hover { color: var(--ink); }
+.step-tech > summary .chev { width: 12px; height: 12px; transition: transform 160ms var(--ease); }
+.step-tech[open] > summary .chev { transform: rotate(90deg); }
+.step-tech-body { display: grid; gap: 14px; margin-top: 12px; min-width: 0; }
+
+@media (max-width: 820px) {
+  .trail-step, .trail-live { grid-template-columns: 22px minmax(0, 1fr); }
+  .trail-step .trail-dur { display: none; }
+  .trail-end .trail-dur, .trail-live .trail-dur { display: block; grid-column: 2; padding-top: 0; }
+  .trail-text { -webkit-line-clamp: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trail-spin, .trail-dots, .trail-list { animation: none !important; }
+  .trail-spin { border-color: var(--flame); }
+}

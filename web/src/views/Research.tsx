@@ -3,7 +3,7 @@
 // original and a step's detail open in the side panel. State comes only from the ordered event log
 // (research/eventLog + stream, tested).
 import { RichText } from "../shell/RichText";
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType, type FormEvent, type ReactNode, type SVGProps } from "react";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { EpisodeStatus, ResearchAnswer, ResearchEpisode } from "../contracts/generated";
 import { FIXTURES } from "../research/fixtures";
@@ -15,11 +15,12 @@ import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
 import { useEpisodes } from "../shell/queries";
 import { go, href } from "../shell/router";
-import { IconArrow, IconChevron, IconCopy, IconMore, IconSources } from "../shell/icons";
+import { IconArrow, IconCheck, IconChevron, IconConditions, IconCopy, IconEvidence, IconExternal, IconLab, IconModels, IconMore, IconRoute, IconSearch, IconSources, IconThread } from "../shell/icons";
 import { ErrorNote, Gap, Synthetic, words } from "../ui/common";
 import { AnswerView } from "./Answer";
-import { AskBox } from "./AskBox";
-import { elapsed, toTurns, TOOL_LABEL, type Stop, type Turn } from "./turns";
+import { groupChats, useChatPrefs } from "../shell/chatPrefs";
+import { describeCall, duration, isBookkeeping, learnSourceTitles, routeSummary, seconds, stepState, toTurns, type StepKind, type StepState, type Stop, type Turn } from "./turns";
+import "./trail.css";
 
 type Notice = StreamNotice & { at: number };
 
@@ -71,50 +72,101 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
     }
   }, [question, researchMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // New questions are asked on Home; this page is the history.
+  useEffect(() => {
+    if (wantNew && !question) go("home");
+  }, [wantNew, question]);
+
+  const [prefs] = useChatPrefs();
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<QFilter>("all");
+  const groups = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const shown = (episodes.data ?? []).filter((e) => QFILTER[filter].has(e.status) && (!needle || e.goal.toLowerCase().includes(needle)));
+    return groupChats(shown, { ...prefs, hidden: [] });
+  }, [episodes.data, prefs, q, filter]);
+  const counts = useMemo(() => {
+    const all = episodes.data ?? [];
+    return Object.fromEntries((Object.keys(QFILTER) as QFilter[]).map((k) => [k, all.filter((e) => QFILTER[k].has(e.status)).length])) as Record<QFilter, number>;
+  }, [episodes.data]);
+
   return (
-    <div className="view" style={{ maxWidth: 920 }}>
+    <div className="view qhist">
       <div className="view-head">
-        <h1>{wantNew ? "New question" : "Questions"}</h1>
+        <div>
+          <h1>Questions</h1>
+          <p className="muted qhist-sub">Every question you asked, by day.</p>
+        </div>
       </div>
-      <AskBox onAsk={create} busy={busy} initial={question ?? ""} autoFocus={wantNew} />
+      {question && (busy || error == null) && <p className="muted">Starting “{question}”…</p>}
       {error != null && <ErrorNote error={error} title="The question was not sent" />}
-      <div className="tbl-wrap">
-        <table className="tbl">
-          <thead>
-            <tr>
-              <th>Question</th>
-              <th>Status</th>
-              <th className="r">Events</th>
-              <th>Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {episodes.data?.map((e) => (
-              <tr key={e.episode_id} className="clickable" onClick={() => go("research", e.episode_id)}>
-                <td className="wrap">
-                  <a href={href("research", e.episode_id)} onClick={(ev) => ev.stopPropagation()}>
-                    {e.goal}
-                  </a>
-                </td>
-                <td>{words(e.status)}</td>
-                <td className="r num">{e.last_seq}</td>
-                <td className="dim num">{e.updated_at.slice(0, 16).replace("T", " ")}</td>
-              </tr>
-            ))}
-            {episodes.data?.length === 0 && (
-              <tr>
-                <td colSpan={4} className="dim">
-                  No questions yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <label className="qhist-search">
+        <IconSearch aria-hidden="true" />
+        <span className="sr-only">Search questions</span>
+        <input type="search" placeholder="Search your questions" value={q} onChange={(e) => setQ(e.target.value)} />
+      </label>
+      <div className="qhist-chips" role="group" aria-label="Filter">
+        {(Object.keys(QFILTER) as QFilter[])
+          .filter((k) => k === "all" || counts[k] > 0)
+          .map((k) => (
+            <button key={k} className="qhist-chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>
+              {QFILTER_LABEL[k]} <span className="num muted">{counts[k]}</span>
+            </button>
+          ))}
       </div>
+      {episodes.isLoading && <p className="muted">Loading your questions…</p>}
+      {episodes.data && !groups.length && <p className="muted">{episodes.data.length ? "No question matches." : "No questions yet. Ask one on Home."}</p>}
+      {groups.map((g) => (
+        <section key={g.label} className="qhist-group" aria-label={g.label}>
+          <h2>{g.label}</h2>
+          <ul>
+            {g.items.map((e) => (
+              <li key={e.episode_id}>
+                <a className="qhist-row" href={href("research", e.episode_id)}>
+                  <span className="qhist-icon" aria-hidden="true">
+                    <IconThread />
+                  </span>
+                  <span className="qhist-main">
+                    <b>{e.goal}</b>
+                    <span className="muted">{STATUS_LABEL[e.status] ?? words(e.status)}</span>
+                  </span>
+                  <span className="qhist-when muted num">{when(e.updated_at || e.created_at)}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
       {episodes.error && <ErrorNote error={episodes.error} title="Questions could not be loaded" />}
     </div>
   );
 }
+
+type QFilter = "all" | "answered" | "running" | "stopped";
+const QFILTER: Record<QFilter, Set<string>> = {
+  all: new Set(["ready", "running", "waiting_for_user", "paused", "completed", "failed", "cancelled", "interrupted"]),
+  answered: new Set(["completed"]),
+  running: new Set(["ready", "running", "waiting_for_user", "paused"]),
+  stopped: new Set(["failed", "cancelled", "interrupted"]),
+};
+const QFILTER_LABEL: Record<QFilter, string> = { all: "All", answered: "Answered", running: "In progress", stopped: "Stopped" };
+const STATUS_LABEL: Record<string, string> = {
+  completed: "Answered",
+  running: "Working…",
+  ready: "Ready",
+  waiting_for_user: "Waiting for you",
+  paused: "Paused",
+  failed: "Failed",
+  cancelled: "Cancelled",
+  interrupted: "Interrupted",
+};
+/** "15 Nov, 10:28" (with the year when it is not this year). */
+const when = (iso: string) => {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return d.toLocaleString("en-GB", { day: "numeric", month: "short", ...(sameYear ? {} : { year: "numeric" }), hour: "2-digit", minute: "2-digit" });
+};
 
 // ---------------------------------------------------------------- one investigation
 
@@ -155,7 +207,10 @@ function Episode({ episodeId }: { episodeId: string }) {
   const episode = useQuery({ queryKey: [researchMode, replay, "episode", episodeId], queryFn: ({ signal }) => client.getEpisode(episodeId, signal), retry: false });
   const status = state.status ?? episode.data?.status ?? null;
   const runtime = caps.data?.agent_runtime;
-  const turns = useMemo(() => toTurns(state), [state]);
+  const turns = useMemo(() => {
+    learnSourceTitles(state);
+    return toTurns(state);
+  }, [state]);
   const answerQueries = useQueries({
     queries: state.answers
       .filter((a) => a.artifact.contract === "ResearchAnswer")
@@ -301,7 +356,7 @@ function Episode({ episodeId }: { episodeId: string }) {
           </Gap>
         ))}
         {turns.map((t, i) => (
-          <TurnView key={i} turn={t} live={live && i === turns.length - 1} />
+          <TurnView key={i} turn={t} working={working && i === turns.length - 1} />
         ))}
         {turns.length === 0 && goal && <div className="msg-user">{goal}</div>}
         {pending.map((a) => (
@@ -317,7 +372,7 @@ function Episode({ episodeId }: { episodeId: string }) {
             </div>
           </div>
         ))}
-        {working && (
+        {working && turns.length === 0 && (
           <div className="working" role="status">
             <span className="dot dot-run" aria-hidden="true" /> Working
           </div>
@@ -396,24 +451,46 @@ function EpisodeMenu({ episode, status, canWrite, act, details }: { episode: Res
   );
 }
 
-function TurnView({ turn, live }: { turn: Turn; live: boolean }) {
+function TurnView({ turn, working }: { turn: Turn; working: boolean }) {
   const { synthetic } = useData();
-  const replies = turn.replies.filter((m) => m.text.trim());
+  const final = turn.answers[turn.answers.length - 1] ?? null;
+  const earlier = turn.answers.slice(0, -1);
+  const spoken = (s: Stop) => s.kind === "said" && s.message.text.trim() !== "";
+  // Without a stored answer, the agent's last words are the reply; everything said before (and,
+  // with an answer, everything said at all) is narration and lives in the trail where it was said.
+  const last = [...turn.stops].reverse().find((s) => s.kind !== "said" || spoken(s));
+  const body = !final && last?.kind === "said" ? last.message : null;
+  const trail = turn.stops.filter((s) => (s.kind === "said" ? spoken(s) && s.message !== body : true));
+  const lastSaid = [...turn.stops].reverse().find((s): s is Extract<Stop, { kind: "said" }> => spoken(s));
+  const showTrail = working || trail.some((s) => s.kind !== "answer" && !isBookkeeping(s));
   return (
     <div className="turn">
       {turn.user && <div className="msg-user">{turn.user.text}</div>}
-      {turn.stops.length > 0 && <RouteSummary stops={turn.stops} turn={turn} open={live} />}
-      {replies.map((m) => (
-        <p key={m.message_id} className="msg-agent">
-          <RichText text={m.text} />
-          {!m.complete && <span className="muted"> …</span>}
-        </p>
-      ))}
-      {turn.answers.map((a) => (
-        <div key={a.answer_id} id={`a-${a.answer_id}`}>
-          <AnswerLoader a={a} pageSynthetic={synthetic} />
+      {showTrail && <RouteSummary stops={trail} turn={turn} working={working} />}
+      {body && (
+        <div className="msg-agent">
+          <RichText text={body.text} />
+          {!body.complete && <span className="muted"> …</span>}
         </div>
-      ))}
+      )}
+      {earlier.length > 0 && (
+        <details className="trail-earlier">
+          <summary className="muted">
+            {earlier.length === 1 ? "An earlier answer in this turn" : `${earlier.length} earlier answers in this turn`}
+            <IconChevron className="chev" aria-hidden="true" />
+          </summary>
+          {earlier.map((a) => (
+            <div key={a.answer_id} id={`a-${a.answer_id}`}>
+              <AnswerLoader a={a} pageSynthetic={synthetic} />
+            </div>
+          ))}
+        </details>
+      )}
+      {final && (
+        <div id={`a-${final.answer_id}`}>
+          <AnswerLoader a={final} pageSynthetic={synthetic} fallback={lastSaid?.message.text ?? null} />
+        </div>
+      )}
     </div>
   );
 }
@@ -428,113 +505,243 @@ function useAnswer(a: AnswerState) {
   });
 }
 
-function AnswerLoader({ a, pageSynthetic }: { a: AnswerState; pageSynthetic: boolean }) {
+/** The stored answer. When it cannot be shown, the agent's own last message stands in, said as such. */
+function AnswerLoader({ a, pageSynthetic, fallback = null }: { a: AnswerState; pageSynthetic: boolean; fallback?: string | null }) {
   const { client } = useData();
   const q = useAnswer(a);
-  if (a.artifact.contract !== "ResearchAnswer") return <Gap title="The answer is not rendered">Its artifact has contract {a.artifact.contract ?? "none"}.</Gap>;
+  const said = fallback ? (
+    <div className="msg-agent">
+      <p className="muted small">The agent's last message, unchecked:</p>
+      <RichText text={fallback} />
+    </div>
+  ) : null;
+  if (a.artifact.contract !== "ResearchAnswer")
+    return (
+      <>
+        <Gap title="The answer is not rendered">Its artifact has contract {a.artifact.contract ?? "none"}.</Gap>
+        {said}
+      </>
+    );
   if (q.isPending) return <p className="muted">Loading the answer…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The answer could not be loaded" />;
+  if (q.error)
+    return (
+      <>
+        <ErrorNote error={q.error} title="The answer could not be loaded" />
+        {said}
+      </>
+    );
   return <AnswerView client={client} answer={q.data} pageSynthetic={pageSynthetic} />;
 }
 
-// ---------------------------------------------------------------- the route
+// ---------------------------------------------------------------- the route, as a notebook trail
 
-function stopTone(s: Stop): string {
-  if (s.kind === "answer") return "answer";
-  if (s.kind === "note") return "note";
-  if (s.kind === "job") return s.status === "succeeded" ? "ok" : s.status === "failed" || s.status === "cancelled" ? "bad" : "run";
-  if (s.kind === "approval") return s.decision === "approved" ? "ok" : s.decision ? "bad" : "warn";
-  const r = s.call.result;
-  if (!r) return "run";
-  if (r.execution_status === "failed" || r.execution_status === "refused" || r.execution_status === "cancelled") return "bad";
-  if (r.execution_status === "accepted") return "run";
-  return r.scientific_status === "conclusive" || r.scientific_status === "not_assessed" ? "ok" : "warn";
+const KIND_ICON: Record<StepKind, ComponentType<SVGProps<SVGSVGElement>>> = {
+  search: IconSearch,
+  read: IconSources,
+  data: IconConditions,
+  model: IconModels,
+  compute: IconLab,
+  web: IconExternal,
+  note: IconEvidence,
+  other: IconRoute,
+};
+
+const STATE_TEXT: Record<StepState, string | null> = { ok: null, running: "working", failed: "failed", refused: "refused", cancelled: "cancelled", waiting: "waiting for you" };
+
+const ANSWER_TEXT: Record<string, string> = { complete: "Answered", partial: "Gave a partial answer", insufficient_evidence: "Answered: insufficient evidence", failed: "The answer failed" };
+
+/** A tone for the step's state, used by its marker and the summary's count of problems. */
+function stopTone(s: Stop): "ok" | "run" | "bad" | "warn" | "quiet" {
+  if (s.kind === "note" || s.kind === "said") return "quiet";
+  if (s.kind === "answer") return s.answer.status === "complete" ? "ok" : s.answer.status === "failed" ? "bad" : "warn";
+  const st = stepState(s);
+  if (st === "running") return "run";
+  if (st === "failed" || st === "refused" || st === "cancelled") return "bad";
+  if (st === "waiting") return "warn";
+  if (s.kind === "tool") {
+    const sci = s.call.result?.scientific_status;
+    if (sci === "inconclusive" || sci === "insufficient_evidence" || sci === "out_of_domain") return "warn";
+  }
+  return "ok";
 }
 
-function stopText(s: Stop): { title: string; sub: string } {
+/** The notebook sentence of a step, a few words on what came back, and its icon kind. */
+function stopText(s: Stop): { text: string; detail: string | null; kind: StepKind } {
   switch (s.kind) {
     case "tool": {
-      const r = s.call.result;
-      const title = TOOL_LABEL[s.call.tool] ?? words(s.call.tool);
-      if (!r) return { title, sub: "running" };
-      const sci = r.scientific_status === "not_assessed" ? "" : ` · ${words(r.scientific_status)}`;
-      const q = argQuery(s.call);
-      return { title, sub: `${words(r.execution_status)}${sci}${r.result?.partial ? " · preview" : ""}${q ? ` · “${q}”` : ""}` };
+      const d = describeCall(s.call);
+      const sci = s.call.result?.scientific_status;
+      const verdict = sci === "inconclusive" || sci === "insufficient_evidence" || sci === "out_of_domain" ? words(sci) : null;
+      return { text: d.text, detail: [d.detail, verdict].filter(Boolean).join(" · ") || null, kind: d.kind };
     }
-    case "job":
-      return { title: `Job: ${words(s.jobKind)}`, sub: words(s.status) };
+    case "job": {
+      const fc = s.jobKind === "models_forecast";
+      const what = fc ? "The forecast" : `The ${words(s.jobKind)} job`;
+      const st = stepState(s);
+      return { text: st === "ok" ? `${what} finished` : st === "running" ? `${what} is running` : `${what} ${words(s.status)}`, detail: fc ? "model output" : null, kind: fc ? "model" : "compute" };
+    }
     case "approval":
-      return { title: `Approval: ${s.action}`, sub: s.decision ? words(s.decision) : "waiting" };
+      return { text: `Asked you to approve: ${s.action}`, detail: null, kind: "other" };
     case "answer":
-      return { title: "Answered", sub: words(s.answer.status) };
+      return { text: ANSWER_TEXT[s.answer.status] ?? `Answered (${words(s.answer.status)})`, detail: null, kind: "other" };
     case "note":
-      return { title: "Agent's note (its own explanation)", sub: s.text };
+      return { text: s.text, detail: null, kind: "note" };
+    case "said":
+      return { text: s.message.text, detail: null, kind: "note" };
   }
 }
 
-/** The search query a call was given, when its recorded arguments carry one (K1.1). */
-function argQuery(call: Extract<Stop, { kind: "tool" }>["call"]): string | null {
-  const v = call.arguments?.value.value;
-  const q = v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>).query : undefined;
-  return typeof q === "string" && q ? (q.length > 60 ? `${q.slice(0, 57)}…` : q) : null;
+/** A step's own duration, when it took a second or more; shorter ones say nothing. */
+function stepDuration(s: Stop): string | null {
+  if (s.kind !== "tool" && s.kind !== "job") return null;
+  if (!s.end || Date.parse(s.end) - Date.parse(s.at) < 1000) return null;
+  return duration(s.at, s.end);
 }
 
+function useNow(on: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!on) return;
+    const t = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, [on]);
+  return now;
+}
+
+/** The trail as a list: one sentence per step; narration and notes as muted asides where they were said. */
 function Stops({ stops, t0 }: { stops: Stop[]; t0: string | null }) {
   const panel = usePanel();
+  let n = 0;
   return (
-    <div className="stops" role="list" style={{ paddingTop: 6 }}>
-      {stops.map((s, i) => {
-        const { title, sub } = stopText(s);
+    <ol className="trail-list">
+      {stops.map((s) => {
+        if (isBookkeeping(s)) return null;
+        if (s.kind === "note" || s.kind === "said") return <Aside key={`${s.kind}-${s.seq}`} stop={s} />;
+        const { text, detail, kind } = stopText(s);
+        const tone = stopTone(s);
+        const state = s.kind === "answer" ? null : STATE_TEXT[stepState(s)];
+        const Icon = s.kind === "answer" ? IconCheck : KIND_ICON[kind];
+        const index = s.kind === "tool" ? ++n : 0;
         const on = s.kind === "tool" && panel.current?.kind === "step" && panel.current.call.call_id === s.call.call_id;
-        if (s.kind === "note")
-          return (
-            <div key={`note-${s.seq}`} role="listitem" className="stop stop-note">
-              <span className={`node ${stopTone(s)}`} aria-hidden="true" />
-              <span className="what">
-                {title}
-                <span>{sub}</span>
-              </span>
-              <span className="when">+{elapsed(t0, s.at) ?? "0:00"}</span>
-            </div>
-          );
-        return (
-          <button
-            key={`${s.kind}-${s.seq}`}
-            role="listitem"
-            className={`stop${on ? " on" : ""}`}
-            onClick={() => {
-              if (s.kind === "tool") panel.open({ kind: "step", call: s.call, index: i + 1 });
-              else if (s.kind === "answer") document.getElementById(`a-${s.answer.answer_id}`)?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            <span className={`node ${stopTone(s)}`} aria-hidden="true" />
-            <span className="what">
-              {title}
-              <span>{sub}</span>
+        const right = s.kind === "answer" ? duration(t0, s.at) : stepDuration(s);
+        const inner = (
+          <>
+            <span className={`trail-icon tone-${tone}`} aria-hidden="true">
+              {tone === "run" ? <span className="trail-spin" /> : <Icon />}
             </span>
-            <span className="when">+{elapsed(t0, s.at) ?? "0:00"}</span>
-          </button>
+            <span className="trail-text">
+              <span className="trail-sentence">{text}</span>
+              {detail && <span className="trail-detail"> · {detail}</span>}
+              {state && (
+                <>
+                  {" "}
+                  <span className={`trail-state tone-${tone}`}>{state}</span>
+                </>
+              )}
+            </span>
+            {right && <span className="trail-dur">{right}</span>}
+          </>
+        );
+        const cls = `trail-step${s.kind === "answer" ? " trail-end" : ""}${on ? " on" : ""}`;
+        return (
+          <li key={`${s.kind}-${s.seq}`}>
+            {s.kind === "tool" || s.kind === "answer" ? (
+              <button
+                className={cls}
+                title={s.kind === "tool" ? text : undefined}
+                onClick={() => {
+                  if (s.kind === "tool") panel.open({ kind: "step", call: s.call, index });
+                  else document.getElementById(`a-${s.answer.answer_id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                {inner}
+              </button>
+            ) : (
+              <div className={cls}>{inner}</div>
+            )}
+          </li>
         );
       })}
+    </ol>
+  );
+}
+
+/** What the agent said between steps, or a note it left on its route: muted, folded to a few lines. */
+function Aside({ stop }: { stop: Extract<Stop, { kind: "note" | "said" }> }) {
+  const [open, setOpen] = useState(false);
+  const text = stop.kind === "note" ? stop.text : stop.message.text;
+  const long = text.length > 240 || text.split("\n").length > 3;
+  return (
+    <li className={`trail-aside${open ? " open" : ""}`}>
+      <span className="trail-icon tone-quiet" aria-hidden="true">
+        <IconEvidence />
+      </span>
+      <div className="trail-aside-body">
+        <span className="sr-only">{stop.kind === "note" ? "The agent's note: " : "The agent said: "}</span>
+        <div className="trail-aside-text">
+          <RichText text={text} />
+        </div>
+        {long && (
+          <button className="trail-more" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+            {open ? "Show less" : "Show all"}
+          </button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+/** The current step, live: its sentence, a quiet spinner and how long it has run. */
+function LiveRow({ stop }: { stop: Stop | null }) {
+  const now = useNow(stop != null);
+  const from = stop?.at ?? null;
+  const secs = from ? Math.max(0, Math.round((now - Date.parse(from)) / 1000)) : null;
+  return (
+    <div className="trail-live" role="status" aria-live="polite">
+      <span className="trail-icon tone-run" aria-hidden="true">
+        <span className="trail-spin" />
+      </span>
+      <span className="trail-text">
+        <span className="trail-sentence">{stop ? stopText(stop).text : "Working"}</span>
+        <span className="trail-dots" aria-hidden="true">…</span>
+      </span>
+      {stop && secs != null && secs >= 1 && <span className="trail-dur">{seconds(secs)}</span>}
     </div>
   );
 }
 
-function RouteSummary({ stops, turn, open }: { stops: Stop[]; turn: Turn; open: boolean }) {
-  const tools = stops.filter((s) => s.kind === "tool").length;
-  const issues = stops.filter((s) => ["bad", "warn"].includes(stopTone(s))).length;
+/** One line when closed ("Searched 3 times, read 2 sources · 32 s"); the trail when open. While the
+ * agent works, the current step stays visible under the line. */
+function RouteSummary({ stops, turn, working }: { stops: Stop[]; turn: Turn; working: boolean }) {
+  const [open, setOpen] = useState(false);
+  const visible = stops.filter((s) => !isBookkeeping(s));
+  const lastStep = [...visible].reverse().find((s) => s.kind === "tool" || s.kind === "job");
+  const current = working && lastStep && stepState(lastStep) === "running" ? lastStep : null;
+  const listed = current ? visible.filter((s) => s !== current) : visible;
+  const problems = visible.filter((s) => stopTone(s) === "bad").length;
+  const asides = visible.filter((s) => s.kind === "note" || s.kind === "said").length;
+  const done = listed.filter((s) => s.kind === "tool").length;
+  const summary = working
+    ? done
+      ? `${done} step${done === 1 ? "" : "s"} so far`
+      : null
+    : routeSummary(stops) ?? (asides ? `${asides} note${asides === 1 ? "" : "s"} on the way` : "No tool steps");
+  const total = working ? null : duration(turn.startedAt, turn.endedAt);
   return (
-    <details className="route" open={open || undefined}>
-      <summary>
-        <b>{tools} step{tools === 1 ? "" : "s"}</b>
-        <span>
-          {issues > 0 && ` · ${issues} to check`}
-          {elapsed(turn.startedAt, turn.endedAt) && ` · ${elapsed(turn.startedAt, turn.endedAt)}`}
-        </span>
-        <IconChevron className="chev" />
-      </summary>
-      <Stops stops={stops} t0={turn.startedAt} />
-    </details>
+    <section className={`trail${open ? " open" : ""}${working ? " live" : ""}`} aria-label="What the agent did">
+      {summary && (
+        <button className="trail-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          <span className="trail-sum">
+            {summary}
+            {total && <span className="trail-total"> · {total}</span>}
+          </span>
+          {problems > 0 && <span className="trail-state tone-bad">{problems === 1 ? "1 step did not run" : `${problems} steps did not run`}</span>}
+          <IconChevron className="chev" aria-hidden="true" />
+        </button>
+      )}
+      {open && <Stops stops={listed} t0={turn.startedAt} />}
+      {working && <LiveRow stop={current} />}
+    </section>
   );
 }
 
