@@ -16,7 +16,7 @@ import { ErrorNote, Gap } from "../ui/common";
 
 const PdfPage = lazy(() => import("../shell/PdfPage"));
 
-const MODE_TEXT: Record<SourceAccess["mode"], string> = {
+export const MODE_TEXT: Record<SourceAccess["mode"], string> = {
   direct: "Streamed from NASA; IGNIS stores no copy",
   proxy: "Through the IGNIS pass-through proxy; nothing is stored",
   link_out: "Opens at the provider",
@@ -98,7 +98,7 @@ export function Original({ sourceId, params }: { sourceId: string | null; params
   );
 }
 
-function OriginalBody({ a, loc, kind, title }: { a: SourceAccess; loc: SourceLocator; kind: ReturnType<typeof locatorKind>; title: string }) {
+export function OriginalBody({ a, loc, kind, title }: { a: SourceAccess; loc: SourceLocator; kind: ReturnType<typeof locatorKind>; title: string }) {
   const [page, setPage] = useState(loc.page ?? 1);
   if (a.mode === "link_out" || !a.cors) return <Gap title="Not streamed by IGNIS">This source opens at the provider. Use “Open at NASA”.</Gap>;
   const isPdf = kind === "page" || /\.pdf$/i.test(title);

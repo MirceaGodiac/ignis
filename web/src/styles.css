@@ -768,3 +768,16 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 
 .mapv { container-type: inline-size; }
 @container (max-width: 900px) { .mapv-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Sources: results beside the selected original (PDF page with the passage marked). */
+.src-split { display: grid; grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr); gap: 16px; align-items: start; }
+.src-hits { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: calc(100vh - 220px); overflow-y: auto; }
+.src-hit { all: unset; box-sizing: border-box; display: grid; gap: 4px; width: 100%; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; }
+.src-hit:hover { border-color: var(--ink-3, var(--rule)); }
+.src-hit.on { border-color: var(--accent, #e8a33d); box-shadow: 0 0 0 1px var(--accent, #e8a33d) inset; }
+.src-hit-head { display: flex; gap: 8px; align-items: baseline; }
+.src-hit-head b { font-weight: 600; overflow-wrap: anywhere; }
+.src-hit-quote { font-family: var(--font-text); color: var(--ink-2); font-size: 13px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.src-hit-where { font-size: 12px; }
+.src-preview { position: sticky; top: 12px; max-height: calc(100vh - 100px); overflow-y: auto; }
+@media (max-width: 900px) { .src-split { grid-template-columns: 1fr; } .src-hits { max-height: none; } .src-preview { position: static; max-height: none; } }
