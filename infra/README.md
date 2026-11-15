@@ -352,7 +352,7 @@ To revoke: delete the deploy key on GitHub and `/etc/ignis/deploy_key*` on the V
 | Domain, Cloudflare zone, tunnel, Access apps, Worker, R2, GCE VM | **provisioned** (2026-11-14): `ignis-ardealu.app` (bought on Cloudflare Registrar: the Space Apps domain offer failed with "Exceptions Occurred"), UI on the apex, origin on `origin.ignis-ardealu.app`, VM `ignis-origin` in `europe-west3-a` |
 | Access login methods | Google, Cloudflare account, one-time PIN on the UI app (Google added 2026-11-14: OAuth client "Cloudflare Access" in `ignis-spaceapps-ardealu`, Testing mode, PKCE). Cloudflare's IdP test returned the expected identity; the allowlist (policy *team*) is unchanged |
 | Automatic deploys | **installed and enabled** on the VM (2026-11-14): deployed `69eeade` (M7, `answer_submit` live). Measured: cold build 477 s; warm deploy 159 s and 131 s end to end (build 16 s, backup 80–95 s, smoke 7 s, restart to healthy 12–35 s). `--drill-rollback` from schema 4 back to the schema-3 image: crash detected, state moved aside, pre-release snapshot restored, old image healthy (outage about 2 min) |
-| RPO/RTO | not measured (one backup pushed to R2: 386 files in 73 s; no restore drill yet) |
+| RPO/RTO | **local drill only** (2026-11-15, see [Local restore drill](#local-restore-drill-2026-11-15)): RTO 4.5–7.0 s for a 43 MB, 20-file snapshot; RPO = time since the last snapshot (≤ 1 h with the hourly timer). **VM drill still pending** (one backup pushed to R2 from the VM: 386 files in 73 s; never restored there) |
 
 ### Live verification on the deployed stack (2026-11-14)
 
@@ -372,5 +372,51 @@ server), model `gpt-6.1-terra`, models (FLEX/ACME/BASS) disabled. What was run a
 | Shell request | not refused: the model ran `uname`/`cat /etc/passwd` through `analysis_execute`, so the output came from the gVisor runner (container `/etc/passwd`, gVisor kernel), not the host. No approval prompt was exercised |
 | Backup | `ignis-backup` pushed `backups/state-…/` to R2 |
 
-Not done: refused approval (no prompt was triggered), restore drill (RTO), a turn interrupted by
-the restart (the restart ran between turns).
+Not done: refused approval (no prompt was triggered; it needs a live runtime turn, still
+pending), restore drill on the VM (a local drill was run, below), a turn interrupted by the restart
+(the restart ran between turns).
+
+### Local restore drill (2026-11-15)
+
+This drill ran on a development machine (Windows 11, debug build of `main` at `cf9edf2`). It
+didn't touch the VM or any live state. It's the procedure from [Backup and restore](#backup-and-restore),
+run against a scratch state directory that a real server populated. The script is
+[`infra/scripts/restore-drill-local.sh`](scripts/restore-drill-local.sh). It needs
+`target/debug/ignis` and `target/debug/ignis-server-fake-codex`, and does this:
+
+1. Start `ignis serve --dev --auth local --state-dir target/drill/state-a --codex-bin <fake codex>`
+   on loopback. Populate it with 6 episodes, each one completed tool-calling turn on the fake Codex
+   runtime, and 4 uploaded CSV artifacts (1 KiB, 1 MiB, 8 MiB, 32 MiB) in the local artifact store.
+2. Take a live backup while A keeps serving: `ignis state backup --state-dir target/drill/state-a --out target/drill/snap`,
+   then `ignis state verify target/drill/snap`.
+3. Write one more episode after the backup, inside the RPO window.
+4. `ignis state restore target/drill/snap --target target/drill/state-b` (verifies every hash and
+   size, runs `PRAGMA integrity_check`). Start a second instance on `state-b` and poll `/livez`
+   until it's ready.
+5. Check the restored instance:
+   - every backed-up episode's event log, read over SSE from seq 0 to `last_seq`, is byte-identical
+     on A and B, with contiguous seqs and a count equal to `last_seq`;
+   - every artifact `GET /api/v1/artifacts/{id}` from B has the uploaded file's sha256;
+   - the post-backup episode is 404 on B.
+
+Reproduce: `cargo build -p ignis-cli -p ignis-server --bins && bash infra/scripts/restore-drill-local.sh`
+
+| Run | Snapshot | Live backup | Restore | Start to healthy | **RTO** (restore + start) | Replay check | Post-backup write on B |
+|---|---|---|---|---|---|---|---|
+| 1 | 20 files, 43.3 MB | 4.91 s | 4.90 s | 2.10 s | **6.99 s** | 6 logs, 44 events identical; 4 artifacts identical | absent (404), written 6.6 s after the backup |
+| 2 | 20 files, 43.3 MB | 3.17 s | 3.66 s | 0.85 s | **4.52 s** | 6 logs, 42 events identical; 4 artifacts identical | absent (404), 5.8 s after |
+| 3 | 20 files, 43.3 MB | 3.44 s | 3.03 s | 1.69 s | **4.72 s** | 6 logs, 42 events identical; 4 artifacts identical | absent (404), 7.2 s after |
+
+What these numbers mean:
+
+- **RPO.** A snapshot is a point in time, so anything written after it is lost on restore, as the
+  post-backup episode shows. The RPO is the time since the last snapshot: at most the
+  `ignis-backup.timer` interval (1 h) plus the time to push it to R2. R2 artifacts aren't in the
+  snapshot (immutable, content-addressed), so on the VM they are not part of that window.
+- **RTO.** The local figure covers restoring from a local snapshot directory and starting the server.
+  On the VM, a restore also includes `--pull` from R2 (the push of a 386-file snapshot took 73 s
+  there) and the container start. Nobody has measured that yet; it's the pending VM drill.
+- **Not covered.** No turn was writing while the snapshot was taken (the server was up and holding
+  the store open). Snapshots under writes are covered offline by
+  `crates/ignis-research/tests/backup.rs`. The "refused approval exercised live" check needs a live
+  runtime turn and is still pending.
