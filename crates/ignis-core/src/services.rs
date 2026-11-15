@@ -8,6 +8,7 @@
 //! threads, and long calls become jobs. The `ExecutionScope` is always a separate argument derived
 //! by the host; implementations must check it and must not accept a scope from request bodies.
 
+use std::collections::BTreeSet;
 use std::io::Read;
 
 use crate::contracts::{
@@ -15,10 +16,10 @@ use crate::contracts::{
     DatasetBundle, DatasetId, Digest, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope,
     EvaluationRequest, EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope,
     ExternalSourceCandidate, ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest,
-    MetricValue, ModelRelease, Origin, OutlineRequest, Producer, ReadRequest, ReadResult,
-    ReleaseId, RetryPolicy, SearchPage, SearchRequest, SourceAccess, SourceId, SourceLabel,
-    SourceOutline, WebFetchRequest, WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest,
-    WikiReadResult, WikiRevision,
+    MetricValue, ModelRelease, Origin, OutlineRequest, Partition, Producer, ReadRequest,
+    ReadResult, ReleaseId, RetryPolicy, RunId, SearchPage, SearchRequest, SourceAccess, SourceId,
+    SourceLabel, SourceOutline, WebFetchRequest, WebSearchPage, WebSearchRequest, WikiPatch,
+    WikiReadRequest, WikiReadResult, WikiRevision,
 };
 
 pub type ServiceResult<T> = Result<T, ErrorEnvelope>;
@@ -136,6 +137,18 @@ pub trait DatasetService: Send + Sync {
     /// answer could change, so a citation of a cell resolves later against exactly this data.
     fn conditions_snapshot(&self, _scope: &ExecutionScope) -> ServiceResult<Digest> {
         not_provided("conditions_snapshot")
+    }
+
+    /// The partitions `run` holds in the frozen splits (one per split that assigns it, deduplicated;
+    /// empty when no split assigns it a partition). The host checks every one against the scope
+    /// before it mounts anything whose lineage names the run (M9); an empty answer is an unknown
+    /// partition there and is refused.
+    fn run_partitions(
+        &self,
+        _scope: &ExecutionScope,
+        _run: &RunId,
+    ) -> ServiceResult<BTreeSet<Partition>> {
+        not_provided("run_partitions")
     }
 
     /// Every bundle the scope may read, ordered by id (metadata only; the numeric tables stay
