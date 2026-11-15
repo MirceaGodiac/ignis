@@ -1,0 +1,32 @@
+# acme_inverse.wsp3 — D5 literal revision of D1 sha256:a43fdbcf…c1de, spec acme_inverse-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: one law added to the carried
+# D1, typed from the TRAIN rows and the train radiometer traces as read by a physics dossier
+# (docs/wsp/research/phys_acme_inverse.md) and recounted by the author
+# (tools/wsp/analysis/inverse_separation.py). Every number typed by the author; no fit, no search. The
+# author had seen the aggregate validation tables of the earlier candidates and the CONDITIONS of the
+# validation runs (inputs only). No validation outcome was read; nothing below was chosen from a score.
+#
+# This release is one SCENARIO, not the author's whole belief. The committee release that carries it
+# gives it one third; D1, which says the law below does not hold, has two thirds.
+#
+# What train shows. Among inverse flames alive at 5 s, the stoichiometric mixture fraction separates
+# those that went out (0.47 to 0.67) from those still burning when the flow was stopped (0.13 to
+# 0.53); only between 0.47 and 0.53 do both occur. In that band a lean propane or butane flame went
+# out within 10 s at oxygen flows up to 5.4 mg/s (five flames) and was still burning at the stop at
+# 9 mg/s (21228C2 at 0.52, 66 s; 21270H4 at 0.49, 84 s), both while its radiant output pulsed. Above
+# 0.59 a flow of 9 mg/s did not save a flame (four went out within 13 s). D1 gives 21228C2 0.97 of
+# going out.
+#
+# This replaces the scenario D2 of this spec, which wrote the same flames as a law in the total
+# burner flow: ordered by total flow, 45 train flames lie where both outcomes occur; ordered by the
+# mixture fraction, 16.
+#
+# Unit 3 of the early quench clock: active when ln(O2 flow / 5 mg/s) - 0.6 (Z_st - 0.45)/0.2 exceeds
+# 0.2, and then lengthens the clock by 20 per unit. It gives 21228C2 a factor of 30 and 21270H4 more
+# (they burn to the stop), leaves the flames at 5.4 mg/s in the band and the 9 mg/s flames above 0.59
+# untouched (-0.3 and -0.02 or less), and fades between 0.52 and 0.57 at the highest flow. Flames
+# with a mixture fraction below 0.45 are held by D1's own units already.
+se.osc.W1[3, 1] = 1.0
+se.osc.W1[3, 5] = -0.6
+se.osc.b1[3] = -0.2
+se.osc.w2[3] = 20.0

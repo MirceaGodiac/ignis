@@ -1,0 +1,88 @@
+{
+  "status": "research_evidence_not_admitted_to_evaluator",
+  "author": "gpt-6-astra",
+  "construction": "Manual literal transcription of selected original property observations; no fitting, averaging, coefficient import or numerical prediction. This file is an internal research inventory, not a model input contract.",
+  "material": "n_heptane",
+  "quantity": "liquid_mass_density",
+  "reference": "Nominal pure liquid; identity does not erase each source specimen's stated purity or reference-state limitations. No saturation-density assumption, temperature interpolation or constant-property range is supplied.",
+  "si_conversion": {"raw_unit":"g cm^-3","si_unit":"kg m^-3","exact_multiplier":1000,"origin":"Exact SI prefix and volume-unit definitions; not a measured property or fitted parameter. Applied only to the explicitly indicated density rows."},
+  "observations": [
+    {
+      "id":"hevia_2024_heptane_density_298_15",
+      "source_title":"Hevia, Lozano-Martin, Gonzalez, Sanz, Garcia de la Fuente and Cobos, Density and speed of sound of (iodobenzene + n-alkane) liquid mixtures; author manuscript arXiv:2409.05422",
+      "source_url":"https://arxiv.org/pdf/2409.05422",
+      "snapshot":"sources/hevia-2024-density.pdf",
+      "sha256":"5f13b775d71a771daf3947a8ca3e7530a7d4bba4cca005fc612c76eb356a9076",
+      "locator":"PDF p10, Table 2, n-heptane density row, 298.15 K column; methods pp2-3; specimen Table 1 p9",
+      "raw_value":0.67960,"raw_unit":"g cm^-3","value_si":679.60,"unit_si":"kg m^-3",
+      "temperature":{"raw_value":298.15,"raw_unit":"K","value_si":298.15,"unit_si":"K","scale":"Not explicitly named in inspected methods; Pt-100 calibration at water triple point and gallium melting point reported."},
+      "pressure":{"raw_value":0.1,"raw_unit":"MPa","value_si":100000,"unit_si":"Pa","kind":"reported nominal measurement pressure"},
+      "phase":"liquid",
+      "composition":"n-heptane; supplier-certified gas-chromatographic mole-fraction purity 0.998; no further purification, molecular-sieve storage and stability checks described",
+      "method":"Distinct University of Valladolid experiment: Anton Paar DSA 5000 vibrating U-tube; measured pure-liquid column, not the polynomial or REFPROP comparison.",
+      "uncertainty":{"repeatability_expanded_raw":0.00018,"repeatability_expanded_raw_unit":"g cm^-3","repeatability_expanded_si":0.18,"repeatability_expanded_si_unit":"kg m^-3","coverage_factor":2,"locator":"PDF p3 section 2.3 and p10 Table 2 footnote a","limitation":"Source also estimates a reproducibility component from literature discrepancies; for heptane the density comparison is REFPROP, not a second experiment. Total specimen-purity contribution is not fully quantified. No independent uncertainty reduction is performed."},
+      "pending_reason":"Numerically useful original point, but no fully reconciled independent same-state comparison and temperature-scale/reference audit admitted yet. Cannot provide a constant density over an evolving liquid-temperature trajectory."
+    },
+    {
+      "id":"cerdeirina_2001_heptane_density_298_15",
+      "source_title":"Cerdeirina, Tovar, Gonzalez-Salgado, Carballo and Romani, Isobaric thermal expansivity and thermophysical characterization of liquids and liquid mixtures, PCCP 3 (2001) 5230-5236, DOI 10.1039/B104891K",
+      "source_url":"https://pubs.rsc.org/en/content/articlelanding/2001/cp/b104891k",
+      "snapshot_url":"https://citeseerx.ist.psu.edu/document?doi=334cfec2a654ec1de93624b2533b4bf4869047f9&repid=rep1&type=pdf",
+      "snapshot":"sources/cerdeirina-2001-thermophysical.pdf",
+      "sha256":"ed5ddb13a52251626367d6179a99091f61e6e3845f4670b97856a5ec4b999dd9",
+      "locator":"Printed p5231, Table 1, n-heptane row, 298.15 K This work column; apparatus paragraph on same page",
+      "raw_value":0.67954,"raw_unit":"g cm^-3","value_si":679.54,"unit_si":"kg m^-3",
+      "temperature":{"raw_value":298.15,"raw_unit":"K","value_si":298.15,"unit_si":"K","scale":"Unresolved in inspected original methods."},
+      "pressure":{"raw":"atmospheric pressure","value_si":null,"unit_si":"Pa","kind":"No exact numerical pressure given in inspected passages; neither 100000 nor 101325 Pa is inferred."},
+      "phase":"liquid",
+      "composition":"n-heptane, Fluka, stated purity greater than 99.5 mol percent checked by gas chromatography; degassed before use",
+      "method":"Distinct University of Vigo experiment: Anton Paar DSA-48; density calibration using air and n-octane reference data.",
+      "uncertainty":{"reported_accuracy_raw":0.0001,"reported_accuracy_raw_unit":"g cm^-3","reported_accuracy_si":0.1,"reported_accuracy_si_unit":"kg m^-3","coverage_factor":null,"locator":"Printed p5231 apparatus paragraph","limitation":"Source calls this estimated accuracy without a coverage factor; not silently reinterpreted as standard uncertainty."},
+      "pending_reason":"Exact pressure and temperature scale unresolved. Additionally, the paper's liquid heat-capacity apparatus was calibrated using n-heptane and toluene reference Cp from Zabransky; its heptane Cp must not be counted as independent corroboration of that calibration reference."
+    },
+    {
+      "id":"pecar_dolecek_2007_heptane_density_conflict",
+      "source_title":"Pecar and Dolecek, Temperature and Pressure Dependence of Volumetric Properties for Binary Mixtures of n-heptane and n-octane, Acta Chimica Slovenica 54 (2007) 538-544",
+      "source_url":"https://acta-arhiv.chem-soc.si/54/54-3-538.pdf",
+      "snapshot":"sources/pecar-dolecek-2007-density.pdf",
+      "sha256":"3f9ad38d5ac6f6c15d3ddec1a1cc0bbdf5cc60694ab90eab551bac61562d68fd",
+      "alternatives":[
+        {"raw_value":678.8,"raw_unit":"kg m^-3","value_si":678.8,"unit_si":"kg m^-3","locator":"Printed p539, Table 1, rho_exp n-heptane at 298.15 K and 0.1 MPa"},
+        {"raw_value":678.7,"raw_unit":"kg m^-3","value_si":678.7,"unit_si":"kg m^-3","locator":"Printed p540, Table 2, pure n-heptane at 298.15 K and 0.1 MPa"}
+      ],
+      "temperature":{"raw_value":298.15,"raw_unit":"K","value_si":298.15,"unit_si":"K","scale":"Unresolved in inspected original methods."},
+      "pressure":{"raw_value":0.1,"raw_unit":"MPa","value_si":100000,"unit_si":"Pa","kind":"reported nominal measurement pressure"},
+      "phase":"liquid",
+      "composition":"n-heptane from Fluka, stated purity at least 99.5 percent; basis not stated in inspected materials paragraph; ultrasonically degassed",
+      "method":"University of Maribor, Anton Paar DMA 512 U-tube with DMA 60 electronics; water and nitrogen reference fluids. Earlier paper by same authors is not counted as an independent laboratory.",
+      "uncertainty":{"reported_density_si":0.7,"unit_si":"kg m^-3","coverage_factor":null,"locator":"Printed p539 section 2.2","limitation":"Estimated within-value uncertainty with no stated coverage factor; does not remove the internal table discrepancy."},
+      "pending_reason":"Conflicting same-state values retained without choosing or averaging; exact temperature scale and independent reference-state reconciliation also unresolved."
+    },
+    {
+      "id":"luning_prak_2014_heptane_density_298_15",
+      "source_title":"Luning Prak, Cowart and Trulove, Density, Viscosity, Speed of Sound, Bulk Modulus, and Surface Tension of Binary Mixtures of n-Heptane + 2,2,4-Trimethylpentane at (293.15 to 338.15) K and 0.1 MPa, JCED 59 (2014) 3842-3851, DOI 10.1021/je5007532",
+      "source_url":"https://pubs.acs.org/doi/10.1021/je5007532",
+      "snapshot_url":"https://trc.nist.gov/ThermoML/10.1021/je5007532.xml",
+      "snapshot":"sources/luning-prak-2014-thermoml.xml",
+      "sha256":"aa997a3396ada539d60a213a6ed037553f0daaa7bd2d05383bd51c07c08cd0c2",
+      "locator":"Publisher pure-heptane density table, 298.15 K This study column; NIST ThermoML PureOrMixtureData number 1, temperature 298.15 K, property number 1",
+      "raw_value":679.61,"raw_unit":"kg m^-3","value_si":679.61,"unit_si":"kg m^-3",
+      "temperature":{"raw_value":298.15,"raw_unit":"K","value_si":298.15,"unit_si":"K","scale":"Unresolved; complete original method passage and calibration references not yet retrieved."},
+      "pressure_statements":[
+        {"raw_value":0.1,"raw_unit":"MPa","value_si":100000,"unit_si":"Pa","locator":"Publisher title and tabulation caption"},
+        {"raw_value":101,"raw_unit":"kPa","value_si":101000,"unit_si":"Pa","locator":"ThermoML PureOrMixtureData number 1, Constraint number 1"}
+      ],
+      "phase":"liquid",
+      "composition":"NIST archive identifies heptane commercial sample, purity mass percent 99.9, gas chromatography; no impurity correction inferred",
+      "method":"US Naval Academy experiment, Anton Paar DSA 5000 vibrating tube; selected original methods available only in publisher/author-copy search passages. NIST archive is the same experiment, not independent corroboration.",
+      "uncertainty_statements":[
+        {"expanded_si":0.08,"unit_si":"kg m^-3","coverage_factor_approximate":2,"confidence_level":0.95,"locator":"Publisher indexed density-table uncertainty footnote","origin":"authors reported uncertainty"},
+        {"expanded_si":0.16,"unit_si":"kg m^-3","confidence_level_percent":95,"locator":"ThermoML selected density point and CombinedUncertainty assessment number 1","origin":"data-file compiler propagation of evaluated standard uncertainties"}
+      ],
+      "pending_reason":"Pressure and uncertainty representations differ between publication and archive; full original method/calibration and temperature-scale audit incomplete. No reference-state widening or automatic numerical import is used."
+    }
+  ],
+  "comparison_status":"Distinct candidate experimental origins identified, but observations stay pending. Numerical closeness alone is not admission; source mirrors/archive representations of one experiment count once.",
+  "droplet_use":"No observation in this file is selectable by MaterialCatalog::evaluate or the frozen droplet adapter. No complete source-admitted liquid/gas packet exists from this work.",
+  "read_extent":"Hevia manuscript web passages through methods/results discovery and selected references; PDF p10 visually inspected. Cerdeirina original PDF pp5230-5231 visually inspected; attempted text extraction failed on console encoding after rendering. Pecar original web text pp538-540 and partial following mixture-table text, PDF p540 visually inspected. Luning Prak publisher-indexed abstract, selected methods, density tables and uncertainty passages; archive landing page and first 300 XML lines read. Generic-property search results exposed unrelated mixture correlations and kinetic-paper titles incidentally; no coefficients, outcome datasets or test results were imported."
+}

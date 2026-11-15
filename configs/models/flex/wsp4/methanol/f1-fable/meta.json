@@ -1,0 +1,50 @@
+{
+  "patch_id": "flex_methanol-wsp-v5-f1-fable",
+  "parent_release_id": "sha256:c1b1321c4da812a6f7774381882f169a24a5eca528e37814381bf5e72396a620",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)",
+      "nasa:PSI-69-LLUVData-and-ColorCamData-flame-traces-of-the-train-partition(fetched-for-train-runs-only-by-a-delegated-analysis-agent;the-author-read-its-tables)",
+      "analysis:train-only-measurement-of-the-flame-traces-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/flex_flame_traces_train.md",
+      "analysis:train-feedback-of-a-first-version-of-this-release-on-train-prefixes-that-carry-flame-diameters(per-case;the-camera-rule-was-tightened-to-the-frame-rate-and-the-clock-block-was-added-after-it)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-all-earlier-candidates:CRPS-and-coverage-only)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b"
+    ]
+  },
+  "rationale": "F1 of the flame-reading spec, data-informed (not zero-shot): the numbers of flex_methanol.wsp2 D3, unchanged, with a clock that can be wrong (R1's one number) and the flame cameras switched on. When a prefix carries UV or colour flame diameters, the forward reads one fact from them: whether cameras that recorded this flame still show it at the cutoff. A hot flame is in those traces; a cool flame and an unlit droplet are not. The five numbers of the camera block describe the instrument (frame rates, the ignition flash, how often a flame leaves both views) and were typed from a train-only measurement of the flame traces; none is taken from an outcome of a run, and nothing about the laws was changed. On a prefix without flame diameters the forecast is that of R1. No fit, no search; no validation outcome was read.",
+  "origin": "system"
+}

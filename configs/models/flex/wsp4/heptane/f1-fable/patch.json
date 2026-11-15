@@ -1,0 +1,760 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "flex_heptane-wsp-v4-f1-fable",
+  "spec_hash": "sha256:1675a8390ce3cc0591db3d8dd92d70f576d2399a869ab1af83e668e64eeea331",
+  "parent_release_id": "sha256:911530605aa89675f259c4bc11819a6bb292553fd05ff0f1abf06032d36d0060",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)",
+      "nasa:PSI-69-LLUVData-and-ColorCamData-flame-traces-of-the-train-partition(fetched-for-train-runs-only-by-a-delegated-analysis-agent;the-author-read-its-tables)",
+      "analysis:train-only-measurement-of-the-flame-traces-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/flex_flame_traces_train.md",
+      "analysis:train-feedback-of-a-first-version-of-this-release-on-train-prefixes-that-carry-flame-diameters(per-case;the-camera-rule-was-tightened-to-the-frame-rate-and-the-clock-block-was-added-after-it)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-all-earlier-candidates:CRPS-and-coverage-only)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "rate.b0",
+      "index": [],
+      "value": -0.48
+    },
+    {
+      "op": "set_box",
+      "tensor": "rate.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.13,
+        -0.08,
+        0.15,
+        0.05,
+        -0.15,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        0
+      ],
+      "value": -0.12
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        1
+      ],
+      "value": -0.7
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        1
+      ],
+      "value": -0.05
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        2,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        2
+      ],
+      "value": -1.5
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        2
+      ],
+      "value": -0.05
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        3,
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        3,
+        5
+      ],
+      "value": -0.65
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        3
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        3
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        5,
+        6
+      ],
+      "value": -1.667
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        5
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        4,
+        6
+      ],
+      "value": -3.33
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        4
+      ],
+      "value": 0.11
+    },
+    {
+      "op": "set",
+      "tensor": "crit.b0",
+      "index": [],
+      "value": 0.615
+    },
+    {
+      "op": "set_box",
+      "tensor": "crit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.62,
+        -0.45,
+        -0.08,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "class.kappa",
+      "index": [],
+      "value": 14.0
+    },
+    {
+      "op": "set",
+      "tensor": "class.bias",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b0",
+      "index": [],
+      "value": 2.44
+    },
+    {
+      "op": "set_box",
+      "tensor": "diff.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.5,
+        -0.3,
+        0.0,
+        0.0,
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "diff.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.w2",
+      "index": [
+        0
+      ],
+      "value": -0.5
+    },
+    {
+      "op": "set",
+      "tensor": "diff.W1",
+      "index": [
+        1,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b1",
+      "index": [
+        1
+      ],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "diff.w2",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.sharp",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b0",
+      "index": [],
+      "value": 0.227
+    },
+    {
+      "op": "set_box",
+      "tensor": "rad.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "rad.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.w2",
+      "index": [
+        0
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.W1",
+      "index": [
+        1,
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b1",
+      "index": [
+        1
+      ],
+      "value": -0.14
+    },
+    {
+      "op": "set",
+      "tensor": "rad.w2",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.sharp",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.b0",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.p.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.b1",
+      "index": [
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.w2",
+      "index": [
+        0
+      ],
+      "value": -7.5
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.W1",
+      "index": [
+        1,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.b1",
+      "index": [
+        1
+      ],
+      "value": -0.75
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.w2",
+      "index": [
+        1
+      ],
+      "value": -7.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.b0",
+      "index": [],
+      "value": -0.97
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.k.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        0.2,
+        -0.05,
+        0.14,
+        0.1,
+        0.2
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.d.b0",
+      "index": [],
+      "value": -0.77
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.d.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        -0.25,
+        0.05,
+        0.2,
+        -1.0,
+        0.8
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.d.sd",
+      "index": [],
+      "value": 0.12
+    },
+    {
+      "op": "set",
+      "tensor": "post.cool_scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "post.k_inf",
+      "index": [],
+      "value": 3e-8
+    },
+    {
+      "op": "set",
+      "tensor": "post.size_exp",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "post.k_hot",
+      "index": [],
+      "value": 1.2e-7
+    },
+    {
+      "op": "set",
+      "tensor": "post.hot_exp",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "post.tau0_s",
+      "index": [],
+      "value": 3.7
+    },
+    {
+      "op": "set",
+      "tensor": "post.tau_exp",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.8,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": -1.8
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.mix",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.85,
+        0.15
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.e_clip",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.3,
+        0.6
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.cool_gain",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "filt.sd_hot",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "filt.sd_evap",
+      "index": [],
+      "value": 0.15
+    },
+    {
+      "op": "set",
+      "tensor": "filt.l_floor",
+      "index": [],
+      "value": 0.05
+    },
+    {
+      "op": "set_box",
+      "tensor": "filt.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        2.0,
+        0.5,
+        2.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "filt.gain_b",
+      "index": [],
+      "value": -1.5
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.06
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_d",
+      "index": [],
+      "value": 0.000025
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_frame",
+      "index": [],
+      "value": 8e-6
+    },
+    {
+      "op": "set",
+      "tensor": "haz.log_disruption",
+      "index": [],
+      "value": -3.9
+    },
+    {
+      "op": "set",
+      "tensor": "rob.eps_r",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "fl.trust",
+      "index": [],
+      "value": 0.95
+    },
+    {
+      "op": "set",
+      "tensor": "fl.t_min_s",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "fl.gap_s",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "fl.min_points",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "fl.evap_mix",
+      "index": [],
+      "value": 0.5
+    }
+  ],
+  "rationale": "F1 of the flame-reading spec, data-informed (not zero-shot): the numbers of flex_heptane.wsp2 D2, unchanged, with a clock that can be wrong (R1's one number) and the flame cameras switched on. When a prefix carries UV or colour flame diameters, the forward reads one fact from them: whether cameras that recorded this flame still show it at the cutoff. A hot flame is in those traces; a cool flame and an unlit droplet are not. The five numbers of the camera block describe the instrument (frame rates, the ignition flash, how often a flame leaves both views) and were typed from a train-only measurement of the flame traces; none is taken from an outcome of a run, and nothing about the laws was changed. On a prefix without flame diameters the forecast is that of R1. No fit, no search; no validation outcome was read.",
+  "origin": "system"
+}

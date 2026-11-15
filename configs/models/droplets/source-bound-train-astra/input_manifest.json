@@ -1,0 +1,5 @@
+{
+  "schema": "astra.flex.host_inputs.v1",
+  "absence_reason": "No complete source-admitted physical packet exists for this registration. Missing evidence includes liquid temperature/inventory at an explicit initial time and independently supported liquid/gas properties over the frozen kernel's thermal domain. The document-lane release is absent. No synthetic values, inferred future state or scenario defaults are substituted.",
+  "packets": {}
+}

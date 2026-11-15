@@ -1,0 +1,77 @@
+# acme_normal.wsp8 — D1-EARLY, spec acme_normal-wsp-v8: the hinge law with the burner-heating law, early era
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both sources are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   hinge laws    acme_normal.wsp2 D4: self-extinction clock, weak class, programmed stops, background
+#   burner limit  acme_normal.wsp3 D3-EARLY: the heating law with the limit of the early era (about
+#                 500 C through 30 August 2021)
+#
+# Why this member exists. The hinge-law spec carries its own burner-limit clock, a log-logistic in
+# fuel flow alone. It gives a cool low-flow flame a limit trip it cannot have (21125A2 on train: a
+# trip forecast at 17 s with the burner at 61 C). Here that clock is replaced by the heating law the
+# growth member already uses, which knows the total flow and the flame radius. The hinge clock's own
+# numbers (ft.tau.*, ft.shape) are not part of this spec.
+#
+# No value below was typed again. They are the stored values of the two releases named in the
+# blocks, copied statement by statement by tools/wsp/flame4_edits.py; that script chooses and
+# computes nothing.
+
+# ---- hinge laws: the stored values of sha256:cc0a32705ad977683cf5a9936a7a080a83dec4fa44065d17ebab0c80f2f600ce
+#      (44 statements that differ from the parent, sha256:a01a92ed1aee07cfa3129760a6aa5fc72cdca74f6f57dbea6edfa72942e9bd63)
+se.tau.W1[0, 0] = -0.24
+se.tau.W1[0, 1] = -1.0
+se.tau.W1[0, 2] = 0.65
+se.tau.W1[1, 0] = -0.24
+se.tau.W1[1, 1] = -1.0
+se.tau.W1[1, 2] = 0.65
+se.tau.W1[2, 3] = -1.0
+se.tau.W1[2, 7] = 5.0
+se.tau.W1[3, 3] = -1.0
+se.tau.W1[3, 7] = 5.0
+se.tau.W1[4, 2] = 1.0
+se.tau.W1[4, 7] = 5.0
+se.tau.W1[5, 2] = 1.0
+se.tau.W1[5, 6] = -5.0
+se.tau.W1[5, 7] = -5.0
+se.tau.b1[0] = 0.5
+se.tau.b1[1] = -0.22
+se.tau.b1[2] = -5.0
+se.tau.b1[3] = -5.9
+se.tau.b1[4] = -4.1
+se.tau.b1[5] = 0.9
+se.tau.w2[0] = 1.4
+se.tau.w2[1] = 2.0
+se.tau.w2[2] = -0.35
+se.tau.w2[4] = -0.14
+se.tau.w2[5] = -0.12
+se.tau.skip[0] = -0.28
+se.tau.skip[2] = 0.84
+se.tau.skip[7] = -0.2
+se.tau.b0 = 2.43
+se.flash.skip[4] = -12.0
+se.flash.b0 = -18.0
+se.floor_s = 4.0
+se.shape = 3.0
+ft.atom_t_s[0] = 61.5
+ft.atom_t_s[1] = 98.0
+ft.atom_t_s[2] = 126.5
+ft.atom_t_s[3] = 275.5
+ft.atom_logit[0] = -2.0
+ft.atom_logit[1] = -2.9
+ft.atom_logit[2] = -2.2
+ft.atom_logit[3] = 0.0
+ft.atom_w[0, 1] = -2.0
+ft.log_base = -7.6
+
+# ---- burner limit: the stored values of sha256:c59118f6f4915e03b16e9acc0e8b8d2989a102f1506f94df6fa76c573bc699fe
+#      (10 statements that differ from the parent, sha256:a01a92ed1aee07cfa3129760a6aa5fc72cdca74f6f57dbea6edfa72942e9bd63)
+bt.rise.W1[0, 3] = 1.0
+bt.rise.b1[0] = -0.5
+bt.rise.w2[0] = -0.15
+bt.rise.skip[0] = -0.4
+bt.rise.skip[1] = -0.4
+bt.rise.b0 = 5.88
+bt.sigma = 0.12
+bt.limit_c[0] = 455.0
+bt.limit_c[1] = 510.0
+bt.limit_w[1] = 1.0

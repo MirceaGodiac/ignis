@@ -1,0 +1,41 @@
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. Two statements of D3 stood on
+# rows of the PSI-159 normal-flame table whose values are wrong, and are corrected here. Seven TRAIN
+# rows disagree with the script parameter file, the commanded controller volts and the flow
+# readbacks, which agree with each other (docs/wsp/feedback/acme_normal_gen6_train_analysis.md,
+# section C; found independently by the document lane's cross-check, docs/wsp/measure/DISCREPANCIES.md):
+#   21106G6, G7   fuel flow 0.80 mg/s in the table, 0.49 mg/s commanded and read back
+#   21106G9       0.80 in the table, 0.66 commanded
+#   21125K1-K3    fuel fraction 0.031 in the table, 0.300 commanded (the 30 % butane bottle, no nitrogen)
+#   21125D2       fuel fraction 0.045 in the table, 0.037 commanded
+# The author re-evaluated this law at the corrected inputs of those rows (runs/dev/gen6/acme_normal/
+# author_laws.py) before typing. No fit, no search: every number below was typed by the author. No
+# validation outcome was read; nothing below was chosen from a score.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7, as in D3.
+
+# 1. Unit 3 levelled the dilution penalty of butane off below 12 % because "the 3 % butane flames of a
+#    third session are only 0.2-0.3 below". Those flames (21125K1-K3) burned 30 % butane. No train
+#    flame that established shows a levelling off; the one that did burn 3 % butane (21125A2) went out
+#    at 8 s. The unit is switched off: the penalty of unit 2 (-0.35 per e-fold below 30 %) runs on.
+se.tau.w2[3] = 0.0
+
+# 2. Unit 4 said butane is shorter than ethane in enriched oxygen "but not in air (14-20 s at 0.8 mg/s
+#    and 0.5 atm, where the ethane law gives 14 s)". Those three flames burned 0.49, 0.49 and
+#    0.66 mg/s, where the ethane law gives 27, 26 and 17 s: butane in air lives 0.75 to 0.87 of the
+#    ethane law (ln -0.29, -0.26, -0.17; one session, 0.5 atm). So butane is shorter at every oxygen
+#    level, a little more so in enriched oxygen. -0.2 for butane at any oxygen, and the oxygen slope
+#    lowered so that the term at 39 % oxygen stays where nine comparisons in two sessions put it
+#    (-0.2 - 0.14 x 1.8 = -0.45).
+se.tau.skip[7] = -0.2
+se.tau.w2[4] = -0.14
+
+# Not changed, and why:
+#  - the burner-limit clock of this spec (ft.tau). Its butane offset was typed from "72, 80, 125 and
+#    158 s at 0.75-0.8 mg/s"; 125 s (21125K3) was the script's stop with the burner at 480 C, and 80
+#    and 158 s were trips at the 450 C limit of October. Under the 500 C limit the evidence is one
+#    trip and one test without a trip; the typed 105 s at 0.75 mg/s sits between them. The clock knows
+#    fuel flow only and gives a cool low-flow flame a trip it cannot have (21125A2: 17 s, burner at
+#    61 C). That is a fault of the form, not of a number; the hinge law with the heating law in its
+#    place is the spec acme_normal-wsp-v8.
+#  - the weak class (se.flash). Its boundary lies between 1701 K (two flames out at 1 s) and 1795 K
+#    (one flame that established); those two ends are the same after the correction.

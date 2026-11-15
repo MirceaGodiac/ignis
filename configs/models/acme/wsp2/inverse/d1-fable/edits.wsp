@@ -1,0 +1,67 @@
+# acme_inverse.wsp2 — D1 literal revision of the baseline clock, spec acme_inverse-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: written after reading the TRAIN rows of the
+# PSI-159 inverse-flame table (conditions, SE/FT label, burn time, peak burner temperature, colour,
+# comments), the control timelines of the train tests that have one, and the published CFI-G reports.
+# Not zero-shot. Every number was typed by the author from the train table; no fit, no search.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logp = ln(p / 101325 Pa)        c_logm = ln(oxidiser mass flow / 5 mg/s)
+#   c_o2 = (injected x_O2 - 0.50)/0.25  c_xf = ln(ambient fuel fraction / 0.10)
+#   c_tad = (T_ad - 2200 K)/300 K     c_zst = (Z_st - 0.45)/0.2      propane is the reference fuel
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Self-extinction: T = floor + R, ln(median R / 1 s) = N_tau(c)
+# =====================================================================================================
+# The shortest hot flames of the main class last 3-5 s.
+se.floor_s = 2.0
+
+# The ambient fuel fraction decides. Train, 85 % O2 injected: 5-7 s at 7 % fuel, 8-18 s at 8-9 %,
+# 46-51 s at 14 %, and no self-extinction at 17 % and above (those tests end by flow termination).
+# +3.0 per e-fold of ambient fuel fraction, steepening above 13.5 %.
+# Oxygen in the injected stream: 50 % O2 flames last 4-9 s where 85 % ones last 7-18 s: +0.45 per 25 %.
+se.tau.b0 = 2.17
+se.tau.skip[0:8] = [0.0, 0.0, 0.45, 3.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: above 13.5 % ambient fuel the flame is held for minutes.
+se.tau.W1[0, 3] = 1.0
+se.tau.b1[0] = -0.3
+se.tau.w2[0] = 10.0
+# Unit 1: the lowest flows (1.4 mg/s) go out within 3-5 s.
+se.tau.W1[1, 1] = -1.0
+se.tau.b1[1] = -1.0
+se.tau.w2[1] = -8.0
+# Unit 2: air injected (21 % O2). The flame is small and cool; if it survives ignition it does not
+# radiate itself out (two of five train tests burned to the 65 s stop).
+se.tau.W1[2, 2] = -1.0
+se.tau.b1[2] = -0.6
+se.tau.w2[2] = 8.0
+# Lives of one condition spread from 8 to 18 s.
+se.shape = 3.0
+
+# Weak class: with air injected into 7-9 % fuel the flame is a flash (1-3 s) in three of five train
+# tests; the adiabatic temperature separates them only roughly (1835 K flash, 1873-1956 K held).
+se.flash.b0 = -11.0
+se.flash.skip[0:8] = [0.0, 0.0, 0.0, 0.0, -10.0, 0.0, 0.0, 0.0]
+se.flash_tau_s = 1.5
+se.flash_shape = 3.0
+
+# =====================================================================================================
+# 2. Flow termination
+# =====================================================================================================
+# Burner temperature limit: reached with 85 % O2 in a fuel-rich ambient, sooner at low flow (26-48 s
+# at 3.7 mg/s, 60-90 s and more at 5.6-9 mg/s) and much sooner in 43 % fuel (12 s, burner at 650 C).
+# With 50 % O2 or less the burner stays below the limit within the script duration.
+ft.tau.b0 = 6.28
+ft.tau.skip[0:8] = [0.0, 1.6, -1.2, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: ambient fuel above 18 %.
+ft.tau.W1[0, 3] = 1.0
+ft.tau.b1[0] = -0.6
+ft.tau.w2[0] = -2.6
+ft.shape = 4.0
+
+# Programmed stops of the campaign scripts: most inverse flames still burning at 66 s were stopped
+# there (a 60 s constant-flow phase after ignition); other script settings ended tests at 26, 35-36,
+# 43, 60, 63-64, 90 and 136 s.
+ft.atom_t_s[0:8] = [26.0, 35.5, 43.0, 60.0, 63.5, 66.0, 90.0, 136.0]
+ft.atom_logit[0:8] = [-3.5, -2.9, -3.2, -3.5, -2.75, 1.4, 0.4, 2.2]
+ft.log_base = -7.6

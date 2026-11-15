@@ -1,0 +1,25 @@
+{
+  "patch_id": "acme_normal-wsp-v12-baseline-set",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-opus-5-5"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/committee3.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame5.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame6.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame7.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/fuel.rs(the-fuel-table)",
+      "repo:configs/models/acme/wsp7/normal/baseline-set(root-of-the-second-committee-spec;its-mix,era-and-script-lines-are-copied)",
+      "repo:configs/models/acme/wsp9/normal/baseline-clock(reference-baseline;its-stored-values-are-slots-a0-and-a1)",
+      "repo:configs/models/acme/wsp10/normal/baseline-theory(reference-baseline;its-stored-values-are-slots-b0-to-b3)",
+      "repo:configs/models/acme/wsp11/normal/baseline-clock-theory(reference-baseline;its-stored-values-are-slots-c0-to-c3)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root of the spec of the third committee, not a candidate: the slots of the root of the second committee spec, each carried to its member model with the fuel table (the roots of the fuel-table specs, with the neutral table), and the committee lines of that root (weights, era rule, offsets of the planned stop). No number was taken from the PSI-159 tables. The slot values are copied from the stored releases by tools/wsp/committee3_edits.py, which chooses nothing. Data-informed candidates of acme_normal-wsp-v12 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

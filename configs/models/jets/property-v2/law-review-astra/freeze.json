@@ -1,0 +1,34 @@
+{
+  "schema": "ignis.wsp.author-freeze.v1",
+  "created_at_utc": "2026-11-14T20:50:04.165436+00:00",
+  "author_model": "gpt-6-astra",
+  "implementation_classification": "synthetic_physics_review_data_informed",
+  "numeric_authoring": "inherited_unchanged_from_frozen_w0",
+  "not_a_new_zero_shot_trial": true,
+  "qualification": "experimental_conditional_limit_unqualified",
+  "scientific_literal_values": [
+    3.141592653589793,
+    2.0,
+    4.0
+  ],
+  "literal_ops_identical_to_w0": true,
+  "no_nasa_outcomes": true,
+  "files_sha256": {
+    "crates/ignis-wsp/src/property_jets_v2.rs": "7f2fa2fd7a93ccf9c15bd81678e93c4be3499b639c4140096f16ef938ad38ff7",
+    "crates/ignis-wsp/src/property_jets_w0.rs": "1fbde4e90c869dfe5b85278a2fd4254cfcd91c8844db0075fbe04f82ab8ba81b",
+    "crates/ignis-wsp/src/physical_core.rs": "c6d4ead14d4a85ccc20113fe94fc61529d5cacf7aad73e97b7569d48e0946644",
+    "configs/models/jets/property-v2/law-review-astra/model_spec.json": "4e9df5e173b00dde540a7d196fffd4a30937ccd6e03e3643928a81110b49dd13",
+    "configs/models/jets/property-v2/law-review-astra/literal_ops.json": "7fa8b5e8f1fc066bbaca4ab674d8e136fa71fee4590a68bd319710a4146bf0e2",
+    "configs/models/jets/property-v2/law-review-astra/patch_meta.json": "707e3b8717dbf78e9aa4c49d5c9a008e87f56444f870524073ecb06b5acd0370",
+    "configs/models/jets/property-v2/law-review-astra/revision_manifest.json": "28fdaee9662ea8ecc0689a47082a674a17a536c05482c5f608039f485f002570",
+    "configs/models/jets/property-v2/law-review-astra/verification_receipt.json": "9cdabcedb928b583d1e348f97ce112074cb5fe38b70e59b300011aa10dcb9ec4",
+    "docs/wsp/research/astra_jets_v2.md": "a5f92aef23a9ae9fb83192630a796313e6553f86e66044cb5918fa742054fec6"
+  },
+  "external_verification_dependencies_sha256": {
+    "docs/wsp/research/astra_property_transport_check.md": "eb41d97b46dd55842f92618a462e67b6b311b169600b489f5d134876aa58562c",
+    "runs/tooling/astra-transport-review/physics_v2_independent.rs": "03803007a440ef5d94976004c3d24160e4cec82858f46d02b6bf1ccb5959b487"
+  },
+  "original_w0_files_unchanged": true,
+  "release_created": false,
+  "commit_or_push_performed": false
+}

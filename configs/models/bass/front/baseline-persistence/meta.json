@@ -1,0 +1,17 @@
+{
+  "patch_id": "bass_front-wsp-v1-baseline-persistence",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/front.rs(forward-and-spec)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the tip keeps the speed the prefix shows, whatever the flow does afterwards; no law of flow, oxygen or width, no overhang, no quench. Data-informed candidates of bass_front-wsp-v1 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

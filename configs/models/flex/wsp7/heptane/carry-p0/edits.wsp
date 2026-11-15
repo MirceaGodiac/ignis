@@ -1,0 +1,96 @@
+# flex_heptane.wsp7 — carry of flex_heptane.wsp5 P0, literal revision of the carry sha256:ba4edf9a…65c0, spec flex_heptane-wsp-v8
+# NEUTRAL CARRY on droplet8.rs, not a new candidate. The assignment statements below, with their
+# comments, are those of configs/models/flex/wsp5/heptane/p0-fable/edits.wsp, copied without change by
+# the engineer (claude-opus-5-5); no number was typed. droplet8.rs has the tensors and the law of
+# droplet6.rs, so inside the domain of droplet6.rs, before 45 s, this gives the forecasts of that release.
+#
+# flex_heptane.wsp5 — P0 literal revision of the carry of D2 sha256:b6bc5a9a…0f2c, spec flex_heptane-wsp-v5
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. The carried numbers
+# (flex_heptane.wsp2 D2) with four laws revised from the physical mechanism: a physics dossier on
+# these droplets (docs/wsp/research/phys_flex_heptane.md), re-derived independently on the TRAIN runs
+# (docs/wsp/feedback/verify_phys_flex_heptane.md), and the camera times at which the hot flame ended
+# on train (docs/wsp/feedback/flex_flame_traces_train.md). Every number typed by the author; no fit,
+# no search. The author had seen the aggregate validation tables of the earlier candidates and the
+# CONDITIONS of the validation runs (inputs only); no validation outcome was read and nothing below
+# was chosen from a score. The flame cameras are not read by this candidate.
+#
+# c = (c_o2, c_co2, c_he, c_logp, c_logd0), as in the carried model.
+
+# =====================================================================================================
+# 1. The cool-flame burning rate does not depend on oxygen or pressure
+# =====================================================================================================
+# A cool flame burns at a fixed flame temperature (600-800 K), so its rate is set by the gas
+# conductivity and not by how much oxygen there is. Train, twelve runs with a sustained cool flame:
+# 0.32-0.36 mm2/s (median 0.345), no trend beyond 0.02 in oxygen (15-24 %), CO2 (0-25 %) or pressure
+# (0.7 against 1 atm); droplets of 3.3 mm and more sit 0.015 above smaller ones. The carried law had
+# +0.2 per 5 % of oxygen and +0.1 per e-fold of pressure and gave 0.41-0.44 for the 0.7 atm runs,
+# which burned at 0.34-0.36. Typed: 0.345 mm2/s at 3 mm (0.325 at the 2 mm reference), size exponent
+# 0.15, no oxygen, CO2 or pressure term. Helium raises the conductivity: theory 1.21 times at 15 %,
+# the one train run (H19H101, whose sheet and table disagree on its atmosphere) 1.25 times: +0.2 per
+# 20 % of helium (1.16 at 15 %). Above 1 atm a hotter "warm" flame takes over and burns faster
+# (published numerical work; 0.49 mm2/s in the one train run at 2 atm): +0.5 per e-fold of pressure
+# above 1e5 Pa, which gives 0.50 at 2 atm. One run, and it is the run the number comes from.
+cool.k.b0 = -1.125
+cool.k.skip[0:5] = [0.0, 0.0, 0.2, 0.0, 0.15]
+cool.k.W1[0, 3] = 1.0
+cool.k.b1[0] = 0.0
+cool.k.w2[0] = 0.5
+
+# =====================================================================================================
+# 2. Where the cool flame ends: a law in the oxygen partial pressure, with a limit
+# =====================================================================================================
+# Published theory: the cool flame ends where the residence time falls to its chemical limit, and the
+# diameter there scales as ([O2] - b)^(-1/2), diverging at an oxygen limit b. Train, twelve plateaus
+# re-measured by a second reader: D_ce/D0 = 0.94 at 0.140 atm of oxygen, 0.65-0.68 at 0.151,
+# 0.57-0.61 at 0.160-0.168 (one of them at 0.7 atm and 23 % oxygen: the variable is the partial
+# pressure, not the mole fraction), 0.47-0.52 at 0.180, 0.39-0.43 at 0.190. The end diameter scales
+# with the initial diameter (exponent 0.95 on four same-atmosphere pairs, range 0.8-1.25), which the
+# quasi-steady theory does not give and the carried law had as 0.8. With g0 = 0.47 at 0.18 atm and
+# b = 0.12 atm the form gives 0.81, 0.65, 0.58, 0.53, 0.47, 0.44: within 13 % on eleven plateaus;
+# the flame at 0.140 atm sits higher still (a limit of 0.125 would fit it; 0.12 is the lower end of
+# what the plateaus allow). The carried law was linear in oxygen and gave 0.56 where 0.94 was measured.
+# Helium: (1 + x_He), from the one run at 15 % (0.455 measured, 0.45 by the form).
+ce.on = 1.0
+ce.g0 = 0.47
+ce.beta_atm = 0.12
+ce.p_ref_atm = 0.18
+ce.c_he = 1.0
+
+# =====================================================================================================
+# 3. A flame born below its end diameter dies away; the helium patch goes
+# =====================================================================================================
+# The carried model forced "no cool flame" above 15 % helium with a unit of its own, and then let the
+# droplet evaporate like one that had left a cool flame at 1.7 mm. In 30-35 % helium at 0.7 atm the
+# oxygen partial pressure is 0.14-0.15 atm: by the law above the cool flame would end at or above the
+# diameter at which the hot flame is lost. It is born past its limit and decays. Train, three runs of
+# one session, D2 rate after the visible flame is lost: 0.51-0.59 mm2/s in the first second,
+# 0.40-0.52 in the second, 0.29-0.35 in the third, 0.22-0.25 over 3-5 s, 0.11-0.15 over 5-8 s; the
+# carried unlit law gives 0.14, 0.12, 0.10, 0.08, 0.055. The difference starts at the full cool-flame
+# rate of that atmosphere (0.45-0.50 by section 1) and falls by e every 3.5 s.
+# So: the helium unit of the cool-flame probability is switched off (the end-diameter law decides),
+# and a flame of zero length is followed by the full cool rate decaying with 3.5 s.
+cool.p.w2[1] = 0.0
+dy.frac = 1.0
+dy.tau_s = 3.5
+
+# =====================================================================================================
+# 4. Helium runs the radiative clock faster
+# =====================================================================================================
+# The cameras show when the hot flame ended on train. Against them the carried clock is right for N2
+# and CO2 (17 runs inside its bands) and 1.5 times late in 30-35 % helium (flame held 2-3 s too long;
+# one run at D0/D_crit 1.30 lost its flame at clock 0.32 where the band says 0.41-0.80). The methanol
+# model has had -0.22 per 20 % of helium since the third generation, from its own three runs, and the
+# far field of oxygen builds up faster in helium (physics: -0.17). The same term here: 0.68 at 35 %.
+# The third generation had declined it for heptane for want of flame times; the cameras supply them.
+rad.skip[0:6] = [0.0, 0.0, -0.22, 0.0, 0.0, 0.0]
+
+# Sections 3 and 4 belong together. Scored one at a time on train each makes the helium runs worse:
+# the carried model holds the hot flame too long and then lets the droplet evaporate too slowly, and
+# the two errors cancel. Together they are right for the right reason (train mean 45.9 against 46.2
+# micrometres, median 20.3 against 21.8, with section 2).
+#
+# What is NOT changed, and why. The evaporation of an unlit droplet stays the carried law: the
+# closed form "a hot droplet evaporates on its stored heat" gives the right rate for the first two
+# seconds after a cool flame, but its decay time grows as D^2 and the train runs do not show that
+# (the independent check). The critical diameter and the hot burning rate stay: the physics
+# reproduces the typed laws within 10 % in N2 and CO2 up to 30 % and does no better at 0.7 or 2 atm.

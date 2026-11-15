@@ -1,0 +1,33 @@
+{
+  "schema": "ignis.wsp.author-freeze.v1",
+  "author_model": "gpt-6-astra",
+  "experiment": "W0",
+  "created_at_utc": "2026-11-14T20:23:07.566807+00:00",
+  "qualification": "experimental_conditional_limit_unqualified",
+  "scientific_literal_values": [
+    3.141592653589793,
+    2.0,
+    4.0
+  ],
+  "outcome_exposure": {
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidate_releases": []
+  },
+  "incidental_exposure": "Cross-family author status summaries after jets physics and literals were authored; full ledger in research note. No experimental outcomes or other candidate coefficients.",
+  "files_sha256": {
+    "crates/ignis-wsp/src/property_jets_w0.rs": "1fbde4e90c869dfe5b85278a2fd4254cfcd91c8844db0075fbe04f82ab8ba81b",
+    "configs/models/jets/property-w0/cleanroom-astra/model_spec.json": "2633e45aa41fef1642bbc9078479d87addc93a3ab50cabea872d3eb6cc056c31",
+    "configs/models/jets/property-w0/cleanroom-astra/literal_ops.json": "7fa8b5e8f1fc066bbaca4ab674d8e136fa71fee4590a68bd319710a4146bf0e2",
+    "configs/models/jets/property-w0/cleanroom-astra/patch_meta.json": "3d50b122407297ba2453abdc33ff206d1dea76bde8657c303d0ed67da6104499",
+    "docs/wsp/research/astra_jets_w0.md": "24e3d6ad92d8d2cfe6d29a40e8a406b185890274e4917b6465ebff1985d14887"
+  },
+  "unchanged_physical_core_sha256": "c6d4ead14d4a85ccc20113fe94fc61529d5cacf7aad73e97b7569d48e0946644",
+  "primary_lecture10_pdf_sha256": "3f139912cd10d7671b701a8fe5e8c4513446f35c9c1c6c1473d5ae01118fa67a",
+  "checks_executed": [
+    "rustfmt --edition 2021 --check crates/ignis-wsp/src/property_jets_w0.rs: passed",
+    "JSON syntax, literal identity and nonempty tensor bounds: passed"
+  ],
+  "synthetic_tests": "Present; awaiting coordinator shared-target execution under disk-space restriction",
+  "release_created": false
+}

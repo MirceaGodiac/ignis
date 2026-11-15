@@ -1,0 +1,242 @@
+# flex_decane.wsp5 — W0 for n-decane, literal revision of the lineage root sha256:1d93eb66…3fad, spec flex_decane-wsp-v1
+# The n-heptane droplet law carried over. Provisional spec id, model name and parent: n-decane has to be
+# added to the Fuel list of droplet6.rs with the cool-flame tensor set of n-heptane, and its lineage
+# root built (the D^2-law reference of n-heptane, configs/models/flex/wsp5/heptane/baseline-d2, copied
+# without change), before this file can be assembled; tools/wsp/reassemble.py then writes the parent
+# id here and in meta.json. No number is involved in either step: THIS FILE WRITES EVERY AUTHORED
+# ELEMENT, the root has no hinge unit, so nothing of the root survives. It is a revision and not a
+# root because its author has seen other candidates (those of n-heptane and methanol), which the
+# contract does not allow a root to have seen.
+# Author: claude-fable-5-2 (Anthropic). ONE SHOT FOR THIS FUEL: written before any n-decane outcome of
+# FLEX-2 (PSI-68) was opened: no diameter series, test sheet, processed or analysed file. Of PSI-68
+# only the conditions of the atlas card were read.
+# NOT zero-shot in the project's sense. The numbers marked [D] are those of flex_heptane.wsp5 (the
+# carry of D2 and the candidates P0 and P1), which were typed after reading the n-heptane TRAIN runs
+# of FLEX; the author also read the aggregate validation tables of those candidates.
+# NOT fully blind for this fuel either: docs/wsp/research/lit_droplets.md quotes published aggregate
+# results for n-decane droplets on the ISS (hot rate about 0.3-0.4 mm2/s at 0.5 atm and 14-21 % O2,
+# cool-flame rate 0.33 to 0.25 mm2/s from 21 to 14 % O2). The hot and cool levels below were worked
+# from property tables first and then compared with them (0.41 and 0.29: not adjusted); the oxygen
+# limit of the cool flame is bounded by them and marked [L].
+# No fit, no search, no program: each fuel-specific number is the n-heptane number times a ratio
+# worked by hand from property tables. Derivations, property values with their sources, and the
+# registered expectations: docs/wsp/research/phys_droplet_fuels.md (section numbers in brackets).
+#
+# Classes: [P] property table  [T] theory  [L] published experiment  [J] judgement
+#          [D] carried from a number typed after FLEX train data
+#
+# c = (c_o2, c_co2, c_he, c_logp, c_logd0):
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20
+#   c_logp = ln(p / 1e5 Pa)     c_logd0 = ln(D0 / 2 mm)
+# w = 1 - D^2/D0^2 (burn progress)   s = t (1 mm2/s) / D0^2 (diffusion clock, t since igniters on)
+# x_exc = ln(D0 / D_crit)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+#
+# n-Decane [P]: M 142.28, boiling point 447.3 K, liquid density 726.4 (298 K) and 601 kg/m3 (boiling),
+# latent heat 272.3 kJ/kg at boiling, liquid heat capacity 2.210 kJ/kg/K at 298 K (mean to boiling
+# 2.51), lower heat of combustion 44.24 MJ/kg, 3.486 kg of oxygen per kg.
+
+# =====================================================================================================
+# 1. Hot-flame burning rate, ln(K / 1 mm2/s) = N_rate(c, w, s)   [2.4]
+# =====================================================================================================
+# Level [T on D]. Transfer number with the liquid heated on the way,
+# B' = [Q Y_O/nu - c_pg (T_b - 298)] / [L + c_l (T_b - 298)] = 2649/647 = 4.10 against 5.70 for
+# n-heptane: ln(1+B') 1.629 against 1.903, mean liquid density 663.7 against 646.6 kg/m3. Rate ratio
+# 0.834. n-Heptane has -0.48 [D]: -0.48 + ln 0.834 = -0.66, 0.52 mm2/s for a 2 mm droplet in air.
+# Heating the liquid to 447 K costs 374 kJ/kg, more than the latent heat: that, not the latent heat,
+# is why n-decane burns slower than n-heptane.
+rate.b0 = -0.66
+# Oxygen [T on D]: the n-heptane slope 0.13 times the ratio of d ln K / d ln Y_O (0.549 / 0.468 = 1.171).
+# CO2 -0.08 and helium 0.15 per 20 %: gas side [D]. Pressure: n-heptane's 0.05 [D] less the difference
+# of the boiling-point terms (0.016) [T]. Size -0.15 per e-fold of D0 [D]. No progress or clock term.
+rate.skip[0:7] = [0.15, -0.08, 0.15, 0.03, -0.15, 0.0, 0.0]
+# Unit 0: below air the rate falls faster with oxygen. n-Heptane -0.12 [D] times 1.171 [T].
+rate.W1[0, 0] = -1.0
+rate.b1[0] = 0.0
+rate.w2[0] = -0.14
+# Unit 1: below 17.5 % O2. n-Heptane -0.05 [D] times 1.171 [T].
+rate.W1[1, 0] = -1.0
+rate.b1[1] = -0.7
+rate.w2[1] = -0.059
+# Unit 2: more than 30 % helium [D].
+rate.W1[2, 2] = 1.0
+rate.b1[2] = -1.5
+rate.w2[2] = -0.05
+# Unit 3: a large droplet burns slower early in its life [D].
+rate.W1[3, 4] = 1.0
+rate.W1[3, 5] = -0.65
+rate.b1[3] = -0.4
+rate.w2[3] = -0.3
+# Units 5 and 4: heat-up. n-Heptane [D]: -0.3 until s = 0.6 and +0.11 until s = 0.3. Amplitudes times
+# 1.69 [T]: the extra early deficit, ln(1 + N/(L + 2 c_l dT)) against ln(1+B'), is 0.241 for n-decane
+# and 0.143 for n-heptane. Durations times 1.38 [T]: conduction into the liquid (0.313 clock units,
+# the same liquid diffusivity) plus the time the flame needs to deliver the sensible heat (0.296
+# against 0.128). The rate starts 0.32 below its plateau (27 %) and reaches it at s = 0.83.
+rate.W1[5, 6] = -1.21
+rate.b1[5] = 1.0
+rate.w2[5] = -0.51
+rate.W1[4, 6] = -2.41
+rate.b1[4] = 1.0
+rate.w2[4] = 0.19
+
+# =====================================================================================================
+# 2. Critical diameter of radiative extinction and the class   [2.5]
+# =====================================================================================================
+# The radiated share of a flame's heat goes as (rho_l K D)^2 at equal oxygen demand and products, so
+# D_crit goes as 1/(rho_l K): 3.70 mm [D] x 1.903/1.629 = 4.32 mm in air at 1e5 Pa [T on D]. A slower
+# fuel has a more compact flame. Soot, which grows with chain length, is not in this.
+crit.b0 = 0.77
+# Oxygen, CO2, helium as n-heptane [D]. Pressure: -0.1 per e-fold, the value the n-heptane physics
+# dossier proposes from train (0 to -0.3) [D]; the carried n-heptane law has 0 from runs at 0.7-1 atm.
+crit.skip[0:4] = [0.62, -0.45, -0.08, -0.1]
+# A carried-over critical diameter is uncertain by a quarter: the class is less sharp than n-heptane's
+# (14 and 0.5 [D]) [J].
+class.kappa = 6.0
+class.bias = 0.0
+
+# =====================================================================================================
+# 3. Diffusive extinction (burn-down)   n-heptane law, unchanged [D]
+# =====================================================================================================
+diff.b0 = 2.44
+diff.skip[0:6] = [0.5, -0.3, 0.0, 0.0, 0.5, 0.0]
+diff.W1[0, 0] = 1.0
+diff.b1[0] = 0.0
+diff.w2[0] = -0.5
+diff.W1[1, 5] = 1.0
+diff.b1[1] = 0.3
+diff.w2[1] = -1.0
+diff.sharp = 10.0
+
+# =====================================================================================================
+# 4. Radiative extinction: clock at which the visible flame is lost   n-heptane P0 law, unchanged [D]
+# =====================================================================================================
+rad.b0 = 0.227
+rad.skip[0:6] = [0.0, 0.0, -0.22, 0.0, 0.0, 0.0]
+rad.W1[0, 5] = 1.0
+rad.b1[0] = 0.0
+rad.w2[0] = -2.0
+rad.W1[1, 4] = 1.0
+rad.b1[1] = -0.14
+rad.w2[1] = -1.0
+rad.sharp = 4.0
+
+# =====================================================================================================
+# 5. Cool flame   [2.6]
+# =====================================================================================================
+# n-Decane has strong low-temperature chemistry and published cool flames on the ISS [L]. A cool flame
+# follows a radiative loss 19 times in 20, as for n-heptane in air [D]; the oxygen hinge of n-heptane
+# is left out, because the end-diameter law below decides whether the flame has any length.
+cool.p.b0 = 3.0
+cool.p.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Rate [T on D]. Under a 700 K flame the droplet sits 30 K below boiling (417.3 K);
+# B_c = c_p (2 T_f - T_s - T_inf)/[L + c_l (T_s - 298)] = 2.0 x 684.7/581 = 2.36 against 3.31 for
+# n-heptane; ln(1+B_c) 1.211 against 1.461, density 677.2 against 656.8: ratio 0.804.
+# -1.125 [D] + ln 0.804 = -1.34: 0.28 mm2/s for a 3 mm droplet. No oxygen, CO2 or pressure term below
+# 1 atm, +0.2 per 20 % helium, size exponent 0.15 [D].
+cool.k.b0 = -1.34
+cool.k.skip[0:5] = [0.0, 0.0, 0.2, 0.0, 0.15]
+# Above 1e5 Pa a warm flame near 950 K takes over: +0.4 per e-fold of pressure, held at +0.3 from
+# 2.1e5 Pa on. The cool-flame formula at 950 K gives +0.29 [T]; the one n-heptane train run at 2 atm
+# gave +0.35 [D]. The n-heptane candidate has +0.5 without a cap.
+cool.k.W1[0, 3] = 1.0
+cool.k.b1[0] = 0.0
+cool.k.w2[0] = 0.4
+cool.k.W1[1, 3] = 1.0
+cool.k.b1[1] = -0.75
+cool.k.w2[1] = -0.4
+# The end-diameter network is not read (ce.on = 1) except for its spread. n-Heptane values [D];
+# spread 0.25 against 0.12 for a carried-over law [J].
+cool.d.b0 = -0.77
+cool.d.skip[0:5] = [-0.25, 0.05, 0.2, -1.0, 0.8]
+cool.d.sd = 0.25
+# Where the cool flame ends: D_ce/D0 = g0 sqrt((0.18 - beta)/(pO2 - beta)) (1 + x_He).
+# g0 [T on L and D]: the residence time at the end, D_ce^2/K_c, is the same for n-heptane, n-octane and
+# n-decane at one oxygen concentration (published): 0.47 [D] x sqrt(0.804) = 0.42.
+# beta [J under an L bound]: n-heptane's 0.12 atm [D] does not carry over. Published cool-flame rates
+# of n-decane exist at 0.5 atm down to 14 % oxygen, 0.07 atm: a cool flame of any length there needs
+# beta below 0.035 atm. Typed 0.03: D_ce/D0 0.38 in air at 1 atm, 0.59 at 0.5 atm and 21 %, 0.81 at
+# 0.5 atm and 14 %.
+ce.on = 1.0
+ce.g0 = 0.42
+ce.beta_atm = 0.03
+ce.p_ref_atm = 0.18
+ce.eps_atm = 0.01
+ce.c_he = 1.0
+ce.d0_exp = 1.0
+# A flame born at or above its end diameter dies away from the full cool rate over 3.5 s [D].
+dy.frac = 1.0
+dy.tau_s = 3.5
+
+# =====================================================================================================
+# 6. The droplet without a flame: it evaporates on its stored heat   [2.7]
+# =====================================================================================================
+# K(u) = K_floor(u) + K0/(1 + u/t0), t0 = T* c_l D_e^2/(1.5 K0 L). Constants from property tables; the
+# n-heptane post.* law is not used because its amplitude and its long-time rate are n-heptane's.
+# K0 after a hot flame: with the surface 3 K below boiling the evaporation constant is 0.49 mm2/s
+# (0.46 for n-heptane x 1.06) [T]. But the surface of a cold n-decane droplet needs about 0.3 clock
+# units of flame to reach boiling, and a large droplet loses its flame before that: half, 0.25 [J].
+# K0 after a cool flame: at the cool-flame wet bulb, 0.19 for n-heptane x 0.95 [T].
+# T* = R T^2/dH_vap 40 K below boiling: 33 K [T]. c_l and L over the 60 K below boiling [P].
+# Helium: vapour leaves 1.8 times faster through 35 % helium (n-heptane dossier) [T]; pressure +0.1 [T].
+# Cold floor: 0.17 kPa of vapour at 298 K against 6.1 for n-heptane: 0.0006 mm2/s [T]: a cold n-decane
+# droplet all but stops shrinking. Warm floor and its fading: n-heptane dossier [D].
+sc.on = 1.0
+sc.k0_hot_mm2_s = 0.25
+sc.k0_cool_mm2_s = 0.18
+sc.tstar_k = 33.0
+sc.cl_j_kg_k = 2650.0
+sc.lat_j_kg = 289000.0
+sc.gas[0:3] = [1.7, 0.0, 0.1]
+sc.k_cold_mm2_s = 0.0006
+sc.k_warm_mm2_s = 0.045
+sc.tau_warm_s = 15.0
+sc.diff_scale = 1.0
+# The post.* law is not read with sc.on = 1; the n-heptane D2 values are written so that every
+# element is stated [D].
+post.cool_scale = 1.0
+post.k_inf = 3.0e-8
+post.size_exp = 0.3
+post.k_hot = 1.2e-7
+post.hot_exp = 0.3
+post.tau0_s = 3.7
+post.tau_exp = 0.2
+
+# =====================================================================================================
+# 7. What the prefix is trusted for   [2.9]
+# =====================================================================================================
+# n-Heptane: gain sigmoid(-1.8 + 0.8 ln span), because its law was typed from its own runs [D]. A
+# carried-over level may be off by 10-20 %, so the prefix is believed more: -1.0, about 0.19, 0.40 and
+# 0.51 at cutoffs of 1, 3 and 5 s [J]. The lower clamp of the innovation is opened from 0.3 to 0.5 so
+# that a law that is too fast can be corrected [J].
+enc.gain_w[0:3] = [0.8, 0.0, 0.0]
+enc.gain_b = -1.0
+enc.mix[0:2] = [0.85, 0.15]
+enc.e_clip[0:2] = [0.5, 0.6]
+# Cool-flame run offset: 0.7 of the end-rate innovation (n-heptane 0.5 [D]) [J].
+enc.cool_gain = 0.7
+# State at the cutoff: n-heptane filter [D], the hot-flame spread 0.25 for 0.2 [J].
+filt.sd_hot = 0.25
+filt.sd_evap = 0.15
+filt.l_floor = 0.05
+filt.gain_w[0:3] = [2.0, 0.5, 2.0]
+filt.gain_b = -1.5
+
+# =====================================================================================================
+# 8. Assumed spread, clock tail, cameras
+# =====================================================================================================
+# Rate around the law: 0.20 before a prefix and 0.10 that no prefix removes, twice n-heptane's [J].
+unc.s_pop = 0.20
+unc.s_floor = 0.10
+# FLEX-2 imaged a field of about 50 mm where FLEX had 30 mm (published): pixels 1.67 times coarser
+# than those behind n-heptane's 2.5e-5 and 8e-6 m [L on D].
+unc.sigma_d = 4.2e-5
+unc.sigma_frame = 1.3e-5
+haz.log_disruption = -3.9
+# One flame in five may not follow a clock written for another fuel [J] (P1 of n-heptane: one in ten).
+rob.eps_r = 0.2
+# Cameras: instrument facts, as P1 of n-heptane [D]. Not read on a prefix without flame diameters.
+fl.trust = 0.95
+fl.t_min_s = 0.3
+fl.gap_s = 0.25
+fl.min_points = 5.0
+fl.evap_mix = 0.5

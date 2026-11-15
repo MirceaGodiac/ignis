@@ -1,0 +1,16 @@
+# acme_normal.wsp12 — F1: acme_normal.wsp7 P3 with the fuel table F1 in every member
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like P3 for ethane, propane and butane, where it
+# returns the forecasts of P3 bit for bit. Zero-shot for ethylene and methane, which P3 refuses.
+# Slot values are copied from the stored fuel-table members by tools/wsp/committee3_edits.py.
+# The lines typed for this file are those of P3, unchanged (see its file for the reasons):
+
+mix.w_early[0:10] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+era.last_early_day = 2021242.0
+era.first_late_day = 2021270.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.15
+script.offset_s[0:3] = [0.0, 1.0, 2.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]

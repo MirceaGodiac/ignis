@@ -1,0 +1,17 @@
+# acme_inverse.wsp12 — F1: acme_inverse.wsp5 P1 with the fuel table F1 in every member
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like P1 for ethane, propane and butane, where it
+# returns the forecasts of P1. Zero-shot for ethylene, which P1 refuses.
+# Slot values are copied from the stored fuel-table members by tools/wsp/committee3_edits.py.
+# The lines typed for this file restate P1 on this spec: its mix.w and mix.w_script in both eras (no
+# era is told apart), and its script.onset_s of 0.4 s as the one reading of the planned stop:
+
+mix.w_early[0:10] = [0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+era.last_early_day = 1900001.0
+era.first_late_day = 2100366.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.5
+script.offset_s[0:3] = [-0.4, 0.0, 0.0]
+script.offset_w[0:3] = [1.0, 0.0, 0.0]

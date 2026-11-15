@@ -1,0 +1,29 @@
+# acme_inverse.wsp5 — D1 literal revision of the baseline sha256:00000000…0000, spec acme_inverse-wsp-v5
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both members are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   slot b0   acme_inverse.wsp3 D1 (carried): the early quench of a lean flame is set by the ambient
+#             fuel fraction; air-injected flames that survive ignition are held by a rule of their own
+#   slot b1   acme_inverse.wsp3 D2: the same, plus one law: above a total burner flow of 12 mg/s the
+#             early quench is suppressed, whatever the oxygen fraction of the injected stream
+#   slots a0, a1, b2, b3 keep the reference baselines of the root and have no say
+#
+# The two members agree on every train flame but one, and on every flame whose total burner flow is
+# below 12 mg/s. They differ on lean flames at a high burner flow with 30-70 % oxygen injected. Train
+# holds one such flame (21228C2: held to the script stop) and three air-injected ones that also held;
+# every flame below 10.5 mg/s went out. That is evidence for a law in the total flow, not proof: one
+# flame, one fuel, one pressure, 8.9 % ambient fuel. The weights below are the author's probability
+# that the law holds for another fuel, a leaner ambient and a higher pressure.
+#
+# What the author had seen when this was written: the aggregate validation tables of the earlier
+# candidates, and the conditions of the validation runs (inputs only), which show that flames in the
+# region where the two members differ are common in an unseen session. No validation outcome was
+# read; the weights were not chosen from a score and no other pair was tried.
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee_edits.py with the slot prefix
+# added; only the statements that differ from the baseline's slots are written. That script chooses
+# and computes nothing. The one line typed for this file:
+
+# Even odds that the total-flow law holds outside the one train session that shows it.
+mix.w[0:6] = [0.0, 0.0, 1.0, 1.0, 0.0, 0.0]

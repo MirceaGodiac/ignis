@@ -1,0 +1,1032 @@
+{
+  "id": "sha256:e62c47c707c84e4dce6ec4f15151fb33f5384be34c96418aa87c2c35b6ccb507",
+  "family": "acme_inverse",
+  "model_name": "acme_inverse.wsp10",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::flame6::forecast",
+      "profile": "strict_no_fitting",
+      "version": "10"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 75,
+      "authored_total": 553,
+      "constant_total": 19,
+      "per_tensor": {
+        "bt.limit_c": [
+          3,
+          2
+        ],
+        "bt.limit_w": [
+          3,
+          2
+        ],
+        "bt.rise.W1": [
+          28,
+          0
+        ],
+        "bt.rise.b0": [
+          1,
+          1
+        ],
+        "bt.rise.b1": [
+          4,
+          0
+        ],
+        "bt.rise.skip": [
+          7,
+          3
+        ],
+        "bt.rise.w2": [
+          4,
+          0
+        ],
+        "bt.shape": [
+          1,
+          1
+        ],
+        "bt.sigma": [
+          1,
+          1
+        ],
+        "bt.t0_c": [
+          1,
+          1
+        ],
+        "bt.tau_s": [
+          1,
+          1
+        ],
+        "ft.atom_logit": [
+          8,
+          8
+        ],
+        "ft.atom_t_s": [
+          8,
+          6
+        ],
+        "ft.atom_w": [
+          64,
+          0
+        ],
+        "ft.log_base": [
+          1,
+          1
+        ],
+        "fuel.admit": [
+          6,
+          4
+        ],
+        "fuel.dosc": [
+          6,
+          1
+        ],
+        "fuel.ft_coord": [
+          12,
+          3
+        ],
+        "fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "fuel.s": [
+          6,
+          0
+        ],
+        "fuel.se_coord": [
+          12,
+          3
+        ],
+        "fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "norm.o2_ref": [
+          1,
+          1
+        ],
+        "norm.o2_scale": [
+          1,
+          1
+        ],
+        "norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "norm.xf_ref": [
+          1,
+          1
+        ],
+        "norm.zst_ref": [
+          1,
+          1
+        ],
+        "norm.zst_scale": [
+          1,
+          1
+        ],
+        "num.atom_half_s": [
+          1,
+          1
+        ],
+        "num.bt_nodes": [
+          1,
+          1
+        ],
+        "num.dt_s": [
+          1,
+          1
+        ],
+        "num.horizon_s": [
+          1,
+          1
+        ],
+        "num.phi_nodes": [
+          1,
+          1
+        ],
+        "num.tau_cap_s": [
+          1,
+          1
+        ],
+        "phys.mw_n2": [
+          1,
+          1
+        ],
+        "phys.mw_o2": [
+          1,
+          1
+        ],
+        "se.diff.W1": [
+          64,
+          0
+        ],
+        "se.diff.b0": [
+          1,
+          1
+        ],
+        "se.diff.b1": [
+          8,
+          0
+        ],
+        "se.diff.skip": [
+          8,
+          0
+        ],
+        "se.diff.w2": [
+          8,
+          0
+        ],
+        "se.flash.W1": [
+          64,
+          1
+        ],
+        "se.flash.b0": [
+          1,
+          1
+        ],
+        "se.flash.b1": [
+          8,
+          1
+        ],
+        "se.flash.skip": [
+          8,
+          1
+        ],
+        "se.flash.w2": [
+          8,
+          1
+        ],
+        "se.flash_shape": [
+          1,
+          1
+        ],
+        "se.flash_tau_s": [
+          1,
+          1
+        ],
+        "se.floor_s": [
+          1,
+          1
+        ],
+        "se.flux.W1": [
+          64,
+          0
+        ],
+        "se.flux.b0": [
+          1,
+          1
+        ],
+        "se.flux.b1": [
+          8,
+          0
+        ],
+        "se.flux.skip": [
+          8,
+          0
+        ],
+        "se.flux.w2": [
+          8,
+          0
+        ],
+        "se.hold_log_rate": [
+          1,
+          1
+        ],
+        "se.osc.W1": [
+          64,
+          5
+        ],
+        "se.osc.b0": [
+          1,
+          1
+        ],
+        "se.osc.b1": [
+          8,
+          4
+        ],
+        "se.osc.skip": [
+          8,
+          2
+        ],
+        "se.osc.w2": [
+          8,
+          4
+        ],
+        "se.osc_shape": [
+          1,
+          1
+        ],
+        "se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "se.shape": [
+          1,
+          1
+        ],
+        "se.sigma_phi": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:fd23c131758d65798f48cb63362adb3a06aae55517a38f0fc88f48513a909a42",
+    "spec_id": "acme_inverse-wsp-v10"
+  },
+  "config": {},
+  "feature_order": [
+    "c_logp",
+    "c_logm",
+    "c_o2",
+    "c_xf",
+    "c_tad",
+    "c_zst",
+    "f_ethane",
+    "f_butane",
+    "b_rss",
+    "b_mtot"
+  ],
+  "units": {
+    "b_mtot": "1",
+    "b_rss": "1",
+    "c_logm": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "c_tad": "1",
+    "c_xf": "1",
+    "c_zst": "1",
+    "f_butane": "1",
+    "f_ethane": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "censoring": "handled by the evaluator; the forward conditions on the flame burning at the cutoff",
+    "endpoint": "cause-specific event time; an operator or script stop is its own cause, never an extinction; self-extinction is the end of the hot flame",
+    "prefix": "prospective conditions and control stages known at the cutoff; no time series"
+  },
+  "numerics": {
+    "horizon_s": 600.0,
+    "integrator": "closed-form survival of three independent families (self-extinction: the weak class and num.phi_nodes equally likely values of the reduced flow; burner limit: num.bt_nodes heating nodes times the weighted limits; programmed stops and background), conditioned on the cutoff; step <= num.dt_s, the loss of a step split between causes in proportion to -ln of each family's survival ratio; each law network evaluated at the alkane vertices with a non-zero weight of the fuel's coordinates and its outputs weighed",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "eaddc66f7e36f75bc44090da478cff3f6d5682d2db1948a660d56d2afb2caa12",
+      "trainable": false
+    },
+    {
+      "name": "bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "54a57829ba9c395feaa3b3ce02206faaccc347693fea4ccdf2790a48b333f128",
+      "trainable": false
+    },
+    {
+      "name": "bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "23cd2a37f87c58b52765afa42da3fdcf584e5db638268e7a77910019a08c1eac",
+      "trainable": false
+    },
+    {
+      "name": "bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "68a575f0e8a626c84a172ae46b9675fc35afa7f7cb6f9437cc67ee725d6a6065",
+      "trainable": false
+    },
+    {
+      "name": "bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "732523082039a81a64728043cb17eaaa31a505aca9f403f1f29f9d413bb47905",
+      "trainable": false
+    },
+    {
+      "name": "ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "d653eca8b41054409b3a122df8f5f3d3559d1b9cacae95e68e093eb156ebd4f9",
+      "trainable": false
+    },
+    {
+      "name": "ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022d9c3bb1eccaba12d617b076d7520b530826fc6b26d854bdcdba67c6fdde17",
+      "trainable": false
+    },
+    {
+      "name": "fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "e84d0be4ad5165ea065f9a1069716c791e771b7da66b3077bed53ac96703a01f",
+      "trainable": false
+    },
+    {
+      "name": "fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "ce5812d5750301669d291eb868c37a0049bece74b5451946302da9848a75e4fb",
+      "trainable": false
+    },
+    {
+      "name": "fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "0af7201e62ef224df63563a68e08e9d019c7b0db6264ea45d8d45058ced7be7b",
+      "trainable": false
+    },
+    {
+      "name": "fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "08eca77ae4617e74787c52f11cfa066d7ea323d7e7a8a58006c89391831db328",
+      "trainable": false
+    },
+    {
+      "name": "fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "10233b8f00da35c470e4813146e81b81e2e0d9b0284156ee3086d3014574ced3",
+      "trainable": false
+    },
+    {
+      "name": "fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "num.phi_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "num.tau_cap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "se.diff.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "se.diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "57a9a7d32be21612e9facb4c69ea20f3fd4968d7e3bb04460621bf2c799ea371",
+      "trainable": false
+    },
+    {
+      "name": "se.diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "se.diff.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "se.diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "245dff41bef55c28de0c8abda027dd61816108fa68c58cca319c9718c0a1567d",
+      "trainable": false
+    },
+    {
+      "name": "se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0d4c7f21f4814786eb230cd7736473de8ef0e618dfbaffde993492c689ef0a1c",
+      "trainable": false
+    },
+    {
+      "name": "se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "700c96ec21cab55922f2cfec44e5d553f4dc05866d9d996ef232772881a3e626",
+      "trainable": false
+    },
+    {
+      "name": "se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ec116e0f4337c54d38dc78635fa26a27c24713d7d984b2119d534e7a10674c5f",
+      "trainable": false
+    },
+    {
+      "name": "se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ed36f9ce52d1294c4166e4dbe580618b60b7f40804a5e881c47e196c054c90b7",
+      "trainable": false
+    },
+    {
+      "name": "se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "se.flux.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "se.flux.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4fd4082ca8ded07ac80d35a17a662960d68ca2168b29ef2165fe29d66523688",
+      "trainable": false
+    },
+    {
+      "name": "se.flux.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "se.flux.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "se.flux.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "se.hold_log_rate",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "97b9ce980caa0ba9f2809bd02b3695f56ab5965a70221dc0be05089b0ac46831",
+      "trainable": false
+    },
+    {
+      "name": "se.osc.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4c24cd56c2c4ba44b1a516abc99eefc05ebad5e368cb4ba5ec937ded70d3accb",
+      "trainable": false
+    },
+    {
+      "name": "se.osc.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2063a52f439ab596e78c6accc5e32402912fd40c5b11f867ff264914eabbd5e",
+      "trainable": false
+    },
+    {
+      "name": "se.osc.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "b7203ab7bc5b9f654c07be8c146bf48c62095953708054db8389551ebc70d9eb",
+      "trainable": false
+    },
+    {
+      "name": "se.osc.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "03512e670da84a10cacd45c95933d3b1b4004f083ae1320f8a8ec9d8a6185994",
+      "trainable": false
+    },
+    {
+      "name": "se.osc.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "25aa0457ed4ad9a940d187c775f043f867e258399d5543c30de43dde6e36ab94",
+      "trainable": false
+    },
+    {
+      "name": "se.osc_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "se.sigma_phi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:ed3e9beb717728fc4d371bccfc7896a940d38deea28502728be977f9fb79e45f",
+  "split_id": "sha256:747032c921c8c8f2b976fceb6bda8c90e4c5e18c761fdbd8dafeb5bc44e2b598",
+  "source_manifest_hash": "sha256:11a1bdbd4bdbda6e3731309deeabe7e6996fa8fa8c43f84c9aae2e4bc793e126",
+  "code_version": "ignis-wsp@0.1.0+fwd.7ced5c76f6b0d793",
+  "applicability": {
+    "configuration": "inverse",
+    "domain": [
+      {
+        "feature": "c_logp",
+        "max": 1.25,
+        "min": -0.92
+      },
+      {
+        "feature": "c_logm",
+        "max": 0.88,
+        "min": -1.61
+      },
+      {
+        "feature": "c_o2",
+        "max": 1.6,
+        "min": -1.6
+      },
+      {
+        "feature": "c_xf",
+        "max": 1.61,
+        "min": -0.7
+      },
+      {
+        "feature": "c_tad",
+        "max": 3.0,
+        "min": -2.0
+      },
+      {
+        "feature": "c_zst",
+        "max": 1.5,
+        "min": -1.85
+      }
+    ],
+    "fuels": "the rows of the release's fuel table with fuel.admit = 1 (rows: ethane, propane, butane, ethylene, methane, hydrogen); the row of a prefix is its fuel_species, else its stored indicators",
+    "interpretation": "observational event prediction under the observed experimental policy; operator termination is not spontaneous extinction; extinction is the end of the hot flame",
+    "meaning": "declared physical domain of the handwritten clocks, not a training-support region",
+    "population": "established hot flame of a burner-stabilised gas flame (PSI-159)",
+    "time_origin": "hot ignition per table 'burn time (sec)' (not adjudicated against logs)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:dd2028455281e66a5e828ea9ee8fc96a312c092cf3c7a81e2b4d38429d0d88be",
+  "lineage": "weight_edit",
+  "lineage_note": "A fuel-table member, data-informed like its source: every law value is the stored value of wsp3/inverse/d5-fable; the fuel table is the F1 table of inverse burner flames (zero-shot for the new fuels). For ethane, propane and butane its fore",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "acme_inverse-wsp-v10",
+    "spec_hash": "sha256:fd23c131758d65798f48cb63362adb3a06aae55517a38f0fc88f48513a909a42",
+    "patch_id": "acme_inverse-wsp-v10-f1-d5-fable",
+    "patch_hash": "sha256:794629d7a1ad773ee6d4191166fbb18cb6b5361241e462fc4001306a6e8be1fc",
+    "parent_release_id": "sha256:dd2028455281e66a5e828ea9ee8fc96a312c092cf3c7a81e2b4d38429d0d88be",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+        "nasa:PSI-159-TP-control-timelines-of-train-tests",
+        "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+        "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+        "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-second-generation-D3-was-not-adopted-on-them)",
+        "repo:docs/wsp/cards/acme_clock.md(states-that-the-validation-sessions-hold-leaner-ambients-than-train;written-in-phase-2;not-used-here)",
+        "repo:docs/wsp/research/phys_acme_inverse.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;a-proposal;the-author-rechecked-what-he-typed)",
+        "analysis:the-author's-recount-of-which-input-separates-the-inverse-train-outcomes(tools/wsp/analysis/inverse_separation.py)",
+        "repo:configs/models/acme/wsp3/inverse/d3-fable(a-pressure-term-tried-the-same-day:worse-on-train,not-taken);repo:configs/models/acme/wsp3/inverse/d2-fable(the-same-scenario-written-in-total-burner-flow:weakened-by-the-recount)",
+        "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+        "author:pretraining-knowledge(unverifiable)",
+        "repo:docs/wsp/research/phys_spherical_fuels.md(fuel-descriptors-and-coordinates-typed-from-property-tables-and-theory;its-author-read-CFI-G-train-rows-and-knew-the-aggregate-arms-of-the-Flame-Design-transfer-test;no-per-test-outcome-of-Flame-Design-or-s-Flame)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+          "partitions": [
+            "train"
+          ]
+        },
+        {
+          "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+          "partitions": [
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [],
+      "prior_candidates": [
+        "sha256:a43fdbcf5c73206a5d9d442a182d5e7e5c4a407d53e64b44231c014cbb00c1de",
+        "sha256:bf575e191a2d00dda73062a763b22e7b3af6ee9bf6a865b7a73e525e1e67d45f"
+      ]
+    },
+    "weights_hash": "sha256:0235d825d7ff2d2083a97bdf8caa590b9b11cfc82b186db9952cb0dcf4042401",
+    "forward": {
+      "entry_point": "ignis_wsp::flame6::forecast",
+      "version": "10",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:7ced5c76f6b0d7930e0979620c37a6d6db91b3562a0b5890dc3684690ebe83d9",
+    "code_version": "ignis-wsp@0.1.0+fwd.7ced5c76f6b0d793",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "553 authored elements (75 nonzero), 19 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

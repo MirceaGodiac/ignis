@@ -1,0 +1,44 @@
+{
+  "patch_id": "flex_methanol-wsp-v3-d3-fable",
+  "parent_release_id": "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b"
+    ]
+  },
+  "rationale": "D3, data-informed. The laws of D2 on the third-generation droplet forward, revised after a train-only audit of D2. Law changes: radiative extinction comes at one clock unit at the critical diameter and collapses above it (-3.8 per unit of ln(D0/D_crit) instead of -1.2), sooner with helium; the unlit droplet sheds the flame's heat twice as fast in the first two seconds, with an amplitude that grows with its size and a decay time that hardly does; heat-up is slower below 16 % oxygen. Encoder changes: the run's rate offset is trusted far less at 3 and 5 s (only a fifth to a half of it persists on train); the state at the cutoff is read from the end rate of the prefix, so that a droplet that went out one or two seconds before the cutoff is no longer read as burning. Spread: 0.10 before a prefix and 0.06 after, from the train residuals with a margin for unseen sessions; not chosen from validation. Every number typed by the author; no fit, no search.",
+  "origin": "system"
+}

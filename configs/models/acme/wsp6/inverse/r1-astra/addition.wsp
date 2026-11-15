@@ -1,0 +1,9 @@
+# Astra R1. DATA-INFORMED, not zero-shot. Main author typed these literals.
+# Existing committee tensors are copied exactly from wsp5/inverse/p1-fable.
+# U: equal persistent hypotheses at cutoff, shared policy with the normal family.
+# No fitted precision, posterior calibration, or independent horizon resampling.
+condition.w[0:5] = [1, 1, 1, 1, 1]
+# U: round +/-10% flow uncertainty; no correction selected from train discrepancies.
+condition.flow_multiplier[0:5] = [1, 0.9, 1.1, 1, 1]
+# U: round +/-5% pressure; Tad/Zst held conditional, composition unchanged.
+condition.pressure_multiplier[0:5] = [1, 1, 1, 0.95, 1.05]

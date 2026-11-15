@@ -1,0 +1,45 @@
+{
+  "patch_id": "acme_inverse-wsp-v5-carry-d1",
+  "parent_release_id": "sha256:d7260f5962954904503a756a8f529b40988697aeae2ea57d18c6b6bfa1e0ea5d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "analysis:the-author's-own-audit-of-the-carried-model's-confident-misses-on-the-train-table(forecasts-of-train-runs-beside-train-outcomes)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "analysis:forecasts-of-the-carried-models-on-the-conditions-of-the-validation-runs(inputs-and-model-outputs-only;no-outcome)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;no-per-test-result-was-read)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-weights-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp3/inverse/d1-fable(slot-b0:its-stored-values,copied)",
+      "repo:configs/models/acme/wsp3/inverse/d2-fable(slot-b1:its-stored-values,copied)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:a43fdbcf5c73206a5d9d442a182d5e7e5c4a407d53e64b44231c014cbb00c1de",
+      "sha256:d0a1366034b9f10aa91633c670071bb8029bcf7d9c945608f2cd1d8f5a8b184b",
+      "sha256:d7260f5962954904503a756a8f529b40988697aeae2ea57d18c6b6bfa1e0ea5d"
+    ]
+  },
+  "rationale": "Carry of the carried inverse-flame model (acme_inverse.wsp3 D1) on the committee spec, the script's planned stop not read: the comparison partner of the committee candidates, since a committee prefix has its own hash. No number is new; slot values are copied by tools/wsp/committee_edits.py.",
+  "origin": "system"
+}

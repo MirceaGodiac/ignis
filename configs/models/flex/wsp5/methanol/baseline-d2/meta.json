@@ -1,0 +1,18 @@
+{
+  "patch_id": "flex_methanol-wsp-v6-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-median-methanol-burning-rate)",
+      "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the classical D^2-law with the published median rate, replaced by the prefix's own finite-difference rate as the prefix grows; no extinction and no evaporation. Carry of the baseline of flex_methanol-wsp-v5 (configs/models/flex/wsp4/methanol/baseline-d2) on the sixth droplet forward (droplet6.rs), new entries off: its assignment statements copied without change, and the entries flex_methanol-wsp-v6 adds (self-cooling evaporation of the unlit droplet, a dying flame, the cool-flame end in oxygen partial pressure) switched off (sc.on = 0, dy.frac = 0, ce.on = 0). Data-informed candidates of this spec are literal revisions of this release.",
+  "origin": "system"
+}

@@ -1,0 +1,57 @@
+# flex_methanol.wsp3 — reference baseline and lineage root, NOT a candidate: the classical D^2-law.
+# Population rate 0.46 mm2/s (the published median of the FLEX methanol tests), replaced by the
+# prefix's own finite-difference rate as the prefix grows; no extinction of any kind and no
+# evaporation. It answers one question: what does a forecast score that knows nothing about flames
+# going out? Data-informed candidates of this spec are literal revisions of this release.
+# (flex_methanol-wsp-v3 took the numbers of the baseline of flex_methanol-wsp-v2 the same way.)
+# Same numbers as the baseline of flex_methanol-wsp-v3 (flex_methanol.wsp2); the tensors flex_methanol-wsp-v4 adds are neutral.
+rate.b0 = -0.777
+rate.skip[0:7] = 0.0
+crit.b0 = 5.0
+crit.skip[0:4] = 0.0
+class.kappa = 20.0
+class.bias = 0.0
+diff.b0 = 12.0
+diff.skip[0:6] = 0.0
+diff.sharp = 40.0
+rad.b0 = 0.0
+rad.skip[0:6] = 0.0
+rad.sharp = 4.0
+post.k_inf = 0.0
+post.k_hot = 0.0
+post.tau0_s = 1.0
+post.size_exp = 0.5
+post.hot_exp = 0.0
+post.tau_exp = 1.0
+enc.gain_w[0:3] = [2.0, 0.5, 2.0]
+enc.gain_b = -1.5
+enc.mix[0:2] = [1.0, 0.0]
+enc.e_clip[0:2] = [3.0, 3.0]
+enc.cool_gain = 0.0
+filt.sd_hot = 0.25
+filt.sd_evap = 0.2
+filt.l_floor = 1.0
+filt.gain_w[0:3] = [2.0, 0.5, 2.0]
+filt.gain_b = -1.5
+unc.s_pop = 0.25
+unc.s_floor = 0.08
+unc.sigma_d = 2.0e-5
+unc.sigma_frame = 6.0e-6
+haz.log_disruption = -20.0
+
+# =====================================================================================================
+# Fourth-generation entries (spec flex_methanol-wsp-v4): neutral: to be typed by the author
+# =====================================================================================================
+# neutral: to be typed by the author
+# With art.weight = 0 the broad component is absent whatever the thresholds; the thresholds sit at
+# their upper bounds so that no flag fires, and the broad sd is 0. With post.he_w = 0 and
+# post.seen_max = 3 the forward is the third-generation one, number for number.
+art.min_gated = 1000.0
+art.d0_tol = 5.0
+art.rise_tol = 5.0
+art.weight[0:4] = [0.0, 0.0, 0.0, 0.0]
+art.r_band[0:2] = [-1000.0, 1000.0]
+art.sigma_m = 0.0
+art.sigma_rate_m_s = 0.0
+post.he_w = 0.0
+post.seen_max = 3.0

@@ -1,0 +1,197 @@
+# flex_methanol.wsp4 — R1 literal revision of the baseline sha256:c1b1321c…a620, spec flex_methanol-wsp-v5
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: the numbers of flex_methanol.wsp2 D3, unchanged, and one
+# number at the end: the probability that the radiative clock of an atmosphere is not the law's.
+# The flame cameras are switched off: this release reads what flex_methanol.wsp2 D3 reads. Not zero-shot.
+# No fit, no search.
+#
+# flex_methanol.wsp2 — D3 literal revision of the baseline sha256:abf919b6…247b, spec flex_methanol-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: typed after the author read the methanol TRAIN
+# runs (conditions, series, test sheets, narratives), the train feedback of D1 and D2, and a
+# train-only audit of D2 delegated to an analysis agent whose claims the author rechecked against the
+# train tables. Not zero-shot. No fit, no search: every number below was typed by the author.
+# The author had also seen the aggregate validation tables of D1 and D2 (no per-run validation
+# outcome or score); nothing below was chosen from them.
+#
+# D3 = the laws of D2 with the changes marked [D3].
+#
+# c = (c_o2, c_co2, c_he, c_logp, c_logd0):
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20
+#   c_logp = ln(p / 1e5 Pa)     c_logd0 = ln(D0 / 2 mm)
+# w = 1 - D^2/D0^2 (burn progress)   s = t (1 mm2/s) / D0^2 (diffusion clock, t since igniters on)
+# x_exc = ln(D0 / D_crit)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Hot-flame burning rate, ln(K / 1 mm2/s) = N_rate(c, w, s)
+# =====================================================================================================
+# Air, 1 atm, 2 mm: 0.59 mm2/s on the plateau. Faster with oxygen, helium and pressure, slower with
+# CO2, and slower as the droplet takes up water (-0.35 over the whole burn). Audit of D2 on 263 rate
+# windows of 58 train runs in 23 sessions: median residual -0.003, no trend in progress or clock.
+rate.b0 = -0.53
+rate.skip[0:7] = [0.14, -0.04, 0.18, 0.10, 0.0, -0.35, 0.0]
+# Unit 0: below air the rate falls faster with oxygen.
+rate.W1[0, 0] = -1.0
+rate.b1[0] = 0.0
+rate.w2[0] = -0.19
+# Unit 1: below 18 % O2 the fall flattens. [D3] 0.21 -> 0.14: at 15 % O2 and below the plateau is
+# 5 % under D2 (3 of 5 train sessions), and D2 sat 0.01 high at 16-19 %.
+rate.W1[1, 0] = -1.0
+rate.b1[1] = -0.6
+rate.w2[1] = 0.14
+# Unit 2: a large droplet burns slower early in its life (the flame is still far from quasi-steady).
+rate.W1[2, 4] = 1.0
+rate.W1[2, 5] = -0.65
+rate.b1[2] = -0.3
+rate.w2[2] = -0.5
+# Unit 3: heat-up. The rate starts at 0.55 of its plateau and reaches it at s = 0.18.
+rate.W1[3, 6] = -5.56
+rate.b1[3] = 1.0
+rate.w2[3] = -0.6
+# Unit 4 [D3]: heat-up is slower in weak atmospheres. Below 16 % O2 the rate before s = 0.2 is 16 %
+# under D2 (4 of 5 train sessions, diffusive and radiative runs alike): the flame stands further out
+# and takes longer to settle. relu(-c_o2 - 0.9 - 2 s): 0.4 deep at 14.5 % O2 and s = 0, gone by s = 0.2.
+rate.W1[4, 0] = -1.0
+rate.W1[4, 6] = -2.0
+rate.b1[4] = -0.9
+rate.w2[4] = -0.55
+
+# =====================================================================================================
+# 2. Critical diameter of radiative extinction, ln(D_crit / 2 mm) = N_crit(c_o2, c_co2, c_he, c_logp)
+# =====================================================================================================
+# About 9 mm in air at 1 atm; 3.7 mm at 15 % O2, 3.2 at 14 %, 2.35 at 12 %. No train run is on the
+# wrong side of it (audit of D2), so it stands.
+crit.b0 = 1.51
+crit.skip[0:4] = [0.75, -0.16, -0.18, 0.7]
+# The class is not sharp at the threshold: the boundary in train lies between x_exc = -0.10
+# (diffusive) and -0.04 (radiative). D2's values.
+class.kappa = 10.0
+class.bias = 0.7
+
+# =====================================================================================================
+# 3. Diffusive extinction: burn progress at which the flame goes out, logit(w_D) = N_diff(c, x_exc)
+# =====================================================================================================
+# The flame goes out when D/D0 has fallen to about 0.46 (w = 0.79), later in strong atmospheres and
+# at low pressure, earlier as D0 nears D_crit. Train: observed median 0.81 against 0.79, 39 runs in
+# 19 sessions, no trend with diluent or pressure. Unchanged.
+diff.b0 = 1.35
+diff.skip[0:6] = [0.12, 0.0, 0.0, -0.6, 0.0, 0.0]
+diff.W1[0, 0] = 1.0
+diff.b1[0] = -1.0
+diff.w2[0] = 0.5
+diff.W1[1, 5] = 1.0
+diff.b1[1] = 0.3
+diff.w2[1] = -2.0
+diff.sharp = 14.0
+
+# =====================================================================================================
+# 4. Radiative extinction: clock at which the flame goes out, ln(s_R) = N_rad(c, x_exc)   [D3]
+# =====================================================================================================
+# What the train runs show (13 runs of this branch, 9 sessions):
+#   at the critical diameter (x_exc -0.05 .. 0.09, six runs in N2 and CO2): s = 0.79 .. 1.17, median 1.0;
+#   above it the clock collapses: 0.60 at x_exc 0.16, 0.46 at 0.26, 0.32 at 0.29, 0.31 at 0.39, and 0.08
+#   at 0.72 (a flame that never settled). One line through all of them: ln s = -3.8 (x_exc - 0.05).
+#   Within one atmosphere a droplet 20-40 % larger goes out at a third to half the clock (four pairs,
+#   three sessions), so in seconds it goes out *sooner*: a droplet just above D_crit almost reaches
+#   a steady flame, one far above loses it while the flame is still growing.
+# D2 had s_R = 0.90 at the threshold and a slope of -1.2, with a separate cliff beyond x_exc = 0.45;
+# its radiative extinctions came late (30 % of its non-artefact error on train).
+rad.b0 = 0.0
+# Helium: the three helium runs go out at 0.76, 0.57 and 0.76 of this law at 25, 45 and 40 % He.
+# Helium raises the diffusivity of the gas, so every transient runs faster on a clock built with a
+# fixed reference rate: -0.22 per 20 % He (the heptane helium runs lose their visible flame at the
+# same fraction of their law).
+rad.skip[0:6] = [0.0, 0.0, -0.22, 0.0, 0.0, 0.0]
+rad.W1[0, 5] = 1.0
+rad.b1[0] = -0.05
+rad.w2[0] = -3.8
+# Residuals of the eleven N2/CO2 runs around this law have an sd of 0.14 in ln s; a new atmosphere
+# will do worse. Gompertz sharpness 5: quartiles of s/s_R at 0.83 and 1.15.
+rad.sharp = 5.0
+
+# =====================================================================================================
+# 5. The droplet without a flame   [D3]
+# =====================================================================================================
+# d(D^2)/dt = -[ k_inf r^m + k_hot r^h exp(-t/tau_e) ],  tau_e = tau0 r^n,  r = (D_e / 2 mm)^2.
+# Train, 20 runs that had a flame, 15 sessions, rate in mm2/s over 0-2 / 2-5 / 5-10 / 10-20 s after
+# the visible flame went out:
+#   D_e about 1.3 mm:  0.066 / 0.028 / 0.008 / 0.010
+#   D_e about 2.9 mm:  0.165 / 0.093 / 0.052 / 0.037
+# The unlit droplet sheds the flame's heat about twice as fast as D2 said in the first two seconds.
+# The extra rate starts at 0.09 mm2/s (1.3 mm) and 0.18 mm2/s (2.9 mm) and decays with an e-folding
+# of 2.4 s and 3.3 s: the amplitude grows like D_e^0.9, the decay time hardly grows at all (D2 had a
+# fixed amplitude and a decay time growing like D_e^2, which no size could satisfy).
+post.k_inf = 1.5e-8
+post.size_exp = 0.72
+post.k_hot = 1.3e-7
+post.hot_exp = 0.45
+post.tau0_s = 2.8
+post.tau_exp = 0.2
+
+# =====================================================================================================
+# 6. What the prefix is trusted for   [D3]
+# =====================================================================================================
+# Run offset of the hot-flame rate. D2 took almost all of the prefix's late innovation at 3 s and 5 s
+# (gain 0.93, 0.98). On train only 0.2-0.3 of it carries into the next seconds at a 3 s cutoff and
+# 0.5-0.6 at 5 s: a prefix that ends in heat-up says little about the plateau, and at 3 s applying
+# the offset did worse than applying none. Gain from the prefix span alone:
+# sigmoid(-1.6 + 1.4 ln span): about 0.08, 0.36 and 0.55 at cutoffs of 1, 3 and 5 s.
+enc.gain_w[0:3] = [1.4, 0.0, 0.0]
+enc.gain_b = -1.6
+enc.mix[0:2] = [0.85, 0.15]
+enc.e_clip[0:2] = [0.6, 0.8]
+# Methanol has no cool flame.
+enc.cool_gain = 0.0
+
+# State at the cutoff, from the end rate (the last 30 % of the prefix). A burning droplet shows an
+# end rate within about 15 % of the law (run offset, wobble of the last windows); 0.18 leaves room
+# for a heat-up the law misses. A droplet without a flame shows 0.1-0.45 of the hot rate depending on
+# its size and on how long ago the flame went out: sd 0.2 around the half-decayed transient.
+filt.sd_hot = 0.18
+filt.sd_evap = 0.2
+filt.l_floor = 0.03
+# Exponent of the evidence: as D2's (0.12, 0.92, 0.98 at 1, 3, 5 s). In the first second every rate
+# is a transient and says nothing about the state.
+filt.gain_w[0:3] = [2.0, 0.5, 2.0]
+filt.gain_b = -1.5
+
+# =====================================================================================================
+# 7. Assumed spread
+# =====================================================================================================
+# [D3] Rate of a run around the law. Train: run medians have a robust sd of 0.06; session medians
+# miss +-0.05 in 8 of 23 sessions; the realised spread of the next seconds is 0.08 at a 1 s cutoff.
+# The laws were typed from these runs, so an unseen session will do worse than 0.06-0.08: 0.10 before
+# any prefix and 0.06 that no prefix removes give 0.11, 0.10 and 0.09 at 1, 3 and 5 s. That is as
+# wide as D2 at 3 and 5 s (its low gain no longer hides the spread) and narrower at 1 s, where D2's
+# 50 % band covered 0.91 of the burning train cases.
+unc.s_pop = 0.10
+unc.s_floor = 0.06
+unc.sigma_d = 2.0e-5
+unc.sigma_frame = 6.0e-6
+haz.log_disruption = -4.83
+
+# =====================================================================================================
+# A clock that can be wrong
+# =====================================================================================================
+# Everything above is the third-generation candidate, unchanged. Its radiative clock is a law typed
+# from the atmospheres of the train runs, with a sharp survival curve around its median. Where the
+# law is right that is what it should be. Where it is wrong the curve gives a flame that is plainly
+# burning a probability of 1e-8 (train: n-heptane at 2 atm in CO2, where the law says the flame is
+# gone within a second and it burned for eight), and then no measurement in the prefix can move the
+# state: the filter has been told the answer. An unseen atmosphere is where the law is most likely to
+# be wrong, and most validation atmospheres are unseen.
+#
+# One number: the probability that the clock of an atmosphere is not the law's. In that case the
+# clock keeps the law's median and has a spread of orders of magnitude, survival 1 / (1 + s / s_R).
+# One in ten. It is not read off the train runs (on them the law is right by construction, and this
+# number can only cost there): it is how often the author expects a law typed from two dozen
+# atmospheres to be off by a large factor in a new one.
+rob.eps_r = 0.1
+
+# =====================================================================================================
+# Flame cameras: switched off
+# =====================================================================================================
+fl.trust = 0.0
+fl.t_min_s = 0.3
+fl.gap_s = 0.25
+fl.min_points = 5.0
+fl.evap_mix = 0.5

@@ -60,7 +60,10 @@ claims bound to what you retrieved, computed or forecast in this episode.
 - Do not invent a new quantity or metric unless the program that computed it defines it in the
   cited artifact.
 - Model output is a prediction of a release in its qualification state (`experimental` is not
-  validated); never present it as a measurement.
+  validated); never present it as a measurement. The served releases are hand-written (literal
+  weights, not trained, experimental; zero-shot or data-informed as each says): follow the
+  `model-qualification` skill. When a forward refuses an input, the refusal and its reason are the
+  answer; never substitute a number.
 - Missing, conflicting and not-applicable values are stated as such, never as zero. Keep raw values
   with their units and convert explicitly.
 - Synthetic fixtures (`origin = synthetic_fixture`) are never NASA results; a preview

@@ -1,0 +1,177 @@
+{
+  "schema": "ignis.served-models/1",
+ "note": "The hand-written (literal WSP) releases this deployment serves: one entry per release, its bytes in models/<hex>/ beside this file. Adding a release is a new entry plus its registry directory (and a rebuild only when it needs a forward this build does not have). Every score is a development number as the authoring lane reported it, with its source; no test-partition score is listed. Text from docs/wsp/README.md, docs/wsp/RESULTS_GEN6.md and the model cards (feat/handwritten-science).",
+  "releases": [
+    {
+      "release_id": "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
+      "model_name": "flex_methanol.wsp2",
+      "family": "flex",
+      "investigation": "FLEX (PSI-69), methanol droplets",
+      "candidate": "D3",
+      "forecasts": "The diameter of a free-floating burning methanol droplet after the cutoff (quantiles), from its conditions and the diameters measured before the cutoff; the droplet may stay in a hot flame, go to a cool flame or lose its flame.",
+      "authorship": "data_informed",
+      "authorship_note": "Third generation: typed after reading the methanol train partition and a train-only audit of D2. Not replaced by the fourth or fifth generation.",
+      "inputs": [
+        {"name": "fuel", "kind": "condition", "unit_si": "1", "required": true, "text": true, "note": "fuel species; this release answers methanol only", "example": "Methanol"},
+        {"name": "pressure", "kind": "condition", "unit_si": "Pa", "required": true, "note": "chamber pressure", "example": 101325.0},
+        {"name": "x_o2", "kind": "condition", "unit_si": "1", "required": true, "note": "oxygen mole fraction", "example": 0.21},
+        {"name": "x_co2", "kind": "condition", "unit_si": "1", "required": true, "note": "carbon dioxide mole fraction", "example": 0.0},
+        {"name": "x_he", "kind": "condition", "unit_si": "1", "required": true, "note": "helium mole fraction", "example": 0.0},
+        {"name": "phase_established_at_s", "kind": "phase_start", "unit_si": "s", "required": true, "note": "time the burning droplet was established (the release reads diameters from it)", "example": 0.0},
+        {"name": "liquid_diameter", "kind": "observation", "unit_si": "m", "required": true, "note": "droplet diameters measured up to the cutoff (the early prefix the forward reads)", "example": [[0.0, 0.003], [0.5, 0.002954], [1.0, 0.002907], [1.5, 0.002859], [2.0, 0.002811], [2.5, 0.002762], [3.0, 0.002711]]}
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored FLEX run gives everything (conditions and the measured diameters up to the cutoff). A typed scenario must give the conditions and a few diameters before the cutoff; the time origin is the release's own (NASA DropletData processed time base).",
+      "scores": [
+        {"metric": "CRPS of the droplet diameter, FLEX methanol validation partition", "value": "40.0 µm", "comparison": "best fitted model 77.7 µm; zero-shot flex.wsp W0 50.4 µm", "source": "docs/wsp/README.md, table of the carried models"}
+      ],
+      "limits": [
+        "Tracker artefacts (glare, soot, bubbles, dropouts, frozen values) are scored as data; no model forecasts them (about a third of the train error).",
+        "A flame that went out less than a second before the cutoff still reads as burning.",
+        "The helium term of the clock rests on three runs.",
+        "The radiative clock above the critical diameter rests on CO2-diluted pairs; if the critical diameter in CO2 is off, the slope is wrong between atmospheres."
+      ],
+      "cite": "flex_methanol.wsp2 D3, hand-written (literal WSP) release sha256:c8a90dab…b654, experimental, not trained; its output is model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/flex_droplet3.md"
+    },
+    {
+      "release_id": "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
+      "model_name": "flex_heptane.wsp2",
+      "family": "flex",
+      "investigation": "FLEX (PSI-69), n-heptane droplets",
+      "candidate": "D2",
+      "forecasts": "The diameter of a free-floating burning n-heptane droplet after the cutoff (quantiles), from its conditions and the diameters measured before the cutoff, through hot-flame, cool-flame and no-flame states.",
+      "authorship": "data_informed",
+      "authorship_note": "Third generation: typed after reading the n-heptane train partition. The zero-shot reference flex_heptane.wsp W0 (60.3 µm) stays in the tables; it is not served.",
+      "inputs": [
+        {"name": "fuel", "kind": "condition", "unit_si": "1", "required": true, "text": true, "note": "fuel species; this release answers n-heptane only", "example": "Heptane"},
+        {"name": "pressure", "kind": "condition", "unit_si": "Pa", "required": true, "note": "chamber pressure", "example": 101325.0},
+        {"name": "x_o2", "kind": "condition", "unit_si": "1", "required": true, "note": "oxygen mole fraction", "example": 0.21},
+        {"name": "x_co2", "kind": "condition", "unit_si": "1", "required": true, "note": "carbon dioxide mole fraction", "example": 0.0},
+        {"name": "x_he", "kind": "condition", "unit_si": "1", "required": true, "note": "helium mole fraction", "example": 0.0},
+        {"name": "phase_established_at_s", "kind": "phase_start", "unit_si": "s", "required": true, "note": "time the burning droplet was established (the release reads diameters from it)", "example": 0.0},
+        {"name": "liquid_diameter", "kind": "observation", "unit_si": "m", "required": true, "note": "droplet diameters measured up to the cutoff", "example": [[0.0, 0.003], [0.5, 0.002954], [1.0, 0.002907], [1.5, 0.002859], [2.0, 0.002811], [2.5, 0.002762], [3.0, 0.002711]]}
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored FLEX run of the n-heptane cohort gives everything. A typed scenario must give the conditions and a few diameters before the cutoff.",
+      "scores": [
+        {"metric": "CRPS of the droplet diameter, FLEX n-heptane validation partition", "value": "46.1 µm", "comparison": "zero-shot W0 60.3 µm; D²-law 105 µm", "source": "docs/wsp/README.md, table of the carried models"}
+      ],
+      "limits": [
+        "Tracker artefacts are scored as data; about two fifths of the train error is glare, soot, bubbles and dropouts.",
+        "The stage after the visible flame in 30–35 % helium has no law (one train session); the clock is deliberately not corrected.",
+        "A flame that went out less than a second before the cutoff still reads as burning."
+      ],
+      "cite": "flex_heptane.wsp2 D2, hand-written (literal WSP) release sha256:edbad4d6…edef, experimental, not trained; its output is model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/flex_droplet3.md"
+    },
+    {
+      "release_id": "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52",
+      "model_name": "acme_normal.wsp12",
+      "family": "acme_normal",
+      "investigation": "ACME CFI-G (PSI-159) and Flame Design, normal burner flames",
+      "candidate": "F2",
+      "forecasts": "For a normal (fuel into oxidizer) burner flame, the probability over time that it ends by extinction or by a flow stop (event probabilities), from the conditions of the test; optionally from the planned stop of the test script.",
+      "authorship": "data_informed",
+      "authorship_note": "Sixth generation (15 November): acme_normal.wsp7 P3 reading the fuel from a typed table so it answers for ethylene and methane; the ethylene row was zero-shot, then revised once after a blind run on Flame Design. Typed after reading CFI-G train data and the train days of Flame Design.",
+      "inputs": [
+        {"name": "fuel_species", "kind": "condition", "unit_si": "1", "required": true, "text": true, "note": "fuel: ethane, propane, butane, ethylene or methane", "example": "propane"},
+        {"name": "injected_mass_flow", "kind": "condition", "unit_si": "kg/s", "required": true, "note": "fuel (or fuel-side) mass flow", "example": 1e-6},
+        {"name": "pressure", "kind": "condition", "unit_si": "Pa", "required": true, "note": "chamber pressure", "example": 101325.0},
+        {"name": "tad", "kind": "condition", "unit_si": "K", "required": true, "note": "adiabatic flame temperature", "example": 2300.0},
+        {"name": "x_fuel_role", "kind": "condition", "unit_si": "1", "required": true, "note": "fuel mole fraction of the fuel stream", "example": 0.3},
+        {"name": "x_o2_role", "kind": "condition", "unit_si": "1", "required": true, "note": "oxygen mole fraction of the oxidizer stream", "example": 0.3},
+        {"name": "zst", "kind": "condition", "unit_si": "1", "required": true, "note": "stoichiometric mixture fraction", "example": 0.25},
+        {"name": "phase_established_at_s", "kind": "phase_start", "unit_si": "s", "required": true, "note": "time the flame was established; the time origin is hot ignition, so 0 for a flame burning from ignition", "example": 0.0},
+        {"name": "programmed_stop", "kind": "condition", "unit_si": "s", "required": false, "note": "planned stop of the test from NASA's script file; without it the release answers as on the shared records"},
+        {"name": "session_id", "kind": "test_date", "unit_si": "1", "required": false, "note": "date of the test (selects the burner temperature limit by era); without it the era weight for an unknown date is used", "example": "2023-03-01"}
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored CFI-G run gives the conditions. The planned stop is not in the shared records, so stored runs answer without it. A typed scenario needs the conditions and the time the flame was established (no observations).",
+      "scores": [
+        {"metric": "Integrated Brier score 6–120 s, CFI-G validation, ethane/propane/butane, without the planned stop: extinction / flow termination", "value": "0.154 / 0.096", "comparison": "acme_normal.wsp5 P1: 0.155 / 0.097", "source": "docs/wsp/README.md and docs/wsp/RESULTS_GEN6.md"},
+        {"metric": "Same, with the planned stop", "value": "0.147 / 0.080", "source": "docs/wsp/README.md"},
+        {"metric": "Flame Design validation days, ethylene as itself: without / with the planned stop (extinction / flow termination)", "value": "0.032 / 0.393 and 0.007 / 0.072", "source": "docs/wsp/README.md and docs/wsp/RESULTS_GEN6.md (12.10)"}
+      ],
+      "limits": [
+        "On CFI-G validation with the planned stop it is worse than the model before it (sum 0.2271 against 0.2191, two sessions).",
+        "On the Flame Design validation days every normal-flame case ended by a flow stop, so extinction there only measures false extinction; two or three validation days are few.",
+        "A nitrogen-diluted ethylene flame lives longer than the growth law says; ethylene below 1900 K is refused.",
+        "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp."
+      ],
+      "cite": "acme_normal.wsp12 F2, hand-written (literal WSP) release sha256:2ae770d8…bc52, experimental, not trained; event probabilities are model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/acme_committee.md"
+    },
+    {
+      "release_id": "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7",
+      "model_name": "acme_inverse.wsp12",
+      "family": "acme_inverse",
+      "investigation": "ACME CFI-G (PSI-159) and Flame Design, inverse burner flames",
+      "candidate": "F2",
+      "forecasts": "For an inverse (oxidizer into fuel) burner flame, the probability over time that it ends by extinction or by a flow stop (event probabilities), from the conditions of the test; optionally from the planned stop of the test script.",
+      "authorship": "data_informed",
+      "authorship_note": "acme_inverse.wsp5 P1 (the carried law with a second scenario that holds a marginal flame) reading the fuel from a typed table; its ethylene row is zero-shot and was confirmed by a blind run. Typed after reading train data and published theory.",
+      "inputs": [
+        {"name": "fuel_species", "kind": "condition", "unit_si": "1", "required": true, "text": true, "note": "fuel: ethane, propane, butane, ethylene or methane", "example": "propane"},
+        {"name": "injected_mass_flow", "kind": "condition", "unit_si": "kg/s", "required": true, "note": "injected (oxidizer-side) mass flow", "example": 5e-6},
+        {"name": "pressure", "kind": "condition", "unit_si": "Pa", "required": true, "note": "chamber pressure", "example": 101325.0},
+        {"name": "tad", "kind": "condition", "unit_si": "K", "required": true, "note": "adiabatic flame temperature", "example": 2400.0},
+        {"name": "x_fuel_role", "kind": "condition", "unit_si": "1", "required": true, "note": "fuel mole fraction of the fuel stream", "example": 0.1},
+        {"name": "x_o2_role", "kind": "condition", "unit_si": "1", "required": true, "note": "oxygen mole fraction of the oxidizer stream", "example": 0.5},
+        {"name": "zst", "kind": "condition", "unit_si": "1", "required": true, "note": "stoichiometric mixture fraction", "example": 0.45},
+        {"name": "phase_established_at_s", "kind": "phase_start", "unit_si": "s", "required": true, "note": "time the flame was established; the time origin is hot ignition, so 0 for a flame burning from ignition", "example": 0.0},
+        {"name": "programmed_stop", "kind": "condition", "unit_si": "s", "required": false, "note": "planned stop of the test from NASA's script file; without it the release answers as on the shared records"},
+        {"name": "session_id", "kind": "test_date", "unit_si": "1", "required": false, "note": "date of the test (selects era-dependent weights)", "example": "2023-03-01"}
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored CFI-G run gives the conditions; stored runs answer without the planned stop. A typed scenario needs the conditions and the time the flame was established.",
+      "scores": [
+        {"metric": "Integrated Brier score 6–120 s, CFI-G shared records, ethane/propane/butane: extinction / flow termination", "value": "0.129 / 0.088", "source": "docs/wsp/README.md, table of the carried models"},
+        {"metric": "Same, with the planned stop", "value": "0.135 / 0.048", "source": "docs/wsp/README.md"},
+        {"metric": "Flame Design, extinction, ethylene as itself against ethylene borrowed as ethane (7 sessions)", "value": "0.108 against 0.147", "comparison": "interval of the difference excludes zero", "source": "docs/wsp/README.md and docs/wsp/RESULTS_GEN6.md (12.8)"},
+        {"metric": "Flame Design validation days with the planned stop: extinction / flow termination", "value": "0.092 / 0.002", "source": "docs/wsp/README.md"}
+      ],
+      "limits": [
+        "Two or three validation days per family on Flame Design are few.",
+        "Ethylene below 1900 K is refused.",
+        "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp."
+      ],
+      "cite": "acme_inverse.wsp12 F2, hand-written (literal WSP) release sha256:7404f3ad…a7f7, experimental, not trained; event probabilities are model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/acme_committee.md"
+    },
+    {
+      "release_id": "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
+      "model_name": "bass_front.wsp",
+      "family": "bass",
+      "investigation": "BASS (PSI-25), thin fabric in concurrent flow",
+      "candidate": "D1",
+      "forecasts": "The position of the flame tip over a thin fabric sample in concurrent flow after the cutoff (quantiles), with the flow history as a known control, and a quench hazard.",
+      "authorship": "data_informed",
+      "authorship_note": "Typed after reading four train burns (measured from the public videos) and published theory; the validation burns were measured blind.",
+      "inputs": [
+        {"name": "x_o2", "kind": "condition", "unit_si": "1", "required": true, "note": "oxygen mole fraction", "example": 0.19},
+        {"name": "width", "kind": "condition", "unit_si": "m", "required": true, "note": "sample width (converts the law from sample widths to metres)", "example": 0.022},
+        {"name": "length", "kind": "condition", "unit_si": "m", "required": false, "note": "sample length", "example": 0.1},
+        {"name": "flow_velocity", "kind": "control", "unit_si": "m/s", "required": true, "note": "fan (flow) history as control stages: start s, end s (empty = open), value", "example": [[0.0, 22.0, 0.1], [22.0, null, 0.03]]},
+        {"name": "igniter", "kind": "control", "unit_si": "1", "required": false, "note": "igniter stage: start s, end s", "example": [[4.0, 10.0, null]]},
+        {"name": "phase_established_at_s", "kind": "phase_start", "unit_si": "s", "required": true, "note": "time the flame was established over the sample (end of the igniter stage)", "example": 10.0},
+        {"name": "front_position", "kind": "observation", "unit_si": "m", "required": true, "note": "flame tip positions up to the cutoff", "example": [[11.0, 0.002], [13.0, 0.006], [15.0, 0.010], [17.0, 0.014], [19.0, 0.018], [20.0, 0.020]]}
+      ],
+      "stored_runs": false,
+      "inputs_note": "No stored BASS run carries x_o2, a width in metres and the fan history, so on stored runs this release refuses. Forecast it on a typed scenario: conditions, flow stages and a few tip positions before the cutoff. Its development score is in sample widths, from the lane's track files.",
+      "scores": [
+        {"metric": "CRPS of the flame tip, 12 BASS burns measured blind from the videos", "value": "0.117 sample widths", "comparison": "persistence 0.234; paired difference +0.117 [+0.051, +0.182] over 12 burns", "source": "docs/wsp/README.md, table of the carried models"},
+        {"metric": "Quench boundary", "value": "0.170", "comparison": "a constant scores 0.125: the quench boundary fails", "source": "docs/wsp/README.md"}
+      ],
+      "limits": [
+        "No run has a length calibration: its scores are in sample widths; the metric route needs a width in metres and is tested on a synthetic fixture only.",
+        "Twelve burns of three sessions of one campaign.",
+        "Flows above 11 cm/s, 21 % oxygen and the narrow sample are outside train.",
+        "The quench law is wrong on spread-or-not: read no ignition forecast from it.",
+        "Not predicted: temperature, flame brightness, the flame base."
+      ],
+      "cite": "bass_front.wsp D1, hand-written (literal WSP) release sha256:ac15e49f…855c, experimental, not trained; its output is model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/bass_front.md"
+    }
+  ]
+}

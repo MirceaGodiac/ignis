@@ -1,0 +1,110 @@
+# acme_inverse.wsp3 — D1 literal revision of the baseline sha256:d0a13660…184b, spec acme_inverse-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: typed after the author read the TRAIN rows of
+# the PSI-159 inverse-flame table (conditions, SE/FT label, burn time, peak burner temperature, colour,
+# comments), the two train-only audits of the second-generation clocks
+# (docs/wsp/feedback/acme_d1_train_audit.md, acme_transfer_audit.md) and a review of the published
+# theory and studies (docs/wsp/research/lit_spherical_flames.md). Not zero-shot. Every number typed by
+# the author; no fit, no search. The author had seen the aggregate validation tables of the earlier
+# candidates (integrated Brier scores only; the second-generation D3 was not adopted because its
+# extinction score was worse); nothing below was chosen from them.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logp = ln(p / 101325 Pa)        c_logm = ln(injected O2 mass flow / 5 mg/s)
+#   c_o2 = (injected x_O2 - 0.50)/0.25  c_xf = ln(ambient fuel fraction / 0.10)
+#   c_tad = (T_ad - 2200 K)/300 K     c_zst = (Z_st - 0.45)/0.2      propane is the reference fuel
+# burner features b = (b_rss, b_mtot, c_tad, c_xf, c_logp, f_ethane, f_butane), columns 0..6:
+#   b_rss = ln(r_ss / 25 mm)          b_mtot = ln(total burner mass flow / 3 mg/s)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Self-extinction
+# =====================================================================================================
+# 1a. The second clock carries the inverse flames. In a lean fuel ambient an inverse flame does not
+# last until radiation takes it: with the published constants the growth law gives the 7-9 % flames
+# minutes, or holds them, and they go out in 3-18 s. The reports describe what ends them: a quench
+# hole at the supply tube that oscillates and grows, faster the leaner and dimmer the flame. That is
+# written as an empirical clock in the conditions. Its numbers are those of the second generation's
+# D1 (the carried candidate), which the train sessions support within 0.3:
+#   85 % O2 injected: 5-7 s at 7 % ambient fuel, 8-18 s at 8-9 %, 46-51 s at 14 %, none at 17 % and above.
+#   +3.0 per e-fold of ambient fuel fraction; 50 % O2 flames last 4-9 s where 85 % ones last 7-18 s.
+se.floor_s = 2.0
+se.osc.b0 = 2.17
+se.osc.skip[0:8] = [0.0, 0.0, 0.45, 3.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: above 13.5 % ambient fuel the flame is held for minutes.
+se.osc.W1[0, 3] = 1.0
+se.osc.b1[0] = -0.3
+se.osc.w2[0] = 10.0
+# Unit 1: the lowest flows (1.4 mg/s) go out within 3-5 s (three tests in two sessions).
+se.osc.W1[1, 1] = -1.0
+se.osc.b1[1] = -1.0
+se.osc.w2[1] = -8.0
+# Unit 2: air injected. If the flame survives ignition it is small and cool and this clock does not
+# take it: three of the six train tests burned to a stop at 16, 65 and 66 s. The other three went out
+# at 1-3 s; they are the weak class below.
+se.osc.W1[2, 2] = -1.0
+se.osc.b1[2] = -0.6
+se.osc.w2[2] = 8.0
+# Lives of one condition spread from 8 to 18 s.
+se.osc_shape = 3.0
+
+# 1b. The growth clock is switched off for inverse flames. With the published constants for inverse
+# flames (rhoD 0.0334 g m-1 s-1, a critical oxygen flux of 0.68 g m-2 s-1 measured on ethylene, D 28
+# mm2/s) it gives the air-injected flames 30-60 s, and four of them were still burning when the
+# script stopped them at 65-66 s (21228F1, 21256F1, 21209F1, 21209F2), one at 16 s; with those
+# constants on, the first candidate of this file gave them 0.4-0.9 of going out by then. It also
+# holds the lean flames at 85 % oxygen, which go out in seconds. The published law does not describe
+# these flames, so the critical flux is typed far below any flow of the campaign (0.01 g m-2 s-1:
+# every flame is inside its extinction radius) and the second clock carries the self-extinction. The
+# reference baseline of this spec shows what the published constants alone score.
+se.rho_d_g_m_s = 0.0334
+se.flux.b0 = -4.6
+se.flux.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+se.diff.b0 = 3.332
+se.diff.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+se.sigma_phi = 0.3
+se.shape = 4.0
+se.hold_log_rate = -8.0
+
+# 1c. Weak class. A flash needs both a cool flame and a lean ambient: the brief premixed flame at
+# ignition must hand over to a diffusion flame. Train: air into 7-9 % fuel at 1835-1879 K flashed in
+# three of five tests (1, 1 and 3 s), not at 1956 K; 15-21 % O2 into 20-30 % ethane at 1785-2120 K
+# burned for a minute in every test. A logistic centred at 1880 K, 60 K wide, switched off as the
+# ambient gets richer than 12 % fuel (0.5-0.7 for the lean air flames, 0.2 at 1956 K).
+se.flash.b0 = -5.33
+se.flash.skip[0:8] = [0.0, 0.0, 0.0, 0.0, -5.0, 0.0, 0.0, 0.0]
+se.flash.W1[0, 3] = 1.0
+se.flash.b1[0] = -0.2
+se.flash.w2[0] = -10.0
+se.flash_tau_s = 1.5
+se.flash_shape = 3.0
+
+# =====================================================================================================
+# 2. The burner temperature limit: a heating law
+# =====================================================================================================
+# The same law as for the normal flames: dT = 2012 K (m_tot / 1 mg/s)^-0.4 (r_ss / 1 mm)^-0.4, 30 s.
+# With it a lean flame cannot reach the limit at any flow (they peaked below 200 C), which the second
+# generation had to be told. Train, ln(measured rise / law): butane and propane sessions -0.15 to
+# +0.26 (medians 0.0, +0.26, +0.5 on one or two flames); the two ethane sessions sit 0.3-0.5 above it.
+bt.rise.b0 = 5.88
+bt.rise.skip[0:7] = [-0.4, -0.4, 0.0, 0.0, 0.0, 0.3, 0.0]
+bt.tau_s = 30.0
+bt.t0_c = 30.0
+# The sessions disagree by 30 %, and one test started on a burner still hot from the one before.
+bt.sigma = 0.25
+bt.shape = 8.0
+# Tests end at 514-544 C in the two July sessions and at 455-460 C in the last one.
+bt.limit_c[0:3] = [455.0, 510.0, 0.0]
+bt.limit_w[0:3] = [0.4, 0.6, 0.0]
+
+# =====================================================================================================
+# 3. Programmed stops
+# =====================================================================================================
+# Four of the five sessions with a flame burning at 60 s stopped flames between 63 and 67 s (fifteen of
+# eighteen such flames), most of them at 66 s: a 60 s constant-flow phase after ignition. That is one
+# window, not a time per session: 0.05, 0.07, 0.10, 0.62 and 0.15 of the flames still burning at 63,
+# 64, 65, 66 and 67 s, three in four over the window. The fifth session stopped two flames at 90 s.
+# Times seen in one session only (26, 35, 43, 60, 136 s) are not atoms; they are in the background.
+ft.atom_t_s[0:8] = [63.0, 64.0, 65.0, 66.0, 67.0, 90.0, 0.0, 0.0]
+ft.atom_logit[0:8] = [-2.94, -2.59, -2.2, 0.49, -1.73, -1.39, -40.0, -40.0]
+# Nine stops with no script time behind them in 2300 flame-seconds, spread over five sessions.
+ft.log_base = -5.5

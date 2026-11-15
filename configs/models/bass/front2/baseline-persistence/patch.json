@@ -1,0 +1,306 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "bass_front-wsp-v2-baseline-persistence",
+  "spec_hash": "sha256:9681bdb9834e066342d7fdb19922a5ad5ef2c403bb4601b184fa5c14a25cb9a7",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/front.rs(forward-and-spec)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "speed.b0",
+      "index": [],
+      "value": 0.05
+    },
+    {
+      "op": "set_box",
+      "tensor": "speed.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "speed.pow",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "over.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "over.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "over.pow",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_s",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "burn.b0",
+      "index": [],
+      "value": 1.79
+    },
+    {
+      "op": "set_box",
+      "tensor": "burn.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b0",
+      "index": [],
+      "value": -40.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "quench.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ign.gain",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ign.delay_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "end.linger_s",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.mix",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.e_clip",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        3.0,
+        3.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.15
+    },
+    {
+      "op": "set_box",
+      "tensor": "unc.s_far",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_w",
+      "index": [],
+      "value": 0.04
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_x0_w",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.rel_over",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.drift_w",
+      "index": [],
+      "value": 0.01
+    },
+    {
+      "op": "set",
+      "tensor": "speed.split",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.pow_i",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "speed.kappa",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_up_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_abs_cm_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "unc.flow_rel",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "unc.flow_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  ],
+  "rationale": "Reference baseline and lineage root of the second front forward, not a candidate: the tip keeps the speed the prefix shows, whatever the flow does afterwards; no law of flow, oxygen or width, no overhang, no quench. Same numbers as the baseline of bass_front-wsp-v1, statement by statement, with the entries added by bass_front-wsp-v2 (speed.split, speed.pow_i, speed.kappa, over.tau_up_s, unc.flow_abs_cm_s, unc.flow_rel, unc.flow_w) switched off, so that its forecast is that of the first front forward. Data-informed candidates of bass_front-wsp-v2 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

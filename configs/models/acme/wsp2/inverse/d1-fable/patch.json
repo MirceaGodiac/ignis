@@ -1,0 +1,293 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_inverse-wsp-v2-d1-fable",
+  "spec_hash": "sha256:760a6f084afacff92cff9a27c1490f1d406d4cf8b830af9261114842fc081f54",
+  "parent_release_id": "sha256:04d5503ee0627a42dae648817a3fc0904cd67db66fda549f83d641056517af09",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:docs/wsp/feedback/acme_inverse_w0_train.md(train-feedback-of-the-first-generation)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-validation-scores-of-the-first-generation,phase-1)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.floor_s",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b0",
+      "index": [],
+      "value": 2.17
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.45,
+        3.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        0
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        0
+      ],
+      "value": 10.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        1
+      ],
+      "value": -8.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        2,
+        2
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        2
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        2
+      ],
+      "value": 8.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -11.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.flash.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -10.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_tau_s",
+      "index": [],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.b0",
+      "index": [],
+      "value": 6.28
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        1.6,
+        -1.2,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.b1",
+      "index": [
+        0
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.w2",
+      "index": [
+        0
+      ],
+      "value": -2.6
+    },
+    {
+      "op": "set",
+      "tensor": "ft.shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_t_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        26.0,
+        35.5,
+        43.0,
+        60.0,
+        63.5,
+        66.0,
+        90.0,
+        136.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_logit",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        -3.5,
+        -2.9,
+        -3.2,
+        -3.5,
+        -2.75,
+        1.4,
+        0.4,
+        2.2
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -7.6
+    }
+  ],
+  "rationale": "D1, data-informed (not zero-shot): the first candidate of the clock spec for inverse flames. The train table shows that the ambient fuel fraction decides whether an inverse flame self-extinguishes (5-18 s at 7-9 % fuel, about 50 s at 14 %, not at all at 17 % and above), that air-injected flames either flash out or hold, that the burner temperature limit ends oxygen-rich tests in a fuel-rich ambient the sooner the lower the flow, and that most of the remaining tests end at a 66 s script stop. Numbers typed from the train table by the author; no fit, no search.",
+  "origin": "system"
+}

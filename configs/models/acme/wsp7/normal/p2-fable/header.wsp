@@ -1,0 +1,49 @@
+# acme_normal.wsp7 — P2 literal revision of the baseline sha256:00000000…0000, spec acme_normal-wsp-v7
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: every member is a data-informed
+# candidate (see their own edits files for what each number was typed from).
+#
+#   slot a0   acme_normal.wsp2 D4: the hinge law, two statements corrected that stood on mis-tabulated rows
+#   slot a1   the same without its guessed stop times
+#   slot b0   acme_normal.wsp3 D3-EARLY: the growth clock, butane corrected, the burner limit of the early era
+#   slot b1   acme_normal.wsp3 D3-LATE: the same with the burner limit of the late era
+#   slots b2, b3   b0 and b1 without their guessed stop times
+#   slots c0 to c3   the hinge law with the burner-heating law (acme_normal.wsp8), filled and silent here
+#
+# What P2 changes against the carried acme_normal.wsp5 P1, each from the TRAIN partition
+# (docs/wsp/feedback/acme_normal_gen6_train_analysis.md; the author reran its tables):
+#   1. the burner limit is chosen by the date of the test instead of being mixed by the share of sessions;
+#   2. the planned stop of the script, when the prefix carries it, is placed after the stage sum
+#      instead of 0.4 s before it;
+#   3. three statements of the member laws are corrected (in the members' own files).
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee2_edits.py with the slot
+# prefix added. That script chooses and computes nothing. The lines typed for this file:
+
+# The two laws of different kinds with equal say, as in the carried model; the growth member is the
+# one of the test's era.
+mix.w_early[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# When the prefix carries the planned stop: the same two laws without their guessed stops.
+mix.ws_early[0:10] = [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
+# The burner limit was a setting of the script. Every trip through 30 August 2021 (day 242) came 3
+# to 4.4 s after 500 C, and tests that sat above 450 C for 26 and 69 s were not stopped; every trip
+# from 27 September 2021 (day 270) came within a second of 450 C (nine and four trips on TRAIN,
+# normal and inverse flames together). Between the two days no TRAIN test tells: even odds.
+era.last_early_day = 2021242.0
+era.first_late_day = 2021270.0
+era.p_late_between = 0.5
+# Without a date: the share of normal-flame TRAIN sessions in the late era (one of seven), as the
+# growth member of P1 had typed it.
+era.p_late_unknown = 0.15
+
+# The stored planned stop is the sum of the stage durations of the script. On the nine TRAIN tests
+# of normal flames that ran to the scripted end, the recorded end falls about 1 s after that sum
+# (range -1 to +3 s). P1 placed it 0.4 s before the sum, a number typed from normal and inverse
+# flames together. Three readings, 0, 1 and 2 s after the sum, the middle one with half the weight:
+# the spread is the statement that the offset is known to about a second, not better.
+script.offset_s[0:3] = [0.0, 1.0, 2.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]

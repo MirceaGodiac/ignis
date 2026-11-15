@@ -1,0 +1,40 @@
+{
+  "author_model": "gpt-6-astra",
+  "construction": "literal_one_shot",
+  "frozen_at_utc": "2026-11-14T20:15:17.6533191Z",
+  "outcome_exposure": false,
+  "source_artifact_kind": "conditional_physical_kernel_not_qualified_release",
+  "contract_validation": "coordinator_owned_not_run_by_author",
+  "authored_literal_count": 3,
+  "synthetic_kernel_tests_passed": 6,
+  "files": [
+    {
+      "path": "crates/ignis-wsp/src/property_spherical_w0.rs",
+      "sha256": "398c6fc0c9f11607cf840a9d11539396b06d905e3049c41060e2f095c5a54479"
+    },
+    {
+      "path": "configs/models/spherical/property-w0/cleanroom-astra/literal-ops.json",
+      "sha256": "916949a7bdec069dd0b39782c869ad5fe9a5f2066f04fafe22db3eca90da302d"
+    },
+    {
+      "path": "configs/models/spherical/property-w0/cleanroom-astra/patch-meta.json",
+      "sha256": "fc8f077b4e095170c828554ff5a3670c3f8e30c795d52c1574c36e05ba0c1661"
+    },
+    {
+      "path": "configs/models/spherical/property-w0/cleanroom-astra/spec-normal.json",
+      "sha256": "b548379fcf781631d4f63c2d0c872273aa34a4637123501de3315206fc174eb5"
+    },
+    {
+      "path": "configs/models/spherical/property-w0/cleanroom-astra/spec-inverse.json",
+      "sha256": "fb9624ea98d7188ee509ee68eb837615b59a206d65485d3f116a3b7797a94529"
+    },
+    {
+      "path": "configs/models/spherical/property-w0/cleanroom-astra/check.rs",
+      "sha256": "56ad8306110d96bc0a146354e2fc7044c645c95326fa188e10b5b8e874eeb17c"
+    },
+    {
+      "path": "docs/wsp/research/astra_spherical_w0.md",
+      "sha256": "9524ddd898b415b689211b73a5f1398141e78b0dcca063825b4de336334949b8"
+    }
+  ]
+}

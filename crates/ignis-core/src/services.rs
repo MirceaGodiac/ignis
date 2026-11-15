@@ -16,10 +16,10 @@ use crate::contracts::{
     ConditionsTable, DatasetBundle, DatasetId, Digest, EntityRef, EpisodeId, ErrorCode,
     ErrorEnvelope, EvaluationRequest, EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope,
     ExternalSourceCandidate, ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest, KeyValue,
-    MetricValue, ModelRelease, Origin, OutlineRequest, Partition, Producer, ReadRequest,
-    ReadResult, ReleaseId, RetryPolicy, RunId, SearchPage, SearchRequest, SourceAccess, SourceId,
-    SourceLabel, SourceOutline, WebFetchRequest, WebSearchPage, WebSearchRequest, WikiPatch,
-    WikiReadRequest, WikiReadResult, WikiRevision,
+    MetricValue, ModelCard, ModelRelease, Origin, OutlineRequest, Partition, Producer, ReadRequest,
+    ReadResult, ReleaseId, RetryPolicy, RunId, ScenarioAdmitted, ScenarioRequest, SearchPage,
+    SearchRequest, SourceAccess, SourceId, SourceLabel, SourceOutline, WebFetchRequest,
+    WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest, WikiReadResult, WikiRevision,
 };
 
 pub type ServiceResult<T> = Result<T, ErrorEnvelope>;
@@ -232,6 +232,28 @@ pub trait ModelService: Send + Sync {
         scope: &ExecutionScope,
         req: &ForecastRequest,
     ) -> ServiceResult<AnalysisArtifact>;
+
+    /// The served releases with what the deployment states about them (investigation, inputs,
+    /// zero-shot or data-informed, reported development scores and limits), in `releases` order.
+    fn cards(&self, _scope: &ExecutionScope) -> ServiceResult<Vec<ModelCard>> {
+        not_provided("model cards")
+    }
+
+    /// Admits conditions typed by a person as a synthetic prefix of one release (never a NASA run,
+    /// never from an agent) and returns its `input_hash` for `ForecastInput::Prefix`.
+    fn admit_scenario(
+        &self,
+        _scope: &ExecutionScope,
+        _req: &ScenarioRequest,
+    ) -> ServiceResult<ScenarioAdmitted> {
+        not_provided("typed scenarios")
+    }
+
+    /// What this deployment serves, in one paragraph appended to the descriptions of the model
+    /// tools (`models_inspect`, `models_forecast`), so an agent knows the releases and their inputs.
+    fn tool_note(&self) -> Option<String> {
+        None
+    }
 }
 
 /// What a producer declares when storing bytes; the store computes digest and length.

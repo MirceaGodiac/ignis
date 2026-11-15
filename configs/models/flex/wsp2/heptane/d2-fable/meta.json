@@ -1,0 +1,44 @@
+{
+  "patch_id": "flex_heptane-wsp-v2-d2-fable",
+  "parent_release_id": "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1"
+    ]
+  },
+  "rationale": "D2, data-informed. The laws of D1 on the third-generation droplet forward, revised after a train-only audit of D1. Law changes: no fast heat-up deficit (the measured rate in the first two seconds is 7-16 % above D1 in 12-13 of 16 sessions); the radiative clock shortens with initial diameter beyond what supercriticality gives (helium is left as in D1: the stage that follows the visible flame in helium has no law here); evaporation after the cool flame starts twice as fast and decays over 3.5 s. Encoder changes: the hot-flame run offset is trusted little (on train the law alone predicts the next seconds better than the law with the offset); the cool-flame run offset is read from the end of the prefix, where the cool flame is, and halved; the state at the cutoff is read from the end rate. Spread: 0.10 before a prefix and 0.06 after, twice the train residual, for unseen sessions; not chosen from validation. Every number typed by the author; no fit, no search.",
+  "origin": "system"
+}
