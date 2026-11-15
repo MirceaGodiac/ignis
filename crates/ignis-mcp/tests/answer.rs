@@ -1200,6 +1200,81 @@ fn a_condition_resolves_against_the_conditions_snapshot() {
     assert_eq!(kinds(&refused), vec![K::StaleSnapshot; 3], "{refused:#?}");
 }
 
+/// conditions_query stores its table as a ConditionsTable artifact and returns the artifact's id and
+/// digest with the conditions snapshot, so an observed claim can rest on the cells alone: a run's
+/// O2 and pressure as conditions cells, or a cell of the stored table, with no sources_search hit.
+#[test]
+fn an_observed_claim_rests_on_the_conditions_conditions_query_returned() {
+    let w = world();
+    let datasets = Arc::new(Conditions {
+        snapshot: std::sync::Mutex::new(Digest::parse(SNAP_A).unwrap()),
+    });
+    let host = ignis_mcp::ToolHost::new(
+        ignis_mcp::ToolServices {
+            knowledge: Some(w.h.knowledge.clone()),
+            datasets: Some(datasets.clone()),
+            conditions: true,
+            ..Default::default()
+        },
+        w.h.store.clone(),
+        w.h.artifacts.clone(),
+        Origin::SyntheticFixture,
+        Arc::new(|| {}),
+    )
+    .with_grounding(GroundingMode::Enforce);
+    let r = host.call_in(
+        &w.sc,
+        Some(&w.ep),
+        "conditions_query",
+        json!({"schema_version": "dataset.v2", "near": {"atmosphere": "moon_base"}}),
+    );
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let p = r.result.as_ref().unwrap();
+    assert!(!p.partial);
+    let v = &p.value;
+    assert_eq!(v["conditions_snapshot"], json!(SNAP_A));
+    let table_ref = &r.artifact_refs[0];
+    assert_eq!(table_ref.contract.as_deref(), Some("ConditionsTable"));
+    assert_eq!(v["artifact_id"], json!(table_ref.artifact_id));
+    assert_eq!(v["sha256"], json!(table_ref.sha256));
+    let table: ConditionsTable = serde_json::from_value(v["table"].clone()).unwrap();
+    table.validate().unwrap();
+
+    let mut cell = condition("fixture-run-01", "oxygen_mole_fraction", 0.21, "1");
+    cell["source"]["snapshot"] = v["conditions_snapshot"].clone();
+    let pressure = json!({"value": 101352.9, "unit": "Pa", "source": {
+        "kind": "artifact_cell", "artifact_id": v["artifact_id"], "sha256": v["sha256"],
+        "rows": [
+            {"table": "/rows", "where": [{"field": "/run/run_id", "equals": "fixture-run-01"}]},
+            {"table": "/cells", "where": [{"field": "/key", "equals": "pressure"}]}
+        ],
+        "column": "/value"}});
+    let mut s = observed(vec![cell, pressure]);
+    s["claims"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("support")
+        .unwrap();
+    let r = host.call_in(&w.sc, Some(&w.ep), "answer_submit", s);
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let answer = stored(&w, &r);
+    assert_eq!(answer.grounding.as_ref().unwrap().grounded, 2);
+
+    // Without a measured cell, an observed claim still needs evidence.
+    let mut bare = observed(vec![]);
+    bare["claims"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("support")
+        .unwrap();
+    bare["client_request_id"] = json!("crid-bare-observed");
+    let r = host.call_in(&w.sc, Some(&w.ep), "answer_submit", bare);
+    assert_eq!(
+        kinds(&refusal(&w, &r)),
+        vec![AnswerProblemKind::KindSupportMismatch]
+    );
+}
+
 /// A number cited from a dataset view (a bundle's Parquet artifact, here an R2b sensor bundle) is
 /// read back through `DatasetService::view_rows` by identity keys at the pinned digest: a correct
 /// transcription grounds, a wrong one is caught, and an unknown column or ambiguous keys are named.

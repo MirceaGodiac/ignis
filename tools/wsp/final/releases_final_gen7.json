@@ -1,0 +1,332 @@
+{
+ "schema": "ignis.wsp.final-release-list.gen7/1",
+ "frozen": true,
+ "status": "FROZEN 15 November 2026 by the coordinator, before any test-day outcome was read (PROTOCOL 13.7)",
+ "scoring": "each entry's scoring-time rule: lane = the registered mapping of tools/wsp/ext/law_score.py; flame_end / lasts for bre; event targets: the sum over every declared cause; coding: the plastics outcome coding (bass) and the SLICE case version (slice), version 1 where the field is absent; a release that refuses a case (bass: the fabric burns in kept burning for every release before bass4) counts it as a refusal, never as a forecast",
+ "investigations": {
+  "bre": {
+   "investigation": "PSI-20 BRE",
+   "lane": "bre",
+   "model": {
+    "slug": "bre",
+    "candidate": "d3-fable",
+    "release": "sha256:27e2af51340e7ba2a8ba73894abcec1c1342e8116834eda1aa7a0a5454d7b955",
+    "adapter": "bre",
+    "rule": "lasts",
+    "label": "bre d3 by the lasts rule"
+   },
+   "comparators": [
+    {
+     "slug": "bre",
+     "candidate": "w0-fable",
+     "release": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+     "adapter": "bre",
+     "rule": "flame_end",
+     "label": "bre W0 by flame_end (registered zero-shot reading)"
+    },
+    {
+     "slug": "bre",
+     "candidate": "w0-fable",
+     "release": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+     "adapter": "bre",
+     "rule": "lasts",
+     "label": "bre W0 by the lasts rule (phys_bre2.md section 2)"
+    },
+    {
+     "slug": "bre",
+     "candidate": "d1-fable",
+     "release": "sha256:3cffa05ad9dcd29e1fc5b422474e30e2c07c6d5909ea944b77a12d9c695c0f76",
+     "adapter": "bre",
+     "rule": "flame_end",
+     "label": "bre D1 by flame_end"
+    },
+    {
+     "slug": "bre",
+     "candidate": "d2-fable",
+     "release": "sha256:429f47431773d02e9608a2fdfd9e24ec4af171ffe9bea98400beb44ea4f18340",
+     "adapter": "bre",
+     "rule": "lasts",
+     "label": "bre d2 by the lasts rule"
+    },
+    {
+     "slug": "bre",
+     "candidate": "d3m-fable",
+     "release": "sha256:4b7d155ce91823425c6bf52c62f8d96318601ec60db13be1e3818664b55c2a9f",
+     "adapter": "bre",
+     "rule": "lasts",
+     "label": "bre d3m by the lasts rule"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  },
+  "cld": {
+   "investigation": "PSI-21 CLD Flame",
+   "lane": "cld",
+   "model": {
+    "slug": "cld3",
+    "candidate": "s1-fable",
+    "release": "sha256:b9df52397944078288b5dc5363bd19d914afc930326b0d2cbe2acac72d7a9e4b",
+    "adapter": "cld3",
+    "rule": "lane",
+    "label": "cld3 (third law)"
+   },
+   "comparators": [
+    {
+     "slug": "cld",
+     "candidate": "w0-fable",
+     "release": "sha256:0995df666bdabfa546607fcba565da166a28839ed984f2f1226bc62274eefe4e",
+     "adapter": "cld",
+     "rule": "lane",
+     "label": "cld W0"
+    },
+    {
+     "slug": "cld",
+     "candidate": "d1-fable",
+     "release": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+     "adapter": "cld",
+     "rule": "lane",
+     "label": "cld D1"
+    },
+    {
+     "slug": "cld",
+     "candidate": "c1-fable",
+     "release": "sha256:541e9b2a232e0d33f1638650d69198a4153e2ba8d8d6257632e96285c7d99ab6",
+     "adapter": "cld",
+     "rule": "lane",
+     "label": "cld C1"
+    },
+    {
+     "slug": "cld2",
+     "candidate": "s1-fable",
+     "release": "sha256:870419c33f9b4e39588ccabe884959fdde910e6337da39c7eee3d2be3f698721",
+     "adapter": "cld2",
+     "rule": "lane",
+     "label": "cld2 (second law)"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  },
+  "efield": {
+   "investigation": "PSI-22 E-FIELD Flames",
+   "lane": "efield",
+   "model": {
+    "slug": "efield3",
+    "candidate": "s1-fable",
+    "release": "sha256:8575550b310950efde7da2f00a1964c9a4d0c393fd3fbcaf4e4f2f1f8f046f04",
+    "adapter": "efield3",
+    "rule": "lane",
+    "label": "efield3 (third law)"
+   },
+   "comparators": [
+    {
+     "slug": "efield",
+     "candidate": "w0-fable",
+     "release": "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+     "adapter": "efield",
+     "rule": "lane",
+     "label": "efield W0"
+    },
+    {
+     "slug": "efield",
+     "candidate": "e1-fable",
+     "release": "sha256:dbb4bd6453a2870ddbc6c34125b38068dd6b83da87025b2ae170aa0f25b873b0",
+     "adapter": "efield",
+     "rule": "lane",
+     "label": "efield E1"
+    },
+    {
+     "slug": "efield2",
+     "candidate": "s1-fable",
+     "release": "sha256:cf5459b54b0a880713cbfcec0e22bae473b1bc265e064bfc9ab0295f193bd8c5",
+     "adapter": "efield2",
+     "rule": "lane",
+     "label": "efield2 (second law)"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  },
+  "slice": {
+   "investigation": "PSI-106 SLICE",
+   "lane": "slice",
+   "coding": "v2",
+   "model": {
+    "slug": "slice2",
+    "candidate": "s1-fable",
+    "release": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
+    "adapter": "slice2",
+    "rule": "lane",
+    "label": "slice2 s1 (second law)"
+   },
+   "comparators": [
+    {
+     "slug": "slice",
+     "candidate": "w0-fable",
+     "release": "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e",
+     "adapter": "slice",
+     "rule": "lane",
+     "label": "slice W0"
+    },
+    {
+     "slug": "slice",
+     "candidate": "d1-fable",
+     "release": "sha256:c40cd91b76476c153c7b677adf9adca3feb244ae582f4b361307212d23f6b0d8",
+     "adapter": "slice",
+     "rule": "lane",
+     "label": "slice D1"
+    },
+    {
+     "slug": "slice2",
+     "candidate": "s2-fable",
+     "release": "sha256:0f5763f5749bb669b6ed9b70ac2629c8923838b3308f6094b2efcd7d8313388a",
+     "adapter": "slice2",
+     "rule": "lane",
+     "label": "slice2 S2"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  },
+  "spice": {
+   "investigation": "PSI-107 SPICE",
+   "lane": "spice",
+   "model": {
+    "slug": "spice",
+    "candidate": "p3-fable",
+    "release": "sha256:000b88b8232a4c6b7ec04e403b192e2aedc6488aa6e11b3b4be6bb6ae0b398a0",
+    "adapter": "spice",
+    "rule": "lane",
+    "label": "spice P3"
+   },
+   "comparators": [
+    {
+     "slug": "spice",
+     "candidate": "p2-fable",
+     "release": "sha256:f1fe69f0956eddbbc4333187b1668d0e3b8e6ddc8af649872408e99581e3258a",
+     "adapter": "spice",
+     "rule": "lane",
+     "label": "spice P2"
+    },
+    {
+     "slug": "spice",
+     "candidate": "w0-fable",
+     "release": "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8",
+     "adapter": "spice",
+     "rule": "lane",
+     "label": "spice W0 (variant B)"
+    },
+    {
+     "slug": "spice",
+     "candidate": "lit-fable",
+     "release": "sha256:40c345b0453da40b38e85bd7c7441e9dc1e272ce097cf204f7bb3f4c3e35d3bf",
+     "adapter": "spice",
+     "rule": "lane",
+     "label": "spice lit (published fit; not blind)"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  },
+  "samer": {
+   "investigation": "PSI-101 SAME-R",
+   "lane": "samer",
+   "model": {
+    "slug": "samer",
+    "candidate": "s1-fable",
+    "release": "sha256:e33ee7665b599e7e6c8c978f61ebf3bf106b2b6a94c3a0821dbdf42cf47a1b5f",
+    "adapter": "samer",
+    "rule": "lane",
+    "label": "samer S1"
+   },
+   "comparators": [
+    {
+     "slug": "samer",
+     "candidate": "w0-fable",
+     "release": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+     "adapter": "samer",
+     "rule": "lane",
+     "label": "samer W0"
+    },
+    {
+     "slug": "samer",
+     "candidate": "d1-fable",
+     "release": "sha256:f55c40440da6f9d759bf54db8ac7b732c21832ee08446ab47c1071e49141ce7a",
+     "adapter": "samer",
+     "rule": "lane",
+     "label": "samer D1"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  },
+  "bass": {
+   "investigation": "PSI-26 BASS and PSI-25 BASS-II plastics and fabrics",
+   "lane": "bass",
+   "coding": "v2",
+   "model": {
+    "slug": "bass4",
+    "candidate": "s1-fable",
+    "release": "sha256:ceefc15d4cb8cf658772ec3603c9dabd6565fb3db6528bb35c2205f0d3bdab86",
+    "adapter": "bass4",
+    "rule": "lane",
+    "label": "bass4 (fabrics in kept burning)"
+   },
+   "comparators": [
+    {
+     "slug": "bass3",
+     "candidate": "s1-fable",
+     "release": "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1",
+     "adapter": "bass3",
+     "rule": "lane",
+     "label": "bass3"
+    },
+    {
+     "slug": "bass3",
+     "candidate": "q1-fable",
+     "release": "sha256:3c0a5aaeaa67fb01d7c7f56f1041d9853c87cf599315c7a91a14323048b49b6a",
+     "adapter": "bass3",
+     "rule": "lane",
+     "label": "bass3 Q1"
+    },
+    {
+     "slug": "bass3",
+     "candidate": "os1-fable",
+     "release": "sha256:cf0b3c0163a6c95ca3b2f1fac0aa7bb320603a10bc246592e31eddd3e6378396",
+     "adapter": "bass3",
+     "rule": "lane",
+     "label": "bass3 S1 (os1)"
+    },
+    {
+     "slug": "bass2",
+     "candidate": "k1-fable",
+     "release": "sha256:6298ab84749e6d65ae21e6e21b04710444541d4d11e0359390adc430c81fcae1",
+     "adapter": "bass2",
+     "rule": "lane",
+     "label": "bass2 K1"
+    },
+    {
+     "slug": "bass2",
+     "candidate": "s1-fable",
+     "release": "sha256:e008cba3f5101f218c1e7f353fed928a8e11a22500ebf1197dc9f050c57ca4c9",
+     "adapter": "bass2",
+     "rule": "lane",
+     "label": "bass2 s1"
+    },
+    {
+     "slug": "bass1",
+     "candidate": "w0-fable",
+     "release": "sha256:97c0daf9de84482ed7b125b3d41302521f5dd7281c0667241807d93387e239a2",
+     "adapter": "bass1",
+     "rule": "lane",
+     "label": "bass1 W0"
+    },
+    {
+     "slug": "bass1",
+     "candidate": "d1-fable",
+     "release": "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
+     "adapter": "bass1",
+     "rule": "lane",
+     "label": "bass1 D1"
+    }
+   ],
+   "baselines": "every baseline law_score.py builds for the lane (registered train constants), scored on the cases the model answers"
+  }
+ },
+ "same_and_daft": "no test days (held whole; PROTOCOL 13.4)"
+}

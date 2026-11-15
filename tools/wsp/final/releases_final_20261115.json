@@ -1,0 +1,153 @@
+{
+ "schema": "ignis.wsp.final-release-list/1",
+ "status": "frozen by the lead author (claude-fable-5-2) on 15 November 2026 for the one final run of PROTOCOL 12.5, registered as 12.11; every release named here was committed before this file",
+ "families": {
+  "flex_methanol": {
+   "release": "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
+   "label": "flex_methanol.wsp2 D3 (adopted)",
+   "input": "shared",
+   "baselines": {
+    "D-squared law (reference baseline of the spec)": "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+    "flex.d2_population": "sha256:4bfddff5060f096d8f6a18cb382058ebd231dffd76b9b7f4b52f48bbbbef4894",
+    "flex.d2_prefix": "sha256:d99ac9b6a533c6ba878ae9d9694d435edcd33996881a4454489f28eebcc9ea7e",
+    "flex.v1 (MAP)": "sha256:1ee28f9879d6db84053cbfadc2de75ee2f33a9ea0981679f820ece3a48e11cc7",
+    "flex.v3 (MAP)": "sha256:6e89480df15640e7fa19205893722c2a821ea5735a94adeb9e96d0c296b0b032"
+   }
+  },
+  "flex_heptane": {
+   "release": "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
+   "label": "flex_heptane.wsp2 D2 (adopted)",
+   "input": "shared",
+   "baselines": {
+    "D-squared law (reference baseline of the spec)": "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1"
+   },
+   "note": "runs/dev/baselines.json has no fitted heptane baseline"
+  },
+  "acme_normal": {
+   "release": "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52",
+   "label": "acme_normal.wsp12 F2 (adopted, PROTOCOL 12.10)",
+   "input": [
+    "shared",
+    "data_ext2"
+   ],
+   "baselines": {
+    "baseline set (reference baselines of the spec)": "sha256:0d4188e189d52e69b60bf5cde4474f29cde3141382cd66bb4c199ac6ec92bb1b",
+    "acme_normal.wsp5 P1 (replaced)": {
+     "id": "sha256:1336c6307fc9023f2434994f49e56cada9ff844000b3ebda29e23bc6bb9a77f4",
+     "input": "shared"
+    },
+    "acme_normal.constant_baseline": {
+     "id": "sha256:c2ca9d6961c8d69b2d9df77b5034fc6b7bc24c34935928f9d1623978fa84ce11",
+     "input": "shared"
+    },
+    "acme_normal.piecewise_baseline": {
+     "id": "sha256:948952618a0e18e096d291aec98d184affe02c6681c0f6e879538c5415a8c222",
+     "input": "shared"
+    },
+    "acme_normal.linear_baseline": {
+     "id": "sha256:cb255ed369e2c26776b013c30bb51ff1840457b773fcfad36cb7f500d429346b",
+     "input": "shared"
+    },
+    "acme_normal.hazard": {
+     "id": "sha256:49a9a3e3051a37eb779451130ac26f166766a93d6ad8253735fbcb9712c04f13",
+     "input": "shared"
+    }
+   },
+   "note": "P1 with the old planned stop is not scored: runs/dev/data_ext holds that input for train and validation runs only (tools/wsp/ext/acme_script.py touches no test run)"
+  },
+  "acme_inverse": {
+   "release": "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7",
+   "label": "acme_inverse.wsp12 F2 (adopted, PROTOCOL 12.10)",
+   "input": [
+    "shared",
+    "data_ext2"
+   ],
+   "baselines": {
+    "baseline set (reference baselines of the spec)": "sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634",
+    "acme_inverse.wsp5 P1 (replaced)": {
+     "id": "sha256:aa05ddcbe976dbb1a5537987d05270b28066551c39ab24db671be65692dcea0e",
+     "input": "shared"
+    },
+    "acme_inverse.constant_baseline": {
+     "id": "sha256:c2b9870860fe7b82ea3455a14da959d36c7ce2e07a70dffd87b55cfbaa990ace",
+     "input": "shared"
+    },
+    "acme_inverse.piecewise_baseline": {
+     "id": "sha256:a60a58f764abf9e4ddd8aa3dfdda6476748611b6d44139364ab8322a9b519617",
+     "input": "shared"
+    },
+    "acme_inverse.linear_baseline": {
+     "id": "sha256:cb16419ceeff23e5430fdae5a29ed8f7aadf16f55a17706cce2ef38b0730efe4",
+     "input": "shared"
+    },
+    "acme_inverse.hazard": {
+     "id": "sha256:b70287b9544139b83f760cfcc8e9b9a04361acd69edd0af690891fd07acc876c",
+     "input": "shared"
+    }
+   },
+   "note": "as acme_normal: no old-stop path for test runs"
+  },
+  "flame_design_normal": {
+   "release": "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52",
+   "label": "acme_normal.wsp12 F2, ethylene as itself, new planned stop",
+   "input": "shared",
+   "baselines": {
+    "F1": "sha256:4d0acb8e517871879fa0dea5230c7b75c93232466f8b101a791e752a1deb4b8b",
+    "ethylene as ethane": "sha256:51f4bbc01faf7ccf2c9070b8f62c213aaab442c195113a70919023bc0cc83de9"
+   },
+   "note": "the incidence baseline of 11.1 is computed by the chain; ethylene as ethane is acme_normal.wsp7 P3 with ethane's indicators"
+  },
+  "flame_design_inverse": {
+   "release": "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7",
+   "label": "acme_inverse.wsp12 F2",
+   "input": "shared",
+   "baselines": {
+    "F1": "sha256:e2fb1fccf8c688f4ac357db7ad0abdc283dfed894a6a3f66f23e2b75ca1b2b2f",
+    "ethylene as ethane": "sha256:aa05ddcbe976dbb1a5537987d05270b28066551c39ab24db671be65692dcea0e"
+   },
+   "note": "ethylene as ethane is acme_inverse.wsp5 P1 with ethane's indicators"
+  },
+  "cfi_dodecane": {
+   "release": "sha256:eb0d96b523b01bda00bda29c6d458b8ac0a6070c0cf278ba501ead6623b0dd1c",
+   "label": "flex_dodecane.wsp7 W0 (zero-shot)",
+   "input": "shared",
+   "baselines": {
+    "root": "sha256:fb5395d1bf3a3a5be2562ca472fa088766c3363a3e0979c7f9fd1ff77c24fd67"
+   },
+   "note": "persistence and the classical D-squared law are computed by the chain"
+  },
+  "fabric": {
+   "release": "sha256:00a8bc356d8e4e02a58b87d4786feeafd25b55b90a74b45e29c797054b9c5e72",
+   "label": "bass_front.wsp5 Q0",
+   "input": "shared",
+   "baselines": {
+    "D1": "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
+    "carry of D1": "sha256:4da9967f32a8935890dbe07c700f7b89cfd589e177800fc2116ffcf5069b8ed4"
+   },
+   "note": "BASS-II test partition only: the measurer tracks rated ok, converted to the scorer format by tools/wsp/media/fabric/to_scorer_format.py (2 tracks; 1 left out for quality, 1 for a missing field). PSI-26 holds no fabric burn and is not scored.",
+   "tracks": "runs/dev/media/fabric/tracks_scorer/psi25/test"
+  },
+  "flex2": {
+   "release": "sha256:298c957aceca31e8ee364b9c5f9e4d3d071bf84e94713f35dcf496532d2980e2",
+   "label": "arm F of PROTOCOL 12.7 on the FLEX-2 test days (n-octane 6, n-decane 5)",
+   "input": "shared",
+   "baselines": {
+    "n-decane root": "sha256:1d93eb6633cda7ee719f1532910b6d26ad37738c7fabaa75648f7a7f8b903fad",
+    "n-octane candidate": "sha256:85d2af643e16a9a5cb781729ccd6757ab5ad04e64e169e9911fd0a945785420d",
+    "n-octane root": "sha256:efa136a82076c70f6105792675bd5667cf3a18df7883c5fb4f370abc9d1500e5"
+   },
+   "fuels": {
+    "decane": {
+     "candidate": "sha256:298c957aceca31e8ee364b9c5f9e4d3d071bf84e94713f35dcf496532d2980e2",
+     "root": "sha256:1d93eb6633cda7ee719f1532910b6d26ad37738c7fabaa75648f7a7f8b903fad"
+    },
+    "octane": {
+     "candidate": "sha256:85d2af643e16a9a5cb781729ccd6757ab5ad04e64e169e9911fd0a945785420d",
+     "root": "sha256:efa136a82076c70f6105792675bd5667cf3a18df7883c5fb4f370abc9d1500e5"
+    }
+   },
+   "test_series": "runs/dev/media/droplet/flex2_series_test",
+   "note": "arm F on the FLEX-2 test days; scored only if runs/dev/media/droplet/SCALE_PINNED.txt exists and says the scale is pinned, on the rescaled held series it names; otherwise the step is not run and the series stay unread. Persistence and the classical d-squared law are computed by the chain."
+  }
+ }
+}

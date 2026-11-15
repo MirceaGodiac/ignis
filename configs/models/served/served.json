@@ -1,6 +1,6 @@
 {
   "schema": "ignis.served-models/1",
- "note": "The hand-written (literal WSP) releases this deployment serves: one entry per release, its bytes in models/<hex>/ beside this file. Adding a release is a new entry plus its registry directory (and a rebuild only when it needs a forward this build does not have). Every score is a development number as the authoring lane reported it, with its source; no test-partition score is listed. Text from docs/wsp/README.md, docs/wsp/RESULTS_GEN6.md and the model cards (feat/handwritten-science).",
+ "note": "The hand-written (literal WSP) releases this deployment serves: one entry per release, its bytes in models/<hex>/ beside this file. Adding a release is a new entry plus its registry directory (and a rebuild only when it needs a forward this build does not have). Every score is as the authoring lane reported it, with its source. Text from docs/wsp/README.md, docs/wsp/RESULTS_GEN6.md and the model cards (feat/handwritten-science).",
   "releases": [
     {
       "release_id": "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
@@ -8,7 +8,7 @@
       "family": "flex",
       "investigation": "FLEX (PSI-69), methanol droplets",
       "candidate": "D3",
-      "forecasts": "The diameter of a free-floating burning methanol droplet after the cutoff (quantiles), from its conditions and the diameters measured before the cutoff; the droplet may stay in a hot flame, go to a cool flame or lose its flame.",
+      "forecasts": "The diameter of a free-floating burning methanol droplet after the cutoff (quantiles), from its conditions and the diameters measured before the cutoff; the droplet may keep its hot flame or lose its flame.",
       "authorship": "data_informed",
       "authorship_note": "Third generation: typed after reading the methanol train partition and a train-only audit of D2. Not replaced by the fourth or fifth generation.",
       "inputs": [
@@ -370,7 +370,7 @@
           "source": "docs/wsp/README.md"
         },
         {
-          "metric": "s-Flame nitrogen flames, validation days, sum",
+          "metric": "s-Flame nitrogen flames, validation days, sum (the F3 law this release builds on)",
           "value": "0.205",
           "comparison": "incidence 0.279",
           "source": "lane docs/wsp/RESULTS_FINAL_SFLAME.md"
@@ -435,7 +435,7 @@
           "unit_si": "1",
           "required": true,
           "text": true,
-          "note": "fuel: ethane, propane, butane, ethylene or methane",
+          "note": "fuel: ethane, propane, butane or ethylene",
           "example": "propane"
         },
         {
@@ -897,7 +897,7 @@
       "candidate": "D3",
       "forecasts": "Generic law forward (law.rs) over the declared features. lasts (binary): the flame is still burning stated_time seconds after ignition, flow unchanged",
       "authorship": "data_informed",
-      "authorship_note": "Revision D3 of the zero-shot W0, from train days.",
+      "authorship_note": "Revision D3 of the zero-shot W0, from train and validation days.",
       "inputs": [
         {
           "name": "burner_diameter",
@@ -1249,7 +1249,7 @@
       "candidate": "S1",
       "forecasts": "Generic law forward (law.rs) over the declared features. d10 (positive, m): count mean diameter M1/M0 at net_aging_time (lane-local); d30 (positive, m): diameter of average mass at net_aging_time (lane-local); iss_full_scale (binary): ISS detector scatter channel at full scale, |V| >= 6.0 V",
       "authorship": "data_informed",
-      "authorship_note": "Stage 1 revision of the zero-shot W0 from train days.",
+      "authorship_note": "Stage 1 revision of the zero-shot W0 from train and validation days.",
       "inputs": [
         {
           "name": "is_kapton",

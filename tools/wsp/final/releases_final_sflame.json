@@ -1,0 +1,51 @@
+{
+ "schema": "ignis.wsp.final-release-list.sflame/1",
+ "frozen": true,
+ "status": "FROZEN 15 November 2026 by the coordinator, before any test-day outcome was read (PROTOCOL 13.7)",
+ "investigation": "PSI-23 ACME s-Flame",
+ "test_days": [
+  "20142",
+  "20170",
+  "20176"
+ ],
+ "model": {
+  "label": "F3 stage 1",
+  "release": "sha256:a9986fb93275fe264d76ee1b632f59898e51052ba4bfdb89980bf51a0a3b6177",
+  "path": "configs/models/acme/wsp13/normal/f3-s1",
+  "inputs": "f3"
+ },
+ "comparators": [
+  {
+   "label": "F2",
+   "release": "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52",
+   "path": "configs/models/acme/wsp12/normal/f2-fable",
+   "inputs": "f2"
+  },
+  {
+   "label": "F3 stage 2",
+   "release": "sha256:fb576270f2227e43cf29506d972097465540f61aa61e998bf9dd0190691008d7",
+   "path": "configs/models/acme/wsp13/normal/f3-s2",
+   "inputs": "f3"
+  },
+  {
+   "label": "F4 stage 1, methane",
+   "release": "sha256:f0b77b61d9be7054790ba77312e747f41e4066e0367611b85e9a3821b044ee63",
+   "path": "configs/models/acme/wsp13/normal/f4-methane",
+   "inputs": "f3"
+  },
+  {
+   "label": "F4 stage 2, helium",
+   "release": "sha256:7fb9f31fbe14988149553118adb05423537511cdedf0bc3485b0e25f6b07fbef",
+   "path": "configs/models/acme/wsp13/normal/f4-helium",
+   "inputs": "f3"
+  },
+  {
+   "label": "F4 stage 3, hydrogen",
+   "release": "sha256:54caac195d9ed24f8fece9e2ca6752822c7dfa80f0a24157323c972485eabda9",
+   "path": "configs/models/acme/wsp13/normal/f4-hydrogen",
+   "inputs": "f3"
+  }
+ ],
+ "baselines": "the CFI-G train incidence (frozen, nothing from s-Flame) and the s-Flame train incidence, on the cases each release answers",
+ "endpoints": "version 2: the data lane's general rule (docs/wsp/feedback/sflame_endpoints_v2.md), by the lane's builder"
+}

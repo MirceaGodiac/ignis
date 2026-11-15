@@ -1,0 +1,41 @@
+# F-006: Nine outcomes, degrees of freedom, and exposed evidence
+
+- **About:** C-33; interpretation of 10.1 in `10_extension_map.md`; exposures X-01 to X-04 and X-14 to X-19
+- **Reviewer:** Astra, 14 November 2026
+- **Verdict:** weakened
+- **Severity:** record
+- **Partitions touched while reviewing:** train only; read the allowed source/exposure ledgers only. No holdout, validation-series, per-run validation outcome, protected artifact or published per-test result was opened.
+
+## What the dossier says
+
+C-33 generalizes from nine adoption/refusal outcomes that mechanisms expressed in session-invariant quantities transferred while sharpenings and train-read boundaries did not. Section 10.1 says the relevant question is where numbers get their justification, and asserts that 300 nature-property entries plus 20 law constants have the run-specific overfitting risk of the 20.
+
+## What I did
+
+Read the source classification table and source-history summary in `01_sources.md`; the allowed exposure ledger rows X-01–X-04 and X-14–X-19 in `07_limits_and_disclosures.md`; C-33 in `05_claims.md`; 10.1–10.2 and the related committee row of `10_extension_map.md`; and the review protocol/template. I did not open the original experiment or cohort dossiers described by those exposure entries, source data tables of per-test outcomes, or any protected data path.
+
+Primary literature read: Dwork et al. (2015), *Generalization in Adaptive Data Analysis and Holdout Reuse*: abstract and introduction through the discussion of adaptive reuse and description length (NeurIPS paper, pp. 1–2); Gelman et al. (2020), *Bayesian Workflow*: section 2.4 on prior predictive checks (pp. 9–10); Colson and Cooke (2018), *Expert Elicitation: Using the Classical Model to Validate Experts’ Judgments*: abstract and accessible article excerpts on calibration questions and proper scoring; Gneiting and Raftery (2007): definition of proper scoring and its distinction from parameter estimation. The prior-predictive check source assumes a probabilistic model and simulated predictions; here it supports a conceptual check of typed laws against physical bounds, not simulation-derived weights.
+
+Sources: [Dwork et al. (2015), NeurIPS paper](https://proceedings.neurips.cc/paper/2015/file/bad5f33780c42f2588878a9d07405083-Paper.pdf); [Gelman et al. (2020), Bayesian Workflow](https://arxiv.org/abs/2011.01808); [Colson & Cooke (2018), DOI](https://doi.org/10.1093/reep/rex022); [Gneiting & Raftery (2007), DOI](https://doi.org/10.1198/016214506000001437).
+
+## Evidence
+
+**C-33 is an explanatory heuristic, not a demonstrated generalization law.** The response says nine outcomes were reviewed and then the same author formulated the mechanism-versus-sharpening rule. Candidate categories, outcome definitions, exclusions, and the nine-row case table are not frozen independently of outcome in the claim. The proposed “classify blind to outcome” check would reduce hindsight only if categories and decision rules were specified first and all candidates (including refused, bundled, and contaminated ones) were enumerated before labels were unmasked. Nine selected decisions cannot establish a law, and repeated reuse of the same validation partitions makes the outcomes development evidence. Dwork et al. show the general issue: adaptively chosen analyses can overfit reused holdouts; formal guarantees require a mechanism that limits information leakage or another explicit complexity/control argument. No such mechanism is described here.
+
+**Scalar count is not statistical degrees of freedom.** A typed scalar copied literally from an independent handbook may not be a free parameter estimated against campaign outcomes. But that does not make it risk-free or automatically generalizing. The choice of source, table row, fuel/species, interpolation rule, subset, and whether a value is included can themselves carry judgement or data dependence. A constant obtained by “algebra on two train points” remains data-informed even though arithmetic, rather than an optimizer, produced it. Similarly, model structure, state/class choices, parameter ranges, committee membership, variant count, and selection after seeing scores all contribute to effective adaptivity. A description-length argument could bound generalization only after specifying an encoding for the *whole adaptive procedure* and assumptions on sampling; a count of hand-entered numbers does neither.
+
+The N/A/L/S/U split is useful provenance bookkeeping, but its “Can it grow freely?” column overstates what follows. Nature and apparatus tables may grow without adding campaign-fitted coefficients only when selected and transcribed independently, with source scope, units, applicability, uncertainty, and transformations recorded. Apparatus readings measured on train are train-informed. “L slowly” or “S slowly” is advice, not a mathematical bound. A large solver with many exact typed constants can be auditable and scientifically expressive, but its prediction quality and uncertainty still need external physical validation and a well-defined forward law.
+
+**Exposure implications from the allowed ledger.** X-01 records that the earlier BASS dossier read the modelled SIBAL cohort's per-test tables and quoted its boundary; the ledger says the D1 quench-law shift could have been influenced and its release metadata omitted that dossier. Treat that boundary law as exposed, not as an independent transfer demonstration. X-02 records whole-campaign FLEX aggregates and literature trends available before later law choices; absence of a direct citation on an edit does not prove the context had no effect. X-03 records whole-campaign PSI-159 aggregates, including stop clustering known before related weights. X-04 records a full read of mixed CFI-G literature including one withheld campaign count, with no typed value linked to it that the ledger author knows of; uncertainty remains because pretraining/session history is unavailable. For X-14–X-17, the ledger reports candidate-level exposures or result fragments but says no affected values were yet typed; treat them as warning/provenance facts, not evidence that they changed an extant release. X-18 is a substantive leakage channel: validation conditions of consecutive tests can encode the previous test's outcome through shared chamber atmosphere, so “inputs only” is not automatically outcome-independent. X-19 records small accidental reads and says they were not used; independently unprovable from the saved dossier.
+
+Exposure is not proof that a particular number was contaminated, but neither is it repaired by a later clean-looking score, a new name, or an author’s inability to recall influence. The appropriate claim is bounded provenance: declare exposure, identify affected families/mechanisms, and avoid describing the comparison as blind or independent where the evidence may have informed choices.
+
+## What should change
+
+Downgrade C-33 to a provisional pattern noticed in nine outcome-informed decisions; do not use it to predict future transfer or as a rule that “nature numbers are free.” Replace the 10.1 consequence with: “Independent external constants can replace campaign-estimated coefficients and may reduce direct outcome dependence, but they do not erase structural/model-selection freedom or guarantee generalization. Count total typed entries and separately record the number and provenance of campaign-informed choices; neither count is a formal degrees-of-freedom or complexity bound.” Rename “Can it grow freely?” to a provenance/risk description. Mark D1 BASS quench law as exposed by X-01 in any discussion of transfer. Keep X-18's sequential-input warning prominent when describing validation-input exposure.
+
+For a later blinded audit, first freeze the full candidate inventory, mechanism-vs-sharpening coding scheme, and an outcome-blind protocol. It may test whether the heuristic describes these cases, but the reused partitions cannot then provide a fresh generalization estimate. Formal uncertainty or coverage claims require a named probabilistic construction with stated assumptions; typed bands and scenario weights alone do not supply one.
+
+## Response
+
+(The author answers here.)

@@ -30,6 +30,24 @@
         "null"
       ]
     },
+    "item_count": {
+      "description": "With a `json_pointer` that resolves to an array: how many items to return (default: as\nmany as fit one inline page). `next_item` says where the next slice starts.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "item_offset": {
+      "description": "With a `json_pointer` that resolves to an array: the first item of the slice to return\n(default 0). The answer is `{items, item_offset, of, next_item}`.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "json_pointer": {
       "description": "RFC 6901 pointer into a JSON artifact (`\"\"` = whole document).",
       "type": [

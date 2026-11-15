@@ -1,0 +1,24 @@
+# Hand transcription, 14 November 2026, of "Table 1. BRE log of flames ignited in Increments 58-59 (round 1) and 63-64 (round 2)".
+# Source: PSI-20_Science Documents_ACME_BRE_Readme.docx, word/media/image1.png (the same picture is the whole of
+# PSI-20_Science Documents_ACME-BRE_Test_Summary.docx). The table exists only as a picture; merged cells are written out per row.
+# The column "Flames ignited" is an outcome and is deliberately NOT transcribed here.
+# Row order is the picture's order, which is also the row order of PSI-20_Experimental table_ACME BRE.csv.
+test_day,year,month,date,burner_size_mm,fuel_bottle,oxygen_conc
+19039,2019,Feb.,8,25,100% C2H4,"21%, 26.5%, 40%"
+19051,2019,Feb.,20,25,100% C2H4,"26.5%, 34%"
+19056,2019,Feb.,25,25,50% C2H4,"21%, 26.5%, 34%, 40%"
+19063,2019,March,4,25,50% C2H4,"26.5%, 40%"
+19066,2019,March,7,25,50% C2H4,34%
+19070,2019,March,11,25,50% C2H4,"26.5%, 34%"
+19087,2019,March,28,25,100% C2H4,"26.5%, 34%"
+19091,2019,April,1,25,100% C2H4,21%
+19094,2019,April,4,25,100% C2H4,"21%, 26.5%, 34%"
+20247,2020,Sept.,3,50,100% C2H4,"25%, 34%, 40%"
+20261,2020,Sept.,17,25,100% C2H4,"26.5%, 34%"
+20279,2020,Oct.,5,25,100% CH4,"25%, 34%, 40%"
+20339,2020,Dec.,4,25,100% CH4,"25%, 40%"
+20346,2020,Dec.,11,25,50% C2H4,"25%, 40%"
+20352,2020,Dec.,17,25,100% C2H4,"34%, 40%"
+20358,2020,Dec.,23,25,100% C2H4,"25%, 34%, 40%"
+21020,2021,Jan.,20,25,100% C2H4,"21%, 26.5%, 34%"
+21028,2021,Jan.,28,50,100% C2H4,"25%, 34%, 40%"

@@ -343,6 +343,10 @@ pub enum ReadRange {
     Pages {
         first: u32,
         last: u32,
+        /// Where reading starts in page `first`, in Unicode scalars from the page start: set by a
+        /// `next` that continues a page too large for one response. Absent means the page start.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        char_start: Option<u32>,
     },
     /// The passage an evidence reference points at, with its neighbourhood as the service defines.
     Passage {
@@ -368,7 +372,7 @@ pub struct ReadRequest {
 
 impl ReadRequest {
     pub fn validate(&self) -> Result<(), ContractError> {
-        if let ReadRange::Pages { first, last } = self.range {
+        if let ReadRange::Pages { first, last, .. } = self.range {
             ensure(1 <= first && first <= last, "ReadRequest", || {
                 "pages are 1-based with first <= last".into()
             })?;

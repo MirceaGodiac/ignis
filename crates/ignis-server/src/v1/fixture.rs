@@ -258,6 +258,7 @@ impl DatasetService for FixtureDatasets {
                     .iter()
                     .filter_map(|k| r.cells.iter().find(|c| c.key() == *k).cloned())
                     .collect(),
+                nearness: None,
             })
             .collect();
         let next = offset + page.len();

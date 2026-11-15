@@ -460,6 +460,85 @@ pub struct ConditionsRow {
     pub investigation_id: String,
     pub run: RunIdentity,
     pub cells: Vec<ConditionCell>,
+    /// With `ConditionsQuery::near`: how far this row's atmosphere is from the target.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub nearness: Option<Nearness>,
+}
+
+/// How far a run's ambient oxygen and pressure are from a target atmosphere. Gaps are what the
+/// run would have to change to reach the target (positive = the target is higher); 0 = inside.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct Nearness {
+    pub inside: bool,
+    /// Oxygen mole fraction (0–1).
+    pub oxygen_gap: Finite,
+    pub pressure_gap_pa: Finite,
+    /// Rank: oxygen gap and pressure gap as a fraction of one atmosphere, combined.
+    pub distance: Finite,
+}
+
+/// A crew atmosphere named by the Flame in Freefall challenge.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CrewAtmosphere {
+    /// Moon base and rovers: oxygen ≥ 30 % at 4.3–10.2 psi (29.6–70.3 kPa).
+    MoonBase,
+    /// Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa).
+    Spacesuit,
+    /// ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa).
+    IssEarth,
+}
+
+impl CrewAtmosphere {
+    /// (oxygen min, oxygen max, pressure min Pa, pressure max Pa)
+    pub fn bounds(self) -> (f64, f64, f64, f64) {
+        const PSI: f64 = 6_894.757_293;
+        match self {
+            Self::MoonBase => (0.30, 1.0, 4.3 * PSI, 10.2 * PSI),
+            Self::Spacesuit => (1.0, 1.0, 4.3 * PSI, 4.3 * PSI),
+            Self::IssEarth => (0.21, 0.21, 14.7 * PSI, 14.7 * PSI),
+        }
+    }
+}
+
+/// `ConditionsQuery::near`: a named crew atmosphere, or explicit oxygen and pressure bounds
+/// (a point when min = max).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct AtmosphereTarget {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub atmosphere: Option<CrewAtmosphere>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oxygen_min: Option<Finite>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oxygen_max: Option<Finite>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pressure_min_pa: Option<Finite>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pressure_max_pa: Option<Finite>,
+}
+
+impl AtmosphereTarget {
+    /// (oxygen min, oxygen max, pressure min Pa, pressure max Pa); explicit bounds override the
+    /// named atmosphere's, and a missing max equals its min.
+    pub fn bounds(&self) -> Result<(f64, f64, f64, f64), String> {
+        let named = self.atmosphere.map(CrewAtmosphere::bounds);
+        let pick = |x: Option<Finite>, n: Option<f64>| x.map(Finite::get).or(n);
+        let o_lo = pick(self.oxygen_min, named.map(|b| b.0));
+        let o_hi = pick(self.oxygen_max, named.map(|b| b.1)).or(o_lo);
+        let p_lo = pick(self.pressure_min_pa, named.map(|b| b.2));
+        let p_hi = pick(self.pressure_max_pa, named.map(|b| b.3)).or(p_lo);
+        match (o_lo.or(o_hi), o_hi, p_lo.or(p_hi), p_hi) {
+            (Some(a), Some(b), Some(c), Some(d)) if a <= b && c <= d && (0.0..=1.0).contains(&a) && b <= 1.0 && c >= 0.0 => {
+                Ok((a, b, c, d))
+            }
+            (Some(_), Some(_), Some(_), Some(_)) => {
+                Err("near: oxygen bounds within 0–1, pressure ≥ 0, each min ≤ max".into())
+            }
+            _ => Err("near: name an atmosphere (moon_base, spacesuit, iss_earth) or give oxygen and pressure bounds".into()),
+        }
+    }
 }
 
 /// What an investigation tested for one key, over its runs.
@@ -589,6 +668,10 @@ pub struct ConditionsQuery {
     pub include_unknown: bool,
     #[serde(default)]
     pub include_envelopes: bool,
+    /// Rank the matching rows by how near their ambient oxygen and pressure are to this target,
+    /// nearest first (each row then carries `nearness`). Rows without both values are left out.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub near: Option<AtmosphereTarget>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub page_size: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -602,6 +685,9 @@ impl ConditionsQuery {
         ensure(self.page_size != Some(0), c, || {
             "page_size must be positive".into()
         })?;
+        if let Some(n) = &self.near {
+            n.bounds().map_err(|e| ContractError::new(c, e))?;
+        }
         for f in &self.filters {
             let k = f.key;
             let bounds = f.min_si.is_some() || f.max_si.is_some();

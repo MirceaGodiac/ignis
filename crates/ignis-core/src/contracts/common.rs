@@ -566,6 +566,14 @@ pub struct ArtifactReadRequest {
     /// RFC 6901 pointer into a JSON artifact (`""` = whole document).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub json_pointer: Option<String>,
+    /// With a `json_pointer` that resolves to an array: the first item of the slice to return
+    /// (default 0). The answer is `{items, item_offset, of, next_item}`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub item_offset: Option<u64>,
+    /// With a `json_pointer` that resolves to an array: how many items to return (default: as
+    /// many as fit one inline page). `next_item` says where the next slice starts.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub item_count: Option<u64>,
 }
 
 // ---------------------------------------------------------------- errors

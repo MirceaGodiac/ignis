@@ -1,0 +1,37 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-26",
+ "acronym": "BASS",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "the date in the name of the burn video",
+ "frozen_on": "2026-11-15",
+ "source": "names of the PSI-26 videos in runs/dev/media/fabric/manifest_raw.jsonl (no video, track or outcome opened)",
+ "groups": {
+  "train": [
+   "2013-04-05",
+   "2013-04-10",
+   "2013-04-17",
+   "2013-04-24",
+   "2013-04-30",
+   "2013-05-03",
+   "2013-05-18"
+  ],
+  "validation": [
+   "2013-04-27",
+   "2013-05-16"
+  ],
+  "test": [
+   "2013-04-06",
+   "2013-04-13",
+   "2013-05-31"
+  ]
+ },
+ "videos": {
+  "train": 59,
+  "validation": 23,
+  "test": 29
+ },
+ "undated_videos": [],
+ "note": "A burn whose video has no date in its name stays held. Tracks of test days are scored only in the final run."
+}

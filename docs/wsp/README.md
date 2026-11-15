@@ -1,169 +1,136 @@
-# Literal weight-space programming in IGNIS
+# Hand-written scientific models (literal weight-space programming)
 
-Scientific models whose every parameter is a number an author model typed, assembled without any
-estimation and run by a forward that cannot fit anything. Branch `feat/handwritten-science`.
+**Start with [WSP_GUIDE.md](WSP_GUIDE.md).** It is the technical guide: what WSP is and what it has
+achieved; the forecasting tasks; the anatomy of a model (spec, edits, forwards, committees);
+assembly and content-addressed release ids; model cards; the serving path; the strictness rules;
+evaluation; how to author a new model; and how to rebuild releases and scores.
+
+## In this folder
 
 | Read | For |
 |---|---|
-| [EXPERIMENTAL_SCIENCE.md](EXPERIMENTAL_SCIENCE.md) | The three NASA experiments, what their train data show, the design decisions that follow, what each generation added and what validation said of it |
+| [WSP_GUIDE.md](WSP_GUIDE.md) | **The technical guide**, from what WSP is to the exact rebuild commands |
+| [generations 1 to 5](EXPERIMENTS_GEN1-5.md) and [generation 6 onward](EXPERIMENTS_GEN6-ON.md) | The NASA investigations: apparatus, data, and what each model forecasts |
+| [PROTOCOL.md](PROTOCOL.md) | Spec, edit language, assembler, release record, zero-shot and data-informed candidates, selection rules, commands, generations one to six (the full text through the seventh generation is docs/wsp/PROTOCOL.md) |
 | [RESULTS.md](RESULTS.md) | Development scores of every candidate against the baselines, generations one to four |
-| [RESULTS_GEN5.md](RESULTS_GEN5.md) | The one validation look of the fifth generation: outcome by the rules written beforehand, and the tables |
-| [RESULTS_GEN6.md](RESULTS_GEN6.md) | The sixth generation (15 November): the look on CFI-G validation and Flame Design that adopted `acme_normal.wsp7` P3 |
+| [RESULTS_GEN5.md](RESULTS_GEN5.md) | The registered validation look of the fifth generation |
+| [RESULTS_GEN6.md](RESULTS_GEN6.md) | The sixth generation: the look on CFI-G validation and Flame Design that adopted `acme_normal.wsp7` P3 |
 | [cards/](cards/) | One model card per model: computation, what each number says and where it comes from, provenance, limits |
-| [PROTOCOL.md](PROTOCOL.md) | Spec, edit language, assembler, release record, zero-shot and data-informed candidates, selection rules, commands |
-| [feedback/](feedback/) | The development feedback each revision was written from: train audits and train anatomies |
-| [research/](research/) | Sourced dossiers: weight-space programming, the FLEX, ACME and BASS experiments, three reviews of the published combustion science, and the physics dossiers of the fifth generation |
-| [dossier/](dossier/README.md) | **For a second author or reviewer (Astra):** what was read and how each document and data file was classified, every measurement with how far it was checked, the decision log, the claims with the cheapest way to break each, every known exposure, the work in progress, and how to file a finding or write a candidate of your own |
+| [research/](research/) | [law_forward.md](research/law_forward.md) (the generic law forward of the seventh generation) and [phys_quench_w0.md](research/phys_quench_w0.md) (the fabric ignition and quench law) |
+| [atlas/](atlas/) | [SERVER_STORAGE.md](atlas/SERVER_STORAGE.md): what the server would store from NASA's archive for the 19 investigations |
 
-## Six generations
+## What is served
 
-**Phase 1** wrote one model per family from theory alone (W0), then revised it against development
-feedback (W1, W2). **Phase 2** studied the experiments and the train data first and rebuilt the
-models around what the experiments do: a droplet is in a hot flame, a cool flame or no flame; a
-burner flame ends on physical clocks. **The third generation** (14 November) audited those models
-against their train partitions, rechecked the findings, and revised the laws and the way a prefix
-is read. **The fourth generation** (14 November) read the published science of each experiment,
-wrote the burner flames as the physics of a growing spherical flame with a heating law for the
-burner, measured the BASS burns from the public videos and wrote the first BASS model that met real
-data, and added the model service. Its droplet candidates were refused by validation. **The fifth
-generation** (14 November) rebuilt the laws from the physical mechanism of each experiment: five
-physics dossiers evaluated against train at literature constants, four independent re-derivations,
-a look-up of every quoted property value, two new forwards and a committee of member laws for the
-burner flames, which can also read the planned stop of a test from NASA's script file. One
-validation look per family, on candidates and rules committed beforehand: the two burner-flame
-candidates replaced the carried models; the three droplet candidates and the fabric candidate did
-not ([RESULTS_GEN5.md](RESULTS_GEN5.md)).
+The served list is [`configs/models/served/served.json`](../../configs/models/served/served.json), and
+the release bytes are in `configs/models/served/models/<hex>/`. Every score below is quoted with its
+source in the release's card.
 
-**The sixth generation** (the night of 15 November) changed how a model is tested and revised, and
-took the models to data they had never met ([PROTOCOL.md](PROTOCOL.md) section 12,
-[RESULTS_GEN6.md](RESULTS_GEN6.md), the ledger [dossier/11_overnight_20261115.md](dossier/11_overnight_20261115.md)).
-New data is scored blind first, once, and only then studied; a model is revised in one step per batch
-from the errors of its train groups (the loss is decomposed, a script reports which numbers can move
-which errors, the author types a damped step with a physical reason), and the validation groups judge
-that step once. What it produced: the normal burner flames were rebuilt on two new forwards and
-adopted on CFI-G validation and Flame Design together; the burner-flame laws now read the fuel from a
-typed table and answer for ethylene and methane (zero-shot, then one revision after a blind run on
-Flame Design); the planned stop of a test is computed from NASA's script file alone and lands within
-a second of the recorded stop; six zero-shot droplet candidates for the fuels of CFI and FLEX-2 on a
-new droplet forward; a zero-shot law for whether a fabric sample ignites and stays lit, tested and
-not adopted. The text, tables and documents of all 19 investigations (41,004 files, 22 GB) are on
-disk with hashes, and three measurers turn NASA's frames and video into series.
-
-Every candidate, release and feedback file of every generation is preserved and its release id is
-unchanged: a forward is frozen with its releases, and a better forward is a new file.
-
-| Family | Carried model | Candidate | How written | Validation (development) |
+| Investigation | Release | Candidate | Authorship | Headline score |
 |---|---|---|---|---|
-| FLEX n-heptane | `flex_heptane.wsp2` | D2 `sha256:edbad4d6…edef` | data-informed (train); third generation | **46.1 µm**; zero-shot W0 60.3; D²-law 105. Not replaced by the fourth generation (57.6) nor by the fifth (47.2 and 48.4) |
-| ACME normal | `acme_normal.wsp12` | F2 `sha256:2ae770d8…bc52` | data-informed (CFI-G train; train days of Flame Design); sixth generation (15 November): `acme_normal.wsp7` P3 (burner limit by the date of the test, three statements corrected, the hinge member answering through the burner-heating law) reading the fuel from a typed table, so that it answers for ethylene and methane; the ethylene row revised once after a blind run; the planned stop computed from the script file | on ethane, propane and butane without the planned stop it is P3: extinction Brier **0.154**, flow termination 0.096 on CFI-G validation (`acme_normal.wsp5` P1: 0.155 / 0.097). With the planned stop 0.147 / 0.080 (P3 on the old planned stop: 0.144 / 0.075). On the Flame Design validation days, ethylene as itself: 0.032 / 0.393 without the planned stop and 0.007 / 0.072 with it ([RESULTS_GEN6.md](RESULTS_GEN6.md)) |
-| ACME inverse | `acme_inverse.wsp12` | F2 `sha256:7404f3ad…a7f7` | data-informed (train; published theory); `acme_inverse.wsp5` P1 (the carried law with weight 2 and a scenario that holds a marginal flame, weight 1) reading the fuel from a typed table, zero-shot for ethylene and confirmed by a blind run; the planned stop computed from the script file | on ethane, propane and butane it is P1: **0.129** / 0.088 on the shared records; 0.135 / 0.048 with the planned stop. On Flame Design, ethylene as itself against ethylene borrowed as ethane: extinction 0.108 against 0.147 over 7 sessions, interval excludes zero; on its validation days with the planned stop 0.092 / 0.002 |
-| BASS | `bass_front.wsp` | D1 `sha256:ac15e49f…855c` | data-informed (four train burns, published theory); the validation burns were measured blind | CRPS of the flame tip **0.117 sample widths**; persistence 0.234; paired difference +0.117 [+0.051, +0.182] over 12 burns. Its quench boundary fails (0.170 against 0.125 for a constant). The fifth-generation candidate (narrow sample corrected: 0.114, track-ended score worse) was not adopted |
+| FLEX methanol (PSI-69) | `flex_methanol.wsp2` `sha256:c8a90dab…b654` | D3 | data-informed | sealed test CRPS **18.5 µm** against 31.6 for the d-squared law and 42.7 for the best fitted model |
+| FLEX n-heptane (PSI-69) | `flex_heptane.wsp2` `sha256:edbad4d6…edef` | D2 | data-informed | sealed test CRPS **32.2 µm** against 54.0; on FLEX-2, unchanged, 20.9 against 32.6 |
+| Normal burner flames: CFI-G, Flame Design, s-Flame (PSI-159, 10, 23) | `acme_normal.wsp13` `sha256:54caac19…bda9` | F4 (`f4-hydrogen`) | data-informed; the helium and hydrogen rows were typed after the final run | F2, its ancestor, on the sealed CFI-G test: extinction **0.0414** against 0.0933 for the fitted linear baseline; Flame Design test days 0.2133 against 0.4244 for incidence |
+| Inverse burner flames: CFI-G, Flame Design | `acme_inverse.wsp12` `sha256:7404f3ad…a7f7` | F2 | data-informed; the ethylene row zero-shot | sealed CFI-G test, extinction **0.1045** against 0.1645 for the fitted hazard model |
+| BASS-II fabric (PSI-25), carried to Saffire | `bass_front.wsp` `sha256:ac15e49f…855c` | D1 | data-informed | tip CRPS **0.117** sample widths against 0.234 for persistence on 12 burns measured blind; 0.121 against 0.449 for Ferkul's published fit |
+| BRE (PSI-20) | `bre.wsp` `sha256:27e2af51…b955` | D3 | data-informed | test days: extinction **0.139** against 0.222 |
+| CLD Flame (PSI-21) | `cld.wsp` `sha256:a03ec603…2d4f` | D1 | data-informed | test days: flame lost **0.073** against 0.102 |
+| E-FIELD (PSI-22) | `efield3.wsp` `sha256:8575550b…6f04` | S1 | data-informed | test days: ion current **0.319 µA** against 0.575 |
+| SLICE (PSI-106) | `slice2.wsp` `sha256:d586d0d3…0b61` | S1 | data-informed | test days held no blow-off or lifting event |
+| SPICE (PSI-107) | `spice.wsp` `sha256:000b88b8…98a0` | P3 | data-informed | test days: smoke-point length **4.18 mm** against 10.33 |
+| SAME-R (PSI-101) | `samer.wsp` `sha256:e33ee766…1b5f` | S1 | data-informed | test days: particle diameter **0.167** against 0.256 |
+| SAME (PSI-102) | `same.wsp` `sha256:e1362b55…2062` | W0 | **zero-shot** | whole investigation held: **0.184** against 0.192 for the best baseline |
+| DAFT (PSI-47) | `daft.wsp` `sha256:061f93de…5e5d` | W0 | **zero-shot** | whole investigation held: **0.777** against 2.678 |
+| Plastics and fabrics: BASS, BASS-II (PSI-26, 25) | `bass5.wsp` `sha256:050a4ceb…b82d` | S1 | data-informed; typed after the final run | kept burning, test days: **0.048** against 0.071 |
 
-The planned stop of a burner test is read from NASA's script parameter file into a private copy of
-the data root; it is not in the shared records or contracts, and whether a forecast may know it is
-for the data and evaluation lanes to decide. Without it the two burner-flame releases answer as in
-the "shared records" numbers.
-
-Cards: [droplets, third generation](cards/flex_droplet3.md) (carried),
-[droplets, fourth generation](cards/flex_droplet4.md) (not adopted),
-[burner-flame clocks](cards/acme_clock.md), [growth clock](cards/acme_growth.md),
-[two laws together](cards/acme_blend.md), [committee of laws and the planned stop](cards/acme_committee.md)
-(carried), [droplets, fifth generation](cards/flex_droplet6.md) (not adopted),
-[BASS flame front](cards/bass_front.md).
-
-Full ids: the cards and `configs/models/**/release.json`. Releases live in the local, git-ignored
-registry (`artifacts/models/`); `python tools/wsp/reassemble.py` rebuilds all of them from the
-committed edits with identical ids.
-
-**Which numbers are zero-shot.** Only W0 candidates and the reference baselines. Every candidate
-named D1 to D5, P0 or P1, and every phase-1 W1 and W2, was typed after its author read development data.
-Analysis of the train partition and the measurement of the BASS videos were delegated to other
+**Which numbers are zero-shot.** Only W0 candidates (and Q0, a zero-shot law on a data-informed
+forward) and the reference baselines. A candidate named D, P, F or S, and every phase-1 W1 and W2, was
+typed after its author read development data. Analysis and video measurement were delegated to other
 model instances; no script and no delegate wrote a weight. Each candidate was committed before its
 validation score existed, and that score decided only whether it replaced the model before it. The
-validation partitions have by now been read as aggregate tables several times, so their numbers are
-development numbers. The test partition has not been read by anything on this branch.
+test partitions were sealed until one final run on frozen release lists.
 
-**What five generations taught.** A mechanism written in quantities that mean the same thing in
-another session carried to unseen data (the three droplet states, the reduced flow, the burner
-heating law, the band-shaped flame). Anything made sharper or narrower because the train runs looked
-that way did not, and neither did a boundary typed as a line from one burn on each side of it.
-The fifth generation added three things. Knowing the plan of a test is worth more than refining the
-law of the flame: the script's planned stop halved the flow-termination error of inverse flames. A
-second scenario carried beside the first with a stated probability transferred (inverse flames,
-extinction 0.161 to 0.129). And laws rebuilt from mechanism with constants from property tables
-matched the laws typed from train on train and did not beat them on validation: with nine validation
-days the difference between the two is inside the noise, so what such a rebuild buys today is fewer
-numbers read from train, not a better score.
+## Seven generations, in one paragraph each
 
-**What the sixth generation added.** A zero-shot statement that was physics carried to a new fuel
-(lean inverse ethylene flames last about twice the clock: 1.7 observed); one that was an analogy did
-not (ethylene is "half-way to butane because both soot": wrong in direction in eight of eight
-sessions), and a blind run found it at once. The revision that repaired it was a change of the
-variable a law reads (ethylene burns as ethane does at about 0.58 of its mass flow), not a new
-constant on the old variable. Knowing the plan of a test again beat refining the law: the planned
-stop from the script file moved the flow-termination score of inverse flames on unseen days from
-0.024 to 0.002. And a measurement is a model too: the first scoring of FLEX-2 was void because a
-pixel scale had been assumed, and the fabric burns that were expected in a second investigation were
-not there. Both were found by the checks and are recorded as they happened.
+- **Phase 1** wrote one model per family from theory alone (W0), then revised it against development
+  feedback (W1, W2). The zero-shot FLEX W0 beat both fitted d-squared baselines on validation.
+- **Phase 2** rebuilt the models around what the experiments do: a droplet is in a hot flame, a cool
+  flame or no flame, and a burner flame ends on physical clocks.
+- **The third generation** audited those models against their train partitions and revised the laws.
+  It produced the carried droplet models.
+- **The fourth generation** wrote the burner flames as the physics of a growing spherical flame with a
+  burner-heating law, measured the BASS burns from the public videos, wrote the first BASS model that
+  met real data, and added the model service.
+- **The fifth generation** rebuilt the laws from the physical mechanism of each experiment and added a
+  committee of member laws that reads the planned stop of a test from NASA's script file.
+- **The sixth generation** (the night of 15 November) introduced blind-first scoring and
+  typed back-propagation. It adopted new normal-flame models, a typed fuel table that answers for
+  ethylene and methane, and zero-shot candidates for six new droplet fuels.
+- **The seventh generation** (15 November, day) gave every remaining investigation a hand-written law
+  on one generic strict forward (`law.rs`), scored each once blind, revised from the train days, and
+  ran the final test.
+
+Every candidate, release and feedback file is preserved, and its release id is unchanged: a forward is
+frozen with its releases, and a better forward is a new file.
+
+**What carried to unseen data.** Mechanisms written in quantities that mean the same thing in another
+session: the three droplet states, the reduced flow, the burner-heating law, the band-shaped flame.
+Knowing the plan of a test: the planned stop from the script file moved the flow-termination score of
+inverse flames on unseen days from 0.024 to 0.002. A second scenario carried beside the first with a
+stated probability: inverse-flame extinction went from 0.161 to 0.129. Physics carried to a new fuel:
+lean inverse ethylene flames last about twice the clock (1.7 observed).
 
 ## Layout
 
 ```text
-crates/ignis-wsp/            edit language, assembler, strict forwards, model service; depends on ignis-core only
-  flex.rs acme.rs bass.rs      first-generation forwards (identity unchanged)
-  droplet3.rs                  the same physics, third generation (flex_*.wsp2): the carried droplet models
-  droplet4.rs                  tracker flags, helium law (flex_*.wsp3): not adopted
-  flame.rs                     hinge-law clocks of the burner flames (acme_*.wsp2)
-  flame3.rs                    growth clock and burner-heating law (acme_*.wsp3)
-  blend.rs                     two member laws and two weights (acme_*.wsp4)
-  front.rs, front_tools.rs     flame front of a thin fuel in concurrent flow (bass_front.wsp); track reader
-  service.rs                   WspModelService: the ModelService of the literal models
-  models.rs                    literal models by key; a release finds its forward by model_name
-crates/ignis-wsp-dev/        wsp-dev: feedback, tables, bench, heptane-cohort, front-feedback, front-forecast (train/validation only)
-  <candidate>/                 edits.wsp, meta.json, patch.json, release.json
-                             bass_optical/ (measurement method, train tracks)
-docs/wsp/                    this folder
+crates/ignis-wsp/              edit language, assembler, strict forwards, model service; depends on ignis-core only
+  nn.rs quad.rs common.rs spec.rs   shared kernels (part of every forward identity)
+  text.rs assemble.rs rewrite.rs    edit language, assembler, literal rewrite for a new spec
+  audit.rs                          forward identity (forward_hash) and the strict-route check
+  flex.rs acme.rs bass.rs           first-generation forwards
+  droplet*.rs                       droplet forwards (droplet3.rs: the served droplet models)
+  flame*.rs fuel.rs fuel2.rs        burner-flame member laws and fuel tables
+  blend.rs committee*.rs            committees of member releases (committee3.rs, committee4.rs: the served burner flames)
+  front*.rs                         fabric flame-front forwards (front.rs: the served fabric model)
+  law.rs law_slugs.rs law_tools.rs  the generic law forward and its slugs (the seventh-generation laws)
+  models.rs                         literal models by key; a release finds its forward by model_name
+  service.rs                        WspModelService: the ModelService of the literal models
+  cli.rs                            ignis wsp spec | compile | check | assemble | rewrite | inspect | forward | forward-hash | law-root
+crates/ignis-wsp-serve/        ServedModels: serves the releases of configs/models/served/served.json
+configs/models/                <family>/<wspN>/<fuel or flame type>/<candidate>/ and law/<slug>/<candidate>/
+  <candidate>/                   edits.wsp, meta.json, patch.json, release.json
+configs/models/served/         served.json and models/<hex>/ (release.json, params.npz)
+tools/wsp/                     reassemble.py (rebuild every chain), verify_served.py (rebuild the served ids), bass_optical/
+docs/wsp/                      this folder
 ```
-
-Model keys for `ignis wsp … --family <key>`: `flex`, `acme_normal`, `acme_inverse`, `bass`,
-`flex_methanol`, `flex_heptane`, `acme_normal2`, `acme_inverse2`, `flex_methanol2`, `flex_heptane2`,
-`acme_normal3`, `acme_inverse3`, `flex_methanol3`, `flex_heptane3`, `bass_front`, `acme_normal4`,
-`acme_inverse4`.
 
 ## Integration notes
 
-- `ignis-cli` registers `ignis_wsp::experts()` and the `wsp` subcommand.
-- **Model service.** `ignis_wsp::WspModelService` implements `ignis_core::services::ModelService`
-  for every literal release: routing by `model_name`, one verified load per release id, the
-  partition of a stored run checked against the host scope before its prefix is built, scientific
-  refusals returned as artifacts. Construction:
-
-  ```rust
-  let models: Arc<dyn ModelService> = Arc::new(ignis_wsp::WspModelService::new(
-      ignis_core::registry::default_root(),
-      ignis_wsp::ViewSourcePrefixes::new(ignis_data::views::DataStore::new()),
-  ));
-  ```
-
-  A forecast by prefix hash is refused (`capability_unavailable`): the core crate has no store of
-  admitted prefixes by hash, and none was added here.
-- New frozen split (phase 2): `data/splits/flex-c43bbe3580ffce2a.json`, the n-heptane cohort, built
-  with the existing `Cohort` and `Split` types and the shared split rule by `wsp-dev heptane-cohort`.
-- `ignis-flex`: `--set fit.skip_invalid_condition_runs=true` lets the fitted baselines skip a train
-  run with a stored pressure of 0 Pa.
-- BASS front tracks are files of this lane (`wsp-bass-front-track/1`), not shared observations: the
-  train tracks are in `tools/wsp/bass_optical/tracks/train/`, the validation tracks are local files
-  outside git. `bass_front.wsp` also runs on a shared prefix that carries `x_o2`, a `width` in
-  metres and the fan history as control stages; no stored BASS run has them, so on stored runs it
-  refuses.
-- The fourth-generation droplet forward reads one more prospective condition (`initial_diameter`),
-  so its prefix hash differs from the older droplet releases; the carry releases hold the
-  third-generation numbers on it for paired comparisons.
+- `ignis-cli` registers `ignis_wsp::experts()` and the `wsp` subcommand. `ignis serve --enable-models`
+  (or `IGNIS_ENABLE_MODELS`) serves the releases listed in `IGNIS_WSP_SERVED` (default
+  `configs/models/served`) through `ignis_wsp_serve::ServedModels`. It fails closed: a release whose
+  record does not hash to its id, or whose forward identity differs from this build's, leaves the
+  models unavailable, with the reason.
+- **Routes**: `GET /api/v1/model-cards`, `POST /api/v1/models/{id}/scenarios` (a typed scenario,
+  admitted as a synthetic prefix), `POST /api/v1/analyses` (a forecast job), `GET /api/v1/jobs/{id}`,
+  `GET /api/v1/artifacts/{id}`, `GET /api/v1/models[/{id}]`.
+- **Model service.** `ignis_wsp::WspModelService` implements `ignis_core::services::ModelService`. It
+  routes by `model_name`, does one verified load per release id, checks the partition of a stored run
+  against the host scope before its prefix is built, and returns scientific refusals as artifacts.
+- **Contract**: `Quantity::PhaseEndTime` (seconds) is the target of event models.
+  `ModelCard`, `ModelInput`, `ReportedScore`, `ScenarioRequest` and `ScenarioAdmitted` are in
+  [`ignis-core/src/contracts/wsp.rs`](../../crates/ignis-core/src/contracts/wsp.rs).
+- **The planned stop** of a burner test is computed from NASA's script parameter file into a private
+  copy of the data root. It is not in the shared records. Without it, the burner-flame releases answer
+  on the shared records.
+- **BASS front tracks** are files of the authoring lane (`wsp-bass-front-track/1`). The train tracks
+  are in `tools/wsp/bass_optical/tracks/train/`. On stored runs `bass_front.wsp` refuses, because no
+  stored BASS run carries a `width` in metres and the fan history; it answers typed scenarios.
 
 ## Release ids
 
-A release is its weights and its forward, so its id follows the forward's identity. Ids quoted in
-older feedback files and their current values:
+A release is its weights and its forward, so its id follows the forward's identity
+([WSP_GUIDE.md section 8](WSP_GUIDE.md#8-release-assembly-and-content-addressed-ids)). The ids quoted in
+older feedback files, and their current values:
 
 | Candidate | In feedback files | Current |
 |---|---|---|

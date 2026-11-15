@@ -1,0 +1,2132 @@
+[
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld D1",
+  "metric": "loss: integrated Brier",
+  "expected": 0.5138832246181382,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld D1",
+  "metric": "loss: Brier of lost before fuel-off",
+  "expected": 0.17276658063354916,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld D1",
+  "metric": "loss: integrated Brier, mean of day means",
+  "expected": 0.2746959800614147,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld D1",
+  "metric": "radiometer: CRPS of log10 V",
+  "expected": 0.10025958958187835,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld D1",
+  "metric": "radiometer: mean of day means",
+  "expected": 0.10434405214575511,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "loss: integrated Brier",
+  "expected": 0.09345728140428862,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "loss: Brier of lost before fuel-off",
+  "expected": 0.08205267313914617,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "loss: integrated Brier, mean of day means",
+  "expected": 0.11764111336918286,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "radiometer: CRPS of log10 V",
+  "expected": 0.10025958958187835,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "radiometer: mean of day means",
+  "expected": 0.10434405214575511,
+  "common_with": [
+   "cld D1",
+   "cld C1"
+  ],
+  "source": "cld_c1_result.md (runs/dev/gen7/cld_c1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield W0",
+  "metric": "t1: CRPS uA, case mean",
+  "expected": 0.5463200474652506,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield W0",
+  "metric": "t1: mean of day means",
+  "expected": 0.531987377614351,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield W0",
+  "metric": "t2: integrated Brier",
+  "expected": 0.07530488654968162,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield W0",
+  "metric": "t2: Brier of ends in window",
+  "expected": 0.07620343757307164,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t1: CRPS uA, case mean",
+  "expected": 0.2251823698484896,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t1: mean of day means",
+  "expected": 0.22629577763992637,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t2: integrated Brier",
+  "expected": 0.07530488654968162,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t2: Brier of ends in window",
+  "expected": 0.07620343757307164,
+  "common_with": [
+   "efield W0",
+   "efield E1"
+  ],
+  "source": "efield_e1_result.md (runs/dev/gen7/efield_e1-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice W0 (variant B)",
+  "metric": "T1: quantile score x2, mm, mean of day means",
+  "expected": 5.862052611602033,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice W0 (variant B)",
+  "metric": "T1: pooled mean",
+  "expected": 5.943248626616011,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice W0 (variant B)",
+  "metric": "T2: quantile score x2, mm, mean of day means",
+  "expected": 2.532900177944975,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice W0 (variant B)",
+  "metric": "T2: pooled mean",
+  "expected": 2.543140056253393,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T1: quantile score x2, mm, mean of day means",
+  "expected": 1.8245105677192113,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T1: pooled mean",
+  "expected": 1.758995932144994,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T2: quantile score x2, mm, mean of day means",
+  "expected": 1.413876850606794,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T2: pooled mean",
+  "expected": 1.363018426778274,
+  "common_with": [
+   "spice W0 (variant B)",
+   "spice P2"
+  ],
+  "source": "spice_p2_result.md (runs/dev/gen7/spice_p2-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T1: quantile score x2, mm, mean of day means",
+  "expected": 1.8245105677192113,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T1: pooled mean",
+  "expected": 1.758995932144994,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T2: quantile score x2, mm, mean of day means",
+  "expected": 1.413876850606794,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P2",
+  "metric": "T2: pooled mean",
+  "expected": 1.363018426778274,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P3",
+  "metric": "T1: quantile score x2, mm, mean of day means",
+  "expected": 1.8245105677192113,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P3",
+  "metric": "T1: pooled mean",
+  "expected": 1.758995932144994,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P3",
+  "metric": "T2: quantile score x2, mm, mean of day means",
+  "expected": 0.8304539817904352,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "spice",
+  "coding": "v1",
+  "label": "spice P3",
+  "metric": "T2: pooled mean",
+  "expected": 0.8206328606330011,
+  "common_with": [
+   "spice P2",
+   "spice P3"
+  ],
+  "source": "spice_p3_result.md (runs/dev/gen7/spice_p3-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 s1 (second law)",
+  "metric": "blow_off: Brier, mean of day means",
+  "expected": 0.15476946157035582,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 s1 (second law)",
+  "metric": "blow_off: pooled",
+  "expected": 0.15476946157035582,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 s1 (second law)",
+  "metric": "lifted: Brier, mean of day means",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 s1 (second law)",
+  "metric": "lifted: pooled",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 S2",
+  "metric": "blow_off: Brier, mean of day means",
+  "expected": 0.11592771197020094,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 S2",
+  "metric": "blow_off: pooled",
+  "expected": 0.11592771197020094,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 S2",
+  "metric": "lifted: Brier, mean of day means",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v1",
+  "label": "slice2 S2",
+  "metric": "lifted: pooled",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice2_s2_result.md (runs/dev/gen7/slice2_s2-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer W0",
+  "metric": "d10: CRPS of ln d10, case mean",
+  "expected": 0.16715630602130985,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer W0",
+  "metric": "d10: day-equal",
+  "expected": 0.15122921259331193,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer W0",
+  "metric": "iss: Brier, case mean",
+  "expected": 0.22785549464487015,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer W0",
+  "metric": "iss: day-equal",
+  "expected": 0.16050633443058288,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer S1",
+  "metric": "d10: CRPS of ln d10, case mean",
+  "expected": 0.13269019282471914,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer S1",
+  "metric": "d10: day-equal",
+  "expected": 0.12249634970523761,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer S1",
+  "metric": "iss: Brier, case mean",
+  "expected": 0.07114034891326622,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "samer",
+  "coding": "v1",
+  "label": "samer S1",
+  "metric": "iss: day-equal",
+  "expected": 0.05520662282118374,
+  "common_with": [
+   "samer W0",
+   "samer S1"
+  ],
+  "source": "samer_s1_result.md (runs/dev/gen7/samer_s1-fable_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.01685799852606025,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "quench: case mean",
+  "expected": 0.014623385180338308,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892233993225576,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "sustain: case mean",
+  "expected": 0.05551963592343348,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 Q1",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.01685799852606025,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 Q1",
+  "metric": "quench: case mean",
+  "expected": 0.014623385180338308,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 Q1",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892233993225576,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 Q1",
+  "metric": "sustain: case mean",
+  "expected": 0.05551963592343348,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.10816200487324629,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench: case mean",
+  "expected": 0.10572528472089288,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207233248113178,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "sustain: case mean",
+  "expected": 0.0981408356393135,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 0.2777699302975195,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench_display: case mean",
+  "expected": 0.27298320330661696,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 Q1",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.10816200487324651,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 Q1",
+  "metric": "quench: case mean",
+  "expected": 0.1057252847208931,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 Q1",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207233248113178,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 Q1",
+  "metric": "sustain: case mean",
+  "expected": 0.0981408356393135,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 Q1",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 0.2777699302975201,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 Q1",
+  "metric": "quench_display: case mean",
+  "expected": 0.2729832033066176,
+  "common_with": [
+   "bass3",
+   "bass3 Q1"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_q1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.01685799852606025,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "quench: case mean",
+  "expected": 0.014623385180338308,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892233993225576,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "sustain: case mean",
+  "expected": 0.05551963592343348,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 S1 (os1)",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.01685799852606025,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 S1 (os1)",
+  "metric": "quench: case mean",
+  "expected": 0.014623385180338308,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 S1 (os1)",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.07106572813516641,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3 S1 (os1)",
+  "metric": "sustain: case mean",
+  "expected": 0.07416666862116744,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v1_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.10816200487324629,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench: case mean",
+  "expected": 0.10572528472089288,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207233248113178,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "sustain: case mean",
+  "expected": 0.0981408356393135,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 0.2777699302975195,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench_display: case mean",
+  "expected": 0.27298320330661696,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 S1 (os1)",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.10816200487324629,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 S1 (os1)",
+  "metric": "quench: case mean",
+  "expected": 0.10572528472089288,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 S1 (os1)",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.04755976564582402,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 S1 (os1)",
+  "metric": "sustain: case mean",
+  "expected": 0.04082347653523062,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 S1 (os1)",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 0.2777699302975195,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3 S1 (os1)",
+  "metric": "quench_display: case mean",
+  "expected": 0.27298320330661696,
+  "common_with": [
+   "bass3",
+   "bass3 S1 (os1)"
+  ],
+  "source": "bass3_s1_q1_result.md (runs/dev/gen7/bass3_os1-fable_v2_dev.json)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre d3 by the lasts rule",
+  "metric": "t1: extinction IBS",
+  "expected": 0.08326911390911552,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_d3_result.md (runs/dev/gen7/bre_d3_dev.json, cases W0 answers)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre d3 by the lasts rule",
+  "metric": "t1: operator termination IBS",
+  "expected": 0.05260346424873767,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_d3_result.md (runs/dev/gen7/bre_d3_dev.json, cases W0 answers)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre d3m by the lasts rule",
+  "metric": "t1: extinction IBS",
+  "expected": 0.08326911390911552,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_d3_result.md (runs/dev/gen7/bre_d3_dev.json, cases W0 answers)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre d3m by the lasts rule",
+  "metric": "t1: operator termination IBS",
+  "expected": 0.05260346424873767,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_d3_result.md (runs/dev/gen7/bre_d3_dev.json, cases W0 answers)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre W0 by the lasts rule (phys_bre2.md section 2)",
+  "metric": "t1: extinction IBS",
+  "expected": 0.2083179553024684,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_d3_result.md (runs/dev/gen7/bre_d3_dev.json, cases W0 answers)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre W0 by the lasts rule (phys_bre2.md section 2)",
+  "metric": "t1: operator termination IBS",
+  "expected": 0.09944021901372929,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_d3_result.md (runs/dev/gen7/bre_d3_dev.json, cases W0 answers)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre d2 by the lasts rule",
+  "metric": "t1: extinction IBS",
+  "expected": 0.21490759047224436,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_second_law_result.md (runs/dev/gen7/bre_d2_dev.json)"
+ },
+ {
+  "investigation": "bre",
+  "coding": "v1",
+  "label": "bre d2 by the lasts rule",
+  "metric": "t1: operator termination IBS",
+  "expected": 0.1006542952662268,
+  "common_with": [
+   "bre W0 by flame_end (registered zero-shot reading)"
+  ],
+  "source": "bre_second_law_result.md (runs/dev/gen7/bre_d2_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld3 (third law)",
+  "metric": "loss: integrated Brier",
+  "expected": 0.06095073605742982,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld3 (third law)",
+  "metric": "loss: Brier of lost before fuel-off",
+  "expected": 0.07933360362284946,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld3 (third law)",
+  "metric": "loss: integrated Brier, mean of day means",
+  "expected": 0.08655950876863812,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld3 (third law)",
+  "metric": "radiometer: CRPS of log10 V",
+  "expected": 0.10025958958187835,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld3 (third law)",
+  "metric": "radiometer: mean of day means",
+  "expected": 0.10434405214575511,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "loss: integrated Brier",
+  "expected": 0.09345728140428862,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "loss: Brier of lost before fuel-off",
+  "expected": 0.08205267313914617,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "loss: integrated Brier, mean of day means",
+  "expected": 0.11764111336918286,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "radiometer: CRPS of log10 V",
+  "expected": 0.10025958958187835,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld C1",
+  "metric": "radiometer: mean of day means",
+  "expected": 0.10434405214575511,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld2 (second law)",
+  "metric": "loss: integrated Brier",
+  "expected": 0.24195620212041322,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld2 (second law)",
+  "metric": "loss: Brier of lost before fuel-off",
+  "expected": 0.1200643788935483,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld2 (second law)",
+  "metric": "loss: integrated Brier, mean of day means",
+  "expected": 0.17813837971015814,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld2 (second law)",
+  "metric": "radiometer: CRPS of log10 V",
+  "expected": 0.10025958958187835,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "cld",
+  "coding": "v1",
+  "label": "cld2 (second law)",
+  "metric": "radiometer: mean of day means",
+  "expected": 0.10434405214575511,
+  "common_with": [
+   "cld3 (third law)",
+   "cld C1",
+   "cld2 (second law)",
+   "cld D1"
+  ],
+  "source": "cld3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield3 (third law)",
+  "metric": "t1: CRPS uA, case mean",
+  "expected": 0.24550618014182746,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield3 (third law)",
+  "metric": "t1: mean of day means",
+  "expected": 0.26279404762449304,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield3 (third law)",
+  "metric": "t2: integrated Brier",
+  "expected": 0.08495024319339223,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield3 (third law)",
+  "metric": "t2: Brier of ends in window",
+  "expected": 0.0951292510023443,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t1: CRPS uA, case mean",
+  "expected": 0.2251823698484896,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t1: mean of day means",
+  "expected": 0.22629577763992637,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t2: integrated Brier",
+  "expected": 0.07530488654968162,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield E1",
+  "metric": "t2: Brier of ends in window",
+  "expected": 0.07620343757307164,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield2 (second law)",
+  "metric": "t1: CRPS uA, case mean",
+  "expected": 0.6001796182941402,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield2 (second law)",
+  "metric": "t1: mean of day means",
+  "expected": 0.5384127760474681,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield2 (second law)",
+  "metric": "t2: integrated Brier",
+  "expected": 0.09747592714731007,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "efield",
+  "coding": "v1",
+  "label": "efield2 (second law)",
+  "metric": "t2: Brier of ends in window",
+  "expected": 0.15964336912374288,
+  "common_with": [
+   "efield3 (third law)",
+   "efield E1",
+   "efield2 (second law)",
+   "efield W0"
+  ],
+  "source": "efield3_result.md (runs/dev/gen7/third_laws_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 s1",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.24887410650640213,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 s1",
+  "metric": "quench: case mean",
+  "expected": 0.24447258665843247,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 K1",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.21394169099212176,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 K1",
+  "metric": "quench: case mean",
+  "expected": 0.22220073064370194,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.01685799852606025,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "quench: case mean",
+  "expected": 0.014623385180338308,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 s1",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892233993225576,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 s1",
+  "metric": "sustain: case mean",
+  "expected": 0.05551963592343348,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 K1",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892233993225576,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass2 K1",
+  "metric": "sustain: case mean",
+  "expected": 0.05551963592343348,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892233993225576,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass3",
+  "metric": "sustain: case mean",
+  "expected": 0.05551963592343348,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 s1",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.482982460817557,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 s1",
+  "metric": "quench: case mean",
+  "expected": 0.5034767429516634,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 K1",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.45095705164392336,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 K1",
+  "metric": "quench: case mean",
+  "expected": 0.48236117794279004,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.10816200487324629,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench: case mean",
+  "expected": 0.10572528472089288,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 s1",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207233248113178,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 s1",
+  "metric": "sustain: case mean",
+  "expected": 0.0981408356393135,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 K1",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207233248113178,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 K1",
+  "metric": "sustain: case mean",
+  "expected": 0.0981408356393135,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207233248113178,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "sustain: case mean",
+  "expected": 0.0981408356393135,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 s1",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 1.218691021235734,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 s1",
+  "metric": "quench_display: case mean",
+  "expected": 1.2856194164132217,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 K1",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 1.1572510335648982,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass2 K1",
+  "metric": "quench_display: case mean",
+  "expected": 1.2422315252623446,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 0.2777699302975195,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass3",
+  "metric": "quench_display: case mean",
+  "expected": 0.27298320330661696,
+  "common_with": [
+   "bass2 s1",
+   "bass2 K1",
+   "bass3"
+  ],
+  "source": "bass3_result.md (runs/dev/gen7/bass_codings_dev_three.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.01685799852606025,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "quench: case mean",
+  "expected": 0.014623385180338308,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.045892608602462484,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v1",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "sustain: case mean",
+  "expected": 0.053537776444986265,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "quench: interval CRPS cm/s, mean of day means",
+  "expected": 0.10816200487324629,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "quench: case mean",
+  "expected": 0.10572528472089288,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "sustain: Brier, mean of day means",
+  "expected": 0.12207270709036869,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "sustain: case mean",
+  "expected": 0.09450701100552082,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "quench_display: interval CRPS, fan display units, mean of day means",
+  "expected": 0.2777699302975195,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "bass",
+  "coding": "v2",
+  "label": "bass4 (fabrics in kept burning)",
+  "metric": "quench_display: case mean",
+  "expected": 0.27298320330661696,
+  "common_with": [],
+  "source": "bass4_result.md (runs/dev/gen7/bass4_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 s1 (second law)",
+  "metric": "blow_off: Brier, mean of day means",
+  "expected": 0.15476946157035582,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 s1 (second law)",
+  "metric": "blow_off: pooled",
+  "expected": 0.15476946157035582,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 s1 (second law)",
+  "metric": "lifted: Brier, mean of day means",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 s1 (second law)",
+  "metric": "lifted: pooled",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 S2",
+  "metric": "blow_off: Brier, mean of day means",
+  "expected": 0.11592771197020094,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 S2",
+  "metric": "blow_off: pooled",
+  "expected": 0.11592771197020094,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 S2",
+  "metric": "lifted: Brier, mean of day means",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ },
+ {
+  "investigation": "slice",
+  "coding": "v2",
+  "label": "slice2 S2",
+  "metric": "lifted: pooled",
+  "expected": 0.05360339686388685,
+  "common_with": [
+   "slice W0",
+   "slice2 s1 (second law)",
+   "slice2 S2"
+  ],
+  "source": "slice_cases_v2_result.md (runs/dev/gen7/slice_cases_versions_dev.json)"
+ }
+]

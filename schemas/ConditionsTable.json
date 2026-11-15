@@ -127,6 +127,17 @@
         "investigation_id": {
           "type": "string"
         },
+        "nearness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Nearness"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "With `ConditionsQuery::near`: how far this row's atmosphere is from the target."
+        },
         "run": {
           "$ref": "#/$defs/RunIdentity"
         }
@@ -433,6 +444,33 @@
         "human_review"
       ],
       "type": "string"
+    },
+    "Nearness": {
+      "additionalProperties": false,
+      "description": "How far a run's ambient oxygen and pressure are from a target atmosphere. Gaps are what the\nrun would have to change to reach the target (positive = the target is higher); 0 = inside.",
+      "properties": {
+        "distance": {
+          "description": "Rank: oxygen gap and pressure gap as a fraction of one atmosphere, combined.",
+          "type": "number"
+        },
+        "inside": {
+          "type": "boolean"
+        },
+        "oxygen_gap": {
+          "description": "Oxygen mole fraction (0–1).",
+          "type": "number"
+        },
+        "pressure_gap_pa": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "inside",
+        "oxygen_gap",
+        "pressure_gap_pa",
+        "distance"
+      ],
+      "type": "object"
     },
     "OffsetUnit": {
       "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",

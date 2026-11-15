@@ -66,6 +66,13 @@ fn main() {
     if std::env::var_os("IGNIS_TEST_HOST_SECRET").is_some() {
         fail("host environment leaked into the runtime");
     }
+    // Claude Code truncates an MCP result above MAX_MCP_OUTPUT_TOKENS (25,000 by default).
+    let mcp_tokens = std::env::var("MAX_MCP_OUTPUT_TOKENS")
+        .ok()
+        .and_then(|v| v.parse::<u32>().ok());
+    if mcp_tokens.is_none_or(|n| n < 80_000) {
+        fail("MAX_MCP_OUTPUT_TOKENS is not raised; large MCP results would be truncated");
+    }
     let session = match (flag("--session-id"), flag("--resume")) {
         (Some(s), None) => s,
         (None, Some(s)) => {

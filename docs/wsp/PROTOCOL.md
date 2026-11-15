@@ -1537,3 +1537,633 @@ a test dilutes until the flame is lost; a thickness input and the rods), named b
 plastics slab flag left every forecast of the zero-shot parent identical (0 of 66 flat rows differ).
 The validation days of these five investigations are now spent for selection; the test days of all of
 them are unread.
+
+### 13.4 What went wrong, and second laws: validation opened as study data, registered 15 November
+
+The owner asked for the failures to be analysed and the models improved. The validation days of the
+nine investigations of 13.2 have been used twice for selection (13.2, 13.3) and can judge nothing
+more. From this commit they are study data beside the train days: their cases may be read, and every
+number scored on them from now on is an in-sample development number and is labelled so. The only
+judgement left for these models is one final run on their test days, which stay unread until a release
+list is frozen for it (12.5). SAME and DAFT were scored whole and have no test days; their zero-shot
+scores of 13.2 stand as their only held result, and any later revision of them is unjudged.
+
+Method. (1) A failure analysis per target on train and validation cases together
+(`feedback/gen7_failure_analysis.md`): where the law loses to the best baseline, by the strata of the
+conditions and of the procedure (what the script or the crew was set to do: a dilution ramp, a planned
+stop, a flow stepped until blow-off, a flow lowered until quench), which input known before or during
+the test separates the cases, and how the validation conditions differ from train. (2) Each author
+types a second law that takes the missing inputs; a declaration is frozen with its release, so a
+second law is a new slug (`<slug>2`). (3) The engineer assembles it verbatim; it is scored on train and
+validation together, by day, beside the first law and the baselines, with the score of each day
+shown: a second law is kept for the final run if it is lower than the first law on the pooled
+development cases and on at least two thirds of the days. Nothing is called validated.
+
+### 13.5 F3 of the normal burner flames, registered 15 November before any validation score
+
+Dossier `research/phys_sflame_f3.md`. Forward `acme_normal.wsp13` with member
+specs `wsp14` to `wsp16` (new files `fuel2.rs`, `flame8.rs` to `flame10.rs`, `committee4.rs`; branch
+`wsp-f3`). A neutral carry of F2 on the new forward
+(`sha256:b6c78a86…5a95`) gives exactly F2's tables on 372 s-Flame train prefixes, 150 s-Flame validation
+input prefixes, 516 Flame Design prefixes and 210 CFI-G train cases (zero differences).
+
+**Release, stage 1:** `sha256:a9986fb93275fe264d76ee1b632f59898e51052ba4bfdb89980bf51a0a3b6177`: the
+burner limit as an input of the test, the heating law with a flame-temperature factor (2650 K) and a
+conductivity power (0.45), one step on the methane row (`fuel.s` 0.35 for the hinge members, -0.35 for
+the growth members, weak-flame shift -350 K) and the ethylene dilution term (`zst0` 0.30, `gz` 1.0);
+helium, hydrogen and blends refused. Data-informed from the train days of s-Flame, CFI-G and Flame
+Design. On train: s-Flame 0.0736 / 0.0769 (sum, without and with the planned stop) against 0.0914 /
+0.0891 for F2; CFI-G unchanged to the third decimal.
+
+**The test.** (a) The s-Flame validation days of 13.1, the nitrogen tests, without and with the
+planned stop, beside F2 and the two incidence baselines, once. The author and the coordinator have
+seen the aggregates of 13.1 on these cases; that is why (b) and the unread test days matter.
+(b) Consistency on data F2 was adopted on: CFI-G validation (shared records and the planned stop) and
+the Flame Design validation days, F3 beside F2, once.
+
+**Reading.** F3 stage 1 *replaces F2 on s-Flame* if its sum is lower than F2's on both paths of (a),
+by the case mean; it *carries over to s-Flame* if it is also lower than the CFI-G train incidence on
+both paths. It *replaces F2 as the normal-flame model* only if, in addition, on (b) its extinction and
+termination scores are each not higher than F2's by more than 0.005 on CFI-G validation and on the
+Flame Design validation days. Otherwise F2 stays the model of CFI-G and Flame Design and F3 is the
+model reported for s-Flame alone.
+
+**Stage 2 (helium, zero-shot Part A of the dossier), if assembled:** a further release on the same
+forward with the helium lines only, scored once on the helium-diluted validation tests that carry an
+oxygen fraction (8 ethylene tests; never scored by any model) and on the 9 methane-in-helium tests
+answered as the registered mixture over 21 and 30 % oxygen, beside the two incidence baselines. It
+*answers helium* if its sum is lower than the CFI-G train incidence on the cases it answers.
+
+**Outcome of 13.5 so far (15 November; [feedback/sflame_f3_result.md](feedback/sflame_f3_result.md)).**
+(a) s-Flame validation days, nitrogen tests, run once; F2 reproduced 13.1 on the same 46 cases before
+any F3 number was read.
+
+| Sum, extinction + termination, case mean (mean of day means) | F3 stage 1 | F2 | CFI-G train incidence |
+|---|---|---|---|
+| 46 cases, without the planned stop | **0.2048** (0.1425) | 0.2619 (0.1783) | 0.2793 (0.2579) |
+| 46 cases, with the planned stop | **0.2051** (0.1427) | 0.3698 (0.2454) | 0.2793 (0.2579) |
+| ethylene, 9 cases | 0.040 | 0.041 | 0.223 |
+| methane, 37 cases, without / with the stop | 0.245 / 0.245 | 0.316 / 0.450 | 0.293 |
+| 7 tests whose burner reaches 250 C before the planned stop | 0.445 / 0.446 | 0.539 / 0.798 | 0.307 |
+| the other 9 tests | 0.036 / 0.036 | 0.067 / 0.068 | 0.260 |
+
+By the rule: F3 stage 1 **replaces F2 on s-Flame** and **carries over to s-Flame** (lower than F2 and
+than the CFI-G train incidence on both paths, by either mean). The planned stop no longer hurts. The 7
+low-flow methane tests remain worse than the incidence baselines: the missing mechanism the author
+named (lives rising with flow, which a temperature threshold cannot produce). Two days; the author had
+seen the aggregates of 13.1.
+
+(b) Flame Design validation days, 86 cases, run once: F3 0.0299 / 0.3737 without the planned stop
+against F2 0.0317 / 0.3933; 0.0066 / 0.0732 with it against 0.0068 / 0.0724. No score is more than
+0.005 above F2's (largest rise +0.0008): this half passes. The CFI-G validation half is running; until
+it is in, F2 stays the model of CFI-G and Flame Design and F3 is the model of s-Flame.
+
+**Outcome of 13.5 (b), CFI-G half (15 November, sealed chain, run once).** 84 cases of 28 runs on each
+data root, no refusal. Shared records: extinction 0.1536 against 0.1537 for F2, termination 0.0956
+against 0.0961. With the planned stop: 0.1472 against 0.1473 and 0.0795 against 0.0798. Paired
+differences F3 minus F2 between -0.0004 and -0.0001, intervals at or below zero. With the Flame Design
+half, no score is more than 0.005 above F2's on the data F2 was adopted on. **By the rule, F3 stage 1
+(`sha256:a9986fb9…6177`) replaces F2 as the model of the normal burner flames** (CFI-G, Flame Design
+and s-Flame). The sealed test partition of CFI-G and the Flame Design test days were scored once with
+F2 in the final run of 12.11 and are not scored again; F3's forecasts differ from F2's there only
+through the heating law (CFI-G gives no limit input). The whole lineage rebuilt in a scratch copy: 206
+releases, no id changed. The helium stage is being assembled.
+
+**Outcome of 13.5, stage 2, helium (15 November, run once; appended to `feedback/sflame_f3_result.md`).**
+Release `sha256:fb576270f2227e43cf29506d972097465540f61aa61e998bf9dd0190691008d7`: stage 1 plus the
+helium lines of Part A, verbatim. The forward reproduces the dossier's own expectations except the
+times to the burner limit, which Part A computed before Part B changed the heating law. On the 17
+helium validation tests it answers 35 cases of 14 tests and refuses 7 cases of 3 tests (flow above
+the declared range).
+
+| Sum, extinction + termination, case mean | F3 stage 2 | CFI-G train incidence | s-Flame train incidence |
+|---|---|---|---|
+| all 35 cases (either path) | 0.999 | 0.330 | 0.324 |
+| ethylene in helium, 21 cases | 1.512 (extinction 0.799) | 0.364 | 0.361 |
+| methane in helium, mixture over 21 and 30 % oxygen, 14 cases | 0.230 | 0.279 | 0.270 |
+
+**By the rule, stage 2 does not answer helium**, and helium stays refused: F3 stage 1 remains the
+model. The zero-shot helium law holds ethylene flames until the burner limit, and they went out long
+before; the methane half, which the law says flashes out at once, scores below both baselines on 14
+cases. The author's own second-weakest assumption was this row ("no helium-diluted flame has been
+seen, the critical flux is known to a factor of two"). The helium train days hold only hydrogen and
+blends, so there is no helium train flame to revise the row from; these validation tests are now the
+only helium data seen, and a revised helium row would have to be judged on the test days.
+
+**Outcome of 13.4 so far (15 November; development numbers, in-sample: train and validation days
+together; `feedback/<slug>_second_law_result.md`).**
+
+| Second law | Target | Cases | Parent | Second law | Best baseline | Days lower / days that change | Reading |
+|---|---|---|---|---|---|---|---|
+| `cld2` (`sha256:870419c3…8721`) | flame lost | 256 | 0.317 (cld D1) | 0.143 | 0.228 | 5 / 8 | not kept |
+| `cld2` | radiometer | 195 | 0.119 | 0.119 | | unchanged | |
+| `efield2` (`sha256:cf5459b5…d8c5`) | ion current, µA | 3,235 levels | 0.659 (W0) | 0.721 | 0.426 | 7 / 15 | not kept |
+| `efield2` | flame out | | 0.148 | 0.100 | 0.070 | 8 / 15 | |
+
+`cld2` reproduces its parent on every case when both flags are 0 (0 of 290 differ). Pooled it halves
+the parent's score and is below every baseline, but the two flags are 1 on 8 of 25 days only, and of
+those it is lower on 5 and higher on 3. The rule was written to refuse a gain carried by few days; it
+did not say how to count days with identical forecasts. Decision taken after seeing the count and
+stated as such: those days are left out because they carry no information, and 5 of 8 is still short
+of two thirds, so by either count **`cld2` is not kept and cld D1 stays the model**. `cld2` goes to
+the final run as a reported comparator beside D1, not as a selected model. `efield2` is higher than
+its parent on the ion current and is not kept. `slice2`, `bass2` and BRE's second rule are assembled
+(`sha256:d586d0d3…0b61`, `sha256:e008cba3…a4c9`, `sha256:429f4743…8340`) and being scored.
+
+### 13.6 A proper study of the development data, and how a typed candidate is checked (15 November)
+
+The owner asked for the data to be analysed properly and the faults of the models fixed, without a
+deadline. The steps of 13.3 and the second laws of 13.4 were typed from summaries, and their expected
+effects were hand estimates; three of five steps and one second law then failed. From here each
+author studies the development cases (train and validation days) of its investigations itself, case
+by case, before typing anything, and may check a typed candidate on those cases under these rules.
+
+- **Predict, then check.** Before a candidate is run, its author writes down the lines changed, the
+  physical reason and the effect expected in each stratum. Then it is run once on the development
+  cases with the logged what-if tool (`tools/wsp/ext/law_whatif.py`, which writes every evaluation,
+  with the hash of its edits, to `runs/dev/gen7/whatif_log.jsonl`) and the realised effect is written
+  beside the expectation. A candidate whose effect was not predicted in sign is dropped, not tuned.
+- **Bounded.** At most five logged candidates per law in this round. No loop, no search, no number
+  produced by a program; every number is typed by the author with its reason. The log makes the
+  multiplicity visible.
+- **By day.** A candidate is kept for the final run if it is lower than the current model pooled and
+  on at least two thirds of the days whose forecasts change (13.4), for the target that loses, and not
+  worse by more than 5 % pooled on the other targets. Where fewer than six days change, the candidate
+  is carried as a reported comparator, not as the model.
+- **Structure before numbers.** Where the fault is a missing input or a missing class of outcome, the
+  author names it and the engineer adds it (a new slug); a number is not asked to do the work of a
+  missing input.
+- **The judge.** These are in-sample development numbers. The test days of every investigation stay
+  unread; one final run on them, on a frozen release list, is the only test (12.5).
+
+**13.6 also covers s-Flame.** Its validation days have judged three releases (13.1, 13.5 stage 1 and
+stage 2) and are study data from this commit, beside its train days; the test days 20142, 20170 and
+20176 and day 19245 stay unread and are the only judge of what follows (hydrogen, blends, a revised
+helium row, the low-flow methane flames). The validation days of CFI-G and Flame Design keep their
+role and are not opened.
+
+**Outcome of 13.4, the last three second laws (development numbers, in-sample).** `bass2`
+(`sha256:e008cba3…a4c9`): quench speed 0.4505 against 0.8135 for bass1 D1 and 0.7079 for the constant,
+lower on 12 of 14 days: **kept**, and now the plastics model; rods 0.264 against 0.974 (published
+correlation 0.286), slabs 1.781 against 2.371, films 0.061 against 0.163 (correlation 0.044); "kept
+burning" identical on shared cases. `slice2` (`sha256:d586d0d3…0b61`): lifting 0.0333 against 0.1474,
+lower on 8 of 8 days: **kept**, and now the SLICE model (the by-tube incidence scores 0.0293);
+blow-off identical to its parent and far behind its baseline pooled (0.1089 against 0.0480). BRE: read
+through its own `lasts` target, the registered W0 scores 0.1955 on extinction against 0.2576 through
+the clock and 0.2269 for the planned-stop baseline; the pressure step on top (d2, 0.1800) helps train,
+hurts validation and is lower on 9 of 14 days: **not kept**. The reading of W0 through `lasts` is a
+candidate of its own and its by-day count is being taken.
+
+**Outcome of 13.6 so far (15 November; development numbers, in-sample: train and validation days
+together; each candidate's expectation was logged before its run; official scores through the Rust
+forward and the lane scorers equal the what-if runs to round-off).**
+
+| Investigation | Candidate | Target | Current model | Candidate | Best baseline | Days lower / days that change | Reading |
+|---|---|---|---|---|---|---|---|
+| CLD Flame | `cld` C1 `sha256:541e9b2a…9ab6` | flame lost | 0.3174 (D1) | 0.0431 | 0.2282 | 21 / 25 | kept: the model |
+| E-FIELD | `efield` E1 `sha256:dbb4bd64…73b0` | ion current, µA | 0.6592 (W0) | 0.2530 | 0.4256 | 15 / 15 | kept: the model |
+| E-FIELD | E1 | flame out | 0.1478 | 0.1478 | 0.0697 | identical | open (efield3 being built) |
+| SPICE | `spice` P2 `sha256:f1fe69f0…258a` | smoke-point length, mm | 6.5136 (W0) | 2.1292 | 6.6258 | 9 / 9 | kept: the model |
+| SPICE | P2 | flame length given the flow, mm | 3.0715 | 1.9370 | 1.8416 | 9 / 9 | lower, still above the Lin and Faeth law |
+| SLICE | `slice2` S2 `sha256:0f5763f5…388a` | blow-off | 0.1089 (s1) | 0.0583 | 0.0480 | 5 / 8 | not kept: comparator |
+| Plastics | `bass3` | quench speed (registered coding) | 0.3926 (bass2) | 0.1310 | 0.5786 | 20 / 22 | kept: the model |
+| Plastics | `bass2` K1 | quench speed | 0.3926 | 0.3138 | 0.5786 | 20 / 22 | kept; comparator beside bass3 |
+| BRE | C3 (to be assembled as d3) | extinction, read through `lasts` | 0.1955 (W0 through `lasts`) | 0.1121 | 0.2269 | 14 / 14 | proposed; assembly queued |
+| s-Flame | F4 methane, helium, hydrogen | sum | see `feedback/sflame_f4_result.md` when assembled | | | fewer than six days change | comparators |
+
+What the studies found, in one line each. CLD: one group decides the loss (coflow speed over the
+burning speed squared); above its limit 24 of 27 flames are lost, below 0.86 of it none of 223.
+E-FIELD: the faults were the saturation cap, the fall after the peak and above all the polarity of the
+mesh. SPICE: the nozzle dependence is not a power law. Plastics: below about 4 cm/s the outcome is a
+fan setting, not a speed; slabs are two outcomes decided by thickness, sides and starting oxygen.
+BRE: pressure has no detectable effect; the fault was charging the burner's heat share at the
+adiabatic temperature. SLICE: the crew log's tube cells for six tests of one day are copied down and
+wrong; the documented tube is 2.1 mm (second case version), and the blow-off boundary has to be
+re-read on it. Burner flames: methane needed no new mechanism; three numbers of the helium row were
+contradicted; hydrogen is typed; blends stay refused.
+
+**13.6, burner flames, F4 (15 November; development numbers, in-sample;
+[feedback/sflame_f4_result.md](feedback/sflame_f4_result.md)).** Three further releases on the wsp13
+forward, each transcribed from `research/phys_sflame_f4.md` and identical, tensor for tensor, to the
+child of the author's own logged run: `f4-methane` `sha256:f0b77b61…ee63`, `f4-helium`
+`sha256:7fb9f31f…fbef`, `f4-hydrogen` `sha256:54caac19…bda9`. CFI-G train (0 of 210 cases) and the
+Flame Design train days (0 of 444 tables) do not move under any stage; all 237 committed release ids
+rebuild unchanged. Blends are refused by the lane's adapter, since no release carries a blend law.
+Endpoints: version 1 as coded, version 2 by the general rule of `feedback/sflame_endpoints_v2.md`.
+
+| Sum, without the planned stop | F4 (v1 / v2) | F3 stage 1 (v1 / v2) | F2 (v1 / v2) | CFI-G incidence (v1 / v2) |
+|---|---|---|---|---|
+| validation, nitrogen | 0.0815 / 0.0401 | 0.2048 / 0.1620 | 0.2619 / 0.2276 | 0.2793 / 0.2605 |
+| validation, methane in nitrogen | 0.092 / 0.040 | 0.245 / 0.190 | 0.316 / 0.271 | 0.293 / 0.269 |
+| validation, ethylene in helium | 0.180 | refused | | 0.364 |
+| validation, methane in helium | 0.006 | refused | | 0.279 |
+| train, nitrogen | 0.0730 | 0.0736 | 0.0914 | 0.2725 |
+| train, hydrogen | 0.436 / 0.314 | refused | refused | 0.833 / 0.909 |
+
+Each stage changes fewer than six days, so by 13.6 all three are comparators and F3 stage 1 stays the
+model. **What the test days can and cannot judge** (inputs only; no endpoint read): days 20142, 20170
+and 20176 hold 36 constant-flow tests, all helium-diluted: 26 ethylene tests with no oxygen fraction
+per test (answered as the mixture over 21 and 30 %; 21 inside the declared flow range) and 10
+hydrogen and methane blends (refused). So F3 stage 1 and `f4-methane` answer no test-day case: the
+nitrogen flames of s-Flame have no held data beyond the validation days already used, and the methane
+step remains an in-sample result. The test days judge the helium rows only: the zero-shot row of F3
+stage 2, which failed its look, against the revised row of `f4-helium`, which was typed from the eight
+ethylene flames of one validation day. Day 19245 is not a day of the experiment (eight misnamed files
+of a train test). The s-Flame step of the final run is prepared and rehearsed
+(`tools/wsp/final/run_final_sflame.py`; version 1 reproduces every registered number of 13.1 and 13.5)
+and has not been run.
+
+**13.6, further outcomes (15 November; development numbers, in-sample; official scores through the
+Rust forward; result files `feedback/{bre_d3,efield3,cld3,bass4,slice_cases_v2,spice_p3,samer_s1,bass3_s1_q1}_result.md`).**
+
+| Investigation | Candidate | Target | Before | After | Best baseline | Days lower / days that change | Reading |
+|---|---|---|---|---|---|---|---|
+| BRE | `bre` d3 `sha256:27e2af51…b955`, read through `lasts` | extinction | 0.2576 (W0 through the clock) | 0.1121 (validation 0.0833) | 0.2269 | 13 / 14 | kept: the model |
+| BRE | d3 | operator termination | 0.0730 | 0.0398 | 0.0699 | | |
+| BRE | d3m `sha256:4b7d155c…2a9f` (methane) | extinction | 0.1121 | 0.0980 | | 1 / 1 | comparator |
+| CLD Flame | `cld3` `sha256:b9df5239…9e4b` | flame lost | 0.0431 (C1) | 0.0334 (validation 0.0610 against 0.0935) | 0.2282 | 7 / 9 | kept: the model |
+| E-FIELD | `efield3` `sha256:8575550b…6f04` | ion current, µA | 0.2530 (E1) | 0.2103 | 0.4256 | 8 / 9 | kept: the model |
+| E-FIELD | `efield3` | flame out | 0.1478 | 0.0630 | 0.0697 | 13 / 15 | |
+| SPICE | P3 `sha256:000b88b8…98a0` | flame length given the flow, mm | 1.9370 (P2) | 1.2519 | 1.8416 | 8 / 9 | kept: the model |
+| SAME-R | S1 `sha256:e33ee766…1b5f` | particle diameter | 0.2377 (W0) | 0.1717 | 0.2762 | 12 / 12 | kept: the model |
+| SAME-R | S1 | detector at full scale | 0.1753 | 0.0562 | 0.1012 | 10 / 10 | |
+| Plastics and fabrics | `bass4` `sha256:ceefc15d…ab86` | kept burning, 19 fabric burns | refused | 0.0529 | 0.3801 | | kept: the model (every PMMA forecast identical to bass3) |
+| Plastics | bass3 Q1, bass3 S1 | quench speed; kept burning | 0.1522; 0.0467 (second coding) | 0.1348; 0.0247 | | 2 / 2; 1 / 3 | comparators (S1 is worse on the first coding) |
+| SLICE | second case version (documented tubes), no new release | blow-off of `slice2` s1 | 0.1089 | 0.0456 | 0.0473 | | the fault was the copied log cells; S2 is worse on this version (0.0511) and is dropped |
+
+Flags. `efield3` passes the rule pooled and by day but is worse than E1 on the validation days on both
+targets (0.2455 against 0.2252; 0.0850 against 0.0753), with three validation days moving against the
+author's written expectation; E1 goes to the final run beside it. BRE's d3 read through its clock and
+through `lasts` disagrees by up to 0.95 in probability: only the `lasts` reading is the model, and the
+clock target of d3 is not to be served. The SIBAL part of `bass4` was typed before the fabric cases
+were opened (time-stamped in the study); the Nomex and Ultem floor is data-informed.
+
+### 13.7 n-Heptane droplets: D3 of `flex_heptane.wsp2`, registered 15 November before any validation score
+
+**Why.** The post-hoc comparison with Farouk and Dryer (2014) on FLEX-035
+([RESULTS_POINT_METRICS.md](RESULTS_POINT_METRICS.md)) named three suspects in the adopted n-heptane
+release D2 (`sha256:edbad4d6…edef`): the end of the hot flame is spread over many seconds and comes
+late, the droplet then burns too fast in the cool flame, and the point forecast is the median of a
+mixture of scenarios. FLEX-035 (`PSI-69:181F001:2009-11-27`) is a validation run and its whole
+trajectory was studied for that comparison. **It is recorded as studied, not used to set numbers**: the
+question was taken to the train partition, and only what the train runs support was typed. Study, tables
+and expectations: [RESULTS_HEPTANE_D3.md](RESULTS_HEPTANE_D3.md).
+
+**What train supports, and what it does not.**
+
+| Suspect | Train evidence | Decision |
+|---|---|---|
+| Cool-flame rate too high for large droplets and oxygen above 18 % | Twelve sustained cool flames in nine sessions burn at 0.31 to 0.36 mm²/s with no trend beyond 0.02 in oxygen (15 to 24 %), CO2 (0 to 25 %) or pressure (0.7 to 1 atm); D2's law gives 0.41 and 0.44 where 0.36 and 0.34 were measured, and 0.43 for a 3.85 mm droplet in air. Measured on 14 November by the fifth generation and its independent check, and again by the author on 15 November | **Changed**: the cool-rate law of `flex_heptane.wsp5` P0, typed on 14 November, copied digit for digit |
+| Hot-flame end late and wide | The radiative clock of D2 is within 0.13 (in ln) on twelve of the thirteen nitrogen and CO2 runs at 1 atm (the thirteenth, a 1.8 mm droplet at 14 % oxygen, +0.23); no train run in air above 3.36 mm lost its flame to radiation (3.56 and 3.58 mm oscillated and burned on, both drifting fast); the near-critical runs that lost the flame and those that kept it show the same prefix rate ratios (0.91 to 1.03 against 0.88 to 1.10). What orders them, the drift of the droplet, is not a prefix observation | **Not changed.** A missing input, not a number. The widths stay: they are not set from the runs a law was typed from (sections 8 and 12.3) |
+| Median of a mixture | Under the model's own distribution the median is the point with the least expected absolute error, and the 0.5 row must stay the median for the band to be a distribution. At the diagnosed condition the most probable path loses its hot flame at the clock median or later (10.3 s and more), not earlier, so following it would not move the error that was diagnosed | **Not changed.** No new forward |
+
+**Candidate.** `flex_heptane.wsp2` D3, a literal revision of D2 on the frozen forward `droplet3.rs`
+(`configs/models/flex/wsp2/heptane/d3-fable/`; edits sha256 `8a0cbe4e…0422`, five statements; release
+`sha256:b879b3da39a591b27e33926e4f03265879930b39a9f503ae2655be1e361d5b52`). DATA-INFORMED. Exposure in its
+`meta.json`; the two entries that matter: FLEX-035 studied and not used; the aggregate validation score
+of P0, which holds this law among four changes (47.2 against 46.1 µm, section 10).
+
+**Train, before the freeze** (`wsp-dev feedback --partition train`, 125 cases, 20 sessions). Rule of
+section 8: median CRPS 21.7 against 21.8 µm, better or level in 17 of 20 sessions (3 better, 14 level,
+3 worse): **passes**. Mean 44.2 against 46.2 µm, and the whole of that gain is the one run at 2 atm;
+without it 43.4 against 43.1. At a horizon of 39 s the MAE of the median is 77.0 against 81.4 µm
+(without the 2 atm run 75.5 against 76.7). Against the twelve measured rates the law is within 6 %
+everywhere, where D2 was off by 11, 15 and 29 % on three runs; it is closer on seven runs, level on two
+and farther on the three at 15 to 17 % oxygen, where D2 was within 2 %. The forecasts of the 1 atm
+and 0.7 atm runs do not gain from it on train: where D2's hot
+flame ends too early its fast cool flame was hiding the error (C09H501, worse by 10 to 17 µm), where
+the hot flame ends on time the forecast improves (301F001, C02H101 at 10 s). So train does not promise
+a gain on validation; the law is taken there because it is the measured one.
+
+**The look, once.** `wsp-dev feedback --release D3 --release D2 --partition validation`, cutoffs 1, 3 and
+5 s, at the horizon of 10 s and at 39 s (to the end of the records; 5 + 39 s is inside the forward's
+45 s). The three cases of FLEX-035 are left out of both releases, because the run was studied. Only
+the aggregates printed by `tools/wsp/analysis/partition_aggregate.py --skip PSI-69:181F001:2009-11-27`
+are read: session-weighted means, case means, coverage, and counts of sessions lower, level or higher.
+No per-run and no per-session value is read. The heptane validation days have judged about seven
+aggregate looks before this one (dossier 7.2).
+
+**Rule.** D3 replaces D2 as the carried n-heptane model if all three hold on those cases:
+
+1. CRPS at the 10 s horizon, session-weighted, is not higher than D2's (compared to 0.1 µm). This is the
+   standing veto of sections 8 and 12.4.
+2. MAE of the median at the 39 s horizon, session-weighted, is lower than D2's by at least 1.0 µm. This
+   is the claim under test: long forecasts.
+3. At the 39 s horizon more sessions are lower than higher on the MAE of the median (a session counts
+   when it moves by more than 1 µm).
+
+Otherwise D2 stays and D3 is kept in the tables as a negative or undecided result. A near miss is a
+refusal. No second heptane candidate is taken to these validation days for this question.
+
+**Not part of the rule.** The score of D3 on FLEX-035 against the published curve is taken by the lane
+that made that comparison and is labelled exposed. The unread n-heptane data that could judge a later
+candidate fairly are listed in [RESULTS_HEPTANE_D3.md](RESULTS_HEPTANE_D3.md); none of them is scored
+here.
+
+**Outcome (15 November, the one look, taken).** 36 common cases in 6 sessions
+(the three cases of FLEX-035 were the whole of the seventh session); no refusal differs between the
+releases.
+
+| Criterion | D3 | D2 | Holds? |
+|---|---|---|---|
+| 1. CRPS at 10 s, session-weighted | 51.3 µm | 49.9 µm | no (+1.4) |
+| 2. MAE of the median at 39 s, session-weighted, lower by 1.0 µm | 101.6 µm | 98.6 µm | no (+3.0) |
+| 3. Sessions at 39 s, MAE of the median: lower against higher | 0 lower, 3 level, 3 higher | | no |
+
+Beside the rule: MAE of the median at 10 s 69.2 against 67.4 µm; CRPS at 39 s 69.5 against 67.5 µm; by
+session the CRPS is lower in none, level in 4 and higher in 2 at both horizons; coverage of the 50 %
+and 90 % bands 0.74 and 0.97 for both at 10 s. Case means: CRPS 53.2 against 52.2 at 10 s, 75.8 against 74.3 at 39 s.
+
+**D3 is not adopted; `flex_heptane.wsp2` D2 stays the carried n-heptane model.** All three criteria
+fail, and none nearly. The cool-flame rate law that fits the twelve measured train rates better does
+not forecast the validation droplets better, at either horizon, as it did not on train outside one
+run; it is the second time this law goes to these days and comes back slightly worse (P0, section 10,
+with three other changes). What it shows: on these runs the steady cool-flame rate is not the weak
+link, and D2's too fast cool flame is offset by its other errors (the time of the loss, the sag of the
+rate around it). What it does not show: that D2's law is the right physics, or anything about a 3.85 mm
+droplet in air, which no train run resembles. D3 stays in the tables as a negative
+result. By the rule no second candidate goes to these days for this question; the next judge has to be
+data nobody has read ([RESULTS_HEPTANE_D3.md](RESULTS_HEPTANE_D3.md), section 6).
+
+### 13.7 The final run of the seventh generation, registered 15 November before any test-day outcome is read
+
+The owner asked for the work to be closed. The one final run of 12.5 for the investigations of 13.2
+and for s-Flame, on their unread test days, once.
+
+**Release lists, frozen.** `tools/wsp/final/releases_final_gen7.json`, sha256
+`f35560716ed8b9aa4606a8db42feff97520e2998dd77cf1fece7e80f911c70e2` (7 models and 27 comparators; every
+id checked against the registry); `tools/wsp/final/releases_final_sflame.json`, sha256
+`527f07b52dd7800bbe6f24c843c75d80dafb6815ffb3d440000e6e0a36015ab9`.
+
+| Investigation | Model | Comparators | Test days |
+|---|---|---|---|
+| BRE | `bre` d3, read through `lasts` | W0 through the clock (the zero-shot reading of 13.2), W0 through `lasts`, d1, d2, d3m | 3 days, 56 tests |
+| CLD Flame | `cld3` | `cld` W0, D1, C1; `cld2` | 7 days, 67 test points |
+| E-FIELD | `efield3` | `efield` W0, E1; `efield2` | 4 days, 41 tests |
+| SLICE (second case version) | `slice2` s1 | `slice` W0, D1; `slice2` S2 | 3 days |
+| SPICE | `spice` P3 | P2, W0 (variant B), the published-fit candidate | 2 days, 25 flames |
+| SAME-R | `samer` S1 | W0, D1 | 3 days, 34 rows |
+| Plastics and fabrics (second coding) | `bass4` | `bass3` and its two comparators, `bass2` and K1, `bass1` W0 and D1 | 13 days, 48 burn rows |
+| s-Flame (second endpoint version) | F3 stage 1 (answers no test-day case: they are all helium) | F2, F3 stage 2 (zero-shot helium), F4 methane, F4 helium, F4 hydrogen | 3 days, 36 constant-flow tests |
+
+SAME and DAFT were scored whole in 13.2 and have no test days. FLEX-2 and CFI droplet candidates are
+not in this run (their held droplets were spent in 12.11 and the third batch did not finish).
+
+**Tools.** `tools/wsp/final/run_final_gen7.py final --slug <s> --releases <list> --sha256 <sha> --execute`
+and `tools/wsp/final/run_final_sflame.py final`. Their rehearsals on the validation days rebuilt the
+cases from raw and reproduced every registered number of 13.1, 13.2, 13.3 and 13.5 and every
+validation-partition number of the newer releases (466 rows, largest difference 0). A marker per
+investigation is written before anything is read, so no step can run twice; reveals are logged.
+Aggregates only go to `RESULTS_FINAL_GEN7.md` and `feedback/`.
+
+**What each result will be taken to mean**, per scored target, on the test-day cases the model answers:
+the model *holds* if its score is lower than every baseline's; it *holds against the simple baseline
+only* if it is lower than the constant or incidence but not than the best baseline; it *does not hold*
+otherwise. The improvement of this generation *holds* if the model is also lower than its zero-shot
+parent of 13.2 on the same cases. For s-Flame, the revised helium row *answers helium* if the sum of
+F4 helium is lower than the CFI-G train incidence on the cases it answers; F3 stage 2 is reported
+beside it. Counts and refusals are reported with every number; with two to thirteen days no interval
+is called stable and nothing is called validated.
+
+**Known risks, stated beforehand.** The SLICE test pages have never been parsed; plastics, SPICE,
+SAME-R and SLICE read inputs and outcomes from one record, so their inputs could not be counted in
+advance. If a step stops with an error before it has written any aggregate, the fault is fixed and the
+step is run; if it has written aggregates, that is the run, whatever they show. `efield3` was worse
+than E1 on the validation days. The s-Flame helium row was typed from eight flames of one day. No
+number of any release is changed after this run in this generation.
+
+**Outcome of 13.7 (15 November; run once on the frozen lists; tables in [RESULTS_FINAL_GEN7.md](RESULTS_FINAL_GEN7.md)
+and [RESULTS_FINAL_SFLAME.md](RESULTS_FINAL_SFLAME.md)). Test days only; lower is better.**
+
+| Investigation | Target | Cases | Model | Zero-shot parent | Simple baseline | Best baseline | Reading |
+|---|---|---|---|---|---|---|---|
+| BRE | extinction | 95 | 0.1389 (d3) | 0.2448 | 0.2220 | 0.2220 | holds; the improvement holds |
+| BRE | operator termination | 95 | 0.0535 | 0.1070 | 0.1031 | 0.0999 | holds |
+| E-FIELD | ion current, µA | 788 levels | 0.3190 (efield3) | 0.7039 | 0.9864 | 0.5746 | holds; E1 0.3238 |
+| E-FIELD | flame out, ends in window | 39 | 0.0547 | 0.1072 | 0.1331 | 0.1331 | holds |
+| E-FIELD | flame out, integrated Brier | 39 | 0.0348 | 0.0282 | 0.0394 | 0.0394 | holds against the baselines; not better than the zero-shot parent |
+| SPICE | smoke-point length, mm | 6 | 4.18 (P3) | 6.94 | 10.58 | 10.33 | holds (the non-blind published-fit candidate 3.16) |
+| SPICE | flame length given the flow, mm | 6 | 1.18 | 2.98 | 10.58 | 2.56 | holds |
+| SAME-R | particle diameter | 33 | 0.1672 (S1) | 0.2595 | 0.3609 | 0.2559 | holds |
+| SAME-R | detector at full scale | 33 | 0.0144 | 0.0807 | 0.2997 | 0.0189 | holds |
+| CLD Flame | lost before fuel-off, Brier | 63 | 0.0175 (cld3) | 0.0545 | 0.1022 | 0.0568 | holds |
+| CLD Flame | flame lost, integrated Brier | 63 | 0.1239 (cld3) | 0.0786 | 0.1020 | 0.1020 | **does not hold**: D1 0.0726 and W0 are better |
+| CLD Flame | radiometer | 63 | 0.1145 | 0.1411 | 0.3145 | 0.1439 | holds |
+| Plastics and fabrics | kept burning (case mean) | 42 | 0.0477 (bass4) | 0.0588 (34 cases) | 0.0707 | 0.0707 | holds |
+| Plastics | quench speed, mean of day means | 38 | 2.9103 (bass4) | 1.6069 (32 cases) | 2.7049 | 2.7049 | **does not hold** (case mean 1.54 against 2.11; bass1 D1 0.98 on 32 cases) |
+| SLICE | blow-off | 31 lines | 0.0021 (slice2) | 0.0021 | 0.0028 | 0.0000 | no event among the answered lines: says little |
+| SLICE | lifting | 31 lines | 0.0041 | 0.0466 | 0.0008 | 0.0000 | no event; the false-alarm level fell tenfold |
+| s-Flame, helium | sum | 49 of 60 | 0.708 (F4 helium) | 1.057 (F3 stage 2) | 0.481 | 0.416 | **does not answer helium** |
+
+Readings by the rule written beforehand. Held on every scored target: BRE, SPICE, SAME-R, E-FIELD
+against its baselines (its newest law equals E1 on the current and is better on flame-out in the
+window), the plastics "kept burning" answer with fabrics. Did not hold: the time course of flame loss
+of the newest CLD law (it forecasts whether a flame is lost better than anything else, 0.0175, and when
+worse than a constant; the first revision D1 beats every baseline on all three scores); the quench
+speed of plastics by the registered day mean (the two-class slab law typed from the development burns
+did not carry; the test days score ten times higher than development for every release); the revised
+helium row of the burner flames (typed from eight flames of one day). SLICE's test lines hold no
+blow-off or lifting event, so its test says little. The s-Flame step first stopped on a tooling error
+before any aggregate was written (the tool's default binary predates the wsp13 forward); it was run
+once with the merged binary after its rehearsal reproduced the registered numbers, as 13.7 allows; the
+marker of the stopped attempt is kept.
+
+**What is served after the run, and what was chosen after seeing it.** BRE d3 (through `lasts`),
+`efield3`, SPICE P3, SAME-R S1, `slice2` s1, `bass4` for "kept burning", F3 stage 1 for the normal
+burner flames in nitrogen (helium, hydrogen and blends refused). Two choices are made AFTER the test
+and are labelled so wherever they are shown: CLD Flame is served by D1, and the plastics quench speed
+by bass1 D1; their test-day numbers are no longer an unbiased estimate for those two choices. The
+generation is closed: no number of any release is changed from this run.
+
+### 13.8 Revisions after the final run, by the owner's decision (15 November)
+
+The final run of 13.7 is the record of the releases it scored and is not rerun or altered. The owner,
+told that the test days are spent and that any further change can only be judged on data it has
+seen, decided: modify the values nonetheless, for the answers that stayed weak. From this commit the
+test days of the plastics investigations, of s-Flame and of the BASS-II fabric burns are study data
+like the others. Three revisions, one each, no further rounds: the quench speed of plastics, the
+helium row (and the hydrogen row) of the burner flames, the quench boundary of the fabric flame.
+
+**How they are labelled, everywhere they appear** (result files, cards, the served list, the table of
+the 19): "typed after the final run with every partition seen; in-sample on all data; no held-out
+score exists". Their scores are given on train, validation and test days separately beside the
+baselines, as descriptions of fit, never as test results. A revision is served only if it is lower
+than the constant or incidence baseline on each of the three partitions for the target it repairs
+and changes no other served answer of its investigation by more than rounding; otherwise the refusal
+of 13.7 stands. The releases scored in 13.7 keep their ids and their results.
+
+**Outcome of 13.8, plastics (typed after the final run with every partition seen; in-sample on all
+data; no held-out score exists; [feedback/bass5_post_final_result.md](feedback/bass5_post_final_result.md)).**
+Two burns carried 87 % of the test loss of `bass4`. The larger, O13a, was a coding fault: in the
+workbook row the pot settings are in the fan cell and the fan displays in the air cell, so the
+displays were read as speeds; it is a floor quench at pot 0.31, which the law forecast. With it a
+general fault of the second coding was found (a low-flow quench was coded without checking that the
+flame went out at a setting lower than the one held before) and corrected in a third coding
+(`feedback/bass1_coding_v2.md`, addendum; rules R11 to R15; four burns change, none on the validation
+days). The other burn is a slab in the wrong class, as one on the train days: width separates them
+(sideways conduction into the metal frame), and `bass5` (`sha256:050a4ceb…b82d`) adds a width input
+and one number in five places; every "kept burning" forecast is identical to `bass4`.
+
+| Quench speed, cm/s, mean of day means, third coding | `bass4` | `bass5` | constant |
+|---|---|---|---|
+| train | 0.1611 | 0.1143 | 0.6709 |
+| validation | 0.1082 | 0.1082 | 0.5466 |
+| test | 0.5633 | 0.1255 | 0.9157 |
+
+`bass5` is lower than the constant on each partition: by the rule it is served and the harness answers
+the quench speed again. On the corrected coding `bass4`, the model the final run scored, is itself
+below the constant on the test days (0.5633 against 0.9157): the failure recorded in 13.7 came from
+the two faults above. Both statements rest on a coding corrected after the test outcomes were seen.
+
+**Outcome of 13.8, s-Flame helium (after the final run with every partition seen; in-sample;
+[feedback/sflame_post_final_result.md](feedback/sflame_post_final_result.md)).** The author proposed
+no change to the helium row: the fault on the test days was in the cases. Eleven of the 26 test-day
+ethylene tests ramp their flow after ignition (`ignitionToTestRampTimeSec` in the script; the
+constant-flow rule read the key and did not use it); eight of them were scored and carried 78 % of the
+loss. A third case version excludes flow-ramped tests from the constant-flow set (no train or
+validation test is affected) and, beside it, takes the oxygen fraction of a two-candidate day from the
+pressure block (30 % before the vent and refill, 21 % after), where the blocks and the named fractions
+match in number.
+
+| Helium cases, sum, without the planned stop | cases | F3 stage 2 (zero-shot) | `f4-hydrogen` | CFI-G incidence |
+|---|---|---|---|---|
+| validation days | 35 | 0.9990 | 0.1105 | 0.3299 |
+| test days, as built for the final run | 49 | 1.0566 | 0.7080 | 0.4812 |
+| test days, flow-ramped tests excluded | 31 | 1.0226 | 0.2419 | 0.4143 |
+| test days, and oxygen by pressure block | 31 | 1.1535 | 0.1664 | 0.4143 |
+
+Hydrogen on the train days 0.3140 against 0.9087; CFI-G (0 of 210 cases) and Flame Design (0 of 444
+tables) unmoved; nitrogen ethylene identical to F3 stage 1. By the rule `f4-hydrogen`
+(`sha256:54caac19…bda9`: F3 stage 1 plus the methane step, the helium row and the hydrogen row) is
+below the incidence on the helium cases of the validation days and of the test days once the
+flow-ramped tests are excluded: it is served, and s-Flame answers helium and hydrogen; blends and
+flow-ramped tests are refused. The result of the final run on the cases as built (0.708 against 0.481)
+stands as recorded.
+
+**Outcome of 13.8, fabric quench boundary ([research/phys_quench_post_final.md](research/phys_quench_post_final.md)).**
+One number was typed (the fabric oxygen floor 14.8 % to 14.1 %) and checked once; every direction came
+out as predicted, and it does not pass: the ignition outcome is 0.1612 against 0.1333 for the constant
+on the validation burns and 0.2912 against 0 on the two test burns, which both lit. The burns bracket
+the boundary without placing it (each quenched sample has a survivor at the same reading), and passing
+would take a boundary threaded between two burns, which the author declined to type. **Not served: the
+refusal of the quench question for fabric stands**; "does the fabric keep burning" is answered by the
+solids model.
+
+### 13.9 n-Heptane droplets: D4 of `flex_heptane.wsp10`, registered 15 November before any non-train score
+
+**Why.** After 13.7 two things were left open for the large droplets near the critical diameter
+([RESULTS_HEPTANE_D3.md](RESULTS_HEPTANE_D3.md), [RESULTS_POINT_METRICS.md](RESULTS_POINT_METRICS.md)):
+the time the hot flame is lost, and the stage between that loss and the steady cool flame, which
+needs a forward. By 13.7 no further candidate goes to the validation days for this question; the
+judge has to be data nobody has read. FLEX-035 (`PSI-69:181F001:2009-11-27`, validation) is
+**studied, not used to set numbers**, as in 13.7; the author did not score it.
+
+**Candidate.** DATA-INFORMED. `flex_heptane.wsp10` D4, release
+`sha256:f3ccc122172b9d680cd17af5183bc640bf643d1175ed576b684ec9b6f324b164`, a literal revision of the
+baseline `sha256:47fb0df64160972d2272974f9a35232eab8d64dd5ebfb5913127a86cfb0b6fb7` of the new spec
+`flex_heptane-wsp-v10` (key `flex_heptane10`). Forward `crates/ignis-wsp/src/droplet10.rs`: a copy of
+the frozen `droplet3.rs` with one stage added, off when `trans.depth = 0`. Files:
+`configs/models/flex/wsp10/heptane/` (`spec.json`, `binding.json`, `baseline-d2/`, `d4-fable/`).
+Exposure is in `d4-fable/meta.json`.
+
+| Part | What is typed | Source |
+|---|---|---|
+| Everything of D2 but its cool-flame rate | copied digit for digit (76 statements) | `wsp2/heptane/d2-fable/edits.wsp` |
+| Cool-flame rate | the five statements of D3: 0.325 mm²/s at 2 mm, size exponent 0.15, no oxygen, CO2 or pressure term to 1 atm, helium +0.2 per 20 %, +0.5 per e-fold above 1 atm | twelve train cool flames (13.7) |
+| Transition stage | a cool flame that follows a hot flame lost in the forecast burns at K_c (1 − a·exp(−Δt/τ)); `trans.depth` a = 0.25 (starts at three quarters of the steady rate: 0.26 mm²/s for a 3.4 mm droplet, between the unlit droplet in the same gas, 0.21, and the steady flame, 0.35) | the train sag, 0.25 to 0.33 mm²/s before 0.35 in five train sessions (RESULTS_HEPTANE_D3 2.4); the one new number |
+| | `trans.tau_s = 3.7`, `trans.tau_exp = 0.2`: the relaxation time of the gas a flame heated | copied from D2's `post.tau0_s`, `post.tau_exp` (thirteen train runs) |
+| Radiative clock, critical diameter, widths | **unchanged from D2** | see below |
+
+**The radiative clock: derived, failed on train, not typed.** The balance asked for was written out
+(section 4b of the edits file): optically thin emission of the CO2 and H2O inside the flame sphere
+against the heat release (π/4)ρ_l K d_s q_c, the flame dying at the loss fraction
+(T_ad − T_x)/(T_ad − T_∞) with T_x = 1200 K, and the flame diameter from the transient field of a
+point source of fuel (final standoff 12 in air, gas diffusivity 1.6 cm²/s). With those constants and
+no train number it gives a flame of 7 to 8 d0 at the loss, a loss fraction that peaks and falls,
+hence a critical diameter, and a peak at 8.0 s for 194F001 (lost at 7.9 s) and 6.6 s for C01H302
+(8.0 s). As a clock it fails: the first crossing comes at 3.6 and 2.9 s for those two runs, and at
+1.4 s for a droplet 30 % above its critical diameter, where the train runs lose the flame near 5.5 s.
+The flame sphere fills within two seconds; what the train runs show is a loss that keeps growing for
+seconds after that. A cold far field was then tried (five pairs of the two growth constants); one
+pair came within 0.3 of D2's clock. Taking it would have been a choice by agreement, so it was
+dropped and set nothing. A balance with an accumulating radiating volume gives a time independent
+of d0, against six train pairs that fall as 1/d0. **So the candidate does not move the hot-flame
+end; the 10.3 s median of D2 at 3.85 mm in air stands in D4.** This part of the task is unfinished.
+
+**Train, before the freeze** (`wsp-dev feedback --partition train`, 125 cases, 20 sessions; one logged
+candidate, nothing retyped; expectations in `runs/dev/hept_d4/expectations_20261115.txt`, local).
+
+| | D4 | D2 | D3 |
+|---|---|---|---|
+| CRPS at 10 s, median / mean | 19.5 / 44.6 µm | 21.8 / 46.2 | 21.7 / 44.2 |
+| Rule of section 8 against D2 | **passes**: 5 sessions better, 11 level, 4 worse | | |
+| MAE of the median at 10 s, session-weighted | 53.6 µm | 59.4 | 53.9 |
+| MAE of the median at 39 s, case mean / session-weighted | 77.5 / 73.1 µm | 81.4 / 82.1 | 77.0 / 73.4 |
+
+Against D2 the candidate is better; against D3 it is level. The transition stage moves single runs
+both ways at 39 s: lower on N04H101 (−12 µm against D3), N02H101 (−27), C04H101 (−16) and C08H101
+(−4); higher on C02H101 (+29), C09H501 (+18), C03H601 (+14) and C02H201 (+14). I expected it to gain
+1 to 4 µm on D3 and it did not; I expected C02H101 lower and it came out higher. Where D2 loses the
+hot flame too early, a slower start of the cool flame adds to that error. So train supports the
+stage as a mechanism (five sessions show the sag) and does not show that it improves forecasts.
+
+**The fair judge.** A blind test on n-heptane tests nobody has read, measured in parallel by another
+agent under `runs/dev/heptane_fresh/`; the author read nothing there. Releases: D4 against D2
+(`sha256:edbad4d6…edef`), same cases, cutoffs and times for both. **Rule:** D4 is better than D2 on
+those tests if both hold: (1) the session-weighted MAE of the median at the 10 s horizon is lower
+than D2's; (2) the session-weighted nRMSE of the median over the available burn (from each cutoff to
+the end of the measured series inside the forward's 45 s) is lower than D2's. Otherwise D2 stays the
+carried n-heptane model and D4 is kept as a negative or undecided result. A near miss is a refusal.
+One look. The score of D4 on FLEX-035 is taken by the lane that made that comparison, after this
+freeze, and is labelled exposed; it cannot adopt D4.
+
+**Reproduce** (the binaries of `target-merged/` predate this forward; use `target-d4/release/`):
+
+```bash
+CARGO_TARGET_DIR=target-d4 cargo build --release -p ignis-cli -p ignis-wsp-dev
+```
+
+```bash
+target-d4/release/ignis.exe wsp compile --family flex_heptane10 --edits configs/models/flex/wsp10/heptane/d4-fable/edits.wsp --meta configs/models/flex/wsp10/heptane/d4-fable/meta.json --out configs/models/flex/wsp10/heptane/d4-fable/patch.json
+```
+
+```bash
+target-d4/release/ignis.exe wsp assemble --family flex_heptane10 --patch configs/models/flex/wsp10/heptane/d4-fable/patch.json --binding configs/models/flex/wsp10/heptane/binding.json
+```
+
+```bash
+target-d4/release/wsp-dev.exe feedback --release sha256:f3ccc122172b9d680cd17af5183bc640bf643d1175ed576b684ec9b6f324b164 --release sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef --partition train --horizon-s 39 --out runs/dev/hept_d4/fb_train_d4_d2_h39.json
+```
+
+`target-d4/release/ignis.exe infer forecast --release <id> --run <train run> --cutoff 3` was run once on a train run and is admitted. Not run: `cargo test -p ignis-wsp`, `tools/wsp/reassemble.py`
+(the line to add is `("flex_heptane10", "configs/models/flex/wsp10/heptane", "binding.json", ["baseline-d2", "d4-fable"])`).
+
+**Amendment, 15 November, before any score of D4 or D2 on the fresh batch exists.** The fresh batch
+arrives in parts (the 2013-03-28 day of FLEX-2 is measured; four PSI-69 days of 2013 are still being
+fetched). The one look of the rule above is split into two stages, each taken once, with the same
+releases, metric definitions and cases rule: **stage A** on the tests of 2013-03-28 that are usable and
+marked visual PASS when this amendment is committed (E087C01, C03, C04, C06, C07); **stage B** on every
+other usable, visual-PASS test of the batch, once its measurement is finished. Cutoffs 1, 3 and 5 s
+after the time origin of the series; a (test, cutoff) case enters only if the series has at least
+five valid points after the cutoff; both releases are scored on exactly the same cases. D4 is better
+than D2 only if **both** criteria hold in stage A **and** in stage B. Stage A alone is reported as
+"first day of the blind test" and adopts nothing. The session of stage A is one day, so "session-
+weighted" there equals the case mean over its tests; the conditions of that day are an assumption
+(air carried 14 days, `runs/dev/heptane_fresh/README.md`), which is stated with every stage-A number.
+
+**Stage A outcome, 15 November** (`tools/wsp/final/fresh_heptane_score.py`, scorer and prefix builder
+committed before the look; the prefix builder gives forecasts identical to `infer forecast` on a train
+run; 9 cases on 5 tests of 2013-03-28, none refused; per-case rows in
+`runs/dev/heptane_fresh/stageA_score.json`, local):
+
+| | D4 | D2 | Holds |
+|---|---|---|---|
+| (1) MAE of the median, 10 s horizon | 18.9 µm | 20.7 µm | yes |
+| (2) nRMSE of the median over the available burn | 3.84 % | 3.68 % | **no** |
+
+**D4 is not better than D2: criterion 2 fails in stage A, so stage B cannot change the outcome. D2
+stays the carried n-heptane model; D4 is kept as a negative result.** Where it moves: the large
+droplet E087C07 (3.84 mm, air assumed, 1 atm, measured to the planned stop at 40.6 s) is D4's gain at
+10 s (MAE 5.3 to 8.4 µm against 7.2 to 19.8) and its loss over the burn (nRMSE 6.7 to 7.5 % against
+6.2 to 7.3 %); the four smaller droplets leave the view or vanish within 13 s and score alike. Stage B
+may still be scored as information when the rest of the batch is measured.

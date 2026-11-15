@@ -1,0 +1,171 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "status": "FROZEN 2026-11-15 before any download, frame or track of a listed burn was opened; tip forecast only (end states already in the repository). Draft text: DRAFT, not frozen: written 2026-11-15 from listings, condition tables and the project's own inventories; no frame, video or track position of a listed burn was opened and no outcome was read for it",
+ "investigation_id": "PSI-25",
+ "batch": "BASS-batch-fresh",
+ "model": "bass_front.wsp D1 sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c (tip law: SIBAL fabric, concurrent flow only; front_tools::conditions_of refuses any other sample label)",
+ "verdict": "Essentially nothing fresh is left. Every NASA-published SIBAL concurrent burn with imagery in PSI-25, PSI-26, PSI-98, PSI-99 and PSI-100 is already partitioned and scored, already tracked and compared with D1 (PSI-26 2012 stills), or already spent by the registered Saffire transfer look (docs/wsp/SAFFIRE_TRANSFER.md). Two PSI-25 SIBAL burns were never scored by any release: T13 and T20. Neither is an independent test. T13 is on a train day (GMT 100, the day of T5/T6/T16) and T20 on a validation day (GMT 190, the day of T19/T21/T22). The investigators' Table 7.1, already transcribed in docs/wsp/research/bass_published_burns.json, gives an end-state comment for both. Only the tip forecast is unseen. The batch is therefore a 2-burn tip-only check inside sessions already used, not a fresh test partition.",
+ "rule": "Eligible: a burn of a NASA solid flame-spread investigation whose sample label names SIBAL and whose flow is concurrent (the only domain where D1 gives a tip forecast), with imagery in the PSI listing, that no release has scored and no track of which has been compared with D1. Grouped by GMT day (the project's BASS group key). Each burn carries the partition its day already has, because a day cannot be in two partitions. Questions whose outcome is already in the repository are excluded per burn.",
+ "bytes": 1245150437,
+ "bytes_note": "T13 787,338,692 + T20 457,811,745 (latest versions, runs/dev/data_all/work/atlas/files.jsonl). At about 0.25 MB/s per connection that is about 80 min on one stream, or under 10 min with tools/wsp/media/fetch_flex2_batch.py-style ranged parallel requests. Far below the 150 GB budget: there is nothing else in domain to spend it on.",
+ "groups": {
+  "PSI-25:day:2014-04-10 (GMT 100)": {
+   "partition_of_day": "train (bass-4083156d5b18dab4 group session:PSI-25:day:2014-04-10+3)",
+   "burns": [
+    "PSI-25:T13"
+   ]
+  },
+  "PSI-25:day:2014-07-09 (GMT 190)": {
+   "partition_of_day": "validation (bass-4083156d5b18dab4 group session:PSI-25:day:2014-02-14+14; PSI-25-solids-days override also validation)",
+   "burns": [
+    "PSI-25:T20"
+   ]
+  }
+ },
+ "tests": [
+  {
+   "test_id": "PSI-25:T13",
+   "date": "PSI-25:day:2014-04-10",
+   "gmt_day": 100,
+   "partition": "train (by day)",
+   "sample": "137",
+   "material": "2 cm SIBAL",
+   "flow_direction": "concurrent",
+   "conditions": {
+    "x_o2_initial": 0.175,
+    "x_o2_final": 0.176,
+    "flow_restrictor": 2,
+    "air_display_sequence": "5 1",
+    "fan_calibration": "PSI-25 fan calibration workbook has GMT 100 blocks (0 and 2 restrictors)",
+    "source": "PSI-25_Experimental table_BASS-II.csv via tools/wsp/media/fabric/enrich.py table25()"
+   },
+   "why_never_scored": "the main-view mp4 is spelled 'BASS_GMT_100_sample137_test T13.mp4', so the cohort builder found no main view and excluded it; the blind measurer's duct track (runs/dev/media/fabric/tracks/psi25/unpartitioned/T13.json, not opened beyond its qc_flags) is quality failed with R5: overlay registered in 0 % of the record after igniter off, so it has no fan history",
+   "D1_can_forecast": "tip: yes, in domain (2 cm, 17.5 % O2, flow from the GMT 100 calibration, as T16). Track ended / ignition: no, Table 7.1 already gives the end state",
+   "measurement_needed": [
+    "fan history: try the original-video zip (another capture, maybe with a readable overlay); else read FAN from the existing ovl/ strips if any registered; without a fan history the scorer refuses the track",
+    "tip track: top-view stills (iss039e010923.zip) with the frozen train method of feedback/bass_train_measurement.md, which gives per-burn band width and origin; or a re-registered duct track",
+    "scale: 2 cm band measured in the top view (same holder as T5/T6/T16); no metric scale needed (scored in sample widths)"
+   ],
+   "files": [
+    {
+     "file": "PSI-25_Raw Data_iss039e010923.zip",
+     "what": "still sequence (top view)",
+     "bytes": 696591540,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_iss039e010923.zip&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_BASS_GMT_100_sample137_test T13.mp4",
+     "what": "main view (downloaded once for the blind measurer, deleted; sha256 in runs/dev/media/fabric/manifest.json)",
+     "bytes": 65749185,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_BASS_GMT_100_sample137_test%20T13.mp4&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_BASS_GMT100_SAMPLE_137_TEST_T13 original videos.zip",
+     "what": "original videos, zipped",
+     "bytes": 24534433,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_BASS_GMT100_SAMPLE_137_TEST_T13%20original%20videos.zip&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_GMT2014_100_BASS_S137M_TPT13_ProofSheet.pdf",
+     "what": "proof sheet",
+     "bytes": 296829,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_GMT2014_100_BASS_S137M_TPT13_ProofSheet.pdf&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_T13-post-burn-picture-camera-monitor.mp4",
+     "what": "post-burn picture (shows the end state: do not open before scoring)",
+     "bytes": 166705,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_T13-post-burn-picture-camera-monitor.mp4&version=2"
+    }
+   ],
+   "outcome_already_in_repo": "end-state comment of TM Table 7.1 in docs/wsp/research/bass_published_burns.json; no spread rate for T13 is published in TM Fig. 7.4",
+   "held": true,
+   "score_only": [
+    "tip"
+   ]
+  },
+  {
+   "test_id": "PSI-25:T20",
+   "date": "PSI-25:day:2014-07-09",
+   "gmt_day": 190,
+   "partition": "validation (by day)",
+   "sample": "144m",
+   "material": "1 cm SIBAL",
+   "flow_direction": "concurrent",
+   "conditions": {
+    "x_o2_initial": 0.172,
+    "x_o2_final": 0.172,
+    "flow_restrictor": 2,
+    "fan_display_sequence": "3.6 0.9",
+    "air_display_sequence": "11 3",
+    "fan_calibration": "PSI-25 fan calibration workbook has GMT 190 blocks (0 and 2 restrictors)",
+    "source": "PSI-25_Experimental table_BASS-II.csv via tools/wsp/media/fabric/enrich.py table25()"
+   },
+   "why_never_scored": "no main-view mp4 in the listing (only the second view, the original-video zip and stills), so the cohort and the blind measurer skipped it",
+   "D1_can_forecast": "tip: yes, but on the narrow-sample rule (x1.83 in its own widths), which no train burn supports; the measurer's 1-cm duct tracks failed R6 (width map set on 2-cm holders). Track ended / ignition: no, Table 7.1 already gives the end state",
+   "measurement_needed": [
+    "tip track: top-view stills (GMT2014_190_BASS_S144M_TPT20.zip) with a per-burn band width (the R6 failure is in the duct view, the top view measures the band directly)",
+    "fan history: the second view or the original-video zip must carry the overlay; if neither does, the burn cannot be scored (the 'fan display' cells of the table are a schedule without times)",
+    "scale: 1 cm band width in the top view; check that the band is narrower than BAND_SPLIT_PX, as front_tools reads the width class from the band when it is measured"
+   ],
+   "files": [
+    {
+     "file": "PSI-25_Raw Data_GMT2014_190_BASS_S144M_TPT20.zip",
+     "what": "still sequence (top view)",
+     "bytes": 437199918,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_GMT2014_190_BASS_S144M_TPT20.zip&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_BASS_GMT190_SAMPLE_144_TEST_T20 original videos.zip",
+     "what": "original videos, zipped",
+     "bytes": 14676673,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_BASS_GMT190_SAMPLE_144_TEST_T20%20original%20videos.zip&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_BASS_GMT190_SAMPLE_144_TEST_T20_2ND_VIEW.mp4",
+     "what": "second view",
+     "bytes": 4689812,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_BASS_GMT190_SAMPLE_144_TEST_T20_2ND_VIEW.mp4&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_BASS_GMT190_SAMPLE_144_TEST_T20_Still_Sequence.mp4",
+     "what": "movie of the stills",
+     "bytes": 992495,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_BASS_GMT190_SAMPLE_144_TEST_T20_Still_Sequence.mp4&version=2"
+    },
+    {
+     "file": "PSI-25_Raw Data_GMT2014_190_BASS_S144M_TPT20_ProofSheet.pdf",
+     "what": "proof sheet",
+     "bytes": 252847,
+     "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Raw%20Data_GMT2014_190_BASS_S144M_TPT20_ProofSheet.pdf&version=2"
+    }
+   ],
+   "outcome_already_in_repo": "flow schedule and end-state comment of TM Table 7.1 in docs/wsp/research/bass_published_burns.json; no spread rate for T20 is published in TM Fig. 7.4",
+   "held": true,
+   "score_only": [
+    "tip"
+   ]
+  }
+ ],
+ "not_eligible": {
+  "PSI-25 SIBAL burns of the fabric split (25: T1, T2, T4-T6, T9-T12, T14-T19, T21-T29)": "scored: train and validation with D1 feedback; test (T11, T14 usable) scored in RESULTS_FINAL Step 4. validation was scored earlier on the val_sealed top-view tracks (12 burns per CONVERSION.md); being validation, none of them can become a fresh test",
+  "PSI-25 T3, T7 (4 cm spherical sections)": "not planar; in PSI-25-solids-days (T3 test, T7 validation); D1 has no law",
+  "PSI-25 non-SIBAL (93 burns in PSI-25-solids-days: B films, M slabs, O/P rods, F1/F3 Nomex III, F4 candle)": "D1 refuses (label not SIBAL); front5 has PMMA-sheet event probabilities only, no tip law",
+  "PSI-25 B17, O10, O17, P8, P10": "listed tests with stills but no main-view mp4; non-SIBAL; D1 refuses",
+  "PSI-25 F2, O20-O22": "in the experiment table, no files with their id in the listing",
+  "PSI-26 2012 SIBAL concurrent with stills (as-run tests 2, 4, 5, 10, 11)": "tracked and compared with D1 (docs/wsp/feedback/bass1_psi26_tracks.md; tools/wsp/bass_optical/tracks/external_psi26/); published Vf of 4, 10, 11 also transcribed",
+  "PSI-26 2012 SIBAL concurrent without imagery (as-run tests 1, 7, 8; GMT 090 and 096)": "no still zip or video in the PSI listing for 2012-03-30 or 2012-04-05; tests 7 and 8 also have published Vf in bass_published_burns.json",
+  "PSI-26 2012 SIBAL opposed (3, 5b, 6, 9)": "D1 refuses opposed; tracked anyway",
+  "PSI-26 Nomex (12, 12-R, 12-R2, 13, 14, 15)": "D1 refuses; as-run outcomes already read",
+  "PSI-26 PMMA, spheres, candles, wax, Ultem (rest of 122 as-run rows; all 114 2013 videos)": "D1 refuses; the 114 2013 videos were measured blind and all failed QC",
+  "PSI-98 Saffire-I S1, PSI-100 Saffire-III S1 (SIBAL sheets 40.6 x 94 cm, concurrent 20 / 30 cm/s)": "spent by the registered transfer look (docs/wsp/SAFFIRE_TRANSFER.md, results in docs/wsp/feedback/saffire-transfer/results/)",
+  "PSI-99 Saffire-II 2-5, 2-6 (SIBAL strips 5 x 29 cm)": "spent by the same look (strip stratum)",
+  "Saffire opposed (PSI-98 S2, PSI-100 S2) and Saffire-II non-SIBAL (2-1 to 2-4, 2-7 to 2-9)": "D1 refuses; group already spent"
+ },
+ "avoid_before_scoring": [
+  "TM NASA/TM-20210011385 Table 7.1 comments and Figs. 7.4-7.7; ZH15 appendix table (end states, spread rates)",
+  "docs/wsp/research/bass_published_burns.json (already holds T13 and T20 end-state comments)",
+  "the post-burn picture of T13; the last stills of each sequence",
+  "the blind measurer's T13 track fields other than qc_flags (it holds an outcome field)"
+ ]
+}

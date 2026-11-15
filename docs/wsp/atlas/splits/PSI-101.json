@@ -1,0 +1,54 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-101",
+ "acronym": "SAME-R",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "group_id of the test catalogue (docs/wsp/atlas/SCHEMA.md): the test day or session",
+ "catalogue_level": {
+  "test": 67,
+  "test_point": 42
+ },
+ "strata": {
+  "all": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-101:day:2010-07-16",
+     "PSI-101:day:2010-07-20",
+     "PSI-101:day:2010-07-22",
+     "PSI-101:day:2010-07-29",
+     "PSI-101:day:2010-07-30",
+     "PSI-101:day:2010-08-02",
+     "PSI-101:day:2010-08-23",
+     "PSI-101:day:2010-08-24",
+     "PSI-101:day:2010-08-25",
+     "PSI-101:day:2010-09-09"
+    ],
+    "validation": [
+     "PSI-101:day:2010-07-21",
+     "PSI-101:day:2010-09-07",
+     "PSI-101:day:2010-09-08"
+    ],
+    "test": [
+     "PSI-101:day:2010-07-19",
+     "PSI-101:day:2010-08-26",
+     "PSI-101:day:2010-08-30"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 51,
+    "validation": 24,
+    "test": 34
+   }
+  }
+ },
+ "frozen_on": "2026-11-14",
+ "use": {
+  "train": "outcomes may be read by a model's author",
+  "validation": "read only as an aggregate table from a look registered in docs/wsp/PROTOCOL.md beforehand",
+  "test": "never read by an author or by an agent working for one; scored once by the evaluation lane",
+  "held": "as validation: no outcome is read per test; scored only as an aggregate in a registered look"
+ },
+ "note": "A test that is not in the catalogue yet belongs to the partition of its group id. A group id that is not listed here is held until this file's rule has been applied to it in a new file; this file is not rewritten."
+}

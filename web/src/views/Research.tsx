@@ -143,22 +143,25 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
 }
 
 type QFilter = "all" | "answered" | "running" | "stopped";
+const RUNNING: EpisodeStatus[] = ["ready", "running", "waiting_tools", "waiting_approval", "waiting_user", "paused"];
+const STOPPED: EpisodeStatus[] = ["failed", "cancelled"];
 const QFILTER: Record<QFilter, Set<string>> = {
-  all: new Set(["ready", "running", "waiting_for_user", "paused", "completed", "failed", "cancelled", "interrupted"]),
+  all: new Set<string>([...RUNNING, "completed", ...STOPPED]),
   answered: new Set(["completed"]),
-  running: new Set(["ready", "running", "waiting_for_user", "paused"]),
-  stopped: new Set(["failed", "cancelled", "interrupted"]),
+  running: new Set<string>(RUNNING),
+  stopped: new Set<string>(STOPPED),
 };
 const QFILTER_LABEL: Record<QFilter, string> = { all: "All", answered: "Answered", running: "In progress", stopped: "Stopped" };
 const STATUS_LABEL: Record<string, string> = {
   completed: "Answered",
   running: "Working…",
   ready: "Ready",
-  waiting_for_user: "Waiting for you",
+  waiting_tools: "Working…",
+  waiting_approval: "Needs your approval",
+  waiting_user: "Waiting for you",
   paused: "Paused",
   failed: "Failed",
   cancelled: "Cancelled",
-  interrupted: "Interrupted",
 };
 /** "15 Nov, 10:28" (with the year when it is not this year). */
 const when = (iso: string) => {

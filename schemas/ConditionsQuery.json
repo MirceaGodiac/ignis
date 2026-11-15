@@ -1,5 +1,46 @@
 {
   "$defs": {
+    "AtmosphereTarget": {
+      "additionalProperties": false,
+      "description": "`ConditionsQuery::near`: a named crew atmosphere, or explicit oxygen and pressure bounds\n(a point when min = max).",
+      "properties": {
+        "atmosphere": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CrewAtmosphere"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "oxygen_max": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "oxygen_min": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pressure_max_pa": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pressure_min_pa": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "ConditionFilter": {
       "additionalProperties": false,
       "description": "A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is\nmissing or conflicting are kept only with `ConditionsQuery::include_unknown`.",
@@ -49,6 +90,26 @@
         "diagnostics"
       ],
       "type": "string"
+    },
+    "CrewAtmosphere": {
+      "description": "A crew atmosphere named by the Flame in Freefall challenge.",
+      "oneOf": [
+        {
+          "const": "moon_base",
+          "description": "Moon base and rovers: oxygen ≥ 30 % at 4.3–10.2 psi (29.6–70.3 kPa).",
+          "type": "string"
+        },
+        {
+          "const": "spacesuit",
+          "description": "Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa).",
+          "type": "string"
+        },
+        {
+          "const": "iss_earth",
+          "description": "ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa).",
+          "type": "string"
+        }
+      ]
     },
     "DatasetSchema": {
       "description": "Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;\n`dataset.v1` (C0) documents are still read, and keep their content digests because a\ndocument is re-serialized with the tag it was read with. New document types require v2.",
@@ -119,6 +180,17 @@
         "$ref": "#/$defs/ConditionKey"
       },
       "type": "array"
+    },
+    "near": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AtmosphereTarget"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Rank the matching rows by how near their ambient oxygen and pressure are to this target,\nnearest first (each row then carries `nearness`). Rows without both values are left out."
     },
     "page_size": {
       "format": "uint32",
