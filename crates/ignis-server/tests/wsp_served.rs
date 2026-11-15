@@ -209,11 +209,11 @@ async fn served_releases_and_cards_are_listed_honestly() {
             BASS_FRONT
         ]
     );
-    assert_eq!(ids.len(), 15, "the final release of every investigation");
+    assert_eq!(ids.len(), 14, "the final release of every investigation");
     let (st, cards) = http(&h, "GET", "/model-cards", None).await;
     assert_eq!(st, StatusCode::OK, "{cards}");
     let cards: Vec<ModelCard> = serde_json::from_value(cards).unwrap();
-    assert_eq!(cards.len(), 15);
+    assert_eq!(cards.len(), 14);
     for (c, r) in cards.iter().zip(&releases) {
         assert_eq!(c.release_id.as_str(), r.id);
         assert_eq!(c.trained_on, TrainedOn::NotTrained);

@@ -618,6 +618,7 @@
         }
       ],
       "limits": [
+        "Do not use for whether the fabric keeps burning, its quench or its ignition outcome (its quench boundary scored worse than a constant: 0.170 against 0.125); use bass4.wsp S1 for kept burning. Use this release for the flame-tip position only.",
         "No run has a length calibration: its scores are in sample widths; the metric route needs a width in metres and is tested on a synthetic fixture only.",
         "Twelve burns of three sessions of one campaign.",
         "Flows above 11 cm/s, 21 % oxygen and the narrow sample are outside train.",
@@ -758,76 +759,6 @@
         "Targets: number_concentration; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
       ],
       "cite": "daft.wsp W0, hand-written (literal WSP) release sha256:061f93de…5e5d, experimental, not trained; its output is model output, not a measurement.",
-      "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
-    },
-    {
-      "release_id": "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
-      "model_name": "bass1.wsp",
-      "family": "other",
-      "investigation": "BASS and BASS-II plastics (PSI-26, PSI-25): quench speed",
-      "candidate": "D1",
-      "forecasts": "Generic law forward (law.rs) over the declared features. holds_low_flow (binary): rod tip or sphere: flame not quenched by heat loss at the end of the step; holds_high_flow (binary): rod tip or sphere: stagnation flame not blown off; oxygen_limit (positive, 1): rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time; quench_speed (positive, m/s): rod tip or sphere: duct speed below which the flame goes out; blowoff_speed (positive, m/s): rod tip or sphere: duct speed at which the stagnation flame blows off; flat_holds_low_flow (binary): film or slab: flame not quenched; flat_holds_high_flow (binary): film or slab: flame not blown off; flat_quench_speed (positive, m/s): film or slab: duct speed below which the flame goes out",
-      "authorship": "data_informed",
-      "authorship_note": "Zero-shot law (four published papers on these burns read), then one step from train days (thick slabs conduct heat inward).",
-      "inputs": [
-        {
-          "name": "x_o2",
-          "kind": "condition",
-          "unit_si": "1",
-          "required": true,
-          "note": "oxygen mole fraction of the gas entering the duct during the step"
-        },
-        {
-          "name": "flow_speed",
-          "kind": "condition",
-          "unit_si": "m/s",
-          "required": true,
-          "note": "duct speed of the step"
-        },
-        {
-          "name": "nose_radius",
-          "kind": "condition",
-          "unit_si": "m",
-          "required": true,
-          "note": "radius of the rod, sphere or spherical section as installed; 0.01 for a flat sample (weight zero in the flat targets)"
-        },
-        {
-          "name": "heat_time",
-          "kind": "condition",
-          "unit_si": "s",
-          "required": true,
-          "note": "time from ignition of this burn to the end of the step (for quench and blow-off speeds: to the event); 200 where it is not recorded"
-        },
-        {
-          "name": "is_concurrent",
-          "kind": "condition",
-          "unit_si": "1",
-          "required": true,
-          "note": "flat samples: 1 if the flame spreads with the flow, 0 against it; 0 for rods and spheres"
-        }
-      ],
-      "stored_runs": false,
-      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
-      "scores": [
-        {
-          "metric": "Quench speed, plastics validation (41 burns on 12 days; 28 answered)",
-          "value": "0.507 cm/s",
-          "comparison": "constant quantiles 0.230 cm/s: still loses (zero-shot parent 0.517)",
-          "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
-        },
-        {
-          "metric": "Kept burning after the igniter, given a flame was established (22 answered)",
-          "value": "0.086",
-          "comparison": "0.120: beats every baseline",
-          "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
-        }
-      ],
-      "limits": [
-        "Serve it for the quench speed only; on the test days no release beat a constant reliably for the quench speed. Use bass4 S1 for kept burning.",
-        "The quench speed loses to a constant baseline; the authors name a missing thickness input as the cause.",
-        "Targets: holds_low_flow, holds_high_flow, oxygen_limit, quench_speed, blowoff_speed, flat_holds_low_flow, flat_holds_high_flow, flat_quench_speed; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
-      ],
-      "cite": "bass1.wsp D1, hand-written (literal WSP) release sha256:b3bb1869…6ca0, experimental, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
     },
     {
@@ -1358,9 +1289,9 @@
       "release_id": "sha256:ceefc15d4cb8cf658772ec3603c9dabd6565fb3db6528bb35c2205f0d3bdab86",
       "model_name": "bass4.wsp",
       "family": "other",
-      "investigation": "BASS and BASS-II plastics and fabrics (PSI-26, PSI-25): kept burning",
+      "investigation": "BASS and BASS-II plastics and fabrics (PSI-26, PSI-25): does the sample keep burning",
       "candidate": "S1",
-      "forecasts": "Generic law forward (law.rs) over the declared features. holds_low_flow (binary): rod tip or sphere: flame not quenched by heat loss at the end of the step; holds_high_flow (binary): rod tip or sphere: stagnation flame not blown off; oxygen_limit (positive, 1): rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time; quench_speed (positive, m/s): rod tip or sphere: duct speed below which the flame goes out; blowoff_speed (positive, m/s): rod tip or sphere: duct speed at which the stagnation flame blows off; flat_holds_low_flow (binary): film or slab: flame not quenched; flat_holds_high_flow (binary): film or slab: flame not blown off; flat_quench_speed (positive, m/s): film or slab: duct speed below which the flame goes out",
+      "forecasts": "Generic law forward (law.rs): the probability that the flame is not quenched (holds_low_flow) or not blown off (holds_high_flow) at a step of the duct flow, for flat samples (films, slabs, fabrics) and for rod tips and spheres.",
       "authorship": "data_informed",
       "authorship_note": "Stage 1 law for whether a sample keeps burning after the igniter; serve it for that question, fabrics included.",
       "inputs": [
@@ -1453,11 +1384,19 @@
         }
       ],
       "limits": [
-        "Use bass1 D1 for the quench speed.",
-        "Targets served: holds_low_flow, holds_high_flow, oxygen_limit, quench_speed, blowoff_speed, flat_holds_low_flow, flat_holds_high_flow, flat_quench_speed; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+        "Do not use for the quench speed or any flow speed at which a sample goes out (the flow speed at which a sample goes out is not forecast: the flight record gives a fan setting, not a calibrated speed, below about 4 cm/s, and no model beat a constant on held data); only the kept-burning targets are served.",
+        "Answers whether a fabric keeps burning too: its SIBAL part was typed before the fabric cases were opened and held (9 of 9 on the development days); the fabric burns of the test days are among its 42.",
+        "Targets served: flat_holds_low_flow, flat_holds_high_flow (film, slab, fabric), holds_low_flow, holds_high_flow (rod tip, sphere); choose one with settings.target (default the first)."
       ],
       "cite": "bass4.wsp S1, hand-written (literal WSP) release sha256:ceefc15d…ab86, experimental, not trained; its output is model output, not a measurement.",
-      "card_doc": "docs/wsp/research (lane branch)"
+      "card_doc": "docs/wsp/research (lane branch)",
+      "targets": [
+        "flat_holds_low_flow",
+        "flat_holds_high_flow",
+        "holds_low_flow",
+        "holds_high_flow"
+      ],
+      "targets_note": "the flow speed at which a sample goes out is not forecast: the flight record gives a fan setting, not a calibrated speed, below about 4 cm/s, and no model beat a constant on held data"
     }
   ]
 }

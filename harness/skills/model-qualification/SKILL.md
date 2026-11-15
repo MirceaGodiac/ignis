@@ -19,7 +19,7 @@ measurement. The exact list, ids and inputs are in the descriptions of `models_i
 | `flex_heptane.wsp2` D2 | FLEX (PSI-69), n-heptane | same, for n-heptane | data-informed | same; stored runs of the heptane cohort work |
 | `acme_normal.wsp13` F3 stage 1 | ACME CFI-G (PSI-159), Flame Design, s-Flame nitrogen flames | same | data-informed | conditions; optional burner temperature limit of the script (`burner_limit_c`) and diluent; refuses helium |
 | `acme_inverse.wsp12` F2 | same, inverse flames | same | data-informed (ethylene row zero-shot) | same |
-| `bass_front.wsp` D1 | BASS (PSI-25), thin fabric | flame tip position after the cutoff (quantiles) | data-informed | x_o2, width in metres, flow history, tip positions; **stored runs are refused** (no stored run has them) |
+| `bass_front.wsp` D1 | BASS (PSI-25), thin fabric | flame tip position after the cutoff (quantiles) only; not its quench or ignition outcome | data-informed | x_o2, width in metres, flow history, tip positions; **stored runs are refused** (no stored run has them) |
 
 ### The other investigations: generic law releases (law.rs)
 
@@ -32,8 +32,7 @@ on a frozen list, lower is better, beside the baseline:
 | `bre.wsp` D3 | BRE (PSI-20) | target `lasts` only (`flame_end` is refused: it is not the model). Extinction by time h = 1 - lasts(h) / lasts(cutoff) | extinction 0.139 vs incidence 0.222 (95 cases) |
 | `cld.wsp` D1 | CLD Flame (PSI-21) | flame lost, radiometer level | 0.073 vs 0.102; 0.115 vs 0.144 (63 cases). D1 was chosen after the test run, where the newer law lost on timing |
 | `efield3.wsp` S1 | E-FIELD (PSI-22) | ion current, flame out in window | 0.319 µA vs space-charge 0.575 (788 levels); 0.055 vs 0.133 |
-| `bass4.wsp` S1 | BASS / BASS-II plastics and fabrics | kept burning after the igniter | 0.048 vs 0.071 (42 burns) |
-| `bass1.wsp` D1 | BASS / BASS-II plastics | quench speed | no release beat a constant reliably on the test days |
+| `bass4.wsp` S1 | BASS / BASS-II plastics and fabrics | does the sample keep burning (targets `flat_holds_*` for films, slabs, fabrics; `holds_*` for rods, spheres) | 0.048 vs 0.071 (42 burns, fabrics included) |
 | `slice2.wsp` S1 | SLICE (PSI-106) | blow-off, lifting = lift_noted x (past_lift - past_blow) / (1 - past_blow) | 31 test lines with no blow-off or lifting event: the test says little |
 | `spice.wsp` P3 | SPICE (PSI-107) | smoke-point length, flame length | 4.18 mm vs 10.3; 1.18 vs 2.56 (6 points); not blind to the published fit |
 | `samer.wsp` S1 | SAME-R (PSI-101) | particle diameter, detector at full scale | 0.167 vs 0.256; 0.014 vs 0.019 (33 rows) |
@@ -45,6 +44,12 @@ burner-flame F3 covers s-Flame nitrogen flames (validation 0.205 vs incidence 0.
 helium, which it refuses); the BASS front model covers Saffire I to III as blind transfers. A zero-shot
 n-dodecane model for CFI (PSI-39) exists but is not served. Report a target that did not beat its
 baseline as such.
+
+**Not forecast, refuse with this reason:** the flow speed at which a sample goes out (quench speed):
+the flight record gives a fan setting, not a calibrated speed, below about 4 cm/s, and no model beat
+a constant on held data. Do not use `bass_front.wsp` for whether a fabric keeps burning, its quench
+or its ignition outcome (worse than a constant: 0.170 against 0.125); use it for the flame-tip
+position only, and `bass4.wsp` for kept burning.
 
 ## 2. Procedure
 

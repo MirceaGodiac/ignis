@@ -8,7 +8,7 @@ use ignis_wsp::MemoryPrefixes;
 use ignis_wsp_serve::{ServedList, ServedModels};
 
 /// The final served release of each investigation (lane feat/handwritten-science 34a4d09), in full.
-const PINNED: [(&str, &str); 15] = [
+const PINNED: [(&str, &str); 14] = [
     (
         "flex_methanol.wsp2",
         "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce",
@@ -36,10 +36,6 @@ const PINNED: [(&str, &str); 15] = [
     (
         "daft.wsp",
         "sha256:061f93de68e66b27606d99cae054c5bd03ddb136c03decc81489cad8b66f5e5d",
-    ),
-    (
-        "bass1.wsp",
-        "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
     ),
     (
         "cld.wsp",
