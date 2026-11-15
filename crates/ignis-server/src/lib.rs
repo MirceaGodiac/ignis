@@ -15,6 +15,7 @@
 mod api;
 mod evidence;
 pub mod fixture;
+pub mod harness_run;
 pub mod observe;
 pub mod ops;
 mod refusal;
