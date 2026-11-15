@@ -11,16 +11,12 @@ import { accessExpired, videoTimeS } from "../research/sourceAccess";
 import { csvEnd, csvFeed, csvFields, csvStart } from "../research/csvRecords";
 import { locatorKind } from "../research/units";
 import { useData } from "../shell/data";
-import { VideoOriginal, httpUrl } from "../shell/SourceOriginal";
+import { humanSourceName } from "../research/sourceTitle";
+import { IconExternal } from "../shell/icons";
+import { MODE_TEXT, PdfSkeleton, VideoOriginal, httpUrl, loadPdfPage } from "../shell/SourceOriginal";
 import { ErrorNote, Gap } from "../ui/common";
 
-const PdfPage = lazy(() => import("../shell/PdfPage"));
-
-export const MODE_TEXT: Record<SourceAccess["mode"], string> = {
-  direct: "Streamed from NASA; IGNIS stores no copy",
-  proxy: "Through the IGNIS pass-through proxy; nothing is stored",
-  link_out: "Opens at the provider",
-};
+const PdfPage = lazy(loadPdfPage);
 
 /** Locator fields carried in the URL (only what the viewers use). */
 export function locatorFromParams(sha: string, p: URLSearchParams): SourceLocator {
@@ -47,6 +43,7 @@ export function Original({ sourceId, params }: { sourceId: string | null; params
   const sha = sourceId?.startsWith("sha256:") ? sourceId.slice(7) : (sourceId ?? "");
   const loc = useMemo(() => locatorFromParams(sha, params), [sha, params]);
   const title = params.get("title") ?? loc.path ?? sourceId ?? "Source";
+  const name = humanSourceName(title);
   const access = useQuery({
     queryKey: [researchMode, "access", sourceId],
     queryFn: () => client.sourceAccess(sourceId!),
@@ -58,32 +55,29 @@ export function Original({ sourceId, params }: { sourceId: string | null; params
     },
   });
   useEffect(() => {
-    document.title = `${title} · original · IGNIS`;
-  }, [title]);
+    document.title = `${name.label} · original · IGNIS`;
+  }, [name.label]);
   if (!sourceId) return <Gap title="No source named">Open an original from a citation, a search hit, a condition or a run.</Gap>;
   const a = access.data;
   const kind = locatorKind(loc);
   return (
     <div className="view">
       <div className="view-head">
-        <h1 style={{ overflowWrap: "anywhere" }}>{title}</h1>
+        <h1 style={{ overflowWrap: "anywhere" }} title={title}>
+          {name.title}
+        </h1>
         <div className="toolbar">
-          {a && <span className="muted small">{MODE_TEXT[a.mode]}</span>}
           {a && httpUrl(a.landing_url) && (
-            <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
-              Open at NASA ↗
+            <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer" title={MODE_TEXT[a.mode]}>
+              Open at NASA <IconExternal width={13} height={13} />
             </a>
           )}
         </div>
       </div>
-      <p className="muted small">
-        <code>{sourceId}</code>
-        {loc.page != null && ` · page ${loc.page}`}
-        {loc.row != null && ` · record ${loc.row}`}
-        {loc.column && ` · column “${loc.column}”`}
-        {loc.pts_s != null && ` · ${loc.pts_s} s`}
+      <p className="muted small" title={sourceId}>
+        {[name.investigation, loc.page != null ? `cited page ${loc.page}` : null, loc.row != null ? `record ${loc.row}` : null, loc.column ? `column “${loc.column}”` : null, loc.pts_s != null ? `${loc.pts_s} s` : null].filter(Boolean).join(" · ")}
       </p>
-      {access.isPending && <p className="muted">Finding the original…</p>}
+      {access.isPending && (kind === "page" ? <PdfSkeleton label="Finding the original…" /> : <p className="muted">Finding the original…</p>)}
       {access.error && <ErrorNote error={access.error} title="The original cannot be opened from here" />}
       {a && accessExpired(a, Date.now()) && (
         <p className="muted small">
@@ -105,8 +99,8 @@ export function OriginalBody({ a, loc, kind, title }: { a: SourceAccess; loc: So
     return (
       <section className="card" style={{ padding: 12 }}>
         {/* PdfPage has the one pager (bounded by the document's page count) and "Back to cited page". */}
-        <Suspense fallback={<p className="muted small">Loading the PDF viewer…</p>}>
-          <PdfPage url={a.url} range={a.range} length={null} page={loc.page ?? 1} bbox={loc.bbox} title={title} />
+        <Suspense fallback={<PdfSkeleton />}>
+          <PdfPage url={a.url} range={a.range} length={null} hidesLength={a.mode === "direct"} page={loc.page ?? 1} bbox={loc.bbox} title={title} />
         </Suspense>
       </section>
     );
