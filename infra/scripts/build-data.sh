@@ -60,7 +60,7 @@ if [ ${#views[@]} -gt 0 ] && [ -d "$base/data/raw/samples" ]; then
 fi
 run evidence verify
 run evidence corpus snapshot
-for family in flex acme_normal acme_inverse; do
+for family in flex acme_normal acme_inverse bass; do
   run data bundle "$family"
   run data bundle "$family" --partitions train
 done
