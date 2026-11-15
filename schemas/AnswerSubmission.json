@@ -104,6 +104,21 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "CellReading": {
+      "description": "Which number of a measured cell a value reads.",
+      "oneOf": [
+        {
+          "const": "si",
+          "description": "`value_si` in `unit_si`.",
+          "type": "string"
+        },
+        {
+          "const": "raw",
+          "description": "`raw_value` in `raw_unit`, as the source wrote it.",
+          "type": "string"
+        }
+      ]
+    },
     "Claim": {
       "additionalProperties": false,
       "properties": {
@@ -133,6 +148,13 @@
         },
         "text": {
           "type": "string"
+        },
+        "values": {
+          "description": "v2 (M7b): every number the claim states, each bound to the cell it was read from. The host\nresolves each binding against the pinned artifact and compares the stated value, so a number\nin this slot is never a bare numeral.",
+          "items": {
+            "$ref": "#/$defs/ClaimValue"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -220,9 +242,88 @@
         }
       ]
     },
+    "ClaimValue": {
+      "additionalProperties": false,
+      "description": "A number a claim states, bound to the reference it is read from (M7b). The reference is the\nsource of truth: the host resolves it and records what it found in `resolved`, which is the value\nthe answer shows. A stated `value` is an assertion, compared on resolve in SI (exactly, or after\nrounding to `significant_digits`); the only tolerance is the floating-point error of a unit\nconversion. What a failed resolution does (refuse, or only record it in the answer's\n`grounding` report) is the host's `GroundingMode`.",
+      "properties": {
+        "derivation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueDerivation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required exactly when the cited artifact was written by an `analysis_execute` run: the run\nthat computed the number and everything it read."
+        },
+        "resolved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResolvedValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Set by the host: what the reference resolved to. Never submitted."
+        },
+        "significant_digits": {
+          "description": "`value` is the referenced number rounded to this many significant decimal digits (1..=17).\nAbsent: `value` is the number itself.",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "unit": {
+          "description": "The unit of `value` (`mm`, `s`, `kPa`, `1` for dimensionless); present exactly with `value`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "description": "The number as the claim states it, in `unit`. Absent: the host renders the resolved value.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
     "ClientRequestId": {
       "minLength": 1,
       "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConditionKey": {
+      "description": "A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their\n[`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The\ncatalog is closed: a new key is a contract change.",
+      "enum": [
+        "oxygen_mole_fraction",
+        "pressure",
+        "flow_velocity",
+        "gravity_level",
+        "ambient_temperature",
+        "fuel",
+        "diluent",
+        "sample_geometry",
+        "hardware",
+        "diagnostics"
+      ],
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
     },
     "EvidenceId": {
@@ -230,7 +331,109 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "GroundingLevel": {
+      "description": "How deep a resolved number was checked.",
+      "oneOf": [
+        {
+          "const": "cell",
+          "description": "Read from a pinned table cell (raw or SI, with the unit the table states).",
+          "type": "string"
+        },
+        {
+          "const": "text",
+          "description": "Found as text in a retrieved quote.",
+          "type": "string"
+        }
+      ]
+    },
+    "KeyEquals": {
+      "additionalProperties": false,
+      "properties": {
+        "equals": {
+          "$ref": "#/$defs/KeyValue"
+        },
+        "field": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "equals"
+      ],
+      "type": "object"
+    },
+    "KeyValue": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "A key value, compared for equality with the stored JSON value (numbers exactly)."
+    },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
     "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ResolvedValue": {
+      "additionalProperties": false,
+      "description": "What a value reference resolved to, written by the host.",
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/GroundingLevel"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "level",
+        "value",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "RowSelector": {
+      "additionalProperties": false,
+      "description": "Selects exactly one row of a table by its key fields.",
+      "properties": {
+        "table": {
+          "description": "JSON Pointer from the current record to the table: an array of records (row layout), or an\nobject of equal-length column arrays (column layout, e.g. `times_s` and `mean`).",
+          "type": "string"
+        },
+        "where": {
+          "description": "Key fields the selected row holds; at least one, each named once. Exactly one row must\nmatch. In row layout `field` points inside a record (`/run/run_id`); in column layout it\nnames a column array of the table (`/times_s`).",
+          "items": {
+            "$ref": "#/$defs/KeyEquals"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "table",
+        "where"
+      ],
+      "type": "object"
+    },
+    "RunId": {
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
@@ -319,6 +522,121 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
+    },
     "SupportCheck": {
       "additionalProperties": false,
       "description": "The result of checking a claim against its cited support. Set by the host or the evaluator, never\nby the agent that wrote the claim.",
@@ -390,6 +708,138 @@
           "const": "unverifiable",
           "description": "The check could not decide (support unreadable, out of the checker's reach).",
           "type": "string"
+        }
+      ]
+    },
+    "ValueDerivation": {
+      "additionalProperties": false,
+      "description": "How a derived number was computed: the `ExecutionRecord` of the `analysis_execute` run whose\noutput holds the cell, and every input that run mounted.",
+      "properties": {
+        "computation": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ArtifactId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "computation"
+      ],
+      "type": "object"
+    },
+    "ValueSource": {
+      "description": "Where a number is read from. A new kind (e.g. a dataset snapshot cell, once the v1 data routes\npublish snapshot ids; a PDF table cell, once table parse views exist) is a contract change.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "One cell of a JSON artifact (a `ConditionsTable`, a `DatasetBundle`, an analysis output),\naddressed by key fields, never by position. Cell-level grounding.",
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "column": {
+              "description": "RFC 6901 JSON Pointer from the selected record to the cell. It never steps through an\narray: an element is selected by a `RowSelector`. The cell is a number (its unit is the\nsibling `unit`/`unit_si`/`raw_unit`, or the nearest enclosing `unit`) or an object\nholding `value_si` + `unit_si` or `value` + `unit`.",
+              "type": "string"
+            },
+            "kind": {
+              "const": "artifact_cell",
+              "type": "string"
+            },
+            "rows": {
+              "description": "Row selection, outermost first. Empty when the artifact (or the object `column` starts\nfrom) is itself the record.",
+              "items": {
+                "$ref": "#/$defs/RowSelector"
+              },
+              "type": "array"
+            },
+            "sha256": {
+              "$ref": "#/$defs/Digest",
+              "description": "The content digest the value was read from: the pinned snapshot. A different digest\n(another version of the table) is stale."
+            }
+          },
+          "required": [
+            "kind",
+            "artifact_id",
+            "sha256",
+            "column"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "One cell of the experimental conditions (`conditions_query`, `/api/v1/conditions`), read\nunder a conditions snapshot. Cell-level grounding: the host queries the conditions service\nwith the episode's scope and reads the cell back.",
+          "properties": {
+            "investigation_id": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/$defs/ConditionKey"
+            },
+            "kind": {
+              "const": "conditions_cell",
+              "type": "string"
+            },
+            "locator": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceLocator"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to\npick one candidate of a conflicting cell and to select a row that has no run id."
+            },
+            "reading": {
+              "$ref": "#/$defs/CellReading",
+              "default": "si",
+              "description": "Which number of the cell: its SI value (default) or the raw value as the source wrote it."
+            },
+            "run_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RunId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The run. Absent for an investigation-level test point; `locator` then selects the row."
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Digest",
+              "description": "The `DatasetService::conditions_snapshot` the value was read under (the\n`x-ignis-snapshot` of the conditions routes). The host reads the current one from the\nservice; a different one is stale."
+            }
+          },
+          "required": [
+            "kind",
+            "snapshot",
+            "investigation_id",
+            "key"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A number written in the quote of evidence a retrieval tool returned in this episode (PDF\ntext). Text-level grounding only: the host checks that the stated number, followed by its\nunit, occurs in the quote the tool returned, not what the number measures. Numbers in PDF\ntables are not covered until table parse views exist.",
+          "properties": {
+            "evidence_id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence_quote",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "evidence_id"
+          ],
+          "type": "object"
         }
       ]
     },

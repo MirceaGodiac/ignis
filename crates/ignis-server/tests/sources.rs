@@ -159,6 +159,7 @@ fn router(dir: &Path, sources: SourceArgs) -> axum::Router {
         auth: AuthMode::Local,
         internal_routes: false,
         enable_models: false,
+        answer_grounding: Default::default(),
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),
