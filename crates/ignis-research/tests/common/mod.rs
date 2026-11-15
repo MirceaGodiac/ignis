@@ -267,3 +267,72 @@ pub fn full_turn(h: &Harness) {
         .collect();
     assert!(opaque.contains(&"x/unknownNotification"), "{opaque:?}");
 }
+
+/// The `explain` scenario of both fakes (M8): the model's message precedes an `analysis_execute`
+/// call whose `source` is larger than an event inlines. The log must hold one `step.rationale`
+/// with that message linked to the call, then `tool.started` with the arguments as a partial
+/// preview whose artifact holds them whole (minus any secret-like member, listed as redacted).
+pub fn assert_explained_call(
+    evs: &[ResearchEvent],
+    artifacts: &dyn ignis_core::services::ArtifactStore,
+    sc: &ExecutionScope,
+    redacted: &[&str],
+) {
+    use std::io::Read;
+    let rationale: Vec<_> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::StepRationale {
+                call_id,
+                text,
+                source,
+            } => Some((e.seq, call_id.clone(), text.clone(), *source)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(rationale.len(), 1, "one rationale: {rationale:?}");
+    let (r_seq, r_call, text, source) = rationale[0].clone();
+    assert_eq!(text, "Computing the spread rate from the cited table.");
+    assert_eq!(source, RationaleSource::ModelExplanation);
+    let started: Vec<_> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::ToolStarted {
+                call_id,
+                tool,
+                arguments,
+            } if tool == "analysis_execute" => Some((e, call_id.clone(), arguments.clone())),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(started.len(), 1, "tool.started once");
+    let (ev, call_id, args) = started[0].clone();
+    assert_eq!(ev.schema_version, ResearchSchema::V2);
+    assert_eq!(r_call.as_ref(), Some(&call_id), "rationale names the call");
+    assert!(r_seq < ev.seq, "rationale precedes the call");
+    let args = args.expect("arguments recorded");
+    assert_eq!(args.redacted, redacted);
+    assert!(args.value.partial, "large arguments are a preview");
+    assert_eq!(args.value.value["language"], "python");
+    let cut = args.value.value["source"].as_str().unwrap();
+    assert!(
+        cut.len() < 4096 && cut.contains("bytes in the artifact"),
+        "{}",
+        cut.len()
+    );
+    let full = args.value.full.expect("full artifact");
+    let mut bytes = vec![];
+    artifacts
+        .open(sc, &full.artifact_id, 0, None)
+        .unwrap()
+        .read_to_end(&mut bytes)
+        .unwrap();
+    let whole: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert!(whole["source"].as_str().unwrap().len() > 64 * 1024);
+    for p in redacted {
+        assert!(whole.pointer(p).is_none(), "{p} not stored");
+    }
+    assert!(!String::from_utf8_lossy(&bytes).contains("sk-not-logged"));
+    let log = serde_json::to_string(evs).unwrap();
+    assert!(!log.contains("sk-not-logged") && !log.contains("hidden reasoning"));
+}

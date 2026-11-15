@@ -7,7 +7,8 @@
 //! |---|---|
 //! | `item/agentMessage/delta` | `message.delta` (never the only copy) |
 //! | `item/completed` `agentMessage` | `message.completed` |
-//! | `item/started` / `item/completed` `mcpToolCall` | `tool.started` / `tool.finished` |
+//! | `item/started` / `item/completed` `mcpToolCall` | `tool.started` (with its arguments) / `tool.finished` |
+//! | `agentMessage` right before an `mcpToolCall` in the same turn | also `step.rationale` of that call ([`Preamble`]) |
 //! | `item/*` `userMessage` | nothing (IGNIS recorded `message.user` itself) |
 //! | `item/completed` of any other item type | `runtime.opaque` (method `item/completed`) |
 //! | `turn/completed` | `episode.status_changed` (completed / waiting_user / paused / cancelled / failed) |
@@ -15,7 +16,9 @@
 //! Every record that can be seen twice (live, then again in a thread replayed after a restart)
 //! carries a mark, so it is appended once. Deltas are live-only and unmarked.
 
-use ignis_core::contracts::{Causation, EpisodeStatus, EventBody, MessageId, ToolCallId};
+use ignis_core::contracts::{
+    Causation, EpisodeStatus, EventBody, MessageId, RationaleSource, ToolCallId,
+};
 use serde_json::Value;
 
 use super::preflight::LIVE;
@@ -37,6 +40,16 @@ pub enum StopReason {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Mapped {
     Record(RuntimeRecord),
+    /// A tool call started; the bridge records `tool.started` with its arguments (secret-like
+    /// members redacted, large arguments archived as an artifact behind a partial preview).
+    ToolStarted {
+        call_id: ToolCallId,
+        tool: String,
+        /// The arguments as the runtime reported them (absent when it reported none).
+        arguments: Option<Value>,
+        causation: Causation,
+        mark: String,
+    },
     /// Archive `payload` as an artifact and record `runtime.opaque` pointing at it.
     Opaque {
         method: String,
@@ -85,6 +98,65 @@ fn record(mark: Option<String>, causation: Causation, body: EventBody) -> Mapped
         causation,
         change: RuntimeChange::Event(body),
     })
+}
+
+/// Links the model's own message to the tool call it introduces, as a `step.rationale`.
+///
+/// What a runtime exposes as the model's explanation of a step is the text it wrote for the user
+/// right before calling a tool (Claude's text block before a `tool_use`, Codex's `agentMessage`
+/// item before an `mcpToolCall`). That text, unchanged, becomes the rationale of the first call it
+/// precedes; a call with no such message has none. Reasoning items (hidden or summarized thinking)
+/// are never used, and nothing is generated. One per turn; replays use a fresh one per turn and get
+/// the same marks.
+#[derive(Debug, Default)]
+pub struct Preamble {
+    last: Option<String>,
+    /// Calls already seen (Codex reports a call again when it completes).
+    seen: std::collections::HashSet<ToolCallId>,
+}
+
+impl Preamble {
+    /// Pass `mapped` through, inserting the rationale record before each call a message precedes.
+    pub fn link(&mut self, mapped: Vec<Mapped>) -> Vec<Mapped> {
+        let mut out = Vec::with_capacity(mapped.len());
+        for m in mapped {
+            match &m {
+                Mapped::Record(RuntimeRecord {
+                    change: RuntimeChange::Event(EventBody::AssistantMessage { text, .. }),
+                    ..
+                }) => {
+                    self.last = Some(text.clone()).filter(|t| !t.trim().is_empty());
+                }
+                Mapped::ToolStarted {
+                    call_id,
+                    causation,
+                    mark,
+                    ..
+                } => {
+                    if !self.seen.insert(call_id.clone()) {
+                        // Already linked (or not) when first seen.
+                    } else if let Some(text) = self.last.take() {
+                        out.push(record(
+                            Some(format!("{mark}:rationale")),
+                            causation.clone(),
+                            EventBody::StepRationale {
+                                call_id: Some(call_id.clone()),
+                                text,
+                                source: RationaleSource::ModelExplanation,
+                            },
+                        ));
+                    }
+                }
+                Mapped::Record(RuntimeRecord {
+                    change: RuntimeChange::Status { .. },
+                    ..
+                }) => self.last = None,
+                _ => {}
+            }
+            out.push(m);
+        }
+        out
+    }
 }
 
 fn tool_name(item: &Value) -> String {
@@ -188,15 +260,13 @@ pub fn map_item(turn: Option<&str>, item: &Value, completed: bool) -> Vec<Mapped
                     ..c
                 }
             };
-            let mut out = vec![record(
-                Some(started_mark),
-                tool_call(c.clone()),
-                EventBody::ToolStarted {
-                    arguments: None,
-                    call_id: call_id.clone(),
-                    tool: tool.clone(),
-                },
-            )];
+            let mut out = vec![Mapped::ToolStarted {
+                call_id: call_id.clone(),
+                tool: tool.clone(),
+                arguments: item.get("arguments").filter(|a| !a.is_null()).cloned(),
+                causation: tool_call(c.clone()),
+                mark: started_mark,
+            }];
             let status = s(item, "status").unwrap_or("");
             if done && status != "inProgress" {
                 let failed = status == "failed" || item.get("error").is_some_and(|e| !e.is_null());
