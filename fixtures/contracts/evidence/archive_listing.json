@@ -1,0 +1,23 @@
+{
+  "schema_version": "evidence.v2",
+  "source_id": "sha256:5ffa911fd9b6356f204646003fb9342e341810dcdfdf5cb15756e7f01ec5f771",
+  "archive_size_bytes": 549631047,
+  "total_entries": 3,
+  "first": 0,
+  "entries": [
+    {
+      "name": "F1C1/frame_000001.tif",
+      "size_bytes": 2457862,
+      "compressed_bytes": 1830211,
+      "frame": true
+    },
+    {
+      "name": "F1C1/frame_000002.tif",
+      "size_bytes": 2457862,
+      "compressed_bytes": 1829876,
+      "frame": true
+    }
+  ],
+  "next_after": 2,
+  "origin": "synthetic_fixture"
+}
