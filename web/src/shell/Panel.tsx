@@ -854,7 +854,7 @@ function OriginalItem({ sourceId, loc, title }: { sourceId: string; loc: SourceL
     <div className="panel-sec">
       <div className="toolbar" style={{ flexWrap: "wrap" }}>
         {a && <span className="muted small">{ORIGINAL_MODE_TEXT[a.mode]}</span>}
-        <OpenOriginal sourceId={sourceId} loc={loc} title={title} label="New tab ↗" newTab />
+        <OpenOriginal sourceId={sourceId} loc={loc} title={title} label="Originals tab ↗" />
         {a && httpUrl(a.landing_url) && (
           <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
             Open at NASA ↗

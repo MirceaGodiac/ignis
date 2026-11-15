@@ -154,7 +154,7 @@ function SourcePreview({ hit, onPassage }: { hit: SearchHit; onPassage: () => vo
         <button className="btn btn-s" onClick={onPassage}>
           Passage
         </button>
-        {e.locator && <OpenOriginal sourceId={e.source_id} loc={e.locator} title={title} label="New tab ↗" newTab />}
+        {e.locator && <OpenOriginal sourceId={e.source_id} loc={e.locator} title={title} label="Originals tab ↗" />}
         {a && httpUrl(a.landing_url) && (
           <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
             Open at NASA ↗
