@@ -35,7 +35,8 @@ claims bound to what you retrieved, computed or forecast in this episode.
    - `unknown_artifact` / `unresolved_pointer`: the artifact or pointer does not exist or has no
      unit. Read the artifact and cite the real field.
    - `kind_support_mismatch`: the kind does not fit the support (table above).
-   - `unpinned_release`: list the release in `model_releases`, or drop the prediction.
+   - `unpinned_release`: list the release id in `model_releases` (accepted when it is pinned on the
+     episode or ran in one of your successful `models_forecast` calls here), or drop the prediction.
    - `unknown_claim` / `invalid_structure`: fix the ids, or add the missing `limitations`.
 
 ## Outcomes
