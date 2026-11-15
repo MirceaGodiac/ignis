@@ -888,7 +888,9 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
   const generic = !["sources_search", "sources_read", "conditions_query"].includes(call.tool);
   const v = r?.result?.value;
   const flat = v && typeof v === "object" && !Array.isArray(v) && !("stored_as_artifact" in v) && Object.values(v as object).every((x) => x === null || ["string", "number", "boolean"].includes(typeof x));
-  const outputs = (r?.artifact_refs ?? []).filter((a) => a.contract !== "AnswerRefusal");
+  // A finished job's outputs travel on the job, not repeated in artifact_refs.
+  const allRefs = [...(r?.artifact_refs ?? []), ...(r?.job?.outputs ?? [])].filter((a, i, xs) => xs.findIndex((b) => b.artifact_id === a.artifact_id) === i);
+  const outputs = allRefs.filter((a) => a.contract !== "AnswerRefusal");
   return (
     <>
       <div className="panel-sec step-lead">
@@ -1013,7 +1015,7 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
                 </dd>
               </>
             )}
-            {(r?.artifact_refs ?? []).map((a) => (
+            {allRefs.map((a) => (
               <div key={a.artifact_id} style={{ display: "contents" }}>
                 <dt>Artifact</dt>
                 <dd>
