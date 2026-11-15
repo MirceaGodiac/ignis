@@ -1,0 +1,30 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "flex2-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": true,
+   "iou": 0.93,
+   "coverage": 0.97,
+   "spill": 1.01
+  },
+  {
+   "id": "flex2-cell",
+   "kind": "cell",
+   "basis": "visual",
+   "found": false,
+   "text_found": false
+  }
+ ],
+ "perf": {
+  "flex2_dwg": {
+   "pages": 1,
+   "wall_s": 12.23,
+   "cpu_s": 15.88,
+   "units": 194
+  }
+ },
+ "peak_rss_mb": 4142
+}

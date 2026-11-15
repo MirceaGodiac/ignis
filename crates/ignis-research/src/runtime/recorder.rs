@@ -360,6 +360,18 @@ impl Recorder {
                 if let Some(last) = events.last() {
                     (self.on_commit)(ep, last.seq);
                 }
+                // A turn ended: one structured metrics line for it (M5).
+                for e in &events {
+                    if let (EventBody::StatusChanged { .. }, Some(turn)) =
+                        (&e.body, &e.causation.runtime_turn_id)
+                    {
+                        let prices = crate::metrics::prices();
+                        match crate::metrics::measure_episode(&self.store, scope, ep, &prices) {
+                            Ok(m) => crate::metrics::log_turn(&m.metrics, turn),
+                            Err(err) => tracing::warn!(episode = %ep, error = %err, "turn metrics"),
+                        }
+                    }
+                }
             }
             Err(e) => tracing::warn!(episode = %ep, error = %e, "record runtime events"),
         }

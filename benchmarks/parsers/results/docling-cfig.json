@@ -1,0 +1,47 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "cfig-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.628,
+   "coverage": 0.994,
+   "spill": 1.58
+  },
+  {
+   "id": "cfig-cell",
+   "kind": "cell",
+   "basis": "glyphs",
+   "found": true,
+   "text_found": true,
+   "iou": 0.999
+  },
+  {
+   "id": "cfig-figure",
+   "kind": "figure",
+   "basis": "image_object",
+   "found": true,
+   "iou": 0.956
+  },
+  {
+   "id": "cfig-passage2",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.034,
+   "coverage": 1.0,
+   "spill": 29.28
+  }
+ ],
+ "perf": {
+  "cfig": {
+   "pages": 93,
+   "wall_s": 47.38,
+   "cpu_s": 97.03,
+   "units": 1736
+  }
+ },
+ "peak_rss_mb": 4652
+}
