@@ -1097,7 +1097,13 @@ impl DatasetService for DatasetStore {
                     .is_none_or(|part| scope.require_partition(part).is_ok())
             })
         };
-        crate::conditions::query(&full, q, visible).map_err(|e| err(ErrorCode::InvalidRequest, e))
+        // Researchers name runs as NASA does (FLEX-093); rows are keyed by run id.
+        let q = if q.run_ids.is_empty() {
+            q.clone()
+        } else {
+            crate::conditions::resolve_run_names(&full, q, &crate::conditions::run_name_index())
+        };
+        crate::conditions::query(&full, &q, visible).map_err(|e| err(ErrorCode::InvalidRequest, e))
     }
 
     /// Digest over the conditions table the service answers from (the bytes its cached copy was

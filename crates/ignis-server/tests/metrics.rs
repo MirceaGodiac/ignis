@@ -1,6 +1,7 @@
 //! M5 end to end: two turns of the fake Codex app-server (a tool call that takes 150 ms and
 //! running `thread/tokenUsage/updated` totals) → `GET /api/v1/episodes/{id}/metrics` and
-//! `GET /api/v1/metrics`: measured p50/p95, cache hit per turn, question and episode, cost from the
+//! `GET /api/v1/metrics`: p50/p95 equal to the stored log's tool gaps, cache hit per turn, question
+//! and episode, cost from the
 //! `--price-list` file, and `unpriced` for a model the list does not price.
 
 use std::path::{Path, PathBuf};
@@ -105,6 +106,45 @@ fn pct(v: &Value) -> f64 {
     v["cache_hit_pct"].as_f64().unwrap()
 }
 
+/// `tool.started` → `tool.finished` gaps (ms) of the episode's stored log, read straight from the
+/// state store the server writes (independent of the metrics code path).
+fn stored_tool_gaps_ms(dir: &Path, id: &str) -> Vec<f64> {
+    use ignis_core::contracts::{EpisodeId, EventBody};
+    use ignis_research::store::Replay;
+    let store =
+        ignis_research::ResearchStore::open(dir.join("state").join("state.sqlite")).unwrap();
+    let scope = ignis_server::v1::io::research_scope("local", false);
+    let Replay::Events { events, .. } = store
+        .replay(&scope, &EpisodeId::new(id).unwrap(), 0, 10_000)
+        .unwrap()
+    else {
+        panic!("log gone")
+    };
+    let ms = |t: &ignis_core::contracts::Timestamp| {
+        chrono::DateTime::parse_from_rfc3339(t.as_str())
+            .unwrap()
+            .timestamp_micros() as f64
+            / 1000.0
+    };
+    let mut started = std::collections::HashMap::new();
+    let mut gaps = vec![];
+    for e in &events {
+        match &e.body {
+            EventBody::ToolStarted { call_id, .. } => {
+                started.insert(call_id.to_string(), ms(&e.occurred_at));
+            }
+            EventBody::ToolFinished { result } => {
+                let s = started
+                    .remove(result.call_id.as_str())
+                    .expect("started first");
+                gaps.push(ms(&e.occurred_at) - s);
+            }
+            _ => {}
+        }
+    }
+    gaps
+}
+
 fn close(a: f64, b: f64) -> bool {
     (a - b).abs() < 1e-9
 }
@@ -154,7 +194,11 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
     assert_eq!(m["price_list"], "fixture-prices@7");
     assert_eq!(m["harness"]["model"], "fake");
 
-    // Latency measured from the log: both calls took at least the fake's 150 ms.
+    // Latency is measured from the log, not estimated: the route's numbers are exactly the
+    // `tool.started` → `tool.finished` gaps of the stored events (nearest rank: with two samples
+    // p50 is the smaller, p95 and max the larger). No wall-clock threshold: the host stamps an
+    // event when it records it, so how much of the fake's 150 ms shows depends on scheduling.
+    // Exact percentiles over fixed timestamps are pinned in ignis-research's tests/metrics.rs.
     let tools = m["tools"].as_array().unwrap();
     let search = tools
         .iter()
@@ -171,7 +215,14 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
         lat["p95_ms"].as_f64().unwrap(),
         lat["max_ms"].as_f64().unwrap(),
     );
-    assert!(p50 >= 150.0 && p50 <= p95 && close(p95, max), "{lat}");
+    let mut gaps = stored_tool_gaps_ms(dir.path(), &id);
+    gaps.sort_by(f64::total_cmp);
+    assert_eq!(gaps.len(), 2, "{gaps:?}");
+    assert!(
+        close(p50, gaps[0]) && close(p95, gaps[1]) && close(max, gaps[1]),
+        "route {lat} vs stored gaps {gaps:?}"
+    );
+    assert!(0.0 <= p50 && p50 <= p95, "{lat}");
 
     // Per turn: the thread totals become per-turn usage (the partial total is not counted twice).
     // Turn 1: 1000 in, 400 cached (40 %); turn 2: 1000 more, 800 more cached (80 %).
@@ -219,7 +270,9 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
             close(q["cost"]["cost"]["amount"].as_f64().unwrap(), w),
             "{q}"
         );
-        assert!(q["wall_time_s"].as_f64().unwrap() >= 0.15);
+        // Holds under any scheduling: `message.user` is recorded before the turn starts and the
+        // turn's last event after the fake's 150 ms call ends.
+        assert!(q["wall_time_s"].as_f64().unwrap() >= 0.15, "{q}");
     }
 
     // The workspace aggregate: every call, the token sums and the mean cost per question.

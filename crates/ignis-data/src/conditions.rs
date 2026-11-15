@@ -1279,3 +1279,123 @@ pub fn query(
 pub fn table_path() -> std::path::PathBuf {
     crate::paths::work(&["conditions"]).join("conditions_table.json")
 }
+
+/// NASA's names for runs (record aliases: `FLEX-093`, `21088 A1`, `B1`, …) → run ids, from every
+/// `work/records/<family>/experiments.jsonl`. Names are compared without case, spaces, `-` or `_`.
+/// Schemes that do not name one run (PI, campaign day, sample number) are left out. A name used by
+/// several runs maps to all of them (the rows say which investigation each belongs to).
+pub fn run_name_index() -> std::sync::Arc<BTreeMap<String, BTreeSet<RunId>>> {
+    type Key = Vec<(std::path::PathBuf, u64, Option<std::time::SystemTime>)>;
+    type Slot = Option<(Key, std::sync::Arc<BTreeMap<String, BTreeSet<RunId>>>)>;
+    static CACHE: std::sync::Mutex<Slot> = std::sync::Mutex::new(None);
+    // Rebuilt only when a records file changes (path, length, mtime).
+    let mut key: Key = std::fs::read_dir(crate::paths::work(&["records"]))
+        .into_iter()
+        .flatten()
+        .flatten()
+        .map(|e| e.path().join("experiments.jsonl"))
+        .filter_map(|p| {
+            let m = std::fs::metadata(&p).ok()?;
+            Some((p, m.len(), m.modified().ok()))
+        })
+        .collect();
+    key.sort();
+    let mut slot = CACHE.lock().unwrap_or_else(|p| p.into_inner());
+    if let Some((k, idx)) = slot.as_ref() {
+        if *k == key {
+            return idx.clone();
+        }
+    }
+    let idx = std::sync::Arc::new(build_run_name_index());
+    *slot = Some((key, idx.clone()));
+    idx
+}
+
+fn build_run_name_index() -> BTreeMap<String, BTreeSet<RunId>> {
+    const NOT_A_RUN: &[&str] = &["pi", "campaign_day", "sample_number"];
+    let mut out: BTreeMap<String, BTreeSet<RunId>> = BTreeMap::new();
+    let Ok(rd) = std::fs::read_dir(crate::paths::work(&["records"])) else {
+        return out;
+    };
+    for e in rd.flatten() {
+        let p = e.path().join("experiments.jsonl");
+        let Ok(text) = std::fs::read_to_string(&p) else {
+            continue;
+        };
+        for line in text.lines().filter(|l| !l.trim().is_empty()) {
+            let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else {
+                continue;
+            };
+            let Some(id) = v
+                .get("id")
+                .and_then(|x| x.as_str())
+                .and_then(|s| RunId::new(s).ok())
+            else {
+                continue;
+            };
+            for a in v
+                .get("aliases")
+                .and_then(|x| x.as_array())
+                .into_iter()
+                .flatten()
+            {
+                let scheme = a.get("scheme").and_then(|x| x.as_str()).unwrap_or("");
+                if NOT_A_RUN.contains(&scheme) {
+                    continue;
+                }
+                if let Some(name) = a.get("name").and_then(|x| x.as_str()) {
+                    let k = run_name_key(name);
+                    if !k.is_empty() {
+                        out.entry(k).or_default().insert(id.clone());
+                    }
+                }
+            }
+        }
+    }
+    out
+}
+
+/// The comparison form of a run name.
+pub fn run_name_key(name: &str) -> String {
+    name.chars()
+        .filter(|c| !c.is_whitespace() && *c != '-' && *c != '_')
+        .flat_map(char::to_uppercase)
+        .collect()
+}
+
+/// `q` with each requested run id that names no row replaced by the runs NASA calls by that name
+/// (its record aliases). Ids that are rows stay; names that match nothing stay (and match nothing).
+pub fn resolve_run_names(
+    full: &ConditionsTable,
+    q: &ignis_core::contracts::ConditionsQuery,
+    names: &BTreeMap<String, BTreeSet<RunId>>,
+) -> ignis_core::contracts::ConditionsQuery {
+    if q.run_ids.is_empty() {
+        return q.clone();
+    }
+    let rows: BTreeSet<&RunId> = full
+        .rows
+        .iter()
+        .filter_map(|r| r.run.run_id.as_ref())
+        .collect();
+    let mut ids: Vec<RunId> = Vec::new();
+    for id in &q.run_ids {
+        let resolved: Vec<RunId> = if rows.contains(id) {
+            vec![id.clone()]
+        } else {
+            names
+                .get(&run_name_key(id.as_str()))
+                .map(|s| s.iter().filter(|r| rows.contains(r)).cloned().collect())
+                .filter(|v: &Vec<RunId>| !v.is_empty())
+                .unwrap_or_else(|| vec![id.clone()])
+        };
+        for r in resolved {
+            if !ids.contains(&r) {
+                ids.push(r);
+            }
+        }
+    }
+    let mut out = q.clone();
+    out.run_ids = ids;
+    out
+}
