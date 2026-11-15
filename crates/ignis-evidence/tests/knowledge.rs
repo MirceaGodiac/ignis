@@ -464,24 +464,39 @@ fn a_missing_backend_is_reported_never_silent() {
     let dir = tmp("degraded");
     let db = catalog_with(&dir, &specs, 1);
     let svc = service(&db, cfg());
+    // A dense search where no vector set or key exists is degraded, and says so.
+    let d = svc
+        .search(&research(), &req("droplet", SearchMode::Dense, 10, None))
+        .unwrap();
+    d.validate().unwrap();
+    assert!(d.degraded());
+    assert_eq!(
+        d.backends
+            .iter()
+            .find(|x| x.backend == RetrievalBackend::Dense)
+            .unwrap()
+            .status,
+        BackendStatus::Unavailable
+    );
+    // The default (hybrid) is lexical + SIRA here: dense and rerank are not part of this
+    // deployment (no vector set, no key), so they are not requested and nothing is degraded.
     let p = svc
         .search(&research(), &req("droplet", SearchMode::Hybrid, 10, None))
         .unwrap();
     p.validate().unwrap();
-    assert!(p.degraded());
+    assert!(!p.degraded(), "{:?}", p.backends);
     let status = |b| p.backends.iter().find(|x| x.backend == b).unwrap();
     assert_eq!(
         status(RetrievalBackend::Lexical).status,
         BackendStatus::Used
     );
-    assert_eq!(
-        status(RetrievalBackend::Dense).status,
-        BackendStatus::Unavailable
-    );
-    assert_eq!(
-        status(RetrievalBackend::Rerank).status,
-        BackendStatus::Unavailable
-    );
+    for b in [RetrievalBackend::Dense, RetrievalBackend::Rerank] {
+        assert_eq!(status(b).status, BackendStatus::NotRequested);
+        assert!(status(b)
+            .detail
+            .as_deref()
+            .is_some_and(|d| d.contains("not part of this deployment")));
+    }
     assert!(
         p.total_count.is_none(),
         "hybrid ranking is never an exhaustive count"
