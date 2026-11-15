@@ -239,7 +239,19 @@ fn conditions_query_is_a_thin_adapter_over_the_dataset_service() {
         json!({"schema_version": "dataset.v2", "include_envelopes": true}),
     );
     ok(&r);
-    let table: ConditionsTable = serde_json::from_value(r.result.unwrap().value).unwrap();
+    // The table is stored as a ConditionsTable artifact (citable by id and digest) and travels
+    // inline when small; this service reports no snapshot, and the result says so.
+    let stored = r.artifact_refs[0].clone();
+    assert_eq!(stored.contract.as_deref(), Some("ConditionsTable"));
+    let v = r.result.unwrap().value;
+    assert_eq!(v["artifact_id"], json!(stored.artifact_id));
+    assert_eq!(v["sha256"], json!(stored.sha256));
+    assert_eq!(v["conditions_snapshot"], Value::Null);
+    assert!(v["how_to_cite"]
+        .as_str()
+        .unwrap()
+        .contains("no conditions snapshot"));
+    let table: ConditionsTable = serde_json::from_value(v["table"].clone()).unwrap();
     table.validate().unwrap();
     let q = datasets.queries.lock().unwrap().clone();
     assert_eq!(q.len(), 1);
