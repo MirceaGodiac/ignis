@@ -61,6 +61,9 @@ const SERVER_REQUESTS: &[&str] = &[
 /// harness still goes in `developerInstructions`, right after it.
 const CODEX_BASE_INSTRUCTIONS: &str = include_str!("codex_base.md");
 
+/// Values `model_reasoning_effort` accepts (`CodexConfig::reasoning_effort`).
+pub const REASONING_EFFORTS: &[&str] = &["none", "minimal", "low", "medium", "high", "xhigh"];
+
 /// Label of [`CODEX_BASE_INSTRUCTIONS`] in the build manifest.
 pub const CODEX_BASE_LABEL: &str = "ignis-codex-base";
 
@@ -131,6 +134,13 @@ impl ProfilePolicy for RuntimeProfile {
                 ("include_permissions_instructions", "false"),
                 ("include_collaboration_mode_instructions", "false"),
                 ("include_apps_instructions", "false"),
+                // `features.multi_agent` is deprecated in 0.169 and no longer removes the subagent
+                // tools: without this the `collaboration` namespace (spawn_agent, wait_agent, ...)
+                // and two multi-agent developer messages, ~9 KB, ride on every request.
+                ("agents.enabled", "false"),
+                // The `<environment_context>` user message (cwd, shell, date): a research agent
+                // without a shell has no use for it, and its cwd differs per episode.
+                ("include_environment_context", "false"),
                 ("web_search", "\"disabled\""),
                 ("sandbox_mode", "\"read-only\""),
                 ("approval_policy", "\"on-request\""),
@@ -196,6 +206,10 @@ pub struct CodexConfig {
     /// `<home>/schema/` the generated protocol schema.
     pub home: PathBuf,
     pub model: Option<String>,
+    /// `model_reasoning_effort` of every turn (one of [`REASONING_EFFORTS`]). `None`: the
+    /// runtime's default for the model (Codex 0.169 sends `medium` for the GPT-6 family). Lower
+    /// effort answers faster and bills fewer reasoning tokens; see docs/research/HARNESS_COST.md.
+    pub reasoning_effort: Option<String>,
     pub profile: RuntimeProfile,
     /// How long a host-resolved approval waits before it expires (denied).
     pub approval_timeout: Duration,
@@ -225,6 +239,7 @@ impl CodexConfig {
             expected_sha256: None,
             home: home.into(),
             model: None,
+            reasoning_effort: None,
             profile: RuntimeProfile::Public,
             approval_timeout: Duration::from_secs(15 * 60),
             request_timeout: Duration::from_secs(120),
@@ -294,6 +309,10 @@ impl CodexConfig {
         ));
         if let Some(m) = &self.model {
             cmd.arg("-c").arg(format!("model={}", toml_string(m)));
+        }
+        if let Some(e) = &self.reasoning_effort {
+            cmd.arg("-c")
+                .arg(format!("model_reasoning_effort={}", toml_string(e)));
         }
         // A shared login home (`--codex-login-home`, e.g. a developer's own `~/.codex`) brings its
         // `config.toml`, whose MCP servers (a code REPL, a browser, ...) would otherwise run inside the
@@ -379,6 +398,14 @@ fn toml_string(s: &str) -> String {
 /// Run the preflight. `Err` carries a reason fit for `GET /capabilities`.
 pub fn preflight(cfg: &CodexConfig) -> Result<RuntimeBuildManifest, String> {
     let bin = &cfg.binary;
+    if let Some(e) = &cfg.reasoning_effort {
+        if !REASONING_EFFORTS.contains(&e.as_str()) {
+            return Err(format!(
+                "reasoning effort {e:?} is not one of {}",
+                REASONING_EFFORTS.join(", ")
+            ));
+        }
+    }
     if let Some(h) = &cfg.login_home {
         // Only the presence of the file is checked; its content is the runtime's business.
         if !h.join("auth.json").is_file() {
@@ -468,6 +495,11 @@ pub fn preflight(cfg: &CodexConfig) -> Result<RuntimeBuildManifest, String> {
                 "model_instructions_file={CODEX_BASE_LABEL} sha256:{}",
                 ignis_core::hashing::sha256_hex(codex_base_instructions().as_bytes())
             )])
+            .chain(
+                cfg.reasoning_effort
+                    .iter()
+                    .map(|e| format!("model_reasoning_effort={}", toml_string(e))),
+            )
             .collect(),
         model: cfg.model.clone(),
         forwarded_env: cfg.pass_env.clone(),
@@ -642,7 +674,25 @@ fn hash_tree(root: &Path) -> std::io::Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::foreign_mcp_servers;
+    use super::{foreign_mcp_servers, preflight, CodexConfig};
+
+    fn args(cfg: &CodexConfig) -> Vec<String> {
+        cfg.command(&cfg.home)
+            .get_args()
+            .map(|a| a.to_string_lossy().into_owned())
+            .collect()
+    }
+
+    #[test]
+    fn the_reasoning_effort_is_a_process_switch_and_unknown_values_are_refused() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut cfg = CodexConfig::new(dir.path().join("codex"), dir.path());
+        assert!(!args(&cfg).iter().any(|a| a.contains("reasoning_effort")));
+        cfg.reasoning_effort = Some("low".into());
+        assert!(args(&cfg).contains(&"model_reasoning_effort=\"low\"".to_string()));
+        cfg.reasoning_effort = Some("turbo".into());
+        assert!(preflight(&cfg).unwrap_err().contains("reasoning effort"));
+    }
 
     #[test]
     fn a_shared_home_keeps_only_the_ignis_mcp_server() {

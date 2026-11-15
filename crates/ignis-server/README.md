@@ -44,7 +44,7 @@ execution. Errors are `ErrorEnvelope`. OpenAPI: `GET /api/v1/openapi.json` (gene
 
 `--codex-bin` (env `IGNIS_CODEX_BIN`) points at the native `codex` executable of the pinned release
 (`ignis_research::runtime::PINNED_CODEX_VERSION`, today 0.169.0); `--codex-sha256` pins its hash,
-`--codex-model` the model, and `--codex-login-home` (local development, `--auth local` only) a Codex home
+`--codex-model` the model, `--codex-reasoning-effort` its reasoning effort (unset: the runtime default), and `--codex-login-home` (local development, `--auth local` only) a Codex home
 signed in with a Codex account instead of an API key (`tools/codex/login.*`). At startup a preflight checks the version, hashes the binary, generates the
 protocol schema from it (`app-server generate-json-schema`, hash in the build id) and probes the stdio
 handshake. A missing or wrong binary leaves the runtime unavailable in `/capabilities`; the server still
