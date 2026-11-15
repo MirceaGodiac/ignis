@@ -22,9 +22,10 @@ use std::sync::Arc;
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
     Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef, EpisodeId, ErrorCode,
-    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, InlinePayload,
-    JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, ResponseFormat, RetryPolicy,
-    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
+    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode,
+    InlinePayload, JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, ResponseFormat,
+    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
+    ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -143,6 +144,8 @@ pub struct ToolHost {
     wake_jobs: Arc<dyn Fn() + Send + Sync>,
     /// Wakes episode readers after `answer_submit` appended `answer.completed`.
     on_commit: Option<CommitHook>,
+    /// What `answer_submit` does with a number that does not ground (M7b); `log` by default.
+    grounding: GroundingMode,
     registered: Vec<ToolDescriptor>,
 }
 
@@ -236,6 +239,7 @@ impl ToolHost {
             origin,
             wake_jobs,
             on_commit: None,
+            grounding: GroundingMode::default(),
             registered,
         }
     }
@@ -243,6 +247,13 @@ impl ToolHost {
     /// Wake episode readers when a tool appends to an episode log.
     pub fn with_commit_hook(mut self, hook: CommitHook) -> Self {
         self.on_commit = Some(hook);
+        self
+    }
+
+    /// Refuse answers whose numbers do not ground (`enforce`), or store them with the problems
+    /// recorded (`log`, the default).
+    pub fn with_grounding(mut self, mode: GroundingMode) -> Self {
+        self.grounding = mode;
         self
     }
 
@@ -377,6 +388,8 @@ impl ToolHost {
                     store: &self.store,
                     artifacts: self.artifacts.as_ref(),
                     origin: self.origin,
+                    grounding: self.grounding,
+                    datasets: self.services.datasets.as_deref(),
                 };
                 match host.submit(scope, ep, call_id, sub)? {
                     Submitted::Stored {
