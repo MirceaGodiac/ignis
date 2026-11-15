@@ -1,0 +1,27 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "same-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": false
+  },
+  {
+   "id": "same-cell",
+   "kind": "cell",
+   "basis": "visual",
+   "found": false,
+   "text_found": false
+  }
+ ],
+ "perf": {
+  "same_dwg": {
+   "pages": 1,
+   "wall_s": 15.65,
+   "cpu_s": 20.5,
+   "units": 340
+  }
+ },
+ "peak_rss_mb": 3656
+}

@@ -155,6 +155,40 @@ pub struct SearchRequest {
     /// v2.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
+    /// v2. SIRA query expansion (LANES_V2 R12a): concepts, equivalent phrasings and discriminative
+    /// terms a relevant passage would contain, never a guessed answer. The service keeps those the
+    /// corpus holds, rarest first, and adds them to the lexical score with IDF weights; the page
+    /// reports which ones it kept.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub expected_terms: Vec<ExpectedTerm>,
+}
+
+/// One expected term of a [`SearchRequest`] and how important the caller thinks it is.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ExpectedTerm {
+    pub term: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub importance: Option<TermImportance>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum TermImportance {
+    High,
+    Medium,
+    Low,
+}
+
+impl TermImportance {
+    /// The weight the finalizer gives a term of this importance (Corpus's SIRA: 1, 0.6, 0.3).
+    pub fn weight(imp: Option<TermImportance>) -> f64 {
+        match imp {
+            Some(TermImportance::High) => 1.0,
+            Some(TermImportance::Low) => 0.3,
+            _ => 0.6,
+        }
+    }
 }
 
 impl SearchRequest {
@@ -168,6 +202,17 @@ impl SearchRequest {
         if self.response_format.is_some() {
             self.schema_version
                 .require_v2("SearchRequest", "response_format")?;
+        }
+        if !self.expected_terms.is_empty() {
+            self.schema_version
+                .require_v2("SearchRequest", "expected_terms")?;
+            ensure(
+                self.expected_terms
+                    .iter()
+                    .all(|t| !t.term.trim().is_empty()),
+                "SearchRequest",
+                || "empty expected term".into(),
+            )?;
         }
         Ok(())
     }
@@ -526,6 +571,188 @@ impl SourceAccess {
             )?;
         }
         Ok(())
+    }
+}
+
+// ---------------------------------------------------------------- media indexes (R11)
+
+/// Video codec of an indexed MPEG-TS recording.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum VideoCodec {
+    H264,
+    Hevc,
+    Mpeg2,
+}
+
+/// Which keyframes an index lists.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum KeyframeCoverage {
+    /// Every keyframe of the recording (the whole file was read).
+    All,
+    /// Keyframes found by byte-range probes a few seconds of presentation time apart; enough for
+    /// keyframe-aligned segments and I-frame scrubbing, not a list of every keyframe.
+    Sampled,
+}
+
+/// One keyframe of an MPEG-TS recording.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct KeyframeEntry {
+    /// Byte offset of the TS packet that starts the keyframe's PES.
+    pub offset: u64,
+    /// Bytes from `offset` to the next video PES start: the keyframe's access unit plus the
+    /// packets of other streams interleaved with it (whole packets). The I-frame byte range.
+    pub length: u64,
+    /// Presentation time in seconds (90 kHz PTS, 33-bit wraps unwrapped by the indexer).
+    pub pts_s: Finite,
+}
+
+/// Keyframe index of one `.ts` source version (R11), the input of M12's byte-range HLS
+/// playlists. Written by `ignis sources media keyframes`, read by `/api/v1/sources/{id}/â€¦m3u8`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct MediaKeyframeIndex {
+    pub schema_version: EvidenceSchema,
+    pub source_id: SourceId,
+    /// Size of the indexed object; a source of another size makes the index stale.
+    pub size_bytes: u64,
+    /// Length of the leading packets up to and including the first PMT (whole packets): the
+    /// playlists' initialization section (`EXT-X-MAP`).
+    pub init_bytes: u64,
+    pub video_pid: u16,
+    pub codec: VideoCodec,
+    /// Presentation time where the last frame ends (last PTS + one frame duration).
+    pub end_pts_s: Finite,
+    pub coverage: KeyframeCoverage,
+    pub keyframes: Vec<KeyframeEntry>,
+    /// Bytes the indexer read to build this index (byte ranges, not the whole file).
+    pub bytes_read: u64,
+    /// Indexer name and version.
+    pub indexer: String,
+    pub origin: Origin,
+}
+
+/// MPEG-TS packet size.
+pub const TS_PACKET_BYTES: u64 = 188;
+
+impl MediaKeyframeIndex {
+    /// End of the last whole packet.
+    pub fn media_end(&self) -> u64 {
+        self.size_bytes - self.size_bytes % TS_PACKET_BYTES
+    }
+
+    /// PTS span from the first keyframe to the end.
+    pub fn duration_s(&self) -> f64 {
+        self.keyframes
+            .first()
+            .map_or(0.0, |k| self.end_pts_s.get() - k.pts_s.get())
+    }
+
+    /// Every rule a playable playlist depends on (fail closed).
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "MediaKeyframeIndex";
+        self.schema_version.require_v2(c, c)?;
+        let p = TS_PACKET_BYTES;
+        ensure(self.init_bytes > 0 && self.init_bytes % p == 0, c, || {
+            format!(
+                "init_bytes {} is not a whole number of {p}-byte packets",
+                self.init_bytes
+            )
+        })?;
+        ensure(!self.indexer.trim().is_empty(), c, || {
+            "indexer is empty".into()
+        })?;
+        let end = self.media_end();
+        let (Some(first), Some(last)) = (self.keyframes.first(), self.keyframes.last()) else {
+            return Err(ContractError::new(c, "index has no keyframes"));
+        };
+        ensure(first.offset >= self.init_bytes, c, || {
+            "the first keyframe lies inside the init section".into()
+        })?;
+        for (i, k) in self.keyframes.iter().enumerate() {
+            ensure(
+                k.offset % p == 0 && k.length % p == 0 && k.length > 0,
+                c,
+                || format!("keyframe {i}: offset/length are not whole {p}-byte packets"),
+            )?;
+            let next = self.keyframes.get(i + 1).map_or(end, |n| n.offset);
+            ensure(
+                k.offset.checked_add(k.length).is_some_and(|e| e <= next),
+                c,
+                || format!("keyframe {i}: its range runs into the next keyframe or past the end"),
+            )?;
+            if let Some(n) = self.keyframes.get(i + 1) {
+                ensure(
+                    n.offset > k.offset && n.pts_s.get() > k.pts_s.get(),
+                    c,
+                    || {
+                        format!(
+                            "keyframe {}: offsets and PTS must both increase strictly",
+                            i + 1
+                        )
+                    },
+                )?;
+            }
+        }
+        ensure(self.end_pts_s.get() > last.pts_s.get(), c, || {
+            "end_pts_s must be after the last keyframe".into()
+        })?;
+        Ok(())
+    }
+}
+
+/// One entry of a remote archive's central directory.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ArchiveEntry {
+    /// Path inside the archive (what `/sources/{id}/archive/entry?name=` takes).
+    pub name: String,
+    pub size_bytes: u64,
+    pub compressed_bytes: u64,
+    /// A TIFF frame: served converted to PNG (faithful) or WebP (display) on request.
+    pub frame: bool,
+}
+
+/// A page of a remote archive's entries (R11), read from its cached central directory; the
+/// archive itself stays at NASA.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ArchiveListing {
+    pub schema_version: EvidenceSchema,
+    pub source_id: SourceId,
+    pub archive_size_bytes: u64,
+    /// Entries in the archive (all pages).
+    pub total_entries: u64,
+    /// Index of this page's first entry in the directory order.
+    pub first: u64,
+    pub entries: Vec<ArchiveEntry>,
+    /// `after` for the next page; absent on the last page.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_after: Option<u64>,
+    pub origin: Origin,
+}
+
+impl ArchiveListing {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ArchiveListing";
+        self.schema_version.require_v2(c, c)?;
+        ensure(
+            self.first + self.entries.len() as u64 <= self.total_entries,
+            c,
+            || "page runs past the archive's entries".into(),
+        )?;
+        ensure(
+            self.next_after.is_none_or(|n| {
+                n == self.first + self.entries.len() as u64 && n < self.total_entries
+            }),
+            c,
+            || "next_after must continue right after this page".into(),
+        )?;
+        ensure(self.entries.iter().all(|e| !e.name.is_empty()), c, || {
+            "an entry has no name".into()
+        })
     }
 }
 

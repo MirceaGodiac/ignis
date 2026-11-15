@@ -21,6 +21,29 @@
         }
       ]
     },
+    "ExpectedTerm": {
+      "additionalProperties": false,
+      "description": "One expected term of a [`SearchRequest`] and how important the caller thinks it is.",
+      "properties": {
+        "importance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TermImportance"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "term": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "term"
+      ],
+      "type": "object"
+    },
     "Family": {
       "enum": [
         "flex",
@@ -98,6 +121,14 @@
         "archive"
       ],
       "type": "string"
+    },
+    "TermImportance": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "type": "string"
     }
   },
   "$id": "ignis/2.1.0/SearchRequest",
@@ -125,6 +156,13 @@
           "type": "null"
         }
       ]
+    },
+    "expected_terms": {
+      "description": "v2. SIRA query expansion (LANES_V2 R12a): concepts, equivalent phrasings and discriminative\nterms a relevant passage would contain, never a guessed answer. The service keeps those the\ncorpus holds, rarest first, and adds them to the lexical score with IDF weights; the page\nreports which ones it kept.",
+      "items": {
+        "$ref": "#/$defs/ExpectedTerm"
+      },
+      "type": "array"
     },
     "filters": {
       "$ref": "#/$defs/SearchFilters",

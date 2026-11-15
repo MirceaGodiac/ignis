@@ -390,6 +390,7 @@ export type ErrorCode =
       | "internal"
     )
   | "source_missing"
+  | "source_gone"
   | "capability_unavailable";
 /**
  * What a caller may do after an error. `reconcile` means the effect is uncertain: inspect state
@@ -551,6 +552,12 @@ export type EventBody =
         method: string;
         payload?: ArtifactRef | null;
       };
+    }
+  | {
+      kind: "usage.reported";
+      payload: {
+        usage: UsageReport;
+      };
     };
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -623,6 +630,20 @@ export type AnswerId = string;
  * via the `definition` "AnswerStatus".
  */
 export type AnswerStatus = ("complete" | "partial" | "failed") | "insufficient_evidence";
+/**
+ * How the counts of a [`UsageReport`] add up.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "UsageAccounting".
+ */
+export type UsageAccounting = "increment" | "thread_total";
+/**
+ * Where a cost figure comes from.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostBasis".
+ */
+export type CostBasis = "provider_reported" | "price_list";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ClientRequestId".
@@ -751,10 +772,146 @@ export type ClaimSupport =
       pointer: string;
     };
 /**
+ * How deep a resolved number was checked.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GroundingLevel".
+ */
+export type GroundingLevel = "cell" | "text";
+/**
+ * Where a number is read from. A new kind (e.g. a dataset snapshot cell, once the v1 data routes
+ * publish snapshot ids; a PDF table cell, once table parse views exist) is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ValueSource".
+ */
+export type ValueSource =
+  | {
+      artifact_id: ArtifactId;
+      /**
+       * RFC 6901 JSON Pointer from the selected record to the cell. It never steps through an
+       * array: an element is selected by a `RowSelector`. The cell is a number (its unit is the
+       * sibling `unit`/`unit_si`/`raw_unit`, or the nearest enclosing `unit`) or an object
+       * holding `value_si` + `unit_si` or `value` + `unit`.
+       */
+      column: string;
+      kind: "artifact_cell";
+      /**
+       * Row selection, outermost first. Empty when the artifact (or the object `column` starts
+       * from) is itself the record.
+       */
+      rows?: RowSelector[];
+      sha256: Digest4;
+    }
+  | {
+      investigation_id: string;
+      key: ConditionKey;
+      kind: "conditions_cell";
+      /**
+       * The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to
+       * pick one candidate of a conflicting cell and to select a row that has no run id.
+       */
+      locator?: SourceLocator | null;
+      reading?: CellReading;
+      /**
+       * The run. Absent for an investigation-level test point; `locator` then selects the row.
+       */
+      run_id?: RunId | null;
+      snapshot: Digest5;
+    }
+  | {
+      evidence_id: EvidenceId;
+      kind: "evidence_quote";
+    };
+/**
+ * A key value, compared for equality with the stored JSON value (numbers exactly).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyValue".
+ */
+export type KeyValue = boolean | number | string;
+/**
+ * The content digest the value was read from: the pinned snapshot. A different digest
+ * (another version of the table) is stale.
+ */
+export type Digest4 = string;
+/**
+ * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
+ * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
+ * catalog is closed: a new key is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionKey".
+ */
+export type ConditionKey =
+  | "oxygen_mole_fraction"
+  | "pressure"
+  | "flow_velocity"
+  | "gravity_level"
+  | "ambient_temperature"
+  | "fuel"
+  | "diluent"
+  | "sample_geometry"
+  | "hardware"
+  | "diagnostics";
+/**
+ * Which number of the cell: its SI value (default) or the raw value as the source wrote it.
+ */
+export type CellReading = "si" | "raw";
+/**
+ * The `DatasetService::conditions_snapshot` the value was read under (the
+ * `x-ignis-snapshot` of the conditions routes). The host reads the current one from the
+ * service; a different one is stale.
+ */
+export type Digest5 = string;
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ParseViewId".
  */
 export type ParseViewId = string;
+/**
+ * What `answer_submit` does with a grounding problem.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GroundingMode".
+ */
+export type GroundingMode = "log" | "enforce";
+/**
+ * Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerProblemKind".
+ */
+export type AnswerProblemKind =
+  | "unknown_evidence"
+  | "unknown_artifact"
+  | "unresolved_pointer"
+  | "kind_support_mismatch"
+  | "unpinned_release"
+  | "unknown_claim"
+  | "view_contract_mismatch"
+  | "ungrounded_number"
+  | "stale_snapshot"
+  | "unresolved_row"
+  | "unknown_column"
+  | "unit_mismatch"
+  | "value_mismatch"
+  | "ungrounded_derivation"
+  | "invalid_structure";
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "PageCursor".
+ */
+export type PageCursor = string;
+/**
+ * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
+ * `dataset.v1` (C0) documents are still read, and keep their content digests because a
+ * document is re-serialized with the tag it was read with. New document types require v2.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DatasetSchema".
+ */
+export type DatasetSchema = "dataset.v2" | "dataset.v1";
 /**
  * Language of an `analysis_execute` program. Closed: a new value needs a runner image that
  * provides it (and a preflight that proves it).
@@ -766,7 +923,7 @@ export type AnalysisLanguage = "python";
 /**
  * Image id (`sha256:` of the image config), pinned by the host.
  */
-export type Digest4 = string;
+export type Digest6 = string;
 /**
  * Isolation the runner actually provided. Recorded on every execution and in capability status;
  * never inferred from configuration alone (the preflight probe proves it).
@@ -775,6 +932,50 @@ export type Digest4 = string;
  * via the `definition` "RunnerIsolation".
  */
 export type RunnerIsolation = "gvisor" | "container";
+/**
+ * What a by-reference input resolved to when it was mounted, so a result names exactly the data
+ * it read (and its units).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResolvedInput".
+ */
+export type ResolvedInput =
+  | {
+      bundle_digest: Digest7;
+      columns: ColumnSpec[];
+      dataset_id: DatasetId;
+      kind: "dataset_view";
+      /**
+       * Partitions of the bundle, each granted by the scope that mounted it.
+       */
+      partitions: Partition[];
+      row_count: number;
+      /**
+       * Event that defines t = 0 for every time column.
+       */
+      time_origin: string;
+      view: string;
+    }
+  | {
+      kind: "conditions";
+      query: ConditionsQuery;
+      row_count: number;
+      snapshot: Digest8;
+    };
+/**
+ * [`super::DatasetBundle::content_digest`] of the bundle the view belongs to.
+ */
+export type Digest7 = string;
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ColumnRole".
+ */
+export type ColumnRole =
+  ("run_id" | "value" | "uncertainty" | "condition" | "flag") | "time" | "available_at" | "locator";
+/**
+ * `conditions_snapshot` of the data the table was answered from.
+ */
+export type Digest8 = string;
 /**
  * Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and
  * anything computed from them) can never be presented as NASA results or qualify a model.
@@ -800,32 +1001,59 @@ export type ExecutionOutcome =
       kind: "out_of_memory";
     };
 /**
- * Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "AnswerProblemKind".
- */
-export type AnswerProblemKind =
-  | "unknown_evidence"
-  | "unknown_artifact"
-  | "unresolved_pointer"
-  | "kind_support_mismatch"
-  | "unpinned_release"
-  | "unknown_claim"
-  | "view_contract_mismatch"
-  | "invalid_structure";
-/**
- * Where a cost figure comes from.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "CostBasis".
- */
-export type CostBasis = "provider_reported" | "price_list";
-/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "TraceId".
  */
 export type TraceId = string;
+/**
+ * The money a range of usage cost. Fails closed: usage of a model the price list does not
+ * price, or of a token class it has no price for, is `unpriced`, never zero.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostStatus".
+ */
+export type CostStatus =
+  | {
+      status: "no_usage";
+    }
+  | {
+      cost: CostFigure;
+      status: "priced";
+    }
+  | {
+      /**
+       * The models (or `unreported`) whose usage could not be priced.
+       */
+      models: string[];
+      /**
+       * Why, one line per problem.
+       */
+      reasons: string[];
+      status: "unpriced";
+    };
+/**
+ * The money a range of usage cost. Fails closed: usage of a model the price list does not
+ * price, or of a token class it has no price for, is `unpriced`, never zero.
+ */
+export type CostStatus1 =
+  | {
+      status: "no_usage";
+    }
+  | {
+      cost: CostFigure;
+      status: "priced";
+    }
+  | {
+      /**
+       * The models (or `unreported`) whose usage could not be priced.
+       */
+      models: string[];
+      /**
+       * Why, one line per problem.
+       */
+      reasons: string[];
+      status: "unpriced";
+    };
 /**
  * Idempotency key: retrying the same request returns the same episode.
  */
@@ -863,9 +1091,9 @@ export type RuntimeCredentials = "environment" | "shared_login_home" | "none";
 export type RuntimeProfile = "public";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "PageCursor".
+ * via the `definition` "TermImportance".
  */
-export type PageCursor = string;
+export type TermImportance = "high" | "medium" | "low";
 export type SearchMode = "hybrid" | "lexical" | "dense";
 /**
  * How much a search or read returns per item: `concise` keeps ids, locators and short text for
@@ -937,6 +1165,20 @@ export type OutlineNodeId = string;
  * via the `definition` "AccessMode".
  */
 export type AccessMode = "direct" | "proxy" | "link_out";
+/**
+ * Video codec of an indexed MPEG-TS recording.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "VideoCodec".
+ */
+export type VideoCodec = "h264" | "hevc" | "mpeg2";
+/**
+ * Which keyframes an index lists.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyframeCoverage".
+ */
+export type KeyframeCoverage = "all" | "sampled";
 /**
  * A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept
  * ([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads
@@ -1063,7 +1305,7 @@ export type AuthorKind = "agent" | "human";
 /**
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
-export type Digest5 = string;
+export type Digest9 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1092,21 +1334,6 @@ export type WebContent = "excerpt" | "full_snapshot";
  */
 export type BundleAudience = "builder" | "evaluator";
 /**
- * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
- * `dataset.v1` (C0) documents are still read, and keep their content digests because a
- * document is re-serialized with the tag it was read with. New document types require v2.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "DatasetSchema".
- */
-export type DatasetSchema = "dataset.v2" | "dataset.v1";
-/**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ColumnRole".
- */
-export type ColumnRole =
-  ("run_id" | "value" | "uncertainty" | "condition" | "flag") | "time" | "available_at" | "locator";
-/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "VisualBundleId".
  */
@@ -1129,25 +1356,6 @@ export type UnitsStatus = "metric" | "pixel_only" | "normalized";
  * axis or a smarter model does not calibrate a camera).
  */
 export type UnitsStatus1 = "metric" | "pixel_only" | "normalized";
-/**
- * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
- * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
- * catalog is closed: a new key is a contract change.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionKey".
- */
-export type ConditionKey =
-  | "oxygen_mole_fraction"
-  | "pressure"
-  | "flow_velocity"
-  | "gravity_level"
-  | "ambient_temperature"
-  | "fuel"
-  | "diluent"
-  | "sample_geometry"
-  | "hardware"
-  | "diagnostics";
 /**
  * What an investigation tested for one key, over its runs.
  *
@@ -1414,7 +1622,7 @@ export type GoldTopic =
 /**
  * The `set_hash` of the dev set the prompts come from.
  */
-export type Digest6 = string;
+export type Digest10 = string;
 /**
  * What a `Source.id` hashes: the fetched bytes, a listing entry (url+size+provider checksum, not yet
  * fetched) or a provider metadata record (access-gated). Only `Bytes` proves content identity.
@@ -1446,6 +1654,13 @@ export type Lineage1 =
  * via the `definition` "TrainedOn".
  */
 export type TrainedOn1 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
+/**
+ * Which number of a measured cell a value reads.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CellReading".
+ */
+export type CellReading1 = "si" | "raw";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "DirectionFilter".
@@ -1491,6 +1706,9 @@ export interface IgnisContracts {
   AnswerSubmission?: AnswerSubmission;
   AnswerRefusal?: AnswerRefusal;
   TraceBundle?: TraceBundle;
+  UsageReport?: UsageReport;
+  EpisodeMetrics?: EpisodeMetrics;
+  WorkspaceMetrics?: WorkspaceMetrics;
   CreateEpisode?: CreateEpisode;
   PostMessage?: PostMessage;
   MessageAccepted?: MessageAccepted;
@@ -1506,6 +1724,8 @@ export interface IgnisContracts {
   OutlineRequest?: OutlineRequest;
   SourceOutline?: SourceOutline;
   SourceAccess?: SourceAccess;
+  MediaKeyframeIndex?: MediaKeyframeIndex;
+  ArchiveListing?: ArchiveListing;
   ProvenanceLink?: ProvenanceLink;
   GraphNeighborsRequest?: GraphNeighborsRequest;
   GraphNeighborsPage?: GraphNeighborsPage;
@@ -2412,6 +2632,62 @@ export interface JobProgress {
   unit: string;
 }
 /**
+ * Token usage as one runtime notification reported it (M5). Input counts include the cached
+ * part; output counts include reasoning. A count the runtime did not report stays absent.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "UsageReport".
+ */
+export interface UsageReport {
+  accounting: UsageAccounting;
+  /**
+   * Of `input_tokens`, written to the provider's prompt cache (priced apart by some providers).
+   */
+  cache_write_tokens?: number | null;
+  /**
+   * Of `input_tokens`, read from the provider's prompt cache.
+   */
+  cached_input_tokens?: number | null;
+  /**
+   * Every input token, cache reads and cache writes included.
+   */
+  input_tokens: number;
+  /**
+   * Model id as the runtime reported it; absent when the notification does not name it (Codex),
+   * in which case the episode's harness pin names the model.
+   */
+  model?: string | null;
+  /**
+   * Every output token, reasoning included.
+   */
+  output_tokens: number;
+  /**
+   * Of `output_tokens`, spent on reasoning.
+   */
+  reasoning_tokens?: number | null;
+  /**
+   * What the runtime said these calls cost (`provider_reported`), when it says. IGNIS's own
+   * figures come from a price list; this is kept next to them, never mixed in.
+   */
+  reported_cost?: CostFigure | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostFigure".
+ */
+export interface CostFigure {
+  amount: number;
+  basis: CostBasis;
+  /**
+   * ISO 4217 code, e.g. `USD`.
+   */
+  currency: string;
+  /**
+   * Identity of the price list (provider page and date); present exactly for `price_list`.
+   */
+  price_list?: string | null;
+}
+/**
  * Why an event happened. Ids from the runtime are kept for correlation, but a scientific job is
  * never keyed only by a Codex id.
  *
@@ -2472,6 +2748,11 @@ export interface ResearchAnswer {
   created_at: Timestamp;
   episode_id: EpisodeId;
   evidence?: EvidenceRef[];
+  /**
+   * v2 (M7b): what the host found when it resolved the claims' numbers; absent when the answer
+   * states none.
+   */
+  grounding?: GroundingReport | null;
   limitations?: string[];
   model_releases?: ReleaseId[];
   origin: Origin;
@@ -2531,6 +2812,12 @@ export interface Claim {
   kind: ClaimKind;
   support?: ClaimSupport[];
   text: string;
+  /**
+   * v2 (M7b): every number the claim states, each bound to the cell it was read from. The host
+   * resolves each binding against the pinned artifact and compares the stated value, so a number
+   * in this slot is never a bare numeral.
+   */
+  values?: ClaimValue[];
 }
 /**
  * The result of checking a claim against its cited support. Set by the host or the evaluator, never
@@ -2550,6 +2837,91 @@ export interface SupportCheck {
    */
   model_id?: string | null;
   verdict: SupportVerdict;
+}
+/**
+ * A number a claim states, bound to the reference it is read from (M7b). The reference is the
+ * source of truth: the host resolves it and records what it found in `resolved`, which is the value
+ * the answer shows. A stated `value` is an assertion, compared on resolve in SI (exactly, or after
+ * rounding to `significant_digits`); the only tolerance is the floating-point error of a unit
+ * conversion. What a failed resolution does (refuse, or only record it in the answer's
+ * `grounding` report) is the host's `GroundingMode`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ClaimValue".
+ */
+export interface ClaimValue {
+  /**
+   * Required exactly when the cited artifact was written by an `analysis_execute` run: the run
+   * that computed the number and everything it read.
+   */
+  derivation?: ValueDerivation | null;
+  /**
+   * Set by the host: what the reference resolved to. Never submitted.
+   */
+  resolved?: ResolvedValue | null;
+  /**
+   * `value` is the referenced number rounded to this many significant decimal digits (1..=17).
+   * Absent: `value` is the number itself.
+   */
+  significant_digits?: number | null;
+  source: ValueSource;
+  /**
+   * The unit of `value` (`mm`, `s`, `kPa`, `1` for dimensionless); present exactly with `value`.
+   */
+  unit?: string | null;
+  /**
+   * The number as the claim states it, in `unit`. Absent: the host renders the resolved value.
+   */
+  value?: number | null;
+}
+/**
+ * How a derived number was computed: the `ExecutionRecord` of the `analysis_execute` run whose
+ * output holds the cell, and every input that run mounted.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ValueDerivation".
+ */
+export interface ValueDerivation {
+  computation: ArtifactId;
+  inputs?: ArtifactId[];
+}
+/**
+ * What a value reference resolved to, written by the host.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResolvedValue".
+ */
+export interface ResolvedValue {
+  level: GroundingLevel;
+  unit: string;
+  value: number;
+}
+/**
+ * Selects exactly one row of a table by its key fields.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RowSelector".
+ */
+export interface RowSelector {
+  /**
+   * JSON Pointer from the current record to the table: an array of records (row layout), or an
+   * object of equal-length column arrays (column layout, e.g. `times_s` and `mean`).
+   */
+  table: string;
+  /**
+   * Key fields the selected row holds; at least one, each named once. Exactly one row must
+   * match. In row layout `field` points inside a record (`/run/run_id`); in column layout it
+   * names a column array of the table (`/times_s`).
+   */
+  where: KeyEquals[];
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyEquals".
+ */
+export interface KeyEquals {
+  equals: KeyValue;
+  field: string;
 }
 /**
  * A citable pointer into one source version. Verifiable only against that version's asset and
@@ -2572,6 +2944,37 @@ export interface EvidenceRef {
    */
   quote?: string | null;
   source_id: SourceId;
+}
+/**
+ * What the host found when it resolved an answer's numbers (M7b), under the mode it ran in.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GroundingReport".
+ */
+export interface GroundingReport {
+  /**
+   * Value references that resolved (and matched, where a value was stated).
+   */
+  grounded: number;
+  mode: GroundingMode;
+  /**
+   * The grounding problems (`AnswerProblemKind::is_grounding`). Under `enforce` an answer with
+   * any is refused, so a stored one has none.
+   */
+  problems?: AnswerProblem[];
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerProblem".
+ */
+export interface AnswerProblem {
+  /**
+   * 0-based index into `blocks`.
+   */
+  block?: number | null;
+  claim_id?: ClaimId | null;
+  detail: string;
+  kind: AnswerProblemKind;
 }
 /**
  * Argument of `datasets_inspect`.
@@ -2621,18 +3024,86 @@ export interface AnalysisExecuteRequest {
   source: string;
 }
 /**
- * One input of an analysis: an artifact of the caller's workspace, mounted read-only at
- * `/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.
+ * One input of an analysis, named by reference and mounted read-only at `/in/<name>`. Exactly one
+ * of `artifact_id`, `dataset_view` or `conditions` is set. The host resolves the reference under
+ * the caller's scope (every partition check applies, also to the lineage of an artifact), copies
+ * the bytes and verifies their digest; the request never carries the data itself. The runner never
+ * sees the host filesystem or other stores. `/job/inputs.json` lists the mounted inputs
+ * ([`MountedInput`]) for the program.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "AnalysisInput".
  */
 export interface AnalysisInput {
-  artifact_id: ArtifactId;
+  /**
+   * An artifact of the caller's workspace (e.g. the output of an earlier analysis).
+   */
+  artifact_id?: ArtifactId | null;
+  /**
+   * The complete answer of a `conditions_query` (every page), as one `ConditionsTable` JSON
+   * document; `cursor` must be absent.
+   */
+  conditions?: ConditionsQuery | null;
+  /**
+   * One columnar view (Parquet) of a curated dataset, as `datasets_inspect` lists it.
+   */
+  dataset_view?: DatasetViewRef | null;
   /**
    * File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).
    */
   name: string;
+}
+/**
+ * `conditions_query`: per-run conditions and, on request, each investigation's tested envelope.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionsQuery".
+ */
+export interface ConditionsQuery {
+  cursor?: PageCursor | null;
+  filters?: ConditionFilter[];
+  include_envelopes?: boolean;
+  include_unknown?: boolean;
+  /**
+   * Empty = every investigation.
+   */
+  investigation_ids?: string[];
+  /**
+   * Columns; empty = every key.
+   */
+  keys?: ConditionKey[];
+  page_size?: number | null;
+  run_ids?: RunId[];
+  schema_version: DatasetSchema;
+}
+/**
+ * A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
+ * missing or conflicting are kept only with `ConditionsQuery::include_unknown`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionFilter".
+ */
+export interface ConditionFilter {
+  /**
+   * Categorical keys.
+   */
+  any_of?: string[];
+  key: ConditionKey;
+  max_si?: number | null;
+  /**
+   * Numeric keys, SI.
+   */
+  min_si?: number | null;
+}
+/**
+ * A view of a dataset bundle by name.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DatasetViewRef".
+ */
+export interface DatasetViewRef {
+  dataset_id: DatasetId;
+  view: string;
 }
 /**
  * The record of one `analysis_execute` run (the job's first output artifact): code identity,
@@ -2668,7 +3139,7 @@ export interface ExecutionRecord {
  * via the `definition` "RunnerEnvironment".
  */
 export interface RunnerEnvironment {
-  image_id: Digest4;
+  image_id: Digest6;
   /**
    * Interpreter version reported by the image during preflight.
    */
@@ -2680,7 +3151,9 @@ export interface RunnerEnvironment {
   oci_runtime: string;
 }
 /**
- * An input as the program saw it: `/in/<name>` held exactly these bytes.
+ * An input as the program saw it: `/in/<name>` held exactly these bytes (`artifact.sha256`,
+ * verified while copying). `resolved` says what a dataset or conditions reference resolved to; it
+ * is absent for a workspace artifact.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "MountedInput".
@@ -2688,6 +3161,21 @@ export interface RunnerEnvironment {
 export interface MountedInput {
   artifact: ArtifactRef;
   name: string;
+  resolved?: ResolvedInput | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ColumnSpec".
+ */
+export interface ColumnSpec {
+  name: string;
+  nullable: boolean;
+  quantity?: Quantity | null;
+  role: ColumnRole;
+  /**
+   * SI unit of the stored values; display conversions never change it.
+   */
+  unit?: string | null;
 }
 /**
  * Resource budget of one execution, set by the host (never by the request).
@@ -2816,19 +3304,6 @@ export interface AnswerRefusal {
   schema_version: ResearchSchema;
 }
 /**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "AnswerProblem".
- */
-export interface AnswerProblem {
-  /**
-   * 0-based index into `blocks`.
-   */
-  block?: number | null;
-  claim_id?: ClaimId | null;
-  detail: string;
-  kind: AnswerProblemKind;
-}
-/**
  * Everything needed to audit, cost and compare one episode (K1.8): the harness it ran with, its
  * event range, every tool call's input and output, measured usage and cost, and the partitions it
  * touched. Benchmark scorecards read traces; they never re-run an episode to learn its cost.
@@ -2866,22 +3341,6 @@ export interface TraceBundle {
   trace_id: TraceId;
   usage?: TokenUsage[];
   wall_time_s: number;
-}
-/**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "CostFigure".
- */
-export interface CostFigure {
-  amount: number;
-  basis: CostBasis;
-  /**
-   * ISO 4217 code, e.g. `USD`.
-   */
-  currency: string;
-  /**
-   * Identity of the price list (provider page and date); present exactly for `price_list`.
-   */
-  price_list?: string | null;
 }
 /**
  * A contiguous range of one episode's log, both ends included.
@@ -2945,6 +3404,141 @@ export interface TokenUsage {
   model: string;
   output_tokens: number;
   reasoning_tokens?: number | null;
+}
+/**
+ * Metrics of one episode.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EpisodeMetrics".
+ */
+export interface EpisodeMetrics {
+  cost: CostStatus;
+  episode_id: EpisodeId;
+  harness?: HarnessRef | null;
+  /**
+   * Highest `seq` the metrics read (the log is read from seq 1).
+   */
+  last_seq: number;
+  /**
+   * Identity of the price list costs were computed with (`<name>@<version>`).
+   */
+  price_list: string;
+  questions: QuestionMetrics[];
+  tokens: TokenTotals;
+  tools: ToolMetrics[];
+  turns: TurnMetrics[];
+}
+/**
+ * One user question: its `message.user` and the turns that started under it (before the next
+ * question).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "QuestionMetrics".
+ */
+export interface QuestionMetrics {
+  cost: CostStatus;
+  message_seq: number;
+  tokens: TokenTotals;
+  tool_calls: number;
+  turns: number;
+  /**
+   * From the `message.user` to the last event before the next question (host clock).
+   */
+  wall_time_s: number;
+}
+/**
+ * Token totals of a turn, a question, an episode or a workspace (sums of reported usage).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TokenTotals".
+ */
+export interface TokenTotals {
+  /**
+   * `100 * cached_input_tokens / input_tokens`; absent when the cached count is unknown or
+   * there was no input.
+   */
+  cache_hit_pct?: number | null;
+  cache_write_tokens?: number | null;
+  /**
+   * Absent when no contributing report gave a cached count (unknown, not zero).
+   */
+  cached_input_tokens?: number | null;
+  input_tokens: number;
+  output_tokens: number;
+  reasoning_tokens?: number | null;
+  /**
+   * `usage.reported` events that contributed.
+   */
+  reports: number;
+}
+/**
+ * One tool's calls in the measured range.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ToolMetrics".
+ */
+export interface ToolMetrics {
+  /**
+   * Calls started.
+   */
+  calls: number;
+  /**
+   * Absent when no call finished.
+   */
+  latency?: LatencyStats | null;
+  tool: string;
+  /**
+   * Calls started whose `tool.finished` is not in the log (still running, or cut).
+   */
+  unfinished: number;
+}
+/**
+ * Latency of finished tool calls, measured from `tool.started` to `tool.finished` (the
+ * `occurred_at` of each, stamped by the host when it records them). Percentiles use the
+ * nearest-rank method over the measured samples; nothing is interpolated or estimated.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "LatencyStats".
+ */
+export interface LatencyStats {
+  max_ms: number;
+  p50_ms: number;
+  p95_ms: number;
+  samples: number;
+}
+/**
+ * One runtime turn.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TurnMetrics".
+ */
+export interface TurnMetrics {
+  cost: CostStatus;
+  events: EventRange;
+  /**
+   * `seq` of the `message.user` the turn answers, when the log has one before it.
+   */
+  question_seq?: number | null;
+  runtime_turn_id: string;
+  tokens: TokenTotals;
+  tool_calls: number;
+}
+/**
+ * Aggregate over the episodes of a workspace: latencies over every call (never averaged
+ * per-episode percentiles), token sums, and the mean cost per question when every question is
+ * priced.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WorkspaceMetrics".
+ */
+export interface WorkspaceMetrics {
+  cost: CostStatus;
+  cost_per_question: CostStatus1;
+  episodes: number;
+  price_list: string;
+  questions: number;
+  tokens: TokenTotals;
+  tools: ToolMetrics[];
 }
 /**
  * `POST /api/v1/episodes`.
@@ -3119,6 +3713,13 @@ export interface SearchRequest {
    */
   corpus_snapshot?: CorpusSnapshotId | null;
   cursor?: PageCursor | null;
+  /**
+   * v2. SIRA query expansion (LANES_V2 R12a): concepts, equivalent phrasings and discriminative
+   * terms a relevant passage would contain, never a guessed answer. The service keeps those the
+   * corpus holds, rarest first, and adds them to the lexical score with IDF weights; the page
+   * reports which ones it kept.
+   */
+  expected_terms?: ExpectedTerm[];
   filters?: SearchFilters;
   mode?: SearchMode;
   /**
@@ -3131,6 +3732,16 @@ export interface SearchRequest {
    */
   response_format?: ResponseFormat | null;
   schema_version: EvidenceSchema;
+}
+/**
+ * One expected term of a [`SearchRequest`] and how important the caller thinks it is.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ExpectedTerm".
+ */
+export interface ExpectedTerm {
+  importance?: TermImportance | null;
+  term: string;
 }
 export interface SearchFilters {
   families?: Family[];
@@ -3314,6 +3925,108 @@ export interface SourceAccess {
   schema_version: EvidenceSchema;
   source_id: SourceId;
   url: string;
+}
+/**
+ * Keyframe index of one `.ts` source version (R11), the input of M12's byte-range HLS
+ * playlists. Written by `ignis sources media keyframes`, read by `/api/v1/sources/{id}/â€¦m3u8`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "MediaKeyframeIndex".
+ */
+export interface MediaKeyframeIndex {
+  /**
+   * Bytes the indexer read to build this index (byte ranges, not the whole file).
+   */
+  bytes_read: number;
+  codec: VideoCodec;
+  coverage: KeyframeCoverage;
+  /**
+   * Presentation time where the last frame ends (last PTS + one frame duration).
+   */
+  end_pts_s: number;
+  /**
+   * Indexer name and version.
+   */
+  indexer: string;
+  /**
+   * Length of the leading packets up to and including the first PMT (whole packets): the
+   * playlists' initialization section (`EXT-X-MAP`).
+   */
+  init_bytes: number;
+  keyframes: KeyframeEntry[];
+  origin: Origin;
+  schema_version: EvidenceSchema;
+  /**
+   * Size of the indexed object; a source of another size makes the index stale.
+   */
+  size_bytes: number;
+  source_id: SourceId;
+  video_pid: number;
+}
+/**
+ * One keyframe of an MPEG-TS recording.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyframeEntry".
+ */
+export interface KeyframeEntry {
+  /**
+   * Bytes from `offset` to the next video PES start: the keyframe's access unit plus the
+   * packets of other streams interleaved with it (whole packets). The I-frame byte range.
+   */
+  length: number;
+  /**
+   * Byte offset of the TS packet that starts the keyframe's PES.
+   */
+  offset: number;
+  /**
+   * Presentation time in seconds (90 kHz PTS, 33-bit wraps unwrapped by the indexer).
+   */
+  pts_s: number;
+}
+/**
+ * A page of a remote archive's entries (R11), read from its cached central directory; the
+ * archive itself stays at NASA.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ArchiveListing".
+ */
+export interface ArchiveListing {
+  archive_size_bytes: number;
+  entries: ArchiveEntry[];
+  /**
+   * Index of this page's first entry in the directory order.
+   */
+  first: number;
+  /**
+   * `after` for the next page; absent on the last page.
+   */
+  next_after?: number | null;
+  origin: Origin;
+  schema_version: EvidenceSchema;
+  source_id: SourceId;
+  /**
+   * Entries in the archive (all pages).
+   */
+  total_entries: number;
+}
+/**
+ * One entry of a remote archive's central directory.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ArchiveEntry".
+ */
+export interface ArchiveEntry {
+  compressed_bytes: number;
+  /**
+   * A TIFF frame: served converted to PNG (faithful) or WebP (display) on request.
+   */
+  frame: boolean;
+  /**
+   * Path inside the archive (what `/sources/{id}/archive/entry?name=` takes).
+   */
+  name: string;
+  size_bytes: number;
 }
 /**
  * A typed edge between two nodes, with the evidence and method that established it. A purely
@@ -3532,7 +4245,7 @@ export interface WikiItem {
  */
 export interface WikiRevision {
   author: Author;
-  content_digest: Digest5;
+  content_digest: Digest9;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
   items: WikiEntry[];
@@ -3737,20 +4450,6 @@ export interface DatasetView {
   row_count: number;
 }
 /**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ColumnSpec".
- */
-export interface ColumnSpec {
-  name: string;
-  nullable: boolean;
-  quantity?: Quantity | null;
-  role: ColumnRole;
-  /**
-   * SI unit of the stored values; display conversions never change it.
-   */
-  unit?: string | null;
-}
-/**
  * Contours extracted from one video, with camera, time basis and calibration status. Metric
  * contours are `ContourObservation` JSONL (meters); `pixel_only` / `normalized` contours are
  * [`ImageContourObservation`] JSONL and can never be read as `ContourObservation`.
@@ -3818,48 +4517,6 @@ export interface ImageContourObservation {
   status: ContourStatus;
   time_s: number;
   units: UnitsStatus1;
-}
-/**
- * `conditions_query`: per-run conditions and, on request, each investigation's tested envelope.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionsQuery".
- */
-export interface ConditionsQuery {
-  cursor?: PageCursor | null;
-  filters?: ConditionFilter[];
-  include_envelopes?: boolean;
-  include_unknown?: boolean;
-  /**
-   * Empty = every investigation.
-   */
-  investigation_ids?: string[];
-  /**
-   * Columns; empty = every key.
-   */
-  keys?: ConditionKey[];
-  page_size?: number | null;
-  run_ids?: RunId[];
-  schema_version: DatasetSchema;
-}
-/**
- * A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
- * missing or conflicting are kept only with `ConditionsQuery::include_unknown`.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionFilter".
- */
-export interface ConditionFilter {
-  /**
-   * Categorical keys.
-   */
-  any_of?: string[];
-  key: ConditionKey;
-  max_si?: number | null;
-  /**
-   * Numeric keys, SI.
-   */
-  min_si?: number | null;
 }
 /**
  * A page of the conditions matrix. Every row has exactly one cell per key in `keys`, so a gap is
@@ -4517,7 +5174,7 @@ export interface GoldPromptSet {
   origin: Origin;
   prompts: GoldPrompt[];
   schema_version: EvaluationSchema;
-  set_hash: Digest6;
+  set_hash: Digest10;
   set_id: GoldSetId;
 }
 /**

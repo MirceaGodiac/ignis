@@ -11,8 +11,8 @@ use serde_json::{json, Value};
 
 use crate::families::{self, family_of, NAMES};
 use crate::sources::intl::{self, common as ic, darts, hreda, mendeley, zenodo};
-use crate::sources::psi::{dump_listing, flatten_listing, save_meta, PsiClient, RemoteFile};
-use crate::sources::{manifest as mf, samples as smp, storage, INVESTIGATIONS};
+use crate::sources::psi::{dump_listing, save_meta, PsiClient, RemoteFile};
+use crate::sources::{manifest as mf, samples as smp, INVESTIGATIONS};
 use crate::text::py_dumps_ordered_indent;
 use crate::{auto, cohort, paths, review, store, views};
 
@@ -44,6 +44,20 @@ pub enum SourcesCmd {
         #[arg(long)]
         execute: bool,
     },
+    /// Record stored files already on disk that the manifest lacks (e.g. a teammate's upload):
+    /// size must equal NASA's listing, bytes are hashed, nothing is downloaded. `all` = the 19
+    /// flight investigations. Dry run without --execute.
+    Adopt {
+        investigation: String,
+        #[arg(long)]
+        execute: bool,
+    },
+    /// Coverage of the stored corpus per flight investigation (present, recorded, missing) and the
+    /// identity of the 19 manifests; with --out, also written as JSON.
+    Coverage {
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
     /// Print the Source manifest; with --verify, check local bytes against the recorded sha256.
     Manifest {
         investigation: String,
@@ -67,6 +81,10 @@ pub enum SourcesCmd {
     /// International microgravity-combustion sources (separate investigations, never NASA cohorts).
     #[command(subcommand)]
     Intl(IntlCmd),
+    /// Media indexes for streaming without copies (R11): `.ts` keyframes, ZIP central
+    /// directories, TIFF frames; byte ranges only, dry run without `--execute`.
+    #[command(subcommand)]
+    Media(crate::media::cli::MediaCmd),
 }
 
 #[derive(Subcommand, Debug)]
@@ -137,6 +155,15 @@ pub enum DataCmd {
     Conditions,
     /// List the builder bundles in the store (ids, partitions, content digest).
     Bundles,
+    /// Sensor/settings text of a non-modelled investigation -> DatasetBundle `sensors-<inv>` (R2b):
+    /// raw value/unit, SI value, explicit statuses, cell locators; local files only, no network.
+    Sensors {
+        investigations: Vec<String>,
+        /// Directory of the investigation's files (default `<IGNIS_DATA>/raw/samples/<inv>`); with
+        /// several investigations, a directory holding one `<inv>/` per investigation.
+        #[arg(long)]
+        raw: Option<PathBuf>,
+    },
     /// Write the array views for a cohort as Parquet (physical SI scaling only).
     Views {
         cohort_id: String,
@@ -346,19 +373,7 @@ fn now_iso_offset() -> String {
 /// committed `data/manifests/<inv>.listing.jsonl` (same rows), so a fresh checkout can fetch
 /// without calling the metadata endpoint again.
 fn listing_local(inv: &str) -> anyhow::Result<Vec<RemoteFile>> {
-    let raw = paths::meta().join(format!("files_{inv}.json"));
-    if raw.exists() {
-        return Ok(flatten_listing(
-            inv,
-            &serde_json::from_str(&std::fs::read_to_string(raw)?)?,
-        ));
-    }
-    let committed = paths::manifests().join(format!("{inv}.listing.jsonl"));
-    anyhow::ensure!(
-        committed.exists(),
-        "no listing for {inv}; run `ignis sources inspect {inv}` first"
-    );
-    crate::sources::psi::read_listing(&committed)
+    crate::sources::adopt::listing(inv)
 }
 
 fn inspect_one(c: &PsiClient, inv: &str) -> anyhow::Result<Vec<RemoteFile>> {
@@ -405,7 +420,24 @@ fn fetch_all(
                 continue;
             }
         }
-        let got = c.fetch(rf, &paths::raw(Some(inv)), cap)?;
+        // NASA's listing states the wrong size for a few files: a recorded erratum gives the size it
+        // serves, and the bytes must then hash to the erratum's sha256.
+        let erratum =
+            crate::sources::adopt::errata(inv)?.remove(&(rf.file_name.clone(), rf.file_version));
+        let mut rf_fixed = rf.clone();
+        if let Some(e) = &erratum {
+            rf_fixed.size_bytes = Some(e.served_size as i64);
+        }
+        let got = c.fetch(&rf_fixed, &paths::raw(Some(inv)), cap)?;
+        if let Some(e) = &erratum {
+            anyhow::ensure!(
+                got.sha256 == e.sha256,
+                "{}: bytes differ from the listing erratum ({} != {})",
+                rf.file_name,
+                got.sha256,
+                e.sha256
+            );
+        }
         records.push(mf::source_record(
             rf,
             &got,
@@ -541,17 +573,20 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             execute,
         } => {
             let rx = Regex::new(&pattern)?;
-            // NASA's listings repeat some rows: each (file name, version) is fetched once.
+            // --stored: the server's files (atlas rule, latest version per name); otherwise every
+            // listed (file name, version) once (NASA's listings repeat some rows).
             let mut seen = std::collections::BTreeSet::new();
-            let files: Vec<RemoteFile> = listing_local(&investigation)?
+            let base: Vec<RemoteFile> = if stored {
+                crate::sources::adopt::stored_files(&investigation)?
+            } else {
+                listing_local(&investigation)?
+            };
+            let files: Vec<RemoteFile> = base
                 .into_iter()
                 .filter(|f| {
                     rx.is_match(&f.file_name)
                         && category.as_ref().is_none_or(|c| *c == f.category)
                         && !f.restricted
-                        && (!stored
-                            || storage::storage_class(&f.category, &f.file_name)
-                                != storage::StorageClass::ManifestOnly)
                         && seen.insert((f.file_name.clone(), f.file_version))
                 })
                 .collect();
@@ -574,6 +609,46 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             )?;
             let recs = fetch_all(&PsiClient::new(600), &investigation, &files, None)?;
             job.finish(json!({"records": recs.len()}));
+        }
+        SourcesCmd::Adopt {
+            investigation,
+            execute,
+        } => {
+            let invs: Vec<String> = if investigation == "all" {
+                crate::sources::storage::FLIGHTS
+                    .iter()
+                    .map(|f| f.accession.to_string())
+                    .collect()
+            } else {
+                vec![investigation]
+            };
+            for inv in invs {
+                let r = crate::sources::adopt::adopt(&inv, execute)?;
+                println!("{}", serde_json::to_string(&r)?);
+            }
+            if !execute {
+                println!(
+                    "{}",
+                    json!({"status": "dry-run; pass --execute to hash and record"})
+                );
+            }
+        }
+        SourcesCmd::Coverage { out } => {
+            let (rows, manifest_hash) = crate::sources::adopt::coverage()?;
+            let doc = json!({"manifest_hash": manifest_hash, "investigations": rows});
+            if let Some(p) = out {
+                std::fs::write(&p, serde_json::to_string_pretty(&doc)? + "\n")?;
+            }
+            for c in &rows {
+                println!(
+                    "{:8} {:20} stored {:5}  recorded {:5} ({:7.1} MB)  unrecorded {:4}  missing {:3}  media-at-NASA {:5}{}{}",
+                    c.investigation, c.acronym, c.stored_files, c.recorded, c.recorded_bytes as f64 / 1e6,
+                    c.unrecorded_present, c.missing.len(), c.manifest_only,
+                    if c.lockbox { "  lockbox" } else { "" },
+                    if c.licence.is_none() { "  licence: blank at NASA" } else { "" },
+                );
+            }
+            println!("manifest_hash {manifest_hash}");
         }
         SourcesCmd::Manifest {
             investigation,
@@ -607,6 +682,12 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             if verify && bad > 0 {
                 anyhow::bail!("{bad} manifest entries missing or mismatched");
             }
+        }
+        SourcesCmd::Media(cmd) => {
+            let flights = crate::sources::storage::FLIGHTS
+                .iter()
+                .map(|f| f.accession.to_string());
+            crate::media::cli::run(cmd, flights.collect())?;
         }
         SourcesCmd::Ntrs {
             query,
@@ -1046,6 +1127,42 @@ pub fn run_data(cmd: DataCmd) -> anyhow::Result<()> {
                 json!({"out": out.display().to_string(), "rows": t.rows.len(),
                        "investigations": t.envelopes.len(), "values_per_investigation": per})
             );
+        }
+        DataCmd::Sensors {
+            investigations,
+            raw,
+        } => {
+            let store = crate::dataset::DatasetStore::default_roots();
+            let many = investigations.len() > 1;
+            let mut failed = Vec::new();
+            for inv in &investigations {
+                let dir = match &raw {
+                    Some(r) if many => r.join(inv),
+                    Some(r) => r.clone(),
+                    None => paths::raw(Some(inv)),
+                };
+                let b = match crate::sensors::build_investigation(inv, &dir, &store) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("{inv}: FAILED {e:#}");
+                        failed.push(inv.clone());
+                        continue;
+                    }
+                };
+                println!(
+                    "{} -> {}: {} files read, {} skipped, {} sample rows; statuses {}",
+                    inv,
+                    b.path.display(),
+                    b.files.len(),
+                    b.skipped.len(),
+                    b.bundle.views[0].row_count,
+                    b.quality["status_counts"]
+                );
+                for (f, why) in b.skipped.iter().take(10) {
+                    println!("  skipped {f}: {why}");
+                }
+            }
+            anyhow::ensure!(failed.is_empty(), "not built: {}", failed.join(", "));
         }
         DataCmd::Bundles => {
             use ignis_core::services::DatasetService;

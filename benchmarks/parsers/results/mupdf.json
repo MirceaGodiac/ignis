@@ -1,0 +1,213 @@
+{
+ "parser": "mupdf",
+ "items": [
+  {
+   "id": "cfig-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.372,
+   "coverage": 1.0,
+   "spill": 2.69
+  },
+  {
+   "id": "cfig-cell",
+   "kind": "cell",
+   "basis": "glyphs",
+   "found": true,
+   "text_found": true,
+   "iou": 0.073
+  },
+  {
+   "id": "cfig-figure",
+   "kind": "figure",
+   "basis": "image_object",
+   "found": true,
+   "iou": 1.0
+  },
+  {
+   "id": "cfig-passage2",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.029,
+   "coverage": 1.0,
+   "spill": 34.89
+  },
+  {
+   "id": "bass2-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.06,
+   "coverage": 1.0,
+   "spill": 16.76
+  },
+  {
+   "id": "bass2-cell",
+   "kind": "cell",
+   "basis": "glyphs",
+   "found": true,
+   "text_found": true,
+   "iou": 0.036
+  },
+  {
+   "id": "radiometer-cell",
+   "kind": "cell",
+   "basis": "glyphs",
+   "found": false,
+   "text_found": true
+  },
+  {
+   "id": "radiometer-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.264,
+   "coverage": 1.0,
+   "spill": 3.78
+  },
+  {
+   "id": "flextp-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.07,
+   "coverage": 1.0,
+   "spill": 14.27
+  },
+  {
+   "id": "cool-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.415,
+   "coverage": 1.0,
+   "spill": 2.41
+  },
+  {
+   "id": "ipc-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.219,
+   "coverage": 1.0,
+   "spill": 4.56
+  },
+  {
+   "id": "ipc-figure",
+   "kind": "figure",
+   "basis": "image_object",
+   "found": true,
+   "iou": 1.0
+  },
+  {
+   "id": "sflame-figure",
+   "kind": "figure",
+   "basis": "visual",
+   "found": false,
+   "iou": 0.397
+  },
+  {
+   "id": "sflame-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": false
+  },
+  {
+   "id": "same-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": false
+  },
+  {
+   "id": "same-cell",
+   "kind": "cell",
+   "basis": "visual",
+   "found": false,
+   "text_found": false
+  },
+  {
+   "id": "spice-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": false
+  },
+  {
+   "id": "flex2-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": false
+  },
+  {
+   "id": "flex2-cell",
+   "kind": "cell",
+   "basis": "visual",
+   "found": false,
+   "text_found": false
+  }
+ ],
+ "perf": {
+  "cfig": {
+   "pages": 93,
+   "wall_s": 5.58,
+   "cpu_s": 5.47,
+   "units": 1436
+  },
+  "bass2": {
+   "pages": 144,
+   "wall_s": 10.69,
+   "cpu_s": 10.46,
+   "units": 9112
+  },
+  "radiometer": {
+   "pages": 56,
+   "wall_s": 1.99,
+   "cpu_s": 1.94,
+   "units": 2611
+  },
+  "flextp": {
+   "pages": 314,
+   "wall_s": 8.26,
+   "cpu_s": 8.09,
+   "units": 2446
+  },
+  "cool": {
+   "pages": 20,
+   "wall_s": 0.39,
+   "cpu_s": 0.37,
+   "units": 147
+  },
+  "ipc": {
+   "pages": 27,
+   "wall_s": 0.42,
+   "cpu_s": 0.41,
+   "units": 283
+  },
+  "sflame": {
+   "pages": 44,
+   "wall_s": 2.62,
+   "cpu_s": 2.57,
+   "units": 442
+  },
+  "same_dwg": {
+   "pages": 1,
+   "wall_s": 0.22,
+   "cpu_s": 0.22,
+   "units": 0
+  },
+  "spice_dwg": {
+   "pages": 2,
+   "wall_s": 0.81,
+   "cpu_s": 0.8,
+   "units": 0
+  },
+  "flex2_dwg": {
+   "pages": 1,
+   "wall_s": 0.44,
+   "cpu_s": 0.44,
+   "units": 1
+  }
+ },
+ "peak_rss_mb": 888
+}

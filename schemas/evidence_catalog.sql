@@ -54,11 +54,15 @@ CREATE INDEX IF NOT EXISTS chunks_pub_page ON chunks(publication_id, page);
 -- Parse view: the exact text of every physical page (1-based) of a publication, as defined by the
 -- publication's parser_version. Chunk char spans index these texts. The view id is
 -- 'pv-<sha16>@<parser_version>' (ignis_evidence::records::parse_view_id). Pages without text are ''.
+-- Several views of one publication coexist (catalog v3): re-parsing with another parser adds a view
+-- and makes it active (`publications.parser_version`); older views stay readable, so citations made
+-- against them still resolve. Search covers the active view only.
 CREATE TABLE IF NOT EXISTS pages (
   publication_id    TEXT NOT NULL REFERENCES publications(id) ON DELETE CASCADE,
+  parse_view_id     TEXT NOT NULL,
   page              INTEGER NOT NULL,
   text              TEXT NOT NULL,
-  PRIMARY KEY (publication_id, page)
+  PRIMARY KEY (publication_id, parse_view_id, page)
 );
 
 -- Where this host keeps the bytes of an asset (a cache hint, not an identity: readers re-hash).
@@ -113,4 +117,29 @@ CREATE TABLE IF NOT EXISTS embedding_sets (
   ids_path          TEXT NOT NULL,
   created_at        TEXT NOT NULL,
   provider          TEXT NOT NULL DEFAULT 'local'   -- 'deepinfra'; vectors of different provider/model/dim are never mixed
+);
+
+-- Document-side expansion (LANES_V2 R12b, SIRA): per chunk, vocabulary a reader would type that the
+-- text may lack (concepts, synonyms, abbreviations, phrasings, instruments, materials), generated
+-- offline per page and DF-filtered (crates/ignis-evidence/src/enrich.rs). Indexed in its own FTS5
+-- table with the same tokenizer, rowid = chunks.rowid, and scored as a separate column with its
+-- own weight. Never shown as a snippet, quote or citation. The pack it came from is recorded in
+-- meta('expansion').
+CREATE VIRTUAL TABLE IF NOT EXISTS expansion_fts USING fts5(
+  terms,
+  tokenize='porter unicode61 remove_diacritics 2'
+);
+CREATE TRIGGER IF NOT EXISTS chunks_ad_expansion AFTER DELETE ON chunks BEGIN
+  DELETE FROM expansion_fts WHERE rowid = old.rowid;
+END;
+
+-- Corpus statistics (the term table of SIRA, after Corpus's nationalterms): for every indexed term
+-- (porter-stemmed, as FTS5 stores it), the chunks and publications holding it and its instances,
+-- over the chunk text only. Rebuilt by `ignis evidence terms build`; meta('term_stats') holds the
+-- totals and the catalog generation it was built on, so a stale table is never read.
+CREATE TABLE IF NOT EXISTS term_stats (
+  term         TEXT PRIMARY KEY,
+  chunks       INTEGER NOT NULL,
+  publications INTEGER NOT NULL,
+  instances    INTEGER NOT NULL
 );

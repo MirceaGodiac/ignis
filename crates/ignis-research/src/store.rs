@@ -20,8 +20,8 @@ use std::time::Duration;
 use ignis_core::contracts::{
     check_event_log, ArtifactRef, Causation, ClientRequestId, EpisodeId, EpisodePins,
     EpisodeStatus, ErrorCode, ErrorEnvelope, EventBody, EventId, EvidenceId, EvidenceRef,
-    ExecutionScope, JobId, JobProgress, JobRef, JobStatus, MessageId, Origin, ResearchEpisode,
-    ResearchEvent, ResearchSchema, RetryPolicy, RuntimeThreadRef, Timestamp,
+    ExecutionScope, HarnessRef, JobId, JobProgress, JobRef, JobStatus, MessageId, Origin,
+    ResearchEpisode, ResearchEvent, ResearchSchema, RetryPolicy, RuntimeThreadRef, Timestamp,
 };
 use ignis_core::hashing::sha256_hex;
 use ignis_core::services::ServiceResult;
@@ -1119,6 +1119,16 @@ pub struct RuntimeRecord {
     pub change: RuntimeChange,
 }
 
+/// What [`ResearchStore::pin_harness`] changed.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum HarnessPinChange {
+    Unchanged,
+    /// The episode had no harness pin.
+    Pinned,
+    /// The episode was pinned to this harness before.
+    Replaced(HarnessRef),
+}
+
 /// The user messages handed to a new runtime turn.
 #[derive(Debug, Clone)]
 pub struct TurnStart {
@@ -1266,6 +1276,37 @@ impl ResearchStore {
             )
             .map_err(db("update episode"))?;
             Ok(ep)
+        })
+    }
+
+    /// Pin the harness an episode's runtime was started with (`pins.harness`). The pin is a
+    /// research.v2 field, so the episode record becomes v2. Returns what changed, so the caller can
+    /// say so in the log; an identical pin changes nothing.
+    pub fn pin_harness(
+        &self,
+        scope: &ExecutionScope,
+        id: &EpisodeId,
+        harness: HarnessRef,
+    ) -> ServiceResult<HarnessPinChange> {
+        harness.validate().map_err(ErrorEnvelope::from)?;
+        self.write(|tx| {
+            let mut ep = load_episode(tx, scope, id)?;
+            let change = match &ep.pins.harness {
+                Some(h) if *h == harness => return Ok(HarnessPinChange::Unchanged),
+                Some(h) => HarnessPinChange::Replaced(h.clone()),
+                None => HarnessPinChange::Pinned,
+            };
+            ep.pins.harness = Some(harness);
+            ep.schema_version = ResearchSchema::V2;
+            ep.validate().map_err(ErrorEnvelope::from)?;
+            ep.revision += 1;
+            ep.updated_at = Timestamp::now();
+            tx.execute(
+                "UPDATE episodes SET record = ?2 WHERE episode_id = ?1",
+                params![id.as_str(), to_json(&ep)?],
+            )
+            .map_err(db("update episode"))?;
+            Ok(change)
         })
     }
 
@@ -1516,7 +1557,7 @@ fn append_tx(
             ep.status = *to;
         }
         let ev = ResearchEvent {
-            schema_version: ResearchSchema::V1,
+            schema_version: ResearchSchema::V2,
             event_id: EventId::new(new_id("ev")).expect("generated id"),
             episode_id: ep.episode_id.clone(),
             seq: ep.last_seq + 1,

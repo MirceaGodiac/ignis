@@ -1,0 +1,245 @@
+{
+  "investigations": [
+    {
+      "acronym": "FLEX",
+      "investigation": "PSI-69",
+      "licence": "CC0-1.0",
+      "lockbox": true,
+      "manifest_only": 1604,
+      "missing": [],
+      "recorded": 4849,
+      "recorded_bytes": 621166970,
+      "stored_files": 4849,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "FLEX-2",
+      "investigation": "PSI-68",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 2118,
+      "missing": [],
+      "recorded": 7959,
+      "recorded_bytes": 536377294,
+      "stored_files": 7959,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "CFI",
+      "investigation": "PSI-39",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 934,
+      "missing": [
+        "PSI-39_Raw Data_F163A04D.txt",
+        "PSI-39_Raw Data_F173E03A.txt",
+        "PSI-39_Raw Data_F195D07D.txt",
+        "PSI-39_Raw Data_F205D01C.txt",
+        "PSI-39_Raw Data_F205D01D.txt"
+      ],
+      "recorded": 1873,
+      "recorded_bytes": 1228036813,
+      "stored_files": 1878,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "ACME CFI-G",
+      "investigation": "PSI-159",
+      "licence": "CC0-1.0",
+      "lockbox": true,
+      "manifest_only": 1938,
+      "missing": [],
+      "recorded": 1818,
+      "recorded_bytes": 1626709661,
+      "stored_files": 1818,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "ACME/Flame Design",
+      "investigation": "PSI-10",
+      "licence": null,
+      "lockbox": false,
+      "manifest_only": 2065,
+      "missing": [],
+      "recorded": 1742,
+      "recorded_bytes": 1387656250,
+      "stored_files": 1742,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "ACME s-Flame",
+      "investigation": "PSI-23",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 2517,
+      "missing": [],
+      "recorded": 1648,
+      "recorded_bytes": 905902020,
+      "stored_files": 1648,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "ACME BRE",
+      "investigation": "PSI-20",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 1260,
+      "missing": [],
+      "recorded": 1033,
+      "recorded_bytes": 1286549460,
+      "stored_files": 1033,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "ACME CLD Flame",
+      "investigation": "PSI-21",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 2205,
+      "missing": [],
+      "recorded": 1929,
+      "recorded_bytes": 1613518304,
+      "stored_files": 1929,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "ACME E-FIELD Flames",
+      "investigation": "PSI-22",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 1417,
+      "missing": [],
+      "recorded": 1161,
+      "recorded_bytes": 1717076576,
+      "stored_files": 1161,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SPICE",
+      "investigation": "PSI-107",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 121,
+      "missing": [],
+      "recorded": 67,
+      "recorded_bytes": 992244052,
+      "stored_files": 67,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SLICE",
+      "investigation": "PSI-106",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 18351,
+      "missing": [],
+      "recorded": 356,
+      "recorded_bytes": 129195703,
+      "stored_files": 356,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "BASS-II",
+      "investigation": "PSI-25",
+      "licence": "CC0-1.0",
+      "lockbox": true,
+      "manifest_only": 562,
+      "missing": [],
+      "recorded": 133,
+      "recorded_bytes": 175522983,
+      "stored_files": 133,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "BASS",
+      "investigation": "PSI-26",
+      "licence": "CC0-1.0",
+      "lockbox": true,
+      "manifest_only": 174,
+      "missing": [],
+      "recorded": 36,
+      "recorded_bytes": 38702170,
+      "stored_files": 36,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SAFFIRE-I",
+      "investigation": "PSI-98",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 62,
+      "missing": [
+        "PSI-98_Raw Data_SAFFIRE-I_ImageFrameSizes_ROI_Offsets_Grid_1280x920_v1.0.pdf"
+      ],
+      "recorded": 13,
+      "recorded_bytes": 70781374,
+      "stored_files": 14,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SAFFIRE-II",
+      "investigation": "PSI-99",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 187,
+      "missing": [],
+      "recorded": 27,
+      "recorded_bytes": 239677595,
+      "stored_files": 27,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SAFFIRE-III",
+      "investigation": "PSI-100",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 68,
+      "missing": [
+        "PSI-100_Presentations_SAFFIRE_45 I Con of Env Sys presentation.pdf",
+        "PSI-100_Presentations_SAFFIRE_46th I Con of Env Sys presentation.pdf",
+        "PSI-100_Presentations_SAFFIRE_47th I Con of Env Sys presentation.pdf"
+      ],
+      "recorded": 16,
+      "recorded_bytes": 85052613,
+      "stored_files": 19,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SAME",
+      "investigation": "PSI-102",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 6,
+      "missing": [],
+      "recorded": 95,
+      "recorded_bytes": 310011489,
+      "stored_files": 95,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "SAME-R",
+      "investigation": "PSI-101",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 91,
+      "missing": [],
+      "recorded": 253,
+      "recorded_bytes": 865730306,
+      "stored_files": 253,
+      "unrecorded_present": 0
+    },
+    {
+      "acronym": "DAFT / DAFT-2",
+      "investigation": "PSI-47",
+      "licence": "CC0-1.0",
+      "lockbox": false,
+      "manifest_only": 2,
+      "missing": [],
+      "recorded": 31,
+      "recorded_bytes": 40444745,
+      "stored_files": 31,
+      "unrecorded_present": 0
+    }
+  ],
+  "manifest_hash": "sha256:7766cb3576083b41bbdc32fb99b2ef9dfd6981295d34ec11b9141858215e23e6"
+}

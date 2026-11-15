@@ -10,9 +10,14 @@
 //! - Threads persist in `$CODEX_HOME/fake-threads.json`; on start, turns left in progress by a killed
 //!   process become `interrupted` (what a reloaded thread looks like).
 //! - The turn scenario is chosen by words in the user input: `tool`, `approval`, `shell`,
-//!   `permissions`, `opaque`, `hang` (wait for `turn/interrupt`), `fail`; plain text just answers.
+//!   `permissions`, `opaque`, `hang` (wait for `turn/interrupt`), `fail`, `explain` (a message, then
+//!   an `analysis_execute` call it introduces, with arguments larger than an event inlines, and
+//!   a secret-like member), `slowtool` (the tool call takes 150 ms), `usage` (running
+//!   `thread/tokenUsage/updated` totals, one partial and one final per turn); plain text just
+//!   answers.
 //!   `hang` also persists the items produced so far, so a restart can replay them.
-//! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`.
+//! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`; the
+//!   `developerInstructions` of each `thread/start` / `thread/resume` to `fake-instructions.jsonl`.
 
 use std::collections::HashMap;
 use std::io::{BufRead, Write};
@@ -88,6 +93,20 @@ fn write_schema(dir: &std::path::Path) {
     ];
     for (name, v) in files {
         std::fs::write(dir.join(name), serde_json::to_vec_pretty(&v).unwrap()).unwrap();
+    }
+    // The instruction fields of the thread methods (the real binary writes one file per type).
+    std::fs::create_dir_all(dir.join("v2")).unwrap();
+    for name in ["ThreadStartParams", "ThreadResumeParams"] {
+        let v = json!({"title": name, "type": "object", "properties": {
+            "cwd": {"type": ["string", "null"]},
+            "baseInstructions": {"type": ["string", "null"]},
+            "developerInstructions": {"type": ["string", "null"]},
+        }});
+        std::fs::write(
+            dir.join("v2").join(format!("{name}.json")),
+            serde_json::to_vec_pretty(&v).unwrap(),
+        )
+        .unwrap();
     }
 }
 
@@ -219,6 +238,19 @@ impl Shared {
         *self.interrupts.lock().unwrap().get(turn).unwrap_or(&false)
     }
 
+    /// The instructions a thread method carried, one JSON line per request.
+    fn log_instructions(&self, method: &str, params: &Value) {
+        if let Ok(mut f) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(self.home.join("fake-instructions.jsonl"))
+        {
+            let line = json!({"method": method,
+                              "developerInstructions": params["developerInstructions"]});
+            let _ = writeln!(f, "{line}");
+        }
+    }
+
     fn log_request(&self, method: &str) {
         if let Ok(mut f) = std::fs::OpenOptions::new()
             .create(true)
@@ -326,6 +358,7 @@ fn handle(sh: &Arc<Shared>, method: &str, id: Value, params: Value) {
     let err = |code: i64, text: &str| json!({"id": id, "error": {"code": code, "message": text}});
     match method {
         "thread/start" => {
+            sh.log_instructions(method, &params);
             let tid = sh.id("thr");
             let t = json!({"id": tid, "turns": [], "cwd": params["cwd"], "status": "idle",
                            "sandbox": params["sandbox"], "approvalPolicy": params["approvalPolicy"]});
@@ -335,16 +368,17 @@ fn handle(sh: &Arc<Shared>, method: &str, id: Value, params: Value) {
                 st.save();
             }
             sh.out.send_all(&[
-                ok(json!({"thread": thread_json(&t), "model": "fake", "modelProvider": "fake",
+                ok(json!({"thread": thread_json(&t), "model": "fake", "modelProvider": "fake", "reasoningEffort": "medium",
                           "cwd": params["cwd"], "approvalPolicy": params["approvalPolicy"], "sandbox": {"type": "readOnly"}, "approvalsReviewer": "user"})),
                 json!({"method": "thread/started", "params": {"thread": thread_json(&t)}}),
             ]);
         }
         "thread/resume" => {
+            sh.log_instructions(method, &params);
             let tid = params["threadId"].as_str().unwrap_or("");
             let t = sh.store.lock().unwrap().threads.get(tid).cloned();
             match t {
-                Some(t) => sh.out.send(ok(json!({"thread": t, "model": "fake", "modelProvider": "fake",
+                Some(t) => sh.out.send(ok(json!({"thread": t, "model": "fake", "modelProvider": "fake", "reasoningEffort": "medium",
                     "cwd": params["cwd"], "approvalPolicy": "on-request", "sandbox": {"type": "readOnly"}, "approvalsReviewer": "user"}))),
                 None => sh.out.send(err(-32600, "no such thread")),
             }
@@ -472,7 +506,87 @@ fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
         done["status"] = json!("completed");
         done["result"] = json!({"content": [{"type": "text", "text": "1 hit"}], "structuredContent": tool_result});
         persist_item(&done);
+        sh.out.send(n(
+            "item/started",
+            base(json!({"item": started, "startedAtMs": 0})),
+        ));
+        // `slowtool`: the call takes a measurable time (M5 latency tests).
+        if has("slowtool") {
+            std::thread::sleep(std::time::Duration::from_millis(150));
+        }
+        sh.out.send(n(
+            "item/completed",
+            base(json!({"item": done, "completedAtMs": 0})),
+        ));
+    }
+    if has("usage") {
+        // Running thread totals like the real server: after the k-th turn of the thread,
+        // input 1000k (cached 200k(k+1)), output 100k (reasoning 40k); one partial total first.
+        let k = sh
+            .store
+            .lock()
+            .unwrap()
+            .threads
+            .get(tid)
+            .and_then(|t| t["turns"].as_array().map(|a| a.len() as u64))
+            .unwrap_or(1)
+            .max(1);
+        let cached = |k: u64| 200 * k * (k + 1);
+        let total = |input: u64, cached: u64, output: u64, reasoning: u64| {
+            json!({"tokenUsage": {
+                "total": {"totalTokens": input + output, "inputTokens": input,
+                          "cachedInputTokens": cached, "outputTokens": output,
+                          "reasoningOutputTokens": reasoning},
+                "last": {"totalTokens": 0, "inputTokens": 0, "cachedInputTokens": 0,
+                         "outputTokens": 0, "reasoningOutputTokens": 0},
+                "modelContextWindow": 200000}})
+        };
         sh.out.send_all(&[
+            n(
+                "thread/tokenUsage/updated",
+                base(total(
+                    1000 * k - 500,
+                    cached(k - 1) + 100,
+                    100 * k - 50,
+                    40 * k - 20,
+                )),
+            ),
+            n(
+                "thread/tokenUsage/updated",
+                base(total(1000 * k, cached(k), 100 * k, 40 * k)),
+            ),
+        ]);
+    }
+    if has("explain") {
+        let msg = json!({"type": "agentMessage", "id": sh.id("msg"),
+                         "text": "Computing the spread rate from the cited table."});
+        persist_item(&msg);
+        let call = sh.id("call");
+        let source = format!(
+            "print(1)
+{}",
+            "# padding
+"
+            .repeat(10_000)
+        );
+        let started = json!({"type": "mcpToolCall", "id": call, "server": "ignis", "tool": "analysis_execute",
+                             "status": "inProgress",
+                             "arguments": {"language": "python", "source": source, "api_key": "sk-not-logged"}});
+        let tool_result = json!({
+            "schema_version": "tools.v1", "call_id": call, "tool": "analysis_execute",
+            "execution_status": "completed", "scientific_status": "not_assessed",
+            "result": {"value": {"ok": true}, "partial": false}, "artifact_refs": [], "origin": "synthetic_fixture"
+        });
+        let mut done = started.clone();
+        done["status"] = json!("completed");
+        done["result"] = json!({"content": [], "structuredContent": tool_result});
+        persist_item(&done);
+        sh.out.send_all(&[
+            n("item/started", base(json!({"item": msg, "startedAtMs": 0}))),
+            n(
+                "item/completed",
+                base(json!({"item": msg, "completedAtMs": 0})),
+            ),
             n(
                 "item/started",
                 base(json!({"item": started, "startedAtMs": 0})),
@@ -482,6 +596,41 @@ fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
                 base(json!({"item": done, "completedAtMs": 0})),
             ),
         ]);
+    }
+    if has("refusal") {
+        // A host refusal travels as an MCP error result: the item is `failed`, has no error message
+        // and keeps the IGNIS `ToolResult` (as structured content, or only as text content).
+        for structured in [true, false] {
+            let call = sh.id("call");
+            let started = json!({"type": "mcpToolCall", "id": call, "server": "ignis", "tool": "answer_submit",
+                                 "status": "inProgress", "arguments": {}});
+            let refused = json!({
+                "schema_version": "tools.v1", "call_id": call, "tool": "answer_submit",
+                "execution_status": "refused", "scientific_status": "not_assessed",
+                "artifact_refs": [], "origin": "synthetic_fixture",
+                "error": {"code": "invalid_request", "retry": {"kind": "never"},
+                          "message": "answer refused: 1 problem(s). unknown_evidence: claim c1 cites ev-fake"}
+            });
+            let mut done = started.clone();
+            done["status"] = json!("failed");
+            done["error"] = Value::Null;
+            done["result"] = if structured {
+                json!({"content": [{"type": "text", "text": refused.to_string()}], "structuredContent": refused})
+            } else {
+                json!({"content": [{"type": "text", "text": refused.to_string()}]})
+            };
+            persist_item(&done);
+            sh.out.send_all(&[
+                n(
+                    "item/started",
+                    base(json!({"item": started, "startedAtMs": 0})),
+                ),
+                n(
+                    "item/completed",
+                    base(json!({"item": done, "completedAtMs": 0})),
+                ),
+            ]);
+        }
     }
     for (word, method, extra) in [
         (
