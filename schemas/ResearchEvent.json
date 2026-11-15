@@ -408,6 +408,11 @@
           "type": "string"
         },
         {
+          "const": "source_gone",
+          "description": "The id is known (its manifest entry exists) but the upstream provider no longer serves the\nobject (HTTP 404/410): a corpus-integrity problem. Never retryable; distinct from\n`not_found` (unknown id) and `upstream_unavailable` (outage, retry later).",
+          "type": "string"
+        },
+        {
           "const": "capability_unavailable",
           "description": "A required service or backend is not available in this deployment.",
           "type": "string"

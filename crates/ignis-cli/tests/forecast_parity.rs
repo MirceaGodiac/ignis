@@ -38,6 +38,7 @@ async fn cli_and_server_produce_the_same_artifact() {
         auth: ignis_server::v1::io::AuthMode::Local,
         internal_routes: false,
         enable_models: true,
+        answer_grounding: Default::default(),
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex: Default::default(),

@@ -145,9 +145,8 @@ impl Signer for GeodeSigner {
         match status {
             200 => {}
             // The id is in the manifests but NASA no longer has the object: retrying will not help.
-            // A corpus-integrity problem (the manifest points at something missing), reported with
-            // the closest non-retryable code, `source_missing`, distinct from `not_found` (unknown id)
-            // and from `upstream_unavailable` (outage, retry later).
+            // A corpus-integrity problem (the manifest points at something missing): `source_gone`,
+            // distinct from `not_found` (unknown id) and from `upstream_unavailable` (outage).
             404 | 410 => {
                 tracing::error!(
                     investigation = %f.investigation,
@@ -157,7 +156,7 @@ impl Signer for GeodeSigner {
                     "corpus integrity: manifest entry not served by PSI"
                 );
                 return Err(ErrorEnvelope::new(
-                    ErrorCode::SourceMissing,
+                    ErrorCode::SourceGone,
                     format!(
                         "corpus integrity: the manifest lists {:?} version {:?}, but PSI no longer serves it (geode {status})",
                         f.file_name, f.file_version
