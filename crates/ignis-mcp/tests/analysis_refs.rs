@@ -21,6 +21,8 @@ use serde_json::{json, Value};
 const BUILDER: &str = "fixture-dataset-flex";
 const HOLDOUT: &str = "fixture-dataset-flex-test";
 const VIEW: &str = "observations";
+const TEST_RUN: &str = "run-holdout-01";
+const TRAIN_RUN: &str = "run-train-01";
 
 fn view_bytes(id: &str) -> Vec<u8> {
     format!("PAR1 fake parquet of {id} PAR1").into_bytes()
@@ -84,6 +86,17 @@ impl DatasetService for RefDatasets {
     }
     fn conditions_snapshot(&self, _: &ExecutionScope) -> ServiceResult<Digest> {
         Ok(snapshot())
+    }
+    fn run_partitions(
+        &self,
+        _: &ExecutionScope,
+        run: &RunId,
+    ) -> ServiceResult<std::collections::BTreeSet<Partition>> {
+        Ok(match run.as_str() {
+            TEST_RUN => [Partition::Test].into(),
+            TRAIN_RUN => [Partition::Train].into(),
+            _ => Default::default(),
+        })
     }
 }
 
@@ -371,4 +384,114 @@ fn a_test_partition_reference_is_refused_outside_an_evaluation_scope() {
         )
         .unwrap_err();
     assert_eq!(e.code, ErrorCode::ScopeDenied);
+}
+
+/// An artifact of this workspace whose lineage names `inputs` (any producer may write lineage).
+fn derived_from(t: &T, sc: &ExecutionScope, inputs: Vec<EntityRef>) -> ArtifactRef {
+    t.h.artifacts
+        .put(
+            sc,
+            ArtifactDraft {
+                media_type: "application/json".into(),
+                contract: None,
+                produced_by: Producer::default(),
+                inputs,
+                origin: Origin::SyntheticFixture,
+            },
+            &mut b"{\"x\": 1}".as_slice(),
+        )
+        .unwrap()
+}
+
+#[test]
+fn run_lineage_reaching_the_test_partition_is_refused_and_an_unknown_partition_fails_closed() {
+    let t = setup();
+    let sc = research();
+    let run = |id: &str| EntityRef::Run(RunId::new(id).unwrap());
+    let mount = |a: &ArtifactRef, crid: &str| {
+        t.h.host.call(
+            &sc,
+            "analysis_execute",
+            call(
+                json!([{"name": "x.json", "artifact_id": a.artifact_id.as_str()}]),
+                crid,
+            ),
+        )
+    };
+
+    // Directly and through an intermediate artifact: a test-partition run is refused.
+    let direct = derived_from(&t, &sc, vec![run(TEST_RUN)]);
+    let via = derived_from(
+        &t,
+        &sc,
+        vec![EntityRef::Artifact(direct.artifact_id.clone())],
+    );
+    for (a, crid) in [(&direct, "lin-test"), (&via, "lin-test-via")] {
+        let r = mount(a, crid);
+        assert_eq!(
+            r.execution_status,
+            ExecutionStatus::Refused,
+            "{crid}: {r:?}"
+        );
+        let e = r.error.unwrap();
+        assert_eq!(e.code, ErrorCode::ScopeDenied, "{crid}");
+        assert!(e.message.contains(TEST_RUN), "{crid}: {}", e.message);
+    }
+    // A run in no frozen split, an observation, an artifact not in the store: the partition is
+    // unknown, so refused.
+    for (inputs, crid) in [
+        (vec![run("run-nowhere")], "lin-unknown"),
+        (
+            vec![EntityRef::Observation(ObservationId::new("obs-1").unwrap())],
+            "lin-obs",
+        ),
+        (
+            vec![EntityRef::Artifact(
+                ArtifactId::new("art-not-in-this-store").unwrap(),
+            )],
+            "lin-missing",
+        ),
+    ] {
+        let r = mount(&derived_from(&t, &sc, inputs), crid);
+        assert_eq!(
+            r.execution_status,
+            ExecutionStatus::Refused,
+            "{crid}: {r:?}"
+        );
+        assert_eq!(r.error.unwrap().code, ErrorCode::ScopeDenied, "{crid}");
+    }
+    assert!(!t.queued(), "nothing refused was queued");
+
+    // The job re-checks at staging (a request that bypassed the tool is refused too).
+    let req: AnalysisExecuteRequest = serde_json::from_value(call(
+        json!([{"name": "x.json", "artifact_id": direct.artifact_id.as_str()}]),
+        "lin-direct-job",
+    ))
+    .unwrap();
+    let e =
+        t.sb.execute(
+            &sc,
+            &req,
+            t.h.artifacts.as_ref(),
+            Some(t.ds.as_ref()),
+            Producer::default(),
+            &AtomicBool::new(false),
+        )
+        .unwrap_err();
+    assert_eq!(e.code, ErrorCode::ScopeDenied);
+
+    // A train run is readable by the research scope; the evaluation scope may read the test run.
+    let r = mount(&derived_from(&t, &sc, vec![run(TRAIN_RUN)]), "lin-train");
+    assert_eq!(r.execution_status, ExecutionStatus::Accepted, "{r:?}");
+    let ev = evaluation();
+    let a = derived_from(&t, &ev, vec![run(TEST_RUN)]);
+    let r = t.h.host.call(
+        &ev,
+        "analysis_execute",
+        call(
+            json!([{"name": "x.json", "artifact_id": a.artifact_id.as_str()}]),
+            "lin-eval",
+        ),
+    );
+    assert_eq!(r.execution_status, ExecutionStatus::Accepted, "{r:?}");
 }
