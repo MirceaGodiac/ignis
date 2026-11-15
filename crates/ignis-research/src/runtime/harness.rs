@@ -190,8 +190,22 @@ fn parse_skill(dir_name: &str, text: &str) -> Result<Skill, String> {
     })
 }
 
+/// How the prefix's tool section describes each attached tool.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ToolDescriptions {
+    /// Each tool's full description and contract names: for a runtime that defers MCP tool
+    /// definitions. Codex 0.169 always does (the model sees only the `mcp__ignis` namespace until
+    /// it looks a tool up from `exec`), so the prefix is where its model learns the tools.
+    #[default]
+    Full,
+    /// One line per tool (name and traits): for a runtime that sends every MCP tool definition,
+    /// description and input schema with each request (Claude Code 2.1), where a full description
+    /// here would be sent twice.
+    Index,
+}
+
 /// The tool section: one entry per catalog tool the runtime is attached to, in name order.
-fn tool_section(tools: &[String]) -> String {
+fn tool_section(tools: &[String], descriptions: ToolDescriptions) -> String {
     let mut catalog: Vec<_> = tool_catalog()
         .into_iter()
         .filter(|t| tools.iter().any(|n| n == &t.name))
@@ -200,6 +214,9 @@ fn tool_section(tools: &[String]) -> String {
     let mut out = String::from(
         "## IGNIS tools\n\nGenerated from the IGNIS tool catalog; these are the IGNIS tools attached to this runtime.\n",
     );
+    if descriptions == ToolDescriptions::Index {
+        out.push_str("Each tool's description and arguments come with its definition.\n");
+    }
     if catalog.is_empty() {
         out.push_str(
             "\nNo IGNIS tools are attached in this deployment: you cannot retrieve evidence, compute or submit a bound answer. Say so, and label anything you state from your own knowledge as such.\n",
@@ -218,22 +235,36 @@ fn tool_section(tools: &[String]) -> String {
         if t.may_return_job {
             traits.push("may return a job".into());
         }
-        out.push_str(&format!(
-            "\n- `{}` ({}): {} Arguments: `{}`; result: `{}`.",
-            t.name,
-            traits.join(", "),
-            t.summary,
-            t.input_contract,
-            t.output_contract
-        ));
+        out.push_str(&match descriptions {
+            ToolDescriptions::Full => format!(
+                "\n- `{}` ({}): {} Arguments: `{}`; result: `{}`.",
+                t.name,
+                traits.join(", "),
+                t.summary,
+                t.input_contract,
+                t.output_contract
+            ),
+            ToolDescriptions::Index => format!("\n- `{}` ({})", t.name, traits.join(", ")),
+        });
     }
     out.push('\n');
     out
 }
 
 impl HarnessBundle {
-    /// Render `source` for a runtime attached to `tools` (wire names; empty: no IGNIS tools).
+    /// Render `source` for a runtime attached to `tools` (wire names; empty: no IGNIS tools), with
+    /// the full tool descriptions in the prefix.
     pub fn render(label: &str, source: &HarnessSource, tools: &[String]) -> Result<Self, String> {
+        Self::render_with(label, source, tools, ToolDescriptions::Full)
+    }
+
+    /// [`Self::render`] with the tool section `descriptions` the runtime needs.
+    pub fn render_with(
+        label: &str,
+        source: &HarnessSource,
+        tools: &[String],
+        descriptions: ToolDescriptions,
+    ) -> Result<Self, String> {
         if label.trim().is_empty() {
             return Err("harness label is empty".into());
         }
@@ -253,7 +284,7 @@ impl HarnessBundle {
         let on_demand = !skills.is_empty() && tools.iter().any(|t| t == SKILLS_TOOL);
         let mut text = investigator;
         text.push_str("\n\n");
-        text.push_str(&tool_section(tools));
+        text.push_str(&tool_section(tools, descriptions));
         let mut identity = None;
         if on_demand {
             text.push_str(&format!(
@@ -286,8 +317,18 @@ impl HarnessBundle {
 
     /// The bundle compiled into this binary, for a runtime attached to `tools`.
     pub fn embedded(tools: &[String]) -> Self {
-        Self::render(EMBEDDED_LABEL, &HarnessSource::embedded(), tools)
-            .expect("the embedded harness is well-formed (checked by the tests)")
+        Self::embedded_with(tools, ToolDescriptions::Full)
+    }
+
+    /// [`Self::embedded`] with the tool section `descriptions` the runtime needs.
+    pub fn embedded_with(tools: &[String], descriptions: ToolDescriptions) -> Self {
+        Self::render_with(
+            EMBEDDED_LABEL,
+            &HarnessSource::embedded(),
+            tools,
+            descriptions,
+        )
+        .expect("the embedded harness is well-formed (checked by the tests)")
     }
 
     /// The instruction prefix, exactly as injected: the cached part of the context. Episode data
@@ -559,5 +600,31 @@ mod tests {
         src.skills.pop();
         src.skills.push(("x".into(), "no frontmatter".into()));
         assert!(HarnessBundle::render("h1", &src, &[]).is_err());
+    }
+
+    /// For a runtime that sends the MCP tool definitions itself, the prefix lists the tools by
+    /// name and traits only: the same tools, none of the descriptions, its own digest.
+    #[test]
+    fn an_index_tool_section_lists_the_tools_without_their_descriptions() {
+        let all: Vec<String> = tool_catalog().into_iter().map(|t| t.name).collect();
+        let full = HarnessBundle::embedded(&all);
+        let index = HarnessBundle::embedded_with(&all, ToolDescriptions::Index);
+        for t in tool_catalog() {
+            assert!(
+                index.text().contains(&format!("- `{}` (", t.name)),
+                "{}",
+                t.name
+            );
+            assert!(full.text().contains(&t.summary));
+            assert!(!index.text().contains(&t.summary), "{}", t.name);
+        }
+        assert!(index.text().contains("come with its definition"));
+        assert_ne!(full.digest(), index.digest());
+        eprintln!(
+            "prefix bytes: full tool section {}, index {}",
+            full.text().len(),
+            index.text().len()
+        );
+        assert!(index.text().len() + 10_000 < full.text().len());
     }
 }

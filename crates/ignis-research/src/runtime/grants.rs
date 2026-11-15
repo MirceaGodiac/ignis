@@ -186,6 +186,10 @@ impl McpAttachment {
                 serde_json::to_string(&self.enabled_tools).expect("strings serialize")
             ),
             format!("{}={}", key("default_tools_approval_mode"), q("prompt")),
+            // Calls batched in one `exec` (`Promise.allSettled`) run concurrently; without it
+            // Codex 0.169 runs them one after another. The host serves concurrent calls (one
+            // blocking-pool task each), as it already does for Claude Code's parallel tool use.
+            format!("{}=true", key("supports_parallel_tool_calls")),
         ];
         o.extend(self.approved_tools.iter().map(|t| {
             format!(
@@ -250,6 +254,7 @@ mod tests {
                 r#"mcp_servers.ignis.bearer_token_env_var="IGNIS_MCP_TOKEN""#,
                 r#"mcp_servers.ignis.enabled_tools=["sources_search","wiki_patch"]"#,
                 r#"mcp_servers.ignis.default_tools_approval_mode="prompt""#,
+                r#"mcp_servers.ignis.supports_parallel_tool_calls=true"#,
                 r#"mcp_servers.ignis.tools.sources_search.approval_mode="approve""#,
             ]
         );

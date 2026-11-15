@@ -127,6 +127,7 @@ and the rest of the server still works.
 | `IGNIS_CODEX_BIN` | unset (image: `/usr/local/bin/codex`) | Native `codex` executable of the pinned release (`PINNED_CODEX_VERSION` = `0.169.0`) |
 | `IGNIS_CODEX_SHA256` | unset | Expected sha256 of that executable. Unset: the hash is recorded but not enforced |
 | `IGNIS_CODEX_MODEL` | unset (Codex default) | Model of the Codex runtime |
+| `IGNIS_CODEX_REASONING_EFFORT` | unset (runtime default: `medium` for GPT-6 with Codex 0.169) | `model_reasoning_effort` of every Codex turn: `none`, `minimal`, `low`, `medium`, `high`, `xhigh`. Recorded in the build manifest and the episode pin; an unknown value leaves the runtime unavailable. Trade-off in [research/HARNESS_COST.md](research/HARNESS_COST.md) |
 | `IGNIS_CODEX_LOGIN_HOME` | unset | A `CODEX_HOME` signed in with ChatGPT, used instead of an API key; shared by every workspace; must be writable |
 | `IGNIS_CLAUDE_BIN` | unset for `serve` (image: `/usr/local/bin/claude` via `ignis.env`); `claude` for `ignis data review auto` (`crates/ignis-data/src/auto.rs`) and the evidence model passes (`crates/ignis-evidence/src/llm_pass.rs`) | Claude Code executable |
 | `IGNIS_CLAUDE_MODEL` | unset (Claude Code default) | Model of the Claude runtime |
