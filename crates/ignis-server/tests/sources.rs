@@ -1171,3 +1171,40 @@ fn evidence_corpus_ntrs_documents_resolve_by_their_byte_hash() {
         "{e:?}"
     );
 }
+
+/// PSI investigation records built into the data directory (`work/evidence/psi_records`) open the
+/// investigation's PSI landing page; a row whose landing page is not the investigation's is refused.
+#[test]
+fn psi_investigation_records_link_out_to_the_landing_page() {
+    let d = std::env::temp_dir().join(format!("ignis-psi-records-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&d);
+    let records = d.join("work/evidence/psi_records");
+    std::fs::create_dir_all(d.join("manifests")).unwrap();
+    std::fs::create_dir_all(&records).unwrap();
+    let id = format!("sha256:{}", "e".repeat(64));
+    let bad = format!("sha256:{}", "f".repeat(64));
+    std::fs::write(
+        records.join("records.jsonl"),
+        format!(
+            "{}\n{}\n",
+            serde_json::json!({"source_id": id, "investigation": "PSI-69",
+                "landing_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69"}),
+            serde_json::json!({"source_id": bad, "investigation": "PSI-69",
+                "landing_url": "https://example.org/elsewhere"})
+        ),
+    )
+    .unwrap();
+    let cat = Catalog::load(&d.join("manifests")).unwrap();
+    let e = cat.get(&SourceId::new(id).unwrap()).expect("record");
+    assert!(matches!(
+        e.address,
+        ignis_server::v1::sources::catalog::Address::LinkOut
+    ));
+    assert_eq!(
+        e.landing_url,
+        "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69"
+    );
+    assert_eq!(e.investigation, None);
+    assert!(cat.get(&SourceId::new(bad).unwrap()).is_none());
+    assert_eq!(cat.rejected.len(), 1);
+}
