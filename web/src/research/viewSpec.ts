@@ -51,6 +51,19 @@ export function viewProblems(view: ViewSpec, answer: ResearchAnswer): string[] {
     case "artifact_table":
       needArtifact(view.artifact_id);
       break;
+    case "chart": {
+      needArtifact(view.artifact_id);
+      if (view.y.length === 0) out.push("the chart names no y field");
+      const ptr = (p: string | null | undefined, what: string) => {
+        if (p != null && p !== "" && !p.startsWith("/")) out.push(`${what} ${p} is not a JSON Pointer`);
+      };
+      ptr(view.pointer, "rows pointer");
+      ptr(view.x.field, "x field");
+      for (const a of view.y) ptr(a.field, "y field");
+      ptr(view.group, "group field");
+      ptr(view.label, "label field");
+      break;
+    }
   }
   return out;
 }
