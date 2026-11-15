@@ -1122,18 +1122,33 @@ pub fn ingest() -> anyhow::Result<Bundle> {
         ] {
             let name = format!("PSI-69_Raw Data_FLEX-{num}_{kind}.txt");
             let Some(src) = srcs.get(&name) else { continue };
+            // A file of another layout (renamed columns, a binary or spreadsheet under .txt) or
+            // without one timestamped row is an explicit gap of this run, never a failed ingest.
             let (header, rows) = parse_series(&read(src)?);
             if !header.iter().any(|h| h == tcol) || !header.iter().any(|h| h == vcol) {
                 b.extra
                     .entry("series_errors".into())
                     .or_default()
-                    .push(json!({"run_id": run_id, "file": name, "header": header}));
+                    .push(json!({
+                        "run_id": run_id, "file": name, "header": header,
+                        "reason": format!("columns {tcol} / {vcol} not in the header"),
+                    }));
                 continue;
             }
             let sha = mf::sha_of(src);
-            b.observations.extend(series_observations(
+            let obs = series_observations(
                 &run_id, &sha, &name, &header, &rows, tcol, vcol, q, "mm", kind,
-            ));
+            );
+            if obs.is_empty() {
+                b.extra
+                    .entry("series_errors".into())
+                    .or_default()
+                    .push(json!({
+                        "run_id": run_id, "file": name, "header": header,
+                        "reason": "no row with a finite time",
+                    }));
+            }
+            b.observations.extend(obs);
             let ti = header.iter().position(|h| h == tcol).unwrap();
             let lost = rows
                 .iter()
