@@ -9,7 +9,7 @@ import { call, type ExperimentList, type ExperimentSummary, type ObservationsAtC
 import { ForecastChart, type Bands, type ChartPoint } from "../components/ForecastChart";
 import { useData } from "../shell/data";
 import { Caution, Gap, words } from "../ui/common";
-import { EventStack, Step, SupportNote } from "./Lab";
+import { EventStack, SupportNote } from "./Lab";
 import { familyLabel, hasSeries, runLabel } from "./RunPicker";
 
 interface Envelope {
@@ -332,51 +332,48 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
   const c = Number(cutoff) || 0;
   const xMax = Math.max(c, ...(bands?.times ?? [0]), ...observed.map((p) => p.t), 1e-6);
 
+  const extentMax = extent != null && extent > 0 ? extent : null;
+  const moveCutoff = (t: number) => setCutoff(String(+Math.max(0, extentMax != null ? Math.min(t, extentMax) : t).toPrecision(3)));
+  const summary = bands ? quantileSummary(bands, c) : null;
+  const quantityLabel = obsInput ? words(obsInput.name) : "";
+  const inspectionNote = inTrain && card.authorship === "data_informed" ? "The authors read this run while writing the model, so this is inspection, not a test." : null;
+
   return (
-    <div className={obsInput ? "lab" : "lab lab-one"}>
-      {obsInput && (
-        <section className="sheet" aria-label="Forecast chart">
-          {bands || observed.length > 0 ? (
-            <>
-          <ul className="legend legend-inline" aria-label="Chart legend">
-            <li>
-              <span className="glyph g-observed" style={{ color: "var(--observed)" }} /> {mode === "typed" ? "Typed before the cutoff (synthetic)" : "Observed before the cutoff"}
-            </li>
-            <li>
-              <span className="glyph g-predicted" /> Model output: quantile bands, dashed median
-            </li>
-            <li>
-              <span className="glyph g-cutoff" /> Cutoff
-            </li>
-          </ul>
-          <ForecastChart observed={observed} revealed={null} bands={bands} cutoff={c} xMax={xMax} yLabel={`${obsInput ? words(obsInput.name) : ""} [${d.unit}]`} />
-            </>
-          ) : (
-            <p className="muted lab-chart-empty">{busy ? "Running the forecast…" : error ? "No forecast to draw." : "The forecast is drawn here once it has run."}</p>
+    <div className="fc">
+      <div className="fc-model">
+        <div className="fc-model-name">
+          <b>{card.investigation}</b>
+          <span className="muted">
+            {card.model_name} {card.candidate}
+          </span>
+        </div>
+        <span className="tag tag-warn" title="Not qualified by evaluation: read it as an experimental model output">
+          experimental
+        </span>
+        <span className="tag" title="Literal weights an author model typed; nothing was fitted">
+          hand-written · {authorshipLabel(card)}
+        </span>
+        <span className="fc-model-actions">
+          {card.stored_runs && mode === "typed" && (
+            <button className="linkish" onClick={() => setMode("stored")}>
+              {fixed ? "Use the selected run" : "Use a stored run"}
+            </button>
           )}
-          {slide && (
-            <div className="cutoff-row">
-              <label htmlFor="hw-cutoff">Cutoff, s</label>
-              <input id="hw-cutoff" type="range" min={0} max={extent!} step={+(extent! / 200).toPrecision(2)} value={Number(cutoff) || 0} onChange={(e) => setCutoff(e.target.value)} aria-valuetext={`${cutoff} seconds of ${extent!.toPrecision(3)}`} />
-              <input className="field num" type="number" aria-label="Cutoff in seconds" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} />
-            </div>
+          {mode === "stored" && (
+            <button className="linkish" onClick={() => setMode("typed")}>
+              Enter your own conditions
+            </button>
           )}
-        </section>
-      )}
-      <div className="steps">
-        <Step n={1} done title={`${card.model_name} ${card.candidate}`} tag={<span className="tag tag-warn">experimental</span>}>
-          <p>
-            <b>Hand-written</b> (literal weights an author model typed, nothing fitted) · <b>{authorshipLabel(card)}</b> · trained on {words(card.trained_on)} · {words(card.state)}
-          </p>
-          <p>{card.forecasts}</p>
-          <p className="muted" style={{ fontSize: 12 }}>
-            {card.authorship_note}
-          </p>
-          <details className="route">
-            <summary>
-              <b>Reported scores and limits</b> <span>development numbers, with their source</span>
-            </summary>
-            <ul style={{ paddingLeft: 18 }}>
+        </span>
+      </div>
+      <details className="fc-about">
+        <summary>What this model forecasts, its scores and limits</summary>
+        <p>{card.forecasts}</p>
+        <p className="muted">{card.authorship_note}</p>
+        {card.scores.length > 0 && (
+          <>
+            <h4>Reported development scores</h4>
+            <ul>
               {card.scores.map((s) => (
                 <li key={s.metric}>
                   {s.metric}: <b className="num">{s.value}</b>
@@ -384,119 +381,255 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
                 </li>
               ))}
             </ul>
-            <ul style={{ paddingLeft: 18 }}>
+          </>
+        )}
+        {card.limits.length > 0 && (
+          <>
+            <h4>Limits</h4>
+            <ul>
               {card.limits.map((l) => (
                 <li key={l}>{l}</li>
               ))}
             </ul>
-            <p className="muted" style={{ fontSize: 12 }}>
-              Cite as: {card.cite}
-              {card.card_doc ? ` Model card: ${card.card_doc}.` : ""}
-            </p>
-          </details>
-        </Step>
+          </>
+        )}
+        <p className="muted">
+          Inputs: {card.inputs_note} Cite as: {card.cite}
+          {card.card_doc ? ` Model card: ${card.card_doc}.` : ""}
+        </p>
+      </details>
 
-        <Step n={2} done={false} title="Input">
-          <p className="muted" style={{ fontSize: 12 }}>
-            {card.inputs_note}
-          </p>
-          <div className="toolbar" role="radiogroup" aria-label="Input">
-            <button className={`btn btn-s${mode === "stored" ? " btn-primary" : ""}`} disabled={!card.stored_runs} onClick={() => setMode("stored")} aria-pressed={mode === "stored"}>
-              Stored run (train partition)
+      {mode === "stored" && fixed && split.isLoading && <p className="muted">Checking which runs this model may read…</p>}
+      {mode === "stored" && fixed && split.error && <Gap title="The model's runs could not be listed">{String((split.error as Error).message ?? split.error)}</Gap>}
+      {mode === "stored" && fixed && split.data && !inTrain && (
+        <Caution title="This model cannot read this run here">
+          Only runs from the model's training set are fed to it in this deployment (validation and test runs stay sealed for evaluation).{" "}
+          {trainWithData.length > 0 ? "Runs it can read:" : "None of its training runs has a recorded series in IGNIS yet: enter your own conditions instead."}
+        </Caution>
+      )}
+      {mode === "stored" && fixed && split.data && !inTrain && trainWithData.length > 0 && (
+        <div className="toolbar">
+          {trainWithData.map((r) => (
+            <button key={r.id} className="btn btn-s" onClick={() => pickRun(r.id)}>
+              {runLabel(r)}
             </button>
-            <button className={`btn btn-s${mode === "typed" ? " btn-primary" : ""}`} onClick={() => setMode("typed")} aria-pressed={mode === "typed"}>
-              Typed conditions
-            </button>
-          </div>
-          {mode === "stored" ? (
-            fixed ? (
-              <>
-                <p>
-                  <b>{runLabel(fixed)}</b> <code>{fixed.id}</code>
-                </p>
-                {split.isLoading && <p className="muted">Checking the model's train partition…</p>}
-                {split.error && <Gap title="The model's runs could not be listed">{String((split.error as Error).message ?? split.error)}</Gap>}
-                {split.data && !inTrain && (
-                  <Caution title="This run is outside the model's train partition">
-                    This deployment builds a stored prefix only from train runs, so this run's own data is not fed to this model here (validation and test runs stay sealed for evaluation).
-                    {trainWithData.length > 0
-                      ? " Runs this model can read:"
-                      : " No run of its train partition has a recorded series in IGNIS yet; switch to Typed conditions to forecast from values you enter."}
-                  </Caution>
-                )}
-                {split.data && !inTrain && trainWithData.length > 0 && (
-                  <div className="toolbar">
-                    {trainWithData.map((r) => (
-                      <button key={r.id} className="btn btn-s" onClick={() => pickRun(r.id)}>
-                        {runLabel(r)}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {inTrain && card.authorship === "data_informed" && (
-                  <p className="muted" style={{ fontSize: 12 }}>
-                    The authors read this train run while writing the model, so this is inspection, not a test.
-                  </p>
-                )}
-              </>
-            ) : (
-            <>
-              <p className="muted" style={{ fontSize: 12 }}>
-                Runs of the release's train partition only; the authors of a data-informed release read these runs, so this is inspection, not a test.
+          ))}
+        </div>
+      )}
+
+      {mode === "stored" && !fixed && (
+        <div className="fc-row">
+          <label htmlFor="hw-run">Run</label>
+          <select id="hw-run" className="field" value={run} onChange={(e) => setRun(e.target.value)}>
+            <option value="">{split.isLoading ? "Loading runs…" : runs.length ? "Choose a training run" : "No stored runs in this data source"}</option>
+            {runs.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.id}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {mode === "typed" && (
+        <div className="fc-typed">
+          <Caution title="Your conditions are a synthetic input, not a NASA run">The forecast is model output for the values you enter.</Caution>
+          <button className="btn btn-s btn-quiet" style={{ justifySelf: "start" }} onClick={fillExamples}>
+            Fill example values
+          </button>
+          <dl className="kv fc-inputs">
+            {card.inputs.map((i) => (
+              <InputField key={i.name} input={i} value={values[i.name] ?? ""} onChange={(v) => set(i.name, v)} />
+            ))}
+          </dl>
+        </div>
+      )}
+
+      {!slide && (
+        <div className="fc-row">
+          <label htmlFor="hw-cutoff">{obsInput ? "The model sees the first" : "Forecast from t ="}</label>
+          <input id="hw-cutoff" className="field num fc-num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void forecast()} />
+          <span>s</span>
+          <button className="btn btn-s btn-primary" disabled={busy || (mode === "stored" && !!fixed && !inTrain)} onClick={forecast}>
+            {busy ? "Forecasting…" : "Forecast"}
+          </button>
+        </div>
+      )}
+
+      {error && <Gap title="No forecast">{error}</Gap>}
+      {art && !art.support.admitted && (
+        <>
+          <SupportNote artifact={art} />
+          <p>The model refuses this input and gives no number for it.</p>
+        </>
+      )}
+
+      {(art?.support.admitted || slide || (obsInput && observed.length > 0)) && (
+        <section className="sheet fc-main" aria-label="Forecast">
+          <div className="fc-answer" aria-live="polite">
+            {summary ? (
+              <p>
+                Seeing the first <b className="num">{fmtNum(c)} s</b>, the model expects the {quantityLabel} to be{" "}
+                <b className="num">
+                  {fmtNum(summary.median)} {d.unit}
+                </b>{" "}
+                at <span className="num">{fmtNum(summary.t)} s</span>{" "}
+                <span className="muted num">
+                  ({summary.pct}% range {fmtNum(summary.lo)}–{fmtNum(summary.hi)} {d.unit})
+                </span>
+                .
               </p>
-              <select className="field" value={run} onChange={(e) => setRun(e.target.value)} aria-label="Stored run">
-                <option value="">{split.isLoading ? "Loading runs…" : runs.length ? "Choose a run" : "No stored runs in this data source"}</option>
-                {runs.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.id}
-                  </option>
-                ))}
-              </select>
-            </>
-            )
-          ) : (
+            ) : art?.support.admitted && !obsInput ? (
+              <p>
+                Probability of each outcome by <b className="num">{fmtNum((art.times_s ?? [0]).slice(-1)[0])} s</b> (model output):
+              </p>
+            ) : (
+              <p className="muted">{busy ? "Forecasting…" : "The forecast appears here."}</p>
+            )}
+            {busy && <span className="fc-busy muted">updating…</span>}
+          </div>
+          {art?.support.admitted && <OutcomeBar artifact={art} />}
+          {obsInput && (
             <>
-              <Caution title="A typed scenario is not a NASA run">
-                What you type is admitted as a synthetic input (evidence class synthetic); the forecast is model output for those conditions.
-              </Caution>
-              <button className="btn btn-s btn-quiet" style={{ justifySelf: "start" }} onClick={fillExamples}>
-                Fill example values (not a measurement)
-              </button>
-              <dl className="kv">
-                {card.inputs.map((i) => (
-                  <InputField key={i.name} input={i} value={values[i.name] ?? ""} onChange={(v) => set(i.name, v)} />
-                ))}
-              </dl>
+              <ul className="legend legend-inline fc-legend" aria-label="Chart legend">
+                <li>
+                  <span className="glyph g-observed" style={{ color: "var(--observed)" }} /> {mode === "typed" ? "Your values (synthetic)" : "Measured, given to the model"}
+                </li>
+                <li>
+                  <span className="glyph g-predicted" /> Model: median (dashed) and uncertainty band
+                </li>
+              </ul>
+              <ForecastChart
+                observed={observed}
+                revealed={null}
+                bands={bands}
+                cutoff={c}
+                xMax={xMax}
+                unit={d.unit}
+                yLabel={`${quantityLabel} [${d.unit}]`}
+                onCutoff={slide ? moveCutoff : undefined}
+              />
             </>
           )}
-          {slide ? null : (
-            <div className="cutoff-row">
-              <label htmlFor="hw-cutoff">Cutoff, s</label>
-              <input id="hw-cutoff" className="field num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void forecast()} />
-              <button className="btn btn-s btn-primary" disabled={busy || (mode === "stored" && !!fixed && !inTrain)} onClick={forecast}>
-                {busy ? "Running the forward…" : "Forecast"}
-              </button>
+          {slide && (
+            <div className="fc-cutoff">
+              <div className="fc-cutoff-head">
+                <label htmlFor="hw-cutoff">
+                  The model sees the first{" "}
+                  <input id="hw-cutoff" className="field num fc-num" type="number" min={0} max={extentMax!} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} /> s of the{" "}
+                  <span className="num">{fmtNum(extentMax!)} s</span> recorded
+                </label>
+                <span className="fc-presets" role="group" aria-label="Cutoff presets">
+                  {[0.1, 0.25, 0.5, 0.75].map((f) => (
+                    <button key={f} className="btn btn-s btn-quiet" onClick={() => moveCutoff(extentMax! * f)}>
+                      {f * 100}%
+                    </button>
+                  ))}
+                </span>
+              </div>
+              <input
+                type="range"
+                className="fc-range"
+                min={0}
+                max={extentMax!}
+                step={+(extentMax! / 400).toPrecision(2)}
+                value={Number(cutoff) || 0}
+                onChange={(e) => moveCutoff(+e.target.value)}
+                aria-label="Cutoff"
+                aria-valuetext={`${cutoff} seconds of ${fmtNum(extentMax!)}`}
+              />
+              <p className="muted fc-hint">Drag the line on the chart or the slider: the forecast follows. Hover the chart to read values.</p>
             </div>
           )}
-          {auto && (
-            <p className="muted" style={{ fontSize: 12 }} aria-live="polite">
-              {busy ? "Updating the forecast…" : "The forecast follows the cutoff."}
-            </p>
-          )}
-        </Step>
-
-        <Step n={3} done={!!art} title="Model output">
-          {error && <Gap title="No forecast">{error}</Gap>}
-          {art && <SupportNote artifact={art} />}
-          {art && !art.support.admitted && <p>The model refuses this input and gives no number for it; the reasons are above.</p>}
-          {art && art.support.admitted && <EventStack artifact={art} />}
+          <p className="muted fc-foot">
+            Model output, not a measurement.{inspectionNote ? ` ${inspectionNote}` : ""}
+          </p>
           {art && (
-            <p className="muted" style={{ fontSize: 12 }}>
-              model output, not a measurement · prefix <code>{art.prefix_hash.slice(0, 19)}…</code>
-            </p>
+            <details className="fc-tech">
+              <summary>Technical details</summary>
+              <SupportNote artifact={art} />
+              {art.support.admitted && <EventStack artifact={art} />}
+              <p className="muted">
+                release <code>{card.release_id.slice(0, 19)}…</code> · prefix <code>{art.prefix_hash.slice(0, 19)}…</code> · artifact <code>{art.id}</code>
+              </p>
+            </details>
           )}
-        </Step>
+        </section>
+      )}
+    </div>
+  );
+}
+
+const fmtNum = (x: number) => (!Number.isFinite(x) ? "—" : Math.abs(x) >= 100 ? x.toFixed(0) : Math.abs(x) >= 10 ? x.toFixed(1) : +x.toPrecision(3) + "");
+
+/** Median and outer band at the last forecast time. */
+function quantileSummary(b: Bands, cutoff: number): { t: number; median: number; lo: number; hi: number; pct: number } | null {
+  const n = b.times.length;
+  if (!n || !b.levels.length) return null;
+  const j = n - 1;
+  const mi = b.levels.findIndex((x) => Math.abs(x - 0.5) < 1e-9);
+  const last = b.levels.length - 1;
+  if (b.times[j] <= cutoff && n > 1) return null;
+  return {
+    t: b.times[j],
+    median: (mi >= 0 ? b.q[mi] : b.q[Math.floor(last / 2)])[j],
+    lo: b.q[0][j],
+    hi: b.q[last][j],
+    pct: Math.round((b.levels[last] - b.levels[0]) * 100),
+  };
+}
+
+const OUTCOME: Record<string, string> = {
+  active_supported: "still burning",
+  active: "still burning",
+  hot_phase_end: "hot flame ends",
+  cool_flame: "cool flame",
+  disruption: "droplet disrupted",
+  extinction: "extinguished",
+  operator_termination: "stopped by the test script",
+  flow_stop: "flow stopped",
+  unresolved: "unresolved",
+  unresolved_support: "unresolved",
+};
+const OUTCOME_COLORS = ["var(--ev1)", "var(--ev2)", "var(--ev3)", "var(--ev4)"];
+/** Fixed colours by meaning, so "still burning" never looks like an ending. */
+const outcomeColor = (c: string, k: number) =>
+  c.startsWith("active")
+    ? "color-mix(in srgb, var(--ink) 22%, transparent)"
+    : c.startsWith("unresolved")
+      ? "var(--wash)"
+      : c === "disruption" || c === "operator_termination" || c === "flow_stop"
+        ? "var(--revealed)"
+        : c === "extinction" || c === "hot_phase_end"
+          ? "var(--model)"
+          : OUTCOME_COLORS[k % OUTCOME_COLORS.length];
+
+/** Outcome probabilities at the last forecast time, as one bar plus a legend. */
+function OutcomeBar({ artifact }: { artifact: AnalysisArtifact }) {
+  const cats = artifact.event_categories ?? [];
+  const cdf = artifact.event_cdf ?? [];
+  const n = artifact.times_s?.length ?? 0;
+  if (!cats.length || !n) return null;
+  const last = n - 1;
+  const parts = cats.map((c, k) => ({ c, p: cdf[k]?.[last] ?? 0, color: outcomeColor(c, k) }));
+  const rest = 1 - parts.reduce((s, x) => s + x.p, 0);
+  if (!cats.some((c) => c.startsWith("active")) && rest > 0.0005) parts.push({ c: "active", p: rest, color: outcomeColor("active", 0) });
+  const shown = parts.filter((x) => x.p > 0.0005);
+  return (
+    <div className="fc-outcomes">
+      <div className="fc-obar" role="img" aria-label={shown.map((x) => `${OUTCOME[x.c] ?? words(x.c)} ${(x.p * 100).toFixed(0)}%`).join(", ")}>
+        {shown.map((x) => (
+          <span key={x.c} style={{ width: `${x.p * 100}%`, background: x.color }} />
+        ))}
       </div>
+      <ul className="fc-olegend">
+        {shown.map((x) => (
+          <li key={x.c}>
+            <span className="swatch" style={{ background: x.color }} aria-hidden="true" /> {OUTCOME[x.c] ?? words(x.c)} <b className="num">{x.p >= 0.995 ? ">99" : x.p < 0.01 ? "<1" : (x.p * 100).toFixed(0)}%</b>
+          </li>
+        ))}
+        <li className="muted">by {fmtNum(artifact.times_s![last])} s</li>
+      </ul>
     </div>
   );
 }

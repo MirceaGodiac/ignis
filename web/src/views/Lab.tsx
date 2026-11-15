@@ -49,7 +49,7 @@ export function Lab({ runId }: { runId: string | null }) {
   const setCutoff = (c: number) => runId && setCutoffByRun((m) => ({ ...m, [runId]: Math.max(0, Math.min(c, extent)) }));
   const step = +(extent / 200).toPrecision(2);
 
-  const obs = useLatest<ObservationsAtCutoff>(runId ? `${origin}|${runId}|${cutoff}` : null, (signal) => call(origin, `/experiments/${encodeURIComponent(runId!)}/observations?cutoff_s=${cutoff}`, { signal }));
+  const obs = useLatest<ObservationsAtCutoff>(runId && releases.length ? `${origin}|${runId}|${cutoff}` : null, (signal) => call(origin, `/experiments/${encodeURIComponent(runId!)}/observations?cutoff_s=${cutoff}`, { signal }));
   const fc = useLatest<ForecastOutcome & { outcome: "artifact" }>(
     runId && releaseId ? `${origin}|${runId}|${releaseId}|${cutoff}` : null,
     async (signal) => {
