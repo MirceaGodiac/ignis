@@ -19,11 +19,13 @@
 
 pub mod artifacts;
 pub mod backup;
+pub mod metrics;
 pub mod r2;
 pub mod runtime;
 pub mod s3;
 pub mod sandbox;
 pub mod store;
+pub mod trace;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 

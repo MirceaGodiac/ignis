@@ -110,7 +110,9 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 || base == "ModelSpec"
                 || base == "WikiPatch"
                 || base == "AnswerSubmission"
-                || base == "Capabilities",
+                || base == "Capabilities"
+                || base == "EpisodeMetrics"
+                || base == "ErrorEnvelope",
             "{path}: no origin label"
         );
 
@@ -120,17 +122,24 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "ResearchEpisode" => drop(check::<ResearchEpisode>(&v, ResearchEpisode::validate)),
             "ResearchEvent[]" => drop(check::<Vec<ResearchEvent>>(&v, |e| check_event_log(e))),
             "ToolResult" => drop(check::<ToolResult>(&v, ToolResult::validate)),
+            "ErrorEnvelope" => drop(check::<ErrorEnvelope>(&v, ErrorEnvelope::validate)),
             "ExecutionRecord" => drop(check::<ExecutionRecord>(&v, ExecutionRecord::validate)),
             "ResearchAnswer" => drop(check::<ResearchAnswer>(&v, ResearchAnswer::validate)),
             "AnswerSubmission" => drop(check::<AnswerSubmission>(&v, AnswerSubmission::validate)),
             "AnswerRefusal" => drop(check::<AnswerRefusal>(&v, AnswerRefusal::validate)),
             "TraceBundle" => drop(check::<TraceBundle>(&v, TraceBundle::validate)),
+            "EpisodeMetrics" => drop(check::<EpisodeMetrics>(&v, EpisodeMetrics::validate)),
             "Capabilities" => drop(check::<Capabilities>(&v, Capabilities::validate)),
             "SearchRequest" => drop(check::<SearchRequest>(&v, SearchRequest::validate)),
             "SearchPage" => drop(check::<SearchPage>(&v, SearchPage::validate)),
             "ReadResult" => drop(check::<ReadResult>(&v, ReadResult::validate)),
             "SourceOutline" => drop(check::<SourceOutline>(&v, SourceOutline::validate)),
             "SourceAccess" => drop(check::<SourceAccess>(&v, SourceAccess::validate)),
+            "MediaKeyframeIndex" => drop(check::<MediaKeyframeIndex>(
+                &v,
+                MediaKeyframeIndex::validate,
+            )),
+            "ArchiveListing" => drop(check::<ArchiveListing>(&v, ArchiveListing::validate)),
             "SourceLabel[]" => drop(check::<Vec<SourceLabel>>(&v, |l| {
                 l.iter().try_for_each(SourceLabel::validate)
             })),
@@ -699,6 +708,133 @@ fn answers_cannot_report_predictions_as_observations() {
     );
 }
 
+/// M7b: a number in a claim's value slot always carries the cell it was read from (digest, row
+/// keys, column), never a position, and its tier fixes the artifact it may come from.
+#[test]
+fn claim_values_bind_numbers_to_cells_never_to_positions() {
+    let sub = fixture("research/answer_submission.json");
+    let bound = &sub["claims"][2]["values"][0];
+    typed::<ClaimValue>(bound).validate().unwrap();
+    assert!(
+        typed::<AnswerSubmission>(&sub).problems().is_empty(),
+        "a bound value supports a predicted claim"
+    );
+
+    // A bare numeral (no source) does not parse; a malformed binding is refused by validate().
+    let mut bare = bound.clone();
+    bare.as_object_mut().unwrap().remove("source");
+    assert!(serde_json::from_value::<ClaimValue>(bare).is_err());
+    let refused = |f: &dyn Fn(&mut Value)| {
+        let mut v = bound.clone();
+        f(&mut v);
+        typed::<ClaimValue>(&v).validate().is_err()
+    };
+    assert!(refused(&|v| v["unit"] = json!(" ")), "no unit");
+    assert!(refused(&|v| v["significant_digits"] = json!(0)));
+    assert!(refused(&|v| v["significant_digits"] = json!(18)));
+    assert!(
+        refused(&|v| v["source"]["rows"][0]["where"] = json!([])),
+        "a row is selected by key fields, never by position"
+    );
+    assert!(refused(
+        &|v| v["source"]["rows"][0]["where"] =
+            json!([{"field": "/t", "equals": 1}, {"field": "/t", "equals": 2}])
+    ));
+    assert!(refused(&|v| v["source"]["column"] = json!("mean")));
+    assert!(refused(
+        &|v| v["derivation"] = json!({"computation": "a-rec", "inputs": ["a-in", "a-in"]})
+    ));
+    assert!(refused(
+        &|v| v["derivation"] = json!({"computation": "a-rec", "inputs": ["a-rec"]})
+    ));
+    // The reference is the source of truth: a value may be left to the host, but a stated value
+    // carries its unit, and a quoted number is always stated (it is searched for in the quote).
+    let mut unstated = bound.clone();
+    unstated.as_object_mut().unwrap().remove("value");
+    unstated.as_object_mut().unwrap().remove("unit");
+    typed::<ClaimValue>(&unstated).validate().unwrap();
+    assert!(refused(&|v| {
+        v.as_object_mut().unwrap().remove("unit");
+    }));
+    assert!(!refused(
+        &|v| v["source"] = json!({"kind": "evidence_quote", "evidence_id": "e-1"})
+    ));
+    let mut quote = unstated.clone();
+    quote["source"] = json!({"kind": "evidence_quote", "evidence_id": "e-1"});
+    assert!(typed::<ClaimValue>(&quote).validate().is_err());
+    // A condition is read under a snapshot; a row without a run id is selected by locator.
+    let mut cond = bound.clone();
+    cond["source"] = json!({"kind": "conditions_cell", "snapshot": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "investigation_id": "inv-a", "run_id": "run-1", "key": "pressure"});
+    typed::<ClaimValue>(&cond).validate().unwrap();
+    cond["source"].as_object_mut().unwrap().remove("run_id");
+    assert!(typed::<ClaimValue>(&cond).validate().is_err());
+    cond["source"]["locator"] = json!({"asset_sha256": "2e", "path": "t.csv", "row": 5});
+    typed::<ClaimValue>(&cond).validate().unwrap();
+    for (path, v) in [
+        ("unit", json!("")),
+        (
+            "resolved",
+            json!({"level": "cell", "value": 0.69, "unit": "m"}),
+        ),
+    ] {
+        let mut bad = sub.clone();
+        bad["claims"][2]["values"][0][path] = v;
+        assert_eq!(
+            typed::<AnswerSubmission>(&bad)
+                .problems()
+                .into_iter()
+                .map(|p| p.kind)
+                .collect::<Vec<_>>(),
+            vec![AnswerProblemKind::InvalidStructure],
+            "{path}: malformed, or written by the agent instead of the host"
+        );
+    }
+
+    // A grounding report lists grounding problems only, and an enforced answer stores none.
+    let report = |mode: &str, kind: &str| {
+        typed::<GroundingReport>(&json!({"mode": mode, "grounded": 0,
+            "problems": [{"kind": kind, "detail": "x"}]}))
+        .validate()
+        .is_ok()
+    };
+    assert!(report("log", "value_mismatch"));
+    assert!(!report("enforce", "value_mismatch"));
+    assert!(!report("log", "unknown_evidence"));
+
+    // In the stored answer, a value's artifact fits the claim's tier.
+    let answer = fixture("research/answer_v2.json");
+    let value_from = |artifact: &str| {
+        let mut v = bound.clone();
+        v["source"]["artifact_id"] = json!(artifact);
+        v
+    };
+    let kinds = |claim: usize, value: Value| -> Vec<AnswerProblemKind> {
+        let mut v = answer.clone();
+        v["claims"][claim]["values"] = json!([value]);
+        typed::<ResearchAnswer>(&v)
+            .problems()
+            .into_iter()
+            .map(|p| p.kind)
+            .collect()
+    };
+    use AnswerProblemKind as K;
+    assert!(kinds(1, value_from("fixture-artifact-conditions-01")).is_empty());
+    assert_eq!(
+        kinds(1, value_from("fixture-artifact-forecast-01")),
+        vec![K::KindSupportMismatch],
+        "an observed number read from a model output"
+    );
+    assert_eq!(
+        kinds(4, value_from("fixture-artifact-forecast-01")),
+        vec![K::KindSupportMismatch],
+        "a computed number read from a model output"
+    );
+    let mut derived = value_from("fixture-artifact-observed-01");
+    derived["derivation"] = json!({"computation": "no-such-record", "inputs": []});
+    assert_eq!(kinds(4, derived), vec![K::UnknownArtifact]);
+}
+
 #[test]
 fn evaluation_counts_every_case_and_only_a_real_final_test_qualifies() {
     let base = fixture("evaluation/result_dev.json");
@@ -805,7 +941,9 @@ fn analysis_runs_cannot_escape_their_mounts_or_hide_truncation() {
             .iter()
             .map(|n| AnalysisInput {
                 name: n.to_string(),
-                artifact_id: ArtifactId::new("art_1").unwrap(),
+                artifact_id: Some(ArtifactId::new("art_1").unwrap()),
+                dataset_view: None,
+                conditions: None,
             })
             .collect(),
         client_request_id: None,
@@ -817,6 +955,35 @@ fn analysis_runs_cannot_escape_their_mounts_or_hide_truncation() {
     assert!(
         req(&["a", "a"]).validate().is_err(),
         "one name mounted twice"
+    );
+    // A by-reference input names exactly one thing, and a mounted conditions table is complete.
+    let one = |v: Value| {
+        serde_json::from_value::<AnalysisExecuteRequest>(
+            json!({"language": "python", "source": "print(1)", "inputs": [v]}),
+        )
+        .map_err(|e| e.to_string())
+        .and_then(|r| r.validate().map_err(|e| e.to_string()))
+    };
+    let view = json!({"dataset_id": "fixture-dataset-flex", "view": "series"});
+    let q = json!({"schema_version": "dataset.v2"});
+    assert!(one(json!({"name": "s.parquet", "dataset_view": view})).is_ok());
+    assert!(one(json!({"name": "c.json", "conditions": q})).is_ok());
+    assert!(one(json!({"name": "x"})).is_err(), "no reference");
+    assert!(
+        one(json!({"name": "x", "artifact_id": "art_1", "dataset_view": view})).is_err(),
+        "two references"
+    );
+    assert!(
+        one(
+            json!({"name": "x", "dataset_view": {"dataset_id": "fixture-dataset-flex", "view": ""}})
+        )
+        .is_err(),
+        "empty view name"
+    );
+    assert!(
+        one(json!({"name": "x", "conditions": {"schema_version": "dataset.v2", "cursor": "c1"}}))
+            .is_err(),
+        "a mounted table is never one page"
     );
 
     let record = fixture("research/execution_record.json");
@@ -1057,6 +1224,33 @@ fn k1_research_contracts_bind_views_and_keep_versions_honest() {
     assert!(trace_refused(
         &|v| v["partitions_touched"] = json!(["train", "train"])
     ));
+
+    // Usage (M5): v2 only; cache and reasoning counts stay within their totals; a reported cost
+    // is the provider's. Metrics never show an unpriced cost without its models and reasons.
+    let usage = fixture("research/events_usage.json")[1].clone();
+    let usage_refused = |f: &dyn Fn(&mut Value)| {
+        let mut v = usage.clone();
+        f(&mut v);
+        typed::<ResearchEvent>(&v).validate().is_err()
+    };
+    assert!(usage_refused(
+        &|v| v["schema_version"] = json!("research.v1")
+    ));
+    assert!(usage_refused(
+        &|v| v["body"]["payload"]["usage"]["cache_write_tokens"] = json!(2001)
+    ));
+    assert!(usage_refused(
+        &|v| v["body"]["payload"]["usage"]["reasoning_tokens"] = json!(501)
+    ));
+    assert!(usage_refused(&|v| v["body"]["payload"]["usage"]
+        ["reported_cost"]["basis"] =
+        json!("price_list")));
+    let mut metrics = fixture("research/episode_metrics.json");
+    metrics["cost"]["models"] = json!([]);
+    assert!(typed::<EpisodeMetrics>(&metrics).validate().is_err());
+    let mut metrics = fixture("research/episode_metrics.json");
+    metrics["tools"][0]["latency"]["p50_ms"] = json!(400.0);
+    assert!(typed::<EpisodeMetrics>(&metrics).validate().is_err());
 
     // Capabilities give a reason exactly for what is unavailable.
     let mut caps = fixture("research/capabilities.json");
@@ -1322,4 +1516,26 @@ fn k1_evaluation_keeps_the_holdout_away_from_builders_and_one_shape_per_purpose(
         }
         typed::<GoldPrompt>(&p);
     }
+}
+
+/// A source gone upstream is a corpus-integrity problem: no retry policy may promise it comes back.
+#[test]
+fn source_gone_is_never_retryable() {
+    let gone = |retry| ErrorEnvelope::new(ErrorCode::SourceGone, "gone", retry);
+    gone(RetryPolicy::Never).validate().unwrap();
+    for retry in [
+        RetryPolicy::AfterDelay { seconds: 60 },
+        RetryPolicy::AfterUserAction,
+        RetryPolicy::Reconcile,
+    ] {
+        assert!(gone(retry).validate().is_err());
+    }
+    // Other codes keep whatever policy their producer chose.
+    ErrorEnvelope::new(
+        ErrorCode::UpstreamUnavailable,
+        "outage",
+        RetryPolicy::AfterDelay { seconds: 30 },
+    )
+    .validate()
+    .unwrap();
 }

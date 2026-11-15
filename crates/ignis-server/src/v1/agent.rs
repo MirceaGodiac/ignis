@@ -17,7 +17,8 @@ use std::sync::Arc;
 use ignis_core::services::ArtifactStore;
 use ignis_research::runtime::{
     claude_preflight, preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, CodexBridge,
-    CodexConfig, McpAttachment, RuntimeBuildManifest, PINNED_CODEX_VERSION,
+    CodexConfig, HarnessBundle, HarnessSource, McpAttachment, RuntimeBuildManifest,
+    PINNED_CODEX_VERSION,
 };
 use ignis_research::ResearchStore;
 
@@ -67,6 +68,16 @@ pub struct CodexArgs {
     /// when no token or API key is set. Must be writable.
     #[arg(long = "claude-login-home", env = "IGNIS_CLAUDE_LOGIN_HOME")]
     pub claude_login_home: Option<PathBuf>,
+    /// Let the Claude investigator hand one bounded subtask to Claude Code's native subagent
+    /// (depth 1, same IGNIS tools and scope, no `answer_submit`). Off by default; the runtime
+    /// build id records it.
+    #[arg(long = "claude-delegation", env = "IGNIS_CLAUDE_DELEGATION")]
+    pub claude_delegation: bool,
+    /// A harness directory (`investigator.md`, `skills/<name>/SKILL.md`) to start episodes with
+    /// instead of the bundle compiled from `harness/`; its directory name is the label. A malformed
+    /// bundle leaves the runtime unavailable.
+    #[arg(long = "harness-dir", env = "IGNIS_HARNESS_DIR")]
+    pub harness_dir: Option<PathBuf>,
 }
 
 #[derive(Clone)]
@@ -80,6 +91,7 @@ enum Prepared {
 pub struct Preflighted {
     cfg: Option<Prepared>,
     outcome: Result<RuntimeBuildManifest, String>,
+    harness_dir: Option<PathBuf>,
 }
 
 impl Preflighted {
@@ -116,6 +128,7 @@ impl Preflighted {
                     let mut cfg = ClaudeConfig::new(bin, home.with_file_name("claude"));
                     cfg.model = args.claude_model.clone();
                     cfg.login_home = args.claude_login_home.clone();
+                    cfg.delegation = args.claude_delegation;
                     let outcome = claude_preflight(&cfg);
                     (Some(Prepared::Claude(cfg)), outcome)
                 }
@@ -129,7 +142,11 @@ impl Preflighted {
                 tracing::error!(reason = %e, "agent runtime preflight failed; the agent runtime is unavailable")
             }
         }
-        Preflighted { cfg, outcome }
+        Preflighted {
+            cfg,
+            outcome,
+            harness_dir: args.harness_dir.clone(),
+        }
     }
 }
 
@@ -165,6 +182,36 @@ pub fn runtime(
         }
         (None, Ok(_)) => unreachable!("a manifest needs a configuration"),
     };
+    // The bundle names the tools this runtime is attached to, so it is rendered per attachment.
+    let attached = mcp
+        .as_ref()
+        .map(|m| m.enabled_tools.clone())
+        .unwrap_or_default();
+    let bundle = match &pre.harness_dir {
+        None => Ok(HarnessBundle::embedded(&attached)),
+        Some(dir) => HarnessSource::load(dir).and_then(|src| {
+            let label = dir
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_else(|| "custom".into());
+            HarnessBundle::render(&label, &src, &attached)
+        }),
+    };
+    let bundle = match bundle {
+        Ok(b) => b,
+        Err(reason) => {
+            tracing::error!(%reason, "harness bundle refused; the agent runtime is unavailable");
+            return (
+                None,
+                RuntimeReport {
+                    available: false,
+                    detail: format!("agent runtime unavailable: {reason}"),
+                    manifest: None,
+                },
+            );
+        }
+    };
+    let harness = format!("harness {}", bundle.short());
     let tools = if mcp.is_some() {
         "IGNIS tools over loopback MCP"
     } else {
@@ -175,6 +222,7 @@ pub fn runtime(
         Prepared::Codex(mut cfg) => {
             cfg.home = home;
             cfg.mcp = mcp;
+            cfg.harness = Some(bundle);
             (
                 Arc::new(CodexBridge::new(
                     cfg,
@@ -189,6 +237,7 @@ pub fn runtime(
         Prepared::Claude(mut cfg) => {
             cfg.home = home.with_file_name("claude");
             cfg.mcp = mcp;
+            cfg.harness = Some(bundle);
             (
                 Arc::new(ClaudeBridge::new(
                     cfg,
@@ -206,7 +255,7 @@ pub fn runtime(
         RuntimeReport {
             available: true,
             detail: format!(
-                "{what} ({:?} profile: no shell; {tools}; credentials: {})",
+                "{what} ({:?} profile: no shell; {tools}; {harness}; credentials: {})",
                 manifest.profile, manifest.credentials
             ),
             manifest: Some(manifest),

@@ -2,6 +2,8 @@
 //!
 //! - One `claude -p` process per turn, `--output-format stream-json`. The Claude session id (a UUID
 //!   IGNIS chooses with `--session-id`, then `--resume`s) is the episode's runtime thread.
+//! - The harness bundle (M6) is appended to Claude Code's system prompt from a file named by its
+//!   digest, identical for every turn, and pinned on the episode.
 //! - Claude Code owns the model/tool loop. Its built-in tools are off (`--tools ""`), user/project
 //!   settings and other MCP servers are ignored; the only tools are the IGNIS MCP server's read and
 //!   compute tools, pre-allowed, so no approval is ever requested (`--permission-mode dontAsk`
@@ -22,8 +24,9 @@ use std::sync::{Arc, Mutex, Weak};
 use std::time::Duration;
 
 use ignis_core::contracts::{
-    ApprovalDecision, ApprovalId, Causation, EpisodeId, EpisodeStatus, ErrorCode, ErrorEnvelope,
-    ExecutionScope, Origin, RetryPolicy, RuntimeBuildId, RuntimeKind, RuntimeThreadRef, Timestamp,
+    ApprovalDecision, ApprovalId, Causation, CostBasis, CostFigure, EpisodeId, EpisodeStatus,
+    ErrorCode, ErrorEnvelope, EventBody, ExecutionScope, Finite, Origin, RetryPolicy,
+    RuntimeBuildId, RuntimeKind, RuntimeThreadRef, Timestamp, UsageAccounting, UsageReport,
 };
 use ignis_core::hashing::sha256_hex;
 use ignis_core::services::{ArtifactStore, ServiceResult};
@@ -31,7 +34,10 @@ use serde_json::{json, Value};
 
 use super::bridge::CommitHook;
 use super::grants::{McpAttachment, MCP_TOKEN_ENV};
-use super::mapping::{self, map_item, map_turn_completed, Mapped, StopReason, IGNIS_MCP_SERVER};
+use super::harness::{self, HarnessBundle};
+use super::mapping::{
+    self, map_item, map_turn_completed, Mapped, Preamble, StopReason, IGNIS_MCP_SERVER,
+};
 use super::preflight::{
     sha256_file, RuntimeBuildManifest, RuntimeCredentials, RuntimeProfile, LIVE,
 };
@@ -54,7 +60,78 @@ const FIXED_ARGS: &[&str] = &[
     "--disable-slash-commands",
     "--permission-mode",
     "dontAsk",
+    // cwd, environment and similar per-machine sections go to the first user message, so the
+    // system prompt (default + harness) is the same bytes for every episode and cacheable across them.
+    "--exclude-dynamic-system-prompt-sections",
 ];
+
+/// Claude Code's native subagent tool. With delegation on it is the one built-in tool enabled.
+pub const DELEGATION_TOOL: &str = "Agent";
+/// Names of the subagent tool across Claude Code versions (`Task` before the rename).
+const DELEGATION_TOOLS: &[&str] = &["Agent", "Task"];
+/// The one subagent IGNIS defines (`--agents`).
+pub const SUBAGENT_NAME: &str = "ignis-subinvestigator";
+/// IGNIS tools a subagent never gets: the answer is the investigator's alone.
+const PARENT_ONLY_TOOLS: &[&str] = &["answer_submit"];
+const SUBAGENT_DESCRIPTION: &str = "Hand ONE bounded, self-contained subtask to a \
+sub-investigator with the same IGNIS tools and scope, e.g. an aggregation over many runs computed \
+with analysis_execute, or a source survey of one sub-question. It returns a report whose findings \
+cite the ids its tools returned. Not for a single lookup or a single tool call: call that tool \
+directly.";
+const SUBAGENT_PROMPT: &str = "You are an IGNIS sub-investigator. The investigator gave you one \
+bounded subtask; do only that. Use only the IGNIS tools. Every finding cites the ids a tool \
+returned to you (evidence ids, artifact ids with a JSON Pointer, job ids, locators) exactly as \
+returned; a value without such an id is not a finding. Mount data into analysis_execute by \
+reference instead of copying it. You cannot delegate further and you never submit the answer. End \
+with one report: (1) what you did, (2) findings, each with its supporting ids, (3) what you could \
+not establish and why (refusals, missing, conflicting or not-applicable data).";
+
+/// Whether this configuration runs with depth-1 delegation (it needs the IGNIS tools).
+fn delegates(cfg: &ClaudeConfig) -> bool {
+    cfg.delegation && cfg.mcp.is_some()
+}
+
+/// The fixed arguments of this configuration: [`FIXED_ARGS`] with the subagent tool enabled when
+/// delegation is on.
+fn fixed_args(cfg: &ClaudeConfig) -> Vec<String> {
+    let mut a: Vec<String> = FIXED_ARGS.iter().map(|s| s.to_string()).collect();
+    if delegates(cfg) {
+        let i = a.iter().position(|x| x == "--tools").expect("--tools") + 1;
+        a[i] = DELEGATION_TOOL.into();
+    }
+    a
+}
+
+/// What the build id covers: the fixed arguments and, with delegation, the subagent tool and its
+/// definition. It follows the configured switch (preflight runs before the MCP server is attached).
+fn build_args(cfg: &ClaudeConfig) -> Vec<String> {
+    let mut a: Vec<String> = FIXED_ARGS.iter().map(|s| s.to_string()).collect();
+    if cfg.delegation {
+        let i = a.iter().position(|x| x == "--tools").expect("--tools") + 1;
+        a[i] = DELEGATION_TOOL.into();
+        a.push(format!("agents:{SUBAGENT_NAME}"));
+        a.push(sha256_hex(
+            format!("{SUBAGENT_DESCRIPTION}\u{1f}{SUBAGENT_PROMPT}").as_bytes(),
+        ));
+    }
+    a
+}
+
+/// The `--agents` definition: one subagent with the IGNIS tools the investigator may call without
+/// asking, minus the parent-only ones. Its tool list has no subagent tool, so it cannot delegate
+/// (Claude Code gives subagents none either, and the translator checks it).
+fn subagents(approved_tools: &[String]) -> Value {
+    let tools: Vec<String> = approved_tools
+        .iter()
+        .filter(|t| !PARENT_ONLY_TOOLS.contains(&t.as_str()))
+        .map(|t| format!("mcp__{IGNIS_MCP_SERVER}__{t}"))
+        .collect();
+    json!({SUBAGENT_NAME: {
+        "description": SUBAGENT_DESCRIPTION,
+        "prompt": SUBAGENT_PROMPT,
+        "tools": tools,
+    }})
+}
 
 /// Variables a process needs to start on the host OS (no secrets); everything else is cleared.
 const OS_ENV: &[&str] = &[
@@ -88,6 +165,15 @@ pub struct ClaudeConfig {
     pub mcp: Option<McpAttachment>,
     /// Longest a turn may run before it is stopped (a resource budget, not a semantic limit).
     pub turn_timeout: Duration,
+    /// The harness bundle appended to Claude Code's system prompt (`--append-system-prompt-file`).
+    /// `None`: no IGNIS instructions, and no harness pin on the episode.
+    pub harness: Option<super::harness::HarnessBundle>,
+    /// Depth-1 delegation (M9): the investigator may hand one bounded subtask to Claude Code's
+    /// native subagent tool. The subagent has the same IGNIS tools over the same MCP token (so the
+    /// same host-derived scope) minus `answer_submit`, cannot delegate further, and runs inside
+    /// this turn's budget; its tool calls are recorded in the parent episode. Off by default (an
+    /// ablation arm); the build id says which.
+    pub delegation: bool,
 }
 
 impl ClaudeConfig {
@@ -100,6 +186,8 @@ impl ClaudeConfig {
             login_home: None,
             mcp: None,
             turn_timeout: Duration::from_secs(60 * 60),
+            harness: None,
+            delegation: false,
         }
     }
 
@@ -151,7 +239,8 @@ pub fn claude_preflight(cfg: &ClaudeConfig) -> Result<RuntimeBuildManifest, Stri
         .ok_or_else(|| format!("unexpected `claude --version` output: {}", text.trim()))?
         .to_string();
     let binary_sha256 = sha256_file(bin).map_err(|e| format!("hash {}: {e}", bin.display()))?;
-    let args_sha256 = sha256_hex(FIXED_ARGS.join("\u{1f}").as_bytes());
+    let fixed = build_args(cfg);
+    let args_sha256 = sha256_hex(fixed.join("\u{1f}").as_bytes());
     let id = format!(
         "claude-code-{version}+{}.{}",
         &binary_sha256[..12],
@@ -167,7 +256,7 @@ pub fn claude_preflight(cfg: &ClaudeConfig) -> Result<RuntimeBuildManifest, Stri
         protocol_schema_sha256: args_sha256,
         transport: "stdio stream-json (one process per turn)".into(),
         profile: RuntimeProfile::Public,
-        config_overrides: FIXED_ARGS.iter().map(|s| s.to_string()).collect(),
+        config_overrides: fixed,
         model: cfg.model.clone(),
         forwarded_env: cfg.pass_env.clone(),
         credentials: cfg.credentials(),
@@ -182,6 +271,13 @@ pub struct Translator {
     turn: String,
     /// tool_use id → (server, tool)
     tools: HashMap<String, (String, String)>,
+    /// Text the model wrote right before a `tool_use` becomes that call's `step.rationale`.
+    preamble: Preamble,
+    /// Set when a subagent tried to delegate further (depth 1 is the limit): the bridge stops the
+    /// turn with this reason.
+    depth_violation: Option<String>,
+    /// The model the `system`/`init` line named (for a `result` without `modelUsage`).
+    model: Option<String>,
 }
 
 /// `mcp__<server>__<tool>` → (server, tool); anything else is reported under server `claude`.
@@ -210,11 +306,95 @@ impl Translator {
         Translator {
             turn: turn.into(),
             tools: HashMap::new(),
+            preamble: Preamble::default(),
+            depth_violation: None,
+            model: None,
         }
+    }
+
+    /// The `usage.reported` records of a `result` line: one increment per model of `modelUsage`
+    /// (with the cost Claude Code reports), else one from `usage` for the model `init` named.
+    /// Anthropic counts cache reads and writes apart from `input_tokens`; the report folds them in.
+    fn usage(&self, v: &Value) -> Vec<Mapped> {
+        fn n(o: &Value, k: &str) -> Option<u64> {
+            o.get(k).and_then(Value::as_u64)
+        }
+        fn report(
+            model: Option<String>,
+            o: &Value,
+            camel: bool,
+            cost: Option<f64>,
+        ) -> Option<UsageReport> {
+            let key =
+                |snake: &'static str, camel_k: &'static str| if camel { camel_k } else { snake };
+            let read = n(o, key("cache_read_input_tokens", "cacheReadInputTokens"));
+            let write = n(
+                o,
+                key("cache_creation_input_tokens", "cacheCreationInputTokens"),
+            );
+            let usage = UsageReport {
+                accounting: UsageAccounting::Increment,
+                model,
+                input_tokens: n(o, key("input_tokens", "inputTokens"))?
+                    .checked_add(read.unwrap_or(0))?
+                    .checked_add(write.unwrap_or(0))?,
+                cached_input_tokens: read,
+                cache_write_tokens: write,
+                output_tokens: n(o, key("output_tokens", "outputTokens"))?,
+                reasoning_tokens: None,
+                reported_cost: cost
+                    .and_then(|a| Finite::new(a).ok())
+                    .map(|amount| CostFigure {
+                        amount,
+                        currency: "USD".into(),
+                        basis: CostBasis::ProviderReported,
+                        price_list: None,
+                    }),
+            };
+            usage.validate().is_ok().then_some(usage)
+        }
+        let mut reports = vec![];
+        if let Some(per_model) = v.get("modelUsage").and_then(Value::as_object) {
+            for (model, o) in per_model {
+                let cost = o.get("costUSD").and_then(Value::as_f64);
+                reports.extend(report(Some(model.clone()), o, true, cost));
+            }
+        } else if let Some(o) = v.get("usage") {
+            let cost = v.get("total_cost_usd").and_then(Value::as_f64);
+            reports.extend(report(self.model.clone(), o, false, cost));
+        }
+        reports
+            .into_iter()
+            .map(|usage| {
+                let mark = format!(
+                    "usage:{}:{}",
+                    self.turn,
+                    usage.model.as_deref().unwrap_or("unreported")
+                );
+                Mapped::Record(RuntimeRecord {
+                    mark: Some(mark),
+                    causation: Causation {
+                        runtime_turn_id: Some(self.turn.clone()),
+                        ..Default::default()
+                    },
+                    change: RuntimeChange::Event(EventBody::UsageReported { usage }),
+                })
+            })
+            .collect()
+    }
+
+    /// Why the turn must stop because a subagent tried to delegate, once that happened.
+    pub fn depth_violation(&self) -> Option<&str> {
+        self.depth_violation.as_deref()
     }
 
     /// Map one stream-json line. The `result` line is returned separately; it ends the turn.
     pub fn line(&mut self, v: &Value) -> (Vec<Mapped>, Option<Value>) {
+        let (mapped, result) = self.translate(v);
+        (self.preamble.link(mapped), result)
+    }
+
+    fn translate(&mut self, v: &Value) -> (Vec<Mapped>, Option<Value>) {
         let turn = Some(self.turn.as_str());
         match v.get("type").and_then(Value::as_str).unwrap_or("") {
             "assistant" => {
@@ -224,6 +404,10 @@ impl Translator {
                     .and_then(Value::as_str)
                     .unwrap_or("msg")
                     .to_string();
+                // A subagent's line names the subagent tool call it runs under. Its tool calls are
+                // recorded like the investigator's (same episode, same scope); its text is archived
+                // under that call, never as an assistant message of the episode.
+                let parent = v.get("parent_tool_use_id").and_then(Value::as_str);
                 let mut out = vec![];
                 for (i, block) in msg
                     .get("content")
@@ -238,6 +422,19 @@ impl Translator {
                             if text.is_empty() {
                                 continue;
                             }
+                            if let Some(p) = parent {
+                                out.push(Mapped::Opaque {
+                                    method: "claude/subagent_message".into(),
+                                    payload: json!({"parent_tool_use_id": p, "text": text}),
+                                    causation: Causation {
+                                        runtime_turn_id: Some(self.turn.clone()),
+                                        runtime_item_id: Some(format!("{mid}-{i}")),
+                                        ..Default::default()
+                                    },
+                                    mark: Some(format!("subagent:{mid}-{i}")),
+                                });
+                                continue;
+                            }
                             out.extend(map_item(
                                 turn,
                                 &json!({"id": format!("{mid}-{i}"), "type": "agentMessage", "text": text}),
@@ -248,18 +445,26 @@ impl Translator {
                             let Some(id) = block.get("id").and_then(Value::as_str) else {
                                 continue;
                             };
-                            let (server, tool) =
-                                split_tool(block.get("name").and_then(Value::as_str).unwrap_or(""));
+                            let name = block.get("name").and_then(Value::as_str).unwrap_or("");
+                            if parent.is_some() && DELEGATION_TOOLS.contains(&name) {
+                                self.depth_violation.get_or_insert_with(|| {
+                                    format!(
+                                        "a subagent tried to delegate further ({name}); delegation is depth 1"
+                                    )
+                                });
+                            }
+                            let (server, tool) = split_tool(name);
                             self.tools
                                 .insert(id.to_string(), (server.clone(), tool.clone()));
                             out.extend(map_item(
                                 turn,
                                 &json!({"id": id, "type": "mcpToolCall", "server": server,
-                                        "tool": tool, "status": "inProgress"}),
+                                        "tool": tool, "status": "inProgress",
+                                        "arguments": block.get("input").cloned().unwrap_or(Value::Null)}),
                                 false,
                             ));
                         }
-                        // Thinking and other blocks carry no event.
+                        // Thinking and other blocks carry no event (and are never a rationale).
                         _ => {}
                     }
                 }
@@ -301,8 +506,13 @@ impl Translator {
                 }
                 (out, None)
             }
-            "result" => (vec![], Some(v.clone())),
+            "result" => (self.usage(v), Some(v.clone())),
             "system" => {
+                if v.get("subtype").and_then(Value::as_str) == Some("init") {
+                    if let Some(m) = v.get("model").and_then(Value::as_str) {
+                        self.model = Some(m.to_string());
+                    }
+                }
                 // Say so when the IGNIS server did not connect: the turn then has no tools.
                 let ignis_down = v
                     .get("mcp_servers")
@@ -636,6 +846,24 @@ impl Inner {
         }
     }
 
+    /// The bundle as a file named by its digest (written once, atomically): the same bytes for
+    /// every turn, and no command-line length limit.
+    fn harness_file(&self, ws: &std::path::Path, h: &HarnessBundle) -> ServiceResult<PathBuf> {
+        let dir = ws.join("harness");
+        let path = dir.join(format!("{}.md", h.digest().hex()));
+        if path.is_file() {
+            return Ok(path);
+        }
+        let tmp = dir.join(format!(".{}.tmp", uuid::Uuid::new_v4().simple()));
+        std::fs::create_dir_all(&dir)
+            .and_then(|()| std::fs::write(&tmp, h.text().as_bytes()))
+            .and_then(|()| std::fs::rename(&tmp, &path))
+            .or_else(|e| if path.is_file() { Ok(()) } else { Err(e) })
+            .map_err(|e| unavailable(format!("write harness {}: {e}", path.display())))?;
+        let _ = std::fs::remove_file(&tmp);
+        Ok(path)
+    }
+
     fn command(
         &self,
         scope: &ExecutionScope,
@@ -658,7 +886,7 @@ impl Inner {
                 .map_err(|e| unavailable(format!("create {}: {e}", d.display())))?;
         }
         let mut cmd = Command::new(&self.cfg.binary);
-        cmd.args(FIXED_ARGS);
+        cmd.args(fixed_args(&self.cfg));
         if new {
             cmd.args(["--session-id", session]);
         } else {
@@ -666,6 +894,10 @@ impl Inner {
         }
         if let Some(m) = &self.cfg.model {
             cmd.args(["--model", m]);
+        }
+        if let Some(h) = &self.cfg.harness {
+            cmd.arg("--append-system-prompt-file")
+                .arg(self.harness_file(&ws, h)?);
         }
         cmd.env_clear();
         for k in OS_ENV {
@@ -690,12 +922,17 @@ impl Inner {
                 "url": m.url,
                 "headers": {"Authorization": format!("Bearer ${{{MCP_TOKEN_ENV}}}")},
             }}});
-            let allowed: Vec<String> = m
+            let mut allowed: Vec<String> = m
                 .approved_tools
                 .iter()
                 .map(|t| format!("mcp__{IGNIS_MCP_SERVER}__{t}"))
                 .collect();
             cmd.arg("--mcp-config").arg(config.to_string());
+            if delegates(&self.cfg) {
+                cmd.arg("--agents")
+                    .arg(subagents(&m.approved_tools).to_string());
+                allowed.push(DELEGATION_TOOL.into());
+            }
             if !allowed.is_empty() {
                 cmd.arg("--allowedTools").arg(allowed.join(","));
             }
@@ -713,7 +950,22 @@ impl Inner {
         self.settle_foreign(scope, ep)?;
         let origin = self.store.episode(scope, ep)?.origin;
         let (session, new) = self.session(scope, ep)?;
-        let Some(ts) = self.store.begin_turn(scope, ep, None)? else {
+        // A resumed session keeps the system prompt it started with (Claude Code's prompt
+        // snapshot), so a different bundle is not pinned on it.
+        let note = match &self.cfg.harness {
+            Some(h) => harness::pin_episode(
+                &self.store,
+                scope,
+                ep,
+                h,
+                &self.manifest.runtime_build_id,
+                self.cfg.model.as_deref(),
+                None,
+                new,
+            )?,
+            None => None,
+        };
+        let Some(ts) = self.store.begin_turn(scope, ep, note.as_deref())? else {
             return Ok(false);
         };
         (self.on_commit)(ep, ts.episode.last_seq);
@@ -753,6 +1005,8 @@ impl Inner {
                 return Ok(true);
             }
         };
+        // The tail of the context: episode-specific input goes here, after the harness prefix
+        // (the appended system prompt), so the prefix stays byte-identical and cached.
         let prompt = ts
             .messages
             .iter()
@@ -810,12 +1064,22 @@ impl Inner {
             let Ok(v) = serde_json::from_str::<Value>(&line) else {
                 continue;
             };
+            self.pin_reported_model(scope, ep, &v);
             let (mapped, r) = tr.line(&v);
             if !mapped.is_empty() {
                 self.rec.commit(scope, ep, origin, mapped);
             }
             if r.is_some() {
                 result = r;
+            }
+            if let Some(why) = tr.depth_violation() {
+                // Depth 1 is enforced by the host too: stop the turn, say why.
+                let _ = child.lock().unwrap_or_else(|p| p.into_inner()).kill();
+                result = Some(
+                    json!({"type": "result", "subtype": "error_delegation_depth",
+                                     "is_error": true, "result": why}),
+                );
+                break;
             }
         }
         let exit = child
@@ -838,6 +1102,32 @@ impl Inner {
             &stderr,
         );
         Ok(true)
+    }
+
+    /// The model Claude Code reports in its `system`/`init` line completes the harness pin.
+    fn pin_reported_model(&self, scope: &ExecutionScope, ep: &EpisodeId, v: &Value) {
+        let Some(h) = &self.cfg.harness else { return };
+        if v.get("type").and_then(Value::as_str) != Some("system")
+            || v.get("subtype").and_then(Value::as_str) != Some("init")
+        {
+            return;
+        }
+        let Some(model) = v.get("model").and_then(Value::as_str) else {
+            return;
+        };
+        let pinned = self
+            .store
+            .episode(scope, ep)
+            .ok()
+            .and_then(|e| e.pins.harness);
+        if pinned.is_some_and(|p| p.digest == *h.digest()) {
+            let build = &self.manifest.runtime_build_id;
+            if let Err(e) =
+                harness::pin_episode(&self.store, scope, ep, h, build, Some(model), None, false)
+            {
+                tracing::warn!(episode = %ep, error = %e, "harness pin");
+            }
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -886,11 +1176,17 @@ mod tests {
                     RuntimeChange::Event(EventBody::AssistantMessage { text, .. }) => {
                         format!("message:{text}")
                     }
-                    RuntimeChange::Event(EventBody::ToolStarted { tool, .. }) => {
-                        format!("tool.started:{tool}")
+                    RuntimeChange::Event(EventBody::StepRationale { call_id, text, .. }) => {
+                        format!("rationale:{}:{text}", call_id.as_ref().unwrap())
                     }
                     RuntimeChange::Status { to, .. } => format!("status:{to:?}"),
                     other => format!("{other:?}"),
+                },
+                Mapped::ToolStarted {
+                    tool, arguments, ..
+                } => match arguments {
+                    Some(a) => format!("tool.started:{tool}:{a}"),
+                    None => format!("tool.started:{tool}"),
                 },
                 Mapped::ToolFinished { tool, error, .. } => {
                     format!("tool.finished:{tool}:{}", error.is_some())
@@ -922,7 +1218,9 @@ mod tests {
             events(&all),
             [
                 "message:Searching.",
-                "tool.started:sources_search",
+                "rationale:tu1:Searching.",
+                r#"tool.started:sources_search:{"query":"x"}"#,
+                // Seen again with the result; the recorder keeps the first (its mark).
                 "tool.started:sources_search",
                 "tool.finished:sources_search:false",
                 "message:Done."
@@ -931,6 +1229,29 @@ mod tests {
         let (_, r) = t.line(&json!({"type":"result","subtype":"success","is_error":false}));
         let snap = turn_snapshot("t1", r.as_ref(), "exit 0", "");
         assert_eq!(snap["status"], "completed");
+    }
+
+    #[test]
+    fn hidden_thinking_is_never_a_rationale() {
+        let mut t = Translator::new("t4");
+        let (m, _) = t.line(&json!({"type":"assistant","message":{"id":"m","content":[
+            {"type":"thinking","thinking":"private reasoning about the query"},
+            {"type":"tool_use","id":"tu","name":"mcp__ignis__sources_search","input":{"query":"q"}}]}}));
+        assert_eq!(events(&m), [r#"tool.started:sources_search:{"query":"q"}"#]);
+        // A message linked once is not reused for the next call.
+        let (m, _) = t.line(&json!({"type":"assistant","message":{"id":"m2","content":[
+            {"type":"text","text":"Reading the top hit."},
+            {"type":"tool_use","id":"a","name":"mcp__ignis__sources_read","input":{}},
+            {"type":"tool_use","id":"b","name":"mcp__ignis__sources_read","input":{}}]}}));
+        assert_eq!(
+            events(&m),
+            [
+                "message:Reading the top hit.",
+                "rationale:a:Reading the top hit.",
+                "tool.started:sources_read:{}",
+                "tool.started:sources_read:{}"
+            ]
+        );
     }
 
     #[test]

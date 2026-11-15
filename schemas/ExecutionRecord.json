@@ -116,10 +116,207 @@
       ],
       "type": "object"
     },
+    "ColumnRole": {
+      "oneOf": [
+        {
+          "enum": [
+            "run_id",
+            "value",
+            "uncertainty",
+            "condition",
+            "flag"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "time",
+          "description": "Seconds since the bundle's `time_origin`.",
+          "type": "string"
+        },
+        {
+          "const": "available_at",
+          "description": "Time the value became available to an observer (seconds since `time_origin`).",
+          "type": "string"
+        },
+        {
+          "const": "locator",
+          "description": "Serialized `SourceLocator` / evidence id of the row.",
+          "type": "string"
+        }
+      ]
+    },
+    "ColumnSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "role": {
+          "$ref": "#/$defs/ColumnRole"
+        },
+        "unit": {
+          "description": "SI unit of the stored values; display conversions never change it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "role",
+        "nullable"
+      ],
+      "type": "object"
+    },
+    "ConditionFilter": {
+      "additionalProperties": false,
+      "description": "A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is\nmissing or conflicting are kept only with `ConditionsQuery::include_unknown`.",
+      "properties": {
+        "any_of": {
+          "description": "Categorical keys.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "key": {
+          "$ref": "#/$defs/ConditionKey"
+        },
+        "max_si": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "min_si": {
+          "description": "Numeric keys, SI.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "ConditionKey": {
+      "description": "A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their\n[`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The\ncatalog is closed: a new key is a contract change.",
+      "enum": [
+        "oxygen_mole_fraction",
+        "pressure",
+        "flow_velocity",
+        "gravity_level",
+        "ambient_temperature",
+        "fuel",
+        "diluent",
+        "sample_geometry",
+        "hardware",
+        "diagnostics"
+      ],
+      "type": "string"
+    },
+    "ConditionsQuery": {
+      "additionalProperties": false,
+      "description": "`conditions_query`: per-run conditions and, on request, each investigation's tested envelope.",
+      "properties": {
+        "cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PageCursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filters": {
+          "items": {
+            "$ref": "#/$defs/ConditionFilter"
+          },
+          "type": "array"
+        },
+        "include_envelopes": {
+          "default": false,
+          "type": "boolean"
+        },
+        "include_unknown": {
+          "default": false,
+          "type": "boolean"
+        },
+        "investigation_ids": {
+          "description": "Empty = every investigation.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "keys": {
+          "description": "Columns; empty = every key.",
+          "items": {
+            "$ref": "#/$defs/ConditionKey"
+          },
+          "type": "array"
+        },
+        "page_size": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "run_ids": {
+          "items": {
+            "$ref": "#/$defs/RunId"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/DatasetSchema"
+        }
+      },
+      "required": [
+        "schema_version"
+      ],
+      "type": "object"
+    },
     "DatasetId": {
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "DatasetSchema": {
+      "description": "Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;\n`dataset.v1` (C0) documents are still read, and keep their content digests because a\ndocument is re-serialized with the tag it was read with. New document types require v2.",
+      "oneOf": [
+        {
+          "enum": [
+            "dataset.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "dataset.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "Digest": {
       "pattern": "^sha256:[0-9a-f]{64}$",
@@ -343,13 +540,23 @@
     },
     "MountedInput": {
       "additionalProperties": false,
-      "description": "An input as the program saw it: `/in/<name>` held exactly these bytes.",
+      "description": "An input as the program saw it: `/in/<name>` held exactly these bytes (`artifact.sha256`,\nverified while copying). `resolved` says what a dataset or conditions reference resolved to; it\nis absent for a workspace artifact.",
       "properties": {
         "artifact": {
           "$ref": "#/$defs/ArtifactRef"
         },
         "name": {
           "type": "string"
+        },
+        "resolved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResolvedInput"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -368,6 +575,20 @@
       "enum": [
         "system",
         "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "PageCursor": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
       ],
       "type": "string"
     },
@@ -418,6 +639,26 @@
       },
       "type": "object"
     },
+    "Quantity": {
+      "enum": [
+        "liquid_diameter",
+        "visible_flame_diameter",
+        "uv_flame_diameter",
+        "droplet_position",
+        "pressure",
+        "mole_fraction",
+        "temperature",
+        "mass_flow",
+        "volume_flow",
+        "std_volume_flow",
+        "front_contour",
+        "front_position",
+        "spread_rate",
+        "flow_velocity",
+        "gravity_level"
+      ],
+      "type": "string"
+    },
     "RejectedOutput": {
       "additionalProperties": false,
       "description": "A path under `/out` that was not kept, and why (symbolic link, special file, budget).",
@@ -439,6 +680,94 @@
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "ResolvedInput": {
+      "description": "What a by-reference input resolved to when it was mounted, so a result names exactly the data\nit read (and its units).",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "A view of a dataset bundle. `artifact` of the mounted input is the view's Parquet artifact.",
+          "properties": {
+            "bundle_digest": {
+              "$ref": "#/$defs/Digest",
+              "description": "[`super::DatasetBundle::content_digest`] of the bundle the view belongs to."
+            },
+            "columns": {
+              "items": {
+                "$ref": "#/$defs/ColumnSpec"
+              },
+              "type": "array"
+            },
+            "dataset_id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset_view",
+              "type": "string"
+            },
+            "partitions": {
+              "description": "Partitions of the bundle, each granted by the scope that mounted it.",
+              "items": {
+                "$ref": "#/$defs/Partition"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "row_count": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "time_origin": {
+              "description": "Event that defines t = 0 for every time column.",
+              "type": "string"
+            },
+            "view": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "dataset_id",
+            "view",
+            "bundle_digest",
+            "partitions",
+            "time_origin",
+            "columns",
+            "row_count"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The complete answer of a conditions query. `artifact` of the mounted input is the stored\n`ConditionsTable` document.",
+          "properties": {
+            "kind": {
+              "const": "conditions",
+              "type": "string"
+            },
+            "query": {
+              "$ref": "#/$defs/ConditionsQuery"
+            },
+            "row_count": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Digest",
+              "description": "`conditions_snapshot` of the data the table was answered from."
+            }
+          },
+          "required": [
+            "kind",
+            "query",
+            "snapshot",
+            "row_count"
+          ],
+          "type": "object"
+        }
+      ]
     },
     "RunId": {
       "minLength": 1,

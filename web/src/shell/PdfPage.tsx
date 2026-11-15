@@ -4,13 +4,14 @@
 // Bytes: a custom PDFDataRangeTransport fetches only the ranges PDF.js asks for. PSI's S3 exposes only
 // `ETag` to scripts, so PDF.js's own loader cannot read Content-Length and would download whole files;
 // with the transport, the length comes from the caller (source manifest) or from a 1-byte probe whose
-// Content-Range is readable (same-origin proxy). Without either, the file is read whole.
+// Content-Range is readable (same-origin proxy), else from the Content-Length of a GET dropped after its
+// headers (PSI). Without any of these, the file is read whole.
 import { useEffect, useRef, useState } from "react";
 import { getDocument, GlobalWorkerOptions, PDFDataRangeTransport, TextLayer, type PDFDocumentLoadingTask, type PDFDocumentProxy, type RenderTask } from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { bboxStyle } from "../research/units";
 import { fmtBytes } from "../ui/common";
-import { clampPage, contentRangeLength, rangeHeader } from "../research/sourceAccess";
+import { clampPage, contentLength, contentRangeLength, rangeHeader } from "../research/sourceAccess";
 
 GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -45,6 +46,24 @@ export interface PdfLoadStats {
   bytes: number;
 }
 
+/**
+ * The server honours Range but hides `Content-Range` (PSI's S3 exposes only `ETag`). `Content-Length`
+ * is CORS-safelisted, so a plain GET reveals the full size; the body is dropped once the headers are
+ * in. HEAD is not an option: a presigned S3 URL is signed for GET only.
+ */
+async function lengthFromGet(url: string, signal: AbortSignal): Promise<number | null> {
+  const ac = new AbortController();
+  const stop = () => ac.abort();
+  signal.addEventListener("abort", stop, { once: true });
+  try {
+    const r = await fetch(url, { signal: ac.signal });
+    return r.ok ? contentLength(r.headers.get("Content-Length")) : null;
+  } finally {
+    ac.abort();
+    signal.removeEventListener("abort", stop);
+  }
+}
+
 async function openPdf(url: string, range: boolean, knownLength: number | null, signal: AbortSignal, onError: (e: unknown) => void, stats: PdfLoadStats): Promise<PDFDocumentLoadingTask> {
   let length = knownLength;
   if (range && length == null) {
@@ -52,6 +71,7 @@ async function openPdf(url: string, range: boolean, knownLength: number | null, 
     if (probe.status === 206) {
       length = contentRangeLength(probe.headers.get("Content-Range"));
       await probe.body?.cancel();
+      if (length == null) length = await lengthFromGet(url, signal);
     } else if (probe.ok) {
       const data = new Uint8Array(await probe.arrayBuffer());
       stats.mode = "whole";

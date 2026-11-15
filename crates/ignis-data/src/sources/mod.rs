@@ -1,6 +1,7 @@
 //! Sources: the NASA PSI connector (read-only), Source manifests, bounded sample selection and the
 //! international adapters (kept as separate investigations).
 
+pub mod adopt;
 pub mod http;
 pub mod intl;
 pub mod manifest;

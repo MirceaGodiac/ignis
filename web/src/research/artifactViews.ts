@@ -58,6 +58,8 @@ export const CONTRACT_COVERAGE = {
   SourceLabel: { notShown: "Waits for the classifier (R8); T7 source panel will show labels" },
   LabelSet: { notShown: "Waits for the classifier (R8); T7 source panel will show labels" },
   SourceAccess: { view: "Side panel: evidence original, PDF at the bbox or video at the time (T7)" },
+  MediaKeyframeIndex: { notShown: "Server-side input of the .ts HLS playlists (R11/M12); the viewer plays playlist.m3u8 / iframes.m3u8" },
+  ArchiveListing: { notShown: "Waits for a T7 archive browser (R11 /sources/{id}/archive); frames open via /archive/entry" },
   SourceOutline: { notShown: "Waits for outlines (R7); T7 source panel section tree" },
   ConditionsTable: { view: "Conditions page: habitat relevance and conditions per run (T9)" },
   GraphNeighborsPage: { notShown: "Waits for the graph service (R9); T7 related navigation" },
@@ -68,6 +70,10 @@ export const CONTRACT_COVERAGE = {
   Capabilities: { view: "Sidebar services and tool availability" },
   AnswerRefusal: { view: "Route step of a refused answer_submit; side panel typed artifact" },
   TraceBundle: { notShown: "Waits for trace export (M10); T11 scorecard" },
+  // ---- M5 observability: derived from the log, served by /api/v1 metrics routes
+  UsageReport: { notShown: "Inside usage.reported events; summed by the metrics routes" },
+  EpisodeMetrics: { notShown: "Response of GET /api/v1/episodes/{id}/metrics; no UI yet" },
+  WorkspaceMetrics: { notShown: "Response of GET /api/v1/metrics; no UI yet" },
   MessageAccepted: { notShown: "Response: shown as the message in the thread" },
   ApprovalAccepted: { notShown: "Response: shown as the approval's new state in the thread" },
   // ---- K1-evaluation (evaluation.v2): evaluator documents

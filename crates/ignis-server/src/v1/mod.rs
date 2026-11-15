@@ -17,10 +17,13 @@
 
 pub mod access;
 pub mod agent;
+pub mod data;
 pub mod fixture;
 pub mod io;
+mod metrics;
 mod runner;
 pub mod sandbox;
+pub mod sources;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -115,6 +118,8 @@ pub struct V1 {
     pub mcp_url: Option<String>,
     /// Where artifacts are kept (`--artifact-backend`), reported by `/capabilities`.
     pub artifact_backend: crate::ops::ArtifactBackend,
+    /// Source access without copies (M12); absent = `503 capability_unavailable`.
+    pub sources: Option<Arc<sources::SourceDelivery>>,
 }
 
 impl V1 {
@@ -422,6 +427,9 @@ pub fn build(state: Arc<V1>) -> Router {
                 o.summary("Publish verified upload bytes as an artifact (idempotent)")
             }),
         )
+        .merge(sources::routes())
+        .merge(data::routes())
+        .merge(metrics::routes())
         // Short commands only: research work runs as jobs, big results are artifacts.
         .layer(TimeoutLayer::with_status_code(
             axum::http::StatusCode::REQUEST_TIMEOUT,
@@ -456,6 +464,7 @@ pub fn build(state: Arc<V1>) -> Router {
     let router = ApiRouter::new()
         .merge(commands)
         .merge(streams)
+        .merge(data::streams())
         .merge(uploads)
         .with_state(state.clone())
         .finish_api(&mut api);

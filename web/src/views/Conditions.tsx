@@ -8,6 +8,7 @@ import type { ConditionCell, ConditionKey, ConditionsRow, ConditionsTable, Measu
 import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, PARTIAL_G, PSI_PA, rankFor, type HabitatId, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
 import { flagTags, quotedText } from "../research/conditionCells";
 import { rowWindow } from "../research/windowing";
+import { OpenOriginal, locatorSource } from "../shell/OpenOriginal";
 import { useData } from "../shell/data";
 import { ErrorNote, EvidenceClassTag, Gap, OriginMark, words } from "../ui/common";
 
@@ -381,7 +382,10 @@ function CellDetail({ p }: { p: Picked }) {
             </>
           )}
           <dt>from</dt>
-          <dd>{locText(m.locator)}</dd>
+          <dd>
+            {locText(m.locator)}{" "}
+            {m.locator?.asset_sha256 && <OpenOriginal sourceId={locatorSource(m.locator)} loc={m.locator} title={m.locator.path ?? `${p.investigation} ${KEY_LABEL[c.key]}`} />}
+          </dd>
           {m.uncertainty_si != null && (
             <>
               <dt>uncertainty</dt>
