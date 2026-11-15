@@ -51,6 +51,7 @@ main() {
   DRAIN_TIMEOUT=1800      # seconds to wait for running turns/jobs before postponing
   HEALTH_TIMEOUT=240      # seconds for the restarted service to become healthy
   MIN_FREE_GB=8           # free space needed on the Docker disk before a build
+  BUILD_CACHE_KEEP_GB=8   # build cache kept when the age-based prune is not enough
   # shellcheck disable=SC1091
   [ -f /etc/ignis/autodeploy.env ] && . /etc/ignis/autodeploy.env
 
@@ -213,7 +214,8 @@ fail_record() {
   record "$1" failed
 }
 
-# Free space on the Docker disk: drop dangling images and build cache older than a week first.
+# Free space on the Docker disk: drop dangling images and build cache older than a week first,
+# then shrink the build cache to BUILD_CACHE_KEEP_GB if that was not enough.
 ensure_disk() {
   local root avail
   root="$(docker info --format '{{.DockerRootDir}}')"
@@ -222,6 +224,13 @@ ensure_disk() {
     log "${avail} GB free on $root: pruning"
     docker image prune -f >/dev/null
     docker builder prune -f --filter until=168h >/dev/null
+    avail=$(( $(df --output=avail -k "$root" | tail -n 1) / 1048576 ))
+  fi
+  if [ "$avail" -lt "$MIN_FREE_GB" ]; then
+    # Cache younger than a week can still fill the disk (each release adds cargo layers): shrink it
+    # to BUILD_CACHE_KEEP_GB, keeping the most recently used layers (the next build is slower, not wrong).
+    log "${avail} GB free after the age-based prune: shrinking the build cache to ${BUILD_CACHE_KEEP_GB} GB"
+    docker builder prune -f --keep-storage "${BUILD_CACHE_KEEP_GB}GB" >/dev/null
     avail=$(( $(df --output=avail -k "$root" | tail -n 1) / 1048576 ))
   fi
   [ "$avail" -ge "$MIN_FREE_GB" ] || { log "only ${avail} GB free on $root (need $MIN_FREE_GB)"; return 1; }
