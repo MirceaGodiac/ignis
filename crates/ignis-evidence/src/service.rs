@@ -904,9 +904,28 @@ impl KnowledgeService for EvidenceService {
         };
         // A family filter never hides silently: documents left out only because they have no
         // family label yet (R8 labels fill them) are counted on the lexical backend's note.
+        // Counted under the scope's lockbox: a document counts only if the scope may see at least
+        // one of its matching passages, so the number never reveals held-out documents.
         let unlabelled = {
-            let ret = self.retriever.lock().expect("retriever");
-            catalog::unlabelled_family_matches(&ret.con, &req.query, &filters).map_err(internal)?
+            let matches = {
+                let ret = self.retriever.lock().expect("retriever");
+                catalog::unlabelled_family_matches(&ret.con, &req.query, &filters)
+                    .map_err(internal)?
+            };
+            matches
+                .iter()
+                .filter(|m| {
+                    !self.lockbox.withholds(
+                        &sealed,
+                        m.outcome_bearing,
+                        &m.describes_runs,
+                        &m.continues_runs,
+                        &m.investigation_ids,
+                    )
+                })
+                .map(|m| m.publication_id.as_str())
+                .collect::<BTreeSet<_>>()
+                .len()
         };
         let mut page = page;
         if unlabelled > 0 {
