@@ -892,7 +892,9 @@ fn analysis_runs_cannot_escape_their_mounts_or_hide_truncation() {
             .iter()
             .map(|n| AnalysisInput {
                 name: n.to_string(),
-                artifact_id: ArtifactId::new("art_1").unwrap(),
+                artifact_id: Some(ArtifactId::new("art_1").unwrap()),
+                dataset_view: None,
+                conditions: None,
             })
             .collect(),
         client_request_id: None,
@@ -904,6 +906,35 @@ fn analysis_runs_cannot_escape_their_mounts_or_hide_truncation() {
     assert!(
         req(&["a", "a"]).validate().is_err(),
         "one name mounted twice"
+    );
+    // A by-reference input names exactly one thing, and a mounted conditions table is complete.
+    let one = |v: Value| {
+        serde_json::from_value::<AnalysisExecuteRequest>(
+            json!({"language": "python", "source": "print(1)", "inputs": [v]}),
+        )
+        .map_err(|e| e.to_string())
+        .and_then(|r| r.validate().map_err(|e| e.to_string()))
+    };
+    let view = json!({"dataset_id": "fixture-dataset-flex", "view": "series"});
+    let q = json!({"schema_version": "dataset.v2"});
+    assert!(one(json!({"name": "s.parquet", "dataset_view": view})).is_ok());
+    assert!(one(json!({"name": "c.json", "conditions": q})).is_ok());
+    assert!(one(json!({"name": "x"})).is_err(), "no reference");
+    assert!(
+        one(json!({"name": "x", "artifact_id": "art_1", "dataset_view": view})).is_err(),
+        "two references"
+    );
+    assert!(
+        one(
+            json!({"name": "x", "dataset_view": {"dataset_id": "fixture-dataset-flex", "view": ""}})
+        )
+        .is_err(),
+        "empty view name"
+    );
+    assert!(
+        one(json!({"name": "x", "conditions": {"schema_version": "dataset.v2", "cursor": "c1"}}))
+            .is_err(),
+        "a mounted table is never one page"
     );
 
     let record = fixture("research/execution_record.json");

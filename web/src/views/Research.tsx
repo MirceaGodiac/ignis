@@ -46,6 +46,15 @@ function Index({ wantNew, question }: { wantNew: boolean; question: string | nul
     try {
       const ep = await client.createEpisode(goal, key.current.current);
       key.current.succeeded();
+      // Creating an episode starts nothing: the agent turn begins with the first message.
+      // If this fails the investigation still opens and the composer can send it.
+      if (ep.status === "ready" && ep.last_seq === 0) {
+        try {
+          await client.postMessage(ep.episode_id, goal, crypto.randomUUID());
+        } catch {
+          /* the thread shows no events and the composer is available */
+        }
+      }
       qc.setQueryData<ResearchEpisode[]>([researchMode, replay, "episodes"], (xs) => (xs?.some((x) => x.episode_id === ep.episode_id) ? xs : [ep, ...(xs ?? [])]));
       go("research", ep.episode_id);
     } catch (e) {
