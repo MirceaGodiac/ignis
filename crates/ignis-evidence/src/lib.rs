@@ -601,7 +601,8 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                     out.push(json!({"publication_id": p.id, "passed": false, "error": "no recorded location of the bytes"}));
                     continue;
                 };
-                let bytes = std::fs::read(&rel).with_context(|| format!("read {rel}"))?;
+                let path = catalog::resolve_location(&rel);
+                let bytes = std::fs::read(&path).with_context(|| format!("read {} (recorded as {rel})", path.display()))?;
                 if p.parser_version.starts_with("docling-") || p.parser_version.starts_with("pdfium-") {
                     // Sidecar views: spans, line boxes and page bounds are checked at import
                     // (`docling_view::import`); here the stored bytes must still be the view's source.
