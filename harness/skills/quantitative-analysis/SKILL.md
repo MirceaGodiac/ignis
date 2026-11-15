@@ -1,6 +1,6 @@
 ---
 name: quantitative-analysis
-description: Answer analytical questions by computing from IGNIS datasets and artifacts with analysis_execute, reporting every number as a computed claim bound to the artifact value that holds it.
+description: Answer analytical questions by computing from IGNIS datasets and artifacts with analysis_execute, reporting every number as a claim bound to the cell or artifact value that holds it (a conditions cell or data-table cell for a measured value, an analysis output for a derived one).
 ---
 
 # Quantitative analysis
@@ -10,7 +10,9 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
 - Call `datasets_inspect` before computing: read the views, columns, units, `time_origin` and
   partitions, and use the real `dataset_id` it returns. Experimental times are seconds since that
   origin; say which origin you use. For run conditions use `conditions_query`; it states gaps
-  (a missing pressure cell stays missing).
+  (a missing pressure cell stays missing), and with `near` it ranks runs by their distance to an
+  atmosphere (`moon_base`, `spacesuit`, `iss_earth` or explicit bounds), so a ranking needs no
+  program.
 - Note missing, conflicting and not-applicable values. They are explicit statuses, never zeros: drop
   or flag them in the program and report how many were excluded.
 
@@ -49,15 +51,19 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
   never by position. The host reads the cell back, records it as `resolved` and compares your value
   in SI; you may omit `value`/`unit` to show the cell as it is. A pointer to a single number in
   `support` is reported as an ungrounded number.
-- An `observed` claim (a measured value) must cite evidence: a sources_search hit of class
-  original_observation or source_derived. Bind its number either as `"source": {"kind":
-  "evidence_quote", "evidence_id": ...}` (the host checks the number and unit are written in that
-  hit's own passage) or as an `artifact_cell` of a dataset view (the view's artifact_id and sha256
-  from `datasets_inspect`, `"rows": [{"table": "", "where": [{"field": "/run_id", "equals": ...},
-  {"field": "/time_s", "equals": ...}]}]`, column such as `/value_si`). `conditions_cell` needs a
-  conditions snapshot digest that `conditions_query` does not return yet: do not use it. A value of
-  the conditions table or a view that no passage states is reported through an analysis that reads
-  it (a `computed` claim whose text says it is the recorded value read from that table). Numbers in
+- An `observed` claim (a measured value) rests on the measured cell or on evidence. Bind a run's
+  condition (each run's O2 and pressure, a fuel's flow) as `"source": {"kind": "conditions_cell",
+  "snapshot": <the conditions_snapshot conditions_query returned>, "investigation_id": ...,
+  "run_id": ..., "key": "oxygen_mole_fraction"}` (or `"pressure"`); a conflicting cell also needs the
+  candidate's `locator`. Bind a value of a dataset view as an `artifact_cell` of the view (its
+  artifact_id and sha256 from `datasets_inspect`, `"rows": [{"table": "", "where": [{"field":
+  "/run_id", "equals": ...}, {"field": "/time_s", "equals": ...}]}]`, column such as `/value_si`).
+  A number written in a passage is `"source": {"kind": "evidence_quote", "evidence_id": ...}` of a
+  sources_search hit (the host checks the number and unit are in that hit's own passage). These
+  need no analysis: use `analysis_execute` only for derived quantities (a mean, a fit, a count, a
+  distance you compute), reported as `computed` claims with their `derivation`. If
+  `analysis_execute` is not among your tools or its runner is unavailable, still answer with the
+  conditions cells and say what was not computed. Numbers in
   PDF tables are bound only as text of a hit's passage; never retype them from memory. A number you
   only recall is at most a `background` claim (unverified, no `values`), never a run's measured
   result and never a stand-in for a value the data or a passage holds.

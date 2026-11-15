@@ -42,6 +42,8 @@ use serde_json::{json, Value};
 
 use crate::answer::{AnswerHost, Submitted};
 
+mod conditions;
+
 /// The tools whose results are evidence the knowledge/data services retrieved, and so the only ones
 /// whose `EvidenceRef`s an episode may cite. Never `artifacts_read` or `jobs_get`: an artifact can
 /// be written by agent-authored analysis code (a forged `EvidenceRef`) or belong to another episode
@@ -496,7 +498,8 @@ impl ToolHost {
             "conditions_query" => {
                 let q: ConditionsQuery = decode(contract, args)?;
                 checked(q.validate())?;
-                value(self.datasets()?.conditions(scope, &q))
+                self.conditions_result(scope, episode, call_id, &q)
+                    .map(Outcome::Inline)
             }
             "models_inspect" => {
                 let req: ReleaseRef = decode(contract, args)?;

@@ -7,6 +7,10 @@ description: Answer predictive questions with the served hand-written model rele
 
 ## 1. What is served
 
+If `models_inspect` is not among your tools, this deployment serves no forecasts: say so in one
+line (forecasts are not served in this deployment) and answer the rest of the question from the
+corpus, the conditions and the data.
+
 The model tools serve hand-written (literal weight-space) releases: every weight was typed by an
 author model, nothing was fitted, the forward cannot fit at request time. Every one is
 `trained_on = not_trained`, `state = experimental`. Their output is `model_output`, never a
