@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS chunks (
   describes_runs_json TEXT NOT NULL DEFAULT '[]',
   outcome_bearing   INTEGER NOT NULL DEFAULT 1,
   evidence_class    TEXT NOT NULL,
-  continues_runs_json TEXT NOT NULL DEFAULT '[]'  -- last run named before the chunk (withhold-only)
+  continues_runs_json TEXT NOT NULL DEFAULT '[]', -- last run named before the chunk (withhold-only)
+  content_class     TEXT NOT NULL DEFAULT 'body'  -- body | references | contents (content_class.rs); search ranks the last two after the body
 );
 CREATE INDEX IF NOT EXISTS chunks_pub_page ON chunks(publication_id, page);
 

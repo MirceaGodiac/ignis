@@ -15,6 +15,7 @@
 pub mod attribution;
 pub mod catalog;
 pub mod combined;
+pub mod content_class;
 pub mod corpus;
 pub mod deepinfra;
 pub mod dense;
@@ -179,6 +180,13 @@ pub enum EvidenceCmd {
         /// re-import views already stored
         #[arg(long)]
         force: bool,
+    },
+    /// Recompute the content class (body | references | contents) of every stored chunk from its
+    /// section heading and text, without parsing a PDF; search ranks reference lists and contents
+    /// pages after the body. Catalogs written before the class existed need it once.
+    Reclassify {
+        #[arg(long)]
+        db: Option<PathBuf>,
     },
     /// Re-derive every stored parse view from the original bytes (hash, page texts, chunk spans, locators).
     Verify {
@@ -578,6 +586,12 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             let db = db.unwrap_or_else(catalog::default_db);
             let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
             print(&import_views(&roots, &pdf_root, &db, &rp, force)?)
+        }
+        EvidenceCmd::Reclassify { db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let mut con = catalog::connect(&db, false)?;
+            let r = catalog::reclassify(&mut con)?;
+            print(&json!({"db": db.display().to_string(), "reclassified": r}))
         }
         #[cfg(not(feature = "pdf"))]
         EvidenceCmd::Ingest { .. } | EvidenceCmd::Verify { .. } => anyhow::bail!(
