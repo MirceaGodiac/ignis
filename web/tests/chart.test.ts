@@ -2,8 +2,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import type { ResearchAnswer } from "../src/contracts/generated";
-import { axisTitle, chartRows, columnTitle, fmtNum, logTicks, niceTicks, skippedNote, sortRows, tableModel, type ChartView } from "../src/research/chartRows.ts";
+import { axisTitle, chartRows, rowCount, rowNoun, columnTitle, fmtNum, logTicks, niceTicks, skippedNote, sortRows, tableModel, type ChartView } from "../src/research/chartRows.ts";
 import { viewProblems } from "../src/research/viewSpec.ts";
+
+test("a chart footer counts tests when rows name their run, rows otherwise", () => {
+  assert.equal(rowNoun([{ run: { run_id: "r1" }, o2: 0.21 }]), "test");
+  assert.equal(rowNoun([{ t_s: 1, d_mm: 2 }]), "row");
+  assert.equal(rowCount(17, "test"), "17 tests");
+  assert.equal(rowCount(1, "row"), "1 row");
+});
 
 const doc = {
   rows: [

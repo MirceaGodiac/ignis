@@ -1,7 +1,9 @@
 // The atmosphere map: test points (runs grouped by research/testPoints) by ambient oxygen and pressure,
 // against the crew atmospheres. Zoom with the wheel or the buttons, drag to pan, double-click to zoom
 // in; a point's size counts its runs, its colour names the investigation and its shape the hardware.
-// Only recorded values are placed; the caller counts what cannot be.
+// Only recorded values are placed; the caller counts what cannot be. Inside an answer (`inline`) the
+// page keeps the wheel: the map zooms only with Ctrl/Cmd held (a hint says so on the first plain
+// wheel), touch scrolls the page, and the zoom tools sit above the plot instead of over it.
 import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from "react";
 import { invColor, invName, invShape, type Shape } from "../data/investigations";
 import type { Habitat, HabitatId } from "../research/habitats";
@@ -9,6 +11,7 @@ import { HABITAT_LIST, PSI_PA } from "../research/habitats";
 import type { TestPoint } from "../research/testPoints";
 
 const M = { l: 56, r: 56, t: 16, b: 44 };
+const MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 const PSI_KPA = PSI_PA / 1000;
 
 export interface Domain {
@@ -50,6 +53,7 @@ export function ConditionsMap({
   domain,
   setDomain,
   maxKpa,
+  inline = false,
 }: {
   points: TestPoint[];
   /** Investigations switched off. */
@@ -60,17 +64,22 @@ export function ConditionsMap({
   domain: Domain;
   setDomain: (d: Domain | ((d: Domain) => Domain)) => void;
   maxKpa: number;
+  /** Embedded in an answer: the wheel scrolls the page unless Ctrl/Cmd is held. */
+  inline?: boolean;
 }) {
   const svg = useRef<SVGSVGElement>(null);
   // Drawn at the container's real pixel size, so labels keep their size when a side panel narrows it.
   const wrap = useRef<HTMLDivElement>(null);
   const [W, setW] = useState(820);
   useEffect(() => {
-    const ro = new ResizeObserver(([e]) => setW(Math.max(380, Math.round(e.contentRect.width))));
+    const fit = (w: number) => setW(Math.max(inline ? 260 : 380, Math.round(w)));
+    const ro = new ResizeObserver(([e]) => fit(e.contentRect.width));
     ro.observe(wrap.current!);
+    if (wrap.current!.clientWidth) fit(wrap.current!.clientWidth);
     return () => ro.disconnect();
-  }, []);
-  const H = Math.round(Math.min(560, Math.max(320, W * 0.58)));
+  }, [inline]);
+  const H = Math.round(Math.min(560, Math.max(inline ? 260 : 320, W * 0.58)));
+  const [hint, setHint] = useState(false);
   const PW = W - M.l - M.r;
   const PH = H - M.t - M.b;
   const [hover, setHover] = useState<{ p: TestPoint; x: number; y: number } | null>(null);
@@ -100,12 +109,22 @@ export function ConditionsMap({
   const zoomAt = (o2: number, k: number, f: number) =>
     setDomain((d) => limits({ x: [o2 + (d.x[0] - o2) * f, o2 + (d.x[1] - o2) * f], y: [k + (d.y[0] - k) * f, k + (d.y[1] - k) * f] }));
 
-  // A wheel over the plot zooms around the cursor; the page does not scroll under it.
+  // A wheel over the plot zooms around the cursor; the page does not scroll under it. Inline, a
+  // plain wheel scrolls the page and shows the hint once in a while; Ctrl/Cmd + wheel zooms.
+  const hintTimer = useRef<number | null>(null);
+  useEffect(() => () => void (hintTimer.current != null && window.clearTimeout(hintTimer.current)), []);
   useEffect(() => {
     const el = svg.current!;
     const on = (e: WheelEvent) => {
       const p = toData(e.clientX, e.clientY);
       if (!p.inPlot) return;
+      if (inline && !e.ctrlKey && !e.metaKey) {
+        setHint(true);
+        if (hintTimer.current != null) window.clearTimeout(hintTimer.current);
+        hintTimer.current = window.setTimeout(() => setHint(false), 1600);
+        return;
+      }
+      setHint(false);
       e.preventDefault();
       zoomAt(p.o2, p.k, Math.exp(e.deltaY * 0.0015));
     };
@@ -144,8 +163,32 @@ export function ConditionsMap({
   const out = shown.filter((p) => p.o2 < x0 || p.o2 > x1 || p.kpa < y0 || p.kpa > y1).length;
   const hab = (id: HabitatId): Habitat => HABITAT_LIST.find((h) => h.id === id)!;
 
+  const tools = (
+    <>
+      <div className="cmap-tools" role="group" aria-label="Zoom">
+        <button className="btn btn-icon btn-s" aria-label="Zoom in" title="Zoom in" onClick={() => zoomAt((x0 + x1) / 2, (y0 + y1) / 2, 0.6)}>
+          +
+        </button>
+        <button className="btn btn-icon btn-s" aria-label="Zoom out" title="Zoom out" onClick={() => zoomAt((x0 + x1) / 2, (y0 + y1) / 2, 1 / 0.6)}>
+          −
+        </button>
+        <button className="btn btn-s" onClick={() => setDomain(HOME)} title="Crew atmospheres and most tests">
+          Habitats
+        </button>
+        <button className="btn btn-s" onClick={() => setDomain(limits({ x: [0.1, 1.03], y: [0, maxKpa * 1.06] }))} title="Every test point">
+          All
+        </button>
+      </div>
+      {out > 0 && (
+        <button className="cmap-out" onClick={() => setDomain(limits({ x: [0.1, 1.03], y: [0, maxKpa * 1.06] }))}>
+          {out} test point{out === 1 ? "" : "s"} outside this view
+        </button>
+      )}
+    </>
+  );
   return (
-    <div className="cmap" ref={wrap}>
+    <div className={`cmap${inline ? " cmap-inline" : ""}`} ref={wrap}>
+      {inline && <div className="cmap-bar">{tools}</div>}
       <svg
         ref={svg}
         className="cmap-svg"
@@ -256,25 +299,12 @@ export function ConditionsMap({
             })}
         </g>
       </svg>
-      <div className="cmap-tools" role="group" aria-label="Zoom">
-        <button className="btn btn-icon btn-s" aria-label="Zoom in" title="Zoom in" onClick={() => zoomAt((x0 + x1) / 2, (y0 + y1) / 2, 0.6)}>
-          +
-        </button>
-        <button className="btn btn-icon btn-s" aria-label="Zoom out" title="Zoom out" onClick={() => zoomAt((x0 + x1) / 2, (y0 + y1) / 2, 1 / 0.6)}>
-          −
-        </button>
-        <button className="btn btn-s" onClick={() => setDomain(HOME)} title="Crew atmospheres and most tests">
-          Habitats
-        </button>
-        <button className="btn btn-s" onClick={() => setDomain(limits({ x: [0.1, 1.03], y: [0, maxKpa * 1.06] }))} title="Every test point">
-          All
-        </button>
-      </div>
-      {out > 0 && (
-        <button className="cmap-out" onClick={() => setDomain(limits({ x: [0.1, 1.03], y: [0, maxKpa * 1.06] }))}>
-          {out} test point{out === 1 ? "" : "s"} outside this view
-        </button>
+      {inline && (
+        <div className={`cmap-hint${hint ? " on" : ""}`} aria-hidden={!hint}>
+          {MAC ? "⌘" : "Ctrl"} + scroll to zoom
+        </div>
       )}
+      {!inline && tools}
       {hover && (
         <div className="tooltip" style={{ left: hover.x + 14, top: hover.y + 14 }}>
           <b>{invName(hover.p.investigation)}</b> · {hover.p.fuel ?? "fuel not stated"}

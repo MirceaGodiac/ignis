@@ -4,7 +4,7 @@
 // groups, each with a categorical colour from the validated chart palette and its own legend entry
 // (click to hide). Hover shows the row's label and every value with its unit.
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
-import { axisTitle, shownUnit, fmtNum, fullNum, logTicks, niceTicks, type ChartData, type ChartPoint, type ChartView } from "../research/chartRows";
+import { axisTitle, shownUnit, fmtNum, fullNum, logTicks, niceTicks, rowCount, type ChartData, type ChartPoint, type ChartView } from "../research/chartRows";
 
 const H = 300;
 const CH = 6.4; // approximate width of one 11.5px label character
@@ -148,7 +148,19 @@ export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }
 
   const nPts = data.points.length;
   const showDots = view.mark === "scatter" || data.categorical || nPts <= 80;
-  const label = `${view.mark} chart of ${view.y.map((a) => a.title).join(", ")} by ${view.x.title}, ${nPts} ${nPts === 1 ? "row" : "rows"}`;
+  const label = `${view.mark} chart of ${view.y.map((a) => a.title).join(", ")} by ${view.x.title}, ${rowCount(nPts, data.noun)}`;
+  // Points drawn on the same pixel (same x and y): the dots are translucent so a stack reads darker,
+  // and the tooltip counts them.
+  const here = (x: number, y: number) => `${Math.round(x)}:${Math.round(y)}`;
+  const stacks = new Map<string, number>();
+  if (!bars && showDots)
+    for (const p of data.points)
+      for (let k = 0; k < ny; k++) {
+        if (!visible(p, k)) continue;
+        const [x, y] = xyOf(p, k);
+        stacks.set(here(x, y), (stacks.get(here(x, y)) ?? 0) + 1);
+      }
+  const stacked = hover && !bars ? stacks.get(here(hover.x, hover.y)) ?? 1 : 1;
 
   return (
     <div className="chart-box" ref={box}>
@@ -242,17 +254,17 @@ export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }
                 if (!visible(p, k)) return null;
                 const [x, y] = xyOf(p, k);
                 const s = sid(p, k);
-                return <circle key={`${p.row}:${k}`} className="ch-dot" cx={x} cy={y} r={view.mark === "line" ? 2.6 : 3.6} style={{ fill: color(s), stroke: color(s) }} />;
+                return <circle key={`${p.row}:${k}`} className={`ch-dot${view.mark === "scatter" ? " ch-dot-scatter" : ""}`} cx={x} cy={y} r={view.mark === "line" ? 2.6 : 3.6} style={{ fill: color(s), stroke: color(s) }} />;
               }),
             )}
         {hover && !bars && <circle className="ch-hover" cx={hover.x} cy={hover.y} r={6} style={{ stroke: color(sid(hover.p, hover.k)) }} />}
       </svg>
-      {hover && <ChartTip view={view} h={hover} W={W} color={color(sid(hover.p, hover.k))} categorical={data.categorical} />}
+      {hover && <ChartTip view={view} h={hover} W={W} color={color(sid(hover.p, hover.k))} categorical={data.categorical} stacked={stacked > 1 ? rowCount(stacked, data.noun) : null} />}
     </div>
   );
 }
 
-function ChartTip({ view, h, W, color: c, categorical }: { view: ChartView; h: Hover; W: number; color: string; categorical: boolean }) {
+function ChartTip({ view, h, W, color: c, categorical, stacked }: { view: ChartView; h: Hover; W: number; color: string; categorical: boolean; stacked: string | null }) {
   const { p } = h;
   const title = p.label ?? (categorical ? String(p.x) : null);
   const tipW = 220;
@@ -286,6 +298,7 @@ function ChartTip({ view, h, W, color: c, categorical }: { view: ChartView; h: H
           </div>
         ))}
       </dl>
+      {stacked && <span className="chart-tip-n">{stacked} here</span>}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { href } from "./router";
 import { callArgs, callQuery, callValue, describeCall, rangeText, sourceTitle, TOOL_KIND, TOOL_LABEL } from "../views/turns";
 import "../views/trail.css";
 import { isTypedArtifact } from "../research/artifactViews";
+import { refusalSummary, splitListMessage } from "../research/noteText";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 import { SourceOriginal, httpUrl } from "./SourceOriginal";
 import { MODE_TEXT as ORIGINAL_MODE_TEXT, OriginalBody } from "../views/Original";
@@ -734,10 +735,40 @@ function Payload({ payload, onArtifact, title = "Result" }: { payload: InlinePay
 }
 
 const STEP_STATE_NOTE: Record<string, { title: string; tone: string }> = {
-  failed: { title: "This step failed", tone: "note-refusal" },
-  refused: { title: "IGNIS declined this step", tone: "note-refusal" },
+  failed: { title: "This step failed", tone: "note-declined" },
+  refused: { title: "IGNIS declined this step", tone: "note-declined" },
   cancelled: { title: "This step was cancelled", tone: "note-gap" },
 };
+
+/** The tool's message, read: a list it names after a colon becomes a short list; otherwise the text as it came. */
+function StepMessage({ message }: { message: string }) {
+  const l = splitListMessage(message);
+  if (!l) return <p className="declined-msg">{message.charAt(0).toUpperCase() + message.slice(1)}</p>;
+  const last = l.head.length - 1;
+  return (
+    <>
+      {l.head.map((h, i) => (
+        <p key={i} className="declined-msg">
+          {h}
+          {i === last ? ":" : "."}
+        </p>
+      ))}
+      <ul className="declined-list">
+        {l.items.map((it) => (
+          <li key={it.name}>
+            <code>{it.name}</code>
+            {it.note && <span className="muted"> {it.note}</span>}
+          </li>
+        ))}
+      </ul>
+      {l.tail.map((t, i) => (
+        <p key={i} className="declined-msg muted">
+          {t}.
+        </p>
+      ))}
+    </>
+  );
+}
 
 /** The call's result value: inline, or read from its stored artifact when only a preview travelled. */
 function useResultValue(call: ToolCallState): Record<string, unknown> | null {
@@ -934,9 +965,9 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
         {r && <OriginMark origin={r.origin} pageSynthetic={synthetic} />}
       </div>
       {bad && !refusalRef && (
-        <div className={`note ${bad.tone}`}>
-          <b>{bad.title}</b>
-          {r?.error?.message && <p>{r.error.message}</p>}
+        <div className={`note ${bad.tone}`} role="status">
+          <b>{r?.error ? refusalSummary(r.error.code, call.tool) : bad.title}</b>
+          {r?.error?.message && <StepMessage message={r.error.message} />}
         </div>
       )}
       {refusalRef && <SubmissionRefusal refusalRef={refusalRef} fallback={r?.error?.message ?? null} />}
@@ -1037,6 +1068,8 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
                 <dd>
                   <code>{r.error.code}</code> <span className="muted">retry {words(r.error.retry.kind)}</span>
                 </dd>
+                <dt>Message</dt>
+                <dd className="step-raw">{r.error.message}</dd>
               </>
             )}
             {r?.job && (
