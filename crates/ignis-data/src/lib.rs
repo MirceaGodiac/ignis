@@ -17,6 +17,7 @@ pub mod media;
 pub mod npyrng;
 pub mod paths;
 pub mod review;
+pub mod sensors;
 pub mod sources;
 pub mod store;
 pub mod text;
