@@ -1,0 +1,31 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "bass2-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.046,
+   "coverage": 0.719,
+   "spill": 15.38
+  },
+  {
+   "id": "bass2-cell",
+   "kind": "cell",
+   "basis": "glyphs",
+   "found": true,
+   "text_found": true,
+   "iou": 0.636
+  }
+ ],
+ "perf": {
+  "bass2": {
+   "pages": 144,
+   "wall_s": 211.99,
+   "cpu_s": 429.92,
+   "units": 4959
+  }
+ },
+ "peak_rss_mb": 6079
+}

@@ -1,0 +1,30 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "ipc-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.189,
+   "coverage": 0.841,
+   "spill": 4.29
+  },
+  {
+   "id": "ipc-figure",
+   "kind": "figure",
+   "basis": "image_object",
+   "found": true,
+   "iou": 0.99
+  }
+ ],
+ "perf": {
+  "ipc": {
+   "pages": 27,
+   "wall_s": 24.16,
+   "cpu_s": 41.12,
+   "units": 268
+  }
+ },
+ "peak_rss_mb": 5065
+}
