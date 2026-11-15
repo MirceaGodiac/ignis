@@ -2,6 +2,8 @@
 //!
 //! - One `claude -p` process per turn, `--output-format stream-json`. The Claude session id (a UUID
 //!   IGNIS chooses with `--session-id`, then `--resume`s) is the episode's runtime thread.
+//! - The harness bundle (M6) is appended to Claude Code's system prompt from a file named by its
+//!   digest, identical for every turn, and pinned on the episode.
 //! - Claude Code owns the model/tool loop. Its built-in tools are off (`--tools ""`), user/project
 //!   settings and other MCP servers are ignored; the only tools are the IGNIS MCP server's read and
 //!   compute tools, pre-allowed, so no approval is ever requested (`--permission-mode dontAsk`
@@ -31,6 +33,7 @@ use serde_json::{json, Value};
 
 use super::bridge::CommitHook;
 use super::grants::{McpAttachment, MCP_TOKEN_ENV};
+use super::harness::{self, HarnessBundle};
 use super::mapping::{
     self, map_item, map_turn_completed, Mapped, Preamble, StopReason, IGNIS_MCP_SERVER,
 };
@@ -56,6 +59,9 @@ const FIXED_ARGS: &[&str] = &[
     "--disable-slash-commands",
     "--permission-mode",
     "dontAsk",
+    // cwd, environment and similar per-machine sections go to the first user message, so the
+    // system prompt (default + harness) is the same bytes for every episode and cacheable across them.
+    "--exclude-dynamic-system-prompt-sections",
 ];
 
 /// Variables a process needs to start on the host OS (no secrets); everything else is cleared.
@@ -90,6 +96,9 @@ pub struct ClaudeConfig {
     pub mcp: Option<McpAttachment>,
     /// Longest a turn may run before it is stopped (a resource budget, not a semantic limit).
     pub turn_timeout: Duration,
+    /// The harness bundle appended to Claude Code's system prompt (`--append-system-prompt-file`).
+    /// `None`: no IGNIS instructions, and no harness pin on the episode.
+    pub harness: Option<super::harness::HarnessBundle>,
 }
 
 impl ClaudeConfig {
@@ -102,6 +111,7 @@ impl ClaudeConfig {
             login_home: None,
             mcp: None,
             turn_timeout: Duration::from_secs(60 * 60),
+            harness: None,
         }
     }
 
@@ -647,6 +657,24 @@ impl Inner {
         }
     }
 
+    /// The bundle as a file named by its digest (written once, atomically): the same bytes for
+    /// every turn, and no command-line length limit.
+    fn harness_file(&self, ws: &std::path::Path, h: &HarnessBundle) -> ServiceResult<PathBuf> {
+        let dir = ws.join("harness");
+        let path = dir.join(format!("{}.md", h.digest().hex()));
+        if path.is_file() {
+            return Ok(path);
+        }
+        let tmp = dir.join(format!(".{}.tmp", uuid::Uuid::new_v4().simple()));
+        std::fs::create_dir_all(&dir)
+            .and_then(|()| std::fs::write(&tmp, h.text().as_bytes()))
+            .and_then(|()| std::fs::rename(&tmp, &path))
+            .or_else(|e| if path.is_file() { Ok(()) } else { Err(e) })
+            .map_err(|e| unavailable(format!("write harness {}: {e}", path.display())))?;
+        let _ = std::fs::remove_file(&tmp);
+        Ok(path)
+    }
+
     fn command(
         &self,
         scope: &ExecutionScope,
@@ -677,6 +705,10 @@ impl Inner {
         }
         if let Some(m) = &self.cfg.model {
             cmd.args(["--model", m]);
+        }
+        if let Some(h) = &self.cfg.harness {
+            cmd.arg("--append-system-prompt-file")
+                .arg(self.harness_file(&ws, h)?);
         }
         cmd.env_clear();
         for k in OS_ENV {
@@ -724,7 +756,22 @@ impl Inner {
         self.settle_foreign(scope, ep)?;
         let origin = self.store.episode(scope, ep)?.origin;
         let (session, new) = self.session(scope, ep)?;
-        let Some(ts) = self.store.begin_turn(scope, ep, None)? else {
+        // A resumed session keeps the system prompt it started with (Claude Code's prompt
+        // snapshot), so a different bundle is not pinned on it.
+        let note = match &self.cfg.harness {
+            Some(h) => harness::pin_episode(
+                &self.store,
+                scope,
+                ep,
+                h,
+                &self.manifest.runtime_build_id,
+                self.cfg.model.as_deref(),
+                None,
+                new,
+            )?,
+            None => None,
+        };
+        let Some(ts) = self.store.begin_turn(scope, ep, note.as_deref())? else {
             return Ok(false);
         };
         (self.on_commit)(ep, ts.episode.last_seq);
@@ -764,6 +811,8 @@ impl Inner {
                 return Ok(true);
             }
         };
+        // The tail of the context: episode-specific input goes here, after the harness prefix
+        // (the appended system prompt), so the prefix stays byte-identical and cached.
         let prompt = ts
             .messages
             .iter()
@@ -821,6 +870,7 @@ impl Inner {
             let Ok(v) = serde_json::from_str::<Value>(&line) else {
                 continue;
             };
+            self.pin_reported_model(scope, ep, &v);
             let (mapped, r) = tr.line(&v);
             if !mapped.is_empty() {
                 self.rec.commit(scope, ep, origin, mapped);
@@ -849,6 +899,32 @@ impl Inner {
             &stderr,
         );
         Ok(true)
+    }
+
+    /// The model Claude Code reports in its `system`/`init` line completes the harness pin.
+    fn pin_reported_model(&self, scope: &ExecutionScope, ep: &EpisodeId, v: &Value) {
+        let Some(h) = &self.cfg.harness else { return };
+        if v.get("type").and_then(Value::as_str) != Some("system")
+            || v.get("subtype").and_then(Value::as_str) != Some("init")
+        {
+            return;
+        }
+        let Some(model) = v.get("model").and_then(Value::as_str) else {
+            return;
+        };
+        let pinned = self
+            .store
+            .episode(scope, ep)
+            .ok()
+            .and_then(|e| e.pins.harness);
+        if pinned.is_some_and(|p| p.digest == *h.digest()) {
+            let build = &self.manifest.runtime_build_id;
+            if let Err(e) =
+                harness::pin_episode(&self.store, scope, ep, h, build, Some(model), None, false)
+            {
+                tracing::warn!(episode = %ep, error = %e, "harness pin");
+            }
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
