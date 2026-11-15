@@ -299,6 +299,33 @@ async fn typed_scenarios_run_the_strict_forward_of_each_family_type() {
         assert!(!art.event_cdf.is_empty());
     }
 
+    // F3 with the burner temperature limit of the script (degC, as the lane writes it): admitted,
+    // and different from the forecast that omits it (each member then uses its own setting).
+    let f3 = |limit: Option<f64>| {
+        let mut c = json!({"fuel_species": "propane", "injected_mass_flow": 1e-6,
+            "pressure": 101325.0, "tad": 2300.0, "x_fuel_role": 0.3, "x_o2_role": 0.3, "zst": 0.25});
+        if let Some(l) = limit {
+            c["burner_limit_c"] = json!(l);
+        }
+        json!({"cutoff_s": 3.0, "phase_established_at_s": 0.0, "conditions": c})
+    };
+    let mut cdfs = vec![];
+    for (key, limit) in [("f3-own", None), ("f3-250", Some(250.0))] {
+        let (st, a) = admit(&h, ACME_NORMAL, f3(limit)).await;
+        assert_eq!(st, StatusCode::OK, "{a}");
+        let hash = a["input_hash"].as_str().unwrap();
+        let art = forecast_http(
+            &h,
+            ACME_NORMAL,
+            json!({"kind": "prefix", "input_hash": hash}),
+            key,
+        )
+        .await;
+        assert!(art.support.admitted, "{key}: {:?}", art.support);
+        cdfs.push(art.event_cdf.clone());
+    }
+    assert_ne!(cdfs[0], cdfs[1], "the burner limit changes the forecast");
+
     // Front forward (front.rs): conditions, fan history and tip positions.
     let tips: Vec<Value> = (0..10)
         .map(|i| json!({"time_s": 11.0 + i as f64, "value_si": 0.002 * (i as f64 + 1.0)}))

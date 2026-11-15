@@ -327,9 +327,9 @@
         {
           "name": "burner_limit_c",
           "kind": "condition",
-          "unit_si": "1",
+          "unit_si": "degC",
           "required": false,
-          "note": "burner temperature limit of the test script (°C), optional"
+          "note": "burner temperature limit of the test script, in °C (raw and SI unit degC, as the lane writes it), optional"
         },
         {
           "name": "diluent_species",
