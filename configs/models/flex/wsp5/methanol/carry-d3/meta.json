@@ -1,0 +1,47 @@
+{
+  "patch_id": "flex_methanol-wsp-v6-carry-d3",
+  "parent_release_id": "sha256:575b0f63d5939811a2a7083eb302443d51eb486b394e67c3dd8d54d864e47a2d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce",
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+      "sha256:f1f723892493030df0525e3410c7fca42e6709a384b224a69e20d188836b28fb",
+      "sha256:b2f6930fc58ddcc0565f25e3968ffa405a718379584890850794bf5ec34a4e97"
+    ]
+  },
+  "rationale": "Neutral carry, not a candidate: carry of flex_methanol.wsp4 carry-d3 (sha256:b57925a094c63b9e57e7dac7290fa35b38a895ce48390c8e9088aec0ecd83d74; the numbers of flex_methanol.wsp2 D3) on the sixth droplet forward (droplet6.rs), new entries off (sc.on = 0, dy.frac = 0, ce.on = 0: self-cooling evaporation of the unlit droplet, a dying flame, the cool-flame end in oxygen partial pressure). It gives the same forecasts on any prefix and stands in for that release in paired comparisons. No number was changed or added beyond the switched-off block, which the author typed.",
+  "origin": "system"
+}

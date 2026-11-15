@@ -1,0 +1,18 @@
+{
+  "model": "acme_inverse6",
+  "candidate": "r1",
+  "release_id": "sha256:5c1f9a1b56a31665aed1e26fe690c6335ae4c2f82532c8ba37836170819a6037",
+  "status": "data-informed; experimental; not_trained; no new validation look",
+  "authored_tensor_capacity": 2730,
+  "authored_nonzero": 276,
+  "spec_fixed_elements": 112,
+  "inherited_literal_positions_from_fable": 483,
+  "new_explicit_positions_this_patch": 15,
+  "cumulative_new_positions_by_origin": {
+    "U": 15
+  },
+  "new_direct_train_read_positions_cumulative": 0,
+  "inherited_train_exposure": "all copied Fable positions retain exposure; precise direct-train subset of historical literals not reclassified",
+  "exact_inherited_transcription_verified": true,
+  "forward_hash_matches": true
+}

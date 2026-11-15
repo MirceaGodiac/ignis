@@ -1,0 +1,218 @@
+# flex_ethanol.wsp5 — W0 for ethanol, literal revision of the lineage root sha256:7f704976…a6ea, spec flex_ethanol-wsp-v1
+# The methanol droplet law carried over. Provisional spec id, model name and parent: ethanol has to be
+# added to the Fuel list of droplet6.rs with the tensor set of methanol (no cool-flame laws), and its
+# lineage root built (the D^2-law reference of methanol, configs/models/flex/wsp5/methanol/baseline-d2,
+# copied without change), before this file can be assembled; tools/wsp/reassemble.py then writes the
+# parent id here and in meta.json. No number is involved in either step: THIS FILE WRITES EVERY
+# AUTHORED ELEMENT, the root has no hinge unit, so nothing of the root survives. It is a revision and
+# not a root because its author has seen other candidates (those of methanol and n-heptane), which
+# the contract does not allow a root to have seen.
+# Author: claude-fable-5-2 (Anthropic). ONE SHOT FOR THIS FUEL: written before any ethanol outcome of
+# FLEX-2 (PSI-68) was opened: no diameter series, test sheet, processed or analysed file. Of PSI-68
+# only the conditions of the atlas card were read.
+# NOT zero-shot in the project's sense. The numbers marked [D] are those of flex_methanol.wsp5 (the
+# carry of D3 and the candidates P0 and P1), which were typed after reading the methanol TRAIN runs
+# of FLEX; the author also read the aggregate validation tables of those candidates.
+# No fit, no search, no program: each fuel-specific number is the methanol number times a ratio
+# worked by hand from property tables. Derivations, property values with their sources, and the
+# registered expectations: docs/wsp/research/phys_droplet_fuels.md (section numbers in brackets).
+# Unlike the alkanes, this fuel has no published number in the repository to check a ratio against.
+#
+# Classes: [P] property table  [T] theory  [L] published experiment  [J] judgement
+#          [D] carried from a number typed after FLEX train data
+#
+# c = (c_o2, c_co2, c_he, c_logp, c_logd0):
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20
+#   c_logp = ln(p / 1e5 Pa)     c_logd0 = ln(D0 / 2 mm)
+# w = 1 - D^2/D0^2 (burn progress)   s = t (1 mm2/s) / D0^2 (diffusion clock, t since igniters on)
+# x_exc = ln(D0 / D_crit)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+#
+# Ethanol [P]: M 46.07, boiling point 351.5 K, liquid density 785.1 (298 K) and 737 kg/m3 (boiling),
+# latent heat 837 kJ/kg at boiling, liquid heat capacity 2.438 kJ/kg/K at 298 K (mean to boiling 2.72),
+# lower heat of combustion 26.82 MJ/kg, 2.084 kg of oxygen per kg.
+
+# =====================================================================================================
+# 1. Hot-flame burning rate, ln(K / 1 mm2/s) = N_rate(c, w, s)   [2.4, 2.8]
+# =====================================================================================================
+# Level [T on D]. Transfer number with the liquid heated on the way,
+# B' = [Q Y_O/nu - c_pg (T_b - 298)] / [L + c_l (T_b - 298)] = 2900/982 = 2.95 against 3028/1207 = 2.51
+# for methanol: ln(1+B') 1.375 against 1.255 (x 1.095); mean liquid density 761 against 769 (x 1.011);
+# lambda/c_p of the vapour-rich gas in the ratio of the vapour heat capacities at 1250 K, 3.05/3.36
+# (x 0.908). Rate ratio 1.005: ethanol burns as fast as methanol.
+# The methanol law [D] is exp(-0.53 - 0.35 w): 0.512 mm2/s at half-burn (w = 0.4). Its fall with burn
+# progress is water taken up by the liquid. Ethanol makes as much water but holds a third of it (water
+# is three times as volatile over ethanol at its boiling point, and the azeotrope stops enrichment):
+# -0.12 over the burn [J on T]. Level so that the rate at w = 0.4 is 1.005 x 0.512:
+# ln 0.514 + 0.12 x 0.4 = -0.62.
+rate.b0 = -0.62
+# Oxygen [T on D]: the methanol slope 0.14 times the ratio of d ln K / d ln Y_O (0.559 / 0.580 = 0.964).
+# CO2 -0.04 and helium 0.18 per 20 %: gas side [D]. Pressure: methanol's 0.10 [D] less the difference
+# of the boiling-point terms (0.008) [T]. No size term [D]. Progress: -0.12, above.
+rate.skip[0:7] = [0.135, -0.04, 0.18, 0.09, 0.0, -0.12, 0.0]
+# Unit 0: below air the rate falls faster with oxygen. Methanol -0.19 [D] times 0.964 [T].
+rate.W1[0, 0] = -1.0
+rate.b1[0] = 0.0
+rate.w2[0] = -0.18
+# Unit 1: below 18 % O2 the fall flattens. Methanol 0.14 [D] times 0.964 [T].
+rate.W1[1, 0] = -1.0
+rate.b1[1] = -0.6
+rate.w2[1] = 0.13
+# Unit 2: a large droplet burns slower early in its life [D].
+rate.W1[2, 4] = 1.0
+rate.W1[2, 5] = -0.65
+rate.b1[2] = -0.3
+rate.w2[2] = -0.5
+# Unit 3: heat-up and flame establishment. Methanol [D]: the rate starts at 0.55 of its plateau and
+# reaches it at s = 0.18. The amplitude is kept: it is three times what the heating of the liquid
+# explains for either alcohol. The duration is stretched by 1.22 [T]: conduction into the liquid
+# (0.290 clock units against 0.253) plus the delivery of the sensible heat (0.089 against 0.057).
+rate.W1[3, 6] = -4.6
+rate.b1[3] = 1.0
+rate.w2[3] = -0.6
+# Unit 4: heat-up is slower in weak atmospheres, below 16 % O2 [D].
+rate.W1[4, 0] = -1.0
+rate.W1[4, 6] = -2.0
+rate.b1[4] = -0.9
+rate.w2[4] = -0.55
+
+# =====================================================================================================
+# 2. Critical diameter of radiative extinction, ln(D_crit / 2 mm) = N_crit(c_o2, c_co2, c_he, c_logp)   [2.5]
+# =====================================================================================================
+# D_crit goes as sqrt(chi_c Q G_o^3 / kappa)/(rho_l K), G_o the oxygen conductance rho D ln(1 + Y_O/nu).
+# Ethanol against methanol: Q x 1.35; G_o x 0.73 (ethanol needs 2.08 kg of oxygen per kg, methanol
+# 1.50), cubed 0.39; products as emissive; rho_l K equal. Ratio sqrt(1.35 x 0.39) = 0.73 [T].
+# Of what? Methanol's critical diameter in air is 4-4.5 mm in the literature [L], 5.8 mm as the cap of
+# the methanol P0 candidate and 9 mm by extrapolation of the carried law [D]: 3.1, 4.2 or 6.6 mm for
+# ethanol; the same form from n-heptane gives 4.9 mm. Typed 4.0 mm in air at 1e5 Pa [T on L].
+crit.b0 = 0.69
+# Oxygen below air: methanol's 0.75 per 5 % [D]. CO2 and helium as methanol [D]. Pressure below 1e5 Pa:
+# 0, between methanol's +0.7 (typed from CO2- and helium-diluted runs at 0.7 atm) and n-heptane's 0
+# on one side and the -0.5 of thin emission on the other [J].
+crit.skip[0:4] = [0.75, -0.16, -0.18, 0.0]
+# Unit 0: above air the critical diameter grows more slowly, 0.30 per 5 % (the margin of the flame
+# temperature over its extinction temperature saturates; methanol P0 caps its law at 18 %) [J].
+crit.W1[0, 0] = 1.0
+crit.b1[0] = 0.0
+crit.w2[0] = -0.45
+# Unit 1: above 1e5 Pa radiation grows with pressure: -0.25 per e-fold, as methanol P0 [T].
+crit.W1[1, 3] = 1.0
+crit.b1[1] = 0.0
+crit.w2[1] = -0.25
+# A carried-over critical diameter is uncertain by a third: the class is less sharp than methanol's
+# (10 and 0.7 [D]) [J].
+class.kappa = 6.0
+class.bias = 0.0
+
+# =====================================================================================================
+# 3. Diffusive extinction: burn progress at which the flame goes out, logit(w_D) = N_diff(c, x_exc)   [2.8]
+# =====================================================================================================
+# A methanol flame goes out at D/D0 = 0.46 because the liquid holds 30 % of water by then [D]. Ethanol
+# holds a third as much: its flame burns on to D/D0 = 0.26 (progress 0.93), between methanol's water
+# limit and the pure-fuel limit near 0.1 [J on T]. Range 0.15 to 0.38.
+diff.b0 = 2.6
+# Later in strong atmospheres; no pressure term (methanol P0) [D].
+diff.skip[0:6] = [0.12, 0.0, 0.0, 0.0, 0.0, 0.0]
+diff.W1[0, 0] = 1.0
+diff.b1[0] = -1.0
+diff.w2[0] = 0.5
+# Earlier as D0 nears D_crit [D].
+diff.W1[1, 5] = 1.0
+diff.b1[1] = 0.3
+diff.w2[1] = -2.0
+# Less sharp than methanol's 14 [J].
+diff.sharp = 8.0
+
+# =====================================================================================================
+# 4. Radiative extinction: clock at which the flame goes out   methanol law, unchanged [D]
+# =====================================================================================================
+rad.b0 = 0.0
+rad.skip[0:6] = [0.0, 0.0, -0.22, 0.0, 0.0, 0.0]
+rad.W1[0, 5] = 1.0
+rad.b1[0] = -0.05
+rad.w2[0] = -3.8
+# Gompertz sharpness 4 for methanol's 5 [J].
+rad.sharp = 4.0
+
+# =====================================================================================================
+# 5. The droplet without a flame: it evaporates on its stored heat   [2.7]
+# =====================================================================================================
+# K(u) = K_floor(u) + K0/(1 + u/t0), t0 = T* c_l D_e^2/(1.5 K0 L): the law of the methanol P0 candidate
+# with ethanol's constants.
+# K0: methanol 0.30 mm2/s with the liquid 8 K below boiling [P, D]. Ethanol at the same distance from
+# boiling: vapour diffusivity 0.124 against 0.162 cm2/s (x 0.76), temperature (x 1.03), a heavier
+# vapour (ln(1+B_M) 1.72 against 1.44, x 1.20), density (x 1.02): x 0.96 [T].
+# T*: R T^2/dH_vap 40 K below boiling is 19.3 K for ethanol and 19.7 K for methanol, where the
+# methanol candidate has 16 K: 16 K [T on D].
+# c_l 2.72 kJ/kg/K and L 875 kJ/kg between 310 and 350 K [P].
+# Gas factor as methanol [D]. Cold floor: methanol 0.012 with its water [D]; ethanol's vapour pressure
+# at the wet bulb is half, its vapour heavier and slower: 0.008 [T]. Warm floor 0.025 fading over
+# 15 s [D]. After a diffusive extinction the liquid holds some water: 0.8 of the rates (methanol 0.5)
+# [J].
+sc.on = 1.0
+sc.k0_hot_mm2_s = 0.29
+sc.k0_cool_mm2_s = 0.0
+sc.tstar_k = 16.0
+sc.cl_j_kg_k = 2720.0
+sc.lat_j_kg = 875000.0
+sc.gas[0:3] = [0.8, 0.0, 0.15]
+sc.k_cold_mm2_s = 0.008
+sc.k_warm_mm2_s = 0.025
+sc.tau_warm_s = 15.0
+sc.diff_scale = 0.8
+# The post.* law is not read with sc.on = 1; the methanol D3 values are written so that every element
+# is stated [D].
+post.k_inf = 1.5e-8
+post.size_exp = 0.72
+post.k_hot = 1.3e-7
+post.hot_exp = 0.45
+post.tau0_s = 2.8
+post.tau_exp = 0.2
+# No cool flame: ethanol has no low-temperature chain branching [T]. No dying flame, no cool-flame end.
+dy.frac = 0.0
+dy.tau_s = 1.0
+ce.on = 0.0
+ce.g0 = 0.0
+ce.beta_atm = 0.0
+ce.p_ref_atm = 0.0
+ce.eps_atm = 0.01
+ce.c_he = 0.0
+ce.d0_exp = 1.0
+
+# =====================================================================================================
+# 6. What the prefix is trusted for   [2.9]
+# =====================================================================================================
+# Methanol: gain sigmoid(-1.6 + 1.4 ln span), because its law was typed from its own runs [D]. A
+# carried-over level may be off by 10-20 %, so the prefix is believed more: -1.0, about 0.14, 0.51 and
+# 0.69 at cutoffs of 1, 3 and 5 s [J].
+enc.gain_w[0:3] = [1.4, 0.0, 0.0]
+enc.gain_b = -1.0
+enc.mix[0:2] = [0.85, 0.15]
+enc.e_clip[0:2] = [0.6, 0.8]
+enc.cool_gain = 0.0
+# State at the cutoff: methanol filter [D], the hot-flame spread 0.22 for 0.18 [J].
+filt.sd_hot = 0.22
+filt.sd_evap = 0.2
+filt.l_floor = 0.03
+filt.gain_w[0:3] = [2.0, 0.5, 2.0]
+filt.gain_b = -1.5
+
+# =====================================================================================================
+# 7. Assumed spread, clock tail, cameras
+# =====================================================================================================
+# Rate around the law: 0.20 before a prefix and 0.10 that no prefix removes, twice methanol's [J].
+unc.s_pop = 0.20
+unc.s_floor = 0.10
+# FLEX-2 imaged a field of about 50 mm where FLEX had 30 mm (published): pixels 1.67 times coarser
+# than those behind methanol's 2.0e-5 and 6e-6 m [L on D].
+unc.sigma_d = 3.3e-5
+unc.sigma_frame = 1.0e-5
+haz.log_disruption = -4.83
+# One flame in five may not follow a clock written for another fuel [J] (P1 of methanol: one in ten).
+rob.eps_r = 0.2
+# Cameras: instrument facts, as P1 of methanol [D]. Not read on a prefix without flame diameters.
+fl.trust = 0.95
+fl.t_min_s = 0.3
+fl.gap_s = 0.25
+fl.min_points = 5.0
+fl.evap_mix = 0.5

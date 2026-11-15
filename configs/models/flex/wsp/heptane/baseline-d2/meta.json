@@ -1,0 +1,17 @@
+{
+  "patch_id": "flex_heptane-wsp-v1-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-median-heptane-burning-rate)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline, not a candidate: the classical D^2-law with the published median rate, replaced by the prefix's own finite-difference rate as the prefix grows; no extinction, no cool flame, no evaporation. The fitted D^2 baselines of the repository refuse heptane (their population is methanol), so this literal release stands in for them.",
+  "origin": "system"
+}

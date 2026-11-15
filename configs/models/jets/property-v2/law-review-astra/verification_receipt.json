@@ -1,0 +1,40 @@
+{
+  "schema": "ignis.wsp.synthetic-review-verification-receipt.v1",
+  "recorded_at_utc": "2026-11-14T20:50:04.165436+00:00",
+  "scope": "jets_v2_only",
+  "wrapper_sha256": "7f2fa2fd7a93ccf9c15bd81678e93c4be3499b639c4140096f16ef938ad38ff7",
+  "coordinator_test_attestation": {
+    "source": "coordinator explicit freeze instruction in this task",
+    "module": "property_jets_v2",
+    "tests_passed": 5,
+    "exact_command": "not supplied in freeze instruction",
+    "reproduce_command": "cargo test --offline -p ignis-wsp --lib property_jets_v2",
+    "author_did_not_rerun_this_cargo_command": true
+  },
+  "independent_review": {
+    "source_report": "docs/wsp/research/astra_property_transport_check.md",
+    "source_report_sha256": "eb41d97b46dd55842f92618a462e67b6b311b169600b489f5d134876aa58562c",
+    "harness": "runs/tooling/astra-transport-review/physics_v2_independent.rs",
+    "harness_sha256": "03803007a440ef5d94976004c3d24160e4cec82858f46d02b6bf1ccb5959b487",
+    "reported_commands": [
+      "rustc --edition 2021 runs/tooling/astra-transport-review/physics_v2_independent.rs -o runs/tooling/astra-transport-review/physics_v2_independent.exe",
+      "& runs/tooling/astra-transport-review/physics_v2_independent.exe"
+    ],
+    "reported_final_exit_code": 0,
+    "confirmed": [
+      "Original F4 counterexample remains admitted by immutable W0",
+      "All three v2 public entry points refuse the reference-domain gap",
+      "Complete reference-to-state cp and molar-mass domain coverage",
+      "Exact full-result equality on independently admitted equal-speed, unequal-speed and signed axial-gravity fixtures"
+    ],
+    "inverse_fixture_limit": "Independent light inverse fixture exceeded unchanged Boussinesq domain; both versions rejected identically; not an admitted inverse claim"
+  },
+  "author_checks": [
+    "Current wrapper and dependency hashes match expected bytes",
+    "W0 and v2 literal ops identical byte-for-byte",
+    "V2 packet JSON parses",
+    "rustfmt --edition 2021 --check crates/ignis-wsp/src/property_jets_v2.rs passed"
+  ],
+  "qualification": "experimental_conditional_limit_unqualified",
+  "outcome_scope": "synthetic and physics review only; no NASA outcomes"
+}

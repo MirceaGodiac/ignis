@@ -1,0 +1,86 @@
+# DATA-INFORMED Astra R1; not zero-shot.
+# Exact deterministic transcription of Fable's stored release sha256:c50c7144e433799b116829cc0f5ff21dbc1e412c9ec38524e2bea6c8c7cba4bc.
+# Source configuration: configs/models/bass/front2/carry-d1. No value is estimated.
+# New main-authored literals follow the inherited block.
+speed.skip[0] = 0.032
+speed.skip[1] = 0.0
+speed.skip[2] = 0.0
+speed.b0 = 0.0535
+over.skip[0] = 0.325
+over.skip[1] = 0.0
+over.skip[2] = 0.0
+over.b0 = 0.325
+burn.skip[0] = 0.0
+burn.skip[1] = 0.0
+burn.skip[2] = 0.0
+burn.b0 = 1.84
+quench.W1[0, 0] = -5.0
+quench.W1[0, 1] = -1.33
+quench.W1[1, 1] = -1.0
+quench.b1[0] = -2.73
+quench.b1[1] = -0.9
+quench.w2[0] = 2.5
+quench.w2[1] = 12.0
+quench.skip[0] = 0.0
+quench.skip[1] = 0.0
+quench.skip[2] = 0.0
+quench.b0 = -7.0
+speed.pow[0] = 1.5
+speed.pow[1] = -1.0
+over.pow[0] = 3.0
+over.pow[1] = -1.0
+over.tau_s = 2.0
+ign.gain = 1.0
+ign.delay_s = 0.0
+end.linger_s = 5.0
+enc.gain_w[0] = 2.5
+enc.gain_w[1] = 3.5
+enc.gain_b = -2.3
+enc.mix[0] = 0.8
+enc.mix[1] = 0.2
+enc.e_clip[0] = 0.7
+enc.e_clip[1] = 0.7
+unc.s_pop = 0.25
+unc.s_floor = 0.06
+unc.s_far[0] = 0.06
+unc.s_far[1] = 0.25
+unc.sigma_w = 0.04
+unc.sigma_x0_w = 0.3
+unc.rel_over = 0.5
+unc.drift_w = 0.01
+speed.split = 0.0
+speed.pow_i = 0.0
+speed.kappa = 0.0
+over.tau_up_s = 0.0
+unc.flow_abs_cm_s = 0.0
+unc.flow_rel = 0.0
+unc.flow_w[0] = 0.0
+unc.flow_w[1] = 1.0
+unc.flow_w[2] = 0.0
+
+# Astra R1. DATA-INFORMED, not zero-shot. New literals by main author.
+# Unchanged prefix/overhang/burn/quench tensors copied from front2/carry-d1.
+# S: pure oxygen-supply steady speed; whole-distribution member switch separate.
+oxygen.mix = 1
+oxygen.member_weight = 1
+# L/N: ambient supply density with hot-layer transport is a HYBRID capture-layer
+# closure, not a single-state gas or an exact transient solution (ASTRA_PROPERTIES).
+# rho from Ferkul's nominal ambient model; nu/alpha use the corrected dry-air
+# reference at 1250 K in properties_verified, checked against its source equations.
+oxygen.rho_kg_m3 = 1.15
+oxygen.nu_m2_s = 0.000178
+oxygen.alpha_m2_s = 0.000241
+# N: O2 and N2 molar masses, kg/mol. The carrier is approximated as nitrogen.
+oxygen.molar_o2_kg_mol = 0.0319988
+oxygen.molar_carrier_kg_mol = 0.0280134
+# A: SIBAL combustible TOTAL areal loading, 75% of 18.05 mg/cm2, rounded.
+# Both faces consume this same sheet: divide total by face count exactly once.
+oxygen.fuel_areal_kg_m2 = 0.1354
+oxygen.faces = 2
+# N: cellulose C6H10O5 + 6 O2, oxygen/fuel mass ratio rounded.
+oxygen.stoich_kg_o2_kg_fuel = 1.185
+# L/direct-train: steady residence closure around the 9.4-10.4 s train ratios.
+# One directly train-read new coefficient; NOT a source-only physical constant.
+oxygen.residence_s = 10
+# A: inherited nominal wide-sample metric calibration, not a new pixel measurement.
+oxygen.reference_width_m = 0.022

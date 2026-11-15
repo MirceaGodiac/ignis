@@ -1,0 +1,1550 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "flex_farnesane-wsp-v1",
+  "family": "flex",
+  "model_name": "flex_farnesane.wsp7",
+  "target": {
+    "quantity": "liquid_diameter",
+    "unit": "m",
+    "description": "Measured liquid-droplet diameter of a free-floating farnesane droplet at times after the cutoff, as an unconditional predictive distribution over the droplet's state (hot flame, cool flame, no flame), plus the cumulative incidence of the end of the hot-flame phase.",
+    "excludes": [
+      "visible or UV flame diameter",
+      "flame temperature, soot, species or radiant emission",
+      "fibre-supported droplets and other fuels",
+      "a calibrated posterior: the spread is an assumed scenario distribution"
+    ]
+  },
+  "features": [
+    {
+      "name": "c_o2",
+      "unit": "1",
+      "source": "condition:x_o2",
+      "transform": "(x - 0.21) / 0.05 @1"
+    },
+    {
+      "name": "c_co2",
+      "unit": "1",
+      "source": "condition:x_co2",
+      "transform": "x / 0.20 @1"
+    },
+    {
+      "name": "c_he",
+      "unit": "1",
+      "source": "condition:x_he",
+      "transform": "x / 0.20 @1"
+    },
+    {
+      "name": "c_logp",
+      "unit": "1",
+      "source": "condition:pressure",
+      "transform": "ln(x / norm.p_ref_pa) @1"
+    },
+    {
+      "name": "c_logd0",
+      "unit": "1",
+      "source": "observation:liquid_diameter@prefix_head",
+      "transform": "ln(sqrt(q0) / norm.d_ref_m); q0 = mean(D^2) over the head window advanced to t = 0 with the population rate at w = 0 @2"
+    },
+    {
+      "name": "x_exc",
+      "unit": "1",
+      "source": "state:supercriticality",
+      "transform": "c_logd0 - N_crit(c_o2, c_co2, c_he, c_logp) = ln(D0 / D_crit) @2"
+    },
+    {
+      "name": "w",
+      "unit": "1",
+      "source": "state:burn_progress",
+      "transform": "clamp(1 - D^2 / q0, 0, 1) @1"
+    },
+    {
+      "name": "s",
+      "unit": "1",
+      "source": "state:clock",
+      "transform": "t * norm.k_ref_m2_s / q0 with t in seconds since the time origin (igniter energised) @1"
+    },
+    {
+      "name": "e_late",
+      "unit": "1",
+      "source": "observation:liquid_diameter@prefix_mid_tail",
+      "transform": "clamp(ln(max(K_obs, enc.k_floor_m2_s) / K_model), -enc.e_clip[0], enc.e_clip[1]); K_obs = finite difference of window means of D^2 (mid -> tail); K_model = harmonic Simpson mean of the hot-flame population rate over the same interval @2"
+    },
+    {
+      "name": "e_early",
+      "unit": "1",
+      "source": "observation:liquid_diameter@prefix_head_mid",
+      "transform": "as e_late for head -> mid; both equal the head -> tail value when the mid window is empty @2"
+    },
+    {
+      "name": "r_late",
+      "unit": "1",
+      "source": "observation:liquid_diameter@prefix_mid_tail",
+      "transform": "K_obs / K_model of the late finite difference, unclamped (reported) @2"
+    },
+    {
+      "name": "r_end",
+      "unit": "1",
+      "source": "observation:liquid_diameter@prefix_end",
+      "transform": "K_obs / K_model of the finite difference between the last two end windows (enc.end_frac of the prefix each), unclamped: the state evidence @3"
+    },
+    {
+      "name": "g_span",
+      "unit": "1",
+      "source": "observation:time@prefix",
+      "transform": "ln((mean time of tail window - mean time of head window) / 1 s) @1"
+    },
+    {
+      "name": "g_count",
+      "unit": "1",
+      "source": "observation:count@prefix",
+      "transform": "ln(n_valid / norm.n_ref) @1"
+    },
+    {
+      "name": "g_progress",
+      "unit": "1",
+      "source": "state:burn_progress@prefix_tail",
+      "transform": "clamp(w_tail / enc.w_ref, 0, 1) @1"
+    },
+    {
+      "name": "flame_seen",
+      "unit": "1",
+      "source": "observation:uv_flame_diameter|visible_flame_diameter@prefix",
+      "transform": "1 when the last positive flame diameter of either camera that has two more within fl.gap_s before it lies within fl.gap_s of the cutoff, 0 when the cameras recorded the flame (fl.min_points positive values after fl.t_min_s) and no longer show it; absent when they did not record it @1"
+    }
+  ],
+  "domain": [
+    {
+      "feature": "c_o2",
+      "min": -2.2,
+      "max": 4.8
+    },
+    {
+      "feature": "c_co2",
+      "min": 0.0,
+      "max": 4.0
+    },
+    {
+      "feature": "c_he",
+      "min": 0.0,
+      "max": 4.25
+    },
+    {
+      "feature": "c_logp",
+      "min": -1.0,
+      "max": 1.7
+    },
+    {
+      "feature": "c_logd0",
+      "min": -0.9,
+      "max": 1.26
+    }
+  ],
+  "tensors": [
+    {
+      "name": "rate.W1",
+      "shape": [
+        16,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the hot-flame rate network ln(K_h/K_ref); row j reads x = (c_o2, c_co2, c_he, c_logp, c_logd0, w, s)."
+    },
+    {
+      "name": "rate.b1",
+      "shape": [
+        16
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the hot-flame rate network ln(K_h/K_ref) (hinge positions)."
+    },
+    {
+      "name": "rate.w2",
+      "shape": [
+        16
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the hot-flame rate network ln(K_h/K_ref) (slope changes at the hinges)."
+    },
+    {
+      "name": "rate.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the hot-flame rate network ln(K_h/K_ref) in x; every element is stated, including zeros."
+    },
+    {
+      "name": "rate.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(K / 1e-6 m2/s)",
+      "bounds": {
+        "min": -3.0,
+        "max": 2.0
+      },
+      "description": "ln(K_h/K_ref) at x = 0: air, 1e5 Pa, D0 = 2 mm, w = 0, s = 0, before hinge terms."
+    },
+    {
+      "name": "crit.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the critical-diameter law ln(D_crit/D_ref); row j reads x = (c_o2, c_co2, c_he, c_logp)."
+    },
+    {
+      "name": "crit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the critical-diameter law ln(D_crit/D_ref) (hinge positions)."
+    },
+    {
+      "name": "crit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the critical-diameter law ln(D_crit/D_ref) (slope changes at the hinges)."
+    },
+    {
+      "name": "crit.skip",
+      "shape": [
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the critical-diameter law ln(D_crit/D_ref) in x; every element is stated, including zeros."
+    },
+    {
+      "name": "crit.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(D / 2 mm)",
+      "bounds": {
+        "min": -4.0,
+        "max": 6.0
+      },
+      "description": "ln(D_crit/D_ref) in air at 1e5 Pa, before hinge terms: droplets larger than D_crit lose the hot flame to radiation."
+    },
+    {
+      "name": "class.kappa",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": 0.0,
+        "max": 60.0
+      },
+      "description": "Sharpness of the radiative class in x_exc = ln(D0/D_crit)."
+    },
+    {
+      "name": "class.bias",
+      "shape": [],
+      "role": "bias",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": -20.0,
+        "max": 20.0
+      },
+      "description": "Logit of the radiative class at D0 = D_crit."
+    },
+    {
+      "name": "diff.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the diffusive-extinction law logit(w_D); row j reads x = (c_o2, c_co2, c_he, c_logp, c_logd0, x_exc)."
+    },
+    {
+      "name": "diff.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the diffusive-extinction law logit(w_D) (hinge positions)."
+    },
+    {
+      "name": "diff.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the diffusive-extinction law logit(w_D) (slope changes at the hinges)."
+    },
+    {
+      "name": "diff.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the diffusive-extinction law logit(w_D) in x; every element is stated, including zeros."
+    },
+    {
+      "name": "diff.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -12.0,
+        "max": 12.0
+      },
+      "description": "logit of the median burn progress at diffusive extinction at x = 0, before hinge terms."
+    },
+    {
+      "name": "diff.sharp",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 80.0
+      },
+      "description": "a_D: Gompertz sharpness of diffusive extinction in burn progress."
+    },
+    {
+      "name": "rad.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the radiative-extinction law ln(s_R); row j reads x = (c_o2, c_co2, c_he, c_logp, c_logd0, x_exc)."
+    },
+    {
+      "name": "rad.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the radiative-extinction law ln(s_R) (hinge positions)."
+    },
+    {
+      "name": "rad.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the radiative-extinction law ln(s_R) (slope changes at the hinges)."
+    },
+    {
+      "name": "rad.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the radiative-extinction law ln(s_R) in x; every element is stated, including zeros."
+    },
+    {
+      "name": "rad.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1)",
+      "bounds": {
+        "min": -8.0,
+        "max": 4.0
+      },
+      "description": "ln of the median diffusion clock at radiative extinction at x = 0, before hinge terms."
+    },
+    {
+      "name": "rad.sharp",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.5,
+        "max": 40.0
+      },
+      "description": "a_R: Gompertz sharpness of radiative extinction in s/s_R."
+    },
+    {
+      "name": "cool.p.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the cool-flame onset logit after a radiative extinction; row j reads x = (c_o2, c_co2, c_he, c_logp, c_logd0, x_exc)."
+    },
+    {
+      "name": "cool.p.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the cool-flame onset logit after a radiative extinction (hinge positions)."
+    },
+    {
+      "name": "cool.p.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the cool-flame onset logit after a radiative extinction (slope changes at the hinges)."
+    },
+    {
+      "name": "cool.p.skip",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the cool-flame onset logit after a radiative extinction in x; every element is stated, including zeros."
+    },
+    {
+      "name": "cool.p.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -30.0,
+        "max": 30.0
+      },
+      "description": "Logit of a cool flame following radiative extinction at x = 0, before hinge terms."
+    },
+    {
+      "name": "cool.k.W1",
+      "shape": [
+        8,
+        5
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the cool-flame rate law ln(K_c/K_ref); row j reads x = (c_o2, c_co2, c_he, c_logp, c_logd0)."
+    },
+    {
+      "name": "cool.k.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the cool-flame rate law ln(K_c/K_ref) (hinge positions)."
+    },
+    {
+      "name": "cool.k.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the cool-flame rate law ln(K_c/K_ref) (slope changes at the hinges)."
+    },
+    {
+      "name": "cool.k.skip",
+      "shape": [
+        5
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the cool-flame rate law ln(K_c/K_ref) in x; every element is stated, including zeros."
+    },
+    {
+      "name": "cool.k.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(K / 1e-6 m2/s)",
+      "bounds": {
+        "min": -4.0,
+        "max": 2.0
+      },
+      "description": "ln(K_c/K_ref) at x = 0, before hinge terms."
+    },
+    {
+      "name": "cool.d.W1",
+      "shape": [
+        8,
+        5
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the cool-flame extinction-diameter law ln(D_ce/D_ref); row j reads x = (c_o2, c_co2, c_he, c_logp, c_logd0)."
+    },
+    {
+      "name": "cool.d.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the cool-flame extinction-diameter law ln(D_ce/D_ref) (hinge positions)."
+    },
+    {
+      "name": "cool.d.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the cool-flame extinction-diameter law ln(D_ce/D_ref) (slope changes at the hinges)."
+    },
+    {
+      "name": "cool.d.skip",
+      "shape": [
+        5
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the cool-flame extinction-diameter law ln(D_ce/D_ref) in x; every element is stated, including zeros."
+    },
+    {
+      "name": "cool.d.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(D / 2 mm)",
+      "bounds": {
+        "min": -4.0,
+        "max": 3.0
+      },
+      "description": "ln(D_ce/D_ref) at x = 0, before hinge terms."
+    },
+    {
+      "name": "cool.d.sd",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Assumed sd of ln D_ce between droplets of one condition."
+    },
+    {
+      "name": "post.cool_scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 10.0
+      },
+      "description": "Multiplier of post.k_hot after a cool flame (the surroundings are cooler than after a hot flame)."
+    },
+    {
+      "name": "post.k_inf",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m2/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 2e-7
+      },
+      "description": "Long-time d(D^2)/dt magnitude of an extinguished droplet of D = D_ref."
+    },
+    {
+      "name": "post.k_hot",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m2/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 5e-7
+      },
+      "description": "Extra d(D^2)/dt magnitude right after extinction of a droplet of D = D_ref (the gas is still hot); decays with tau_e."
+    },
+    {
+      "name": "post.tau0_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.01,
+        "max": 100.0
+      },
+      "description": "Decay time of post.k_hot for a droplet extinguished at D = D_ref."
+    },
+    {
+      "name": "post.size_exp",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Exponent of (q_e/q_ref) in the long-time evaporation rate."
+    },
+    {
+      "name": "post.hot_exp",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1.0,
+        "max": 2.0
+      },
+      "description": "Exponent of (q_e/q_ref) in the amplitude of the extra evaporation right after extinction."
+    },
+    {
+      "name": "post.tau_exp",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Exponent of (q_e/q_ref) in the decay time of the extra evaporation."
+    },
+    {
+      "name": "enc.gain_w",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Weights of the gain logit on (g_span, g_count, g_progress)."
+    },
+    {
+      "name": "enc.gain_b",
+      "shape": [],
+      "role": "bias",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Bias of the gain logit; gain = sigmoid(logit)."
+    },
+    {
+      "name": "enc.mix",
+      "shape": [
+        2
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weights of (e_late, e_early) in the run's log-rate innovation."
+    },
+    {
+      "name": "enc.e_clip",
+      "shape": [
+        2
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Clamp of the log-rate innovations: (below, above) the population rate."
+    },
+    {
+      "name": "enc.cool_gain",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Share of the end-rate innovation against the cool-flame law that a cool flame burning at the cutoff keeps as its run offset."
+    },
+    {
+      "name": "filt.sd_hot",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.01,
+        "max": 2.0
+      },
+      "description": "Assumed sd of the end-rate ratio r = K_obs/K_h of a droplet inside a hot flame (inside a cool flame: times K_c/K_h)."
+    },
+    {
+      "name": "filt.sd_evap",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.01,
+        "max": 2.0
+      },
+      "description": "Assumed sd of the end-rate ratio r = K_obs/K_h of a droplet without a flame."
+    },
+    {
+      "name": "filt.l_floor",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Density added to every state's likelihood of r, so that an absurd r returns the prior."
+    },
+    {
+      "name": "filt.gain_w",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Weights of the state-evidence exponent logit on (g_span, g_count, g_progress)."
+    },
+    {
+      "name": "filt.gain_b",
+      "shape": [],
+      "role": "bias",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Bias of the state-evidence exponent logit; exponent = sigmoid(logit)."
+    },
+    {
+      "name": "rob.eps_r",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.5
+      },
+      "description": "Probability that the radiative clock of this atmosphere is not the law's: weight of a clock with the same median s_R and survival 1 / (1 + s / s_R) in the survival of the radiative class (0: the law alone)."
+    },
+    {
+      "name": "fl.trust",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Probability that the flame cameras are right about the hot flame at the cutoff; the state at the cutoff is this weight on their verdict and the rest on the diameter's (0: the cameras are not read)."
+    },
+    {
+      "name": "fl.t_min_s",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Flame diameters before this time are not used (igniter glare and the ignition flash)."
+    },
+    {
+      "name": "fl.gap_s",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.01,
+        "max": 5.0
+      },
+      "description": "The hot flame counts as seen at the cutoff when the last positive flame diameter that has two more within this time before it lies at most this long before the cutoff."
+    },
+    {
+      "name": "fl.min_points",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 3.0,
+        "max": 200.0
+      },
+      "description": "Fewest positive flame diameters after fl.t_min_s for the cameras to count as having recorded this flame."
+    },
+    {
+      "name": "fl.evap_mix",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "For a droplet whose flame the cameras lost before the cutoff: weight of the flame's heat left according to the time since it was lost, against the estimate from the end rate."
+    },
+    {
+      "name": "unc.s_pop",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Assumed sd of a run's ln K around the population law before any prefix evidence."
+    },
+    {
+      "name": "unc.s_floor",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Assumed sd of ln K that no prefix removes."
+    },
+    {
+      "name": "unc.sigma_d",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.001
+      },
+      "description": "Assumed sd of one diameter measurement around the latent diameter (level error included)."
+    },
+    {
+      "name": "unc.sigma_frame",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.001
+      },
+      "description": "Assumed frame-to-frame sd of the diameter (what a finite difference of window means sees)."
+    },
+    {
+      "name": "haz.log_disruption",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1/s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 3.0
+      },
+      "description": "ln of the constant disruption hazard of a burning droplet (reported, does not change the diameter)."
+    },
+    {
+      "name": "norm.d_ref_m",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.002
+        ]
+      },
+      "unit": "m",
+      "description": "Reference diameter of c_logd0, D_crit and D_ce."
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          100000.0
+        ]
+      },
+      "unit": "Pa",
+      "description": "Reference pressure of c_logp."
+    },
+    {
+      "name": "norm.k_ref_m2_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          1e-6
+        ]
+      },
+      "unit": "m2/s",
+      "description": "Reference burning-rate constant and clock rate."
+    },
+    {
+      "name": "norm.n_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          32.0
+        ]
+      },
+      "unit": "1",
+      "description": "Reference number of prefix points of g_count."
+    },
+    {
+      "name": "enc.window_frac",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.25
+        ]
+      },
+      "unit": "1",
+      "description": "Head, mid and tail windows each span this fraction of the prefix duration."
+    },
+    {
+      "name": "enc.end_frac",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.15
+        ]
+      },
+      "unit": "1",
+      "description": "The end rate is the finite difference between the means of D^2 over the last two windows of the prefix, each spanning this fraction of its duration; the level at the cutoff is carried from the last of them."
+    },
+    {
+      "name": "enc.k_floor_m2_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          2e-8
+        ]
+      },
+      "unit": "m2/s",
+      "description": "Floor of an observed rate before its logarithm."
+    },
+    {
+      "name": "enc.w_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.08
+        ]
+      },
+      "unit": "1",
+      "description": "Progress at which g_progress saturates."
+    },
+    {
+      "name": "enc.min_points",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          2.0
+        ]
+      },
+      "unit": "1",
+      "description": "Fewest valid prefix diameters for a forecast."
+    },
+    {
+      "name": "gate.growth_tol",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.05
+        ]
+      },
+      "unit": "1",
+      "description": "A diameter is dropped when later prefix values of D^2 exceed it by more than this fraction."
+    },
+    {
+      "name": "gate.min_later",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          3.0
+        ]
+      },
+      "unit": "1",
+      "description": "Number of later contradicting values that drops a diameter."
+    },
+    {
+      "name": "gate.k_max_m2_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          2e-6
+        ]
+      },
+      "unit": "m2/s",
+      "description": "Largest d(D^2)/dt magnitude any flame of these experiments produces (twice the fastest measured rate): a later value below what this allows contradicts an earlier one, and the level is not carried to the cutoff faster than this."
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.05
+        ]
+      },
+      "unit": "s",
+      "description": "RK4 step of the hot phase (uniform grid from the cutoff)."
+    },
+    {
+      "name": "num.bin_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.5
+        ]
+      },
+      "unit": "s",
+      "description": "Width of the extinction-time bins the mixture atoms are built from."
+    },
+    {
+      "name": "num.d_min_m",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.00025
+        ]
+      },
+      "unit": "m",
+      "description": "Support floor: the model stops at this diameter."
+    },
+    {
+      "name": "num.t_valid_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          200.0
+        ]
+      },
+      "unit": "s",
+      "description": "Model horizon since the time origin."
+    },
+    {
+      "name": "num.z_step",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.5
+        ]
+      },
+      "unit": "1",
+      "description": "Spacing of the scenario nodes of z."
+    },
+    {
+      "name": "num.z_count",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          15.0
+        ]
+      },
+      "unit": "1",
+      "description": "Number of scenario nodes of z, centred on 0."
+    },
+    {
+      "name": "num.ce_step",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          1.0
+        ]
+      },
+      "unit": "1",
+      "description": "Spacing of the scenario nodes of the cool-flame extinction diameter."
+    },
+    {
+      "name": "num.ce_count",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          5.0
+        ]
+      },
+      "unit": "1",
+      "description": "Number of scenario nodes of the cool-flame extinction diameter."
+    },
+    {
+      "name": "sc.on",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Switch of the self-cooling law of a droplet without a flame, 0 or 1 (any other value is refused): 1 puts K(u) = K_floor(u) + K0 / (1 + u/t0) in place of the post.* law wherever that is used, u being the time since the flame ended; 0 keeps the post.* law and none of the sc.* entries is read."
+    },
+    {
+      "name": "sc.k0_hot_mm2_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mm2/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "d(D^2)/dt magnitude, above the floor, of a droplet right after a hot flame left it, in a gas with g = 1: K0 = g * sc.k0_hot_mm2_s (times sc.diff_scale after a diffusive extinction)."
+    },
+    {
+      "name": "sc.k0_cool_mm2_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mm2/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "As sc.k0_hot_mm2_s for a droplet right after a cool flame left it: K0 = g * sc.k0_cool_mm2_s (not read for a fuel without a cool-flame law)."
+    },
+    {
+      "name": "sc.tstar_k",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "K",
+      "bounds": {
+        "min": 0.0,
+        "max": 100.0
+      },
+      "description": "Temperature the liquid has to lose for its evaporation on stored heat to stop, in the cooling time t0 = sc.tstar_k * sc.cl_j_kg_k * D_e^2 / (1.5 * K0 * sc.lat_j_kg) (D_e^2 in m2, K0 in m2/s; 0: no stored heat, the K0 term is absent)."
+    },
+    {
+      "name": "sc.cl_j_kg_k",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "J/(kg K)",
+      "bounds": {
+        "min": 0.0,
+        "max": 10000.0
+      },
+      "description": "Specific heat of the liquid in the cooling time t0."
+    },
+    {
+      "name": "sc.lat_j_kg",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "J/kg",
+      "bounds": {
+        "min": 0.0,
+        "max": 5000000.0
+      },
+      "description": "Latent heat of evaporation in the cooling time t0 (0: evaporation costs no heat and the rate stays at K0)."
+    },
+    {
+      "name": "sc.gas",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -10.0,
+        "max": 10.0
+      },
+      "description": "Coefficients of (x_He, x_CO2, ln(p / norm.p_ref_pa)) in the gas factor g = exp(sc.gas . that) of K0 and of the cold floor; x are ambient mole fractions (x_He = 0.20 c_he, x_CO2 = 0.20 c_co2), p the pressure."
+    },
+    {
+      "name": "sc.k_cold_mm2_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mm2/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Long-time d(D^2)/dt magnitude of an unlit droplet in a gas with g = 1: K_floor(u) = g * k_cold + (k_warm - g * k_cold) * exp(-u / sc.tau_warm_s)."
+    },
+    {
+      "name": "sc.k_warm_mm2_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mm2/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Floor of d(D^2)/dt right after the flame ended, while the surrounding gas is still warm (not multiplied by g)."
+    },
+    {
+      "name": "sc.tau_warm_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.01,
+        "max": 1000.0
+      },
+      "description": "Time in which the floor goes from sc.k_warm_mm2_s to g * sc.k_cold_mm2_s."
+    },
+    {
+      "name": "sc.diff_scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Multiplier of K0 and of both floor rates (sc.k_cold_mm2_s, sc.k_warm_mm2_s) for a droplet whose hot flame ended diffusively (burn-out or water extinction: the liquid left is less volatile); not applied after a radiative loss, after a cool flame, or to a droplet already without a flame at the cutoff."
+    },
+    {
+      "name": "dy.frac",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "A hot flame lost to radiation that no sustained cool flame follows dies away: the unlit droplet loses D^2 at dy.frac * K_c * exp(-u / dy.tau_s) on top of its unlit law, K_c the cool-flame rate of the run (0: no such term; a fuel without a cool-flame law has K_c = 0). Never after a diffusive extinction or a cool flame that burned."
+    },
+    {
+      "name": "dy.tau_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.01,
+        "max": 100.0
+      },
+      "description": "Decay time of the dying flame."
+    },
+    {
+      "name": "ce.on",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Switch of the closed form of the cool-flame end diameter, 0 or 1 (any other value is refused): 1 puts D_ce = D0 * (D0 / norm.d_ref_m)^(ce.d0_exp - 1) * ce.g0 * sqrt((ce.p_ref_atm - ce.beta_atm) / max(pO2 - ce.beta_atm, ce.eps_atm)) * (1 + ce.c_he * x_He), pO2 = x_O2 * p / 101325 Pa, in place of the median of the cool.d network, and a cool flame of zero length then leaves a droplet that comes straight from a hot flame; 0 keeps the network and none of the ce.* entries is read. Needs ce.p_ref_atm > ce.beta_atm. Not read for a fuel without a cool-flame law."
+    },
+    {
+      "name": "ce.g0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "D_ce / D0 of a droplet of D0 = norm.d_ref_m at pO2 = ce.p_ref_atm without helium."
+    },
+    {
+      "name": "ce.beta_atm",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "atm",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.3
+      },
+      "description": "Oxygen partial pressure at which the closed form of D_ce diverges (no cool flame is sustained below it)."
+    },
+    {
+      "name": "ce.p_ref_atm",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "atm",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Oxygen partial pressure at which D_ce / D0 = ce.g0 for D0 = norm.d_ref_m without helium."
+    },
+    {
+      "name": "ce.eps_atm",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "atm",
+      "bounds": {
+        "min": 0.0001,
+        "max": 0.1
+      },
+      "description": "Smallest pO2 - ce.beta_atm the closed form is evaluated at: closer to ce.beta_atm, or below it, D_ce is capped at its value there."
+    },
+    {
+      "name": "ce.c_he",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Relative growth of D_ce per unit helium mole fraction: the factor (1 + ce.c_he * x_He)."
+    },
+    {
+      "name": "ce.d0_exp",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "Exponent of D0 in D_ce (1: D_ce proportional to D0)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::droplet8::forecast",
+    "version": "8",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Prefix observations: liquid_diameter, valid, positive, 0 <= t <= cutoff, first of equal time stamps, then the validity gate (a value is dropped when at least gate.min_later later prefix values of D^2 contradict it: larger by more than gate.growth_tol, since a droplet does not grow, or smaller than gate.k_max_m2_s allows in the time between). Level at the cutoff: mean of D^2 over the last end window carried to the cutoff along the end rate (finite difference of the last two end windows) limited to [0, min(gate.k_max_m2_s, twice the mid -> tail rate)] (no weight enters it). Survival of the radiative class at clock s: S_R(s) = (1 - rob.eps_r) exp(-Lambda_R(s)) + rob.eps_r / (1 + s / s_R), in the prior at the cutoff and, divided by its value at the cutoff, in the forecast. State probabilities at the cutoff: prior from the extinction laws at the observed progress and clock, times (N(r_end; mean_state, sd_state) + filt.l_floor)^g, normalised, g = sigmoid(filt.gain_b + filt.gain_w . (g_span, g_count, g_progress)); means 1 (hot), K_c/K_h (cool), k_evap/K_h (no flame, half of the post-extinction transient left); sds from filt.sd_hot, filt.sd_evap and the finite-difference noise implied by unc.sigma_frame. Run offset of the hot flame: gain times the clamped mid -> tail and head -> mid innovations; of a cool flame burning at the cutoff: enc.cool_gain * g * clamped ln(end rate / K_c). A droplet without a flame at the cutoff evaporates with the transient amplitude its end rate shows (weight g) or half of post.k_hot (weight 1 - g). Flame cameras (fl.trust > 0, and the prefix holds at least fl.min_points positive uv_flame_diameter or visible_flame_diameter values in [fl.t_min_s, cutoff]): t_last is the last of those times that has two more within fl.gap_s before it; the flame is seen when cutoff - t_last <= fl.gap_s. The state probabilities after the rate evidence, s, become fl.trust * v + (1 - fl.trust) * s with v = (1, 0, 0) when the flame is seen and v = (0, s_cool, s_none) / (s_cool + s_none) otherwise (the law's cool-flame probability at the cutoff in place of that ratio when s_cool + s_none = 0). When the flame is not seen the transient amplitude of a droplet without a flame is fl.evap_mix * exp(-(cutoff - t_last) / tau_e) + (1 - fl.evap_mix) * (the end-rate estimate). Nothing else is read from the flame diameters. Self-cooling law (sc.on = 1), in place of the post.* law of a droplet without a flame: fall of D^2 over the first u seconds after the flame ended at D_e^2 = q_e, J(u) = K0 t0 ln(1 + u/t0) + g f k_cold u + (f k_warm - g f k_cold) sc.tau_warm_s (1 - exp(-u/sc.tau_warm_s)), t0 = sc.tstar_k sc.cl_j_kg_k q_e / (1.5 K0 sc.lat_j_kg), g = exp(sc.gas . (x_He, x_CO2, ln(p/norm.p_ref_pa))), K0 = g f sc.k0_hot_mm2_s after a hot flame and g sc.k0_cool_mm2_s after a cool flame (where the post.* law applies post.cool_scale), f = sc.diff_scale after a diffusive extinction and 1 otherwise, rates converted from mm2/s. No-flame mean of the state evidence: (K_floor(0) + K0 / 2) / K_h with the hot K0 and f = 1. A droplet without a flame at the cutoff: J restarted at the cutoff from the diameter at the cutoff with K0 times (g_state * clamp((end rate - K_floor(0)) / K0, 0, 3) + (1 - g_state) / 2); when the cameras lost the flame at t_last, fl.evap_mix * (J(t - t_last) - J(cutoff - t_last)) + (1 - fl.evap_mix) * that. Dying flame (dy.frac > 0): after a radiative loss with no cool flame, and for a cool flame of zero length when ce.on = 1, the fall of D^2 gains dy.frac K_c dy.tau_s (1 - exp(-u/dy.tau_s)), K_c the cool-flame rate of the scenario. Cool-flame end (ce.on = 1): the median D_ce is D0 (D0/norm.d_ref_m)^(ce.d0_exp - 1) ce.g0 sqrt((ce.p_ref_atm - ce.beta_atm) / max(pO2 - ce.beta_atm, ce.eps_atm)) (1 + ce.c_he x_He), pO2 = x_O2 p / 101325 Pa, D0 = sqrt(q0), in place of the cool.d network's; a node with D_ce at or above the diameter at the hot flame's loss then leaves a droplet that comes straight from a hot flame (with ce.on = 0: from a cool flame). With sc.on = 0, dy.frac = 0 and ce.on = 0 the forecast is that of droplet5.rs. The law is that of droplet6.rs; this forward adds fuels, widens c_logp and c_he and moves the horizon. The prefix's fuel condition names this fuel after lower-casing and dropping a leading n- and every space, hyphen, underscore and comma. Hot phase: RK4 on a uniform grid of num.dt_s from the cutoff, linear interpolation to the forecast times; extinction mass collected in bins of num.bin_s; everything after a transition is closed form. Scenario nodes z_k = (k - (n-1)/2) * z_step with weights proportional to exp(-z^2/2), for the rate and, independently, for ln D_ce. Predictive quantiles: quantiles of the mixture of Gaussians of sd unc.sigma_d centred on the mixture atoms (atoms pooled on a grid of sigma_d/4; each quantile by bisection of the monotone mixture CDF). Latent quantiles: step quantiles of the atoms. Uncertainty kind: assumed_noise."
+}

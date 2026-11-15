@@ -1,0 +1,26 @@
+# acme_normal.wsp7 — carry of acme_normal.wsp5 P1 on the second committee spec, spec acme_normal-wsp-v7
+# Author: claude-fable-5-2 (Anthropic). Not a new model: the carried model, sha256:f71fce5f…69a7, with
+# the same members and the same weights, so that a candidate of this spec can be compared with it on
+# identical cases. DATA-INFORMED like the model it carries.
+#
+#   slots a0, a1, b0, b1   the slots a0, a1, b0, b1 of P1 (acme_normal.wsp2 D3 and D3-NOSTOPS,
+#                          acme_normal.wsp3 D2 and D2-NOSTOPS)
+#   slots b2, b3, c0 to c3   the root's, silent
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee2_edits.py with the slot
+# prefix added. That script chooses and computes nothing. The lines typed for this file:
+
+# The weights of P1 (its mix.w and mix.w_script), the same in both eras: no era is told apart.
+mix.w_early[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+era.last_early_day = 1900001.0
+era.first_late_day = 2100366.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.5
+
+# The one reading of the planned stop P1 makes: its script.onset_s of 0.4 s before the stage sum.
+script.offset_s[0:3] = [-0.4, 0.0, 0.0]
+script.offset_w[0:3] = [1.0, 0.0, 0.0]

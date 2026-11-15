@@ -1,0 +1,22 @@
+{
+  "patch_id": "acme_normal-wsp-v4-baseline-pair",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/blend.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame3.rs(forward-and-spec)",
+      "repo:configs/models/acme/wsp2/normal/baseline-clock(reference-baseline;its-stored-values-are-member-a)",
+      "repo:configs/models/acme/wsp3/normal/baseline-theory(reference-baseline;its-stored-values-are-member-b)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-constants:rhoD-of-Kim-et-al-2023,critical-reactant-flux-of-Irace-et-al-2023;both-were-measured-on-ISS-flames-of-the-ACME-campaigns)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root of the blend spec, not a candidate: the two reference baselines of the member specs with equal weights (a condition-free clock per cause, and the published growth law with its published constants). No number was taken from the PSI-159 tables. The member values are copied from the two baseline releases by tools/wsp/blend_edits.py, which chooses nothing. Data-informed candidates of acme_normal-wsp-v4 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

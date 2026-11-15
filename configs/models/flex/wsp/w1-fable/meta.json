@@ -1,0 +1,37 @@
+{
+  "patch_id": "flex-wsp-v1-w1-fable",
+  "parent_release_id": "sha256:fa8eb18cbb2affa850846fc90b82475fbac13f44d2fbca0fd2321024f4a6e28f",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-flex(code-and-config-only)",
+      "repo:docs/wsp/feedback/flex_w0_train.md",
+      "author:pretraining-knowledge(unverifiable;may-include-published-FLEX-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "wsp-dev:feedback:train:flex-w0:sha256:9e5df8360d5bce325c049d573e96c58701c389d41729c129e4005fbe0b284b1a",
+      "wsp-dev:flex-table:train:flex-w0:sha256:c40068541fe72cd6bdfafc4a1122063da6b5514f1fc68eaec9284cdfaad383f7",
+      "ignis-eval:compare:validation:flex-w0-vs-d2-baselines(aggregate-metrics-only)"
+    ],
+    "prior_candidates": [
+      "sha256:fa8eb18cbb2affa850846fc90b82475fbac13f44d2fbca0fd2321024f4a6e28f",
+      "sha256:4bfddff5060f096d8f6a18cb382058ebd231dffd76b9b7f4b52f48bbbbef4894",
+      "sha256:d99ac9b6a533c6ba878ae9d9694d435edcd33996881a4454489f28eebcc9ea7e"
+    ]
+  },
+  "rationale": "W1, data-informed direct revision (not zero-shot). Rewrites the extinction network from observed train knees (normal branch at D_ext/D0 about 0.45; radiative branch past a critical size that falls with lean oxygen, CO2, He and low pressure), couples the run offset into extinction so a droplet that has already stopped shrinking is forecast as extinguished, and corrects the rate law where the train table shows a systematic ratio (lean oxygen, large droplets, water sag, heat-up). Train detail was read; of validation only the aggregate comparison of W0 was seen. See edits.wsp.",
+  "origin": "system"
+}

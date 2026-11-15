@@ -824,3 +824,219 @@ impl ForecastRequest {
             .map_err(|r| ContractError::new("ForecastRequest", r.to_string()))
     }
 }
+
+// ---------------------------------------------------------------- served hand-written models
+
+/// How the numbers of a served hand-written release were written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Authorship {
+    /// Typed before any outcome of the data it is scored on was opened (W0, reference laws).
+    ZeroShot,
+    /// Typed after its author read development (train) data or development feedback.
+    DataInformed,
+}
+
+/// Where a forecast input comes from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ModelInputKind {
+    /// A known condition of the test (`PrefixBundle.known_conditions`).
+    Condition,
+    /// A known control history (`PrefixBundle.known_controls`).
+    Control,
+    /// Observations of the run before the cutoff (`PrefixBundle.observations`).
+    Observation,
+    /// The test date (selects laws that depend on the era of the test).
+    TestDate,
+    /// When the modelled phase was established, seconds since the time origin
+    /// (`ScenarioRequest.phase_established_at_s`).
+    PhaseStart,
+}
+
+/// One input a served release reads.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ModelInput {
+    /// Condition key, control name, or quantity of the observations.
+    pub name: String,
+    pub kind: ModelInputKind,
+    /// SI unit of the value (`1` for dimensionless and text values).
+    pub unit_si: String,
+    /// The forward refuses a prefix without it.
+    pub required: bool,
+    /// A text value (e.g. a fuel name), not a number.
+    #[serde(default)]
+    pub text: bool,
+    /// What it is, in one line.
+    pub note: String,
+    /// Example value for a typed scenario (never a measurement).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub example: Option<serde_json::Value>,
+}
+
+/// A score as the authoring lane reported it, with where it was reported. Development numbers
+/// only: no score on a test partition is carried here.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ReportedScore {
+    /// Metric and the data it is measured on.
+    pub metric: String,
+    /// The value as reported, with its unit, e.g. "40.0 µm".
+    pub value: String,
+    /// Comparison as reported (baselines, intervals), if any.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub comparison: Option<String>,
+    /// Document (repository path) and section the number is quoted from.
+    pub source: String,
+}
+
+/// What the server states about a served hand-written release besides its immutable record. Read
+/// from the deployment's served list (`configs/models/served.json`), never from a request.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ModelCard {
+    pub schema_version: WspSchema,
+    pub release_id: ReleaseId,
+    pub model_name: String,
+    pub family: Family,
+    /// NASA investigation(s) the release is written for, e.g. "FLEX (PSI-69)".
+    pub investigation: String,
+    /// The candidate name the authoring lane uses (D3, F2, ...).
+    pub candidate: String,
+    /// What it forecasts, in one sentence.
+    pub forecasts: String,
+    pub authorship: Authorship,
+    /// One line on how it was written (zero-shot parts, revisions).
+    pub authorship_note: String,
+    /// Copied from the release record: `not_trained` for a literal release.
+    pub trained_on: TrainedOn,
+    /// Copied from the release record: `experimental` for a literal release.
+    pub state: QualificationState,
+    pub inputs: Vec<ModelInput>,
+    /// Whether this deployment builds its prefix from a stored NASA run.
+    pub stored_runs: bool,
+    /// What a stored run or a typed scenario must give, and why one may not be enough.
+    pub inputs_note: String,
+    pub scores: Vec<ReportedScore>,
+    pub limits: Vec<String>,
+    /// How to cite it.
+    pub cite: String,
+    /// Model card (repository path).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub card_doc: Option<String>,
+}
+
+/// One control stage of a typed scenario.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ScenarioControl {
+    pub control: String,
+    pub t_start_s: Finite,
+    #[serde(default)]
+    pub t_end_s: Option<Finite>,
+    #[serde(default)]
+    pub value_si: Option<Finite>,
+}
+
+/// One observation of a typed scenario before its cutoff (SI value of the observed quantity).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ScenarioPoint {
+    pub time_s: Finite,
+    pub value_si: Finite,
+}
+
+/// A condition value of a typed scenario: a number in SI or a text (e.g. a fuel name).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(untagged)]
+pub enum ScenarioValue {
+    Number(Finite),
+    Text(String),
+}
+
+/// Conditions (and, where the release reads them, controls and an early prefix) typed by a person
+/// for a served release. The host admits it as a synthetic prefix (`evidence_class = synthetic`,
+/// never a NASA run) and returns its `input_hash` for `ForecastInput::Prefix`. There is no agent
+/// tool for it: a forecast never runs on a prefix a language model assembled from text.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ScenarioRequest {
+    pub schema_version: WspSchema,
+    pub release_id: ReleaseId,
+    /// Seconds since the release's time origin up to which the scenario is known.
+    pub cutoff_s: Finite,
+    #[serde(default)]
+    pub conditions: BTreeMap<String, ScenarioValue>,
+    #[serde(default)]
+    pub controls: Vec<ScenarioControl>,
+    /// Observations of the release's observed quantity at or before `cutoff_s`.
+    #[serde(default)]
+    pub observations: Vec<ScenarioPoint>,
+    /// Test date `YYYY-MM-DD`, for releases whose laws depend on the era of the test.
+    #[serde(default)]
+    pub test_date: Option<String>,
+    /// Seconds since the time origin at which the modelled phase was established (burning
+    /// droplet, ignited fabric), when the release reads it.
+    #[serde(default)]
+    pub phase_established_at_s: Option<Finite>,
+}
+
+impl ScenarioRequest {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "ScenarioRequest";
+        let cutoff = self.cutoff_s.get();
+        ensure(cutoff >= 0.0, c, || "cutoff_s is non-negative".into())?;
+        ensure(
+            self.observations
+                .iter()
+                .all(|p| p.time_s.get() >= 0.0 && p.time_s.get() <= cutoff),
+            c,
+            || "every observation lies in [0, cutoff_s]".into(),
+        )?;
+        ensure(
+            self.observations
+                .windows(2)
+                .all(|w| w[0].time_s.get() < w[1].time_s.get()),
+            c,
+            || "observation times strictly increase".into(),
+        )?;
+        ensure(
+            self.controls.iter().all(|s| {
+                s.t_start_s.get() >= 0.0 && s.t_end_s.is_none_or(|e| e.get() >= s.t_start_s.get())
+            }),
+            c,
+            || "control stages start at t >= 0 and end after they start".into(),
+        )?;
+        ensure(
+            self.conditions.keys().all(|k| !k.trim().is_empty()),
+            c,
+            || "condition keys are not empty".into(),
+        )?;
+        if let Some(d) = &self.test_date {
+            let ok = d.len() == 10
+                && d.chars().enumerate().all(|(i, ch)| {
+                    if i == 4 || i == 7 {
+                        ch == '-'
+                    } else {
+                        ch.is_ascii_digit()
+                    }
+                });
+            ensure(ok, c, || format!("test_date {d:?} is not YYYY-MM-DD"))?;
+        }
+        Ok(())
+    }
+}
+
+/// An admitted typed scenario: forecast it with `ForecastInput::Prefix { input_hash }`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ScenarioAdmitted {
+    pub release_id: ReleaseId,
+    pub input_hash: String,
+    /// Always `synthetic`: a typed scenario is not a measurement.
+    pub evidence_class: super::EvidenceClass,
+    pub cutoff_s: Finite,
+    pub condition_keys: Vec<String>,
+    pub observation_count: usize,
+}

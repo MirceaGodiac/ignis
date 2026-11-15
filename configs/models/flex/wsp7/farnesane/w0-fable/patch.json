@@ -1,0 +1,895 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "flex_farnesane-wsp-v1-w0-fable",
+  "spec_hash": "sha256:a07c831c95132803e7c5f1736c593b20e671974db0ab9ddb5320680c78fd6636",
+  "parent_release_id": "sha256:a45d58878fc85f0038525b297f7edd252511c849a719407c94b452f832a3f44b",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_droplet_fuels.md(derivations-of-this-file:property-values-with-sources,ratios-worked-by-hand,registered-expectations)",
+      "repo:configs/models/flex/wsp5/heptane/{carry-d2,p0-fable,p1-fable}/edits.wsp(the-n-heptane-numbers-carried-here;typed-after-the-n-heptane-train-partition)",
+      "repo:configs/models/flex/wsp5/methanol/{carry-d3,p0-fable,p1-fable}/edits.wsp(read;typed-after-the-methanol-train-partition)",
+      "repo:docs/wsp/research/phys_flex_heptane.md;repo:docs/wsp/research/phys_flex_methanol.md(physics-dossiers:train-runs-and-published-theory)",
+      "repo:docs/wsp/research/lit_droplets.md(published-literature,including-aggregate-published-results-for-n-octane-and-n-decane-droplets-on-the-ISS)",
+      "repo:docs/wsp/research/properties/properties.csv(verified-property-values-of-n-heptane-and-methanol)",
+      "repo:docs/wsp/cards/flex_droplet6.md;repo:docs/wsp/cards/flex_droplet3.md;repo:docs/wsp/PROTOCOL.md(sections-1-5-and-10:aggregate-train-and-validation-tables-of-the-FLEX-candidates;no-per-run-validation-outcome)",
+      "repo:docs/wsp/atlas/cards/PSI-68.json;repo:docs/wsp/atlas/cards/PSI-39.json;repo:docs/wsp/atlas/INVESTIGATIONS.md(conditions-only:fuels,ranges-of-oxygen,pressure,size,diluent,support;the-names-and-cell-counts-of-the-CFI-outcome-columns-were-seen,no-value)",
+      "web:search-result-summary-for-farnesane(density,calculated-boiling-point,derived-cetane-number:commercial-data-sheets-and-one-paper-abstract,15-Nov-2026);web:NIST-Chemistry-WebBook-SRD-69(n-dodecane-pages,for-the-analogy)",
+      "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)",
+      "author:pretraining-knowledge(unverifiable;may-include-published-results-of-the-Cool-Flames-Investigation)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;numbers-typed-after-the-train-partition,read-through-the-edits-and-the-physics-dossier;no-series-opened-for-this-file)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;numbers-typed-after-the-train-partition,read-through-the-edits-and-the-physics-dossier)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:adac8c30e1907804928d876fc85ab0b84eec8d4fd786a063a8497e6cbabc5b33",
+      "sha256:03e0f63cf88c1b2c626e7726356746dd16d673a3a208cca5461c9d1ec360bf0b",
+      "sha256:c2c7b700867f3fab86e956100db6aed3db100438f6584347c9af5be6b75ad760",
+      "sha256:c27df7bb7f70bc3ce8cda22a1edc5c1b4a8b8c94b7760de61cedf901e40de360",
+      "sha256:575b0f63d5939811a2a7083eb302443d51eb486b394e67c3dd8d54d864e47a2d",
+      "sha256:2181b643430a31aefa8e774e9b9523f6f09b343957f1bdcae04ea435512545be",
+      "sha256:2e4c55f44b78b5eaae555b879358c22fafc675002d6f441255acbe8af4989397",
+      "sha256:7884e61c9995d40b7f12f140a68b782aa02a811e774143cd128f6e71e25c141a"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "rate.b0",
+      "index": [],
+      "value": -0.82
+    },
+    {
+      "op": "set_box",
+      "tensor": "rate.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.18,
+        -0.08,
+        0.15,
+        0.015,
+        -0.15,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        0
+      ],
+      "value": -0.16
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        1
+      ],
+      "value": -0.7
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        1
+      ],
+      "value": -0.068
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        2,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        2
+      ],
+      "value": -1.5
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        2
+      ],
+      "value": -0.05
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        3,
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        3,
+        5
+      ],
+      "value": -0.65
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        3
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        3
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        5,
+        6
+      ],
+      "value": -0.87
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        5
+      ],
+      "value": -0.66
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        4,
+        6
+      ],
+      "value": -1.74
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        4
+      ],
+      "value": 0.24
+    },
+    {
+      "op": "set",
+      "tensor": "crit.b0",
+      "index": [],
+      "value": 0.91
+    },
+    {
+      "op": "set_box",
+      "tensor": "crit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.62,
+        -0.45,
+        -0.08,
+        -0.1
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "class.kappa",
+      "index": [],
+      "value": 6.0
+    },
+    {
+      "op": "set",
+      "tensor": "class.bias",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b0",
+      "index": [],
+      "value": 2.44
+    },
+    {
+      "op": "set_box",
+      "tensor": "diff.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.5,
+        -0.3,
+        0.0,
+        0.0,
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "diff.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.w2",
+      "index": [
+        0
+      ],
+      "value": -0.5
+    },
+    {
+      "op": "set",
+      "tensor": "diff.W1",
+      "index": [
+        1,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b1",
+      "index": [
+        1
+      ],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "diff.w2",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.sharp",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b0",
+      "index": [],
+      "value": 0.227
+    },
+    {
+      "op": "set_box",
+      "tensor": "rad.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        -0.22,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "rad.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.w2",
+      "index": [
+        0
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.W1",
+      "index": [
+        1,
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b1",
+      "index": [
+        1
+      ],
+      "value": -0.14
+    },
+    {
+      "op": "set",
+      "tensor": "rad.w2",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.sharp",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.b0",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.p.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.b0",
+      "index": [],
+      "value": -1.53
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.k.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.2,
+        0.0,
+        0.15
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.w2",
+      "index": [
+        0
+      ],
+      "value": 0.4
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.W1",
+      "index": [
+        1,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.b1",
+      "index": [
+        1
+      ],
+      "value": -0.75
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.w2",
+      "index": [
+        1
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "cool.d.b0",
+      "index": [],
+      "value": -0.77
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.d.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        -0.25,
+        0.05,
+        0.2,
+        -1.0,
+        0.8
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.d.sd",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "ce.on",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ce.g0",
+      "index": [],
+      "value": 0.38
+    },
+    {
+      "op": "set",
+      "tensor": "ce.beta_atm",
+      "index": [],
+      "value": 0.08
+    },
+    {
+      "op": "set",
+      "tensor": "ce.p_ref_atm",
+      "index": [],
+      "value": 0.18
+    },
+    {
+      "op": "set",
+      "tensor": "ce.eps_atm",
+      "index": [],
+      "value": 0.01
+    },
+    {
+      "op": "set",
+      "tensor": "ce.c_he",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ce.d0_exp",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "dy.frac",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "dy.tau_s",
+      "index": [],
+      "value": 3.5
+    },
+    {
+      "op": "set",
+      "tensor": "sc.on",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "sc.k0_hot_mm2_s",
+      "index": [],
+      "value": 0.15
+    },
+    {
+      "op": "set",
+      "tensor": "sc.k0_cool_mm2_s",
+      "index": [],
+      "value": 0.16
+    },
+    {
+      "op": "set",
+      "tensor": "sc.tstar_k",
+      "index": [],
+      "value": 38.0
+    },
+    {
+      "op": "set",
+      "tensor": "sc.cl_j_kg_k",
+      "index": [],
+      "value": 2800.0
+    },
+    {
+      "op": "set",
+      "tensor": "sc.lat_j_kg",
+      "index": [],
+      "value": 234000.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "sc.gas",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        1.7,
+        0.0,
+        0.1
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "sc.k_cold_mm2_s",
+      "index": [],
+      "value": 0.00001
+    },
+    {
+      "op": "set",
+      "tensor": "sc.k_warm_mm2_s",
+      "index": [],
+      "value": 0.045
+    },
+    {
+      "op": "set",
+      "tensor": "sc.tau_warm_s",
+      "index": [],
+      "value": 15.0
+    },
+    {
+      "op": "set",
+      "tensor": "sc.diff_scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "post.cool_scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "post.k_inf",
+      "index": [],
+      "value": 3e-8
+    },
+    {
+      "op": "set",
+      "tensor": "post.size_exp",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "post.k_hot",
+      "index": [],
+      "value": 1.2e-7
+    },
+    {
+      "op": "set",
+      "tensor": "post.hot_exp",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "post.tau0_s",
+      "index": [],
+      "value": 3.7
+    },
+    {
+      "op": "set",
+      "tensor": "post.tau_exp",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.8,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": -1.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.mix",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.85,
+        0.15
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.e_clip",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.5,
+        0.6
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.cool_gain",
+      "index": [],
+      "value": 0.7
+    },
+    {
+      "op": "set",
+      "tensor": "filt.sd_hot",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "filt.sd_evap",
+      "index": [],
+      "value": 0.15
+    },
+    {
+      "op": "set",
+      "tensor": "filt.l_floor",
+      "index": [],
+      "value": 0.05
+    },
+    {
+      "op": "set_box",
+      "tensor": "filt.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        2.0,
+        0.5,
+        2.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "filt.gain_b",
+      "index": [],
+      "value": -1.5
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.12
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_d",
+      "index": [],
+      "value": 0.000042
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_frame",
+      "index": [],
+      "value": 0.000013
+    },
+    {
+      "op": "set",
+      "tensor": "haz.log_disruption",
+      "index": [],
+      "value": -3.9
+    },
+    {
+      "op": "set",
+      "tensor": "rob.eps_r",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "fl.trust",
+      "index": [],
+      "value": 0.95
+    },
+    {
+      "op": "set",
+      "tensor": "fl.t_min_s",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "fl.gap_s",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "fl.min_points",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "fl.evap_mix",
+      "index": [],
+      "value": 0.5
+    }
+  ],
+  "rationale": "W0 for farnesane (2,6,10-trimethyldodecane, a fuel of the Cool Flames Investigation, PSI-39), one shot for this fuel and not zero-shot: no farnesane outcome was opened, but the law is the n-heptane law of flex_heptane.wsp5, whose numbers were typed after the n-heptane train partition. The weakest of the carried-over candidates: density and a calculated boiling point come from commercial data sheets, the latent heat from Kistiakowsky's rule, and heat capacity, conductivity, heat of combustion and the density at boiling are estimates by analogy with n-dodecane. Each fuel-specific number is the n-heptane number times a ratio worked by hand from property values: the hot-flame level, its oxygen and pressure dependence and the heat-up from a transfer number that includes the heating of the liquid; the critical diameter of radiative extinction as the inverse of the mass burning flux; the cool-flame rate from the wet-bulb transfer number under a 700 K flame and its end diameter from an equal residence time; the unlit droplet as self-cooling evaporation with property constants. The oxygen limit of the cool flame (0.08 atm) is a judgement from one published cetane number. The forward has no reignition of the hot flame, no separate warm-flame stage, no direct cool ignition and no fibre, refuses above 4.4 atm and stops 45 s after ignition. The spreads are the widest of the set. Literal revision of the fuel's lineage root (the D^2-law reference of n-heptane, copied without change), not a root, because the author has seen other candidates; it writes every authored element, so nothing of the root survives. The parent id is a placeholder until the fuel is registered in droplet6.rs and the root is built: tools/wsp/reassemble.py then writes it. See docs/wsp/research/phys_droplet_fuels.md.",
+  "origin": "system"
+}

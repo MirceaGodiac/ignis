@@ -1,0 +1,264 @@
+# acme_inverse.wsp12 — F2 literal revision of the baseline, spec acme_inverse-wsp-v12
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot.
+#
+# F2 is F1 (the adopted acme_inverse.wsp5 P1 reading the fuel from a typed table) with one change:
+# the planned stop is the one computed from the script file alone by tools/wsp/ext/acme_script2.py,
+# read at -1, 0 and +1 s. The members and their fuel table are those of F1, slot by slot: the fuel
+# table did what its dossier expected on the train days of Flame Design and is not touched.
+# Without the planned stop this release returns the forecasts of F1.
+#
+# Slot values are copied from the slots of F1 by tools/wsp/committee3_edits.py.
+# The lines typed for this file:
+
+# The carried law with weight 2 and the hold scenario with weight 1, as in P1 and F1; no era is told apart.
+mix.w_early[0:10] = [0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+era.last_early_day = 1900001.0
+era.first_late_day = 2100366.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.5
+
+# The planned stop from the script file lands on the recorded stop (see the normal-flame F2 for the
+# four train sets). Three readings a second apart, centred on it.
+script.offset_s[0:3] = [-1.0, 0.0, 1.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]
+
+# ---- slot a0: the stored values of slot a0 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (0 statements that differ from the parent's slot, slot a0 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+
+# ---- slot a1: the stored values of slot a1 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (0 statements that differ from the parent's slot, slot a1 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+
+# ---- slot b0: the stored values of slot b0 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (53 statements that differ from the parent's slot, slot b0 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+b0.se.flux.b0 = -4.6
+b0.se.diff.skip[0] = 0.0
+b0.se.flash.W1[0, 3] = 1.0
+b0.se.flash.b1[0] = -0.2
+b0.se.flash.w2[0] = -10.0
+b0.se.flash.skip[4] = -5.0
+b0.se.flash.b0 = -5.33
+b0.se.osc.W1[0, 3] = 1.0
+b0.se.osc.W1[1, 1] = -1.0
+b0.se.osc.W1[2, 2] = -1.0
+b0.se.osc.b1[0] = -0.3
+b0.se.osc.b1[1] = -1.0
+b0.se.osc.b1[2] = -0.6
+b0.se.osc.w2[0] = 10.0
+b0.se.osc.w2[1] = -8.0
+b0.se.osc.w2[2] = 8.0
+b0.se.osc.skip[2] = 0.45
+b0.se.osc.skip[3] = 3.0
+b0.se.osc.b0 = 2.17
+b0.bt.rise.skip[0] = -0.4
+b0.bt.rise.skip[1] = -0.4
+b0.bt.rise.skip[5] = 0.3
+b0.bt.rise.b0 = 5.88
+b0.se.sigma_phi = 0.3
+b0.se.hold_log_rate = -8.0
+b0.se.floor_s = 2.0
+b0.se.flash_tau_s = 1.5
+b0.se.flash_shape = 3.0
+b0.bt.sigma = 0.25
+b0.bt.limit_c[0] = 455.0
+b0.bt.limit_c[1] = 510.0
+b0.bt.limit_w[0] = 0.4
+b0.bt.limit_w[1] = 0.6
+b0.ft.atom_t_s[0] = 63.0
+b0.ft.atom_t_s[1] = 64.0
+b0.ft.atom_t_s[2] = 65.0
+b0.ft.atom_t_s[3] = 66.0
+b0.ft.atom_t_s[4] = 67.0
+b0.ft.atom_t_s[5] = 90.0
+b0.ft.atom_logit[0] = -2.94
+b0.ft.atom_logit[1] = -2.59
+b0.ft.atom_logit[2] = -2.2
+b0.ft.atom_logit[3] = 0.49
+b0.ft.atom_logit[4] = -1.73
+b0.ft.atom_logit[5] = -1.39
+b0.ft.log_base = -5.5
+b0.fuel.admit[3] = 1.0
+b0.fuel.mw_g_mol[3] = 28.054
+b0.fuel.mw_g_mol[4] = 16.043
+b0.fuel.mw_g_mol[5] = 2.016
+b0.fuel.se_coord[3, 0] = 1.0
+b0.fuel.ft_coord[3, 0] = 0.5
+b0.fuel.dosc[3] = 0.7
+
+# ---- slot b1: the stored values of slot b1 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (57 statements that differ from the parent's slot, slot b1 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+b1.se.flux.b0 = -4.6
+b1.se.diff.skip[0] = 0.0
+b1.se.flash.W1[0, 3] = 1.0
+b1.se.flash.b1[0] = -0.2
+b1.se.flash.w2[0] = -10.0
+b1.se.flash.skip[4] = -5.0
+b1.se.flash.b0 = -5.33
+b1.se.osc.W1[0, 3] = 1.0
+b1.se.osc.W1[1, 1] = -1.0
+b1.se.osc.W1[2, 2] = -1.0
+b1.se.osc.W1[3, 1] = 1.0
+b1.se.osc.W1[3, 5] = -0.6
+b1.se.osc.b1[0] = -0.3
+b1.se.osc.b1[1] = -1.0
+b1.se.osc.b1[2] = -0.6
+b1.se.osc.b1[3] = -0.2
+b1.se.osc.w2[0] = 10.0
+b1.se.osc.w2[1] = -8.0
+b1.se.osc.w2[2] = 8.0
+b1.se.osc.w2[3] = 20.0
+b1.se.osc.skip[2] = 0.45
+b1.se.osc.skip[3] = 3.0
+b1.se.osc.b0 = 2.17
+b1.bt.rise.skip[0] = -0.4
+b1.bt.rise.skip[1] = -0.4
+b1.bt.rise.skip[5] = 0.3
+b1.bt.rise.b0 = 5.88
+b1.se.sigma_phi = 0.3
+b1.se.hold_log_rate = -8.0
+b1.se.floor_s = 2.0
+b1.se.flash_tau_s = 1.5
+b1.se.flash_shape = 3.0
+b1.bt.sigma = 0.25
+b1.bt.limit_c[0] = 455.0
+b1.bt.limit_c[1] = 510.0
+b1.bt.limit_w[0] = 0.4
+b1.bt.limit_w[1] = 0.6
+b1.ft.atom_t_s[0] = 63.0
+b1.ft.atom_t_s[1] = 64.0
+b1.ft.atom_t_s[2] = 65.0
+b1.ft.atom_t_s[3] = 66.0
+b1.ft.atom_t_s[4] = 67.0
+b1.ft.atom_t_s[5] = 90.0
+b1.ft.atom_logit[0] = -2.94
+b1.ft.atom_logit[1] = -2.59
+b1.ft.atom_logit[2] = -2.2
+b1.ft.atom_logit[3] = 0.49
+b1.ft.atom_logit[4] = -1.73
+b1.ft.atom_logit[5] = -1.39
+b1.ft.log_base = -5.5
+b1.fuel.admit[3] = 1.0
+b1.fuel.mw_g_mol[3] = 28.054
+b1.fuel.mw_g_mol[4] = 16.043
+b1.fuel.mw_g_mol[5] = 2.016
+b1.fuel.se_coord[3, 0] = 1.0
+b1.fuel.ft_coord[3, 0] = 0.5
+b1.fuel.dosc[3] = 0.7
+
+# ---- slot b2: the stored values of slot b2 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (47 statements that differ from the parent's slot, slot b2 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+b2.se.flux.b0 = -4.6
+b2.se.diff.skip[0] = 0.0
+b2.se.flash.W1[0, 3] = 1.0
+b2.se.flash.b1[0] = -0.2
+b2.se.flash.w2[0] = -10.0
+b2.se.flash.skip[4] = -5.0
+b2.se.flash.b0 = -5.33
+b2.se.osc.W1[0, 3] = 1.0
+b2.se.osc.W1[1, 1] = -1.0
+b2.se.osc.W1[2, 2] = -1.0
+b2.se.osc.b1[0] = -0.3
+b2.se.osc.b1[1] = -1.0
+b2.se.osc.b1[2] = -0.6
+b2.se.osc.w2[0] = 10.0
+b2.se.osc.w2[1] = -8.0
+b2.se.osc.w2[2] = 8.0
+b2.se.osc.skip[2] = 0.45
+b2.se.osc.skip[3] = 3.0
+b2.se.osc.b0 = 2.17
+b2.bt.rise.skip[0] = -0.4
+b2.bt.rise.skip[1] = -0.4
+b2.bt.rise.skip[5] = 0.3
+b2.bt.rise.b0 = 5.88
+b2.se.sigma_phi = 0.3
+b2.se.hold_log_rate = -8.0
+b2.se.floor_s = 2.0
+b2.se.flash_tau_s = 1.5
+b2.se.flash_shape = 3.0
+b2.bt.sigma = 0.25
+b2.bt.limit_c[0] = 455.0
+b2.bt.limit_c[1] = 510.0
+b2.bt.limit_w[0] = 0.4
+b2.bt.limit_w[1] = 0.6
+b2.ft.atom_t_s[0] = 63.0
+b2.ft.atom_t_s[1] = 64.0
+b2.ft.atom_t_s[2] = 65.0
+b2.ft.atom_t_s[3] = 66.0
+b2.ft.atom_t_s[4] = 67.0
+b2.ft.atom_t_s[5] = 90.0
+b2.ft.log_base = -9.0
+b2.fuel.admit[3] = 1.0
+b2.fuel.mw_g_mol[3] = 28.054
+b2.fuel.mw_g_mol[4] = 16.043
+b2.fuel.mw_g_mol[5] = 2.016
+b2.fuel.se_coord[3, 0] = 1.0
+b2.fuel.ft_coord[3, 0] = 0.5
+b2.fuel.dosc[3] = 0.7
+
+# ---- slot b3: the stored values of slot b3 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (51 statements that differ from the parent's slot, slot b3 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+b3.se.flux.b0 = -4.6
+b3.se.diff.skip[0] = 0.0
+b3.se.flash.W1[0, 3] = 1.0
+b3.se.flash.b1[0] = -0.2
+b3.se.flash.w2[0] = -10.0
+b3.se.flash.skip[4] = -5.0
+b3.se.flash.b0 = -5.33
+b3.se.osc.W1[0, 3] = 1.0
+b3.se.osc.W1[1, 1] = -1.0
+b3.se.osc.W1[2, 2] = -1.0
+b3.se.osc.W1[3, 1] = 1.0
+b3.se.osc.W1[3, 5] = -0.6
+b3.se.osc.b1[0] = -0.3
+b3.se.osc.b1[1] = -1.0
+b3.se.osc.b1[2] = -0.6
+b3.se.osc.b1[3] = -0.2
+b3.se.osc.w2[0] = 10.0
+b3.se.osc.w2[1] = -8.0
+b3.se.osc.w2[2] = 8.0
+b3.se.osc.w2[3] = 20.0
+b3.se.osc.skip[2] = 0.45
+b3.se.osc.skip[3] = 3.0
+b3.se.osc.b0 = 2.17
+b3.bt.rise.skip[0] = -0.4
+b3.bt.rise.skip[1] = -0.4
+b3.bt.rise.skip[5] = 0.3
+b3.bt.rise.b0 = 5.88
+b3.se.sigma_phi = 0.3
+b3.se.hold_log_rate = -8.0
+b3.se.floor_s = 2.0
+b3.se.flash_tau_s = 1.5
+b3.se.flash_shape = 3.0
+b3.bt.sigma = 0.25
+b3.bt.limit_c[0] = 455.0
+b3.bt.limit_c[1] = 510.0
+b3.bt.limit_w[0] = 0.4
+b3.bt.limit_w[1] = 0.6
+b3.ft.atom_t_s[0] = 63.0
+b3.ft.atom_t_s[1] = 64.0
+b3.ft.atom_t_s[2] = 65.0
+b3.ft.atom_t_s[3] = 66.0
+b3.ft.atom_t_s[4] = 67.0
+b3.ft.atom_t_s[5] = 90.0
+b3.ft.log_base = -9.0
+b3.fuel.admit[3] = 1.0
+b3.fuel.mw_g_mol[3] = 28.054
+b3.fuel.mw_g_mol[4] = 16.043
+b3.fuel.mw_g_mol[5] = 2.016
+b3.fuel.se_coord[3, 0] = 1.0
+b3.fuel.ft_coord[3, 0] = 0.5
+b3.fuel.dosc[3] = 0.7
+
+# ---- slot c0: the stored values of slot c0 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (0 statements that differ from the parent's slot, slot c0 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+
+# ---- slot c1: the stored values of slot c1 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (0 statements that differ from the parent's slot, slot c1 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+
+# ---- slot c2: the stored values of slot c2 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (0 statements that differ from the parent's slot, slot c2 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)
+
+# ---- slot c3: the stored values of slot c3 of sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42
+#      (0 statements that differ from the parent's slot, slot c3 of sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634)

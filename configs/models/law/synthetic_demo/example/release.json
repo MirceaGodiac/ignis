@@ -1,0 +1,1088 @@
+{
+  "id": "sha256:0b0bdf432cd83cf4d83730428e16f7ebad94f962874aa428f205f7c0b17c524c",
+  "family": "other",
+  "model_name": "synthetic_demo.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 35,
+      "authored_total": 377,
+      "constant_total": 1,
+      "per_tensor": {
+        "burnout.burnout.median.W1": [
+          24,
+          0
+        ],
+        "burnout.burnout.median.b0": [
+          1,
+          0
+        ],
+        "burnout.burnout.median.b1": [
+          8,
+          0
+        ],
+        "burnout.burnout.median.skip": [
+          3,
+          0
+        ],
+        "burnout.burnout.median.w2": [
+          8,
+          0
+        ],
+        "burnout.burnout.shape": [
+          1,
+          1
+        ],
+        "flame_end.blowoff.median.W1": [
+          24,
+          0
+        ],
+        "flame_end.blowoff.median.b0": [
+          1,
+          1
+        ],
+        "flame_end.blowoff.median.b1": [
+          8,
+          0
+        ],
+        "flame_end.blowoff.median.skip": [
+          3,
+          1
+        ],
+        "flame_end.blowoff.median.w2": [
+          8,
+          0
+        ],
+        "flame_end.blowoff.shape": [
+          1,
+          1
+        ],
+        "flame_end.extinction.median.W1": [
+          24,
+          0
+        ],
+        "flame_end.extinction.median.b0": [
+          1,
+          1
+        ],
+        "flame_end.extinction.median.b1": [
+          8,
+          0
+        ],
+        "flame_end.extinction.median.skip": [
+          3,
+          1
+        ],
+        "flame_end.extinction.median.w2": [
+          8,
+          0
+        ],
+        "flame_end.extinction.shape": [
+          1,
+          1
+        ],
+        "flame_end.stop.offset_s": [
+          3,
+          1
+        ],
+        "flame_end.stop.offset_w": [
+          3,
+          2
+        ],
+        "flame_length.median.W1": [
+          24,
+          1
+        ],
+        "flame_length.median.b0": [
+          1,
+          1
+        ],
+        "flame_length.median.b1": [
+          8,
+          1
+        ],
+        "flame_length.median.skip": [
+          3,
+          2
+        ],
+        "flame_length.median.w2": [
+          8,
+          1
+        ],
+        "flame_length.spread.W1": [
+          24,
+          0
+        ],
+        "flame_length.spread.b0": [
+          1,
+          1
+        ],
+        "flame_length.spread.b1": [
+          8,
+          0
+        ],
+        "flame_length.spread.skip": [
+          3,
+          0
+        ],
+        "flame_length.spread.w2": [
+          8,
+          0
+        ],
+        "flame_length.tail_weight": [
+          1,
+          1
+        ],
+        "flame_length.tail_width": [
+          1,
+          1
+        ],
+        "ignites.logit.W1": [
+          24,
+          0
+        ],
+        "ignites.logit.b0": [
+          1,
+          1
+        ],
+        "ignites.logit.b1": [
+          8,
+          0
+        ],
+        "ignites.logit.skip": [
+          3,
+          1
+        ],
+        "ignites.logit.w2": [
+          8,
+          0
+        ],
+        "num.substeps": [
+          1,
+          1
+        ],
+        "spread.median.W1": [
+          24,
+          0
+        ],
+        "spread.median.b0": [
+          1,
+          0
+        ],
+        "spread.median.b1": [
+          8,
+          0
+        ],
+        "spread.median.skip": [
+          3,
+          0
+        ],
+        "spread.median.w2": [
+          8,
+          0
+        ],
+        "spread.spread.W1": [
+          24,
+          0
+        ],
+        "spread.spread.b0": [
+          1,
+          1
+        ],
+        "spread.spread.b1": [
+          8,
+          0
+        ],
+        "spread.spread.skip": [
+          3,
+          0
+        ],
+        "spread.spread.w2": [
+          8,
+          0
+        ],
+        "spread.tail_weight": [
+          1,
+          0
+        ],
+        "spread.tail_width": [
+          1,
+          1
+        ],
+        "x.fuel_flow.centre": [
+          1,
+          1
+        ],
+        "x.fuel_flow.hi": [
+          1,
+          1
+        ],
+        "x.fuel_flow.lo": [
+          1,
+          1
+        ],
+        "x.fuel_flow.scale": [
+          1,
+          1
+        ],
+        "x.pressure.centre": [
+          1,
+          1
+        ],
+        "x.pressure.hi": [
+          1,
+          1
+        ],
+        "x.pressure.lo": [
+          1,
+          1
+        ],
+        "x.pressure.scale": [
+          1,
+          1
+        ],
+        "x.x_o2.centre": [
+          1,
+          1
+        ],
+        "x.x_o2.hi": [
+          1,
+          1
+        ],
+        "x.x_o2.lo": [
+          1,
+          1
+        ],
+        "x.x_o2.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:08e860e1443f24a98a5788e1506b526026054897e0ad75e122571746f062db29",
+    "spec_id": "law-synthetic_demo-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "pressure",
+    "x_o2",
+    "fuel_flow"
+  ],
+  "units": {
+    "fuel_flow": "kg/s",
+    "pressure": "Pa",
+    "x_o2": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "visible flame length at steady state (lane-local)",
+        "kind": "positive",
+        "label": "synthetic_demo:flame_length",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "flame_length",
+        "unit": "m"
+      },
+      {
+        "description": "flame spread rate (the shared quantity spread_rate)",
+        "kind": "positive",
+        "label": "synthetic_demo:spread",
+        "shared_quantity": "spread_rate",
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "spread",
+        "unit": "m/s"
+      },
+      {
+        "description": "the flame ignites and is sustained",
+        "kind": "binary",
+        "label": "synthetic_demo:ignites",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "ignites",
+        "unit": null
+      },
+      {
+        "description": "end of the flame, seconds since the time origin",
+        "kind": "event",
+        "label": "synthetic_demo:flame_end",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "flame_end",
+        "unit": "s"
+      },
+      {
+        "description": "a single-cause clock (tests: competing risks reduce to one clock)",
+        "kind": "event",
+        "label": "synthetic_demo:burnout",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "burnout",
+        "unit": "s"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "burnout.burnout.median.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "burnout.burnout.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "burnout.burnout.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "burnout.burnout.median.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "burnout.burnout.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "burnout.burnout.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2506c7d86f85080830dcae8287d0dcef0f872345db27ce9cd5569e6f682bf772",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "bbff92adadc39410effafe2c9f931cbe5f03e4b4baf7e8b895a34b4be6098abf",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.blowoff.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "abb8af1d7fbd7038ba6d21698aaf094a27b2cb396f56241a82a1677f6ed35c01",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "cfb3872d89ac85fcc09f968410e5f5d4474078007ef6237d2a42777712825dbf",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.extinction.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.stop.offset_s",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "72f9486da5bb3c4e0a7208ba277f8705879c36d8b092c3a3b44aaf8a225ad115",
+      "trainable": false
+    },
+    {
+      "name": "flame_end.stop.offset_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "be614d3b45ba3127abefa62f8447e45be96b9b5056c05196bbd611a62a88e88e",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "b8e2c2508e7edff02f629986f3a603d6a8c993541e18f9b1755f83fbaf3c9bbd",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2f9387c8d70c97e5227a4fef89ccbba6ebb98f237692aad7c428cd5ebd8090b0",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "676252fb21ac1d94943f0d2be59bd22210bd83491d8a36c778b5200fd16e1632",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "9a63289c0865f49813bd0befb40dfb9cb6df7449d0ebb3f3aacf2a41c7efdfe6",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "0c5f5753043f5edaf4e6f1e4c97232e8c4937f2484213fbf4f4e55d20c4e5c06",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "flame_length.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "ignites.logit.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "ignites.logit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "ignites.logit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "ignites.logit.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "9c82f97170ae089bf35d0a424e3fecd5cf2ce78ed6c7657ee89b63735f8856d0",
+      "trainable": false
+    },
+    {
+      "name": "ignites.logit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "spread.median.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "spread.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "spread.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "spread.median.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "spread.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "spread.spread.W1",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "f4117023ca711b8be85bf403b9f6ab83e82ab35bdaa9c08b83c9b0199473f83c",
+      "trainable": false
+    },
+    {
+      "name": "spread.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "spread.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "spread.spread.skip",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "spread.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "spread.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "spread.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.fuel_flow.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "x.fuel_flow.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "x.fuel_flow.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7c49f8a5e9ab183dbe12ef4682859f80f73648985d0a08962481d98f26032c2a",
+      "trainable": false
+    },
+    {
+      "name": "x.fuel_flow.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "95dbf31e674a5b488d6fa8ec65e0ea1bc55101301b4aa128a8eaeeb68d94c8ae",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1fa6845a7131ae772ae55fef79a013219a93e35041382865b407efeb1319805b",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "08dbdb80d792e5a31ed8d7cfe812ddee857fbb805f3a94af46ea645daa08a258",
+      "trainable": false
+    },
+    {
+      "name": "x.pressure.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c05cfc6efd3c19c49cc64bf5c4de29066800894af0e4c7b0bb17d631dd2c882c",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "aca00703e2942178d76d87385c03215de6863c5484bed194d7fab365450173df",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4071bcaa9e99506b4700b169f5aca7d38e4b6c249e3db3a5f617870fc5b45618",
+      "trainable": false
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "synthetic:law-demo",
+  "split_id": "synthetic:law-demo",
+  "source_manifest_hash": "synthetic:none",
+  "code_version": "ignis-wsp@0.1.0+fwd.887c0d0d39538d00",
+  "applicability": {
+    "declaration": {
+      "description": "Synthetic. Three features, one target of each kind. Never NASA data; no release of it qualifies anything.",
+      "family": "other",
+      "features": [
+        {
+          "description": "chamber pressure",
+          "name": "pressure",
+          "transform": "ln",
+          "unit": "Pa"
+        },
+        {
+          "description": "ambient O2 mole fraction",
+          "name": "x_o2",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "fuel mass flow",
+          "name": "fuel_flow",
+          "transform": "reciprocal",
+          "unit": "kg/s"
+        }
+      ],
+      "investigation": "none: a synthetic declaration for the tests and the example of docs/wsp/research/law_forward.md",
+      "slug": "synthetic_demo",
+      "status": "synthetic",
+      "targets": [
+        {
+          "causes": [],
+          "description": "visible flame length at steady state (lane-local)",
+          "kind": "positive",
+          "name": "flame_length",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "m"
+        },
+        {
+          "causes": [],
+          "description": "flame spread rate (the shared quantity spread_rate)",
+          "kind": "positive",
+          "name": "spread",
+          "scheduled_stop": null,
+          "shared_quantity": "spread_rate",
+          "unit": "m/s"
+        },
+        {
+          "causes": [],
+          "description": "the flame ignites and is sustained",
+          "kind": "binary",
+          "name": "ignites",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [
+            "extinction",
+            "blowoff"
+          ],
+          "description": "end of the flame, seconds since the time origin",
+          "kind": "event",
+          "name": "flame_end",
+          "scheduled_stop": {
+            "condition": "programmed_stop"
+          },
+          "shared_quantity": null,
+          "unit": null
+        },
+        {
+          "causes": [
+            "burnout"
+          ],
+          "description": "a single-cause clock (tests: competing risks reduce to one clock)",
+          "kind": "event",
+          "name": "burnout",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": null
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/synthetic_demo/decl.json",
+    "features": [
+      {
+        "description": "chamber pressure",
+        "name": "pressure",
+        "transform": "ln",
+        "unit": "Pa"
+      },
+      {
+        "description": "ambient O2 mole fraction",
+        "name": "x_o2",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "fuel mass flow",
+        "name": "fuel_flow",
+        "transform": "reciprocal",
+        "unit": "kg/s"
+      }
+    ],
+    "investigation": "none: a synthetic declaration for the tests and the example of docs/wsp/research/law_forward.md",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "synthetic_demo",
+    "status": "synthetic",
+    "targets": [
+      {
+        "description": "visible flame length at steady state (lane-local)",
+        "kind": "positive",
+        "label": "synthetic_demo:flame_length",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "flame_length",
+        "unit": "m"
+      },
+      {
+        "description": "flame spread rate (the shared quantity spread_rate)",
+        "kind": "positive",
+        "label": "synthetic_demo:spread",
+        "shared_quantity": "spread_rate",
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "spread",
+        "unit": "m/s"
+      },
+      {
+        "description": "the flame ignites and is sustained",
+        "kind": "binary",
+        "label": "synthetic_demo:ignites",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "ignites",
+        "unit": null
+      },
+      {
+        "description": "end of the flame, seconds since the time origin",
+        "kind": "event",
+        "label": "synthetic_demo:flame_end",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "flame_end",
+        "unit": "s"
+      },
+      {
+        "description": "a single-cause clock (tests: competing risks reduce to one clock)",
+        "kind": "event",
+        "label": "synthetic_demo:burnout",
+        "shared_quantity": null,
+        "slug": "synthetic_demo",
+        "status": "synthetic",
+        "target": "burnout",
+        "unit": "s"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:25e3a63e366d0285dac032612739bfb86e50694c6616b68f1519ef0c74a08777",
+  "lineage": "weight_edit",
+  "lineage_note": "Synthetic example of docs/wsp/research/law_forward.md section 4: an invented law to show the syntax. Not physics, not NASA; never a candidate.",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-15T06:04:09.949283Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "law-synthetic_demo-v1",
+    "spec_hash": "sha256:08e860e1443f24a98a5788e1506b526026054897e0ad75e122571746f062db29",
+    "patch_id": "law-synthetic_demo-v1-example",
+    "patch_hash": "sha256:7db65f22b7e3cdd622d5379d5eac3362d5bb099b0e08a14a12f67a301810885d",
+    "parent_release_id": "sha256:25e3a63e366d0285dac032612739bfb86e50694c6616b68f1519ef0c74a08777",
+    "author": {
+      "provider": "test",
+      "model_id": "synthetic-example"
+    },
+    "exposure": {
+      "sources": [],
+      "datasets": [],
+      "development_feedback": [],
+      "prior_candidates": []
+    },
+    "weights_hash": "sha256:f36d0a0bb09af64fbd75105d730a39eb929aed1fab17a486f4dfc9ae157291ca",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:887c0d0d39538d00b895ccef7fca46e29dcac4439bd37630619137f58ce2a4d5",
+    "code_version": "ignis-wsp@0.1.0+fwd.887c0d0d39538d00",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "377 authored elements (35 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 5 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "synthetic_fixture"
+  }
+}

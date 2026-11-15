@@ -1,0 +1,1001 @@
+{
+  "split": {
+    "id": "sha256:c43bbe3580ffce2a33c400d5aea73b3330cf721133f925c2963579dee6d32001",
+    "cohort_id": "sha256:8ffa1875d0c963fe3b3ce6886ba7197a7b0c8675ffd837bbf5139049c1655797",
+    "group_key": "session",
+    "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+    "seed": 20261107,
+    "run_to_group": {
+      "PSI-69:061F002:2010-06-14": "session:PSI-69:day:2010-06-14",
+      "PSI-69:179F001:2010-03-30": "session:PSI-69:day:2010-03-30",
+      "PSI-69:181F001:2009-11-27": "session:PSI-69:day:2009-11-27",
+      "PSI-69:182F001:2009-11-13": "session:PSI-69:day:2009-11-13",
+      "PSI-69:182F002:2009-11-13": "session:PSI-69:day:2009-11-13",
+      "PSI-69:193R001:2010-03-23": "session:PSI-69:day:2010-03-23",
+      "PSI-69:194F001:2010-01-29": "session:PSI-69:day:2010-01-29",
+      "PSI-69:195F001:2009-11-09": "session:PSI-69:day:2009-11-09",
+      "PSI-69:195F002:2009-11-09": "session:PSI-69:day:2009-11-09",
+      "PSI-69:196F001:2009-08-26": "session:PSI-69:day:2009-08-26",
+      "PSI-69:196F002:2009-10-24": "session:PSI-69:day:2009-10-24",
+      "PSI-69:209F001:2010-01-12": "session:PSI-69:day:2010-01-12",
+      "PSI-69:20CAL13:2009-04-10": "session:PSI-69:day:2009-04-10",
+      "PSI-69:248F001:2009-07-01": "session:PSI-69:day:2009-07-01",
+      "PSI-69:301F001:2010-03-11": "session:PSI-69:day:2010-03-11",
+      "PSI-69:301F002:2010-03-11": "session:PSI-69:day:2010-03-11",
+      "PSI-69:30CAL06:2009-04-10": "session:PSI-69:day:2009-04-10",
+      "PSI-69:C01H101:2010-11-18": "session:PSI-69:day:2010-11-18",
+      "PSI-69:C01H201:2010-11-18": "session:PSI-69:day:2010-11-18",
+      "PSI-69:C01H302:2010-11-18": "session:PSI-69:day:2010-11-18",
+      "PSI-69:C01H501:2011-08-18": "session:PSI-69:day:2011-08-18",
+      "PSI-69:C01H601:2011-08-18": "session:PSI-69:day:2011-08-18",
+      "PSI-69:C01H701:2011-08-18": "session:PSI-69:day:2011-08-18",
+      "PSI-69:C02H101:2011-04-20": "session:PSI-69:day:2011-04-20",
+      "PSI-69:C02H201:2011-04-20": "session:PSI-69:day:2011-04-20",
+      "PSI-69:C02H202:2011-04-20": "session:PSI-69:day:2011-04-20",
+      "PSI-69:C03H101:2010-12-09": "session:PSI-69:day:2010-12-09",
+      "PSI-69:C03H201:2010-12-09": "session:PSI-69:day:2010-12-09",
+      "PSI-69:C03H302:2010-12-09": "session:PSI-69:day:2010-12-09",
+      "PSI-69:C03H401:2010-12-09": "session:PSI-69:day:2010-12-09",
+      "PSI-69:C03H501:2011-02-21": "session:PSI-69:day:2011-02-21",
+      "PSI-69:C03H601:2011-02-21": "session:PSI-69:day:2011-02-21",
+      "PSI-69:C03H701:2011-02-21": "session:PSI-69:day:2011-02-21",
+      "PSI-69:C04H101:2011-08-17": "session:PSI-69:day:2011-08-17",
+      "PSI-69:C04H201:2011-08-17": "session:PSI-69:day:2011-08-17",
+      "PSI-69:C08H101:2010-06-15": "session:PSI-69:day:2010-06-15",
+      "PSI-69:C08H502:2011-02-21": "session:PSI-69:day:2011-02-21",
+      "PSI-69:C08H601:2011-02-21": "session:PSI-69:day:2011-02-21",
+      "PSI-69:C09H101:2010-06-29": "session:PSI-69:day:2010-06-29",
+      "PSI-69:C09H501:2011-04-20": "session:PSI-69:day:2011-04-20",
+      "PSI-69:C09H601:2011-04-20": "session:PSI-69:day:2011-04-20",
+      "PSI-69:C10H101:2010-06-29": "session:PSI-69:day:2010-06-29",
+      "PSI-69:C11H101:2010-09-06": "session:PSI-69:day:2010-09-06",
+      "PSI-69:C13H102:2010-09-17": "session:PSI-69:day:2010-09-17",
+      "PSI-69:C21H101:2010-10-06": "session:PSI-69:day:2010-10-06",
+      "PSI-69:C21H201:2010-10-06": "session:PSI-69:day:2010-10-06",
+      "PSI-69:C21H301:2010-10-06": "session:PSI-69:day:2010-10-06",
+      "PSI-69:C21H303:2010-10-06": "session:PSI-69:day:2010-10-06",
+      "PSI-69:C21H305:2010-10-06": "session:PSI-69:day:2010-10-06",
+      "PSI-69:C21H401:2010-10-06": "session:PSI-69:day:2010-10-06",
+      "PSI-69:H01H102:2011-09-13": "session:PSI-69:day:2011-09-13",
+      "PSI-69:H02H101:2011-09-24": "session:PSI-69:day:2011-09-24",
+      "PSI-69:H03H101:2011-09-27": "session:PSI-69:day:2011-09-27",
+      "PSI-69:H03H201:2011-09-27": "session:PSI-69:day:2011-09-27",
+      "PSI-69:H03H202:2011-09-27": "session:PSI-69:day:2011-09-27",
+      "PSI-69:H04H101:2011-09-27": "session:PSI-69:day:2011-09-27",
+      "PSI-69:H04H201:2011-09-27": "session:PSI-69:day:2011-09-27",
+      "PSI-69:H05H103:2011-10-05": "session:PSI-69:day:2011-10-05",
+      "PSI-69:H10H101:2011-10-12": "session:PSI-69:day:2011-10-12",
+      "PSI-69:H11H101:2011-10-12": "session:PSI-69:day:2011-10-12",
+      "PSI-69:H12H101:2011-11-22": "session:PSI-69:day:2011-11-22",
+      "PSI-69:H12H201:2011-11-22": "session:PSI-69:day:2011-11-22",
+      "PSI-69:H13H101:2011-11-22": "session:PSI-69:day:2011-11-22",
+      "PSI-69:H13H201:2011-11-22": "session:PSI-69:day:2011-11-22",
+      "PSI-69:H14H101:2011-11-30": "session:PSI-69:day:2011-11-30",
+      "PSI-69:H14H201:2011-11-30": "session:PSI-69:day:2011-11-30",
+      "PSI-69:H15H101:2011-11-30": "session:PSI-69:day:2011-11-30",
+      "PSI-69:H19H101:2011-12-08": "session:PSI-69:day:2011-12-08",
+      "PSI-69:H19H201:2011-12-08": "session:PSI-69:day:2011-12-08",
+      "PSI-69:N01H101:2011-08-29": "session:PSI-69:day:2011-08-29",
+      "PSI-69:N01H102:2011-08-29": "session:PSI-69:day:2011-08-29",
+      "PSI-69:N01H201:2011-08-29": "session:PSI-69:day:2011-08-29",
+      "PSI-69:N01H202:2011-08-29": "session:PSI-69:day:2011-08-29",
+      "PSI-69:N01H401:2011-09-23": "session:PSI-69:day:2011-09-23",
+      "PSI-69:N01H502:2011-09-24": "session:PSI-69:day:2011-09-24",
+      "PSI-69:N02H101:2011-08-29": "session:PSI-69:day:2011-08-29",
+      "PSI-69:N02H203:2011-08-30": "session:PSI-69:day:2011-08-30",
+      "PSI-69:N03H101:2011-09-01": "session:PSI-69:day:2011-09-01",
+      "PSI-69:N04H101:2011-09-01": "session:PSI-69:day:2011-09-01",
+      "PSI-69:N04H201:2011-09-01": "session:PSI-69:day:2011-09-01"
+    },
+    "train": [
+      "session:PSI-69:day:2009-04-10",
+      "session:PSI-69:day:2009-07-01",
+      "session:PSI-69:day:2009-08-26",
+      "session:PSI-69:day:2009-11-09",
+      "session:PSI-69:day:2009-11-13",
+      "session:PSI-69:day:2010-01-12",
+      "session:PSI-69:day:2010-01-29",
+      "session:PSI-69:day:2010-03-11",
+      "session:PSI-69:day:2010-06-14",
+      "session:PSI-69:day:2010-06-15",
+      "session:PSI-69:day:2010-06-29",
+      "session:PSI-69:day:2010-11-18",
+      "session:PSI-69:day:2011-02-21",
+      "session:PSI-69:day:2011-04-20",
+      "session:PSI-69:day:2011-08-17",
+      "session:PSI-69:day:2011-08-29",
+      "session:PSI-69:day:2011-08-30",
+      "session:PSI-69:day:2011-09-01",
+      "session:PSI-69:day:2011-09-13",
+      "session:PSI-69:day:2011-09-24",
+      "session:PSI-69:day:2011-11-22",
+      "session:PSI-69:day:2011-12-08"
+    ],
+    "validation": [
+      "session:PSI-69:day:2009-10-24",
+      "session:PSI-69:day:2009-11-27",
+      "session:PSI-69:day:2010-03-23",
+      "session:PSI-69:day:2010-09-17",
+      "session:PSI-69:day:2011-08-18",
+      "session:PSI-69:day:2011-09-27",
+      "session:PSI-69:day:2011-11-30"
+    ],
+    "test": [
+      "session:PSI-69:day:2010-03-30",
+      "session:PSI-69:day:2010-09-06",
+      "session:PSI-69:day:2010-10-06",
+      "session:PSI-69:day:2010-12-09",
+      "session:PSI-69:day:2011-09-23",
+      "session:PSI-69:day:2011-10-05",
+      "session:PSI-69:day:2011-10-12"
+    ],
+    "frozen_at": "2026-11-13T20:28:52.548636Z"
+  },
+  "cohort": {
+    "id": "sha256:8ffa1875d0c963fe3b3ce6886ba7197a7b0c8675ffd837bbf5139049c1655797",
+    "family": "flex",
+    "version": "1",
+    "criteria": {
+      "configuration": "single free-floating droplet: structured Fiber=No, MDCA fiber usage not contradicting, narrative screen not contradicting (else unresolved -> excluded pending review)",
+      "fuel": "n-heptane (summary and test sheet agree)",
+      "identity": "CIR + date (+GMT) bound to exactly one summary row",
+      "phase": "observed after igniter retraction; hot-flame, cool-flame and evaporation phases are not adjudicated; models must apply their own entry rule",
+      "provenance": "built by `wsp-dev heptane-cohort` (WSP lane) from the methanol cohort's non-endpoint criteria with the fuel swapped; no endpoint criterion; frozen before any heptane outcome was read",
+      "series": "DropletData present with >= 10 valid liquid-diameter points"
+    },
+    "run_ids": [
+      "PSI-69:061F002:2010-06-14",
+      "PSI-69:179F001:2010-03-30",
+      "PSI-69:181F001:2009-11-27",
+      "PSI-69:182F001:2009-11-13",
+      "PSI-69:182F002:2009-11-13",
+      "PSI-69:193R001:2010-03-23",
+      "PSI-69:194F001:2010-01-29",
+      "PSI-69:195F001:2009-11-09",
+      "PSI-69:195F002:2009-11-09",
+      "PSI-69:196F001:2009-08-26",
+      "PSI-69:196F002:2009-10-24",
+      "PSI-69:209F001:2010-01-12",
+      "PSI-69:20CAL13:2009-04-10",
+      "PSI-69:248F001:2009-07-01",
+      "PSI-69:301F001:2010-03-11",
+      "PSI-69:301F002:2010-03-11",
+      "PSI-69:30CAL06:2009-04-10",
+      "PSI-69:C01H101:2010-11-18",
+      "PSI-69:C01H201:2010-11-18",
+      "PSI-69:C01H302:2010-11-18",
+      "PSI-69:C01H501:2011-08-18",
+      "PSI-69:C01H601:2011-08-18",
+      "PSI-69:C01H701:2011-08-18",
+      "PSI-69:C02H101:2011-04-20",
+      "PSI-69:C02H201:2011-04-20",
+      "PSI-69:C02H202:2011-04-20",
+      "PSI-69:C03H101:2010-12-09",
+      "PSI-69:C03H201:2010-12-09",
+      "PSI-69:C03H302:2010-12-09",
+      "PSI-69:C03H401:2010-12-09",
+      "PSI-69:C03H501:2011-02-21",
+      "PSI-69:C03H601:2011-02-21",
+      "PSI-69:C03H701:2011-02-21",
+      "PSI-69:C04H101:2011-08-17",
+      "PSI-69:C04H201:2011-08-17",
+      "PSI-69:C08H101:2010-06-15",
+      "PSI-69:C08H502:2011-02-21",
+      "PSI-69:C08H601:2011-02-21",
+      "PSI-69:C09H101:2010-06-29",
+      "PSI-69:C09H501:2011-04-20",
+      "PSI-69:C09H601:2011-04-20",
+      "PSI-69:C10H101:2010-06-29",
+      "PSI-69:C11H101:2010-09-06",
+      "PSI-69:C13H102:2010-09-17",
+      "PSI-69:C21H101:2010-10-06",
+      "PSI-69:C21H201:2010-10-06",
+      "PSI-69:C21H301:2010-10-06",
+      "PSI-69:C21H303:2010-10-06",
+      "PSI-69:C21H305:2010-10-06",
+      "PSI-69:C21H401:2010-10-06",
+      "PSI-69:H01H102:2011-09-13",
+      "PSI-69:H02H101:2011-09-24",
+      "PSI-69:H03H101:2011-09-27",
+      "PSI-69:H03H201:2011-09-27",
+      "PSI-69:H03H202:2011-09-27",
+      "PSI-69:H04H101:2011-09-27",
+      "PSI-69:H04H201:2011-09-27",
+      "PSI-69:H05H103:2011-10-05",
+      "PSI-69:H10H101:2011-10-12",
+      "PSI-69:H11H101:2011-10-12",
+      "PSI-69:H12H101:2011-11-22",
+      "PSI-69:H12H201:2011-11-22",
+      "PSI-69:H13H101:2011-11-22",
+      "PSI-69:H13H201:2011-11-22",
+      "PSI-69:H14H101:2011-11-30",
+      "PSI-69:H14H201:2011-11-30",
+      "PSI-69:H15H101:2011-11-30",
+      "PSI-69:H19H101:2011-12-08",
+      "PSI-69:H19H201:2011-12-08",
+      "PSI-69:N01H101:2011-08-29",
+      "PSI-69:N01H102:2011-08-29",
+      "PSI-69:N01H201:2011-08-29",
+      "PSI-69:N01H202:2011-08-29",
+      "PSI-69:N01H401:2011-09-23",
+      "PSI-69:N01H502:2011-09-24",
+      "PSI-69:N02H101:2011-08-29",
+      "PSI-69:N02H203:2011-08-30",
+      "PSI-69:N03H101:2011-09-01",
+      "PSI-69:N04H101:2011-09-01",
+      "PSI-69:N04H201:2011-09-01"
+    ],
+    "excluded": [
+      {
+        "run_id": "PSI-69:053F001:2010-05-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:053R001:2010-05-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:141F001:2010-05-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:141R001:2010-05-06",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:149F001:2010-06-15",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:175F001:2010-03-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:175R001:2010-03-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:176F001:2010-02-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:176R001:2010-02-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:177F001:2009-11-27",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:177R002:2009-11-27",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:178F001:2009-11-13",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:178R001:2009-11-13",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:189F001:2010-03-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:189F002:2010-03-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:189R001:2010-03-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:189R002:2010-03-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:189R003:2010-03-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:190F003:2010-01-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:190R002:2009-12-15",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:191F001:2009-11-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:191R001:2009-11-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:192F001:2009-10-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:192F002:2009-10-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:192F003:2009-10-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:193F001:2010-03-23",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:193F001:2010-03-23#FLEX-073",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:193R002:2010-03-23",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:196F003:2009-10-24",
+        "reason": "no DropletData sample fetched or < 10 valid points"
+      },
+      {
+        "run_id": "PSI-69:203F001:2010-03-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:203R002:2010-03-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:204F001:2010-02-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:204R001:2010-02-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:205F001:2010-01-12",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:205R001:2010-01-12",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:206F001:2010-01-11",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:206R001:2010-01-11",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:207F001:2010-03-30",
+        "reason": "free-floating status unresolved (review item pending)"
+      },
+      {
+        "run_id": "PSI-69:207F002:2010-03-30",
+        "reason": "free-floating status unresolved (review item pending)"
+      },
+      {
+        "run_id": "PSI-69:209F002:2010-01-12",
+        "reason": "free-floating status unresolved (review item pending)"
+      },
+      {
+        "run_id": "PSI-69:209F003:2010-01-19",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:209F004:2010-01-19",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:209F005:2010-01-19",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:20CAL08:2009-03-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:20CAL10:2009-03-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:20CAL12:2009-03-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:210F002:2010-01-11",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:218F001:2010-01-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:219F001:2010-01-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:219R001:2010-01-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:220R001:2010-01-07",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:220R002:2010-01-07",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:221F001:2010-03-23",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:223F001:2010-01-08",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:223F002:2010-01-08",
+        "reason": "free-floating status unresolved (review item pending)"
+      },
+      {
+        "run_id": "PSI-69:224F001:2010-01-07",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:240R003:2009-07-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:256F002:2009-05-22",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:256F007:2009-06-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:256F008:2009-06-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:256F009:2009-06-29",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:256R001:2009-05-22",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:256R002:2009-06-25",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:302F001:2010-03-11",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:303F001:2010-01-29",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:304F001:2010-04-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:304F002:2010-04-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:304R001:2010-04-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:304R002:2010-04-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:305F002:2010-04-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:305F003:2010-04-19",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:30CAL02:2009-03-31",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:30CAL03:2009-03-31",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:40CAL01:2009-03-31",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C01M101:2010-11-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C01M201:2010-11-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C01M301:2010-11-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C01M501:2011-08-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C01M602:2011-08-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C01M603:2011-08-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C02M101:2011-08-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C02M201:2011-08-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C03M101:2010-12-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C03M201:2010-12-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C03M301:2010-12-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C03M501:2011-08-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C03M601:2011-08-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C03M701:2011-08-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C04M101:2011-08-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C04M201:2011-08-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C05M101:2010-12-14",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C05M201:2010-12-14",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C05M301:2010-12-14",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C05M401:2010-12-14",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C06M101:2010-12-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C06M201:2010-12-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C06M301:2010-12-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C06M401:2010-12-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C07M101:2011-01-12",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C07M201:2011-01-12",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C08H201:2010-06-15",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:C08H301:2010-06-15",
+        "reason": "free-floating status unresolved (review item pending)"
+      },
+      {
+        "run_id": "PSI-69:C08M101:2010-06-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C08M201:2010-06-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C08M301:2010-06-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C08M401:2010-06-16",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C08M501:2011-04-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C08M601:2011-04-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09H201:2010-06-29",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:C09M101:2010-06-21",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M201:2010-06-21",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M301:2010-06-21",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M401:2010-06-21",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M501:2011-08-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M502:2011-08-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M601:2011-08-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C09M701:2011-08-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C10H201:2010-06-29",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:C10M102:2010-08-31",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C10M201:2010-08-31",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C10M303:2010-08-31",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C10M401:2010-09-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C11H201:2010-09-06",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:C11M101:2010-09-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C11M201:2010-09-06",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C11M301:2010-09-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C11M401:2010-09-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C12H103:2010-09-07",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:C12H201:2010-09-07",
+        "reason": "fuel conflict between summary and test sheet"
+      },
+      {
+        "run_id": "PSI-69:C12M101:2010-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C12M201:2010-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C12M301:2010-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C12M401:2010-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C13H201:2010-09-17",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:C13M102:2010-09-13",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C13M103:2010-09-13",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C13M201:2010-09-13",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C13M301:2010-09-13",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C13M301:2010-09-13#FLEX-128",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C14M101:2010-11-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C14M201:2010-11-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C14M301:2010-11-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C14M302:2010-11-04",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C15M101:2011-01-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C15M201:2011-01-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C15M301:2011-01-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:C21H302:2010-10-06",
+        "reason": "fuel conflict between summary and test sheet"
+      },
+      {
+        "run_id": "PSI-69:C21H304:2010-10-06",
+        "reason": "no DropletData sample fetched or < 10 valid points"
+      },
+      {
+        "run_id": "PSI-69:C21H501:2010-10-06",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:H01M102:2011-09-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H01M104:2011-09-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H02M101:2011-09-21",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H03M101:2011-09-22",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H03M201:2011-09-22",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H04H302:2011-09-27",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:H04H303:2011-09-27",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:H04M101:2011-10-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H04M202:2011-10-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H05M102:2011-10-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H05M202:2011-10-01",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H06M102:2011-10-07",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H06M201:2011-10-07",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H07M101:2011-10-07",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H07M202:2011-10-07",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H08M101:2011-10-11",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H10M101:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H10M102:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H11M101:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H11M102:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H12M101:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H12M102:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H12M201:2011-11-18",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H13M102:2011-11-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H13M201:2011-11-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H14M101:2011-11-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H14M201:2011-11-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H14M202:2011-11-28",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H15H201:2011-11-30",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:H15M102:2011-12-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:H15M201:2011-12-05",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N01H301:2011-08-29",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:N01H601:2011-09-24",
+        "reason": "fiber supported"
+      },
+      {
+        "run_id": "PSI-69:N01M101:2011-08-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N01M201:2011-08-24",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N02H201:2011-08-29",
+        "reason": "no DropletData sample fetched or < 10 valid points"
+      },
+      {
+        "run_id": "PSI-69:N04M101:2011-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N04M201:2011-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N05M101:2011-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N05M201:2011-09-08",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N06M101:2011-09-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N06M201:2011-09-09",
+        "reason": "fuel is not n-heptane"
+      },
+      {
+        "run_id": "PSI-69:N06M202:2011-09-09",
+        "reason": "fuel is not n-heptane"
+      }
+    ],
+    "source_manifest_hash": "sha256:74dedf7ea617ed6da1c5555822137b8433cfbf59cf293ab9989fd5d3c31a6382"
+  },
+  "content_hash": "sha256:890c6a69e4f9e9fe2369788ca9abab31786efda21eecbcf3bb4cb95294a39f41"
+}

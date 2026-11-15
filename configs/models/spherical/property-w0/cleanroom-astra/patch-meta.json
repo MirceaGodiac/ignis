@@ -1,0 +1,10 @@
+{
+  "patch_id": "astra-spherical-property-w0-cleanroom-20261114",
+  "author": {"provider":"openai","model_id":"gpt-6-astra"},
+  "exposure": {
+    "sources": ["matalon-cefrc2013-lecture10-theory", "cantera31-species-thermo-theory", "cantera31-onedim-equations-theory", "nist-codata2022-stefan-boltzmann"],
+    "datasets": [], "development_feedback": [], "prior_candidates": []
+  },
+  "rationale": "Independent literal W0 physical reference. Solid angle is 4*pi, Lewis number one is an explicit closure restriction, and sigma is manually transcribed from NIST CODATA 2022 at the printed decimal precision. No empirical coefficient, fitting, candidate feedback or NASA outcome exposure. Material/apparatus properties are separately sourced inputs. Normal and inverse variants share these literals; the coordinator binds this envelope to each actual ModelSpec hash. Numerical authorship is outcome-blind; structural selection by the coordinator may be data-informed. Not a qualified NASA forecast; see docs/wsp/research/astra_spherical_w0.md.",
+  "origin": "system"
+}

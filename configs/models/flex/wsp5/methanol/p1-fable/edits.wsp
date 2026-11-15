@@ -1,0 +1,18 @@
+# flex_methanol.wsp5 — P1 literal revision of P0 sha256:2e4c55f4…9397, spec flex_methanol-wsp-v6
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. P0 plus the two entries of the
+# fifth droplet forward that read the flame cameras, with the values of the candidate F1 of
+# flex_methanol.wsp4 (see that file for the reason of each). Every number typed by the author. No
+# validation outcome was read.
+#
+# The cameras observe the state the model otherwise infers from the diameter: a flame frame in the
+# last quarter second of the prefix says the hot flame is there; none, after at least five frames,
+# says it is not. The numbers are instrument facts (frame rates of 15 and 30 per second), not train
+# statistics. On the shared records, which carry no camera series, this candidate answers as P0 with
+# the heavy-tailed clock: one droplet in ten is allowed to outlive the radiative clock by a wide
+# margin.
+rob.eps_r = 0.1
+fl.trust = 0.95
+fl.t_min_s = 0.3
+fl.gap_s = 0.25
+fl.min_points = 5.0
+fl.evap_mix = 0.5

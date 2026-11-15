@@ -1,0 +1,43 @@
+# acme_normal.wsp — W0 literal weights, spec acme_normal-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). One shot: written from the frozen spec and flame theory,
+# before this model was run on anything and before any ACME endpoint was looked at.
+#
+# Normal configuration: FUEL (ethane, propane or butane, diluted) issues from the porous burner into
+# an O2/N2 chamber. Network input x, columns 0..8:
+#   c_logp = ln(p / 101325 Pa)        c_logm = ln(fuel mass flow / 1 mg/s)
+#   c_o2 = (ambient x_O2 - 0.30)/0.10 c_xf = ln(injected fuel fraction / 0.30)
+#   c_tad = (T_ad - 2200 K)/300 K     c_zst = (Z_st - 0.25)/0.20
+#   f_ethane, f_butane (propane = 0)  x_t = ln(1 + t / 10 s)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x) = ln(hazard * 1 s)
+
+# -----------------------------------------------------------------------------------------------------
+# Spontaneous (radiative) extinction
+# -----------------------------------------------------------------------------------------------------
+# A burner flame grows towards the radius r_f ~ mdot / (4 pi rho D ln(1 + phi)). Its radiating volume
+# grows as r_f^3 while its heat release grows as mdot, so the radiative fraction scales like
+# p * mdot^2: a small flame is stable, a large one cools below about 1150 K and goes out while it is
+# still growing. At 1 mg/s of propane (30 % in N2) into 30 % O2 the estimate is r_f = 16 mm and a
+# radiative fraction near 0.4, i.e. marginal: median extinction taken at 20 s.
+# Hazard rises as (1 + t/10 s)^2 while the flame grows (first 20 s), then stays flat.
+ext.b0 = -4.83
+#            c_logp c_logm c_o2 c_xf c_tad  c_zst eth  but  x_t
+ext.skip[0:9] = [0.5, 1.6, 0.0, 0.0, -0.8, 0.0, 0.0, 0.0, 2.0]
+# unit 0: relu(x_t - 1.1) cancels the growth of the hazard after t = 20 s
+ext.W1[0, 8] = 1.0
+ext.b1[0] = -1.1
+ext.w2[0] = -2.0
+# Flow: +1.6 per e-fold (between linear and the mdot^2 of the radiative fraction).
+# Pressure: +0.5 per e-fold (emission scales with pressure).
+# Adiabatic flame temperature: -0.8 per 300 K (a hotter flame tolerates more loss). Oxygen, dilution
+# and fuel type enter only through T_ad here: nothing known a priori separates them further.
+
+# -----------------------------------------------------------------------------------------------------
+# Operator termination
+# -----------------------------------------------------------------------------------------------------
+# A protocol decision, not physics: negligible in the first 20 s, median taken at 45 s, steep
+# ((1 + t/10 s)^5), levelling off after 70 s. No dependence on conditions is assumed.
+op.b0 = -11.1
+op.skip[0:9] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0]
+op.W1[0, 8] = 1.0
+op.b1[0] = -2.08
+op.w2[0] = -5.0

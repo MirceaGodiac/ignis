@@ -1,0 +1,11 @@
+{
+  "patch_id": "law-synthetic_demo-v1-example",
+  "parent_release_id": "sha256:25e3a63e366d0285dac032612739bfb86e50694c6616b68f1519ef0c74a08777",
+  "author": {
+    "provider": "test",
+    "model_id": "synthetic-example"
+  },
+  "exposure": {},
+  "rationale": "Synthetic example of docs/wsp/research/law_forward.md section 4: an invented law to show the syntax. Not physics, not NASA; never a candidate.",
+  "origin": "synthetic_fixture"
+}

@@ -1,0 +1,23 @@
+{
+  "patch_id": "droplet-property-cleanroom-astra-w0-v1",
+  "author": {
+    "provider": "openai",
+    "model_id": "gpt-6-astra"
+  },
+  "exposure": {
+    "sources": [
+      "author-packet:matalon-cefrc2013-lecture12",
+      "author-packet:cantera31-species-thermo",
+      "author-packet:cantera31-phase-thermo",
+      "author-packet:cantera31-governing-equations",
+      "author-packet:idaes28-activity-equilibrium",
+      "author-packet:nist2022-wall-chart",
+      "author-packet:nist-constants-table"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Independent clean-room literal W0. All nine scalar assignments handwritten by Astra without parameter estimation, search, generated numeric values, prior candidates or dataset outcomes. Generic primary theory and physical constants are recorded separately in the research source inventory, not silently assigned dataset identities. Synthetic invariant fixtures are software checks, not outcome feedback. Every dimensional material/condition value is a provenance-bearing supplied input. Unsupported activity, kinetics, optical emission and convective corrections are explicit. Numerical controls chosen once before checks.",
+  "origin": "system"
+}

@@ -1,0 +1,10 @@
+# acme_normal.wsp3 — D3-LATE-NOSTOPS: D3-LATE with its guessed stops switched off
+# Literal revision of D3-LATE sha256:02cad964…e531, spec acme_normal-wsp-v3.
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like its parent; no other number is changed.
+#
+# For use as a committee slot when the prefix carries the script's planned stop: the committee then
+# hands this member the stop as a known control, and the campaign's stop times that the parent guesses
+# (61.5, 98, 126.5, 275.5 s) must not act as well. The background of unexplained stops is lowered to
+# one in 8000 flame-seconds, as in D2-NOSTOPS.
+ft.atom_logit[0:8] = [-40.0, -40.0, -40.0, -40.0, -40.0, -40.0, -40.0, -40.0]
+ft.log_base = -9.0

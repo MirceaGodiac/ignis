@@ -1,0 +1,41 @@
+{
+  "verification_kind": "synthetic_only",
+  "verified_at_utc": "2026-11-14T17:25:58Z",
+  "compiler": "rustc 1.94.1 (e408947bf 2026-03-25)",
+  "commands": [
+    {
+      "command": "rustc --edition 2021 --test crates/ignis-wsp/src/property_droplet_w0.rs -o configs/models/properties/droplet-w0-astra/synthetic-tests.exe",
+      "exit_code": 0,
+      "result": "standalone test binary compiled"
+    },
+    {
+      "command": "& .\\configs\\models\\properties\\droplet-w0-astra\\synthetic-tests.exe --nocapture",
+      "exit_code": 0,
+      "result": "10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out"
+    },
+    {
+      "command": "rustfmt --edition 2021 --check crates/ignis-wsp/src/property_droplet_w0.rs",
+      "exit_code": 0,
+      "result": "format check passed"
+    },
+    {
+      "command": "PowerShell ConvertFrom-Json on spec.json, literal-ops.json and author-envelope.json",
+      "exit_code": 0,
+      "result": "all three parsed; no claim of shared-contract schema validation"
+    }
+  ],
+  "prior_synthetic_attempt": {
+    "result": "9 passed, 1 fixture rejected at boiling boundary",
+    "correction": "only the sensible-enthalpy test fixture ambient pressure was raised from 10 Pa to 100 Pa within its declared domain",
+    "scientific_kernel_or_literal_changed_due_to_failure": false
+  },
+  "not_run": [
+    "workspace cargo check or cargo test",
+    "contract assembler / ModelSpec typed validation",
+    "release construction or registration",
+    "compatibility adapter verification",
+    "experimental, TRAIN, validation, holdout or test scoring"
+  ],
+  "qualification": "experimental, unqualified; synthetic checks do not qualify a model",
+  "numerical_author_status": "zero-shot W0, no experimental feedback or prior candidates exposed"
+}

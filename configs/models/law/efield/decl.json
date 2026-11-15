@@ -1,0 +1,11 @@
+{
+  "slug": "efield",
+  "status": "placeholder",
+  "family": "other",
+  "investigation": "registered before the restatement of its law",
+  "description": "Placeholder: no feature and one dimensionless target. Replace this file with the declaration of the restated law (status declared) before writing any edits; no release of a placeholder can be assembled.",
+  "features": [],
+  "targets": [
+    {"name": "outcome", "kind": "positive", "unit": "1", "description": "placeholder target"}
+  ]
+}

@@ -1,0 +1,127 @@
+# flex_methanol.wsp — D1 literal weights, spec flex_methanol-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: written after reading the methanol TRAIN runs of
+# PSI-69 (NASA test sheets with the science team's burning rate and extinction diameter, the raw
+# droplet series, the narratives) and the published FLEX literature. Not zero-shot. Every number was
+# typed by the author from tables of train measurements; none was produced by a fit or a search.
+#
+# Inputs (columns):
+#   rate net   x = (c_o2, c_co2, c_he, c_logp, c_logd0, w, s)            0..6
+#   crit net   x = (c_o2, c_co2, c_he, c_logp)                           0..3
+#   law nets   x = (c_o2, c_co2, c_he, c_logp, c_logd0, x_exc)           0..5
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20   c_logp = ln(p / 1e5 Pa)
+#   c_logd0 = ln(D0 / 2 mm)     w = 1 - D^2/D0^2     s = t * (1e-6 m2/s) / D0^2
+#   x_exc = ln(D0 / D_crit)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Hot flame: ln(K_h / 1e-6 m2/s) = N_rate(x)
+# =====================================================================================================
+# Train plateau rates (windowed finite differences of D^2, 2-8 s): air, D0 <= 2.8 mm: 0.54-0.56 mm2/s.
+# The reference is the start of the burn (w = 0) after heat-up; the plateau sits at w = 0.2.
+rate.b0 = -0.53
+
+# O2: +0.14 per 5 % above air (0.30 O2: 0.69). CO2 barely changes the rate at equal O2 (-0.04 per
+# 20 %); helium raises it by 0.18 per 20 % through the gas conductivity, linearly up to 45 % He.
+# Pressure: 0.7 atm runs are 3-4 % slower than 1 atm ones. Water uptake: the rate falls by about
+# 17 % between a fifth and seven tenths of the burn (-0.35 per unit progress).
+rate.skip[0:7] = [0.14, -0.04, 0.18, 0.10, 0.0, -0.35, 0.0]
+
+# Units 0-1: oxygen below air. The rate drops steeply to 18 % O2 (0.44 mm2/s), then flattens
+# (0.41 at 15 %, 0.37 at 12-14 %).
+rate.W1[0, 0] = -1.0
+rate.b1[0] = 0.0
+rate.w2[0] = -0.19
+rate.W1[1, 0] = -1.0
+rate.b1[1] = -0.6
+rate.w2[1] = 0.21
+
+# Unit 2: droplets above 2.7 mm burn slower (3.9 mm in air: 0.47), and the loss relaxes as the
+# droplet shrinks. u = c_logd0 - 0.65 w approximates ln(current D / 2 mm).
+rate.W1[2, 4] = 1.0
+rate.W1[2, 5] = -0.65
+rate.b1[2] = -0.3
+rate.w2[2] = -0.5
+
+# Unit 3: heat-up, relu(1 - s/0.18). The rate starts at exp(-0.6) = 55 % and reaches its plateau at
+# 0.18 of the diffusion clock: 1.2 s for 2.6 mm, 2.7 s for 3.9 mm, as the train series show.
+rate.W1[3, 6] = -5.56
+rate.b1[3] = 1.0
+rate.w2[3] = -0.6
+
+# =====================================================================================================
+# 2. Critical diameter of radiative extinction: ln(D_crit / 2 mm) = N_crit(x)
+# =====================================================================================================
+# Train runs at 1 atm in N2 bracket it: 12 % O2 between 1.9 and 2.6 mm, 14 % between 2.7 and 3.3 mm,
+# 15 % between 3.4 and 4.0 mm; nothing up to 3.9 mm extinguishes radiatively at 18 % and above.
+# +0.75 per 5 % O2 gives 2.35, 3.2 and 3.7 mm there and 9 mm in air.
+crit.b0 = 1.51
+# CO2 and helium both lower it (-0.16 and -0.18 per 20 %); the 0.7 atm runs sit lower than the
+# 1 atm ones (+0.7 per e-fold of pressure).
+crit.skip[0:4] = [0.75, -0.16, -0.18, 0.7]
+# All eight train droplets within 5 % below to 10 % above D_crit extinguished radiatively, those 10 %
+# and 19 % below it did not: the class is even at 7 % below D_crit and sharp.
+class.kappa = 14.0
+class.bias = 1.0
+
+# =====================================================================================================
+# 3. Diffusive branch: logit(w_D)
+# =====================================================================================================
+# The extinction diameters NASA lists for the train runs that burned to diffusive extinction give
+# De/D0 of 0.36-0.57 with no trend in D0 (water uptake scales with the droplet): w_D = 0.79, the same
+# within scatter for N2, CO2 and helium atmospheres between 15 % and 25 % O2.
+diff.b0 = 1.35
+# Slightly later extinction with more oxygen and at 0.7 atm.
+diff.skip[0:6] = [0.12, 0.0, 0.0, -0.6, 0.0, 0.0]
+# Unit 0: above 26 % O2 the droplet burns further (De/D0 0.27 at 34 % O2, 0.7 atm).
+diff.W1[0, 0] = 1.0
+diff.b1[0] = -1.0
+diff.w2[0] = 0.5
+# Unit 1: within 25 % of the critical diameter the flame goes out earlier (De/D0 0.55-0.62).
+diff.W1[1, 5] = 1.0
+diff.b1[1] = 0.3
+diff.w2[1] = -2.0
+diff.sharp = 14.0
+
+# =====================================================================================================
+# 4. Radiative branch: ln(s_R)
+# =====================================================================================================
+# Train runs just above D_crit lose the flame at 0.6-1.3 of a clock unit (median 0.9): 14 s for
+# 4 mm, 7.5 s for 2.6 mm.
+rad.b0 = -0.105
+rad.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: 15-40 % above D_crit: 0.56-0.83.
+rad.W1[0, 5] = 1.0
+rad.b1[0] = 0.0
+rad.w2[0] = -1.2
+# Unit 1: more than 55 % above D_crit the flame never establishes (outside the flammability
+# boundary): the droplet stops shrinking within a second.
+rad.W1[1, 5] = 1.0
+rad.b1[1] = -0.45
+rad.w2[1] = -11.0
+rad.sharp = 4.0
+
+# =====================================================================================================
+# 5. Droplet without a flame
+# =====================================================================================================
+# Train series after extinction: 0.06-0.08 mm2/s right after, 0.03 after 10 s and 0.02 after 20 s for
+# 3 mm droplets; 0.005-0.01 mm2/s for 1 mm droplets.
+post.k_inf = 1.5e-8
+post.k_hot = 6.0e-8
+post.tau0_s = 4.5
+post.size_exp = 0.72
+
+# =====================================================================================================
+# 6. Prefix encoder, state filter, spread
+# =====================================================================================================
+enc.gain_w[0:3] = [2.0, 0.5, 2.0]
+enc.gain_b = -1.5
+enc.mix[0:2] = [0.85, 0.15]
+enc.e_clip[0:2] = [0.6, 0.8]
+filt.sd_evap = 0.15
+filt.l_floor = 0.03
+# Plateau rates of the train runs scatter by 10-15 % around the law above.
+unc.s_pop = 0.14
+unc.s_floor = 0.05
+unc.sigma_d = 1.5e-5
+unc.sigma_frame = 6.0e-6
+haz.log_disruption = -4.83

@@ -1,0 +1,30 @@
+{
+  "patch_id": "flex_heptane-wsp-v1-w0-fable",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature:NASA/TP-2015-216046,Dietrich-2014,Nayagam-2013/2015,Farouk-Dryer-abstracts;aggregate-statistics-of-the-report's-summary-table-over-all-tests)",
+      "repo:crates/ignis-wsp/src/droplet.rs(forward-and-spec)",
+      "repo:data/work/records/flex/experiments.jsonl(heptane:conditions,session,free-floating-status-only)",
+      "nasa:PSI-69-test-sheets-and-DropletData-of-the-methanol-train-partition(model-structure-only:two-extinction-branches,heat-up-clock,post-extinction-evaporation-form)",
+      "author:pretraining-knowledge(unverifiable;may-include-published-FLEX-heptane-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;input-metadata-only:conditions,session)",
+        "partitions": ["train", "validation"]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": ["train"]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0 for n-heptane, one shot, literature-informed. No heptane outcome of PSI-69 was opened before this file was written: the heptane cohort and its session-grouped split were frozen from metadata first (commit c65b639). A droplet is in a hot flame, a cool flame or no flame. Hot-flame rate: hinge network on the published medians by oxygen, diluent and size. Droplets above a critical diameter (2.8 mm in air, rising steeply with oxygen) lose the hot flame to radiation after about half a diffusion-clock unit and then, with a probability that falls with helium and with oxygen below air, burn in a cool flame at about 0.85 of the hot rate down to an extinction diameter that follows [O2]^-3/4 and falls with pressure. Smaller droplets burn to a small size. Every number is a hypothesis written before the model was run on heptane; see edits.wsp.",
+  "origin": "system"
+}

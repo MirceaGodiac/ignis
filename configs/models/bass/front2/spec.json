@@ -1,0 +1,786 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "bass_front-wsp-v2",
+  "family": "bass",
+  "model_name": "bass_front.wsp2",
+  "target": {
+    "quantity": "front_position",
+    "unit": "m",
+    "description": "Position of the downstream tip of the visible flame along a thin fuel strip in concurrent flow, measured from the upstream (igniter) end of the sample, after the cutoff and conditional on the flow history up to each forecast time; with the probability that the flame has been quenched and that its tip has reached the end of the sample. The model works in sample widths; metres follow from the sample width of the prefix.",
+    "excludes": [
+      "the flow history: the operator's steps are an input, known up to each forecast time",
+      "opposed-flow spread, thick fuels, materials other than the cotton-fibreglass fabric",
+      "a metric position without a sample width in metres from the data lane",
+      "temperature, heat flux, species or soot inferred from image intensity",
+      "a calibrated posterior: the spread is assumed"
+    ]
+  },
+  "features": [
+    {
+      "name": "u",
+      "unit": "1",
+      "source": "control:flow_velocity",
+      "transform": "U / norm.u_ref_cm_s - 1, U in cm/s, not below norm.u_min_cm_s @1"
+    },
+    {
+      "name": "c_o2",
+      "unit": "1",
+      "source": "condition:x_o2",
+      "transform": "(x - norm.o2_ref) / norm.o2_scale @1"
+    },
+    {
+      "name": "c_w",
+      "unit": "1",
+      "source": "condition:width",
+      "transform": "ln(W / W_ref) @1"
+    },
+    {
+      "name": "tip",
+      "unit": "sample width",
+      "source": "observation:front_position/tip@prefix",
+      "transform": "position / W; stills after the igniter is off and at or before the cutoff @1"
+    },
+    {
+      "name": "base",
+      "unit": "sample width",
+      "source": "observation:front_position/base@prefix",
+      "transform": "position / W; the same stills @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "speed.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the spread rate of the pyrolysis front, reference sample widths per second; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "speed.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the spread rate of the pyrolysis front, reference sample widths per second (hinge positions)."
+    },
+    {
+      "name": "speed.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the spread rate of the pyrolysis front, reference sample widths per second."
+    },
+    {
+      "name": "speed.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the spread rate of the pyrolysis front, reference sample widths per second in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "speed.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1/s",
+      "bounds": {
+        "min": -1.0,
+        "max": 5.0
+      },
+      "description": "Value of the spread rate of the pyrolysis front, reference sample widths per second at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "over.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "over.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths (hinge positions)."
+    },
+    {
+      "name": "over.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths."
+    },
+    {
+      "name": "over.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "over.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -5.0,
+        "max": 20.0
+      },
+      "description": "Value of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "burn.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "burn.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns (hinge positions)."
+    },
+    {
+      "name": "burn.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns."
+    },
+    {
+      "name": "burn.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "burn.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -3.0,
+        "max": 8.0
+      },
+      "description": "Value of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "quench.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the quench hazard ln(rate / 1 per s) of a flame at this flow and oxygen; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "quench.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the quench hazard ln(rate / 1 per s) of a flame at this flow and oxygen (hinge positions)."
+    },
+    {
+      "name": "quench.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the quench hazard ln(rate / 1 per s) of a flame at this flow and oxygen."
+    },
+    {
+      "name": "quench.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the quench hazard ln(rate / 1 per s) of a flame at this flow and oxygen in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "quench.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1/s)",
+      "bounds": {
+        "min": -40.0,
+        "max": 5.0
+      },
+      "description": "Value of the quench hazard ln(rate / 1 per s) of a flame at this flow and oxygen at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "speed.pow",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "description": "Powers of (X_O2 / o2_ref) and of (W / W_ref) that multiply the spread rate in sample widths per second (a sample half as wide with the same speed in mm/s has the width power -1)."
+    },
+    {
+      "name": "over.pow",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "description": "Powers of (X_O2 / o2_ref) and of (W / W_ref) that multiply the overhang in sample widths."
+    },
+    {
+      "name": "over.tau_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.05,
+        "max": 60.0
+      },
+      "description": "Time over which the overhang relaxes to its steady value after a change of flow."
+    },
+    {
+      "name": "ign.gain",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Spread rate while the igniter is on, as a multiple of the law (the hot wire pilots the flame)."
+    },
+    {
+      "name": "ign.delay_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 30.0
+      },
+      "description": "Time after the igniter is switched on before the front starts to move."
+    },
+    {
+      "name": "end.linger_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 60.0
+      },
+      "description": "Time the flame is still seen after its tip has reached the end of the sample."
+    },
+    {
+      "name": "enc.gain_w",
+      "shape": [
+        2
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": -20.0,
+        "max": 20.0
+      },
+      "description": "Weights of the gain logit on ln(span / 10 s) and on the settled share min(1, seconds since the last change of flow / 10)."
+    },
+    {
+      "name": "enc.gain_b",
+      "shape": [],
+      "role": "bias",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": -20.0,
+        "max": 20.0
+      },
+      "description": "Bias of the gain logit: gain = sigmoid(gain_b + gain_w . inputs)."
+    },
+    {
+      "name": "enc.mix",
+      "shape": [
+        2
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weights of the tip-based and base-based offsets in the observed run offset (normalised over those available)."
+    },
+    {
+      "name": "enc.e_clip",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Largest run offset carried, below and above: E lies in [exp(-e_clip[0]), exp(e_clip[1])]."
+    },
+    {
+      "name": "unc.s_pop",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Relative sd of the spread rate of a run before its prefix says anything."
+    },
+    {
+      "name": "unc.s_floor",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Relative sd of the spread rate that remains when the prefix is fully trusted."
+    },
+    {
+      "name": "unc.s_far",
+      "shape": [
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Relative sd added (in quadrature) per unit of |c_o2| and of |c_w|: the laws are known less well away from the reference oxygen and sample."
+    },
+    {
+      "name": "unc.sigma_w",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "sd of the tip position at the cutoff, sample widths (measurement and the still-to-overlay clock)."
+    },
+    {
+      "name": "unc.sigma_x0_w",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "sd of the tip position when no still exists before the cutoff, sample widths."
+    },
+    {
+      "name": "unc.rel_over",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "sd of a change of the overhang, as a share of the modelled change."
+    },
+    {
+      "name": "unc.drift_w",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s^-1/2",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Slow drift of the tip: sd in sample widths per square root of a second of lead."
+    },
+    {
+      "name": "speed.split",
+      "shape": [],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Share of the spread rate given by the split oxygen law, in which the part of the rate that remains at zero flow carries the oxygen power speed.pow_i and only the flow-dependent part carries speed.pow[0]: 1, the split law; between, the weighted mean of the split law and the law of the first front forward; 0: the law of the first front forward, one oxygen power for the whole rate."
+    },
+    {
+      "name": "speed.pow_i",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 6.0
+      },
+      "description": "Power of (X_O2 / o2_ref) that multiplies the zero-flow part of the spread rate (the rate the law gives with the fan stopped) in the split oxygen law; not read when speed.split is 0."
+    },
+    {
+      "name": "speed.kappa",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Slow-down downstream, per sample width: the flow speed that the spread-rate law and the overhang target see falls by this share of itself for every sample width the front has advanced since the start of the forecast integration, U_eff = U max(0, 1 - kappa (x - x_ref)); 0: no slow-down."
+    },
+    {
+      "name": "over.tau_up_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 120.0
+      },
+      "description": "Time over which the overhang grows towards a larger steady value; over.tau_s is then the time over which it shrinks towards a smaller one; 0: over.tau_s in both directions."
+    },
+    {
+      "name": "unc.flow_abs_cm_s",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "cm/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Absolute uncertainty of the flow speed assigned to a fan setting: the lower and the higher flow path shift the flow history by this much."
+    },
+    {
+      "name": "unc.flow_rel",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Relative uncertainty of the flow speed assigned to a fan setting: the lower and the higher flow path scale the flow history by 1 - flow_rel and 1 + flow_rel before the shift."
+    },
+    {
+      "name": "unc.flow_w",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1000.0
+      },
+      "description": "Weights of the three flow paths (lower, as read, higher), normalised by their sum; a path with weight zero is not run; [0, 1, 0], or no positive outer weight: one run on the flow as read."
+    },
+    {
+      "name": "norm.u_ref_cm_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          5.0
+        ]
+      },
+      "unit": "cm/s",
+      "description": "Reference flow speed of u."
+    },
+    {
+      "name": "norm.u_min_cm_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.1
+        ]
+      },
+      "unit": "cm/s",
+      "description": "Smallest flow speed the laws are evaluated at."
+    },
+    {
+      "name": "norm.o2_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.19
+        ]
+      },
+      "unit": "1",
+      "description": "Reference oxygen mole fraction of c_o2 and of the oxygen powers."
+    },
+    {
+      "name": "norm.o2_scale",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.02
+        ]
+      },
+      "unit": "1",
+      "description": "Scale of c_o2."
+    },
+    {
+      "name": "norm.w_ref_m",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.022
+        ]
+      },
+      "unit": "m",
+      "description": "Width of the reference sample (the 2 cm class), used only when a prefix gives a width in metres."
+    },
+    {
+      "name": "norm.v_min",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.001
+        ]
+      },
+      "unit": "1/s",
+      "description": "Smallest spread rate, sample widths per second."
+    },
+    {
+      "name": "enc.end_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          4.0
+        ]
+      },
+      "unit": "s",
+      "description": "Length of the first and of the last window of stills in the prefix."
+    },
+    {
+      "name": "enc.min_span_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          3.0
+        ]
+      },
+      "unit": "s",
+      "description": "Shortest time between the two windows for a run offset to be read."
+    },
+    {
+      "name": "enc.change_cm_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.8
+        ]
+      },
+      "unit": "cm/s",
+      "description": "Smallest difference from the flow at the last window counted as a change of flow: the flow last changed at the start of the first entry after the most recent entry that differs from it by at least this much (a one-unit fan flicker is not a change, a slow ramp is one once it has moved this far)."
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.25
+        ]
+      },
+      "unit": "s",
+      "description": "Integration step."
+    },
+    {
+      "name": "num.max_lead_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          600.0
+        ]
+      },
+      "unit": "s",
+      "description": "Longest lead time after the cutoff."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::front2::forecast",
+    "version": "2",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Time is seconds after the igniter is switched off. The law path is integrated from the moment the igniter is switched on (front at the igniter, no overhang) with step num.dt_s: dx = g v dt with g = ign.gain while the igniter is on (after ign.delay_s) and 1 after; h relaxes exactly, h <- h_ss + (h - h_ss) exp(-dt / over.tau_s). Flow is a step function of time. Prefix windows: the stills of the first and of the last enc.end_s seconds of the prefix; window means of time, tip and base. Tip offset: ln of the advance of (tip - h) between the windows over the law's advance in the same interval; base offset: ln of the advance of the base over the law's advance in the interval shifted back by tau_b at the later window. Offsets need enc.min_span_s between the windows and a positive law advance; a non-positive observed advance is taken as -enc.e_clip[0]. E = exp(clamp(gain x observed offset)), gain = sigmoid(enc.gain_b + enc.gain_w . (ln(span / 10 s), settled)), settled = clamp((t_e - t_change) / 10 s, 0, 1) at the last-window time t_e: with U_e the flow at t_e, t_change is the start time of the first flow entry after the most recent entry at or before t_e whose flow differs from U_e by at least enc.change_cm_s, and the time the igniter is switched on when no entry differs (never earlier than it). Position at the cutoff: last-window mean tip minus the modelled overhang there, carried along the law. Spread of ln E: sqrt(gain s_floor^2 + (1 - gain) s_pop^2 + (s_far[0] c_o2)^2 + (s_far[1] c_w)^2). sd of the tip at lead: sqrt(sigma^2 + (s E advance)^2 + (rel_over x overhang change)^2 + drift_w^2 lead), Gaussian quantiles, cut at the end of the sample when its length is known. Quenched by t: 1 - exp(-integral of the quench hazard from the cutoff). Reached the end by t: the probability that the uncut tip was at or beyond the end at t - end.linger_s. Rows: active = (1 - quenched)(1 - reached), extinction = quenched, reached_end = (1 - quenched) reached. Additions of this forward, each off at the value its entry names. (A) speed.split > 0: with o = X_O2 / norm.o2_ref, N = max(N_speed(c), norm.v_min) and N0 the same with the flow feature at its value for U = 0 (norm.u_min_cm_s / norm.u_ref_cm_s - 1), v_split = max(N0 o^speed.pow_i + (N - N0) o^speed.pow[0], norm.v_min o^speed.pow_i) (W / W_ref)^speed.pow[1] and v = (1 - speed.split) v_first + speed.split v_split, v_first the rate above. (B) over.tau_up_s > 0: in an integration step that starts with h below h_ss the relaxation time is over.tau_up_s, otherwise over.tau_s (the exact relaxation never crosses h_ss inside a step). (C) speed.kappa > 0: t_ref is the cutoff, or 0 when no still is admitted; the law path is integrated without slow-down to the end of the step that contains t_ref, E is read, x_ref_law = law path at t_ref, and in every later step v and h_ss are evaluated at U max(0, 1 - speed.kappa E (X_i - x_ref_law)), X_i the law path at the start of the step; tau_b and the quench hazard keep U. (D) unc.flow_w[0] > 0 or unc.flow_w[2] > 0: for each k with unc.flow_w[k] > 0 the whole forward is run with the flow history U_k = max(0, U (1 + s_k unc.flow_rel) + s_k unc.flow_abs_cm_s), s = (-1, 0, 1), the prefix read again; weights unc.flow_w over their sum. Tip quantile at level p: the point where the weighted sum of the paths' Gaussian CDFs (uncut median and sd of each path) reaches p, by 60 halvings of the bracket [min(m_k - 9 sd_k), max(m_k + 9 sd_k)], then cut at the end of the sample; mean: weighted mean of the paths' means; base: weighted median of the paths' bases (linear between mass centres); quenched: weighted mean; reached the end: sum w (1 - q_k) e_k / sum w (1 - q_k) (the weighted mean of e_k when every path is quenched), so that each event row is the weighted mean of the paths' rows. Otherwise one run on the flow as read. Nothing is fitted at request time. Uncertainty kind: assumed_noise."
+}

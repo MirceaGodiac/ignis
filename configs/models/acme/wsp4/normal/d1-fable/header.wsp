@@ -1,0 +1,21 @@
+# acme_normal.wsp4 — D1 literal revision of the baseline sha256:d579e6da…53c7, spec acme_normal-wsp-v4
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both members are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   member a   acme_normal.wsp2 D3, the hinge law in the reduced flow (second generation, carried)
+#   member b   acme_normal.wsp3 D1, the growth clock with the burner-heating law (fourth generation)
+#
+# Why the two together. They were typed from the same train table and are different kinds of
+# statement: a is an interpolation of the lives the table shows, b a mechanism with a handful of
+# constants. On train a is ahead on extinction (0.052 against 0.063) and b on flow termination (0.024
+# against 0.041). The mean of two forecasts is never scored worse than the mean of their scores, and
+# is scored better by a quarter of their mean squared disagreement.
+#
+# What the author had seen when this was written: the aggregate validation tables of both members
+# (extinction 0.159 and 0.163, flow termination 0.100 and 0.100: a tie). The weights were not chosen
+# from them: equal weights are what one types knowing nothing, and no other pair was tried.
+#
+# The member values below were not typed again. They are the stored values of the two releases named
+# in the two member blocks, copied statement by statement by tools/wsp/blend_edits.py with the prefix
+# a. or b. added; only the statements that differ from the baseline's members are written. That
+# script chooses and computes nothing. mix.w stays [1.0, 1.0], as in the baseline.

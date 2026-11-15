@@ -1,0 +1,35 @@
+{
+  "patch_id": "flex_methanol-wsp-v2-d2-fable",
+  "parent_release_id": "sha256:f1f723892493030df0525e3410c7fca42e6709a384b224a69e20d188836b28fb",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:runs/dev/RESULTS_p2_droplets.md(aggregate-validation-table-of-the-parent:CRPS-and-coverage-only)",
+      "repo:data/work/records/flex/experiments.jsonl(validation-run-conditions:inputs-only)",
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-the-parent-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:f1f723892493030df0525e3410c7fca42e6709a384b224a69e20d188836b28fb"
+    ]
+  },
+  "rationale": "D2, calibration-only revision of D1 after its single validation look. No law changes. The aggregate validation coverage of D1's 90 % band was 0.80 and the validation ambients are mostly outside the train table, so the spread narrowed on train is widened (s_pop 0.14 -> 0.18, s_floor 0.05 -> 0.08, sigma_d 15 -> 20 um) and the radiative class made less sharp (kappa 14 -> 10). No per-run validation score or outcome was read.",
+  "origin": "system"
+}

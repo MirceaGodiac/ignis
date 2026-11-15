@@ -1,0 +1,533 @@
+# acme_normal.wsp7 — P3 literal revision of the baseline sha256:00000000…0000, spec acme_normal-wsp-v7
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: every member is a data-informed
+# candidate (see their own edits files for what each number was typed from).
+#
+#   slots c0, c1   acme_normal.wsp8 D1-EARLY, D1-LATE: the hinge law with the burner-heating law in
+#                  place of its own burner-limit clock, for the early and the late era
+#   slots c2, c3   the same two without their guessed stop times
+#   slots b0, b1   acme_normal.wsp3 D3-EARLY, D3-LATE: the growth clock of each era
+#   slots b2, b3   the same two without their guessed stop times
+#   slots a0, a1   acme_normal.wsp2 D4 and D4-NOSTOPS, filled and silent here
+#
+# P3 is P2 with one change: the hinge member answers through the physical heating law of the burner
+# instead of its own burner-limit clock. That clock is a log-logistic in fuel flow alone and gives a
+# cool low-flow flame a limit trip it cannot have (21125A2 on TRAIN: a trip forecast at 17 s with
+# the burner at 61 C; that one test is 16 % of P1's extinction loss on TRAIN). The heating law knows
+# the total flow and the flame radius. Everything else is as in P2: the era by the date of the
+# test, the planned stop after the stage sum, the three corrected statements.
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee2_edits.py with the slot
+# prefix added. That script chooses and computes nothing. The lines typed for this file:
+
+# The two laws of different kinds with equal say; both members are those of the test's era.
+mix.w_early[0:10] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+
+# When the prefix carries the planned stop: the same two laws without their guessed stops.
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+
+# The era and the planned stop exactly as in P2 (see its file for the reasons).
+era.last_early_day = 2021242.0
+era.first_late_day = 2021270.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.15
+script.offset_s[0:3] = [0.0, 1.0, 2.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]
+
+# ---- slot a0: the stored values of sha256:08ad7337b063b5a0bbf505240ea85fa1f02d8682ba940645dd398e85e4855901
+#      (49 statements that differ from the parent's slot, slot a0 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+a0.se.tau.W1[0, 0] = -0.24
+a0.se.tau.W1[0, 1] = -1.0
+a0.se.tau.W1[0, 2] = 0.65
+a0.se.tau.W1[1, 0] = -0.24
+a0.se.tau.W1[1, 1] = -1.0
+a0.se.tau.W1[1, 2] = 0.65
+a0.se.tau.W1[2, 3] = -1.0
+a0.se.tau.W1[2, 7] = 5.0
+a0.se.tau.W1[3, 3] = -1.0
+a0.se.tau.W1[3, 7] = 5.0
+a0.se.tau.W1[4, 2] = 1.0
+a0.se.tau.W1[4, 7] = 5.0
+a0.se.tau.W1[5, 2] = 1.0
+a0.se.tau.W1[5, 6] = -5.0
+a0.se.tau.W1[5, 7] = -5.0
+a0.se.tau.b1[0] = 0.5
+a0.se.tau.b1[1] = -0.22
+a0.se.tau.b1[2] = -5.0
+a0.se.tau.b1[3] = -5.9
+a0.se.tau.b1[4] = -4.1
+a0.se.tau.b1[5] = 0.9
+a0.se.tau.w2[0] = 1.4
+a0.se.tau.w2[1] = 2.0
+a0.se.tau.w2[2] = -0.35
+a0.se.tau.w2[4] = -0.14
+a0.se.tau.w2[5] = -0.12
+a0.se.tau.skip[0] = -0.28
+a0.se.tau.skip[2] = 0.84
+a0.se.tau.skip[7] = -0.2
+a0.se.tau.b0 = 2.43
+a0.se.flash.skip[4] = -12.0
+a0.se.flash.b0 = -18.0
+a0.ft.tau.skip[1] = 4.5
+a0.ft.tau.skip[6] = 0.54
+a0.ft.tau.skip[7] = -0.56
+a0.ft.tau.b0 = 6.5
+a0.se.floor_s = 4.0
+a0.se.shape = 3.0
+a0.ft.shape = 2.5
+a0.ft.atom_t_s[0] = 61.5
+a0.ft.atom_t_s[1] = 98.0
+a0.ft.atom_t_s[2] = 126.5
+a0.ft.atom_t_s[3] = 275.5
+a0.ft.atom_logit[0] = -2.0
+a0.ft.atom_logit[1] = -2.9
+a0.ft.atom_logit[2] = -2.2
+a0.ft.atom_logit[3] = 0.0
+a0.ft.atom_w[0, 1] = -2.0
+a0.ft.log_base = -7.6
+
+# ---- slot a1: the stored values of sha256:8460e34ecab6fca0233911cda3d3a694800179e67efbc53772e845935e50d3eb
+#      (45 statements that differ from the parent's slot, slot a1 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+a1.se.tau.W1[0, 0] = -0.24
+a1.se.tau.W1[0, 1] = -1.0
+a1.se.tau.W1[0, 2] = 0.65
+a1.se.tau.W1[1, 0] = -0.24
+a1.se.tau.W1[1, 1] = -1.0
+a1.se.tau.W1[1, 2] = 0.65
+a1.se.tau.W1[2, 3] = -1.0
+a1.se.tau.W1[2, 7] = 5.0
+a1.se.tau.W1[3, 3] = -1.0
+a1.se.tau.W1[3, 7] = 5.0
+a1.se.tau.W1[4, 2] = 1.0
+a1.se.tau.W1[4, 7] = 5.0
+a1.se.tau.W1[5, 2] = 1.0
+a1.se.tau.W1[5, 6] = -5.0
+a1.se.tau.W1[5, 7] = -5.0
+a1.se.tau.b1[0] = 0.5
+a1.se.tau.b1[1] = -0.22
+a1.se.tau.b1[2] = -5.0
+a1.se.tau.b1[3] = -5.9
+a1.se.tau.b1[4] = -4.1
+a1.se.tau.b1[5] = 0.9
+a1.se.tau.w2[0] = 1.4
+a1.se.tau.w2[1] = 2.0
+a1.se.tau.w2[2] = -0.35
+a1.se.tau.w2[4] = -0.14
+a1.se.tau.w2[5] = -0.12
+a1.se.tau.skip[0] = -0.28
+a1.se.tau.skip[2] = 0.84
+a1.se.tau.skip[7] = -0.2
+a1.se.tau.b0 = 2.43
+a1.se.flash.skip[4] = -12.0
+a1.se.flash.b0 = -18.0
+a1.ft.tau.skip[1] = 4.5
+a1.ft.tau.skip[6] = 0.54
+a1.ft.tau.skip[7] = -0.56
+a1.ft.tau.b0 = 6.5
+a1.se.floor_s = 4.0
+a1.se.shape = 3.0
+a1.ft.shape = 2.5
+a1.ft.atom_t_s[0] = 61.5
+a1.ft.atom_t_s[1] = 98.0
+a1.ft.atom_t_s[2] = 126.5
+a1.ft.atom_t_s[3] = 275.5
+a1.ft.atom_w[0, 1] = -2.0
+a1.ft.log_base = -9.0
+
+# ---- slot b0: the stored values of sha256:d42cd5509a078b5dec2a611e0798c754d29998dbf4aac8ed58049b8b07e43995
+#      (43 statements that differ from the parent's slot, slot b0 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+b0.se.flux.W1[0, 0] = 1.0
+b0.se.flux.W1[0, 2] = -1.0
+b0.se.flux.b1[0] = -0.9
+b0.se.flux.w2[0] = 0.5
+b0.se.flux.b0 = -1.715
+b0.se.diff.W1[0, 2] = 1.0
+b0.se.diff.W1[0, 7] = 5.0
+b0.se.diff.W1[1, 2] = 1.0
+b0.se.diff.W1[1, 6] = -5.0
+b0.se.diff.W1[1, 7] = -5.0
+b0.se.diff.b1[0] = -4.1
+b0.se.diff.b1[1] = 0.9
+b0.se.diff.w2[0] = 0.21
+b0.se.diff.w2[1] = 0.18
+b0.se.diff.skip[0] = 0.45
+b0.se.diff.skip[2] = -0.385
+b0.se.diff.skip[3] = 0.2
+b0.se.diff.skip[7] = 0.27
+b0.se.diff.b0 = 3.92
+b0.se.flash.skip[4] = -6.7
+b0.se.flash.b0 = -10.2
+b0.bt.rise.W1[0, 3] = 1.0
+b0.bt.rise.b1[0] = -0.5
+b0.bt.rise.w2[0] = -0.15
+b0.bt.rise.skip[0] = -0.4
+b0.bt.rise.skip[1] = -0.4
+b0.bt.rise.b0 = 5.88
+b0.se.sigma_phi = 0.25
+b0.se.hold_log_rate = -8.0
+b0.se.floor_s = 4.0
+b0.bt.sigma = 0.12
+b0.bt.limit_c[0] = 455.0
+b0.bt.limit_c[1] = 510.0
+b0.bt.limit_w[1] = 1.0
+b0.ft.atom_t_s[0] = 61.5
+b0.ft.atom_t_s[1] = 98.0
+b0.ft.atom_t_s[2] = 126.5
+b0.ft.atom_t_s[3] = 275.5
+b0.ft.atom_logit[0] = -2.0
+b0.ft.atom_logit[1] = -2.9
+b0.ft.atom_logit[2] = -2.2
+b0.ft.atom_logit[3] = 0.0
+b0.ft.log_base = -7.4
+
+# ---- slot b1: the stored values of sha256:02cad964aa8903ce9d1f04a9506a58ad79f553cd6d59464d79106868d3cfe531
+#      (43 statements that differ from the parent's slot, slot b1 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+b1.se.flux.W1[0, 0] = 1.0
+b1.se.flux.W1[0, 2] = -1.0
+b1.se.flux.b1[0] = -0.9
+b1.se.flux.w2[0] = 0.5
+b1.se.flux.b0 = -1.715
+b1.se.diff.W1[0, 2] = 1.0
+b1.se.diff.W1[0, 7] = 5.0
+b1.se.diff.W1[1, 2] = 1.0
+b1.se.diff.W1[1, 6] = -5.0
+b1.se.diff.W1[1, 7] = -5.0
+b1.se.diff.b1[0] = -4.1
+b1.se.diff.b1[1] = 0.9
+b1.se.diff.w2[0] = 0.21
+b1.se.diff.w2[1] = 0.18
+b1.se.diff.skip[0] = 0.45
+b1.se.diff.skip[2] = -0.385
+b1.se.diff.skip[3] = 0.2
+b1.se.diff.skip[7] = 0.27
+b1.se.diff.b0 = 3.92
+b1.se.flash.skip[4] = -6.7
+b1.se.flash.b0 = -10.2
+b1.bt.rise.W1[0, 3] = 1.0
+b1.bt.rise.b1[0] = -0.5
+b1.bt.rise.w2[0] = -0.15
+b1.bt.rise.skip[0] = -0.4
+b1.bt.rise.skip[1] = -0.4
+b1.bt.rise.b0 = 5.88
+b1.se.sigma_phi = 0.25
+b1.se.hold_log_rate = -8.0
+b1.se.floor_s = 4.0
+b1.bt.sigma = 0.12
+b1.bt.limit_c[0] = 455.0
+b1.bt.limit_c[1] = 510.0
+b1.bt.limit_w[0] = 1.0
+b1.ft.atom_t_s[0] = 61.5
+b1.ft.atom_t_s[1] = 98.0
+b1.ft.atom_t_s[2] = 126.5
+b1.ft.atom_t_s[3] = 275.5
+b1.ft.atom_logit[0] = -2.0
+b1.ft.atom_logit[1] = -2.9
+b1.ft.atom_logit[2] = -2.2
+b1.ft.atom_logit[3] = 0.0
+b1.ft.log_base = -7.4
+
+# ---- slot b2: the stored values of sha256:5e28988a2e95e72e5dd8fc30351d96279cf378a6bd6e9e2342b9923086e5f56e
+#      (39 statements that differ from the parent's slot, slot b2 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+b2.se.flux.W1[0, 0] = 1.0
+b2.se.flux.W1[0, 2] = -1.0
+b2.se.flux.b1[0] = -0.9
+b2.se.flux.w2[0] = 0.5
+b2.se.flux.b0 = -1.715
+b2.se.diff.W1[0, 2] = 1.0
+b2.se.diff.W1[0, 7] = 5.0
+b2.se.diff.W1[1, 2] = 1.0
+b2.se.diff.W1[1, 6] = -5.0
+b2.se.diff.W1[1, 7] = -5.0
+b2.se.diff.b1[0] = -4.1
+b2.se.diff.b1[1] = 0.9
+b2.se.diff.w2[0] = 0.21
+b2.se.diff.w2[1] = 0.18
+b2.se.diff.skip[0] = 0.45
+b2.se.diff.skip[2] = -0.385
+b2.se.diff.skip[3] = 0.2
+b2.se.diff.skip[7] = 0.27
+b2.se.diff.b0 = 3.92
+b2.se.flash.skip[4] = -6.7
+b2.se.flash.b0 = -10.2
+b2.bt.rise.W1[0, 3] = 1.0
+b2.bt.rise.b1[0] = -0.5
+b2.bt.rise.w2[0] = -0.15
+b2.bt.rise.skip[0] = -0.4
+b2.bt.rise.skip[1] = -0.4
+b2.bt.rise.b0 = 5.88
+b2.se.sigma_phi = 0.25
+b2.se.hold_log_rate = -8.0
+b2.se.floor_s = 4.0
+b2.bt.sigma = 0.12
+b2.bt.limit_c[0] = 455.0
+b2.bt.limit_c[1] = 510.0
+b2.bt.limit_w[1] = 1.0
+b2.ft.atom_t_s[0] = 61.5
+b2.ft.atom_t_s[1] = 98.0
+b2.ft.atom_t_s[2] = 126.5
+b2.ft.atom_t_s[3] = 275.5
+b2.ft.log_base = -9.0
+
+# ---- slot b3: the stored values of sha256:cc9cf6766e5e019ca32c93e9d5fb016bc1611d1bd0e6b35b009253aa12779ce7
+#      (39 statements that differ from the parent's slot, slot b3 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+b3.se.flux.W1[0, 0] = 1.0
+b3.se.flux.W1[0, 2] = -1.0
+b3.se.flux.b1[0] = -0.9
+b3.se.flux.w2[0] = 0.5
+b3.se.flux.b0 = -1.715
+b3.se.diff.W1[0, 2] = 1.0
+b3.se.diff.W1[0, 7] = 5.0
+b3.se.diff.W1[1, 2] = 1.0
+b3.se.diff.W1[1, 6] = -5.0
+b3.se.diff.W1[1, 7] = -5.0
+b3.se.diff.b1[0] = -4.1
+b3.se.diff.b1[1] = 0.9
+b3.se.diff.w2[0] = 0.21
+b3.se.diff.w2[1] = 0.18
+b3.se.diff.skip[0] = 0.45
+b3.se.diff.skip[2] = -0.385
+b3.se.diff.skip[3] = 0.2
+b3.se.diff.skip[7] = 0.27
+b3.se.diff.b0 = 3.92
+b3.se.flash.skip[4] = -6.7
+b3.se.flash.b0 = -10.2
+b3.bt.rise.W1[0, 3] = 1.0
+b3.bt.rise.b1[0] = -0.5
+b3.bt.rise.w2[0] = -0.15
+b3.bt.rise.skip[0] = -0.4
+b3.bt.rise.skip[1] = -0.4
+b3.bt.rise.b0 = 5.88
+b3.se.sigma_phi = 0.25
+b3.se.hold_log_rate = -8.0
+b3.se.floor_s = 4.0
+b3.bt.sigma = 0.12
+b3.bt.limit_c[0] = 455.0
+b3.bt.limit_c[1] = 510.0
+b3.bt.limit_w[0] = 1.0
+b3.ft.atom_t_s[0] = 61.5
+b3.ft.atom_t_s[1] = 98.0
+b3.ft.atom_t_s[2] = 126.5
+b3.ft.atom_t_s[3] = 275.5
+b3.ft.log_base = -9.0
+
+# ---- slot c0: the stored values of sha256:b97791bafa558457ded6e5d5cd0f40554abbfec7cd70b8c26d620c0d3800d52c
+#      (54 statements that differ from the parent's slot, slot c0 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+c0.se.tau.W1[0, 0] = -0.24
+c0.se.tau.W1[0, 1] = -1.0
+c0.se.tau.W1[0, 2] = 0.65
+c0.se.tau.W1[1, 0] = -0.24
+c0.se.tau.W1[1, 1] = -1.0
+c0.se.tau.W1[1, 2] = 0.65
+c0.se.tau.W1[2, 3] = -1.0
+c0.se.tau.W1[2, 7] = 5.0
+c0.se.tau.W1[3, 3] = -1.0
+c0.se.tau.W1[3, 7] = 5.0
+c0.se.tau.W1[4, 2] = 1.0
+c0.se.tau.W1[4, 7] = 5.0
+c0.se.tau.W1[5, 2] = 1.0
+c0.se.tau.W1[5, 6] = -5.0
+c0.se.tau.W1[5, 7] = -5.0
+c0.se.tau.b1[0] = 0.5
+c0.se.tau.b1[1] = -0.22
+c0.se.tau.b1[2] = -5.0
+c0.se.tau.b1[3] = -5.9
+c0.se.tau.b1[4] = -4.1
+c0.se.tau.b1[5] = 0.9
+c0.se.tau.w2[0] = 1.4
+c0.se.tau.w2[1] = 2.0
+c0.se.tau.w2[2] = -0.35
+c0.se.tau.w2[4] = -0.14
+c0.se.tau.w2[5] = -0.12
+c0.se.tau.skip[0] = -0.28
+c0.se.tau.skip[2] = 0.84
+c0.se.tau.skip[7] = -0.2
+c0.se.tau.b0 = 2.43
+c0.se.flash.skip[4] = -12.0
+c0.se.flash.b0 = -18.0
+c0.se.floor_s = 4.0
+c0.se.shape = 3.0
+c0.ft.atom_t_s[0] = 61.5
+c0.ft.atom_t_s[1] = 98.0
+c0.ft.atom_t_s[2] = 126.5
+c0.ft.atom_t_s[3] = 275.5
+c0.ft.atom_logit[0] = -2.0
+c0.ft.atom_logit[1] = -2.9
+c0.ft.atom_logit[2] = -2.2
+c0.ft.atom_logit[3] = 0.0
+c0.ft.atom_w[0, 1] = -2.0
+c0.ft.log_base = -7.6
+c0.bt.rise.W1[0, 3] = 1.0
+c0.bt.rise.b1[0] = -0.5
+c0.bt.rise.w2[0] = -0.15
+c0.bt.rise.skip[0] = -0.4
+c0.bt.rise.skip[1] = -0.4
+c0.bt.rise.b0 = 5.88
+c0.bt.sigma = 0.12
+c0.bt.limit_c[0] = 455.0
+c0.bt.limit_c[1] = 510.0
+c0.bt.limit_w[1] = 1.0
+
+# ---- slot c1: the stored values of sha256:d184b6d1a9e679bbe91671a0d904b4397cd0664113bbc4c4930579d3292a9554
+#      (54 statements that differ from the parent's slot, slot c1 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+c1.se.tau.W1[0, 0] = -0.24
+c1.se.tau.W1[0, 1] = -1.0
+c1.se.tau.W1[0, 2] = 0.65
+c1.se.tau.W1[1, 0] = -0.24
+c1.se.tau.W1[1, 1] = -1.0
+c1.se.tau.W1[1, 2] = 0.65
+c1.se.tau.W1[2, 3] = -1.0
+c1.se.tau.W1[2, 7] = 5.0
+c1.se.tau.W1[3, 3] = -1.0
+c1.se.tau.W1[3, 7] = 5.0
+c1.se.tau.W1[4, 2] = 1.0
+c1.se.tau.W1[4, 7] = 5.0
+c1.se.tau.W1[5, 2] = 1.0
+c1.se.tau.W1[5, 6] = -5.0
+c1.se.tau.W1[5, 7] = -5.0
+c1.se.tau.b1[0] = 0.5
+c1.se.tau.b1[1] = -0.22
+c1.se.tau.b1[2] = -5.0
+c1.se.tau.b1[3] = -5.9
+c1.se.tau.b1[4] = -4.1
+c1.se.tau.b1[5] = 0.9
+c1.se.tau.w2[0] = 1.4
+c1.se.tau.w2[1] = 2.0
+c1.se.tau.w2[2] = -0.35
+c1.se.tau.w2[4] = -0.14
+c1.se.tau.w2[5] = -0.12
+c1.se.tau.skip[0] = -0.28
+c1.se.tau.skip[2] = 0.84
+c1.se.tau.skip[7] = -0.2
+c1.se.tau.b0 = 2.43
+c1.se.flash.skip[4] = -12.0
+c1.se.flash.b0 = -18.0
+c1.se.floor_s = 4.0
+c1.se.shape = 3.0
+c1.ft.atom_t_s[0] = 61.5
+c1.ft.atom_t_s[1] = 98.0
+c1.ft.atom_t_s[2] = 126.5
+c1.ft.atom_t_s[3] = 275.5
+c1.ft.atom_logit[0] = -2.0
+c1.ft.atom_logit[1] = -2.9
+c1.ft.atom_logit[2] = -2.2
+c1.ft.atom_logit[3] = 0.0
+c1.ft.atom_w[0, 1] = -2.0
+c1.ft.log_base = -7.6
+c1.bt.rise.W1[0, 3] = 1.0
+c1.bt.rise.b1[0] = -0.5
+c1.bt.rise.w2[0] = -0.15
+c1.bt.rise.skip[0] = -0.4
+c1.bt.rise.skip[1] = -0.4
+c1.bt.rise.b0 = 5.88
+c1.bt.sigma = 0.12
+c1.bt.limit_c[0] = 455.0
+c1.bt.limit_c[1] = 510.0
+c1.bt.limit_w[0] = 1.0
+
+# ---- slot c2: the stored values of sha256:691aa9b4a93d80c25b9a210d77dfb53e1ebbf123eb0a339e806f57edf946a8a3
+#      (50 statements that differ from the parent's slot, slot c2 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+c2.se.tau.W1[0, 0] = -0.24
+c2.se.tau.W1[0, 1] = -1.0
+c2.se.tau.W1[0, 2] = 0.65
+c2.se.tau.W1[1, 0] = -0.24
+c2.se.tau.W1[1, 1] = -1.0
+c2.se.tau.W1[1, 2] = 0.65
+c2.se.tau.W1[2, 3] = -1.0
+c2.se.tau.W1[2, 7] = 5.0
+c2.se.tau.W1[3, 3] = -1.0
+c2.se.tau.W1[3, 7] = 5.0
+c2.se.tau.W1[4, 2] = 1.0
+c2.se.tau.W1[4, 7] = 5.0
+c2.se.tau.W1[5, 2] = 1.0
+c2.se.tau.W1[5, 6] = -5.0
+c2.se.tau.W1[5, 7] = -5.0
+c2.se.tau.b1[0] = 0.5
+c2.se.tau.b1[1] = -0.22
+c2.se.tau.b1[2] = -5.0
+c2.se.tau.b1[3] = -5.9
+c2.se.tau.b1[4] = -4.1
+c2.se.tau.b1[5] = 0.9
+c2.se.tau.w2[0] = 1.4
+c2.se.tau.w2[1] = 2.0
+c2.se.tau.w2[2] = -0.35
+c2.se.tau.w2[4] = -0.14
+c2.se.tau.w2[5] = -0.12
+c2.se.tau.skip[0] = -0.28
+c2.se.tau.skip[2] = 0.84
+c2.se.tau.skip[7] = -0.2
+c2.se.tau.b0 = 2.43
+c2.se.flash.skip[4] = -12.0
+c2.se.flash.b0 = -18.0
+c2.se.floor_s = 4.0
+c2.se.shape = 3.0
+c2.ft.atom_t_s[0] = 61.5
+c2.ft.atom_t_s[1] = 98.0
+c2.ft.atom_t_s[2] = 126.5
+c2.ft.atom_t_s[3] = 275.5
+c2.ft.atom_w[0, 1] = -2.0
+c2.ft.log_base = -9.0
+c2.bt.rise.W1[0, 3] = 1.0
+c2.bt.rise.b1[0] = -0.5
+c2.bt.rise.w2[0] = -0.15
+c2.bt.rise.skip[0] = -0.4
+c2.bt.rise.skip[1] = -0.4
+c2.bt.rise.b0 = 5.88
+c2.bt.sigma = 0.12
+c2.bt.limit_c[0] = 455.0
+c2.bt.limit_c[1] = 510.0
+c2.bt.limit_w[1] = 1.0
+
+# ---- slot c3: the stored values of sha256:c25ff42675f0a44764a320826281ec30027cdfda1211248cfd540e346a4dc5d9
+#      (50 statements that differ from the parent's slot, slot c3 of sha256:dd05f4f8b6157cdbbccc0f9b0168284f6425df77c01e1a16db5c79cae406a513)
+c3.se.tau.W1[0, 0] = -0.24
+c3.se.tau.W1[0, 1] = -1.0
+c3.se.tau.W1[0, 2] = 0.65
+c3.se.tau.W1[1, 0] = -0.24
+c3.se.tau.W1[1, 1] = -1.0
+c3.se.tau.W1[1, 2] = 0.65
+c3.se.tau.W1[2, 3] = -1.0
+c3.se.tau.W1[2, 7] = 5.0
+c3.se.tau.W1[3, 3] = -1.0
+c3.se.tau.W1[3, 7] = 5.0
+c3.se.tau.W1[4, 2] = 1.0
+c3.se.tau.W1[4, 7] = 5.0
+c3.se.tau.W1[5, 2] = 1.0
+c3.se.tau.W1[5, 6] = -5.0
+c3.se.tau.W1[5, 7] = -5.0
+c3.se.tau.b1[0] = 0.5
+c3.se.tau.b1[1] = -0.22
+c3.se.tau.b1[2] = -5.0
+c3.se.tau.b1[3] = -5.9
+c3.se.tau.b1[4] = -4.1
+c3.se.tau.b1[5] = 0.9
+c3.se.tau.w2[0] = 1.4
+c3.se.tau.w2[1] = 2.0
+c3.se.tau.w2[2] = -0.35
+c3.se.tau.w2[4] = -0.14
+c3.se.tau.w2[5] = -0.12
+c3.se.tau.skip[0] = -0.28
+c3.se.tau.skip[2] = 0.84
+c3.se.tau.skip[7] = -0.2
+c3.se.tau.b0 = 2.43
+c3.se.flash.skip[4] = -12.0
+c3.se.flash.b0 = -18.0
+c3.se.floor_s = 4.0
+c3.se.shape = 3.0
+c3.ft.atom_t_s[0] = 61.5
+c3.ft.atom_t_s[1] = 98.0
+c3.ft.atom_t_s[2] = 126.5
+c3.ft.atom_t_s[3] = 275.5
+c3.ft.atom_w[0, 1] = -2.0
+c3.ft.log_base = -9.0
+c3.bt.rise.W1[0, 3] = 1.0
+c3.bt.rise.b1[0] = -0.5
+c3.bt.rise.w2[0] = -0.15
+c3.bt.rise.skip[0] = -0.4
+c3.bt.rise.skip[1] = -0.4
+c3.bt.rise.b0 = 5.88
+c3.bt.sigma = 0.12
+c3.bt.limit_c[0] = 455.0
+c3.bt.limit_c[1] = 510.0
+c3.bt.limit_w[0] = 1.0

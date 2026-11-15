@@ -1,0 +1,38 @@
+{
+  "patch_id": "acme_inverse-wsp-v2-d1-fable",
+  "parent_release_id": "sha256:04d5503ee0627a42dae648817a3fc0904cd67db66fda549f83d641056517af09",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:docs/wsp/feedback/acme_inverse_w0_train.md(train-feedback-of-the-first-generation)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-validation-scores-of-the-first-generation,phase-1)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:843eef56a0746d9f2b6db323627d94aeb45674bcc326ff6ddbbda215a644316a",
+      "sha256:785b6b9d33bd3dd2cd8ee67b29548d8418a6d80ca978f8013c83954d2bcac452"
+    ]
+  },
+  "rationale": "D1, data-informed (not zero-shot): the first candidate of the clock spec for inverse flames. The train table shows that the ambient fuel fraction decides whether an inverse flame self-extinguishes (5-18 s at 7-9 % fuel, about 50 s at 14 %, not at all at 17 % and above), that air-injected flames either flash out or hold, that the burner temperature limit ends oxygen-rich tests in a fuel-rich ambient the sooner the lower the flow, and that most of the remaining tests end at a 66 s script stop. Numbers typed from the train table by the author; no fit, no search.",
+  "origin": "system"
+}

@@ -1,0 +1,1473 @@
+{
+  "id": "sha256:8fd9b37c05716cdfac1d0f632d70b492c7551fe47cbbb320ff0e8864ce0406d2",
+  "family": "flex",
+  "model_name": "flex_heptane.wsp7",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::droplet8::forecast",
+      "profile": "strict_no_fitting",
+      "version": "8"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 102,
+      "authored_total": 603,
+      "constant_total": 20,
+      "per_tensor": {
+        "ce.beta_atm": [
+          1,
+          0
+        ],
+        "ce.c_he": [
+          1,
+          0
+        ],
+        "ce.d0_exp": [
+          1,
+          1
+        ],
+        "ce.eps_atm": [
+          1,
+          1
+        ],
+        "ce.g0": [
+          1,
+          0
+        ],
+        "ce.on": [
+          1,
+          0
+        ],
+        "ce.p_ref_atm": [
+          1,
+          0
+        ],
+        "class.bias": [
+          1,
+          1
+        ],
+        "class.kappa": [
+          1,
+          1
+        ],
+        "cool.d.W1": [
+          40,
+          0
+        ],
+        "cool.d.b0": [
+          1,
+          1
+        ],
+        "cool.d.b1": [
+          8,
+          0
+        ],
+        "cool.d.sd": [
+          1,
+          1
+        ],
+        "cool.d.skip": [
+          5,
+          5
+        ],
+        "cool.d.w2": [
+          8,
+          0
+        ],
+        "cool.k.W1": [
+          40,
+          0
+        ],
+        "cool.k.b0": [
+          1,
+          1
+        ],
+        "cool.k.b1": [
+          8,
+          0
+        ],
+        "cool.k.skip": [
+          5,
+          5
+        ],
+        "cool.k.w2": [
+          8,
+          0
+        ],
+        "cool.p.W1": [
+          48,
+          2
+        ],
+        "cool.p.b0": [
+          1,
+          1
+        ],
+        "cool.p.b1": [
+          8,
+          2
+        ],
+        "cool.p.skip": [
+          6,
+          0
+        ],
+        "cool.p.w2": [
+          8,
+          2
+        ],
+        "crit.W1": [
+          32,
+          0
+        ],
+        "crit.b0": [
+          1,
+          1
+        ],
+        "crit.b1": [
+          8,
+          0
+        ],
+        "crit.skip": [
+          4,
+          3
+        ],
+        "crit.w2": [
+          8,
+          0
+        ],
+        "diff.W1": [
+          48,
+          2
+        ],
+        "diff.b0": [
+          1,
+          1
+        ],
+        "diff.b1": [
+          8,
+          1
+        ],
+        "diff.sharp": [
+          1,
+          1
+        ],
+        "diff.skip": [
+          6,
+          3
+        ],
+        "diff.w2": [
+          8,
+          2
+        ],
+        "dy.frac": [
+          1,
+          0
+        ],
+        "dy.tau_s": [
+          1,
+          1
+        ],
+        "enc.cool_gain": [
+          1,
+          1
+        ],
+        "enc.e_clip": [
+          2,
+          2
+        ],
+        "enc.end_frac": [
+          1,
+          1
+        ],
+        "enc.gain_b": [
+          1,
+          1
+        ],
+        "enc.gain_w": [
+          3,
+          1
+        ],
+        "enc.k_floor_m2_s": [
+          1,
+          1
+        ],
+        "enc.min_points": [
+          1,
+          1
+        ],
+        "enc.mix": [
+          2,
+          2
+        ],
+        "enc.w_ref": [
+          1,
+          1
+        ],
+        "enc.window_frac": [
+          1,
+          1
+        ],
+        "filt.gain_b": [
+          1,
+          1
+        ],
+        "filt.gain_w": [
+          3,
+          3
+        ],
+        "filt.l_floor": [
+          1,
+          1
+        ],
+        "filt.sd_evap": [
+          1,
+          1
+        ],
+        "filt.sd_hot": [
+          1,
+          1
+        ],
+        "fl.evap_mix": [
+          1,
+          1
+        ],
+        "fl.gap_s": [
+          1,
+          1
+        ],
+        "fl.min_points": [
+          1,
+          1
+        ],
+        "fl.t_min_s": [
+          1,
+          1
+        ],
+        "fl.trust": [
+          1,
+          0
+        ],
+        "gate.growth_tol": [
+          1,
+          1
+        ],
+        "gate.k_max_m2_s": [
+          1,
+          1
+        ],
+        "gate.min_later": [
+          1,
+          1
+        ],
+        "haz.log_disruption": [
+          1,
+          1
+        ],
+        "norm.d_ref_m": [
+          1,
+          1
+        ],
+        "norm.k_ref_m2_s": [
+          1,
+          1
+        ],
+        "norm.n_ref": [
+          1,
+          1
+        ],
+        "norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "num.bin_s": [
+          1,
+          1
+        ],
+        "num.ce_count": [
+          1,
+          1
+        ],
+        "num.ce_step": [
+          1,
+          1
+        ],
+        "num.d_min_m": [
+          1,
+          1
+        ],
+        "num.dt_s": [
+          1,
+          1
+        ],
+        "num.t_valid_s": [
+          1,
+          1
+        ],
+        "num.z_count": [
+          1,
+          1
+        ],
+        "num.z_step": [
+          1,
+          1
+        ],
+        "post.cool_scale": [
+          1,
+          1
+        ],
+        "post.hot_exp": [
+          1,
+          1
+        ],
+        "post.k_hot": [
+          1,
+          1
+        ],
+        "post.k_inf": [
+          1,
+          1
+        ],
+        "post.size_exp": [
+          1,
+          1
+        ],
+        "post.tau0_s": [
+          1,
+          1
+        ],
+        "post.tau_exp": [
+          1,
+          1
+        ],
+        "rad.W1": [
+          48,
+          2
+        ],
+        "rad.b0": [
+          1,
+          1
+        ],
+        "rad.b1": [
+          8,
+          1
+        ],
+        "rad.sharp": [
+          1,
+          1
+        ],
+        "rad.skip": [
+          6,
+          0
+        ],
+        "rad.w2": [
+          8,
+          2
+        ],
+        "rate.W1": [
+          112,
+          7
+        ],
+        "rate.b0": [
+          1,
+          1
+        ],
+        "rate.b1": [
+          16,
+          5
+        ],
+        "rate.skip": [
+          7,
+          5
+        ],
+        "rate.w2": [
+          16,
+          6
+        ],
+        "rob.eps_r": [
+          1,
+          0
+        ],
+        "sc.cl_j_kg_k": [
+          1,
+          0
+        ],
+        "sc.diff_scale": [
+          1,
+          1
+        ],
+        "sc.gas": [
+          3,
+          0
+        ],
+        "sc.k0_cool_mm2_s": [
+          1,
+          0
+        ],
+        "sc.k0_hot_mm2_s": [
+          1,
+          0
+        ],
+        "sc.k_cold_mm2_s": [
+          1,
+          0
+        ],
+        "sc.k_warm_mm2_s": [
+          1,
+          0
+        ],
+        "sc.lat_j_kg": [
+          1,
+          0
+        ],
+        "sc.on": [
+          1,
+          0
+        ],
+        "sc.tau_warm_s": [
+          1,
+          1
+        ],
+        "sc.tstar_k": [
+          1,
+          0
+        ],
+        "unc.s_floor": [
+          1,
+          1
+        ],
+        "unc.s_pop": [
+          1,
+          1
+        ],
+        "unc.sigma_d": [
+          1,
+          1
+        ],
+        "unc.sigma_frame": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:b15ead9370ad4ff103ae08dadb3adda2a518e67735f3a8b8dd34f1f3286fae8f",
+    "spec_id": "flex_heptane-wsp-v8"
+  },
+  "config": {},
+  "feature_order": [
+    "c_o2",
+    "c_co2",
+    "c_he",
+    "c_logp",
+    "c_logd0",
+    "x_exc",
+    "w",
+    "s",
+    "e_late",
+    "e_early",
+    "r_late",
+    "r_end",
+    "g_span",
+    "g_count",
+    "g_progress",
+    "flame_seen"
+  ],
+  "units": {
+    "c_co2": "1",
+    "c_he": "1",
+    "c_logd0": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "e_early": "1",
+    "e_late": "1",
+    "flame_seen": "1",
+    "g_count": "1",
+    "g_progress": "1",
+    "g_span": "1",
+    "r_end": "1",
+    "r_late": "1",
+    "s": "1",
+    "w": "1",
+    "x_exc": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "calibration": "published calibration assumed applied upstream by the data lane",
+    "noise": "independent Gaussian of sd unc.sigma_d on each measurement (assumed)",
+    "prefix": "liquid_diameter observations, valid, positive, 0 <= t <= cutoff, first of equal time stamps, after the validity gate (a value later frames exceed by more than gate.growth_tol is dropped)"
+  },
+  "numerics": {
+    "d_min_m": 0.00025,
+    "integrator": "RK4 of the hot phase on a uniform grid of num.dt_s from the cutoff; closed form after a transition",
+    "request_time_fitting": "none",
+    "scenarios": "num.z_count rate nodes spaced num.z_step and num.ce_count cool-extinction nodes spaced num.ce_step, normal weights",
+    "t_valid_s": 200.0
+  },
+  "tensors": [
+    {
+      "name": "ce.beta_atm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.c_he",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.d0_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "ce.eps_atm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f40a7c54b4a1366724e4a4d108951f3daf38409c9fccfed00e1f0bb268605fc3",
+      "trainable": false
+    },
+    {
+      "name": "ce.g0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.on",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.p_ref_atm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "class.bias",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "class.kappa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "274295074fd46e2504f58c4096f9a783ae051f7b6d44e84c0c87bd6a007ffe07",
+      "trainable": false
+    },
+    {
+      "name": "cool.d.W1",
+      "shape": [
+        8,
+        5
+      ],
+      "dtype": "float64",
+      "sha256": "535c11a38e26c05a0760c0abd008be5dd04f7194e7295aebdbfbe8c13ef77b72",
+      "trainable": false
+    },
+    {
+      "name": "cool.d.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8fba0e3a19e3d68235931b3918ff7a591a2038bda668b39d92ce3155265e4d82",
+      "trainable": false
+    },
+    {
+      "name": "cool.d.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "cool.d.sd",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f6ebfaecd5cb7c8a124f1819efc554dafd19926f4a021b4e4946eaad31f59037",
+      "trainable": false
+    },
+    {
+      "name": "cool.d.skip",
+      "shape": [
+        5
+      ],
+      "dtype": "float64",
+      "sha256": "75ae5e3716ec2b40d81ac7e710b7286b1337b2453b52c48962459362d59861f5",
+      "trainable": false
+    },
+    {
+      "name": "cool.d.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "cool.k.W1",
+      "shape": [
+        8,
+        5
+      ],
+      "dtype": "float64",
+      "sha256": "535c11a38e26c05a0760c0abd008be5dd04f7194e7295aebdbfbe8c13ef77b72",
+      "trainable": false
+    },
+    {
+      "name": "cool.k.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4cc5fd44271abab4def4d1b0a80c7dc460627092e682045c9c06ad40550d7f96",
+      "trainable": false
+    },
+    {
+      "name": "cool.k.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "cool.k.skip",
+      "shape": [
+        5
+      ],
+      "dtype": "float64",
+      "sha256": "cae35170417cd9ded6884463c39bd874a07122457cbfe0fe60ea320e39268f6b",
+      "trainable": false
+    },
+    {
+      "name": "cool.k.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "cool.p.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "012ca901f641700291282d237704e07a7cc0a0e1730b0f83b25ab04079a4ae95",
+      "trainable": false
+    },
+    {
+      "name": "cool.p.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "cool.p.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "a3cac1faa902b3ba5afc64ca27920bfeef461315b5facad472907b5c042d194a",
+      "trainable": false
+    },
+    {
+      "name": "cool.p.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "cool.p.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ff2fefa2203b351433bb60db0b5cfcf48d2cd401bfdbdea992775be124ddb123",
+      "trainable": false
+    },
+    {
+      "name": "crit.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "2a2edbbf100711cafb607d7bf507fbd1dfb087d43fbf3f34632b6ff4e18d3460",
+      "trainable": false
+    },
+    {
+      "name": "crit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7c1de008e1f4f4012264fbf294f035d2d81708b38bb592faab9aab2799f41098",
+      "trainable": false
+    },
+    {
+      "name": "crit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "crit.skip",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "a1ec4581a0b4b1ce2dfa9bdb4e5c009c79944db790f52243c07860a579fb9d7a",
+      "trainable": false
+    },
+    {
+      "name": "crit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "diff.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "c20d144b08247e0052b7483b74c04666eeeb58ec341ac33c3b34485a053dbbc9",
+      "trainable": false
+    },
+    {
+      "name": "diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "68f09a9b32aacb8dd41c6809fe760c4bbbcd405d08c90837715aa2634a4a0417",
+      "trainable": false
+    },
+    {
+      "name": "diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "dfa15ad274487628203051ee044acc5939cffe131a5ec2bc41c53df37861fdce",
+      "trainable": false
+    },
+    {
+      "name": "diff.sharp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "diff.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "82e1edfefd1f50da16a277c6ae87f697fb26528633fda9eb88f327a48483c48b",
+      "trainable": false
+    },
+    {
+      "name": "diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "fed61cfa18658b6a2d85260ccf015a069367edae6e9e2fb1e444ff725e5e605d",
+      "trainable": false
+    },
+    {
+      "name": "dy.frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "dy.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "enc.cool_gain",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "enc.e_clip",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "68c2421bc7a92d5c1f2481b78773eb47f4c4a528b023e43d0f57f52250e1dcad",
+      "trainable": false
+    },
+    {
+      "name": "enc.end_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4071bcaa9e99506b4700b169f5aca7d38e4b6c249e3db3a5f617870fc5b45618",
+      "trainable": false
+    },
+    {
+      "name": "enc.gain_b",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "59e3065b893b724efa0826ab727f15fad0c6f46046ab8a3e19f352848de0e20d",
+      "trainable": false
+    },
+    {
+      "name": "enc.gain_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "42a632ade3322e4e47199b77d2f4f5fb68b6cf1e21bcefd40c5fbfdd07235e84",
+      "trainable": false
+    },
+    {
+      "name": "enc.k_floor_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0ebe7df3068dfab5a022b58040a60af903aa932fe2f49bf2de55b737d2989df7",
+      "trainable": false
+    },
+    {
+      "name": "enc.min_points",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "enc.mix",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "aaf5036b0bca7147c51f4e43b4e40e81ae012190b32423cf1ecd4da0e70580c9",
+      "trainable": false
+    },
+    {
+      "name": "enc.w_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "49981eeb9c6978f81da79bac7b9a910f3f1cf8291f72798daffe06c176e7a7be",
+      "trainable": false
+    },
+    {
+      "name": "enc.window_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "filt.gain_b",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "81d094cf888d834a70f6b20cef0a8b7ffa4ed4eba7b2a09d1e7a0272d50c1c5e",
+      "trainable": false
+    },
+    {
+      "name": "filt.gain_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "17e4461b5ac0a74c1813c13631206529569af13ed5dec0c892be442755412b83",
+      "trainable": false
+    },
+    {
+      "name": "filt.l_floor",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "filt.sd_evap",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4071bcaa9e99506b4700b169f5aca7d38e4b6c249e3db3a5f617870fc5b45618",
+      "trainable": false
+    },
+    {
+      "name": "filt.sd_hot",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "fl.evap_mix",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "fl.gap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "fl.min_points",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "fl.t_min_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "fl.trust",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "gate.growth_tol",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "gate.k_max_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8b1c4041749e7d9529c63f5b82db79bc57305fe7292e065d7738ee1ff93283a4",
+      "trainable": false
+    },
+    {
+      "name": "gate.min_later",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "haz.log_disruption",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2f9387c8d70c97e5227a4fef89ccbba6ebb98f237692aad7c428cd5ebd8090b0",
+      "trainable": false
+    },
+    {
+      "name": "norm.d_ref_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8c3b46a80d99d14eda1ed1f267daf202e284542438f4b278bb8e8fba314f8818",
+      "trainable": false
+    },
+    {
+      "name": "norm.k_ref_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "norm.n_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f02d9c717f9625f279291665b0954ea23ca0c32365e38963ba820afeb64cdba8",
+      "trainable": false
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "num.bin_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "num.ce_count",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "num.ce_step",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "num.d_min_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b65706421956c2f2e8e1f50fe774062572e1e3fb7a379a6e01d64584e5ad53ab",
+      "trainable": false
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "num.t_valid_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "af975a41694228277cb69e4f7c7778e98865e1810e2ce4a3489dd8a10b8434ff",
+      "trainable": false
+    },
+    {
+      "name": "num.z_count",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "num.z_step",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "post.cool_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "post.hot_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "post.k_hot",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9e1198861db2dbaf5f6718a11ccfa29dce67909b0c3742baeabc8f000732bc8d",
+      "trainable": false
+    },
+    {
+      "name": "post.k_inf",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "cf9cc3f965fb8d3f151295e52b46cb8cd5924d5319e8c8e79cbaf3bf1c6883eb",
+      "trainable": false
+    },
+    {
+      "name": "post.size_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "post.tau0_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9dd4c42c68f68b4edff2afe20b4ffc0e067aca6d562d8ff35d4568837d797f3a",
+      "trainable": false
+    },
+    {
+      "name": "post.tau_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "rad.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5be314aa71af181252805029e250b6388b0884ccb1cbe9925c0334e65bf2e434",
+      "trainable": false
+    },
+    {
+      "name": "rad.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1815db9b712baab095aeec7ce601d24d57840d047cf4179a40f0669c776f121b",
+      "trainable": false
+    },
+    {
+      "name": "rad.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "922e8533c25a6dc3c4f4709ff7b17a2a12e6cf87b85bb02732f49deacb11e316",
+      "trainable": false
+    },
+    {
+      "name": "rad.sharp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "rad.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "rad.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "fc2693db0059eca0083043d9bd22921a91432d29592ba26cf5b8527683df0019",
+      "trainable": false
+    },
+    {
+      "name": "rate.W1",
+      "shape": [
+        16,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9cf6bf7ae90866790a86beb351b4fcb62bc50618b55868743129630e2e8ba78b",
+      "trainable": false
+    },
+    {
+      "name": "rate.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8ec6e7a9b91012e3e807d5a1fa6daf00034d3fdb7d8da346a2d866c2e34fcb71",
+      "trainable": false
+    },
+    {
+      "name": "rate.b1",
+      "shape": [
+        16
+      ],
+      "dtype": "float64",
+      "sha256": "bb6db9be5cc1f73d4b7b6780d42c5dddc77ac4779bee8eda268e43626ef6f583",
+      "trainable": false
+    },
+    {
+      "name": "rate.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "88c992b657a0944e8a868cbc58ebef1344c845830651b4689f67b15ef3013218",
+      "trainable": false
+    },
+    {
+      "name": "rate.w2",
+      "shape": [
+        16
+      ],
+      "dtype": "float64",
+      "sha256": "6cb129fae159b92ecbd421a6c35ed49a5116aaa869d71d11dbfe04e11ba9a3e7",
+      "trainable": false
+    },
+    {
+      "name": "rob.eps_r",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.cl_j_kg_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.diff_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "sc.gas",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "sc.k0_cool_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.k0_hot_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.k_cold_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.k_warm_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.lat_j_kg",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.on",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.tau_warm_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "sc.tstar_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "unc.s_floor",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5d1bbb4565da7813c1cfd448043e5e9767aa0c6fed89785c0da4f0e4f9aafb13",
+      "trainable": false
+    },
+    {
+      "name": "unc.s_pop",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_d",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "05ccf428ac186236f22ca69ef692b5cbe1b1aa2a28c08ca677e984fd592e7335",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_frame",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "42cef525871042946ec9c29df159e7004e92e40c87d7379600b1752bbec2550c",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:8ffa1875d0c963fe3b3ce6886ba7197a7b0c8675ffd837bbf5139049c1655797",
+  "split_id": "sha256:c43bbe3580ffce2a33c400d5aea73b3330cf721133f925c2963579dee6d32001",
+  "source_manifest_hash": "sha256:74dedf7ea617ed6da1c5555822137b8433cfbf59cf293ab9989fd5d3c31a6382",
+  "code_version": "ignis-wsp@0.1.0+fwd.0e078a058c032503",
+  "applicability": {
+    "configuration": "single free-floating droplet",
+    "domain": [
+      {
+        "feature": "c_o2",
+        "max": 4.8,
+        "min": -2.2
+      },
+      {
+        "feature": "c_co2",
+        "max": 4.0,
+        "min": 0.0
+      },
+      {
+        "feature": "c_he",
+        "max": 4.25,
+        "min": 0.0
+      },
+      {
+        "feature": "c_logp",
+        "max": 1.7,
+        "min": -1.0
+      },
+      {
+        "feature": "c_logd0",
+        "max": 1.26,
+        "min": -0.9
+      }
+    ],
+    "fuel": "heptane",
+    "meaning": "declared physical domain of the handwritten law, not a training-support region",
+    "time_origin": "NASA DropletData processed time base (phase entry not adjudicated)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:978d382798d77767c393562c330fc9ed59ffe703db798cf25642ac4ad444abc8",
+  "lineage": "weight_edit",
+  "lineage_note": "Neutral carry, not a candidate: flex_heptane.wsp5 carry-d2 (the numbers of flex_heptane.wsp2 D2) (sha256:03e0f63cf88c1b2c626e7726356746dd16d673a3a208cca5461c9d1ec360bf0b) on droplet8.rs, the law of droplet6.rs for eight fuels. Its statement",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-15T02:26:23.040412Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "flex_heptane-wsp-v8",
+    "spec_hash": "sha256:b15ead9370ad4ff103ae08dadb3adda2a518e67735f3a8b8dd34f1f3286fae8f",
+    "patch_id": "flex_heptane-wsp-v8-carry-d2",
+    "patch_hash": "sha256:f8271fc193367952b7a4a92af77b81bf3add9758f29d9bc5417b70a4cd930485",
+    "parent_release_id": "sha256:978d382798d77767c393562c330fc9ed59ffe703db798cf25642ac4ad444abc8",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+        "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+        "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+        "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+        "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+        "author:pretraining-knowledge(unverifiable)",
+        "repo:crates/ignis-wsp/src/droplet8.rs(forward-and-spec;the-law-of-droplet6.rs-for-eight-fuels)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+          "partitions": [
+            "train"
+          ]
+        },
+        {
+          "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+          "partitions": [
+            "validation"
+          ]
+        },
+        {
+          "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+          "partitions": [
+            "train"
+          ]
+        }
+      ],
+      "development_feedback": [],
+      "prior_candidates": [
+        "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
+        "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+        "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+        "sha256:74b3a0f195884a860d28ab41d9fb3250633a346d0b980138ee1c7d84881842a3"
+      ]
+    },
+    "weights_hash": "sha256:c39807236a234b5b2de3e0bac50f4245b75353a5518e04b71950c83a3582d461",
+    "forward": {
+      "entry_point": "ignis_wsp::droplet8::forecast",
+      "version": "8",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:0e078a058c0325036a26e185ed4705c1a55624e7aff8070599c132861e0c3ee2",
+    "code_version": "ignis-wsp@0.1.0+fwd.0e078a058c032503",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "603 authored elements (102 nonzero), 20 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

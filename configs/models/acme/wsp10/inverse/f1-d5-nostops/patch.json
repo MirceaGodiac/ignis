@@ -1,0 +1,533 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_inverse-wsp-v10-f1-d5-nostops",
+  "spec_hash": "sha256:fd23c131758d65798f48cb63362adb3a06aae55517a38f0fc88f48513a909a42",
+  "parent_release_id": "sha256:dd2028455281e66a5e828ea9ee8fc96a312c092cf3c7a81e2b4d38429d0d88be",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-second-generation-D3-was-not-adopted-on-them)",
+      "repo:docs/wsp/cards/acme_clock.md(states-that-the-validation-sessions-hold-leaner-ambients-than-train;written-in-phase-2;not-used-here)",
+      "repo:docs/wsp/research/phys_acme_inverse.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;a-proposal;the-author-rechecked-what-he-typed)",
+      "analysis:the-author's-recount-of-which-input-separates-the-inverse-train-outcomes(tools/wsp/analysis/inverse_separation.py)",
+      "repo:configs/models/acme/wsp3/inverse/d3-fable(a-pressure-term-tried-the-same-day:worse-on-train,not-taken);repo:configs/models/acme/wsp3/inverse/d2-fable(the-same-scenario-written-in-total-burner-flow:weakened-by-the-recount)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-limit-levels-and-the-planned-stops-from-its-tables)",
+      "author:pretraining-knowledge(unverifiable)",
+      "repo:docs/wsp/research/phys_spherical_fuels.md(fuel-descriptors-and-coordinates-typed-from-property-tables-and-theory;its-author-read-CFI-G-train-rows-and-knew-the-aggregate-arms-of-the-Flame-Design-transfer-test;no-per-test-outcome-of-Flame-Design-or-s-Flame)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:04d5503ee0627a42dae648817a3fc0904cd67db66fda549f83d641056517af09",
+      "sha256:6a3d5837ca973eaa91b9813c63ecd6d59dd96fb2195ee365f8dac39031b83cad",
+      "sha256:908d02101e4989954a75b16b01a9beaf4a0930a8b7b0b4a9ed809a98ba4a518a",
+      "sha256:f542f636f140d2a4784cbf030186d95f995aac54d70427835f51d112bfce006d",
+      "sha256:19c156e60036d15f46fa92f7827d1122f8e595f6747ad1d5b7363463777422eb",
+      "sha256:9bdd4d278e217cb978ac764ddd8979749052fefea3db8f7b0adbc3b1056df9bc",
+      "sha256:446e5ba70ed21c6d106abd3bd057bb472f94e020022ffcb57a21f90355be1f23"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set_box",
+      "tensor": "fuel.admit",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "fuel.mw_g_mol",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        30.07,
+        44.1,
+        58.12,
+        28.054,
+        16.043,
+        2.016
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "fuel.s",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "fuel.se_coord",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        6,
+        2
+      ],
+      "values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "fuel.ft_coord",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        6,
+        2
+      ],
+      "values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "fuel.dosc",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.7,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "fuel.tad_min_k",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.flux.b0",
+      "index": [],
+      "value": -4.6
+    },
+    {
+      "op": "set",
+      "tensor": "se.diff.skip",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b1",
+      "index": [
+        0
+      ],
+      "value": -0.2
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.w2",
+      "index": [
+        0
+      ],
+      "value": -10.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.skip",
+      "index": [
+        4
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -5.33
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        2,
+        2
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        3,
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        3,
+        5
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b1",
+      "index": [
+        0
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b1",
+      "index": [
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b1",
+      "index": [
+        2
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b1",
+      "index": [
+        3
+      ],
+      "value": -0.2
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.w2",
+      "index": [
+        0
+      ],
+      "value": 10.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.w2",
+      "index": [
+        1
+      ],
+      "value": -8.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.w2",
+      "index": [
+        2
+      ],
+      "value": 8.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.w2",
+      "index": [
+        3
+      ],
+      "value": 20.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.skip",
+      "index": [
+        2
+      ],
+      "value": 0.45
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.skip",
+      "index": [
+        3
+      ],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b0",
+      "index": [],
+      "value": 2.17
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.skip",
+      "index": [
+        0
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.skip",
+      "index": [
+        1
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.skip",
+      "index": [
+        5
+      ],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.b0",
+      "index": [],
+      "value": 5.88
+    },
+    {
+      "op": "set",
+      "tensor": "se.sigma_phi",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "se.hold_log_rate",
+      "index": [],
+      "value": -8.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.floor_s",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_tau_s",
+      "index": [],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.sigma",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_c",
+      "index": [
+        0
+      ],
+      "value": 455.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_c",
+      "index": [
+        1
+      ],
+      "value": 510.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_w",
+      "index": [
+        0
+      ],
+      "value": 0.4
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_w",
+      "index": [
+        1
+      ],
+      "value": 0.6
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        0
+      ],
+      "value": 63.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        1
+      ],
+      "value": 64.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        2
+      ],
+      "value": 65.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        3
+      ],
+      "value": 66.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        4
+      ],
+      "value": 67.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        5
+      ],
+      "value": 90.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -9.0
+    }
+  ],
+  "rationale": "A fuel-table member, data-informed like its source: every law value is the stored value of wsp3/inverse/d5-nostops; the fuel table is the F1 table of inverse burner flames (zero-shot for the new fuels). For ethane, propane and butane its forecasts are those of the source.",
+  "origin": "system"
+}

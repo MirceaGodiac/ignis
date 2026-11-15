@@ -1,0 +1,174 @@
+{
+  "schema": "solids-property-packet-freeze.v2",
+  "author": "gpt-6-astra",
+  "status": "frozen_after_verification_and_independent_rereview",
+  "classification": "synthetic_and_physics_review_informed_not_cleanroom_w0",
+  "reviewed_kernel_sha256": "efc43f07e245a8fa8ec8148810e3f4d45f56e550248e721c253046d83ebc5b09",
+  "nasa_outcome_feedback": [],
+  "final_test_exposure": [],
+  "physical_literals": "R and sigma inherited unchanged; new contraction ceiling 0.75 is numerical only",
+  "runtime_dependency": "Rust standard library only",
+  "toolchain": "rustc 1.94.1 (e408947bf 2026-03-25)",
+  "files": [
+    {
+      "path": "crates/ignis-wsp/src/property_solids_v2.rs",
+      "sha256": "efc43f07e245a8fa8ec8148810e3f4d45f56e550248e721c253046d83ebc5b09"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/spec.json",
+      "sha256": "dc410baf6051981d5503e12f95b3f7a46e7747644f8eb71a0e14a0b9496cb2ea"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/ops.json",
+      "sha256": "cbf9c97cb2a4a973e2703cd57c256e78457adf98ec4a72987db4a4edbb064c14"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/meta.json",
+      "sha256": "5f1ee373aef1b71f1b0a127cf2b13b025f0cdb40c6ca30304fee9a5ca9cdcab6"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/source_inventory.json",
+      "sha256": "7db93b4cb79226e8fdc05f12ba962bca351d5b5453081bf06f3225b31f5c1fb6"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/Cargo.toml",
+      "sha256": "62b364be0359c1c9bb2a436226463fab63cc1de1ee498e82558a9d4859fc6aa2"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/Cargo.lock",
+      "sha256": "cd34e90dec5c5db96e1b8a0f52388b89416dd6b0e7c35c2415b3f79f81d17e18"
+    },
+    {
+      "path": "configs/models/solids/property-v2/law-review-astra/literal_contract.rs",
+      "sha256": "eb16310e54569cef4cdfcf28e417af3b9febc77455a03131ddda6dadf80d6bc5"
+    },
+    {
+      "path": "docs/wsp/research/astra_solids_v2.md",
+      "sha256": "b3842985205311b82a84aca242fa37d4d88e6df6615050a49d08956574a6ccfd"
+    }
+  ],
+  "dependency_snapshot": [
+    {
+      "path": "Cargo.toml",
+      "sha256": "905b2e014e7cfe8d18afbd900bd7fd8ef339ceeb4eb3d921ce4cadf348cb2b16",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "fdee6fd346bd9732b692e4886de1414a6370ff40941c9d7052fba8c71f3f5bd6",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "crates/ignis-core/Cargo.toml",
+      "sha256": "9a488930c229c769a7b94a436496a4faa40e97f9828a0d6aa5266a76850e371f",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "crates/ignis-core/src/contracts.rs",
+      "sha256": "774fe37ac3fa4b548ba18726de39cd70e53640a959b519b661725ddc6790ec7d",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "crates/ignis-core/src/contracts/wsp.rs",
+      "sha256": "f501a0271087ef2038ace8fef1b0c580ad7b3feff89459fb7e91a757ec9d00aa",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "crates/ignis-core/src/contracts/common.rs",
+      "sha256": "301ebd606ca5cb1a12aa2b7610bab5774a162d29f213c7941f49459bf73ed0e4",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "crates/ignis-wsp/src/property_solids_w0.rs",
+      "sha256": "fe59a4cb7e15069f1427aaf5cb8e7b7c70043bbb2984b1b308f18342ec8bbc06",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/freeze.json",
+      "sha256": "e75662a7f01c071f66999ee25df60fed1ed0ecfbbc3f667ba1cf992a617526e6",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/spec.json",
+      "sha256": "00b391edd51050abecff055c1a368e3833a3acc48283ce9daa59fd2b3a4cc545",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/ops.json",
+      "sha256": "24335e9ed9423b3665e5ed339db4b868dffec8fbc4b401a984d2a8ed8ea52772",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "configs/models/solids/property-w0/cleanroom-astra/meta.json",
+      "sha256": "f5b8ddcb7d42a495223f6fcc9f38f89573b95e4e3413ab104e55f0aad59108fe",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "docs/wsp/research/astra_solids_w0.md",
+      "sha256": "00fa3561afce53f82c978fc9cf2d4bf5111f227c9f2916c1bdbeb865fe757faf",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "docs/wsp/research/astra_property_thermal_check.md",
+      "sha256": "202e50b69c629dfafac7d622cd17a1766a69450efd9e4ea637495d837e5a2780",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    },
+    {
+      "path": "runs/tooling/astra-thermal-review/domain.rs",
+      "sha256": "87894b5a2da3f42c98ef03ba2ebc1006be47364f163e45861ce4752c799bf690",
+      "basis": "current file bytes at freeze; source/provenance or shared-contract build input"
+    }
+  ],
+  "receipts": [
+    {
+      "owner": "author",
+      "check": "standalone actual-kernel tests",
+      "result": "16 passed, 0 failed",
+      "command": "rustc --edition 2021 --test crates/ignis-wsp/src/property_solids_v2.rs -o configs/models/solids/property-v2/law-review-astra/solids-v2-check.exe; then executable --nocapture",
+      "duration_seconds": 0.24
+    },
+    {
+      "owner": "author",
+      "check": "rustfmt --check new kernel and literal_contract.rs",
+      "result": "passed"
+    },
+    {
+      "owner": "coordinator",
+      "check": "integrated V2 module tests",
+      "result": "16 passed",
+      "kernel_sha256": "efc43f07e245a8fa8ec8148810e3f4d45f56e550248e721c253046d83ebc5b09",
+      "command": null,
+      "note": "Final coordinator receipt did not supply exact invocation"
+    },
+    {
+      "owner": "coordinator",
+      "check": "actual shared-core literal_contract harness",
+      "result": "1 passed",
+      "command": null,
+      "note": "Final coordinator receipt did not supply exact invocation"
+    },
+    {
+      "owner": "independent thermal reviewer via coordinator",
+      "check": "domain and numerical rereview",
+      "result": "passed",
+      "kernel_sha256": "efc43f07e245a8fa8ec8148810e3f4d45f56e550248e721c253046d83ebc5b09",
+      "findings": [
+        "Original boundary-domain case rejects atomically",
+        "Invalid heated intermediate path rejects atomically",
+        "Valid checked mode equals predecessor",
+        "Refinement and work-budget checks passed",
+        "Observed estimator explicitly is not a rigorous bound"
+      ]
+    },
+    {
+      "owner": "author",
+      "check": "predecessor seven frozen hashes",
+      "result": "all match; original W0 unchanged"
+    }
+  ],
+  "limits": [
+    "Temporal refinement is an observed-contraction estimate, not a rigorous bound",
+    "No autonomous flame-spread or gas-phase quench prediction",
+    "No spatial accuracy or real-material safety qualification"
+  ]
+}

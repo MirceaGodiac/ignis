@@ -1,0 +1,33 @@
+# flex.wsp — W2 literal revision over W1 (parent release sha256:a3fbfef9…f13b), spec flex-wsp-v1
+# Author: claude-fable-5-2 (Anthropic).
+#
+# NOT zero-shot, and no longer validated on untouched data: written after reading W1's feedback on
+# the VALIDATION partition (docs/wsp/feedback/flex_w1_validation.md) on top of the train feedback
+# behind W1. Typed by the author; no optimizer, regression or search chose a value.
+#
+# What the validation feedback showed: W1's pressure term in the radiative branch (read off three or
+# four 0.7-atm train runs) sent validation droplets at 0.7 atm into early extinction that did not
+# happen (He 35 % and CO2 45 % at 0.69-0.71 atm burned to 60-75 %). At 1 atm the radiative branch
+# was confirmed (CO2 25 %, 16 % O2: 3.7 and 4.2 mm droplets went out at 27 % and 19 % burned; W1
+# said 23 % and 16 %). The same nominal condition can land on either side of the size threshold, so
+# the threshold is softened and the spread widened rather than tuned further.
+# Only the extinction network changes. A value not written here keeps its W1 value.
+
+# sharpness a = 12 again: 80 % of extinctions within [w_ext - 0.16, w_ext + 0.10]
+# b0 = ln(12 * 0.6931) - 12 * 0.80
+haz.b0 = -7.4816
+haz.skip[0:7] = [-1.08, 0.36, 0.0, 0.0, 0.0, 12.0, 0.0]
+# unit 0: relu(c_o2), above air w_ext rises 0.045 per 5 % O2
+haz.w2[0] = 0.54
+
+# units 6-7: radiative branch, u = c_logd0 - 0.37 c_o2 + 0.10 c_co2 + 0.15 c_he - 0.80
+# (no pressure term). w_ext falls 1.2 per unit u from u = -0.05, 0.5 per unit u beyond u = 0.30.
+haz.W1[6, 0:5] = [-0.37, 0.10, 0.15, 0.0, 1.0]
+haz.b1[6] = -0.75
+haz.w2[6] = 14.4
+haz.W1[7, 0:5] = [-0.37, 0.10, 0.15, 0.0, 1.0]
+haz.b1[7] = -1.1
+haz.w2[7] = -8.4
+
+# with a = 12 a link of -6 moves w_ext by 0.5 per unit of run offset b
+haz.link_b = -6.0

@@ -1,0 +1,19 @@
+{
+  "patch_id": "flex_methanol-wsp-v8-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-median-methanol-burning-rate)",
+      "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/droplet8.rs(forward-and-spec;the-law-of-droplet6.rs-for-eight-fuels)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the statements of configs/models/flex/wsp5/methanol/baseline-d2 (flex_methanol.wsp5) copied without change under spec flex_methanol-wsp-v8 on droplet8.rs (the law of droplet6.rs for eight fuels); copied by the engineer (claude-opus-5-5), no number typed.",
+  "origin": "system"
+}

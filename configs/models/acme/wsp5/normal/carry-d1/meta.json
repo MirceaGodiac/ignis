@@ -1,0 +1,46 @@
+{
+  "patch_id": "acme_normal-wsp-v5-carry-d1",
+  "parent_release_id": "sha256:6044b69bd5d10a150734bea2b6d549a8903dbdc49ddc911f7ff1b6bf2c0b2bff",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-the-second-generation-D2)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-both-members-and-of-the-earlier-candidates:integrated-Brier-scores-only;the-two-members-tie;the-weights-are-equal-and-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp2/normal/d3-fable(member-a:its-stored-values,copied)",
+      "repo:configs/models/acme/wsp3/normal/d1-fable(member-b:its-stored-values,copied)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-both-members-and-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:32822270de2ca8a6b25f32fbf1888b5e83475f8e2a9ec3306e2b002ae25894d7",
+      "sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7",
+      "sha256:221a2ea22aca8a8c1e3813745ea566e591863fca13d8dd456c69c38986d49027",
+      "sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad",
+      "sha256:6044b69bd5d10a150734bea2b6d549a8903dbdc49ddc911f7ff1b6bf2c0b2bff"
+    ]
+  },
+  "rationale": "Carry of the carried normal-flame model (acme_normal.wsp4 D1: wsp2 D3 and wsp3 D1 with equal weights) on the committee spec, the script's planned stop not read: the comparison partner of the committee candidates, since a committee prefix has its own hash. No number is new; slot values are copied by tools/wsp/committee_edits.py.",
+  "origin": "system"
+}

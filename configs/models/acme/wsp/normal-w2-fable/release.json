@@ -1,0 +1,470 @@
+{
+  "id": "sha256:fa1ab73e498a9d1a5a7f19236bf9d14c28b5ec4e5d832e6d2b688408a209eb10",
+  "family": "acme_normal",
+  "model_name": "acme_normal.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::acme::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 30,
+      "authored_total": 284,
+      "constant_total": 13,
+      "per_tensor": {
+        "ext.W1": [
+          108,
+          10
+        ],
+        "ext.b0": [
+          1,
+          1
+        ],
+        "ext.b1": [
+          12,
+          5
+        ],
+        "ext.skip": [
+          9,
+          4
+        ],
+        "ext.w2": [
+          12,
+          5
+        ],
+        "haz.log_cap": [
+          1,
+          1
+        ],
+        "norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "norm.o2_ref": [
+          1,
+          1
+        ],
+        "norm.o2_scale": [
+          1,
+          1
+        ],
+        "norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "norm.t_ref_s": [
+          1,
+          1
+        ],
+        "norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "norm.xf_ref": [
+          1,
+          1
+        ],
+        "norm.zst_ref": [
+          1,
+          1
+        ],
+        "norm.zst_scale": [
+          1,
+          1
+        ],
+        "num.dt_s": [
+          1,
+          1
+        ],
+        "num.horizon_s": [
+          1,
+          1
+        ],
+        "op.W1": [
+          108,
+          1
+        ],
+        "op.b0": [
+          1,
+          1
+        ],
+        "op.b1": [
+          12,
+          1
+        ],
+        "op.skip": [
+          9,
+          1
+        ],
+        "op.w2": [
+          12,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:4b575d7af8f8b05a18cb7ec9264df155191632c27d040d9cc8f5c03323e97a53",
+    "spec_id": "acme_normal-wsp-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "c_logp",
+    "c_logm",
+    "c_o2",
+    "c_xf",
+    "c_tad",
+    "c_zst",
+    "f_ethane",
+    "f_butane",
+    "x_t"
+  ],
+  "units": {
+    "c_logm": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "c_tad": "1",
+    "c_xf": "1",
+    "c_zst": "1",
+    "f_butane": "1",
+    "f_ethane": "1",
+    "x_t": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "censoring": "handled by the evaluator; the forward conditions on the phase being established at the cutoff",
+    "endpoint": "cause-specific event time; an operator stop is its own cause, never an extinction",
+    "prefix": "prospective conditions and control stages known at the cutoff; no time series"
+  },
+  "numerics": {
+    "horizon_s": 600.0,
+    "integrator": "midpoint hazards, step <= num.dt_s, exact competing-risk split within a step",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "ext.W1",
+      "shape": [
+        12,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "35acdbc7e08cc1db395a18c844999b7df23d18c7a20a7e64c148928d8c281de3",
+      "trainable": false
+    },
+    {
+      "name": "ext.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ffa4e51c74e76e8fc31e2f48ff9603feecddcb4ac04ad7cd7dbbb01bbd03ecf",
+      "trainable": false
+    },
+    {
+      "name": "ext.b1",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "428fd4c2f74333748173fdaffbc0ff97ad8f92e1a101af6aafeb49f2fe7b6af9",
+      "trainable": false
+    },
+    {
+      "name": "ext.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "21aaae8b2a4ef69db7d11f59f31b8a376cb120d0d7838ebc4d31a2e7bffe076f",
+      "trainable": false
+    },
+    {
+      "name": "ext.w2",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "22032eb756f6a848df48a71ba0562258a18032f421dfeb677355e1305192c16f",
+      "trainable": false
+    },
+    {
+      "name": "haz.log_cap",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2506c7d86f85080830dcae8287d0dcef0f872345db27ce9cd5569e6f682bf772",
+      "trainable": false
+    },
+    {
+      "name": "norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "norm.t_ref_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "op.W1",
+      "shape": [
+        12,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "998c6ecb711f5466393e53fd78ce3dab218fdc299fc6d70a467d7439ea71ae3a",
+      "trainable": false
+    },
+    {
+      "name": "op.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b0462879f6b9cb6da103219313abf9bc4370585ccd56c81ee7b02de6d8f4cc18",
+      "trainable": false
+    },
+    {
+      "name": "op.b1",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "2f6afa78e8c90a6c361bb1c57b945add84a2c5bf2831c3e7473ec56e5999c0cf",
+      "trainable": false
+    },
+    {
+      "name": "op.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "a9bf167b343177d66cdf20b4edc5d59ca8fcff2cce07b81b976c3fd1bc170a9f",
+      "trainable": false
+    },
+    {
+      "name": "op.w2",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "26ba3b8fa88a82a9000530112bd09a9bbf3428cc322121498894389c1135f2c1",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:92fb4728e88ed5175bd47da77707d042a0f046abca1bd8df351fd1d69fea4701",
+  "split_id": "sha256:c77bc5baee98d3e3494de144fa3f98ce0dee904efa35d5f7c0b48b91dbc82d14",
+  "source_manifest_hash": "sha256:11a1bdbd4bdbda6e3731309deeabe7e6996fa8fa8c43f84c9aae2e4bc793e126",
+  "code_version": "ignis-wsp@0.1.0+fwd.d66abd56024b49f5",
+  "applicability": {
+    "configuration": "normal",
+    "domain": [
+      {
+        "feature": "c_logp",
+        "max": 1.25,
+        "min": -0.92
+      },
+      {
+        "feature": "c_logm",
+        "max": 1.39,
+        "min": -2.31
+      },
+      {
+        "feature": "c_o2",
+        "max": 1.5,
+        "min": -1.5
+      },
+      {
+        "feature": "c_xf",
+        "max": 1.21,
+        "min": -2.71
+      },
+      {
+        "feature": "c_tad",
+        "max": 2.33,
+        "min": -2.67
+      },
+      {
+        "feature": "c_zst",
+        "max": 2.5,
+        "min": -1.1
+      }
+    ],
+    "fuels": [
+      "ethane",
+      "propane",
+      "butane"
+    ],
+    "interpretation": "observational event prediction under the observed experimental policy; operator termination is not spontaneous extinction",
+    "meaning": "declared physical domain of the handwritten hazards, not a training-support region",
+    "population": "established hot flame of a burner-stabilised gas flame (PSI-159)",
+    "time_origin": "hot ignition per table 'burn time (sec)' (not adjudicated against logs)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:a75ba790658108fe8218677326376fedbc34c0d1422ef34c67aff00e619f251c",
+  "lineage": "weight_edit",
+  "lineage_note": "W2, data-informed direct revision (not zero-shot). W1 scored worse than W0 on the extinction row of the validation comparison. Without opening validation detail, the train table was re-read: flame life scatters by a factor of two at fixed c",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-13T19:37:16.751118Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "acme_normal-wsp-v1",
+    "spec_hash": "sha256:4b575d7af8f8b05a18cb7ec9264df155191632c27d040d9cc8f5c03323e97a53",
+    "patch_id": "acme_normal-wsp-v1-w2-fable",
+    "patch_hash": "sha256:d8e046bdd83a029795147c45984091abea0cb23f04755543f023f281ea1dae00",
+    "parent_release_id": "sha256:a75ba790658108fe8218677326376fedbc34c0d1422ef34c67aff00e619f251c",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/design/IGNIS_MASTER_V2.md",
+        "repo:crates/ignis-acme(code-and-config-only)",
+        "repo:docs/wsp/feedback/acme_normal_w0_train.md",
+        "author:pretraining-knowledge(unverifiable;may-include-published-ACME-results)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "acme_normal-c77bc5baee98d3e3",
+          "partitions": [
+            "train",
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [
+        "wsp-dev:acme-table:train:acme_normal-w0:sha256:bc126944368a962c48ab832445887fda85b37894d7965efbef8a9f0d570554b5",
+        "ignis-eval:compare:validation:acme_normal-w0-vs-fitted-baselines(aggregate-metrics-only)",
+        "ignis-eval:compare:validation:acme_normal-w1-vs-w0-and-fitted-baselines(aggregate-metrics-only)"
+      ],
+      "prior_candidates": [
+        "sha256:7ef0c7ab236bf8b495e6659822839bc5d9d5d9955096cc1ff96f3863aecc66f5",
+        "sha256:c2ca9d6961c8d69b2d9df77b5034fc6b7bc24c34935928f9d1623978fa84ce11",
+        "sha256:948952618a0e18e096d291aec98d184affe02c6681c0f6e879538c5415a8c222",
+        "sha256:cb255ed369e2c26776b013c30bb51ff1840457b773fcfad36cb7f500d429346b",
+        "sha256:49a9a3e3051a37eb779451130ac26f166766a93d6ad8253735fbcb9712c04f13",
+        "sha256:a75ba790658108fe8218677326376fedbc34c0d1422ef34c67aff00e619f251c"
+      ]
+    },
+    "weights_hash": "sha256:6700aa93b86f13c7f65f94665a3f2e16a67326a063ef3750e02ead247ef86abe",
+    "forward": {
+      "entry_point": "ignis_wsp::acme::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:d66abd56024b49f502c12e1bdad496b78b5dbfe0ab8f7cc7ba90f7a484c9191a",
+    "code_version": "ignis-wsp@0.1.0+fwd.d66abd56024b49f5",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "284 authored elements (30 nonzero), 13 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

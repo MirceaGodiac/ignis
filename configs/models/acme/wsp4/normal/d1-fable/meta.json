@@ -1,0 +1,47 @@
+{
+  "patch_id": "acme_normal-wsp-v4-d1-fable",
+  "parent_release_id": "sha256:d579e6da25659b2e5b2def6e37fc0c49da29b2911e5e962acc3181d4099d53c7",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-the-second-generation-D2)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-both-members-and-of-the-earlier-candidates:integrated-Brier-scores-only;the-two-members-tie;the-weights-are-equal-and-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp2/normal/d3-fable(member-a:its-stored-values,copied)",
+      "repo:configs/models/acme/wsp3/normal/d1-fable(member-b:its-stored-values,copied)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-both-members-and-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:32822270de2ca8a6b25f32fbf1888b5e83475f8e2a9ec3306e2b002ae25894d7",
+      "sha256:221a2ea22aca8a8c1e3813745ea566e591863fca13d8dd456c69c38986d49027",
+      "sha256:3c90129eb746e3530d440822f5d447d8fbc422c590bd9f1bb9aace29d9d549b1",
+      "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab",
+      "sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7",
+      "sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad"
+    ]
+  },
+  "rationale": "D1 of the blend spec, data-informed (not zero-shot): the second-generation hinge law (acme_normal.wsp2 D3) and the fourth-generation growth clock (acme_normal.wsp3 D1) with equal weights. The two were typed from the same train table and are different kinds of statement, an interpolation of the observed lives and a mechanism with few constants; the mean of two forecasts is never scored worse than the mean of their scores. Written after the author saw the aggregate validation scores of both members, which tie; the weights are equal, the choice one makes knowing nothing, and no other pair was tried. No number of either member was changed: the member values are copied from the two releases by tools/wsp/blend_edits.py, which chooses nothing. No fit, no search.",
+  "origin": "system"
+}

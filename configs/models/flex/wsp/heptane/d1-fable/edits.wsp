@@ -1,0 +1,110 @@
+# flex_heptane.wsp — D1 literal revision of W0 sha256:6ea680d1…6d8f, spec flex_heptane-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: written after W0 was frozen and scored, from
+# the n-heptane TRAIN runs of PSI-69 (NASA test sheets with burning rate and visible-flame extinction
+# diameter, raw droplet series, narratives). Not zero-shot. Every number was typed by the author from
+# tables of train measurements; none was produced by a fit or a search. Only the statements below
+# change; everything else is W0.
+#
+# Inputs (columns):
+#   rate net   x = (c_o2, c_co2, c_he, c_logp, c_logd0, w, s)            0..6
+#   crit net   x = (c_o2, c_co2, c_he, c_logp)                           0..3
+#   law nets   x = (c_o2, c_co2, c_he, c_logp, c_logd0, x_exc)           0..5
+#   cool nets  x = (c_o2, c_co2, c_he, c_logp, c_logd0)                  0..4
+
+# =====================================================================================================
+# 1. Hot flame
+# =====================================================================================================
+# Train plateau rates in air: 0.52-0.60 mm2/s at 2.4 mm, 0.48-0.57 at 3.4 mm. W0's oxygen, CO2 and
+# helium slopes hold within 8 %; what W0 missed is the slow rise of the rate while the flame of a
+# large droplet develops (3.2-3.5 mm droplets go from 0.40-0.47 to 0.55-0.60 mm2/s over 5-8 s, 2.5 mm
+# droplets within 2-3 s): a clock effect, not a progress effect.
+rate.b0 = -0.48
+rate.skip[0:7] = [0.13, -0.08, 0.15, 0.05, -0.15, 0.0, 0.0]
+# Unit 0: the oxygen law is steeper below air than W0 wrote (16 % O2, 2.5 mm: 0.41 mm2/s).
+rate.w2[0] = -0.12
+# Unit 4: the fast heat-up is smaller for heptane than W0 assumed: 22 % over 0.15 of the clock.
+rate.W1[4, 6] = -6.67
+rate.w2[4] = -0.25
+# Unit 5: flame development, relu(1 - s/0.6): the rate starts 26 % low and reaches its plateau at 0.6
+# of the clock (7 s for 3.4 mm, 3.7 s for 2.5 mm).
+rate.W1[5, 6] = -1.667
+rate.b1[5] = 1.0
+rate.w2[5] = -0.3
+
+# =====================================================================================================
+# 2. Critical diameter of radiative extinction
+# =====================================================================================================
+# In air at 1 atm 3.4 mm burns nearly out and 3.56-3.58 mm sits on the edge (the flame oscillates and
+# recovers): D_crit = 3.7 mm, not 2.8. It falls to 2.7 mm at 18 %, 2.0 mm at 16 % and 1.5 mm at 14 % O2.
+crit.b0 = 0.615
+# CO2 lowers it far more than W0 wrote (5 % CO2: 2.9 mm, 10 %: 2.3 mm, 15 %: 1.9 mm at 18-20 % O2);
+# helium barely; no pressure effect is resolved between 0.7 and 1 atm.
+crit.skip[0:4] = [0.62, -0.45, -0.08, 0.0]
+# Train droplets from 2 % below to 9 % above D_crit all lost the flame to radiation; those 7-17 %
+# below it did not.
+class.kappa = 14.0
+class.bias = 0.5
+
+# =====================================================================================================
+# 3. Diffusive branch
+# =====================================================================================================
+# Small droplets end (often by disruption) at De/D0 of 0.16-0.45, median 0.27: w_D = 0.92, with no
+# trend in D0 between 1.4 and 3.0 mm; a little earlier with CO2 and below air.
+diff.b0 = 2.44
+diff.skip[0:6] = [0.5, -0.3, 0.0, 0.0, 0.5, 0.0]
+diff.w2[0] = -0.5
+
+# =====================================================================================================
+# 4. Radiative branch
+# =====================================================================================================
+# Train droplets at the critical diameter lose the visible flame at 0.6-1.2 of a clock unit, those
+# 30 % above it at 0.4-0.8, those 70 % above at 0.13-0.23, those 2.7 times above immediately.
+rad.b0 = -0.163
+rad.b1[0] = 0.0
+rad.w2[0] = -2.0
+
+# =====================================================================================================
+# 5. Cool flame
+# =====================================================================================================
+# Every train droplet that lost its hot flame to radiation in N2 or N2/CO2 between 15 % and 21 % O2
+# went on burning in a cool flame (vigorous vaporisation, then a plateau and a vapour cloud). At 14 %
+# O2 the cool flame was weak. With 30-35 % helium there was none.
+cool.p.b0 = 3.0
+cool.p.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: below 16 % O2.
+cool.p.b1[0] = -1.0
+cool.p.w2[0] = -7.5
+# Unit 1: above 15 % He.
+cool.p.W1[1, 2] = 1.0
+cool.p.b1[1] = -0.75
+cool.p.w2[1] = -7.0
+
+# Rate: W0's law is within 10 % of the train cool-flame rates (0.30-0.40 mm2/s); 5 % lower.
+cool.k.b0 = -0.97
+
+# Extinction diameter: W0's law (from one published curve and the [O2]^-3/4 scaling) reproduces nine
+# of eleven train plateaus within 14 %. The train plateaus scale more steeply with D0 (D0^0.8) and
+# with oxygen below air.
+cool.d.b0 = -0.77
+cool.d.skip[0:5] = [-0.25, 0.05, 0.2, -1.0, 0.8]
+cool.d.sd = 0.12
+
+# =====================================================================================================
+# 6. Droplet without a flame
+# =====================================================================================================
+# After the cool flame the train droplets keep losing 0.03-0.06 mm2/s for many seconds (1-3 mm
+# droplets alike), 0.07-0.12 right after extinction: far from the flat plateau W0 assumed.
+post.cool_scale = 1.0
+post.k_inf = 3.0e-8
+post.k_hot = 6.0e-8
+post.size_exp = 0.3
+
+# =====================================================================================================
+# 7. Spread
+# =====================================================================================================
+# The rate dips for a second or two at the hot-to-cool transition and recovers: a prefix that ends
+# there must not be read as a slow droplet.
+enc.e_clip[0:2] = [0.3, 0.6]
+unc.s_pop = 0.2
+unc.s_floor = 0.07
+unc.sigma_d = 2.5e-5

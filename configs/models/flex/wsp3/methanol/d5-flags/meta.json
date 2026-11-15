@@ -1,0 +1,50 @@
+{
+  "patch_id": "flex_methanol-wsp-v4-d5-flags",
+  "parent_release_id": "sha256:38d9059ceea276daa8547b8d177d123ceb2fe1af83deaecbf55b612242dbcee1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)",
+      "analysis:train-only-error-anatomy-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-up-to-the-first-fourth-generation-candidate,which-scored-worse-than-the-third-generation;no-per-run-validation-outcome-or-score)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+      "sha256:f1f723892493030df0525e3410c7fca42e6709a384b224a69e20d188836b28fb",
+      "sha256:b2f6930fc58ddcc0565f25e3968ffa405a718379584890850794bf5ec34a4e97",
+      "sha256:38d9059ceea276daa8547b8d177d123ceb2fe1af83deaecbf55b612242dbcee1",
+      "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce"
+    ]
+  },
+  "rationale": "D5, data-informed. The numbers of the third-generation candidate D3 (flex_methanol.wsp2), unchanged, plus the broad component for a prefix that shows an unstable tracker, with the thresholds and weights typed for the first fourth-generation candidate from the train cases. Written after that candidate, which bundled the component with sharper laws and narrower bands, scored worse than the third generation on validation; the rule for this one was stated before its validation score existed: it replaces the carried candidate only if its validation CRPS is not higher than the carry's. Every number typed by the author; no fit, no search.",
+  "origin": "system"
+}

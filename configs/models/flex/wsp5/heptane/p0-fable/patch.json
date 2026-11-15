@@ -1,0 +1,172 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "flex_heptane-wsp-v5-p0-fable",
+  "spec_hash": "sha256:fb7a84f60bba1e8cfd6b6bc385e4e5278bd6c7a1aa82bb98a3d3d735e5248b55",
+  "parent_release_id": "sha256:03e0f63cf88c1b2c626e7726356746dd16d673a3a208cca5461c9d1ec360bf0b",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "repo:docs/wsp/research/phys_flex_heptane.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-runs-and-published-theory;a-proposal)",
+      "repo:docs/wsp/feedback/verify_phys_flex_heptane.md(independent-re-derivation-on-train-by-a-second-agent,claude-fable-5-2:the-numbers-typed-here-rest-on-it)",
+      "repo:docs/wsp/feedback/flex_flame_traces_train.md(flame-camera-end-times-of-the-train-runs-by-a-delegated-analysis-agent,claude-opus-5-5)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+      "sha256:74b3a0f195884a860d28ab41d9fb3250633a346d0b980138ee1c7d84881842a3",
+      "sha256:03e0f63cf88c1b2c626e7726356746dd16d673a3a208cca5461c9d1ec360bf0b"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "cool.k.b0",
+      "index": [],
+      "value": -1.125
+    },
+    {
+      "op": "set_box",
+      "tensor": "cool.k.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.2,
+        0.0,
+        0.15
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.k.w2",
+      "index": [
+        0
+      ],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "ce.on",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ce.g0",
+      "index": [],
+      "value": 0.47
+    },
+    {
+      "op": "set",
+      "tensor": "ce.beta_atm",
+      "index": [],
+      "value": 0.12
+    },
+    {
+      "op": "set",
+      "tensor": "ce.p_ref_atm",
+      "index": [],
+      "value": 0.18
+    },
+    {
+      "op": "set",
+      "tensor": "ce.c_he",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "cool.p.w2",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "dy.frac",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "dy.tau_s",
+      "index": [],
+      "value": 3.5
+    },
+    {
+      "op": "set_box",
+      "tensor": "rad.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        -0.22,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "rationale": "P0 of the sixth droplet forward for n-heptane, data-informed (not zero-shot): the carried numbers with four laws revised from the physical mechanism and an independent re-derivation on train: a cool-flame rate with no oxygen or pressure dependence; the cool-flame end diameter as a law in oxygen partial pressure with a limit; a flame born below its end diameter decays (the helium patch is removed); a helium term in the radiative clock. The flame cameras are not read. Every number typed by the author; no fit, no search; no validation outcome was read.",
+  "origin": "system"
+}

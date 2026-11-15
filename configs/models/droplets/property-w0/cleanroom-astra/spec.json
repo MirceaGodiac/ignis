@@ -1,0 +1,305 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "droplet-property-cleanroom-astra-w0-v1",
+  "family": "flex",
+  "model_name": "Astra clean-room property droplet Stefan-film W0",
+  "target": {
+    "quantity": "liquid_diameter",
+    "unit": "m",
+    "description": "Liquid volume-equivalent diameter from evolving component inventory and sensible enthalpy; optional established ideal reaction sheet is a separate diagnostic.",
+    "excludes": [
+      "visible and UV emission diameter",
+      "finite-rate ignition and extinction",
+      "cool flames",
+      "gravity or motion corrected predictions",
+      "experimental qualification"
+    ]
+  },
+  "features": [
+    {
+      "name": "component_inventory",
+      "unit": "kg",
+      "source": "supplied:component_masses_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "liquid_temperature",
+      "unit": "K",
+      "source": "supplied:initial_temperature_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "ambient_temperature",
+      "unit": "K",
+      "source": "supplied:ambient_temperature_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "pressure",
+      "unit": "Pa",
+      "source": "supplied:pressure_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "oxygen_mass_fraction",
+      "unit": "1",
+      "source": "supplied:oxygen_mass_fraction_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "gravity_vector",
+      "unit": "m/s2",
+      "source": "supplied:gravity_with_frame_and_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "relative_velocity_vector",
+      "unit": "m/s",
+      "source": "supplied:relative_velocity_with_frame_and_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "component_element_counts",
+      "unit": "1",
+      "source": "supplied:component_element_counts_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "component_molar_masses",
+      "unit": "kg/mol",
+      "source": "supplied:component_molar_masses_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "liquid_densities",
+      "unit": "kg/m3",
+      "source": "supplied:liquid_densities_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "liquid_heat_capacities",
+      "unit": "J/(kg K)",
+      "source": "supplied:liquid_heat_capacities_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "latent_heats_at_reference",
+      "unit": "J/kg",
+      "source": "supplied:latent_heats_at_reference_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "saturation_pressures_at_reference",
+      "unit": "Pa",
+      "source": "supplied:saturation_pressures_at_reference_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "vapor_complete_combustion_heats",
+      "unit": "J/kg",
+      "source": "supplied:vapor_complete_combustion_heats_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "property_reference_temperatures",
+      "unit": "K",
+      "source": "supplied:property_reference_temperatures_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "property_reference_pressures",
+      "unit": "Pa",
+      "source": "supplied:property_reference_pressures_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "gas_density",
+      "unit": "kg/m3",
+      "source": "supplied:gas_density_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "gas_heat_capacity",
+      "unit": "J/(kg K)",
+      "source": "supplied:gas_heat_capacity_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "gas_conductivity",
+      "unit": "W/(m K)",
+      "source": "supplied:gas_conductivity_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "common_species_diffusivity",
+      "unit": "m2/s",
+      "source": "supplied:common_species_diffusivity_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "gas_viscosity",
+      "unit": "Pa s",
+      "source": "supplied:gas_viscosity_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "surface_background_molar_mass",
+      "unit": "kg/mol",
+      "source": "supplied:surface_background_molar_mass_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "oxygen_molar_mass",
+      "unit": "kg/mol",
+      "source": "supplied:oxygen_molar_mass_with_provenance",
+      "transform": "identity@1"
+    },
+    {
+      "name": "duration",
+      "unit": "s",
+      "source": "supplied:duration_with_provenance",
+      "transform": "identity@1"
+    }
+  ],
+  "domain": [
+    {
+      "feature": "oxygen_mass_fraction",
+      "min": 0.0,
+      "max": 1.0
+    }
+  ],
+  "tensors": [
+    {
+      "name": "pi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 3.0,
+        "max": 4.0
+      },
+      "description": "Mathematical circle constant, handwritten binary64 decimal; geometry only."
+    },
+    {
+      "name": "molar_gas_constant",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "J/(mol K)",
+      "bounds": {
+        "min": 8.0,
+        "max": 9.0
+      },
+      "description": "SI exact N_A*k_B, handwritten decimal from defining constants; no fitted property."
+    },
+    {
+      "name": "step_seconds",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot fixed macro step for midpoint with step doubling. Rejected if guards fail."
+    },
+    {
+      "name": "max_fraction_mass_loss",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot numerical positivity/stability guard per component; no physical depletion clock."
+    },
+    {
+      "name": "max_fraction_temperature_change",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot numerical temperature-step guard."
+    },
+    {
+      "name": "relative_local_error",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot full-step versus two-half-step error bound; numerical, not predictive uncertainty."
+    },
+    {
+      "name": "absolute_mass_error_kg",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot absolute numerical mass error floor."
+    },
+    {
+      "name": "absolute_temperature_error_kelvin",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "K",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot absolute numerical temperature error floor."
+    },
+    {
+      "name": "conservation_relative_error",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Zero-shot roundoff allowance on global mass and enthalpy budgets."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::property_droplet_cleanroom::forward",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "All material properties and initial/boundary conditions are explicit supplied raw/SI quantities with phase, source, reference, domain and uncertainty. Internal kernel structs are not public wire contracts. No fitted or inferred per-fuel constants; no property defaults; gas species have a declared common constant cp and diffusivity. Nonideal activity unsupported. Mixture volume and enthalpy are additive under explicit ideal-solution closure. Time origin and reference frame required. W0 experimental/not_trained only. Numerical tensor roles use the existing physical_parameter enum because the schema has no numerical_control role; descriptions distinguish them. Bounds are admissibility ranges, not uncertainty or a search domain. Omitted feature domain bounds are enforced through supplied property domains and positivity checks, never inferred."
+}

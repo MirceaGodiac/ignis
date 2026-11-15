@@ -1,0 +1,39 @@
+{
+  "patch_id": "acme_normal-wsp-v2-d3-fable",
+  "parent_release_id": "sha256:3c90129eb746e3530d440822f5d447d8fbc422c590bd9f1bb9aace29d9d549b1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-session-transfer-audit-of-D1-and-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-run-by-run)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D1-and-D2:integrated-Brier-scores-only)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-D2)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-D1-and-D2-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:3c90129eb746e3530d440822f5d447d8fbc422c590bd9f1bb9aace29d9d549b1",
+      "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab"
+    ]
+  },
+  "rationale": "D3, data-informed. The self-extinction clock is rebuilt around the reduced flow: the flow relative to the flow a flame can hold for good, which rises with oxygen and falls slightly with pressure. One law now covers what D1 and D2 needed separate, conflicting terms for: flow hardly matters in air and matters steeply in enriched oxygen. It reproduces the ethane lives of three sessions at 0.5, 1 and 2 atm within about 10 %. Fuel terms: butane is shorter in enriched oxygen only, and when dilute; propane in enriched oxygen is interpolated. Floor 6 s to 4 s. The burner-limit clock is steeper in flow; the 275 s stop is a coin toss. The clock spread sits between D1 and D2. Every number typed by the author from the train table; no fit, no search; nothing chosen from validation.",
+  "origin": "system"
+}

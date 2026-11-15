@@ -1,0 +1,19 @@
+{
+  "patch_id": "bass_front-wsp-v5-baseline-persistence",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-opus-5-5"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/front5.rs(forward-and-spec)",
+      "repo:configs/models/bass/front/baseline-persistence(the-tip-law-values,copied-by-tools/wsp/front5_edits.py)",
+      "repo:docs/wsp/research/phys_quench_w0.md(section-6.2:the-bounds-the-neutral-setting-is-chosen-from)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root of the fifth front forward, not a candidate and not a physical claim. Tip law: the stored values of the root of bass_front-wsp-v1 (persistence: the tip keeps the speed the prefix shows), copied statement by statement by tools/wsp/front5_edits.py, without the quench hazard this spec does not have. Boundary law: a neutral setting chosen from the bounds of the spec so that the sample always ignites and a flame never goes out (header of the edits file); it says nothing about any material. Candidates and carries of bass_front-wsp-v5 are literal revisions of this release.",
+  "origin": "system"
+}

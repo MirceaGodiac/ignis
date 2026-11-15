@@ -1,0 +1,80 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_inverse-wsp-v3-d2-fable",
+  "spec_hash": "sha256:0112848b2b7aa8a7c1c67972eaca9a192a1531039cc9af91d6a78bf0f0a1cb69",
+  "parent_release_id": "sha256:19c156e60036d15f46fa92f7827d1122f8e595f6747ad1d5b7363463777422eb",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "analysis:the-author's-own-audit-of-D1's-confident-misses-on-the-train-table(forecasts-of-train-runs-beside-train-outcomes)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;no-per-test-result-was-read)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:19c156e60036d15f46fa92f7827d1122f8e595f6747ad1d5b7363463777422eb",
+      "sha256:6a3d5837ca973eaa91b9813c63ecd6d59dd96fb2195ee365f8dac39031b83cad",
+      "sha256:d0a1366034b9f10aa91633c670071bb8029bcf7d9c945608f2cd1d8f5a8b184b"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        3,
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.W1",
+      "index": [
+        3,
+        2
+      ],
+      "value": -0.5
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b1",
+      "index": [
+        3
+      ],
+      "value": -0.245
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.w2",
+      "index": [
+        3
+      ],
+      "value": 9.0
+    }
+  ],
+  "rationale": "D2 of the growth-clock spec for inverse flames, data-informed (not zero-shot): D1 plus one law, as a scenario for a committee release. Ordered by the total mass flow through the burner, the lean train flames split cleanly: every flame up to 10.5 mg/s went out in 3-18 s, and every established flame at 17 mg/s and above was still burning at a script stop (one at 50 % oxygen, three air-injected). D1 called the 50 % one wrongly with 0.97 and explained the air-injected ones by a rule of their own. The law added here lengthens the early quench clock above a total burner flow of 12 mg/s. Whether it carries to other fuels, leaner ambients and higher pressure is not known from train: the committee release weighs this scenario against D1. Every number typed by the author; no fit, no search; no validation outcome was read, the validation conditions were.",
+  "origin": "system"
+}

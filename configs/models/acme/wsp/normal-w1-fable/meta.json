@@ -1,0 +1,38 @@
+{
+  "patch_id": "acme_normal-wsp-v1-w1-fable",
+  "parent_release_id": "sha256:7ef0c7ab236bf8b495e6659822839bc5d9d5d9955096cc1ff96f3863aecc66f5",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-acme(code-and-config-only)",
+      "repo:docs/wsp/feedback/acme_normal_w0_train.md",
+      "author:pretraining-knowledge(unverifiable;may-include-published-ACME-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "wsp-dev:acme-table:train:acme_normal-w0:sha256:bc126944368a962c48ab832445887fda85b37894d7965efbef8a9f0d570554b5",
+      "ignis-eval:compare:validation:acme_normal-w0-vs-fitted-baselines(aggregate-metrics-only)"
+    ],
+    "prior_candidates": [
+      "sha256:7ef0c7ab236bf8b495e6659822839bc5d9d5d9955096cc1ff96f3863aecc66f5",
+      "sha256:c2ca9d6961c8d69b2d9df77b5034fc6b7bc24c34935928f9d1623978fa84ce11",
+      "sha256:948952618a0e18e096d291aec98d184affe02c6681c0f6e879538c5415a8c222",
+      "sha256:cb255ed369e2c26776b013c30bb51ff1840457b773fcfad36cb7f500d429346b",
+      "sha256:49a9a3e3051a37eb779451130ac26f166766a93d6ad8253735fbcb9712c04f13"
+    ]
+  },
+  "rationale": "W1, data-informed direct revision (not zero-shot). Rewrites both hazards from the train endpoint table: extinction level through ambient oxygen, adiabatic temperature and pressure, a strong flow effect gated to enriched ambient, immediate extinction below about 2100 K; a flat operator hazard. Train endpoints were read; of validation only the aggregate comparison of W0 was seen. See edits.wsp.",
+  "origin": "system"
+}
