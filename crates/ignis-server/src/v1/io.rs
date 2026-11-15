@@ -63,6 +63,7 @@ pub fn status_of(code: ErrorCode) -> StatusCode {
         ErrorCode::InvalidRequest => StatusCode::UNPROCESSABLE_ENTITY,
         ErrorCode::ScopeDenied => StatusCode::FORBIDDEN,
         ErrorCode::NotFound | ErrorCode::SourceMissing => StatusCode::NOT_FOUND,
+        ErrorCode::SourceGone => StatusCode::GONE,
         ErrorCode::Unsupported => StatusCode::NOT_IMPLEMENTED,
         ErrorCode::CapabilityUnavailable | ErrorCode::UpstreamUnavailable => {
             StatusCode::SERVICE_UNAVAILABLE

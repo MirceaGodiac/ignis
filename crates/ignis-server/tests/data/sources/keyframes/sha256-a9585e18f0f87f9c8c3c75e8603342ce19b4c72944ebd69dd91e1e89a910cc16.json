@@ -1,0 +1,133 @@
+{
+ "source_id": "sha256:a9585e18f0f87f9c8c3c75e8603342ce19b4c72944ebd69dd91e1e89a910cc16",
+ "size_bytes": 14767400,
+ "init_bytes": 376,
+ "end_pts_s": 63.462,
+ "keyframes": [
+  {
+   "offset": 376,
+   "pts_s": 1.4
+  },
+  {
+   "offset": 476204,
+   "pts_s": 3.402
+  },
+  {
+   "offset": 952596,
+   "pts_s": 5.404
+  },
+  {
+   "offset": 1428988,
+   "pts_s": 7.406
+  },
+  {
+   "offset": 1905380,
+   "pts_s": 9.408
+  },
+  {
+   "offset": 2381772,
+   "pts_s": 11.41
+  },
+  {
+   "offset": 2858164,
+   "pts_s": 13.412
+  },
+  {
+   "offset": 3334556,
+   "pts_s": 15.414
+  },
+  {
+   "offset": 3810760,
+   "pts_s": 17.416
+  },
+  {
+   "offset": 4287152,
+   "pts_s": 19.418
+  },
+  {
+   "offset": 4763544,
+   "pts_s": 21.42
+  },
+  {
+   "offset": 5239936,
+   "pts_s": 23.422
+  },
+  {
+   "offset": 5716328,
+   "pts_s": 25.424
+  },
+  {
+   "offset": 6192720,
+   "pts_s": 27.426
+  },
+  {
+   "offset": 6669112,
+   "pts_s": 29.428
+  },
+  {
+   "offset": 7145504,
+   "pts_s": 31.43
+  },
+  {
+   "offset": 7621708,
+   "pts_s": 33.432
+  },
+  {
+   "offset": 8098100,
+   "pts_s": 35.434
+  },
+  {
+   "offset": 8574492,
+   "pts_s": 37.436
+  },
+  {
+   "offset": 9050884,
+   "pts_s": 39.438
+  },
+  {
+   "offset": 9527276,
+   "pts_s": 41.44
+  },
+  {
+   "offset": 10003668,
+   "pts_s": 43.442
+  },
+  {
+   "offset": 10480060,
+   "pts_s": 45.444
+  },
+  {
+   "offset": 10956452,
+   "pts_s": 47.446
+  },
+  {
+   "offset": 11432656,
+   "pts_s": 49.448
+  },
+  {
+   "offset": 11909048,
+   "pts_s": 51.45
+  },
+  {
+   "offset": 12385440,
+   "pts_s": 53.452
+  },
+  {
+   "offset": 12861832,
+   "pts_s": 55.454
+  },
+  {
+   "offset": 13338224,
+   "pts_s": 57.456
+  },
+  {
+   "offset": 13814616,
+   "pts_s": 59.458
+  },
+  {
+   "offset": 14291008,
+   "pts_s": 61.46
+  }
+ ],
+ "note": "synthetic_fixture: PAT+PMT in the first two packets, evenly spaced packet-aligned keyframe offsets and 2.002 s GOPs; not measured from the file (R11 pending)"
+}

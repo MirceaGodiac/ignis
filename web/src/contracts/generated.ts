@@ -390,6 +390,7 @@ export type ErrorCode =
       | "internal"
     )
   | "source_missing"
+  | "source_gone"
   | "capability_unavailable";
 /**
  * What a caller may do after an error. `reconcile` means the effect is uncertain: inspect state
@@ -751,10 +752,132 @@ export type ClaimSupport =
       pointer: string;
     };
 /**
+ * How deep a resolved number was checked.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GroundingLevel".
+ */
+export type GroundingLevel = "cell" | "text";
+/**
+ * Where a number is read from. A new kind (e.g. a dataset snapshot cell, once the v1 data routes
+ * publish snapshot ids; a PDF table cell, once table parse views exist) is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ValueSource".
+ */
+export type ValueSource =
+  | {
+      artifact_id: ArtifactId;
+      /**
+       * RFC 6901 JSON Pointer from the selected record to the cell. It never steps through an
+       * array: an element is selected by a `RowSelector`. The cell is a number (its unit is the
+       * sibling `unit`/`unit_si`/`raw_unit`, or the nearest enclosing `unit`) or an object
+       * holding `value_si` + `unit_si` or `value` + `unit`.
+       */
+      column: string;
+      kind: "artifact_cell";
+      /**
+       * Row selection, outermost first. Empty when the artifact (or the object `column` starts
+       * from) is itself the record.
+       */
+      rows?: RowSelector[];
+      sha256: Digest4;
+    }
+  | {
+      investigation_id: string;
+      key: ConditionKey;
+      kind: "conditions_cell";
+      /**
+       * The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to
+       * pick one candidate of a conflicting cell and to select a row that has no run id.
+       */
+      locator?: SourceLocator | null;
+      reading?: CellReading;
+      /**
+       * The run. Absent for an investigation-level test point; `locator` then selects the row.
+       */
+      run_id?: RunId | null;
+      snapshot: Digest5;
+    }
+  | {
+      evidence_id: EvidenceId;
+      kind: "evidence_quote";
+    };
+/**
+ * A key value, compared for equality with the stored JSON value (numbers exactly).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyValue".
+ */
+export type KeyValue = boolean | number | string;
+/**
+ * The content digest the value was read from: the pinned snapshot. A different digest
+ * (another version of the table) is stale.
+ */
+export type Digest4 = string;
+/**
+ * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
+ * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
+ * catalog is closed: a new key is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionKey".
+ */
+export type ConditionKey =
+  | "oxygen_mole_fraction"
+  | "pressure"
+  | "flow_velocity"
+  | "gravity_level"
+  | "ambient_temperature"
+  | "fuel"
+  | "diluent"
+  | "sample_geometry"
+  | "hardware"
+  | "diagnostics";
+/**
+ * Which number of the cell: its SI value (default) or the raw value as the source wrote it.
+ */
+export type CellReading = "si" | "raw";
+/**
+ * The `DatasetService::conditions_snapshot` the value was read under (the
+ * `x-ignis-snapshot` of the conditions routes). The host reads the current one from the
+ * service; a different one is stale.
+ */
+export type Digest5 = string;
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ParseViewId".
  */
 export type ParseViewId = string;
+/**
+ * What `answer_submit` does with a grounding problem.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GroundingMode".
+ */
+export type GroundingMode = "log" | "enforce";
+/**
+ * Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerProblemKind".
+ */
+export type AnswerProblemKind =
+  | "unknown_evidence"
+  | "unknown_artifact"
+  | "unresolved_pointer"
+  | "kind_support_mismatch"
+  | "unpinned_release"
+  | "unknown_claim"
+  | "view_contract_mismatch"
+  | "ungrounded_number"
+  | "stale_snapshot"
+  | "unresolved_row"
+  | "unknown_column"
+  | "unit_mismatch"
+  | "value_mismatch"
+  | "ungrounded_derivation"
+  | "invalid_structure";
 /**
  * Language of an `analysis_execute` program. Closed: a new value needs a runner image that
  * provides it (and a preflight that proves it).
@@ -766,7 +889,7 @@ export type AnalysisLanguage = "python";
 /**
  * Image id (`sha256:` of the image config), pinned by the host.
  */
-export type Digest4 = string;
+export type Digest6 = string;
 /**
  * Isolation the runner actually provided. Recorded on every execution and in capability status;
  * never inferred from configuration alone (the preflight probe proves it).
@@ -799,21 +922,6 @@ export type ExecutionOutcome =
   | {
       kind: "out_of_memory";
     };
-/**
- * Why a submitted answer was refused (K1.3). Each is actionable: it names what to fix.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "AnswerProblemKind".
- */
-export type AnswerProblemKind =
-  | "unknown_evidence"
-  | "unknown_artifact"
-  | "unresolved_pointer"
-  | "kind_support_mismatch"
-  | "unpinned_release"
-  | "unknown_claim"
-  | "view_contract_mismatch"
-  | "invalid_structure";
 /**
  * Where a cost figure comes from.
  *
@@ -1063,7 +1171,7 @@ export type AuthorKind = "agent" | "human";
 /**
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
-export type Digest5 = string;
+export type Digest7 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1129,25 +1237,6 @@ export type UnitsStatus = "metric" | "pixel_only" | "normalized";
  * axis or a smarter model does not calibrate a camera).
  */
 export type UnitsStatus1 = "metric" | "pixel_only" | "normalized";
-/**
- * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
- * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
- * catalog is closed: a new key is a contract change.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionKey".
- */
-export type ConditionKey =
-  | "oxygen_mole_fraction"
-  | "pressure"
-  | "flow_velocity"
-  | "gravity_level"
-  | "ambient_temperature"
-  | "fuel"
-  | "diluent"
-  | "sample_geometry"
-  | "hardware"
-  | "diagnostics";
 /**
  * What an investigation tested for one key, over its runs.
  *
@@ -1277,7 +1366,7 @@ export type ForecastInput =
 /**
  * `DatasetBundle::content_digest` of the bundle evaluated.
  */
-export type Digest6 = string;
+export type Digest8 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
@@ -1341,6 +1430,13 @@ export type Lineage1 =
  * via the `definition` "TrainedOn".
  */
 export type TrainedOn1 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
+/**
+ * Which number of a measured cell a value reads.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CellReading".
+ */
+export type CellReading1 = "si" | "raw";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "DirectionFilter".
@@ -2364,6 +2460,11 @@ export interface ResearchAnswer {
   created_at: Timestamp;
   episode_id: EpisodeId;
   evidence?: EvidenceRef[];
+  /**
+   * v2 (M7b): what the host found when it resolved the claims' numbers; absent when the answer
+   * states none.
+   */
+  grounding?: GroundingReport | null;
   limitations?: string[];
   model_releases?: ReleaseId[];
   origin: Origin;
@@ -2423,6 +2524,12 @@ export interface Claim {
   kind: ClaimKind;
   support?: ClaimSupport[];
   text: string;
+  /**
+   * v2 (M7b): every number the claim states, each bound to the cell it was read from. The host
+   * resolves each binding against the pinned artifact and compares the stated value, so a number
+   * in this slot is never a bare numeral.
+   */
+  values?: ClaimValue[];
 }
 /**
  * The result of checking a claim against its cited support. Set by the host or the evaluator, never
@@ -2442,6 +2549,91 @@ export interface SupportCheck {
    */
   model_id?: string | null;
   verdict: SupportVerdict;
+}
+/**
+ * A number a claim states, bound to the reference it is read from (M7b). The reference is the
+ * source of truth: the host resolves it and records what it found in `resolved`, which is the value
+ * the answer shows. A stated `value` is an assertion, compared on resolve in SI (exactly, or after
+ * rounding to `significant_digits`); the only tolerance is the floating-point error of a unit
+ * conversion. What a failed resolution does (refuse, or only record it in the answer's
+ * `grounding` report) is the host's `GroundingMode`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ClaimValue".
+ */
+export interface ClaimValue {
+  /**
+   * Required exactly when the cited artifact was written by an `analysis_execute` run: the run
+   * that computed the number and everything it read.
+   */
+  derivation?: ValueDerivation | null;
+  /**
+   * Set by the host: what the reference resolved to. Never submitted.
+   */
+  resolved?: ResolvedValue | null;
+  /**
+   * `value` is the referenced number rounded to this many significant decimal digits (1..=17).
+   * Absent: `value` is the number itself.
+   */
+  significant_digits?: number | null;
+  source: ValueSource;
+  /**
+   * The unit of `value` (`mm`, `s`, `kPa`, `1` for dimensionless); present exactly with `value`.
+   */
+  unit?: string | null;
+  /**
+   * The number as the claim states it, in `unit`. Absent: the host renders the resolved value.
+   */
+  value?: number | null;
+}
+/**
+ * How a derived number was computed: the `ExecutionRecord` of the `analysis_execute` run whose
+ * output holds the cell, and every input that run mounted.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ValueDerivation".
+ */
+export interface ValueDerivation {
+  computation: ArtifactId;
+  inputs?: ArtifactId[];
+}
+/**
+ * What a value reference resolved to, written by the host.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResolvedValue".
+ */
+export interface ResolvedValue {
+  level: GroundingLevel;
+  unit: string;
+  value: number;
+}
+/**
+ * Selects exactly one row of a table by its key fields.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "RowSelector".
+ */
+export interface RowSelector {
+  /**
+   * JSON Pointer from the current record to the table: an array of records (row layout), or an
+   * object of equal-length column arrays (column layout, e.g. `times_s` and `mean`).
+   */
+  table: string;
+  /**
+   * Key fields the selected row holds; at least one, each named once. Exactly one row must
+   * match. In row layout `field` points inside a record (`/run/run_id`); in column layout it
+   * names a column array of the table (`/times_s`).
+   */
+  where: KeyEquals[];
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyEquals".
+ */
+export interface KeyEquals {
+  equals: KeyValue;
+  field: string;
 }
 /**
  * A citable pointer into one source version. Verifiable only against that version's asset and
@@ -2464,6 +2656,37 @@ export interface EvidenceRef {
    */
   quote?: string | null;
   source_id: SourceId;
+}
+/**
+ * What the host found when it resolved an answer's numbers (M7b), under the mode it ran in.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "GroundingReport".
+ */
+export interface GroundingReport {
+  /**
+   * Value references that resolved (and matched, where a value was stated).
+   */
+  grounded: number;
+  mode: GroundingMode;
+  /**
+   * The grounding problems (`AnswerProblemKind::is_grounding`). Under `enforce` an answer with
+   * any is refused, so a stored one has none.
+   */
+  problems?: AnswerProblem[];
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "AnswerProblem".
+ */
+export interface AnswerProblem {
+  /**
+   * 0-based index into `blocks`.
+   */
+  block?: number | null;
+  claim_id?: ClaimId | null;
+  detail: string;
+  kind: AnswerProblemKind;
 }
 /**
  * Argument of `datasets_inspect`.
@@ -2560,7 +2783,7 @@ export interface ExecutionRecord {
  * via the `definition` "RunnerEnvironment".
  */
 export interface RunnerEnvironment {
-  image_id: Digest4;
+  image_id: Digest6;
   /**
    * Interpreter version reported by the image during preflight.
    */
@@ -2706,19 +2929,6 @@ export interface AnswerRefusal {
   origin: Origin;
   problems: AnswerProblem[];
   schema_version: ResearchSchema;
-}
-/**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "AnswerProblem".
- */
-export interface AnswerProblem {
-  /**
-   * 0-based index into `blocks`.
-   */
-  block?: number | null;
-  claim_id?: ClaimId | null;
-  detail: string;
-  kind: AnswerProblemKind;
 }
 /**
  * Everything needed to audit, cost and compare one episode (K1.8): the harness it ran with, its
@@ -3424,7 +3634,7 @@ export interface WikiItem {
  */
 export interface WikiRevision {
   author: Author;
-  content_digest: Digest5;
+  content_digest: Digest7;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
   items: WikiEntry[];
@@ -3944,7 +4154,7 @@ export interface EvaluationRequest {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest6;
+  dataset_hash: Digest8;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -4098,7 +4308,7 @@ export interface EvaluationRequest1 {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest6;
+  dataset_hash: Digest8;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;

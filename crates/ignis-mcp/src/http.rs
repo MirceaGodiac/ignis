@@ -41,10 +41,12 @@ use crate::tools::ToolHost;
 
 const INSTRUCTIONS: &str = "IGNIS research tools over NASA microgravity-combustion sources, datasets and \
 model releases. Every result is a ToolResult: execution_status says whether the call ran, \
-scientific_status is never assessed by the tool itself. Long work (models_forecast) answers \
-`accepted` with a job: follow it with jobs_get, then read its output artifacts with artifacts_read. \
-A partial result points at the full artifact; read more of it instead of treating the preview as \
-the whole answer.";
+scientific_status is never assessed by the tool itself. A refused call says why and what to change; \
+fix the arguments rather than retrying them unchanged. Long work (models_forecast, \
+analysis_execute) answers `accepted` with a job: follow it with jobs_get, then read its output \
+artifacts with artifacts_read. Results are concise by default (response_format `detailed` where a \
+tool offers it). A partial result points at the full artifact; read more of it instead of treating \
+the preview as the whole answer.";
 
 /// The episode a request's grant is bound to (absent: workspace-only grant).
 #[derive(Debug, Clone)]
