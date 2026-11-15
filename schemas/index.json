@@ -85,6 +85,9 @@
     "ScenarioRequest",
     "ScenarioAdmitted",
     "EvaluationRequest",
-    "EvaluationResult"
+    "EvaluationResult",
+    "GoldTask",
+    "GoldSet",
+    "GoldPromptSet"
   ]
 }

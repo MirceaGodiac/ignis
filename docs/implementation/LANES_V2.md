@@ -324,8 +324,8 @@ evaluation groups are frozen; the atlas (`docs/wsp/atlas/`) is the storage rule 
 | K1.11 | `ProvenanceLink` relations for the graph + `GraphNeighborsRequest/Page` | `evidence.rs` | Raul | Mircea, Tudor | **merged** (#26) |
 | K1.12 | `ResponseFormat` on search/read | `evidence.rs` | Raul | Mircea | **merged** (#26) |
 | K1.13 | `ConditionsQuery` / `ConditionsTable` (cells, envelope) | `dataset.rs` (Raul) | Raul | Tudor, Mircea, Iancu (units) | **merged** (#26) |
-| K1.14 | `GoldTask` (`split: dev\|holdout`; hold-out never in builder bundles) | `evaluation.rs` (Tudor) | Tudor | Mircea, Raul | to write |
-| K1.15 | `EvaluationRequest.purpose = harness_benchmark` + `HarnessComparison` in `EvaluationResult` | `evaluation.rs` | Tudor | Mircea, team | to write |
+| K1.14 | `GoldTask` (`split: dev\|holdout`; hold-out never in builder bundles) | `evaluation.rs` (Tudor) | Tudor | Mircea, Raul | **merged** into `dev` (#44), with `GoldSet` and `GoldPromptSet` |
+| K1.15 | `EvaluationRequest.purpose = harness_benchmark` + `HarnessComparison` in `EvaluationResult` | `evaluation.rs` | Tudor | Mircea, team | **merged** into `dev` (#44) |
 | K1.16 | `SourceLocator.figure_id` (only if needed) | `contracts.rs` (Iancu) | Raul | Tudor | optional |
 | K1.17 | trait methods with default bodies (outline, labels, access, graph, conditions, wiki, web) | `services.rs` (common) | Raul | Mircea | **merged** (#26) |
 | K1.18 | `SourceAccess` (mode, url, expiry, range, cors, landing url); identity stays the `Source` | `evidence.rs` | Raul (mode), Mircea (URL, M12) | Tudor | **merged** (#26) |
@@ -354,7 +354,7 @@ problem (adds `unknown_artifact`, `unknown_claim`, `view_contract_mismatch`, `in
 ### 9.3 Merge order
 
 ```text
-K1-evidence + K1-dataset (Raul, merged #26)  ──►  K1-research (Mircea)  ──►  K1-evaluation (Tudor)
+K1-evidence + K1-dataset (Raul, merged #26)  ──►  K1-research (Mircea, merged #31)  ──►  K1-evaluation (Tudor, merged into dev #44)
 ```
 
 Written in parallel from the same `main`; merged back to back in this order, each rebased on the

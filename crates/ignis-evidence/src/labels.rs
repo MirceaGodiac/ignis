@@ -333,6 +333,9 @@ pub struct GoldRow {
     pub investigation_ids: BTreeSet<String>,
     #[serde(default)]
     pub runs: Vec<String>,
+    /// Experimental conditions the document states values or settings for (the label prompt's set).
+    #[serde(default)]
+    pub conditions_mentioned: BTreeSet<Quantity>,
     /// Who labelled the row (a person), and when; null until then.
     pub labelled_by: Option<String>,
     pub labelled_at: Option<String>,
@@ -379,6 +382,7 @@ pub fn gold_select(pubs: &[Publication], n: usize, seed: u64) -> Vec<GoldRow> {
                     families: BTreeSet::new(),
                     investigation_ids: BTreeSet::new(),
                     runs: vec![],
+                    conditions_mentioned: BTreeSet::new(),
                     labelled_by: None,
                     labelled_at: None,
                     notes: String::new(),
@@ -420,6 +424,10 @@ pub struct GoldScore {
     pub investigation_accuracy: Option<f64>,
     /// Micro-averaged F1 over families.
     pub family_f1: Option<f64>,
+    /// Micro-averaged F1 over run mentions (case and whitespace normalised, as the labels store them).
+    pub runs_f1: Option<f64>,
+    /// Micro-averaged F1 over conditions mentioned.
+    pub conditions_f1: Option<f64>,
     /// Scores over the labeller's `resolved` labels only, and how many that is.
     pub resolved_scored: usize,
     pub resolved_doc_type_accuracy: Option<f64>,
@@ -454,6 +462,9 @@ pub fn gold_eval(gold: &[GoldRow], labels: &[SourceLabel]) -> Result<GoldScore> 
         labels.iter().map(|l| (l.source_id.as_str(), l)).collect();
     let (mut scored, mut missing, mut dt, mut inv) = (0usize, 0usize, 0usize, 0usize);
     let (mut tp, mut fp, mut fneg) = (0usize, 0usize, 0usize);
+    let mut runs_c = [0usize; 3];
+    let mut cond_c = [0usize; 3];
+    let norm_run = |r: &str| r.trim().replace(char::is_whitespace, "_").to_uppercase();
     let (mut rs, mut rdt) = (0usize, 0usize);
     let mut confusion: BTreeMap<String, BTreeMap<String, usize>> = BTreeMap::new();
     for g in &filled {
@@ -483,13 +494,20 @@ pub fn gold_eval(gold: &[GoldRow], labels: &[SourceLabel]) -> Result<GoldScore> 
         tp += g.families.intersection(&l.families).count();
         fp += l.families.difference(&g.families).count();
         fneg += g.families.difference(&l.families).count();
+        let gr: BTreeSet<String> = g.runs.iter().map(|r| norm_run(r)).collect();
+        let lr: BTreeSet<String> = l.runs.iter().map(|r| norm_run(r.as_str())).collect();
+        counts(&mut runs_c, &gr, &lr);
+        counts(
+            &mut cond_c,
+            &g.conditions_mentioned,
+            &l.conditions_mentioned,
+        );
     }
     let ratio = |a: usize, b: usize| (b > 0).then(|| a as f64 / b as f64);
-    let f1 = if tp + fp + fneg == 0 {
-        None
-    } else {
-        Some(2.0 * tp as f64 / (2 * tp + fp + fneg) as f64)
+    let f1_of = |tp: usize, fp: usize, fneg: usize| {
+        (tp + fp + fneg > 0).then(|| 2.0 * tp as f64 / (2 * tp + fp + fneg) as f64)
     };
+    let f1 = f1_of(tp, fp, fneg);
     Ok(GoldScore {
         labelled: filled.len(),
         unlabelled: gold.len() - filled.len(),
@@ -498,10 +516,19 @@ pub fn gold_eval(gold: &[GoldRow], labels: &[SourceLabel]) -> Result<GoldScore> 
         doc_type_accuracy: ratio(dt, scored),
         investigation_accuracy: ratio(inv, scored),
         family_f1: f1,
+        runs_f1: f1_of(runs_c[0], runs_c[1], runs_c[2]),
+        conditions_f1: f1_of(cond_c[0], cond_c[1], cond_c[2]),
         resolved_scored: rs,
         resolved_doc_type_accuracy: ratio(rdt, rs),
         confusion,
     })
+}
+
+/// Adds true positives, false positives and false negatives of `pred` against `gold`.
+fn counts<T: Ord>(c: &mut [usize; 3], gold: &BTreeSet<T>, pred: &BTreeSet<T>) {
+    c[0] += gold.intersection(pred).count();
+    c[1] += pred.difference(gold).count();
+    c[2] += gold.difference(pred).count();
 }
 
 /// Reads `SourceLabel` JSONL.

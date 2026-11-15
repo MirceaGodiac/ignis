@@ -1,0 +1,48 @@
+{
+  "schema_version": "evaluation.v2",
+  "request_id": "fixture-eval-harness-01",
+  "purpose": "harness_benchmark",
+  "protocol": {
+    "protocol_id": "fixture-harness-protocol",
+    "version": "0"
+  },
+  "partition": "validation",
+  "baselines": [],
+  "metrics": [
+    {
+      "metric": "accuracy",
+      "version": "1"
+    },
+    {
+      "metric": "precision",
+      "version": "1"
+    }
+  ],
+  "harness": {
+    "gold_set": {
+      "set_id": "fixture-gold-dev",
+      "set_hash": "sha256:950a100c9dcf28a269d654c289e871262cb00cb432a17d47580b3bf4c490899c",
+      "split": "dev",
+      "task_count": 2
+    },
+    "variants": [
+      {
+        "name": "h0",
+        "harness_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_build": "fixture-runtime-build",
+        "model": "fixture-model",
+        "effort": "medium"
+      },
+      {
+        "name": "h1",
+        "harness_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "runtime_build": "fixture-runtime-build",
+        "model": "fixture-model",
+        "effort": "medium"
+      }
+    ],
+    "baseline": "h0",
+    "repetitions": 2,
+    "cluster_by": "task_cluster"
+  }
+}
