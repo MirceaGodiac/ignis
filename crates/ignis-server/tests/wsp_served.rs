@@ -550,7 +550,7 @@ async fn stored_runs_respect_the_partition_and_the_mcp_tools_reach_the_forward()
     let inspect = h.state.tools.call(
         &h.scope,
         "models_inspect",
-        json!({"release_id": ACME_INVERSE}),
+        json!({"release_id": ACME_INVERSE, "response_format": "detailed"}),
     );
     assert_eq!(
         inspect.execution_status,
