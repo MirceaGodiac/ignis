@@ -25,6 +25,7 @@ pub mod runtime;
 pub mod s3;
 pub mod sandbox;
 pub mod store;
+pub mod trace;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 

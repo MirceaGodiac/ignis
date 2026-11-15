@@ -522,6 +522,24 @@ pub fn measure(
     }
 }
 
+impl EpisodeMeasure {
+    /// Usage per model as a trace reports it (`TraceBundle.usage`), model ids sorted. Cache
+    /// writes have no field there; they stay in the input count.
+    pub fn token_usage(&self) -> Vec<ignis_core::contracts::TokenUsage> {
+        self.usage
+            .iter()
+            .filter(|(_, u)| u.reports > 0)
+            .map(|(m, u)| ignis_core::contracts::TokenUsage {
+                model: m.clone(),
+                input_tokens: u.input,
+                cached_input_tokens: u.cached,
+                output_tokens: u.output,
+                reasoning_tokens: u.reasoning,
+            })
+            .collect()
+    }
+}
+
 /// Aggregate over episodes: latencies over every call, token sums, mean cost per question.
 pub fn aggregate(measures: &[EpisodeMeasure], prices: &PriceList) -> WorkspaceMetrics {
     let mut tools: BTreeMap<String, ToolSamples> = BTreeMap::new();
