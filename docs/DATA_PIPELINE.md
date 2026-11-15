@@ -95,7 +95,7 @@ flowchart TD
     SPL --> BUN
     BUN --> DS
     BUN --> DSC
-    BUN -. "--evaluator only" .-> LB
+    BUN -.->|"--evaluator only"| LB
 
     SEEDS --> CF
     NTRS --> CF

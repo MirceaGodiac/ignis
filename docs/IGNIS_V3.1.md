@@ -302,7 +302,7 @@ Diferențiem fișiere, cadre, măsurători, segmente de control, arderi, specime
 | PSI-142 [D16](#source-d16) | Curbe/tabele counterflow la 1 g | Referință terestră separată | Nu se antrenează împreună cu ISS fără studiu de transfer |
 | CFI / SAME-R [D17–D18] | Tabele folosite de concurenți pentru flăcări reci/detecție | Extensii descriptive | Targeturi și grupuri de verificat independent |
 | SoFIE-GEL [D19](#source-d19) | 54 arderi pe 17 sfere reutilizate în descriere | Dovezi și adaptor pregătit | Descărcarea completă pe run nu este stabilită |
-| ZARM/FLARE [D20](#source-d20) | 30 fișiere MAT listate, 31 intrări index; ~3,8 GB | Pista termică separată | CC BY-NC raportat, geometrie diferită și un activ lipsă |
+| ZARM/FLARE [D20](#source-d20) | 30 fișiere MAT listate, 31 intrări index; \~3,8 GB | Pista termică separată | CC BY-NC raportat, geometrie diferită și un activ lipsă |
 
 ## 3.2. FLEX: ce luăm efectiv
 
@@ -491,25 +491,27 @@ Toți logaritmii unor mărimi fizice sunt logaritmi ai raportului la o unitate/s
 
 Un model low-Mach cu densitate variabilă trebuie să respecte [LEGE + APROXIMARE low-Mach]:
 
-\[
+```math
 \partial_t\rho+\nabla\cdot(\rho\mathbf u)=0,
-\]
-\[
+```
+
+```math
 \partial_t(\rho Y_k)+\nabla\cdot(\rho\mathbf uY_k)
 =-\nabla\cdot\mathbf J_k+\dot\omega_k,
 \quad\sum_kY_k=1,\quad\sum_k\mathbf J_k=\sum_k\dot\omega_k=0,
-\]
-\[
+```
+
+```math
 \rho D_t\mathbf u=-\nabla\pi+\nabla\cdot\boldsymbol\tau+\rho\mathbf g,
 \qquad p_0=\rho R_uT/\overline W.
-\]
+```
 
 Cu entalpia de formare inclusă în entalpia amestecului h:
 
-\[
+```math
 \rho D_t h=\frac{dp_0}{dt}+\nabla\cdot(k\nabla T)
 -\nabla\cdot\sum_kh_k\mathbf J_k-\nabla\cdot\mathbf q_{rad}.
-\]
+```
 
 Nu adăugăm încă o dată căldura chimică dacă ea este deja inclusă în această convenție. Densitatea variabilă nu presupune div u=0. Transportul, cinetica, radiația, geometria și condițiile inițiale/la limită trebuie să închidă sistemul.
 
@@ -519,30 +521,31 @@ Aceste ecuații explică de ce o filmare sau un diametru nu identifică toate c�
 
 Pentru lichidul sferic [LEGE]:
 
-\[
+```math
 m_l=\frac\pi6\rho_lD^3.
-\]
+```
 
 Cu q=D² și pierdere netă de masă pozitivă spre exterior:
 
-\[
+```math
 \dot q=-\frac{4\dot m_{net,out}}{\pi\rho_lD}
 -\frac{2q}{3\rho_l}\dot\rho_l.
-\]
+```
 
 Sub aproximarea sferică quasi-staționară, proprietăți constante și fără absorbție către lichid [APROXIMARE]:
 
-\[
+```math
 \dot m_{out}=2\pi D\rho_g\mathcal D\log(1+B_M),
-\]
-\[
+```
+
+```math
 \dot q=-K,\quad
 K=\frac{8\rho_g\mathcal D}{\rho_l}\log(1+B_M),
 \quad D^2(t)=D_0^2-Kt.
-\]
+```
 
 La interfața mobilă, fluxul fiecărei specii este consistent cu masa netă. Pentru raza a(t),
-\(\rho_g(u_g-\dot a)Y_k+J_k=\dot m''_k\), iar suma fluxurilor speciilor este fluxul net. Apa care condensează și metanolul care se evaporă au semne opuse. Bilanțul de energie include fluxuri conductive/radiative și cererea de schimbare de fază, fără dublă contabilizare.
+$`\rho_g(u_g-\dot a)Y_k+J_k=\dot m''_k`$, iar suma fluxurilor speciilor este fluxul net. Apa care condensează și metanolul care se evaporă au semne opuse. Bilanțul de energie include fluxuri conductive/radiative și cererea de schimbare de fază, fără dublă contabilizare.
 
 De aceea q este geometria lichidului, nu inventarul de metanol. Extrapolarea matematică până la q=0 nu este o predicție verificată a consumării combustibilului. [P01–P03]
 
@@ -550,13 +553,14 @@ De aceea q este geometria lichidului, nu inventarul de metanol. Extrapolarea mat
 
 Un model redus noncharring poate folosi conversia α:
 
-\[
+```math
 \partial_t\alpha=A_p\exp[-E_p/(R_uT_s)](1-\alpha)^n,
 \quad\dot\omega_p'''=\rho_{s,0}\partial_t\alpha,
-\]
-\[
+```
+
+```math
 \rho_{s,0}c_s\partial_tT_s=\nabla\cdot(k_s\nabla T_s)-\Delta h_p\dot\omega_p'''.
-\]
+```
 
 Fluxul gazos emis și bilanțul de suprafață trebuie legate de pierderea de masă și de încălzire. Char, porozitate, deformare, recesiune și istoria termică cer alte stări. Termenul endotermic deja reprezentat în volum nu se numără din nou ca aceeași pierdere la suprafață.
 
@@ -572,11 +576,11 @@ Nu calculăm aceste numere folosind temperaturi sau difuzivități inventate. No
 
 Pentru FLEX și ACME:
 
-\[
+```math
 p(\Theta,\kappa,\{b_i,x_{0i}\}\mid\mathcal D)
 \propto p(\Theta)p(\kappa)\prod_i p(b_i,x_{0i}\mid\Theta)
 L_i^{obs}L_i^{event}.
-\]
+```
 
 Fiecare eveniment contribuie o dată per run. Fiecare prior de calibrare comună contribuie o dată per grup, iar observațiile folosesc aceeași valoare latentă. Likelihood-urile sunt normalizate; nu adăugăm ponderi arbitrare pentru a face loss-ul de eveniment comparabil cu cel de diametru.
 
@@ -598,40 +602,41 @@ Intrarea în fază este adjudicată din protocol și dintr-o regulă past-only. 
 
 Fixăm [IGNIS]: D_ref=0,002 m, p_ref=100000 Pa, K_ref=10⁻⁶ m²/s și t_ref=1 s.
 
-\[
+```math
 c=\left(\frac{\chi_{O_2}-.21}{.05},\frac{\chi_{CO_2}}{.20},
 \frac{\chi_{He}}{.20},\log\frac p{p_{ref}},\log\frac{D_0}{D_{ref}}\right),
-\]
-\[
+```
+
+```math
 z(c)=(1,c_1,c_2,c_3,c_4,c_5,c_1^2,c_1c_2,c_1c_4).
-\]
+```
 
 D₀ este o stare latentă pozitivă la intrarea în fază. Coloanele fără variație sau fără date admise se elimină printr-o regulă training-only, iar numărul de parametri se actualizează. Regularizarea nu identifică separat presiunea și un diluant dacă designul experimental le confundă.
 
 Cu q=D², r=q/q₀ și w=1−r, definim o rețea 6→16→1:
 
-\[
+```math
 h_\phi(c,w)=\tanh\{W_2\tanh[W_1(c,w)+a_1]+a_2\}.
-\]
+```
 
 Ea are 6·16+16+16+1=129 parametri. Rezidualul este
 
-\[
+```math
 R_\phi(c,w)=\tfrac12 w\,[h_\phi(c,w)-h_\phi(0,w)].
-\]
+```
 
 Acesta dispare la intrare și la condiția de referință. Pentru 0≤w≤1, |R|≤w≤1. Limita este o decizie de regularizare a modelului, nu o lege fizică.
 
 ## 6.3. Dinamica
 
-\[
+```math
 \boxed{\frac{dq_i}{dt}=-K_{ref}\exp\left[
 z(c_i)^\top\beta+\theta_1w_i+\theta_2w_i^2+\theta_3w_i^3
 +b_{0i}+b_{1i}w_i+R_\phi(c_i,w_i)\right].}
-\]
+```
 
 Efectele locale sunt
-\(b_i\sim N(0,\Sigma_b)\), cu \(\Sigma_b=\operatorname{diag}(\sigma_b)\Omega_b\operatorname{diag}(\sigma_b)\).
+$`b_i\sim N(0,\Sigma_b)`$, cu $`\Sigma_b=\operatorname{diag}(\sigma_b)\Omega_b\operatorname{diag}(\sigma_b)`$.
 
 Exponențiala impune o rată pozitivă de scădere a q. Ea nu impune ca fiecare măsurătoare zgomotoasă să scadă. Modelul este admis numai într-o fază în care această presupunere latentă este justificată. O expansiune fizică ulterioară este un eșec de suport evaluat, nu o dovadă care poate fi ștersă.
 
@@ -641,20 +646,20 @@ La aceeași stare și aceiași parametri non-neuronali, rezidualul multiplică r
 
 Pentru parametri și condiții fixe în intervalul admis:
 
-\[
+```math
 t_i(r)=A_i\int_r^1\exp[-g(1-u)-b_{1i}(1-u)-R_\phi(c_i,1-u)]\,du,
 \quad A_i=\frac{q_{0i}}{K_{ref}}e^{-z(c_i)^\top\beta-b_{0i}}.
-\]
+```
 
 Integrandul este pozitiv, iar t(r) este strict descrescător în r. Inversarea este unică pe [r_min,1]. Calculăm o integrală cumulativă per draw/run, apoi folosim bracket și rafinare locală. Nu repetăm o cuadratură completă în fiecare pas de bisection pentru fiecare observație.
 
 Pentru F(r,ϑ)=t(r;ϑ)−t_obs=0:
 
-\[
+```math
 \frac{\partial r}{\partial\vartheta}
 =-\frac{\partial_\vartheta F}{\partial_rF},
 \qquad\partial_rF=-A_i\exp[-g(1-r)-b_{1i}(1-r)-R(c_i,1-r)]<0.
-\]
+```
 
 Se folosește diferențiere implicită testată față de finite differences, nu diferențierea deciziilor booleene ale bisection. Tabelele care depind de parametri se recalculează când draw-ul se schimbă. Caching-ul nu este o permisiune de a reutiliza o traiectorie pentru alți parametri.
 
@@ -664,26 +669,27 @@ Un solver de referință float64 cu cuadratură de precizie mai mare verifică i
 
 H înseamnă sfârșit revizuit al fazei hot observate. Se păstrează subetichetele sursei extinction/completion, fără a afirma că toate reacțiile s-au oprit. R înseamnă disruption care invalidează modelul picăturii unice. FOV/camera loss este un proces de observare, nu H.
 
-\[
+```math
 \lambda_H(t)=t_{ref}^{-1}\exp[\gamma_0+\gamma^Tc+a_1w(t)+a_2w(t)^2
 +\rho_0b_0+\rho_1b_1],
-\]
-\[
+```
+
+```math
 \lambda_R(t)=t_{ref}^{-1}\exp\zeta.
-\]
+```
 
 Termenii comuni b leagă evoluția măsurată de distribuția evenimentului. Asocierea nu identifică un mecanism chimic cauzal. Hazardul de disruption cu intercept este o aproximare parsimonioasă; nu demonstrează că disruption este independent de condiții în natură.
 
-\[
+```math
 S(t)=\exp[-\int_0^t(\lambda_H+\lambda_R)du],
 \qquad F_k(t)=\int_0^tS(u)\lambda_k(u)du.
-\]
+```
 
 Pe domeniul modelat, S+F_H+F_R=1. O observație exactă de cauză k la T contribuie S(T)λ_k(T). Un interval de cauză cunoscută (L,R_e] contribuie
 
-\[
+```math
 L^{event}=\int_L^{R_e} S(u)\lambda_k(u)du.
-\]
+```
 
 **S(L)−S(R_e) este probabilitatea tuturor cauzelor**, nu doar a uneia. Pentru o cauză necunoscută, însumăm numai cauzele permisibile din recordul adjudicat. O observație confirmată activă până la C contribuie S(C) numai sub modelul de observare/cenzurare declarat.
 
@@ -693,21 +699,22 @@ Definim r_min=q_min/q₀>0 din limita măsurării/modelului și B=min(t(r_min),T
 
 Pentru un interval de eveniment despre care review-ul stabilește că evenimentul a precedat ieșirea din suport, likelihood-ul este
 
-\[
+```math
 \mathbf1_{B>L}\int_L^{\min(R_e,B)}S(u)\lambda_k(u)du.
-\]
+```
 
 Nu inventăm această ordine doar fiindcă ne convine numeric. Dacă sursa nu o stabilește, endpoint-ul nu poate fi reparat prin truncarea lui pe fiecare draw. Un datum nu devine event pentru un draw și censor pentru altul. Draw-urile incompatibile cu informația păstrată despre activitate/suport au likelihood zero.
 
 La cutoff τ, distribuția este condiționată pe activitate și suport până la τ. Pentru t≥τ:
 
-\[
+```math
 A(t)=E[\mathbf1_{t<B}S(t)/S(\tau)],
 \quad U(t)=E[\mathbf1_{t\ge B}S(B)/S(\tau)],
-\]
-\[
+```
+
+```math
 F_k^\tau(t)=E\left[\int_\tau^{\min(t,B)}\frac{S(u)}{S(\tau)}\lambda_k(u)du\right].
-\]
+```
 
 A+U+F_H^τ+F_R^τ=1. U este lipsa unei prognoze rezolvate după limita modelului, nu o cauză fizică de stingere. Nu eliminăm draws din suport pentru a renormaliza și afișa o certitudine falsă.
 
@@ -717,11 +724,11 @@ Diametrul condiționat pe fază încă activă și suport folosește ponderi pro
 
 Inventarul nominal: 9 β +3 θ +3 covariance b +10 hazard H +1 disruption +3 kernel observație +129 NN = **158 populație**. Fiecare run adaugă b₀,b₁ și log D₀, adică 3N; nuisances de calibrare justificate se numără separat.
 
-Punct de pornire pentru priori [IGNIS]: β₀~N(log0,5,1²); efecte liniare N(0,0,5²), interacțiuni N(0,0,25²); θ~N(0,0,35²); scale b half-normal(0,5), Ω_b~LKJ(2). Hazard intercept H~N(log0,1,1,5²), restul efectelor N(0,0,5²); ζ~N(log0,01,1,5²). Acestea sunt ipoteze pe scale normalizate, nu măsurători NASA.
+Punct de pornire pentru priori [IGNIS]: β₀\~N(log0,5,1²); efecte liniare N(0,0,5²), interacțiuni N(0,0,25²); θ\~N(0,0,35²); scale b half-normal(0,5), Ω_b\~LKJ(2). Hazard intercept H\~N(log0,1,1,5²), restul efectelor N(0,0,5²); ζ\~N(log0,01,1,5²). Acestea sunt ipoteze pe scale normalizate, nu măsurători NASA.
 
 W₁ are prior Gaussian cu scală 1/√6 și biases mici; W₂ are scală inițială 0,25/√16 și bias mic. Inițializăm departe de un punct complet zero care poate bloca gradientul rezidualului diferențiat. Simetriile ponderilor pot afecta diagnosticele MCMC; urmărim și convergența funcției predictive, fără a ascunde instabilitatea sub această explicație.
 
-Pentru D₀ și scalele erorii folosim priori log-normali largi cu unități explicite, verificați prin prior predictive. Un exemplu inițial log(D₀/1 m)~N(log0,003,0,7²) nu trebuie centrat îngust pe prima observație și apoi să o numere încă o dată în likelihood. Orice schimbare de priori după dezvoltare este înregistrată; testul final nu este folosit pentru alegerea lor.
+Pentru D₀ și scalele erorii folosim priori log-normali largi cu unități explicite, verificați prin prior predictive. Un exemplu inițial log(D₀/1 m)\~N(log0,003,0,7²) nu trebuie centrat îngust pe prima observație și apoi să o numere încă o dată în likelihood. Orice schimbare de priori după dezvoltare este înregistrată; testul final nu este folosit pentru alegerea lor.
 
 Dacă neural residual nu este identificabil sau nu aduce beneficiu, release-ul poate selecta V1 cu noul likelihood, cu acest fapt afișat. Nu prezentăm un V1 drept V2 complet validat.
 
@@ -735,9 +742,9 @@ Dacă neural residual nu este identificabil sau nu aduce beneficiu, release-ul p
 
 Pentru FLEX:
 
-\[
+```math
 y_j=s_g\sqrt{q(t_j+\Delta t_g)}+\delta_g+e_j.
-\]
+```
 
 Scalele, offset-urile și timpii de calibrare sunt comuni acolo unde instrumentul sau sesiunea le face comuni. Nu tratăm o eroare de scară ca zgomot independent pe fiecare frame. Cerințele de proiectare ale camerei nu sunt automat incertitudinea realizată a măsurătorii.
 
@@ -751,19 +758,20 @@ Likelihood-ul se calculează în spațiul diametrului observat. Dacă y=D+e cu E
 
 V1 folosise inovații Student-t condiționate pe o cadență. V3 păstrează corecția V2: o familie de distribuții finite coerentă pe timpi neregulați. [L36](#source-l36)
 
-\[
+```math
 \mathbf e\sim t_\nu(0,\Sigma),\qquad\nu=4,
-\]
-\[
+```
+
+```math
 \Sigma_{jk}=\sigma_c^2e^{-|t_j-t_k|/\ell}+\sigma_n^2\mathbf1_{j=k}.
-\]
+```
 
 Σ este matrice de **scară**. Covarianța este νΣ/(ν−2), dacă ν>2. Construcția exactă este
 
-\[
+```math
 \omega\sim\operatorname{Gamma}(\nu/2,\nu/2),
 \qquad\mathbf e\mid\omega\sim N(0,\Sigma/\omega).
-\]
+```
 
 Un singur ω este comun run-ului. Modelul are cozi grele la nivel de run; nu pretinde că fiecare outlier independent este perfect rezolvat. Un track persistent eronat cere reparare/excludere justificată, nu un prior mai larg care ascunde problema.
 
@@ -771,11 +779,11 @@ Un singur ω este comun run-ului. Modelul are cozi grele la nivel de run; nu pre
 
 Pentru n componente scalare observate, δ=eᵀΣ⁻¹e:
 
-\[
+```math
 \log L=\log\Gamma\left(\frac{\nu+n}{2}\right)-\log\Gamma\left(\frac\nu2\right)
 -\frac n2\log(\nu\pi)-\frac12\log|\Sigma|
 -\frac{\nu+n}{2}\log\left(1+\frac\delta\nu\right).
-\]
+```
 
 Aceasta este o densitate normalizată. Unitățile și transformările se păstrează consistent când comparăm scoruri. Nu folosim log likelihood absolut ca scor comparabil între variabile cu unități diferite fără convenție comună.
 
@@ -783,15 +791,16 @@ Aceasta este o densitate normalizată. Unitățile și transformările se păstr
 
 Kernel-ul exponențial are reprezentare Gaussiană de stare la scară unitară:
 
-\[
+```math
 x_j=\varphi_jx_{j-1}+\eta_j,
 \quad\varphi_j=e^{-\Delta t_j/\ell},
 \quad\eta_j\sim N(0,\sigma_c^2(1-\varphi_j^2)),
-\]
-\[
+```
+
+```math
 e_j=x_j+\epsilon_j,\qquad\epsilon_j\sim N(0,\sigma_n^2),
 \quad x_1\sim N(0,\sigma_c^2).
-\]
+```
 
 O trecere Kalman produce inovațiile v_j și varianțele F_j. Atunci log|Σ|=ΣlogF_j, iar δ=Σv_j²/F_j. Acestea intră în formula Student-t de mai sus. Nu simulăm zgomot Gaussian în locul unui Student-t; folosim algebra Gaussiană pentru determinantul și forma pătratică ale aceleiași matrice.
 
@@ -803,22 +812,22 @@ Dacă avem o componentă instrumentală Gaussiană cu varianță cunoscută **ne
 
 Împărțim observațiile în A și B. Cu n_A=|A| și δ_A=e_AᵀΣ_AA⁻¹e_A:
 
-\[
+```math
 e_B\mid e_A\sim t_{\nu+n_A}\left(
 \Sigma_{BA}\Sigma_{AA}^{-1}e_A,
 \frac{\nu+\delta_A}{\nu+n_A}
 [\Sigma_{BB}-\Sigma_{BA}\Sigma_{AA}^{-1}\Sigma_{AB}]
 \right).
-\]
+```
 
 Aceeași formulă se aplică unei observații încă ascunse, dar aflate înainte de cutoff. Ea nu este independentă de punctele deja citite numai fiindcă utilizatorul a apăsat alt buton.
 
 Pentru extinderea unui prefix de la τ₁ la τ₂, greutatea incrementală este:
 
-\[
+```math
 \Delta\log w=\log L(Y_{\le\tau_2})-\log L(Y_{\le\tau_1})
 +\log S(\tau_2)-\log S(\tau_1),
-\]
+```
 
 plus corecțiile de propunere și suport necesare. Pentru o observație nouă la același τ, supraviețuirea nu se numără din nou. Mutarea sliderului sau resampling-ul grafic nu schimbă distribuția probabilistică a unei predicții deja emise.
 
@@ -869,12 +878,12 @@ Nu includem TFP până nu este definit, peak burner temperature, compoziție aft
 
 Pentru k∈{E,O}:
 
-\[
+```math
 \lambda_{k,i}(t)=t_{ref}^{-1}\exp\left[
 a_{k,b(t)}+\beta_k^Tc_i+
 \tfrac12\{H_\phi(c_i,\log(1+t/t_{ref}))_k-H_\phi(0,\log(1+t/t_{ref}))_k\}
 +u_{g(i),k}\right].
-\]
+```
 
 H este o rețea 9→8→2 cu tanh, deci 9·8+8+8·2+2=98 ponderi. Sunt șase bin-uri temporale per cauză, 12 intercepturi de bază, 16 coeficienți liniari și trei parametri ai covarianței frailties: **129 populație/configurație**. Cele două frailties per sesiune au prior Gaussian corelat.
 
@@ -894,10 +903,10 @@ Pentru o sesiune cunoscută folosim posteriorul ei deja învățat, cu dependen�
 
 Dacă protocolul, cunoscut la cutoff, oprește debitul la t_stop, aceasta nu este o probabilitate continuă de eveniment pe care trebuie să o inventeze rețeaua. Pentru t<t_stop, folosim hazardurile spontane și eventualele intervenții nescheduled admise. Masa rămasă imediat înainte de oprire produce un **atom la t_stop**:
 
-\[
+```math
 P(T=t_{stop},J=O\mid\text{prefix})
 =E\left[\mathbf1_{B\ge t_{stop}}\frac{S(t_{stop}^-)}{S(\tau)}\right]
-\]
+```
 
 atât timp cât traiectoria este în suport până acolo. După oprire, probabilitatea de a fi încă în aceeași fază alimentată este zero în acest model al politicii. Nu extrapolăm hazardul netratat și nu numim acea extrapolare „ce ar fi făcut focul fără operator”.
 
@@ -909,10 +918,10 @@ O terminare **a înregistrării** la o oră programată poate fi cenzurare admin
 
 Pentru hazarduri constante λ_E,λ_O pe un interval Δt înainte de stop, Λ=λ_E+λ_O:
 
-\[
+```math
 S_{new}=S_{old}e^{-\Lambda\Delta t},\qquad
 \Delta F_k=S_{old}\frac{\lambda_k}{\Lambda}(1-e^{-\Lambda\Delta t}).
-\]
+```
 
 La Λ≈0 folosim limita stabilă și `expm1`. Aceasta oferă un caz analitic independent pentru teste. În modelul neural, integrarea se face pe intervale de control/bin, cu rafinare și contabilitatea atomilor separată.
 
@@ -973,26 +982,26 @@ O schimbare viitoare a ventilatorului intră în forecast numai dacă este un pr
 
 Convenția de normalizare este explicită [IGNIS]. Ponderile trapezoidale pe [0,1] sunt q_0=q_{K−1}=1/[2(K−1)] și q_j=1/(K−1) pentru interior. Definim
 
-\[
+```math
 \varphi_0(\xi)=1,\qquad\varphi_m(\xi)=\sqrt2\cos(m\pi\xi),\quad m=1,2,3.
-\]
+```
 
 Coeficienții sunt
 
-\[
+```math
 \widehat h_m=\sum_jq_j\varphi_m(\xi_j)h(\xi_j),
 \qquad
 \mathcal K_\ell h(\xi)=\sum_{m=0}^3\varphi_m(\xi)A_{\ell m}\widehat h_m.
-\]
+```
 
 Această convenție face verificabil modul constant și evită factori ascunși de doi. Implementările Rust/JAX trebuie să folosească aceleași ponderi și aceeași convenție, nu două funcții DCT cu normalizări implicite diferite.
 
 După lift 8→16, trei blocuri:
 
-\[
+```math
 h_{\ell+1}(\xi)=\tanh\left((1+\gamma_\ell(c))\odot
 [W_\ell h_\ell(\xi)+\mathcal K_\ell h_\ell(\xi)+b_\ell]+\beta_\ell(c)\right).
-\]
+```
 
 FiLM 8→16→96 produce γ și β pentru trei blocuri de lățime 16. Un head liniar 16→1 produce N_θ. Numărul ponderilor este 144 lift +3·(4·16²+16²+16)=3888 blocuri +17 head +1776 FiLM = **5825**.
 
@@ -1000,11 +1009,11 @@ Cosine modes evită wrap-around-ul periodic. Ele nu reprezintă, prin ele însel
 
 ## 9.5. Dinamica cinematică
 
-\[
+```math
 \partial_tf=
 [v_b(s,c,b)+v_r\tanh N_\theta(f,c,G)]\sqrt{1+(\partial_sf)^2}
 +\nu_f\frac{\partial_{ss}f}{1+(\partial_sf)^2},\quad\nu_f\ge0.
-\]
+```
 
 v_b este baseline-ul de viteză, v_r o scală a rezidualului, iar ν_f regularizare cinematică de curbură, în m²/s. Nu o interpretăm drept difuzivitate termică măsurată. Semnul pozitiv al termenului de curbură este difuziv. Conturul vizibil poate avansa sau se poate retrage; nu impunem monotonicitatea unui front de consum chimic pe un observabil luminos.
 
@@ -1014,22 +1023,22 @@ Starea locală nominală are opt coeficienți ai conturului inițial și patru c
 
 Pentru a nu lăsa simbolul v_b nedefinit în implementare, convenția nominală V3 este
 
-\[
+```math
 v_b(s,c,b)=v_{ref}\left[\beta_v^\top(1,c)+\sum_{m=0}^{3}b_m\varphi_m(s/W)\right],
 \quad v_{ref}=10^{-3}\,\mathrm{m/s},\quad v_r=v_{ref}.
-\]
+```
 
 Cele nouă β_v sunt parametri globali MAP. v_ref este o scară numerică de pornire, nu o viteză măsurată. Patru b_m sunt efecte locale cu priori Gaussieni cu scale inițiale fixe 0,25/(1+m), supuse unei sensibilități de dezvoltare. Constantele de prior nu se numără drept parametri fit.
 
 Frontul inițial este parametrizat în coordonate neconstrânse:
 
-\[
+```math
 f_0(s)=L\,\operatorname{sigmoid}\left(\sum_{m=0}^{7}a_m\varphi_m(s/W)\right).
-\]
+```
 
-Această convenție asigură f₀∈(0,L), nu o geometrie chimică adevărată. a₀~N(0,1), iar a_m~N(0,[0,5/m²]²) pentru m≥1 sunt priori de proiectare, nu deduși din prima măsurătoare. Likelihood-ul primului contur îi informează o singură dată. O cohortă al cărei domeniu geometric diferă cere o parametrizare adaptată declarată.
+Această convenție asigură f₀∈(0,L), nu o geometrie chimică adevărată. a₀\~N(0,1), iar a_m\~N(0,[0,5/m²]²) pentru m≥1 sunt priori de proiectare, nu deduși din prima măsurătoare. Likelihood-ul primului contur îi informează o singură dată. O cohortă al cărei domeniu geometric diferă cere o parametrizare adaptată declarată.
 
-Regularizarea este ν_f=ν_ref exp ζ, ν_ref=10⁻⁶ m²/s, ζ~N(0,1) inițial. Ea nu reprezintă o proprietate termică. Cu trei parametri ai kernel-ului observațional și geometria spațială a erorii fixată din metrologie/dezvoltare, inventarul nominal per membru este **5825 ponderi NN +9 β_v +1 ζ +3 parametri observaționali =5838 parametri globali fit**, plus 12 parametri locali per run în fitting-ul MAP. Nuisances de calibrare justificate se numără separat. Această completare precizează numărul care în V2 era lăsat în afara headline-ului de 5825 ponderi.
+Regularizarea este ν_f=ν_ref exp ζ, ν_ref=10⁻⁶ m²/s, ζ\~N(0,1) inițial. Ea nu reprezintă o proprietate termică. Cu trei parametri ai kernel-ului observațional și geometria spațială a erorii fixată din metrologie/dezvoltare, inventarul nominal per membru este **5825 ponderi NN +9 β_v +1 ζ +3 parametri observaționali =5838 parametri globali fit**, plus 12 parametri locali per run în fitting-ul MAP. Nuisances de calibrare justificate se numără separat. Această completare precizează numărul care în V2 era lăsat în afara headline-ului de 5825 ponderi.
 
 
 ## 9.6. Numerică: limite care nu dispar prin bounded NN
@@ -1070,10 +1079,10 @@ Pentru o sesiune nouă, singurele efecte locale ACME nominale sunt u_E,u_O, Gaus
 
 Greutățile joint de prefix sunt
 
-\[
+```math
 W_{gij}\propto w_g^{train}\frac{w_iw_j}{\pi}
 L(Y_{\le\tau}\mid\Theta_g,u_{ij})S_g(\tau\mid u_{ij})\mathbf1_{support}.
-\]
+```
 
 **Normalizăm peste g,i,j împreună**, nu separat în fiecare draw global lăsat apoi cu pondere egală. Prefixul informează și distribuția globală. Într-un event-only expert, L_obs poate fi unu; informația nouă este supraviețuirea observată până la τ și controlurile admise.
 
@@ -1086,12 +1095,12 @@ Pentru o sesiune cunoscută cu posterior local ne-Gaussian, pentru nuisance-uri 
 
 În coordonate locale neconstrânse b și cu Θ un draw global sau index de ansamblu:
 
-\[
+```math
 \pi_\tau(\Theta,b,\kappa)\propto
 p_{train}(\Theta,\kappa_{known})p_0(b,\kappa_{new}\mid\Theta)
 L(Y_{\le\tau}\mid\Theta,b,\kappa)S(\tau\mid\Theta,b)
 \mathbf1_{support}.
-\]
+```
 
 Termenul S există numai pentru expertul și observația de activitate corespunzătoare. BASS nu primește artificial hazardul FLEX. Pentru o calibrare cunoscută păstrăm dependența cu posteriorul de training; pentru una nouă folosim priorul justificat.
 
@@ -1130,14 +1139,15 @@ Opt coupling layers alternează dimensiunile transformate. Folosim rational-quad
 
 Într-un bin, w lățime, h înălțime, δ=h/w, ξ=(x−x₀)/w:
 
-\[
+```math
 y=y_0+h\frac{\delta\xi^2+d_0\xi(1-\xi)}
 {\delta+(d_1+d_0-2\delta)\xi(1-\xi)},
-\]
-\[
+```
+
+```math
 \frac{dy}{dx}=\frac{\delta^2[d_1\xi^2+2\delta\xi(1-\xi)+d_0(1-\xi)^2]}
 {[\delta+(d_1+d_0-2\delta)\xi(1-\xi)]^2}>0.
-\]
+```
 
 Densitatea se obține prin change of variables. Inversa, derivativele și log-Jacobianul se verifică independent. **Propunerea poate aproxima posteriorul; densitatea propriei propuneri trebuie calculată corect.**
 
@@ -1155,17 +1165,17 @@ Nuisances locale noi pot mări dimensiunea; acestea cer o configurație nouă, n
 
 ## 10.5. Propunere defensivă și reponderare
 
-\[
+```math
 q_\epsilon(b\mid\Theta,Y)=(1-\epsilon)q_\psi(b\mid\Theta,Y)+\epsilon p_0(b\mid\Theta),
 \qquad\epsilon=0.1\text{ inițial}.
-\]
+```
 
 Draw Θ din p_train și b din amestec. Atunci:
 
-\[
+```math
 \log w=\log p_0(b\mid\Theta)+\log L(Y\mid\Theta,b)+\log S(\tau\mid\Theta,b)
 -\log q_\epsilon(b\mid\Theta,Y)+\log\mathbf1_{support}.
-\]
+```
 
 Densitatea globală se anulează numai dacă propunerea Θ este aceeași distribuție. Dacă selectăm altfel indicii globali, includem raportul corespunzător. Densitatea amestecului include ambele componente indiferent care a generat particula; calculăm cu log-sum-exp.
 
@@ -1219,16 +1229,16 @@ Un expert expune `rank_observations` numai dacă definește distribuția măsur�
 
 Cu ținta Z și decizia de estimare d:
 
-\[
+```math
 \mathcal R(\mathcal D)=\min_d E[\ell(d,Z)\mid\mathcal D].
-\]
+```
 
 Pentru acțiunea a și măsurătoarea potențială Y_a:
 
-\[
+```math
 U(a)=\mathcal R(\mathcal D)-E_{Y_a\mid\mathcal D}
 [\mathcal R(\mathcal D\cup\{Y_a\})]-\lambda C(a).
-\]
+```
 
 La squared error, reducerea riscului este reducerea așteptată a varianței țintei, cu ponderile/unitățile declarate. La log score, apare o relație cu informația condiționată. Nu folosim automat entropia parametrilor dacă interesul cercetătorului este eroarea asupra unui rezultat concret. [L19](#source-l19)
 
@@ -1382,9 +1392,9 @@ Raportăm MAE/RMSE pe run și apoi agregare egală pe grupurile relevante, nu nu
 
 Pentru distribuții folosim un proper score relevant, de exemplu log predictive density sau CRPS pentru scalar. Pentru samples X₁,…,X_M, un estimator CRPS este:
 
-\[
+```math
 \frac1M\sum_m|X_m-y|-\frac1{2M^2}\sum_{m,n}|X_m-X_n|.
-\]
+```
 
 Formula este pentru samples cu ponderi egale; cu importance weights se adaptează ambele sume. Comparatorii trebuie să estimeze aceeași cantitate și același tip de bandă. Nu comparăm o bandă latentă cu una measurement-predictive ca și când ar fi identice.
 
@@ -1550,15 +1560,15 @@ CPU-ul gazdei este deja inclus în prețul podului. Nu îl facturăm a doua oar�
 
 Cu tarif Standard de referință 0,07 USD/GB/lună și lună de 30 zile:
 
-\[
+```math
 100\cdot0.07\cdot14/30=3.2667\text{ USD}.
-\]
+```
 
 Cu scratch 60 GB, tarif de referință 0,10 USD/GB/lună și 128 ore agregate de pod:
 
-\[
+```math
 60\cdot0.10\cdot128/720=1.0667\text{ USD}.
-\]
+```
 
 Total orientativ 4,33 USD, rotunjit la 5. Facturarea și dimensiunile reale controlează suma. O perioadă mai lungă de retenție trebuie inclusă; un volum fără pod continuă să coste. Confirmăm compatibilitatea network volume/cloud/datacenter înainte să îl creăm.
 
@@ -1589,9 +1599,9 @@ Cele 120 de ore ale podului includ compile, încărcare, transferuri, joburi CPU
 
 Pentru un fit NUTS:
 
-\[
+```math
 T_{fit}\approx T_{compile}+\frac{C}{P}(W+S)\bar L\,t_{gradient}+T_{IO},
-\]
+```
 
 unde P este numărul de lanțuri efectiv paralele, nu numărul cerut în API. Dacă C=4,P=4,W+S=2500, L̄=128 și t_gradient=0,04 s, termenul numeric este 3,56 h. Acest exemplu ilustrează formula; nu afirmă că modelul sau host-ul va realiza acele valori.
 
@@ -1690,11 +1700,11 @@ Acesta este **un program de execuție agresiv**, nu garanția că trei candidaț
 
 ## 17.3. Drumul critic
 
-\[
+```math
 \text{definiții fizice} \rightarrow \text{date eligibile} \rightarrow \text{likelihood corect}
 \rightarrow \text{fit și validare} \rightarrow \text{inferență calificată}
 \rightarrow \text{benchmark de observații}.
-\]
+```
 
 Pentru BASS se adaugă calibrarea și front extraction, iar pentru ACME adjudicarea opririlor. UI, evidence engine, evaluarea izolată, schema și packaging-ul avansează în paralel cu aceste dependențe. **Până pe 11 noiembrie trebuie să existe circuitul complet**, chiar dacă unele capabilități neuronale rămân în stadiu de candidat.
 
@@ -1741,9 +1751,9 @@ Pipeline: query frame → filtre tipate → FTS5 lexical + embedding dense → r
 
 Pentru documentele candidate:
 
-\[
+```math
 \operatorname{RRF}(d)=\sum_{m\in\{lexical,dense\}}\frac{1}{k+r_m(d)},\qquad k=60\text{ inițial}.
-\]
+```
 
 k este o alegere de fusion, nu probabilitate sau scor de adevăr. Absența dintr-o listă contribuie zero. SQLite FTS5 are convenția sa de ordine pentru BM25; o mapăm corect la rank. Nu adunăm direct scoruri BM25 și cosine de scări diferite. [T11](#source-t11)
 
@@ -1983,9 +1993,9 @@ Lista completă de URL-uri și stări este în registrul [L01–L40], alături d
 
 **FNO [L01](#source-l01)**, Li et al., preprint 2020 / ICLR 2021, introduce un operator învățat care combină transformări locale și convoluții parametrizate în spațiul Fourier. Forma schematică este
 
-\[
+```math
 v_{\ell+1}=\sigma(W_\ell v_\ell+\mathcal F^{-1}(R_\ell\mathcal Fv_\ell)).
-\]
+```
 
 Avantajul este o reprezentare eficientă a mapării dintre funcții. Nu rezultă însă că orice imagine oferă starea fizică necesară. Ignis ia ideea de operator pentru conturul BASS efectiv măsurat și folosește o bază neperiodică mică, nu un câmp de temperatură inventat.
 
@@ -2207,9 +2217,9 @@ Pentru VOI, cutoff-ul rămâne fix pe parcursul achiziției din trecut. Setul in
 
 Pentru un contrast de populație între scenarii A/B, folosim același draw global Θ pentru ambele și integrăm efectele locale conform distribuției definite:
 
-\[
+```math
 \Delta(\Theta)=E_b[F_H(T\mid c_A,b,\Theta)]-E_b[F_H(T\mid c_B,b,\Theta)].
-\]
+```
 
 Distribuția lui Δ asupra Θ descrie incertitudinea contrastului de populație. Probabilitatea că două experimente viitoare individuale au ordine diferită a finalului este alt estimand: ea include efecte locale și event times diferite. Nu amestecăm cele două în aceeași bandă.
 
@@ -3077,7 +3087,7 @@ Sursă: https://github.com/ShaharabiTuhin/ZeroG-Ignis
 Sursă: https://github.com/Mehedi752/Flame-in-Freefall
 
 **Statut:** README/cod inspectate anterior.
-**Rol:** 31 records/~25 publicații și analist pe reguli în versiunea inspectată.
+**Rol:** 31 records/\~25 publicații și analist pe reguli în versiunea inspectată.
 
 
 <a id="source-t01"></a>
@@ -3247,7 +3257,7 @@ Sursă: https://github.com/facebookresearch/sam2
 ### T19 — SAM2.1 Hiera-small
 Sursă: https://huggingface.co/facebook/sam2.1-hiera-small
 
-**Statut:** Metadate raportate anterior: ~46,1M, Apache-2.0; pin la build.
+**Statut:** Metadate raportate anterior: \~46,1M, Apache-2.0; pin la build.
 **Rol:** Nu reprezintă validare pe NASA.
 
 

@@ -15,6 +15,12 @@ score.
 - The last commit of each script is given beside it.
 - The release folders under `configs/models/` and the forwards are identical in this repository.
 
+**How each comparison is laid out.** Sections 1 to 4 follow one order: **As published** (the
+comparator's equations, from the paper), **Rebuild** (how it was rebuilt and how faithfully), the
+IGNIS release, the **Cases** and **Metric**, the score table, a **Reading** where one is needed, and
+the command that reproduces the numbers. Sections 5 to 7 use the same labels where they apply. The
+IGNIS models themselves are written out in [FORMULAS.md](FORMULAS.md).
+
 ## Papers we compared against
 
 The strongest results come first. Each IGNIS release was frozen before the data it is scored on here
@@ -24,10 +30,10 @@ the same cases.
 | Paper or law | What it predicts | NASA test it was scored on | IGNIS | Theirs | Ratio |
 |---|---|---|---|---|---|
 | S.M. Frolov, V.S. Ivanov, F.S. Frolov, I.V. Semenov, "Spherical Diffusion Flames of Ethylene in Microgravity: Multidimensional Effects", *Fire* 6(8) (2023) 285, [doi:10.3390/fire6080285](https://doi.org/10.3390/fire6080285) | Transient 1-D detailed-chemistry model of ethylene spherical flames; when each flame goes out | Flame Design (PSI-10) test day, normal flames, planned stop known: 10 cases, 4 tests, 1 day | **0.027** | 0.330 | **12.2×** |
-| P.H. Irace, K.A. Waddell, D. Constales, P.B. Sunderland, R.L. Axelbaum, "Critical temperature and reactant mass flux for radiative extinction of ethylene microgravity spherical diffusion flames at 1 bar", *Proc. Combust. Inst.* 39 (2023) 1905–1913, [doi:10.1016/j.proci.2022.07.043](https://doi.org/10.1016/j.proci.2022.07.043); with the steady-state criterion of the companion PCI 39 paper | Radiative extinction: $R=r_{ss}/r_{ext}>1$ means the flame goes out | Flame Design test days, normal flames, planned stop known: 83 cases, 29 tests, 3 days | **0.061** | 0.493 | **8.1×** |
+| P.H. Irace, K.A. Waddell, D. Constales, P.B. Sunderland, R.L. Axelbaum, "Critical temperature and reactant mass flux for radiative extinction of ethylene microgravity spherical diffusion flames at 1 bar", *Proc. Combust. Inst.* 39 (2023) 1905–1913, [doi:10.1016/j.proci.2022.07.043](https://doi.org/10.1016/j.proci.2022.07.043); with the steady-state criterion of the companion PCI 39 paper | Radiative extinction: $R=r_{ss}/r_{ext}\gt1$ means the flame goes out | Flame Design test days, normal flames, planned stop known: 83 cases, 29 tests, 3 days | **0.061** | 0.493 | **8.1×** |
 | A.Yu. Snegirev, "On radiative extinction of microgravity diffusion flames", *Combust. Flame* 248 (2023) 112499, [doi:10.1016/j.combustflame.2022.112499](https://doi.org/10.1016/j.combustflame.2022.112499) | Closed-form pre-extinction radius and a steady-burning criterion | The same 83 cases | **0.061** | 0.493 | **8.1×** |
 | Xi, Torero & Jahn, "Data driven forecast of droplet combustion", *Proc. Combust. Inst.* 38 (2021) 4785–4793, doi:10.1016/j.proci.2020.05.012 (DOI from a library catalogue record; author order differs between catalogues); deposited version UCL Discovery 10106831 | Droplet $d^2$ trajectory with the burning constant set by data assimilation from the observed prefix | FLEX (PSI-69) sealed test partition, methanol: 64 cases, 9 sessions | **22.4 µm** | 151.7 µm | **6.8×** |
-| P.V. Ferkul, S.L. Olson, M.C. Johnston, J.S. T'ien, BASS-I concurrent spread-rate fits, ASGSR 2012 poster, NTRS 20130012832 | Steady flame-spread rate on the cotton-fibreglass fabric SIBAL: $V_f=0.20\,U+0.56$ mm/s (2 cm sample) | BASS-II (PSI-25) validation burns, measured blind: 3 burns, 11 cases | **0.121** | 0.449 | **3.7×** |
+| P.V. Ferkul, S.L. Olson, M.C. Johnston, J.S. T'ien, BASS-I concurrent spread-rate fits, ASGSR 2012 poster, NTRS 20130012832 | Steady flame-spread rate on the cotton-fibreglass fabric SIBAL: $`V_f=0.20\,U+0.56`$ mm/s (2 cm sample) | BASS-II (PSI-25) validation burns, measured blind: 3 burns, 11 cases | **0.121** | 0.449 | **3.7×** |
 | K.-C. Lin, G.M. Faeth, "Shapes of nonbuoyant round luminous laminar-jet diffusion flames in coflowing air", *AIAA J.* 37 (1999) 759–765 (DOI not verified) | Flame length of a laminar jet in coflow | SPICE (PSI-107) test days: 6 cases | **1.18 mm** | 2.56 mm | **2.2×** |
 | Thomson's space-charge-limited current with the saturation law of flame ionisation, as given in J. Lawton, F.J. Weinberg, *Electrical Aspects of Combustion* (1969) | Ion current drawn from a flame by an electric field | E-FIELD Flames (PSI-22) test days: 788 voltage levels | **0.319 µA** | 0.575 µA | **1.8×** |
 | The classical $d^2$-law (Godsave; Spalding, 1953), as the reference baseline of the FLEX spec | Droplet diameter, $D^2=D_0^2-Kt$ | FLEX sealed test, methanol 65 cases / n-heptane 43 cases | **18.5 / 32.2 µm** | 31.6 / 54.0 µm | **1.7× / 1.7×** |
@@ -87,7 +93,7 @@ The same frozen releases, the same final runs.
 
 ## 1. Frolov et al. (2023): flame-out time on Flame Design
 
-**What they publish.**
+**As published.**
 - **The model.** A transient one-dimensional spherical flame with detailed chemistry that computes the
   burner heating itself. That makes it a real forecast from the inputs of a test.
 - **What is read from the paper.** For 37 Flame Design flames, the paper gives whether and when the
@@ -95,14 +101,14 @@ The same frozen releases, the same final runs.
 - **The transcription** is in `docs/wsp/research/frolov2023_flames.json`, with provenance.
 - **Their published comparisons were reproduced** for 22018G3.
 
-**How the comparator is built** (`tools/wsp/final/posthoc_frolov_snegirev.py`, `09c22d3`):
+**Rebuild** (`tools/wsp/final/posthoc_frolov_snegirev.py`, `09c22d3`):
 - **Step forecast.** The flame goes out at their modelled time, taken as the window midpoint or the
   plotted time.
 - **Stop path.** When the planned stop is known and comes first, the flame ends at the stop.
 - **Which flames have a forecast.** It exists for the flames their model puts out within 50 s. A second
   block adds the flames their model never puts out, forecast as no extinction.
 
-**IGNIS model.** `acme_normal.wsp12` F2 (`sha256:55fcf4cb…971d`), frozen before the final run.
+**IGNIS release.** `acme_normal.wsp12` F2 (`sha256:55fcf4cb…971d`), frozen before the final run.
 
 **Cases.** Flame Design (PSI-10) test days, split `docs/wsp/atlas/splits/PSI-10.json`. The endpoints
 and sealed forecasts are the final run's own (`runs/final/20261115/flame-design.json`).
@@ -133,13 +139,21 @@ python tools/wsp/final/posthoc_frolov_snegirev.py      # -> runs/final/20261115/
 doi:10.7936/kpc0-th51. Chapter 4 is *Combust. Flame* 229 (2021) 111373, and chapters 5 and 6 are the two
 PCI 39 papers.
 
-$$r_{ext}=\sqrt{\frac{\dot m_R}{4\pi J_{cr}}},\qquad J_{cr}=0.20\ \text{g m}^{-2}\text{s}^{-1}\ (\text{fuel, normal}),\quad 0.68\ \text{g m}^{-2}\text{s}^{-1}\ (\text{O}_2,\ \text{inverse})\qquad\text{(Eqs. 5.2, 5.4)}$$
+```math
+r_{ext}=\sqrt{\frac{\dot m_R}{4\pi J_{cr}}},\qquad J_{cr}=0.20\ \text{g m}^{-2}\text{s}^{-1}\ (\text{fuel, normal}),\quad 0.68\ \text{g m}^{-2}\text{s}^{-1}\ (\text{O}_2,\ \text{inverse})\qquad\text{(Eqs. 5.2, 5.4)}
+```
 
-$$r_{ss}=\frac{\dot m_{tot}}{4\pi\,\rho D\,\ln\!\big(1/(1-Z_{st})\big)}\ \text{(normal)},\qquad r_{ss}=\frac{\dot m_{tot}}{4\pi\,\rho D\,\ln(1/Z_{st})}\ \text{(inverse)}\qquad\text{(Eqs. 4.9, 6.5, 6.7)}$$
+```math
+r_{ss}=\frac{\dot m_{tot}}{4\pi\,\rho D\,\ln\!\big(1/(1-Z_{st})\big)}\ \text{(normal)},\qquad r_{ss}=\frac{\dot m_{tot}}{4\pi\,\rho D\,\ln(1/Z_{st})}\ \text{(inverse)}\qquad\text{(Eqs. 4.9, 6.5, 6.7)}
+```
 
-$$\rho D=\rho_0D_0\Big(\frac{T_{ch}}{298\ \text{K}}\Big)^{1/2},\ \rho_0=1146\ \text{g m}^{-3},\ D_0=20.4\ \text{mm}^2\text{s}^{-1};\qquad Z_{st}=\Big(1+\frac{sY_F}{Y_O}\Big)^{-1},\ s=3.42\qquad\text{(Eqs. 4.10, 4.1)}$$
+```math
+\rho D=\rho_0D_0\Big(\frac{T_{ch}}{298\ \text{K}}\Big)^{1/2},\ \rho_0=1146\ \text{g m}^{-3},\ D_0=20.4\ \text{mm}^2\text{s}^{-1};\qquad Z_{st}=\Big(1+\frac{sY_F}{Y_O}\Big)^{-1},\ s=3.42\qquad\text{(Eqs. 4.10, 4.1)}
+```
 
-$$R=\frac{r_{ss}}{r_{ext}}>1\ \Rightarrow\ \text{the flame extinguishes radiatively}\qquad\text{(Eq. 6.9)}$$
+```math
+R=\frac{r_{ss}}{r_{ext}}>1\ \Rightarrow\ \text{the flame extinguishes radiatively}\qquad\text{(Eq. 6.9)}
+```
 
 **Fidelity of the rebuild** (`posthoc_irace_comparator.py literature`, `740b3df`):
 - The steady radii of their CNF 2021 Table 2 are reproduced within 0.13 mm (1.7 %).
@@ -149,14 +163,14 @@ $$R=\frac{r_{ss}}{r_{ext}}>1\ \Rightarrow\ \text{the flame extinguishes radiativ
 
 **Snegirev, as published.**
 - **The law.** A closed-form pre-extinction radius (Eq. 20, with Eqs. 3, 14/22, 17/21 and 35–38), the
-  steady radius (Eq. 10), and the test $R_{ss}>R_{cr}$ ⇒ the flame self-extinguishes.
+  steady radius (Eq. 10), and the test $R_{ss}\gt R_{cr}$ ⇒ the flame self-extinguishes.
 - **His constants:** $T_{cr}$ = 1100 K for ethylene, $c_p$ = 1700 J kg⁻¹ K⁻¹, $k$ = 0.07 W m⁻¹ K⁻¹,
   $T_\infty$ = 300 K, $\Delta h_c$ = 47.17 MJ kg⁻¹, $\sigma_{O_2}$ = 3.42, and HITEMP-2010 Planck means
   at $T_{cr}$.
 - **Our assumptions**, flagged in the code: a sphere radius $R_s$ = 3.2 mm, and $\kappa_f$ computed per
   test from Eq. 35.
 
-**Comparator** (`tools/wsp/final/posthoc_irace_testdays.py`, `740b3df`; Snegirev in
+**Rebuild** (`tools/wsp/final/posthoc_irace_testdays.py`, `740b3df`; Snegirev in
 `posthoc_frolov_snegirev.py`):
 - **"As published" (R only).** The criterion decides whether the flame goes out, and the forecast says
   it goes out at the first horizon. This is the published criterion with nothing of ours added.
@@ -164,7 +178,9 @@ $$R=\frac{r_{ss}}{r_{ext}}>1\ \Rightarrow\ \text{the flame extinguishes radiativ
   CFD driven by each test's measured burner temperature, which is not a forecast. So we also pair each
   criterion with our erfc growth clock:
 
-$$r_f=r_{ss}\,\mathrm{erfc}\!\Big(\frac{r_f}{2\sqrt{Dt}}\Big),\qquad t_{ext}=\frac{r_{ext}^2}{4D\,[\mathrm{erfc}^{-1}(r_{ext}/r_{ss})]^2}\quad (R>1)$$
+```math
+r_f=r_{ss}\,\mathrm{erfc}\!\Big(\frac{r_f}{2\sqrt{Dt}}\Big),\qquad t_{ext}=\frac{r_{ext}^2}{4D\,[\mathrm{erfc}^{-1}(r_{ext}/r_{ss})]^2}\quad (R>1)
+```
 
 - **Inputs.** It reads only the conditions in F2's prefix, and on the stop path the same planned stop.
 
@@ -212,7 +228,9 @@ python tools/wsp/final/posthoc_frolov_snegirev.py                # Snegirev bloc
 **As published** (deposited version, UCL Discovery 10106831, sections 2.1, 3 and 5). Spalding's
 solution for the liquid phase gives the droplet-size forecast
 
-$$R(t)^2=R_0^2-\hat K\,t\qquad\text{(Eqs. 2 and 8)}$$
+```math
+R(t)^2=R_0^2-\hat K\,t\qquad\text{(Eqs. 2 and 8)}
+```
 
 - $R_0$ is the initial radius.
 - $\hat K$ is the one droplet-phase parameter. It is corrected from the observed radius by minimising
@@ -279,7 +297,9 @@ python tools/wsp/final/posthoc_xi_window.py       # their 5-10 s window for the 
 **As published.** The BASS-I concurrent spread fits at about 21 % O₂ (ASGSR 2012 poster, NTRS
 20130012832), with $U$ in cm/s:
 
-$$V_f\,[\text{mm/s}]=0.20\,U+0.56\ \ (2\ \text{cm sample}),\qquad V_f=0.15\,U+0.07\ \ (1\ \text{cm})$$
+```math
+V_f\,[\text{mm/s}]=0.20\,U+0.56\ \ (2\ \text{cm sample}),\qquad V_f=0.15\,U+0.07\ \ (1\ \text{cm})
+```
 
 The transcriptions are in `docs/wsp/research/bass_published_burns.json`. Its other sources are
 NASA/TM-20210011385 §7.1 (Table 7.1, Fig. 7.4) and Olson et al. (UCL Discovery 10164340).
@@ -376,7 +396,9 @@ train days only.
 
 Lin and Faeth's coflow law, with unity coefficients (`tools/wsp/ext/spice_cases.py:186-197`):
 
-$$L_{LF}=\frac{\dot m}{4\pi\,\mu_{air}\,Z_{st}},\qquad q_p=L_{LF}\,e^{z_p\hat\sigma},\quad \hat\sigma=0.1218\ \text{(train, 42 cases)}$$
+```math
+L_{LF}=\frac{\dot m}{4\pi\,\mu_{air}\,Z_{st}},\qquad q_p=L_{LF}\,e^{z_p\hat\sigma},\quad \hat\sigma=0.1218\ \text{(train, 42 cases)}
+```
 
 Here $\dot m$, $\mu_{air}$ and $Z_{st}$ come from the investigators' Smoke Point Datasheet. The metric is
 the quantile score ×2 over the levels 0.05–0.95, in mm.
@@ -394,7 +416,9 @@ On the smoke-point length, P3 scores **4.18 mm** against 10.33 mm for the per-fu
 Thomson's planar space-charge-limited current, capped by the saturation current of flame ionisation
 (`tools/wsp/ext/efield_cases.py:646-672`):
 
-$$I=\min\!\Big(\eta\,\dot N_C\,e,\ \ \tfrac98\,\varepsilon_0\,\mu_{ion}\,\frac{V^2}{d^3}\,A\Big),\qquad \eta=5\times10^{-7},\ \mu_{ion}=1.4\ \text{or}\ 1.9\times10^{-4}\ \text{m}^2\text{V}^{-1}\text{s}^{-1}$$
+```math
+I=\min\!\Big(\eta\,\dot N_C\,e,\ \ \tfrac98\,\varepsilon_0\,\mu_{ion}\,\frac{V^2}{d^3}\,A\Big),\qquad \eta=5\times10^{-7},\ \mu_{ion}=1.4\ \text{or}\ 1.9\times10^{-4}\ \text{m}^2\text{V}^{-1}\text{s}^{-1}
+```
 
 Here $d$ is the mesh gap (35 or 40 mm) and $A$ the 8.4 cm mesh disc. The spread is log-normal, with
 the width set on train.
@@ -409,7 +433,9 @@ the width set on train.
 
 Roper's correlation for a circular port (`tools/wsp/ext/cld_cases.py:294-303`):
 
-$$L_f=1330\ \text{s m}^{-2}\ \frac{Q_F}{\ln(1+1/S)}$$
+```math
+L_f=1330\ \text{s m}^{-2}\ \frac{Q_F}{\ln(1+1/S)}
+```
 
 Here $Q_F$ is the volumetric fuel flow and $S$ the moles of air per mole of nozzle fluid at
 stoichiometry. The comparator adds one offset per fuel, fitted on train, to $\log_{10}L_f$
@@ -425,7 +451,9 @@ stoichiometry. The comparator adds one offset per fuel, fitted on train, to $\lo
 The critical flow velocity for radiative extinction, as restated in NASA/TM-20210011385 §2.2.7, Eq. 2.5
 (`tools/wsp/ext/bass1_cases.py:693-718`):
 
-$$V_{g,cr}=\frac{\varepsilon\,\sigma_{SB}\,(T_v^4-T_\infty^4)}{\rho_g\,c_g\,(T_f-T_v)},\qquad T_f=T_\infty+(2199-T_\infty)\frac{X_{O_2}}{0.21}$$
+```math
+V_{g,cr}=\frac{\varepsilon\,\sigma_{SB}\,(T_v^4-T_\infty^4)}{\rho_g\,c_g\,(T_f-T_v)},\qquad T_f=T_\infty+(2199-T_\infty)\frac{X_{O_2}}{0.21}
+```
 
 The constants are $T_v$ = 673 K, $T_\infty$ = 300 K, $c_g$ = 1070 J kg⁻¹ K⁻¹ and $\varepsilon$ = 1.
 The quantiles are $V_{g,cr}e^{0.4z_p}$, with the width set on train. The metric is the interval CRPS in

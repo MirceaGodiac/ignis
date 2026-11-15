@@ -11,7 +11,7 @@
 
 **The cheapest OpenAI model inside IGNIS scores as high as OpenAI's flagship alone, at one seventh
 of the cost.** GPT-6 Luna goes from **43 to 77** inside IGNIS (+34 points). Raw GPT-6 Astra, the
-flagship, also scores 77, at $0.0651 per question against $0.0093 for Luna in IGNIS: **7× the price**.
+flagship, also scores 77, at \$0.0651 per question against \$0.0093 for Luna in IGNIS: **7× the price**.
 
 - **Every model scores higher inside IGNIS.** The weaker the model, the bigger the gain: Luna +34,
   GPT-6.1 Terra +23, GPT-6 Sol +11, GPT-6.1 Sol +9, GPT-6 Astra +5. The harness and the NASA corpus
@@ -22,12 +22,12 @@ flagship, also scores 77, at $0.0651 per question against $0.0093 for Luna in IG
 - **Every trap handled.** Every IGNIS system scores 100 on the trap questions (a made-up test run, a
   false premise).
 - **The new harness is better and cheaper.** On GPT-6 Astra it lifted the score from **75 to 82**
-  and cut the cost per question from **$0.514 to $0.426**. The NASA-record score doubled (17 → 33)
+  and cut the cost per question from **\$0.514 to \$0.426**. The NASA-record score doubled (17 → 33)
   and precision rose from 97 to 100.
 - **Three models reach 82**, the top of the board: Astra, 6.1 Sol and Fable inside IGNIS.
-  GPT-6.1 Sol in IGNIS reaches 82 at $0.0804 per question.
-- **GPT-6.1 Terra in IGNIS (80) matches GPT-6 Astra alone (77) at 29 % lower cost** ($0.0463 against
-  $0.0651).
+  GPT-6.1 Sol in IGNIS reaches 82 at \$0.0804 per question.
+- **GPT-6.1 Terra in IGNIS (80) matches GPT-6 Astra alone (77) at 29 % lower cost** (\$0.0463 against
+  \$0.0651).
 - **What one dollar buys at flagship quality:** 108 answers from Luna in IGNIS (score 77), 40 from
   Claude Fable 5.2 alone (80), 15 from GPT-6 Astra alone (77).
 
@@ -103,7 +103,7 @@ Answers per dollar = 1 / cost per question.
 **Cost basis.** `list` = reported tokens × OpenAI list price, standard tier, short context, read
 2026-11-15. `reported` = the cost Claude Code reports. The OpenAI runs used a ChatGPT login and the
 Claude IGNIS runs a plan token, so these are API-equivalent costs, not bills. Juror spend is in no
-system's cost (the Claude jurors reported $8.50 in total).
+system's cost (the Claude jurors reported \$8.50 in total).
 
 ## 3. Results
 
@@ -113,12 +113,12 @@ From `LIFT.md`.
 
 | Model | Alone | Inside IGNIS | Lift | Cost / question alone | Cost / question in IGNIS | Latency p50 alone | Latency p50 in IGNIS |
 |---|---|---|---|---|---|---|---|
-| GPT-6 Astra | 77 | **82** | **+5** | $0.0651 | $0.4256 | 8.2 s | 37.3 s |
-| GPT-6.1 Sol | 73 | **82** | **+9** | $0.0097 | $0.0804 | 9.1 s | 24.1 s |
-| Claude Fable 5.2 | 80 | **82** | **+2** | $0.0248 | $0.6645 | 5.7 s | 42.2 s |
-| GPT-6.1 Terra | 57 | **80** | **+23** | $0.0038 | $0.0463 | 5.5 s | 28.1 s |
-| GPT-6 Sol | 66 | **77** | **+11** | $0.0091 | $0.1287 | 6.9 s | 30.1 s |
-| GPT-6 Luna | 43 | **77** | **+34** | $0.0007 | $0.0093 | 5.0 s | 38.1 s |
+| GPT-6 Astra | 77 | **82** | **+5** | \$0.0651 | \$0.4256 | 8.2 s | 37.3 s |
+| GPT-6.1 Sol | 73 | **82** | **+9** | \$0.0097 | \$0.0804 | 9.1 s | 24.1 s |
+| Claude Fable 5.2 | 80 | **82** | **+2** | \$0.0248 | \$0.6645 | 5.7 s | 42.2 s |
+| GPT-6.1 Terra | 57 | **80** | **+23** | \$0.0038 | \$0.0463 | 5.5 s | 28.1 s |
+| GPT-6 Sol | 66 | **77** | **+11** | \$0.0091 | \$0.1287 | 6.9 s | 30.1 s |
+| GPT-6 Luna | 43 | **77** | **+34** | \$0.0007 | \$0.0093 | 5.0 s | 38.1 s |
 
 ### 3.2 Precision, concepts and NASA records, alone and inside IGNIS
 
@@ -140,38 +140,38 @@ harness, 12 raw models.
 
 | # | System | Type | Score | 95% CI | Concepts | NASA records | Traps | Precision | Abstained | Cost / question | Cost basis | Latency p50 | Output tokens (all 22) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | IGNIS v2 · GPT-6 Astra | IGNIS (new harness) | **82** | 64–95 | 100 | 33 | 100 | 100 | 18% | $0.4256 | list | 37.3 s | 21,851 |
-| 2 | IGNIS v2 · GPT-6.1 Sol | IGNIS (new harness) | **82** | 64–95 | 100 | 33 | 100 | 100 | 18% | $0.0804 | list | 24.1 s | 21,934 |
-| 3 | IGNIS v2 · Claude Fable 5.2 | IGNIS (new harness) | **82** | 64–95 | 100 | 33 | 100 | 100 | 18% | $0.6645 | reported | 42.2 s | 102,151 |
-| 4 | Claude Fable 5.2 | raw model | **80** | 61–95 | 100 | 25 | 100 | 97 | 18% | $0.0248 | reported | 5.7 s | 7,584 |
-| 5 | IGNIS v2 · GPT-6.1 Terra | IGNIS (new harness) | **80** | 61–95 | 100 | 25 | 100 | 97 | 18% | $0.0463 | list | 28.1 s | 24,559 |
-| 6 | GPT-6 Astra | raw model | **77** | 59–95 | 100 | 17 | 100 | 100 | 23% | $0.0651 | list | 8.2 s | 2,074 |
-| 7 | IGNIS v2 · GPT-6 Sol | IGNIS (new harness) | **77** | 59–93 | 96 | 25 | 100 | 94 | 18% | $0.1287 | list | 30.1 s | 37,566 |
-| 8 | IGNIS v2 · GPT-6 Luna | IGNIS (new harness) | **77** | 59–93 | 96 | 25 | 100 | 94 | 18% | $0.0093 | list | 38.1 s | 61,225 |
-| 9 | Claude Opus 5.5 | raw model | **75** | 57–91 | 100 | 17 | 75 | 97 | 23% | $0.0129 | reported | 6.6 s | 8,128 |
-| 10 | IGNIS (GPT-6 Astra + harness) | IGNIS (old harness) | **75** | 57–91 | 96 | 17 | 100 | 97 | 23% | $0.5141 | list | 33.4 s | 19,427 |
-| 11 | GPT-6.1 Sol | raw model | **73** | 55–89 | 93 | 17 | 100 | 94 | 23% | $0.0097 | list | 9.1 s | 2,663 |
-| 12 | IGNIS (GPT-6.1 Terra + harness) | IGNIS (old harness) | **73** | 55–89 | 93 | 17 | 100 | 94 | 23% | $0.0467 | list | 28.8 s | 18,691 |
-| 13 | GPT-5.6 Sol | raw model | **70** | 50–89 | 96 | 0 | 100 | 91 | 23% | $0.0139 | list | 8.6 s | 3,598 |
-| 14 | GPT-6 Sol | raw model | **66** | 45–84 | 89 | 0 | 100 | 91 | 27% | $0.0091 | list | 6.9 s | 3,275 |
-| 15 | Claude Sonnet 5.5 | raw model | **57** | 39–75 | 79 | 0 | 75 | 69 | 18% | $0.0060 | reported | 5.2 s | 7,074 |
-| 16 | GPT-6.1 Terra | raw model | **57** | 39–75 | 75 | 0 | 100 | 83 | 32% | $0.0038 | list | 5.5 s | 1,291 |
-| 17 | Claude Haiku 5.5 | raw model | **52** | 32–70 | 68 | 0 | 100 | 88 | 41% | $0.0004 | reported | 6.6 s | 9,371 |
-| 18 | GPT-5.6 Terra | raw model | **52** | 34–70 | 68 | 0 | 100 | 64 | 18% | $0.0179 | list | 26.9 s | 2,525 |
-| 19 | GPT-5.6 Luna | raw model | **50** | 30–68 | 64 | 0 | 100 | 55 | 9% | $0.0014 | list | 8.2 s | 5,604 |
-| 20 | GPT-6 Luna | raw model | **43** | 27–59 | 54 | 0 | 100 | 59 | 27% | $0.0007 | list | 5.0 s | 1,039 |
+| 1 | IGNIS v2 · GPT-6 Astra | IGNIS (new harness) | **82** | 64–95 | 100 | 33 | 100 | 100 | 18% | \$0.4256 | list | 37.3 s | 21,851 |
+| 2 | IGNIS v2 · GPT-6.1 Sol | IGNIS (new harness) | **82** | 64–95 | 100 | 33 | 100 | 100 | 18% | \$0.0804 | list | 24.1 s | 21,934 |
+| 3 | IGNIS v2 · Claude Fable 5.2 | IGNIS (new harness) | **82** | 64–95 | 100 | 33 | 100 | 100 | 18% | \$0.6645 | reported | 42.2 s | 102,151 |
+| 4 | Claude Fable 5.2 | raw model | **80** | 61–95 | 100 | 25 | 100 | 97 | 18% | \$0.0248 | reported | 5.7 s | 7,584 |
+| 5 | IGNIS v2 · GPT-6.1 Terra | IGNIS (new harness) | **80** | 61–95 | 100 | 25 | 100 | 97 | 18% | \$0.0463 | list | 28.1 s | 24,559 |
+| 6 | GPT-6 Astra | raw model | **77** | 59–95 | 100 | 17 | 100 | 100 | 23% | \$0.0651 | list | 8.2 s | 2,074 |
+| 7 | IGNIS v2 · GPT-6 Sol | IGNIS (new harness) | **77** | 59–93 | 96 | 25 | 100 | 94 | 18% | \$0.1287 | list | 30.1 s | 37,566 |
+| 8 | IGNIS v2 · GPT-6 Luna | IGNIS (new harness) | **77** | 59–93 | 96 | 25 | 100 | 94 | 18% | \$0.0093 | list | 38.1 s | 61,225 |
+| 9 | Claude Opus 5.5 | raw model | **75** | 57–91 | 100 | 17 | 75 | 97 | 23% | \$0.0129 | reported | 6.6 s | 8,128 |
+| 10 | IGNIS (GPT-6 Astra + harness) | IGNIS (old harness) | **75** | 57–91 | 96 | 17 | 100 | 97 | 23% | \$0.5141 | list | 33.4 s | 19,427 |
+| 11 | GPT-6.1 Sol | raw model | **73** | 55–89 | 93 | 17 | 100 | 94 | 23% | \$0.0097 | list | 9.1 s | 2,663 |
+| 12 | IGNIS (GPT-6.1 Terra + harness) | IGNIS (old harness) | **73** | 55–89 | 93 | 17 | 100 | 94 | 23% | \$0.0467 | list | 28.8 s | 18,691 |
+| 13 | GPT-5.6 Sol | raw model | **70** | 50–89 | 96 | 0 | 100 | 91 | 23% | \$0.0139 | list | 8.6 s | 3,598 |
+| 14 | GPT-6 Sol | raw model | **66** | 45–84 | 89 | 0 | 100 | 91 | 27% | \$0.0091 | list | 6.9 s | 3,275 |
+| 15 | Claude Sonnet 5.5 | raw model | **57** | 39–75 | 79 | 0 | 75 | 69 | 18% | \$0.0060 | reported | 5.2 s | 7,074 |
+| 16 | GPT-6.1 Terra | raw model | **57** | 39–75 | 75 | 0 | 100 | 83 | 32% | \$0.0038 | list | 5.5 s | 1,291 |
+| 17 | Claude Haiku 5.5 | raw model | **52** | 32–70 | 68 | 0 | 100 | 88 | 41% | \$0.0004 | reported | 6.6 s | 9,371 |
+| 18 | GPT-5.6 Terra | raw model | **52** | 34–70 | 68 | 0 | 100 | 64 | 18% | \$0.0179 | list | 26.9 s | 2,525 |
+| 19 | GPT-5.6 Luna | raw model | **50** | 30–68 | 64 | 0 | 100 | 55 | 9% | \$0.0014 | list | 8.2 s | 5,604 |
+| 20 | GPT-6 Luna | raw model | **43** | 27–59 | 54 | 0 | 100 | 59 | 27% | \$0.0007 | list | 5.0 s | 1,039 |
 
 ### 3.4 Answers per dollar
 
 1 / cost per question, from the costs above.
 
-| System | Score | Cost / question | Answers per $ |
+| System | Score | Cost / question | Answers per \$ |
 |---|---|---|---|
-| **GPT-6 Luna inside IGNIS** | **77** | **$0.0093** | **108** |
-| GPT-6.1 Terra inside IGNIS | 80 | $0.0463 | 22 |
-| GPT-6.1 Sol inside IGNIS | 82 | $0.0804 | 12 |
-| Claude Fable 5.2 alone | 80 | $0.0248 | 40 |
-| GPT-6 Astra alone (flagship) | 77 | $0.0651 | 15 |
+| **GPT-6 Luna inside IGNIS** | **77** | **\$0.0093** | **108** |
+| GPT-6.1 Terra inside IGNIS | 80 | \$0.0463 | 22 |
+| GPT-6.1 Sol inside IGNIS | 82 | \$0.0804 | 12 |
+| Claude Fable 5.2 alone | 80 | \$0.0248 | 40 |
+| GPT-6 Astra alone (flagship) | 77 | \$0.0651 | 15 |
 
 ### 3.5 IGNIS against raw models it matches or beats, ranked by how much cheaper IGNIS is
 
@@ -179,18 +179,18 @@ From `COSTS.md`.
 
 | IGNIS system | Score | Cost / q | Raw system | Score | Cost / q | IGNIS is | Points |
 |---|---|---|---|---|---|---|---|
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | GPT-6 Astra | 77 | $0.0651 | 7.0× cheaper | +0 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | GPT-5.6 Terra | 52 | $0.0179 | 1.9× cheaper | +25 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | GPT-5.6 Sol | 70 | $0.0139 | 1.5× cheaper | +7 |
-| IGNIS v2 · GPT-6.1 Terra | 80 | $0.0463 | GPT-6 Astra | 77 | $0.0651 | 1.4× cheaper | +2 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | Claude Opus 5.5 | 75 | $0.0129 | 1.4× cheaper | +2 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | GPT-6.1 Sol | 73 | $0.0097 | 1.0× cheaper | +5 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | GPT-6 Sol | 66 | $0.0091 | 1.0× the price | +11 |
-| IGNIS v2 · GPT-6.1 Sol | 82 | $0.0804 | GPT-6 Astra | 77 | $0.0651 | 1.2× the price | +5 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | Claude Sonnet 5.5 | 57 | $0.0060 | 1.6× the price | +20 |
-| IGNIS v2 · GPT-6.1 Terra | 80 | $0.0463 | Claude Fable 5.2 | 80 | $0.0248 | 1.9× the price | +0 |
-| IGNIS v2 · GPT-6 Sol | 77 | $0.1287 | GPT-6 Astra | 77 | $0.0651 | 2.0× the price | +0 |
-| IGNIS v2 · GPT-6 Luna | 77 | $0.0093 | GPT-6.1 Terra | 57 | $0.0038 | 2.4× the price | +20 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | GPT-6 Astra | 77 | \$0.0651 | 7.0× cheaper | +0 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | GPT-5.6 Terra | 52 | \$0.0179 | 1.9× cheaper | +25 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | GPT-5.6 Sol | 70 | \$0.0139 | 1.5× cheaper | +7 |
+| IGNIS v2 · GPT-6.1 Terra | 80 | \$0.0463 | GPT-6 Astra | 77 | \$0.0651 | 1.4× cheaper | +2 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | Claude Opus 5.5 | 75 | \$0.0129 | 1.4× cheaper | +2 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | GPT-6.1 Sol | 73 | \$0.0097 | 1.0× cheaper | +5 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | GPT-6 Sol | 66 | \$0.0091 | 1.0× the price | +11 |
+| IGNIS v2 · GPT-6.1 Sol | 82 | \$0.0804 | GPT-6 Astra | 77 | \$0.0651 | 1.2× the price | +5 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | Claude Sonnet 5.5 | 57 | \$0.0060 | 1.6× the price | +20 |
+| IGNIS v2 · GPT-6.1 Terra | 80 | \$0.0463 | Claude Fable 5.2 | 80 | \$0.0248 | 1.9× the price | +0 |
+| IGNIS v2 · GPT-6 Sol | 77 | \$0.1287 | GPT-6 Astra | 77 | \$0.0651 | 2.0× the price | +0 |
+| IGNIS v2 · GPT-6 Luna | 77 | \$0.0093 | GPT-6.1 Terra | 57 | \$0.0038 | 2.4× the price | +20 |
 
 ### 3.6 Old harness to new harness (PR #122)
 
@@ -199,11 +199,11 @@ From `HARNESS_CHANGES.md`. Same model (GPT-6 Astra), same questions.
 | | Old harness | New harness |
 |---|---|---|
 | Score | 75 | **82** |
-| Cost / question | $0.514 | **$0.426** |
+| Cost / question | \$0.514 | **\$0.426** |
 | NASA-record score | 17 | **33** |
 | Precision | 97 | **100** |
 
-GPT-6.1 Terra rose from 73 to 80 on the same change, at the same cost ($0.0467 → $0.0463).
+GPT-6.1 Terra rose from 73 to 80 on the same change, at the same cost (\$0.0467 → \$0.0463).
 
 What changed:
 
@@ -222,7 +222,7 @@ What changed:
 Where the cost of a question goes: 5 to 12 model requests (one per tool round), each re-sending the
 conversation so far. Output is small (about 500 to 1,500 tokens per question), so almost all cost is
 input tokens. One saving is still open: the first request of every episode is not prompt-cached yet
-(Codex ties the cache to each conversation). A small relay would save about a further $0.10 per
+(Codex ties the cache to each conversation). A small relay would save about a further \$0.10 per
 question on GPT-6 Astra.
 
 ### 3.7 Pricing used
@@ -250,9 +250,9 @@ data. They show in two steps.
 | # | Title on the slide | What it draws | Data |
 |---|---|---|---|
 | 1 | **Every model scores higher** | For each of the 6 models, a pair: score alone → score inside IGNIS (out of 100) | 43 → 77, 57 → 80, 66 → 77, 73 → 82, 77 → 82, 80 → 82 (table 3.1) |
-| 2 | **Cheap models, at flagship level** | Score against cost per question, log scale. Labels: "Luna in IGNIS · 77 · $0.009", "Astra alone · flagship · $0.065", "Luna alone · 43", "Terra in IGNIS · 80", and the bracket "same score · 7× cheaper". The other IGNIS systems are drawn faded. | tables 3.1, 3.3 |
+| 2 | **Cheap models, at flagship level** | Score against cost per question, log scale. Labels: "Luna in IGNIS · 77 · \$0.009", "Astra alone · flagship · \$0.065", "Luna alone · 43", "Terra in IGNIS · 80", and the bracket "same score · 7× cheaper". The other IGNIS systems are drawn faded. | tables 3.1, 3.3 |
 | 3 | **Right when it answers** | Precision alone and inside IGNIS per model; subtitle "every model inside IGNIS: 94–100" | 59 → 94, 83 → 97, 91 → 94, 94 → 100, 100 → 100, 97 → 100 (table 3.2) |
-| 4 | **What $1 buys** | Answers per dollar, Luna in IGNIS against the two strongest models alone | 108 (Luna in IGNIS, 77), 40 (Claude Fable alone, 80), 15 (GPT-6 Astra alone, 77) (table 3.4) |
+| 4 | **What \$1 buys** | Answers per dollar, Luna in IGNIS against the two strongest models alone | 108 (Luna in IGNIS, 77), 40 (Claude Fable alone, 80), 15 (GPT-6 Astra alone, 77) (table 3.4) |
 
 Spoken line of the slide: every model scores higher inside IGNIS, and the smallest gains the most;
 the cheapest model is level with OpenAI's flagship at one seventh of the price; when it answers, it

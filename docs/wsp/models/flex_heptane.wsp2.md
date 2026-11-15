@@ -41,9 +41,9 @@ State `experimental`, `trained_on = not_trained`, uncertainty kind `assumed_nois
 | `liquid_diameter` | observation | m | droplet diameters measured up to the cutoff |
 
 The features are those of the methanol release on the same forward (`configs/models/flex/wsp2/heptane/spec.json`):
-$c_{O2} = (x_{O2} - 0.21)/0.05$, $c_{CO2} = x_{CO2}/0.20$, $c_{He} = x_{He}/0.20$, $c_{\log p} = \ln(p/10^5\,\mathrm{Pa})$
-and $c_{\log D0} = \ln(D_0/2\,\mathrm{mm})$. They are joined by the burn progress $w = 1 - D^2/D_0^2$, the clock
-$s = t \cdot 1\,\mathrm{mm^2/s}/D_0^2$, the supercriticality $x_{exc} = \ln(D_0/D_{crit})$, and the prefix encoder
+$c_{O2} = (x_{O2} - 0.21)/0.05$, $c_{CO2} = x_{CO2}/0.20$, $c_{He} = x_{He}/0.20$, $`c_{\log p} = \ln(p/10^5\,\mathrm{Pa})`$
+and $`c_{\log D0} = \ln(D_0/2\,\mathrm{mm})`$. They are joined by the burn progress $w = 1 - D^2/D_0^2$, the clock
+$`s = t \cdot 1\,\mathrm{mm^2/s}/D_0^2`$, the supercriticality $x_{exc} = \ln(D_0/D_{crit})$, and the prefix encoder
 features (`e_late`, `e_early`, `r_late`, `r_end`, `g_span`, `g_count`, `g_progress`).
 
 **Target.** One quantity, `liquid_diameter` (m): the measured liquid diameter at times after the cutoff, as
@@ -70,22 +70,22 @@ published theory makes independent of oxygen and pressure. The cool flame ends a
 chemistry, and the droplet then evaporates on its own stored heat
 (`SpaceApps-Ardealu:docs/wsp/research/phys_flex_heptane.md` sections 1.2, 1.6, 1.7, 1.8; `droplet3.rs`).
 
-The laws are hand-typed hinge networks $N(x) = b_0 + \mathrm{skip}\cdot x + \sum_j w_2[j]\,\mathrm{relu}(b_1[j] + W_1[j,:]\cdot x)$:
+The laws are hand-typed hinge networks $`N(x) = b_0 + \mathrm{skip}\cdot x + \sum_j w_2[j]\,\mathrm{relu}(b_1[j] + W_1[j,:]\cdot x)`$:
 
-- **Hot flame** (`rate.*`): $dD^2/dt = -K_h$, with $\ln(K_h/1\,\mathrm{mm^2/s}) = N_{rate}(c, w, s) + b + s_z z$ and
-  $s_z = \sqrt{s_{floor}^2 + (1-\mathrm{gain})\,s_{pop}^2}$ (`unc.*`).
-- **Critical diameter and class** (`crit.*`, `class.*`): $\ln(D_{crit}/2\,\mathrm{mm}) = N_{crit}(c_{O2}, c_{CO2}, c_{He}, c_{\log p})$
-  and $P(\text{radiative}) = \sigma(\kappa\,x_{exc} + \text{bias})$. The physical critical diameter of the dossier is
-  $D_{crit} = D_{crit,air}\,[(K/K_{air})(\chi_c/\chi_{c,air}) / ((FSR/FSR_{air})^2 (\varepsilon/\varepsilon_{air}))]^{1/(1+n)}$,
+- **Hot flame** (`rate.*`): $dD^2/dt = -K_h$, with $`\ln(K_h/1\,\mathrm{mm^2/s}) = N_{rate}(c, w, s) + b + s_z z`$ and
+  $`s_z = \sqrt{s_{floor}^2 + (1-\mathrm{gain})\,s_{pop}^2}`$ (`unc.*`).
+- **Critical diameter and class** (`crit.*`, `class.*`): $`\ln(D_{crit}/2\,\mathrm{mm}) = N_{crit}(c_{O2}, c_{CO2}, c_{He}, c_{\log p})`$
+  and $`P(\text{radiative}) = \sigma(\kappa\,x_{exc} + \text{bias})`$. The physical critical diameter of the dossier is
+  $`D_{crit} = D_{crit,air}\,[(K/K_{air})(\chi_c/\chi_{c,air}) / ((FSR/FSR_{air})^2 (\varepsilon/\varepsilon_{air}))]^{1/(1+n)}`$,
   and it reproduces the typed `crit` law within about 10 % in N2 and in CO2 up to 30 % (`phys_flex_heptane.md` 1.6).
-- **Burn-down** (`diff.*`): $\Lambda_D(w) = \ln 2\,(e^{a_D(w - w_D)} - e^{-a_D w_D})$, with $w_D = \sigma(N_{diff}(c, x_{exc}))$.
-- **Radiative loss of the visible flame** (`rad.*`): $\Lambda_R(s) = \ln 2\,(e^{a_R(s/s_R - 1)} - e^{-a_R})$, with $s_R = \exp(N_{rad}(c, x_{exc}))$.
+- **Burn-down** (`diff.*`): $`\Lambda_D(w) = \ln 2\,(e^{a_D(w - w_D)} - e^{-a_D w_D})`$, with $w_D = \sigma(N_{diff}(c, x_{exc}))$.
+- **Radiative loss of the visible flame** (`rad.*`): $`\Lambda_R(s) = \ln 2\,(e^{a_R(s/s_R - 1)} - e^{-a_R})`$, with $s_R = \exp(N_{rad}(c, x_{exc}))$.
 - **Cool flame** (`cool.*`). After a radiative extinction it starts with probability $\sigma(N_{cool,p}(c, x_{exc}))$.
-  It burns at $dD^2/dt = -K_c$, with $\ln(K_c/1\,\mathrm{mm^2/s}) = N_{cool,k}(c) + b + s_z z$, until $D = D_{ce}$, where
-  $\ln(D_{ce}/2\,\mathrm{mm}) = N_{cool,d}(c) + sd_{ce}\,u$ (the `num.ce_*` nodes). The published cool-flame rate is
+  It burns at $dD^2/dt = -K_c$, with $`\ln(K_c/1\,\mathrm{mm^2/s}) = N_{cool,k}(c) + b + s_z z`$, until $D = D_{ce}$, where
+  $`\ln(D_{ce}/2\,\mathrm{mm}) = N_{cool,d}(c) + sd_{ce}\,u`$ (the `num.ce_*` nodes). The published cool-flame rate is
   $K_c = 8(\lambda/c_p)/\rho_l \cdot \ln[(2T_f - T_0 - T_\infty)/T_L]$ (`phys_flex_heptane.md` 1.7).
 - **No flame** (`post.*`). Over a step $\Delta t$, $D^2$ falls by $k_{inf} r^m \Delta t + \text{scale}\cdot k_{hot} r^h \tau_e (1 - e^{-\Delta t/\tau_e})$,
-  where $\tau_e = \tau_0 r^n$ and $r = (D_e/2\,\mathrm{mm})^2$. Scale is `post.cool_scale`.
+  where $\tau_e = \tau_0 r^n$ and $`r = (D_e/2\,\mathrm{mm})^2`$. Scale is `post.cool_scale`.
 - **Prefix encoder and state filter** (`enc.*`, `filt.*`, `gate.*`). The level comes from the end window and the end
   rate. The hot run offset is gain times the clamped innovations. The cool run offset is
   `enc.cool_gain` × $g$ × clamped $\ln(\text{end rate}/K_c)$. The state probabilities at the cutoff are the prior

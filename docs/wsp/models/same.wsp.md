@@ -61,15 +61,23 @@ uniform, slowly coagulating drops; the author makes it the nearly inert referenc
 
 Coagulation, with `K` = 6.0e-16 m3/s:
 
-$$v(t) = v_0 + K\,\phi\,t,\qquad D_{30}(t) = D_n\,(1 + t/t_c)^{1/3},\qquad t_c = \frac{1}{K N_0}$$
+```math
+v(t) = v_0 + K\,\phi\,t,\qquad D_{30}(t) = D_n\,(1 + t/t_c)^{1/3},\qquad t_c = \frac{1}{K N_0}
+```
 
 The law the network carries (section 3), tied to its tensor groups:
 
-$$f(U) = 0.25\,\ln\frac{8.1\ \mathrm{cm/s}}{\max(U,\ 2\ \mathrm{cm/s})}$$
+```math
+f(U) = 0.25\,\ln\frac{8.1\ \mathrm{cm/s}}{\max(U,\ 2\ \mathrm{cm/s})}
+```
 
-$$\ln d_{10} = \ln D_{\mathrm{ref}}[m] - \ln^2\sigma_0[m] + f(U) + 0.413\,\mathrm{softplus}\!\left(\ln\frac{t}{t_c[m]}\right)$$
+```math
+\ln d_{10} = \ln D_{\mathrm{ref}}[m] - \ln^2\sigma_0[m] + f(U) + 0.413\,\mathrm{softplus}\!\left(\ln\frac{t}{t_c[m]}\right)
+```
 
-$$\ln D_{30} = \ln D_{\mathrm{ref}}[m] + f(U) + \tfrac{1}{3}\,\mathrm{softplus}\!\left(\ln\frac{t}{t_c[m]}\right)$$
+```math
+\ln D_{30} = \ln D_{\mathrm{ref}}[m] + f(U) + \tfrac{1}{3}\,\mathrm{softplus}\!\left(\ln\frac{t}{t_c[m]}\right)
+```
 
 - Material levels `ln D_ref - ln^2 sigma_0` sit in `d10.median.b0` (lamp wick) and the first four
   entries of `d10.median.skip`; `d30` uses `ln D_ref` alone.
