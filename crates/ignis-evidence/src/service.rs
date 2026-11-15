@@ -289,6 +289,34 @@ fn record_aliases() -> anyhow::Result<HashMap<String, String>> {
 
 // ------------------------------------------------------------------ service
 
+/// A stored locator as a hit can carry it: a bbox slightly outside `[0, 1]` (rounding in the
+/// parser) is clamped into it; one that is still not a box (no page, non-finite, empty after
+/// clamping) is dropped and the page kept. One bad box never refuses the page or the search.
+pub(crate) fn tolerant_locator(mut loc: SourceLocator, chunk_id: &str) -> SourceLocator {
+    let Some(b) = loc.bbox else {
+        return loc;
+    };
+    let clamped = b.map(|v| {
+        if v.is_finite() {
+            v.clamp(0.0, 1.0)
+        } else {
+            f64::NAN
+        }
+    });
+    let [x0, y0, x1, y1] = clamped;
+    let ok = loc.page.is_some() && clamped.iter().all(|v| v.is_finite()) && x0 < x1 && y0 < y1;
+    if ok {
+        if clamped != b {
+            eprintln!("evidence: {chunk_id}: bbox {b:?} clamped into [0, 1]");
+        }
+        loc.bbox = Some(clamped);
+    } else {
+        eprintln!("evidence: {chunk_id}: bbox {b:?} is not a box on a page; dropped, page kept");
+        loc.bbox = None;
+    }
+    loc
+}
+
 /// What the lockbox needs to know about one chunk and its publication.
 #[derive(Debug, Clone)]
 struct ChunkRow {
@@ -543,6 +571,7 @@ impl EvidenceService {
             return Ok(None);
         };
         let arr = |s: &str| serde_json::from_str::<Vec<String>>(s).unwrap_or_default();
+        let id_for_log = id.clone();
         let mut scope = arr(&invs);
         scope.extend(arr(&fams));
         Ok(Some(ChunkRow {
@@ -550,7 +579,7 @@ impl EvidenceService {
             publication_id: pid,
             page,
             text,
-            locator: serde_json::from_str(&loc)?,
+            locator: tolerant_locator(serde_json::from_str(&loc)?, &id_for_log),
             evidence_class: class,
             outcome_bearing: ob,
             describes_runs: arr(&runs),
@@ -1668,4 +1697,47 @@ pub fn withheld_by_publication(
         }
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod bbox_tests {
+    use super::*;
+
+    fn loc(page: Option<i64>, bbox: [f64; 4]) -> SourceLocator {
+        SourceLocator {
+            asset_sha256: "a".repeat(64),
+            path: Some("p.pdf".into()),
+            page,
+            bbox: Some(bbox),
+            ..Default::default()
+        }
+    }
+
+    /// A corrupted stored locator (bbox a hair outside [0, 1], or not a box) no longer refuses the
+    /// hit: clamped when it is still a box, dropped otherwise, the page kept either way.
+    #[test]
+    fn a_corrupted_bbox_is_clamped_or_dropped_never_refused() {
+        let bad = loc(Some(3), [-0.0004, 0.1, 1.0007, 0.9]);
+        assert!(bad.validate().is_err());
+        let fixed = tolerant_locator(bad, "c1");
+        assert_eq!(fixed.bbox, Some([0.0, 0.1, 1.0, 0.9]));
+        assert_eq!(fixed.page, Some(3));
+        fixed.validate().unwrap();
+
+        for b in [
+            [0.5, 0.1, 0.4, 0.9],
+            [f64::NAN, 0.1, 0.4, 0.9],
+            [1.2, 0.1, 1.5, 0.9],
+        ] {
+            let fixed = tolerant_locator(loc(Some(3), b), "c2");
+            assert_eq!(fixed.bbox, None, "{b:?}");
+            assert_eq!(fixed.page, Some(3));
+            fixed.validate().unwrap();
+        }
+        let no_page = tolerant_locator(loc(None, [0.1, 0.1, 0.4, 0.9]), "c3");
+        assert_eq!(no_page.bbox, None);
+
+        let good = loc(Some(1), [0.1, 0.1, 0.4, 0.9]);
+        assert_eq!(tolerant_locator(good.clone(), "c4"), good);
+    }
 }
