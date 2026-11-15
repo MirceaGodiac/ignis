@@ -1,0 +1,401 @@
+{
+ "note": "R7a parser benchmark: gold items for 10 NASA PSI/NTRS PDFs (LANES_V2 §3 research method).",
+ "documents": {
+  "cfig": {
+   "investigation": "PSI-159",
+   "file_name": "PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+   "cases": "long",
+   "pages": 93
+  },
+  "bass2": {
+   "investigation": "PSI-25",
+   "file_name": "PSI-25_Reports_BASS-II Summary Report.pdf",
+   "cases": "table-heavy,long",
+   "pages": 144
+  },
+  "radiometer": {
+   "investigation": "PSI-68",
+   "file_name": "PSI-68_Calibration_Radiometer Calibration Test Report, Fluids.pdf",
+   "cases": "table-heavy",
+   "pages": 56
+  },
+  "flextp": {
+   "investigation": "NTRS-20150023456",
+   "file_name": "NTRS-20150023456.pdf",
+   "cases": "long",
+   "pages": 314
+  },
+  "cool": {
+   "investigation": "PSI-39",
+   "file_name": "PSI-39_Presentations_Aspects of Cool-Flame Supported Droplet Combustion in Microgravity_CFI.pdf",
+   "cases": "slides",
+   "pages": 20
+  },
+  "ipc": {
+   "investigation": "PSI-107",
+   "file_name": "PSI-107_Presentations_IP-C Crew training 2010.pdf",
+   "cases": "slides",
+   "pages": 27
+  },
+  "sflame": {
+   "investigation": "PSI-23",
+   "file_name": "PSI-23_Presentations_20120015928.pdf",
+   "cases": "scanned-pages",
+   "pages": 44
+  },
+  "same_dwg": {
+   "investigation": "PSI-102",
+   "file_name": "PSI-102_Engineering Documents_60089MFHA150-B Aging Chamber Assembly.pdf",
+   "cases": "engineering,vector-text",
+   "pages": 1
+  },
+  "spice_dwg": {
+   "investigation": "PSI-107",
+   "file_name": "PSI-107_Engineering Documents_60054MAFH000-C SPICE Experiment Assembly.pdf",
+   "cases": "engineering,rotated",
+   "pages": 2
+  },
+  "flex2_dwg": {
+   "investigation": "PSI-68",
+   "file_name": "PSI-68_Engineering Documents_67212MFAN11000-4 FLEX-2 Package Assembly.pdf",
+   "cases": "scanned,engineering",
+   "pages": 1
+  }
+ },
+ "items": [
+  {
+   "id": "cfig-passage",
+   "doc": "cfig",
+   "investigation": "PSI-159",
+   "file_name": "PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+   "cases": "long",
+   "page": 21,
+   "kind": "passage",
+   "bbox": [
+    0.18572,
+    0.62069,
+    0.88502,
+    0.65433
+   ],
+   "basis": "glyphs",
+   "quote": "is only nominal where the pressure increases"
+  },
+  {
+   "id": "cfig-cell",
+   "doc": "cfig",
+   "investigation": "PSI-159",
+   "file_name": "PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+   "cases": "long",
+   "page": 21,
+   "kind": "cell",
+   "bbox": [
+    0.82467,
+    0.46097,
+    0.84461,
+    0.47612
+   ],
+   "basis": "glyphs",
+   "text": "12",
+   "row_header": "21137",
+   "col_header": "Hot flames ignited"
+  },
+  {
+   "id": "cfig-figure",
+   "doc": "cfig",
+   "investigation": "PSI-159",
+   "file_name": "PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+   "cases": "long",
+   "page": 7,
+   "kind": "figure",
+   "bbox": [
+    0.19824,
+    0.31511,
+    0.8601,
+    0.65145
+   ],
+   "basis": "image_object",
+   "caption_start": "Figure 2: Design of the Advanced Combustion"
+  },
+  {
+   "id": "cfig-passage2",
+   "doc": "cfig",
+   "investigation": "PSI-159",
+   "file_name": "PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+   "cases": "long",
+   "page": 7,
+   "kind": "passage",
+   "bbox": [
+    0.56482,
+    0.70585,
+    0.88232,
+    0.71979
+   ],
+   "basis": "glyphs",
+   "quote": "provides common mounting for a variety of"
+  },
+  {
+   "id": "bass2-passage",
+   "doc": "bass2",
+   "investigation": "PSI-25",
+   "file_name": "PSI-25_Reports_BASS-II Summary Report.pdf",
+   "cases": "table-heavy,long",
+   "page": 55,
+   "kind": "passage",
+   "bbox": [
+    0.65902,
+    0.44582,
+    0.87471,
+    0.4646
+   ],
+   "basis": "glyphs",
+   "quote": "with diameters of 6.35, 9.525,",
+   "page_label": "47"
+  },
+  {
+   "id": "bass2-cell",
+   "doc": "bass2",
+   "investigation": "PSI-25",
+   "file_name": "PSI-25_Reports_BASS-II Summary Report.pdf",
+   "cases": "table-heavy,long",
+   "page": 55,
+   "kind": "cell",
+   "bbox": [
+    0.49904,
+    0.77697,
+    0.50639,
+    0.79228
+   ],
+   "basis": "glyphs",
+   "text": "4",
+   "row_header": "Samples burnt",
+   "col_header": "0.009525"
+  },
+  {
+   "id": "radiometer-cell",
+   "doc": "radiometer",
+   "investigation": "PSI-68",
+   "file_name": "PSI-68_Calibration_Radiometer Calibration Test Report, Fluids.pdf",
+   "cases": "table-heavy",
+   "page": 11,
+   "kind": "cell",
+   "bbox": [
+    0.60011,
+    0.52544,
+    0.75268,
+    0.55979
+   ],
+   "basis": "glyphs",
+   "text": "TDS 5054, NASA tag 13008",
+   "row_header": "Oscilloscope",
+   "col_header": "Model Number"
+  },
+  {
+   "id": "radiometer-passage",
+   "doc": "radiometer",
+   "investigation": "PSI-68",
+   "file_name": "PSI-68_Calibration_Radiometer Calibration Test Report, Fluids.pdf",
+   "cases": "table-heavy",
+   "page": 11,
+   "kind": "passage",
+   "bbox": [
+    0.46008,
+    0.17137,
+    0.88982,
+    0.18815
+   ],
+   "basis": "glyphs",
+   "quote": "took place from June 28, 2011 through August 4, 2011",
+   "page_label": "4"
+  },
+  {
+   "id": "flextp-passage",
+   "doc": "flextp",
+   "investigation": "NTRS-20150023456",
+   "file_name": "NTRS-20150023456.pdf",
+   "cases": "long",
+   "page": 40,
+   "kind": "passage",
+   "bbox": [
+    0.31195,
+    0.60948,
+    0.81075,
+    0.62461
+   ],
+   "basis": "glyphs",
+   "quote": "The droplet was misshapen on the needles before it stretched and deployed.",
+   "page_label": "34"
+  },
+  {
+   "id": "cool-passage",
+   "doc": "cool",
+   "investigation": "PSI-39",
+   "file_name": "PSI-39_Presentations_Aspects of Cool-Flame Supported Droplet Combustion in Microgravity_CFI.pdf",
+   "cases": "slides",
+   "page": 6,
+   "kind": "passage",
+   "bbox": [
+    0.0883,
+    0.92257,
+    0.81582,
+    0.95594
+   ],
+   "basis": "glyphs",
+   "quote": "Alcohol slows the CF burning rate and increases the extinction diameter"
+  },
+  {
+   "id": "ipc-passage",
+   "doc": "ipc",
+   "investigation": "PSI-107",
+   "file_name": "PSI-107_Presentations_IP-C Crew training 2010.pdf",
+   "cases": "slides",
+   "page": 8,
+   "kind": "passage",
+   "bbox": [
+    0.6101,
+    0.52798,
+    0.93802,
+    0.55073
+   ],
+   "basis": "glyphs",
+   "quote": "Zero-g facility test burning 2-cm-diameter PMMA"
+  },
+  {
+   "id": "ipc-figure",
+   "doc": "ipc",
+   "investigation": "PSI-107",
+   "file_name": "PSI-107_Presentations_IP-C Crew training 2010.pdf",
+   "cases": "slides",
+   "page": 8,
+   "kind": "figure",
+   "bbox": [
+    0.03333,
+    0.2,
+    0.30713,
+    0.71111
+   ],
+   "basis": "image_object"
+  },
+  {
+   "id": "sflame-figure",
+   "doc": "sflame",
+   "investigation": "PSI-23",
+   "file_name": "PSI-23_Presentations_20120015928.pdf",
+   "cases": "scanned-pages",
+   "page": 25,
+   "kind": "figure",
+   "bbox": [
+    0.22,
+    0.245,
+    0.917,
+    0.814
+   ],
+   "basis": "visual"
+  },
+  {
+   "id": "sflame-ocr",
+   "doc": "sflame",
+   "investigation": "PSI-23",
+   "file_name": "PSI-23_Presentations_20120015928.pdf",
+   "cases": "scanned-pages",
+   "page": 25,
+   "kind": "passage",
+   "bbox": [
+    0.104,
+    0.455,
+    0.184,
+    0.492
+   ],
+   "basis": "visual",
+   "quote": "ICE-GA"
+  },
+  {
+   "id": "same-ocr",
+   "doc": "same_dwg",
+   "investigation": "PSI-102",
+   "file_name": "PSI-102_Engineering Documents_60089MFHA150-B Aging Chamber Assembly.pdf",
+   "cases": "engineering,vector-text",
+   "page": 1,
+   "kind": "passage",
+   "bbox": [
+    0.626,
+    0.282,
+    0.734,
+    0.314
+   ],
+   "basis": "visual",
+   "quote": "THIS VIEW SHOWN WITH TOP PLATE REMOVED"
+  },
+  {
+   "id": "same-cell",
+   "doc": "same_dwg",
+   "investigation": "PSI-102",
+   "file_name": "PSI-102_Engineering Documents_60089MFHA150-B Aging Chamber Assembly.pdf",
+   "cases": "engineering,vector-text",
+   "page": 1,
+   "kind": "cell",
+   "bbox": [
+    0.055,
+    0.164,
+    0.113,
+    0.18
+   ],
+   "basis": "visual",
+   "text": "NAS1291C3M",
+   "row_header": "C5",
+   "col_header": "PART NUMBER"
+  },
+  {
+   "id": "flex2-ocr",
+   "doc": "flex2_dwg",
+   "investigation": "PSI-68",
+   "file_name": "PSI-68_Engineering Documents_67212MFAN11000-4 FLEX-2 Package Assembly.pdf",
+   "cases": "scanned,engineering",
+   "page": 1,
+   "kind": "passage",
+   "bbox": [
+    0.881,
+    0.919,
+    0.972,
+    0.931
+   ],
+   "basis": "visual",
+   "quote": "HIBMS PACKAGE ASSEMBLY"
+  },
+  {
+   "id": "flex2-cell",
+   "doc": "flex2_dwg",
+   "investigation": "PSI-68",
+   "file_name": "PSI-68_Engineering Documents_67212MFAN11000-4 FLEX-2 Package Assembly.pdf",
+   "cases": "scanned,engineering",
+   "page": 1,
+   "kind": "cell",
+   "bbox": [
+    0.041,
+    0.088,
+    0.081,
+    0.097
+   ],
+   "basis": "visual",
+   "text": "67212MFAN31000",
+   "row_header": "FIXED MIRROR MODULE ASSEMBLY",
+   "col_header": "PART NUMBER"
+  },
+  {
+   "id": "spice-ocr",
+   "doc": "spice_dwg",
+   "investigation": "PSI-107",
+   "file_name": "PSI-107_Engineering Documents_60054MAFH000-C SPICE Experiment Assembly.pdf",
+   "cases": "engineering,rotated",
+   "page": 1,
+   "kind": "passage",
+   "bbox": [
+    0.953,
+    0.72,
+    0.988,
+    0.755
+   ],
+   "basis": "visual",
+   "quote": "NASA DR. NO."
+  }
+ ]
+}

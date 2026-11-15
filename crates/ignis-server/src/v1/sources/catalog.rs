@@ -127,7 +127,11 @@ impl Catalog {
         files.sort();
         for p in &files {
             let name = p.file_name().and_then(|n| n.to_str()).unwrap_or_default();
-            if name.ends_with(".listing.jsonl") {
+            if name == "listing_errata.jsonl" {
+                // R6's record of listings whose stated size NASA's bytes contradict (read by
+                // `ignis sources`); not a source manifest.
+                continue;
+            } else if name.ends_with(".listing.jsonl") {
                 cat.read_lines(p, Catalog::listing_row)?;
             } else if name.ends_with(".jsonl") {
                 cat.read_lines(p, Catalog::source_row)?;
