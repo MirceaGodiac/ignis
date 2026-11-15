@@ -15,11 +15,21 @@ import { locatorKind } from "../research/units";
 import { MODE_TEXT, OriginalBody } from "./Original";
 import type { SearchHit } from "../contracts/generated";
 
+/** Starter searches over the stored NASA documents (the first loads when the page opens empty). */
+const STARTERS = [
+  "flame spread rate low flow microgravity",
+  "droplet radiative extinction cool flame",
+  "oxygen concentration flammability limit",
+  "soot and flame temperature measurements",
+  "spacecraft fire safety test results",
+];
+
 export function Sources({ initial }: { initial: string | null }) {
   const { client, researchMode, replay, caps, synthetic } = useData();
   const panel = usePanel();
   const [text, setText] = useState(initial ?? "");
-  const submitted = initial;
+  // An empty page loads a starter search, so there is always something to open.
+  const submitted = initial ?? STARTERS[0];
   const unavailable = caps.data?.knowledge.available === false;
   const q = useQuery({
     queryKey: [researchMode, replay, "search", submitted],
@@ -52,6 +62,14 @@ export function Sources({ initial }: { initial: string | null }) {
           Search
         </button>
       </form>
+      <div className="toolbar" style={{ flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+        <span className="muted small">Try:</span>
+        {STARTERS.map((t) => (
+          <button key={t} className={`btn btn-s${t === submitted ? " btn-primary" : ""}`} onClick={() => go("sources", null, { q: t })}>
+            {t}
+          </button>
+        ))}
+      </div>
       {unavailable && <Gap title="Search is not available on this server">{caps.data?.knowledge.detail}</Gap>}
       {q.isFetching && <p className="muted">Searching…</p>}
       {q.error && <ErrorNote error={q.error} title={q.error instanceof ApiError && q.error.envelope.code === "capability_unavailable" ? "Search is not configured" : "The search failed"} />}
