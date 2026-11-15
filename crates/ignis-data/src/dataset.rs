@@ -1003,6 +1003,20 @@ fn cached_table(p: &Path) -> ServiceResult<(Arc<ConditionsTable>, Digest)> {
     Ok((table, digest))
 }
 
+/// Ids of the bundles under `root` (`<id>.json`), sorted; unreadable directories list nothing.
+fn bundle_ids(root: &Path) -> Vec<String> {
+    let mut v: Vec<String> = std::fs::read_dir(root)
+        .into_iter()
+        .flatten()
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.is_file() && p.extension().is_some_and(|x| x == "json"))
+        .filter_map(|p| p.file_stem().map(|s| s.to_string_lossy().to_string()))
+        .collect();
+    v.sort();
+    v
+}
+
 impl DatasetService for DatasetStore {
     fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle> {
         scope
@@ -1017,9 +1031,20 @@ impl DatasetService for DatasetStore {
         };
         let b = found
             .ok_or_else(|| {
+                // Name what exists, so the agent can pick an id instead of guessing (seen live:
+                // "ACME" asked for, nothing to go on). Builder ids only; a listed id may still be
+                // refused for this scope, which then says why.
+                let known = bundle_ids(&self.builder_root);
                 err(
                     ErrorCode::NotFound,
-                    format!("dataset {id} is not in this store"),
+                    if known.is_empty() {
+                        format!("dataset {id} is not in this store; the store holds no datasets")
+                    } else {
+                        format!(
+                            "dataset {id} is not in this store; dataset ids here: {}",
+                            known.join(", ")
+                        )
+                    },
                 )
             })?
             .map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?;
