@@ -115,7 +115,14 @@ pub struct Preamble {
     last: Option<String>,
     /// Calls already seen (Codex reports a call again when it completes).
     seen: std::collections::HashSet<ToolCallId>,
+    /// Calls started in this turn and not finished yet, in start order.
+    open: Vec<(ToolCallId, String, Causation)>,
 }
+
+/// Error of a call the runtime abandoned: the turn ended without a result for it (seen live with
+/// Codex: two slow `sources_search` calls past its tool timeout never completed, and the log kept
+/// them running forever).
+pub const ABANDONED: &str = "the runtime ended the turn without returning this call's result (abandoned or timed out by the agent runtime); the call may have kept running on the host";
 
 impl Preamble {
     /// Pass `mapped` through, inserting the rationale record before each call a message precedes.
@@ -133,8 +140,15 @@ impl Preamble {
                     call_id,
                     causation,
                     mark,
+                    tool,
                     ..
                 } => {
+                    if !self.open.iter().any(|(c, _, _)| c == call_id)
+                        && !self.seen.contains(call_id)
+                    {
+                        self.open
+                            .push((call_id.clone(), tool.clone(), causation.clone()));
+                    }
                     if !self.seen.insert(call_id.clone()) {
                         // Already linked (or not) when first seen.
                     } else if let Some(text) = self.last.take() {
@@ -149,10 +163,27 @@ impl Preamble {
                         ));
                     }
                 }
+                Mapped::ToolFinished { call_id, .. } => {
+                    self.open.retain(|(c, _, _)| c != call_id);
+                }
                 Mapped::Record(RuntimeRecord {
                     change: RuntimeChange::Status { .. },
                     ..
-                }) => self.last = None,
+                }) => {
+                    self.last = None;
+                    // The turn is over: a call still open never gets a result from the runtime.
+                    for (call_id, tool, causation) in std::mem::take(&mut self.open) {
+                        let mark = format!("item:{call_id}:abandoned");
+                        out.push(Mapped::ToolFinished {
+                            call_id,
+                            tool,
+                            value: None,
+                            error: Some(ABANDONED.to_string()),
+                            causation,
+                            mark,
+                        });
+                    }
+                }
                 _ => {}
             }
             out.push(m);
@@ -459,6 +490,52 @@ mod tests {
         assert!(
             matches!(&r.change, RuntimeChange::Status { to: EpisodeStatus::Failed, reason: Some(m), .. } if m.contains("model refused"))
         );
+    }
+
+    #[test]
+    fn a_call_the_runtime_abandons_is_closed_when_the_turn_ends() {
+        // Two calls start; one completes; the turn ends without the other (Codex past its tool
+        // timeout). The log must not keep the second one running forever.
+        let started = |id: &str| {
+            json!({"type": "mcpToolCall", "id": id, "server": "ignis", "tool": "sources_search",
+                   "status": "inProgress", "arguments": {"query": "q"}})
+        };
+        let done = json!({"type": "mcpToolCall", "id": "call-a", "server": "ignis", "tool": "sources_search",
+                          "status": "completed", "arguments": {"query": "q"},
+                          "result": {"content": [], "structuredContent": {"x": 1}}});
+        let mut p = Preamble::default();
+        let mut out = Vec::new();
+        out.extend(p.link(map_item(Some("u"), &started("call-a"), false)));
+        out.extend(p.link(map_item(Some("u"), &started("call-b"), false)));
+        out.extend(p.link(map_item(Some("u"), &done, true)));
+        let end = json!({"id": "u", "status": "completed", "items": []});
+        out.extend(p.link(map_turn_completed(&end, None)));
+        let finished: Vec<_> = out
+            .iter()
+            .filter_map(|m| match m {
+                Mapped::ToolFinished {
+                    call_id,
+                    error,
+                    mark,
+                    ..
+                } => Some((call_id.as_str().to_string(), error.clone(), mark.clone())),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(finished.len(), 2, "{out:?}");
+        assert_eq!(finished[0].0, "call-a");
+        assert_eq!(finished[0].1, None);
+        assert_eq!(finished[1].0, "call-b");
+        assert_eq!(finished[1].1.as_deref(), Some(ABANDONED));
+        assert_eq!(finished[1].2, "item:call-b:abandoned");
+        // The closing record comes before the turn's status change.
+        assert!(matches!(
+            out.last(),
+            Some(Mapped::Record(RuntimeRecord {
+                change: RuntimeChange::Status { .. },
+                ..
+            }))
+        ));
     }
 
     #[test]

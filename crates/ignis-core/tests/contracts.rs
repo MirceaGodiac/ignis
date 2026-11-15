@@ -135,6 +135,11 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "ReadResult" => drop(check::<ReadResult>(&v, ReadResult::validate)),
             "SourceOutline" => drop(check::<SourceOutline>(&v, SourceOutline::validate)),
             "SourceAccess" => drop(check::<SourceAccess>(&v, SourceAccess::validate)),
+            "MediaKeyframeIndex" => drop(check::<MediaKeyframeIndex>(
+                &v,
+                MediaKeyframeIndex::validate,
+            )),
+            "ArchiveListing" => drop(check::<ArchiveListing>(&v, ArchiveListing::validate)),
             "SourceLabel[]" => drop(check::<Vec<SourceLabel>>(&v, |l| {
                 l.iter().try_for_each(SourceLabel::validate)
             })),
