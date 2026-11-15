@@ -410,6 +410,36 @@ pub fn asset_location(con: &Connection, sha256: &str) -> Result<Option<String>> 
         .optional()?)
 }
 
+/// The file a recorded location names on this host. A location is written by whichever process
+/// ingested the bytes, with that process's own mount of the data directory (the server sees it at
+/// `/opt/ignis/data`, the data-build container at `/data`); when the path as recorded does not
+/// exist, the part from its `work/` or `raw/` component on is looked up under this host's
+/// `IGNIS_DATA`. Callers still check the bytes against the hash.
+pub fn resolve_location(rel_path: &str) -> PathBuf {
+    resolve_location_in(&ignis_data::paths::root(), rel_path)
+}
+
+fn resolve_location_in(root: &Path, rel_path: &str) -> PathBuf {
+    let recorded = PathBuf::from(rel_path);
+    if recorded.exists() {
+        return recorded;
+    }
+    let norm = rel_path.replace('\\', "/");
+    let parts: Vec<&str> = norm.split('/').collect();
+    for (i, part) in parts.iter().enumerate().rev() {
+        if *part == "work" || *part == "raw" {
+            let mut c = root.to_path_buf();
+            for x in &parts[i..] {
+                c.push(x);
+            }
+            if c.exists() {
+                return c;
+            }
+        }
+    }
+    recorded
+}
+
 /// The embedding set recorded for this catalog (sha256 of its vector file), if any.
 pub fn embedding_set_id(con: &Connection) -> Result<Option<String>> {
     use rusqlite::OptionalExtension;
@@ -802,4 +832,32 @@ pub fn all_chunk_texts(con: &Connection) -> Result<Vec<(String, String)>> {
         .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
         .collect::<rusqlite::Result<Vec<_>>>()?;
     Ok(rows)
+}
+
+#[cfg(test)]
+mod location_tests {
+    use super::resolve_location_in;
+
+    #[test]
+    fn a_location_recorded_under_another_mount_resolves_under_this_data_root() {
+        let root = std::env::temp_dir().join(format!("ignis-loc-{}", std::process::id()));
+        let pdf = root.join("work/raw/samples/PSI-21/18249 velocity traces.pdf");
+        std::fs::create_dir_all(pdf.parent().unwrap()).unwrap();
+        std::fs::write(&pdf, b"%PDF").unwrap();
+        let ntrs = root.join("raw/evidence/ntrs/NTRS-1.pdf");
+        std::fs::create_dir_all(ntrs.parent().unwrap()).unwrap();
+        std::fs::write(&ntrs, b"%PDF").unwrap();
+        let server = "/opt/ignis/data/work/raw/samples/PSI-21/18249 velocity traces.pdf";
+        assert_eq!(resolve_location_in(&root, server), pdf);
+        assert_eq!(
+            resolve_location_in(&root, "/elsewhere/raw/evidence/ntrs/NTRS-1.pdf"),
+            ntrs
+        );
+        // nothing on this host: the recorded path comes back, so the error names it
+        assert_eq!(
+            resolve_location_in(&root, "/opt/x/work/missing.pdf"),
+            std::path::PathBuf::from("/opt/x/work/missing.pdf")
+        );
+        std::fs::remove_dir_all(&root).ok();
+    }
 }
