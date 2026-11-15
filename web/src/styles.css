@@ -651,11 +651,12 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 .chat-group-label { padding: 4px 10px 2px; font-size: 11.5px; color: var(--ink-3); }
 .chat-row { position: relative; }
 .chat-row .nav-item { padding-right: 34px; }
-.chat-more-btn { position: absolute; right: 4px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-3); cursor: pointer; opacity: 0; transition: opacity 120ms, background 120ms; }
+.chat-more-btn { position: absolute; right: 4px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-3); cursor: default; opacity: 0; transition: opacity 120ms, background 120ms; }
 .chat-row:hover .chat-more-btn, .chat-row:focus-within .chat-more-btn, .chat-row.menu-open .chat-more-btn, .chat-row:has([aria-current="page"]) .chat-more-btn { opacity: 1; }
 .chat-more-btn:hover, .chat-row.menu-open .chat-more-btn { background: var(--wash); color: var(--ink); }
 @media (hover: none) { .chat-more-btn { opacity: 1; } }
-.chat-menu { top: calc(100% + 2px); right: 4px; min-width: 200px; }
+.chat-menu { top: calc(100% + 2px); right: 4px; min-width: 200px; cursor: default; user-select: none; }
+.chat-menu button { cursor: default; }
 .chat-menu.up { top: auto; bottom: calc(100% + 2px); }
 .chat-rename { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--rule-2); border-radius: 9px; background: var(--sheet); color: var(--ink); font: inherit; font-size: 14.5px; }
 .chat-rename:focus-visible { outline-offset: 0; }

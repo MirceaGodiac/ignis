@@ -10,7 +10,7 @@ import { href, type Route } from "./router";
 const ACTIVE: EpisodeStatus[] = ["ready", "running", "waiting_tools", "waiting_approval", "waiting_user"];
 const dotFor = (s: EpisodeStatus) => (ACTIVE.includes(s) ? (s.startsWith("waiting") ? "dot dot-bad" : "dot dot-run") : s === "completed" ? "dot dot-ok" : "dot dot-off");
 const LIMIT = 30;
-const UNDO_MS = 6000;
+const UNDO_MS = 3000;
 
 export function ChatList({ episodes, route, onNavigate }: { episodes: ResearchEpisode[]; route: Route; onNavigate: () => void }) {
   const [prefs, update] = useChatPrefs();
