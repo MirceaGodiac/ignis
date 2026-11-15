@@ -8,6 +8,7 @@ import { usePanel } from "../shell/inspector";
 import { go } from "../shell/router";
 import { Caution, ErrorNote, Gap, OriginMark, words } from "../ui/common";
 import { EvidenceSummary } from "./Answer";
+import { OpenOriginal } from "../shell/OpenOriginal";
 
 export function Sources({ initial }: { initial: string | null }) {
   const { client, researchMode, replay, caps, synthetic } = useData();
@@ -76,6 +77,11 @@ export function Sources({ initial }: { initial: string | null }) {
                     </td>
                     <td style={{ whiteSpace: "normal" }}>
                       <EvidenceSummary e={h.evidence} />
+                      {h.evidence.locator && (
+                        <div style={{ marginTop: 4 }}>
+                          <OpenOriginal sourceId={h.evidence.source_id} loc={h.evidence.locator} title={h.title} />
+                        </div>
+                      )}
                     </td>
                     <td className="r num dim">{(h.scores ?? []).map((s) => `${s.kind} ${s.value}`).join(" · ")}</td>
                   </tr>

@@ -43,6 +43,8 @@ pub struct SearchOpts {
     pub use_rerank: bool,
     pub rerank_top: Option<usize>,
     pub rerank_timeout_s: Option<f64>,
+    /// SIRA query-side expressions with their weights (the finalizer's choice), empty for none.
+    pub expansions: Vec<(String, f64)>,
 }
 
 impl Default for SearchOpts {
@@ -54,6 +56,7 @@ impl Default for SearchOpts {
             use_rerank: true,
             rerank_top: None,
             rerank_timeout_s: None,
+            expansions: Vec::new(),
         }
     }
 }
@@ -131,7 +134,14 @@ impl Retriever {
         let mut usage = serde_json::Map::new();
         let t = Instant::now();
         let lex = if o.use_lexical {
-            let l = catalog::lexical(&self.con, query, filters, self.cfg.fusion.lexical_depth)?;
+            let l = catalog::lexical_expanded(
+                &self.con,
+                query,
+                &o.expansions,
+                filters,
+                0,
+                self.cfg.fusion.lexical_depth,
+            )?;
             stages.insert("lexical".into(), json!(format!("ok ({})", l.len())));
             l
         } else {
@@ -303,6 +313,7 @@ impl Retriever {
         timings.insert("total_ms".into(), json!(ms(t_all)));
         Ok(Ranked {
             hits,
+            expansions: o.expansions.clone(),
             withheld,
             lexical_used: o.use_lexical,
             lexical_count: lex.len(),
@@ -360,6 +371,8 @@ pub struct RankedHit {
 #[derive(Debug, Clone)]
 pub struct Ranked {
     pub hits: Vec<RankedHit>,
+    /// the query-side expressions this order was built with (the lexical tail uses the same)
+    pub expansions: Vec<(String, f64)>,
     /// candidates dropped by the caller's filter (never reported to callers outside the host)
     pub withheld: usize,
     pub lexical_used: bool,

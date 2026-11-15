@@ -31,9 +31,10 @@ use anyhow::Context;
 use ignis_core::contracts::{
     BackendReport, BackendStatus, Capability, CorpusSnapshotId, ErrorCode, ErrorEnvelope,
     EvidenceClass, EvidenceId, EvidenceRef, EvidenceSchema, ExecutionScope, Family, Finite,
-    OffsetUnit, Origin, PageCursor, ParseViewId, Partition, ReadRange, ReadRequest, ReadResult,
-    ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind, SearchHit, SearchMode,
-    SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator, Split,
+    OffsetUnit, Origin, OutlineRequest, PageCursor, ParseViewId, Partition, ReadRange, ReadRequest,
+    ReadResult, ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind, SearchHit,
+    SearchMode, SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator, SourceOutline,
+    Split,
 };
 use ignis_core::hashing::{canonical_json, sha256_hex};
 use ignis_core::services::{KnowledgeService, ServiceResult};
@@ -46,6 +47,13 @@ use crate::dense::RetrievalCfg;
 use crate::records::parse_view_id;
 use crate::search::{Ranked, RankedHit, Retriever, SearchOpts};
 
+/// Section summaries next to the catalog (answers of `ignis evidence outline-summaries --execute`).
+pub const SUMMARIES_FILE: &str = "outline_summaries.jsonl";
+
+/// Label pass answers and the combined labels next to the catalog (R8).
+pub const LABEL_ANSWERS_FILE: &str = "label_answers.jsonl";
+pub const LABELS_FILE: &str = "source_labels.jsonl";
+
 /// Requested page size when the request names none.
 pub const DEFAULT_PAGE_SIZE: u32 = 10;
 /// Characters of page text per read response (more pages follow with `next`).
@@ -56,6 +64,15 @@ const SNIPPET_CHARS: usize = 280;
 
 fn err(code: ErrorCode, msg: impl Into<String>) -> ErrorEnvelope {
     ErrorEnvelope::new(code, msg, RetryPolicy::Never)
+}
+
+/// The parse view of a chunk: its id is `<view>:p<page>:<ordinal>`.
+fn chunk_view(chunk_id: &str) -> String {
+    chunk_id
+        .rsplitn(3, ':')
+        .nth(2)
+        .unwrap_or(chunk_id)
+        .to_string()
 }
 
 fn internal(e: anyhow::Error) -> ErrorEnvelope {
@@ -251,6 +268,11 @@ pub struct EvidenceService {
     meta: Mutex<Connection>,
     snapshot: CorpusSnapshot,
     lockbox: Lockbox,
+    /// Section summaries (R7b pass answers, `outline_summaries.jsonl` next to the catalog), read once.
+    summaries_path: std::path::PathBuf,
+    summaries: std::sync::OnceLock<
+        std::collections::HashMap<(String, String), ignis_core::contracts::GeneratedText>,
+    >,
     orders: Mutex<VecDeque<(String, Arc<Ranked>)>>,
     /// record API spend in the cost ledger (`runs/`); off in tests
     pub ledger: bool,
@@ -296,6 +318,8 @@ impl EvidenceService {
             meta: Mutex::new(meta),
             snapshot,
             lockbox,
+            summaries_path: db.with_file_name(SUMMARIES_FILE),
+            summaries: std::sync::OnceLock::new(),
             orders: Mutex::new(VecDeque::new()),
             ledger: true,
         })
@@ -516,16 +540,21 @@ impl EvidenceService {
         let mut out = Vec::new();
         let mut kept = 0usize;
         let mut pos = r.lexical_depth;
-        let window = r.lexical_depth.max(100);
+        // Each window re-runs the ranked query (FTS5 + expansion, grouped and sorted in full), so
+        // the window doubles: a page behind many withheld or filtered-out matches (lockbox
+        // investigations) costs O(log n) passes instead of n/100. Same order, same pages.
+        let mut window = r.lexical_depth.max(100);
         loop {
             let batch = {
                 let ret = self.retriever.lock().expect("retriever");
-                catalog::lexical_from(&ret.con, query, filters, pos, window).map_err(internal)?
+                catalog::lexical_expanded(&ret.con, query, &r.expansions, filters, pos, window)
+                    .map_err(internal)?
             };
             if batch.is_empty() {
                 return Ok((out, false));
             }
             pos += batch.len();
+            window = window.saturating_mul(2);
             for h in batch {
                 if seen.contains(h.chunk_id.as_str()) {
                     continue;
@@ -581,29 +610,59 @@ impl EvidenceService {
         })
     }
 
+    /// What this deployment can run besides lexical search: dense retrieval needs a vector set in
+    /// the catalog and the provider key (to embed the query); reranking needs the key. Dense and
+    /// rerank are out by decision (LANES_V2 R12a: lexical + SIRA), so normally both are false.
+    fn deployed(&self) -> (bool, bool) {
+        let ret = self.retriever.lock().expect("retriever");
+        let key = ret.api_key.is_some();
+        let vectors = catalog::embedding_set_id(&ret.con).ok().flatten().is_some();
+        (vectors && key, key)
+    }
+
+    /// The backends a mode runs here: `lexical` = lexical; `dense` = dense (reported unavailable
+    /// when it cannot run); `hybrid` = lexical + SIRA expansion, plus dense and rerank only where
+    /// this deployment has them. A backend the deployment lacks is not requested by `hybrid`, so a
+    /// default search never reports itself degraded for a stage that was never part of it.
+    fn requested(mode: SearchMode, (dense, rerank): (bool, bool)) -> (bool, bool, bool) {
+        match mode {
+            SearchMode::Lexical => (true, false, false),
+            SearchMode::Dense => (false, true, false),
+            SearchMode::Hybrid => (true, dense, rerank),
+        }
+    }
+
     fn backends(
         &self,
         mode: SearchMode,
         r: Option<&Ranked>,
         sealed: &BTreeSet<Partition>,
     ) -> Vec<BackendReport> {
+        let deployed = self.deployed();
+        let (want_lex, want_dense, want_rerank) = Self::requested(mode, deployed);
+        let absent = |b: &str| {
+            (mode == SearchMode::Hybrid).then(|| {
+                format!("{b} is not part of this deployment (hybrid = lexical + SIRA expansion)")
+            })
+        };
         let stage = |k: &str| {
             r.and_then(|r| r.stages.get(k))
                 .and_then(Value::as_str)
                 .map(String::from)
         };
-        let report = |b: RetrievalBackend, requested: bool, used: bool, detail: Option<String>| {
-            BackendReport {
-                backend: b,
-                status: match (requested, used) {
-                    (false, _) => BackendStatus::NotRequested,
-                    (true, true) => BackendStatus::Used,
-                    (true, false) => BackendStatus::Unavailable,
-                },
-                detail: if requested { detail } else { None },
-            }
+        let report = |b: RetrievalBackend,
+                      requested: bool,
+                      used: bool,
+                      detail: Option<String>,
+                      not_requested: Option<String>| BackendReport {
+            backend: b,
+            status: match (requested, used) {
+                (false, _) => BackendStatus::NotRequested,
+                (true, true) => BackendStatus::Used,
+                (true, false) => BackendStatus::Unavailable,
+            },
+            detail: if requested { detail } else { not_requested },
         };
-        let hybrid = mode == SearchMode::Hybrid;
         let lockbox = (!sealed.is_empty()).then(|| {
             format!(
                 "scope lockbox: outcome-bearing passages about runs of {sealed:?} (or unattributed, \
@@ -613,21 +672,24 @@ impl EvidenceService {
         vec![
             report(
                 RetrievalBackend::Lexical,
-                mode != SearchMode::Dense,
+                want_lex,
                 r.is_some_and(|r| r.lexical_used),
                 lockbox.or_else(|| stage("lexical")),
+                None,
             ),
             report(
                 RetrievalBackend::Dense,
-                mode != SearchMode::Lexical,
+                want_dense,
                 r.is_some_and(|r| r.dense_used),
                 stage("dense"),
+                absent("dense retrieval").filter(|_| !deployed.0),
             ),
             report(
                 RetrievalBackend::Rerank,
-                hybrid,
+                want_rerank,
                 r.is_some_and(|r| r.rerank_used),
                 stage("rerank"),
+                absent("reranking").filter(|_| !deployed.1),
             ),
         ]
     }
@@ -696,6 +758,7 @@ impl KnowledgeService for EvidenceService {
             canonical_json(&json!({
                 "snapshot": self.snapshot.snapshot_id, "query": req.query, "mode": req.mode,
                 "filters": req.filters, "sealed": Lockbox::sealed_key(&sealed),
+                "expected_terms": req.expected_terms,
             }))
             .as_bytes(),
         )[..32]
@@ -743,13 +806,36 @@ impl KnowledgeService for EvidenceService {
                 origin: Origin::System,
             });
         };
+        // SIRA query side: the finalizer keeps the expected terms the corpus holds (sira.rs)
+        let expansions: Vec<(String, f64)> = if req.expected_terms.is_empty() {
+            Vec::new()
+        } else {
+            let proposals: Vec<(String, f64)> = req
+                .expected_terms
+                .iter()
+                .map(|t| {
+                    (
+                        t.term.clone(),
+                        ignis_core::contracts::TermImportance::weight(t.importance),
+                    )
+                })
+                .collect();
+            let ret = self.retriever.lock().expect("retriever");
+            crate::sira::select_expressions(&ret.con, &proposals)
+                .map_err(internal)?
+                .into_iter()
+                .filter_map(|c| c.weight.map(|w| (c.expression, w)))
+                .collect()
+        };
+        let (use_lexical, use_dense, use_rerank) = Self::requested(req.mode, self.deployed());
         let opts = SearchOpts {
             limit: usize::MAX,
-            use_lexical: req.mode != SearchMode::Dense,
-            use_dense: req.mode != SearchMode::Lexical,
-            use_rerank: req.mode == SearchMode::Hybrid,
+            use_lexical,
+            use_dense,
+            use_rerank,
             rerank_top: None,
             rerank_timeout_s: None,
+            expansions,
         };
         let ranked = self.ranked(&digest, &req.query, &filters, &opts, &sealed)?;
         if cursor
@@ -816,23 +902,172 @@ impl KnowledgeService for EvidenceService {
             backends: self.backends(req.mode, Some(&ranked), &sealed),
             origin: Origin::System,
         };
+        // A family filter never hides silently: documents left out only because they have no
+        // family label yet (R8 labels fill them) are counted on the lexical backend's note.
+        // Counted under the scope's lockbox: a document counts only if the scope may see at least
+        // one of its matching passages, so the number never reveals held-out documents.
+        let unlabelled = {
+            let matches = {
+                let ret = self.retriever.lock().expect("retriever");
+                catalog::unlabelled_family_matches(&ret.con, &req.query, &filters)
+                    .map_err(internal)?
+            };
+            matches
+                .iter()
+                .filter(|m| {
+                    !self.lockbox.withholds(
+                        &sealed,
+                        m.outcome_bearing,
+                        &m.describes_runs,
+                        &m.continues_runs,
+                        &m.investigation_ids,
+                    )
+                })
+                .map(|m| m.publication_id.as_str())
+                .collect::<BTreeSet<_>>()
+                .len()
+        };
+        let mut page = page;
+        if unlabelled > 0 {
+            if let Some(b) = page
+                .backends
+                .iter_mut()
+                .find(|b| b.backend == RetrievalBackend::Lexical)
+            {
+                let note = format!(
+                    "family filter: excluded_unlabelled: {unlabelled} documents match the query but have no family label yet; omit filters.families to include them"
+                );
+                b.detail = Some(match b.detail.take() {
+                    Some(d) => format!("{d}; {note}"),
+                    None => note,
+                });
+            }
+        }
         page.validate()?;
         Ok(page)
+    }
+
+    /// Every label of one source (R8 `source_labels.jsonl` next to the catalog), conflicts
+    /// included. Labels describe a document; they never resolve run identities.
+    fn labels(
+        &self,
+        scope: &ExecutionScope,
+        source: &SourceId,
+    ) -> ServiceResult<Vec<ignis_core::contracts::SourceLabel>> {
+        self.check_scope(scope)?;
+        self.publication_of(source)?;
+        let path = self.summaries_path.with_file_name(LABELS_FILE);
+        let all = crate::labels::read_labels(&path).map_err(internal)?;
+        Ok(all.into_iter().filter(|l| &l.source_id == source).collect())
+    }
+
+    /// The section tree of the source's active view (R7b, [`crate::outline`]). Headings a scope's
+    /// lockbox withholds are left out (their section merges into the one before), so a heading
+    /// never reveals what the passages under it would not.
+    fn outline(
+        &self,
+        scope: &ExecutionScope,
+        req: &OutlineRequest,
+    ) -> ServiceResult<SourceOutline> {
+        self.check_scope(scope)?;
+        req.validate()?;
+        let p = self.publication_of(&req.source_id)?;
+        let active = parse_view_id(&p.id, &p.parser_version);
+        if let Some(v) = &req.parse_view_id {
+            if v.as_str() != active {
+                return Err(err(
+                    ErrorCode::Unsupported,
+                    format!("outlines are built from the active view ({active}), not {v}"),
+                ));
+            }
+        }
+        let chunks = {
+            let con = self.meta.lock().expect("meta");
+            crate::outline::load_chunks(&con, &p.id).map_err(internal)?
+        };
+        let sealed = self.lockbox.sealed(scope);
+        let mut pub_scope = p.investigation_ids.clone();
+        pub_scope.extend(p.families.iter().cloned());
+        let total = chunks.len();
+        let visible: Vec<_> = chunks
+            .into_iter()
+            .filter(|c| {
+                !self.lockbox.withholds(
+                    &sealed,
+                    c.outcome_bearing,
+                    &c.describes_runs,
+                    &c.continues_runs,
+                    &pub_scope,
+                )
+            })
+            .collect();
+        let visible_all = visible.len() == total;
+        let (heads, _method) = crate::outline::headings(&visible);
+        let title = p
+            .title
+            .clone()
+            .or_else(|| p.file_name.clone())
+            .unwrap_or_else(|| "(whole document)".into());
+        let roots = crate::outline::build(&heads, p.n_pages, &title).map_err(internal)?;
+        let mut roots = roots;
+        // Summaries are generated text about whole sections: shown only when this scope's lockbox
+        // withholds nothing of the document, so they can never paraphrase a withheld passage.
+        if visible_all {
+            let summaries = self.summaries.get_or_init(|| {
+                crate::outline::load_summaries(&self.summaries_path).unwrap_or_else(|e| {
+                    eprintln!("outline summaries not loaded: {e:#}");
+                    Default::default()
+                })
+            });
+            crate::outline::attach(&mut roots, &active, summaries);
+        }
+        let nodes =
+            crate::outline::select(roots, req.node_id.as_ref(), req.depth).ok_or_else(|| {
+                err(
+                    ErrorCode::NotFound,
+                    format!(
+                        "{} is not a section of {} (node ids come from sources_outline)",
+                        req.node_id.as_ref().map(|n| n.as_str()).unwrap_or_default(),
+                        req.source_id
+                    ),
+                )
+            })?;
+        let out = SourceOutline {
+            schema_version: EvidenceSchema::V2,
+            source_id: req.source_id.clone(),
+            parse_view_id: ParseViewId::new(active)?,
+            nodes,
+            origin: Origin::System,
+        };
+        out.validate()?;
+        Ok(out)
     }
 
     fn read(&self, scope: &ExecutionScope, req: &ReadRequest) -> ServiceResult<ReadResult> {
         self.check_scope(scope)?;
         req.validate()?;
         let p = self.publication_of(&req.source_id)?;
-        let view = parse_view_id(&p.id, &p.parser_version);
-        if let Some(v) = &req.parse_view_id {
-            if v.as_str() != view {
-                return Err(err(
-                    ErrorCode::NotFound,
-                    format!("parse view {v} is not served (current view of this source: {view})"),
-                ));
+        let active = parse_view_id(&p.id, &p.parser_version);
+        // An older view stays readable, so a citation made against it still opens.
+        let view = match &req.parse_view_id {
+            None => active.clone(),
+            Some(v) if v.as_str() == active => active.clone(),
+            Some(v) => {
+                let stored = {
+                    let con = self.meta.lock().expect("meta");
+                    catalog::views(&con, &p.id).map_err(internal)?
+                };
+                if !stored.iter().any(|s| s == v.as_str()) {
+                    return Err(err(
+                        ErrorCode::NotFound,
+                        format!(
+                            "parse view {v} is not stored (active view of this source: {active})"
+                        ),
+                    ));
+                }
+                v.as_str().to_string()
             }
-        }
+        };
         let sealed = self.lockbox.sealed(scope);
         let view_id = ParseViewId::new(view.clone())?;
         let page_locator = |page: i64, len: usize| SourceLocator {
@@ -857,7 +1092,7 @@ impl KnowledgeService for EvidenceService {
                 }
                 let pages = {
                     let con = self.meta.lock().expect("meta");
-                    catalog::page_texts(&con, &p.id, first, last).map_err(internal)?
+                    catalog::page_texts(&con, &p.id, &view, first, last).map_err(internal)?
                 };
                 if pages.len() as i64 != last - first + 1 {
                     return Err(err(
@@ -878,7 +1113,7 @@ impl KnowledgeService for EvidenceService {
                     used += text.chars().count();
                     let ids = {
                         let con = self.meta.lock().expect("meta");
-                        catalog::chunk_ids_on_page(&con, &p.id, page).map_err(internal)?
+                        catalog::chunk_ids_on_page(&con, &p.id, &view, page).map_err(internal)?
                     };
                     let chunks = ids
                         .iter()
@@ -935,7 +1170,8 @@ impl KnowledgeService for EvidenceService {
                 }
                 let ids = {
                     let con = self.meta.lock().expect("meta");
-                    catalog::chunk_ids_on_page(&con, &p.id, c.page).map_err(internal)?
+                    catalog::chunk_ids_on_page(&con, &p.id, &chunk_view(&c.id), c.page)
+                        .map_err(internal)?
                 };
                 let pos = ids.iter().position(|i| *i == c.id).unwrap_or(0);
                 for i in pos.saturating_sub(1)..(pos + 2).min(ids.len()) {

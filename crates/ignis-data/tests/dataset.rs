@@ -415,3 +415,41 @@ fn the_content_digest_is_stable_and_tracks_values() {
         other_secret.bundle.content_digest()
     );
 }
+
+/// An unknown id is refused with the builder dataset ids, so the agent can pick one (seen live: it
+/// asked for "ACME" and had nothing to go on); evaluator bundles are never named.
+#[test]
+fn an_unknown_dataset_lists_the_builder_ids_and_never_the_evaluator_ones() {
+    let root = std::env::temp_dir().join(format!("ignis-dataset-ids-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let store = DatasetStore {
+        builder_root: root.join("work/datasets"),
+        evaluator_root: root.join("holdout/datasets"),
+    };
+    let train = build(&BundleSpec::builder(&[Partition::Train]), SECRET_M);
+    let ev = build(&BundleSpec::evaluator(), SECRET_M);
+    store.save(&train).unwrap();
+    store.save(&ev).unwrap();
+    let research = scope(
+        ScopeRole::Research,
+        &[Partition::Train, Partition::Validation],
+        &[Capability::ReadData],
+    );
+    let e = store
+        .dataset(&research, &DatasetId::new("ACME").unwrap())
+        .unwrap_err();
+    assert_eq!(e.code, ErrorCode::NotFound);
+    assert!(
+        e.message.contains(train.bundle.dataset_id.as_str()),
+        "{}",
+        e.message
+    );
+    if ev.bundle.dataset_id != train.bundle.dataset_id {
+        assert!(
+            !e.message.contains(ev.bundle.dataset_id.as_str()),
+            "{}",
+            e.message
+        );
+    }
+    let _ = std::fs::remove_dir_all(&root);
+}

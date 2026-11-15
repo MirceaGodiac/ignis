@@ -18,6 +18,8 @@ import { TOOL_LABEL } from "../views/turns";
 import { isTypedArtifact } from "../research/artifactViews";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 import { SourceOriginal } from "./SourceOriginal";
+import { OpenOriginal } from "./OpenOriginal";
+import { runSources } from "./runSources";
 
 const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Route step", release: "Model release" };
 
@@ -86,6 +88,28 @@ export function Panel() {
 
 // ---------------------------------------------------------------- run
 
+/** The NASA files this run's record was read from, each opened at the place the record cites. */
+function RunOriginals({ record }: { record: unknown }) {
+  const files = runSources(record);
+  if (files.length === 0) return null;
+  return (
+    <div className="panel-sec">
+      <h3>NASA originals</h3>
+      <ul style={{ display: "grid", gap: 6, fontSize: 13, paddingLeft: 0, listStyle: "none" }}>
+        {files.map((f) => (
+          <li key={f.sourceId} style={{ display: "flex", gap: 8, alignItems: "baseline", justifyContent: "space-between" }}>
+            <span style={{ overflowWrap: "anywhere" }}>
+              {f.path ?? <code>{f.sourceId.slice(0, 19)}…</code>}
+              <span className="muted small"> · {f.uses.slice(0, 4).join(", ")}{f.uses.length > 4 ? ", …" : ""}</span>
+            </span>
+            <OpenOriginal sourceId={f.sourceId} loc={f.loc} title={f.path} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function RunItem({ id }: { id: string }) {
   const { origin, synthetic } = useData();
   const cmp = useCompare();
@@ -140,6 +164,7 @@ function RunItem({ id }: { id: string }) {
           ))}
         </dl>
       </div>
+      <RunOriginals record={record} />
       <div className="panel-sec">
         <h3>Measurements</h3>
         <dl className="kv">

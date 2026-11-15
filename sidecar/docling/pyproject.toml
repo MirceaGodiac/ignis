@@ -1,0 +1,19 @@
+[project]
+name = "ignis-docling-sidecar"
+version = "0.1.0"
+description = "IGNIS Docling parse-view producer (offline batch; output imported by `ignis evidence import-view`)"
+requires-python = ">=3.11,<3.14"
+# Pinned to the versions measured in benchmarks/parsers (R7a). A version change is a new parser
+# version, hence a new parse view: old citations keep resolving against the old one.
+dependencies = [
+  "docling==2.150.1",
+  "docling-core==2.107.0",
+  "docling-ibm-models==4.0.4",
+  "docling-parse==7.26.0",
+  "rapidocr==3.10.0",
+  "torch==2.15.0",
+  "pillow>=10",
+]
+
+[tool.uv]
+package = false
