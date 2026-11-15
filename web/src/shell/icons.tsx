@@ -116,6 +116,12 @@ export const IconUpDown = (p: P) => (
     <path d="M5 6l3-3 3 3M5 10l3 3 3-3" />
   </svg>
 );
+export const IconInfo = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="8" cy="8" r="5.75" />
+    <path d="M8 7.25v3.5M8 5.15v.1" />
+  </svg>
+);
 export const IconArrow = (p: P) => (
   <svg {...base(p)}>
     <path d="M3 8h10M9 4l4 4-4 4" />

@@ -13,7 +13,8 @@ import { locatorKind, pageCaption } from "../research/units";
 import { usePanel } from "../shell/inspector";
 import { useCompare } from "../shell/compare";
 import { go } from "../shell/router";
-import { IconArrow, IconBack, IconCheck, IconChevron, IconCopy } from "../shell/icons";
+import { IconArrow, IconBack, IconCheck, IconChevron, IconCopy, IconInfo, IconThread } from "../shell/icons";
+import { leadSentence } from "../research/noteText";
 import { EvidenceClassTag, fmtBytes, OriginMark, shortId } from "../ui/common";
 import { LinkedViews } from "../shell/linked";
 import { ViewBlock } from "./AnswerViews";
@@ -114,7 +115,7 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
           return a ? (
             <FigureBlock key={i} n={fig} artifact={a} caption={b.caption ?? undefined} pageSynthetic={pageSynthetic} />
           ) : (
-            <p key={i} className="note note-refusal">
+            <p key={i} className="note note-gap small">
               Figure {fig}: artifact {b.artifact_id} is cited but not listed in the answer.
             </p>
           );
@@ -322,23 +323,43 @@ function AnswerActions({ answer }: { answer: ResearchAnswer }) {
   );
 }
 
-/** What limits this answer, as a calm note under it; each limit can be asked about. */
+/** What limits this answer: one quiet line under it ("3 limits") that opens into a short list. Each
+ * limit leads with its first sentence; a small button drafts a follow-up about it. */
 function Limits({ answer }: { answer: ResearchAnswer }) {
   const ls = answer.limitations ?? [];
+  const [open, setOpen] = useState(false);
+  const id = `limits-${answer.answer_id}`;
   if (!ls.length) return null;
   return (
-    <aside className="answer-limits" aria-label="Limits of this answer">
-      <b>{ls.length === 1 ? "Limit of this answer" : "Limits of this answer"}</b>
-      <ul>
-        {ls.map((l) => (
-          <li key={l}>
-            <span>{l}</span>{" "}
-            <button className="linkish" onClick={() => draftFollowUp(`Can you resolve this limitation: ${l}`)}>
-              Ask about it
-            </button>
-          </li>
-        ))}
-      </ul>
+    <aside className={`answer-limits${open ? " open" : ""}`} aria-label="Limits of this answer">
+      <button className="limits-toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)}>
+        <IconInfo className="limits-icon" />
+        <span>{ls.length === 1 ? "1 limit" : `${ls.length} limits`}</span>
+        <IconChevron className="chev" />
+      </button>
+      {open && (
+        <ul className="limits-list" id={id}>
+          {ls.map((l) => {
+            const { lead, rest } = leadSentence(l);
+            return (
+              <li key={l} className="limit-row">
+                <p className="limit-text">
+                  <span className="limit-lead">{lead}</span>
+                  {rest && <span className="limit-rest"> {rest}</span>}
+                </p>
+                <button
+                  className="btn btn-quiet btn-icon btn-s limit-ask"
+                  aria-label="Ask about this limit"
+                  title="Ask about this limit"
+                  onClick={() => draftFollowUp(`Can you resolve this limitation: ${l}`)}
+                >
+                  <IconThread />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </aside>
   );
 }

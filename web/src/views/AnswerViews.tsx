@@ -47,7 +47,7 @@ export function ViewBlock({ view, caption, answer, client, claimKeys }: { view: 
           </span>
         )}
       </figcaption>
-      <div className="view-body">{problems.length > 0 ? <p className="note note-refusal small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}</div>
+      <div className="view-body">{problems.length > 0 ? <p className="note note-gap small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}</div>
     </figure>
   );
 }
@@ -117,12 +117,12 @@ function SeriesView({ view, client }: { view: Extract<ViewSpec, { kind: "series_
     staleTime: Infinity,
   });
   if (q.isPending) return <p className="muted small view-wait">Reading the series…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The series could not be read" />;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The series could not be read" />;
   const bad = q.data.flatMap((s, i) => (typeof s === "string" ? [`series ${i + 1}: ${s}`] : []));
-  if (bad.length) return <p className="note note-refusal small">Not drawn: {bad.join("; ")}.</p>;
+  if (bad.length) return <p className="note note-gap small">Not drawn: {bad.join("; ")}.</p>;
   const series = q.data as Series[];
   const mismatch = seriesProblems(series);
-  if (mismatch.length) return <p className="note note-refusal small">Not drawn on one axis: {mismatch.join("; ")}.</p>;
+  if (mismatch.length) return <p className="note note-gap small">Not drawn on one axis: {mismatch.join("; ")}.</p>;
   return (
     <>
       <SeriesChart series={series} id={`series:${view.series.map((s) => s.artifact_id).join(",")}`} />
@@ -146,17 +146,17 @@ const ALL_HABITATS = new Set<HabitatId>(["moon", "suit", "iss"]);
 function TableArtifact({ id, client, render }: { id: string; client: ResearchClient; render: (t: ConditionsTable) => JSX.Element }) {
   const q = useArtifact<ConditionsTable>(client, id);
   if (q.isPending) return <p className="muted small view-wait">Reading the conditions…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The conditions table could not be read" />;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The conditions table could not be read" />;
   return render(q.data);
 }
 
 function BundleArtifact({ id, sourceId, client }: { id: string; sourceId: string; client: ResearchClient }) {
   const q = useArtifact<VisualObservationBundle>(client, id);
   if (q.isPending) return <p className="muted small view-wait">Reading the contour bundle…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The contour bundle could not be read" />;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The contour bundle could not be read" />;
   if (q.data.video_source_id !== sourceId)
     return (
-      <p className="note note-refusal small">
+      <p className="note note-gap small">
         Not shown: the bundle was extracted from {q.data.video_source_id}, not from {sourceId}.
       </p>
     );
@@ -197,8 +197,8 @@ function ArtifactTable({ id, pointer, client }: { id: string; pointer: string; c
   const q = useArtifact<unknown>(client, id);
   const t = useMemo(() => (q.data === undefined ? null : tableModel(resolvePointer(q.data, pointer))), [q.data, pointer]);
   if (q.isPending) return <p className="muted small view-wait">Reading the artifact…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The artifact could not be read" />;
-  if (!t) return <p className="note note-refusal small">Not shown: {pointer || "the document"} is not a table.</p>;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The artifact could not be read" />;
+  if (!t) return <p className="note note-gap small">Not shown: {pointer || "the document"} is not a table.</p>;
   return <DataTable columns={t.columns} rows={t.rows} />;
 }
 
@@ -208,9 +208,9 @@ function ChartArtifact({ view, client }: { view: ChartView; client: ResearchClie
   const q = useArtifact<unknown>(client, view.artifact_id);
   const d = useMemo(() => (q.data === undefined ? null : chartRows(q.data, view)), [q.data, view]);
   if (q.isPending) return <p className="muted small view-wait">Reading the rows…</p>;
-  if (q.error) return <ErrorNote error={q.error} title="The chart's artifact could not be read" />;
-  if (typeof d === "string" || !d) return <p className="note note-refusal small">Not drawn: {d ?? "no rows"}.</p>;
-  if (!d.points.length) return <p className="note note-refusal small">Not drawn: none of the {d.total} rows has plottable values{d.skipped ? ` (${skippedNote(d)})` : ""}.</p>;
+  if (q.error) return <ErrorNote quiet error={q.error} title="The chart's artifact could not be read" />;
+  if (typeof d === "string" || !d) return <p className="note note-gap small">Not drawn: {d ?? "no rows"}.</p>;
+  if (!d.points.length) return <p className="note note-gap small">Not drawn: none of the {d.total} rows has plottable values{d.skipped ? ` (${skippedNote(d)})` : ""}.</p>;
   const note = skippedNote(d);
   return (
     <>
