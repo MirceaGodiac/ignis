@@ -3,7 +3,7 @@
 // `InvestigationEnvelope`, never a run's outcome. Nothing is extrapolated: an envelope that does not
 // reach an atmosphere says by how much, and a missing condition is "not stated", never "inside".
 
-import type { ConditionKey, EnvelopeEntry, InvestigationEnvelope } from "../contracts/generated";
+import type { ConditionFilter, ConditionKey, EnvelopeEntry, InvestigationEnvelope } from "../contracts/generated";
 
 export const PSI_PA = 6894.757;
 const ATM_PA = 101325;
@@ -114,4 +114,18 @@ export function fitText(f: Fit): string {
   if (f.o2Pts !== 0) parts.push(`${f.o2Pts > 0 ? "+" : "−"}${Math.abs(f.o2Pts).toFixed(1)} pts O₂`);
   if (f.psi !== 0) parts.push(`${f.psi > 0 ? "+" : "−"}${Math.abs(f.psi).toFixed(1)} psi`);
   return `outside tested envelope: ${parts.join(", ")}`;
+}
+
+/**
+ * The conditions-query filters that select runs whose recorded atmosphere lies in a habitat's region,
+ * with the same tolerance as `habitatFit`. The service applies them (and never counts a burner-stream
+ * O2 as the atmosphere); the UI only builds them.
+ */
+export function habitatFilters(h: Habitat): ConditionFilter[] {
+  const o2: [number, number] = [Math.max(0, h.o2[0] - TOL_O2), Math.min(1, h.o2[1] + TOL_O2)];
+  const pa: [number, number] = [h.pa[0] * (1 - TOL_PA_REL), h.pa[1] * (1 + TOL_PA_REL)];
+  return [
+    { key: "oxygen_mole_fraction", min_si: o2[0], max_si: o2[1] },
+    { key: "pressure", min_si: pa[0], max_si: pa[1] },
+  ];
 }
