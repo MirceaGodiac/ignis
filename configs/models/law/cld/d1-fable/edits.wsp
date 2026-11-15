@@ -1,0 +1,5 @@
+# D1 of cld.wsp: the Edits block of docs/wsp/research/phys_cld_d1.md (lines 67-69, sha256 6144d2fb3bf0734c99655acae5705191fd690467ea19ab99ba9ca5e01114c86e),
+# verbatim, as a revision of the registered W0 release sha256:0995df66…fe4e; every other number is the parent's.
+loss.blowoff.median.b0 = 6.03
+loss.blowoff.median.skip[3] = 1.21
+radiometer.median.b0 = -0.66

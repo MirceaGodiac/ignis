@@ -78,6 +78,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "target": {
+          "description": "Which declared target to forecast, for releases that declare several (the generic law\nforward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash\nof every other request is unchanged.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "times_s": {
           "description": "Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one\ntime grid so that event metrics compare like with like.",
           "items": {
@@ -178,24 +185,33 @@
       "type": "object"
     },
     "Quantity": {
-      "enum": [
-        "liquid_diameter",
-        "visible_flame_diameter",
-        "uv_flame_diameter",
-        "droplet_position",
-        "pressure",
-        "mole_fraction",
-        "temperature",
-        "mass_flow",
-        "volume_flow",
-        "std_volume_flow",
-        "front_contour",
-        "front_position",
-        "spread_rate",
-        "flow_velocity",
-        "gravity_level"
-      ],
-      "type": "string"
+      "oneOf": [
+        {
+          "enum": [
+            "liquid_diameter",
+            "visible_flame_diameter",
+            "uv_flame_diameter",
+            "droplet_position",
+            "pressure",
+            "mole_fraction",
+            "temperature",
+            "mass_flow",
+            "volume_flow",
+            "std_volume_flow",
+            "front_contour",
+            "front_position",
+            "spread_rate",
+            "flow_velocity",
+            "gravity_level"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "phase_end_time",
+          "description": "Time at which the modelled phase ends, seconds since the time origin: the target of event\nmodels (ACME). Their artifacts are event partitions and carry no quantity of their own.",
+          "type": "string"
+        }
+      ]
     },
     "ReleaseId": {
       "minLength": 1,

@@ -1,0 +1,22 @@
+{
+  "patch_id": "jets-property-law-review-astra-v2",
+  "author": {
+    "provider": "openai",
+    "model_id": "gpt-6-astra"
+  },
+  "exposure": {
+    "sources": [
+      "matalon-cefrc-2013-lecture10-theory",
+      "matalon-cefrc-2013-lecture11-theory",
+      "cantera-3.1-governing-equations",
+      "incidental-cross-family-author-status",
+      "jets-property-cleanroom-astra-w0-packet",
+      "astra-property-transport-synthetic-physics-review"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "data-informed by synthetic/physics review (F4), not a fresh zero-shot candidate. The unchanged literal values and their original provenance are inherited from the W0 packet; only the admissibility of sensible-enthalpy reference paths is corrected. No NASA outcomes or new physical coefficients. No released parent id exists; this is a separately specified implementation revision, not a claim of an outcome-blind one-shot. See docs/wsp/research/astra_jets_v2.md.",
+  "origin": "system"
+}

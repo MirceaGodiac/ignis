@@ -1,0 +1,8 @@
+# DATA-INFORMED Astra R2; not zero-shot. Nominal-input ROLLBACK, not new physics.
+# Apply to inverse R1 sha256:5c1f9a1b56a31665aed1e26fe690c6335ae4c2f82532c8ba37836170819a6037.
+# S: select the existing nominal node exactly. Sensitivity scenarios do not
+# supply an instrument-error probability distribution. Zero removes a scenario;
+# it is not an estimate of zero measurement uncertainty. Retain all inherited
+# member uncertainty and all flow/pressure multipliers without modification.
+# Main-author literal decision fixed before any R2 score; see loss-analysis note.
+condition.w[0:5] = [1, 0, 0, 0, 0]

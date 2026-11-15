@@ -1,0 +1,39 @@
+{
+  "patch_id": "flex_methanol-wsp-v2-d1-fable",
+  "parent_release_id": "sha256:6c6fd99d756e4d2edb550547d1b5f0767a8878cf3a63d73866fc799dbca16962",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "repo:docs/wsp/feedback/(train-and-validation-feedback-of-flex.wsp-W0,W1,W2;validation-read-per-run-in-phase-1)",
+      "repo:crates/ignis-wsp/src/droplet.rs(forward-and-spec)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;per-run-validation-scores-of-flex.wsp-W1-seen-in-phase-1)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:fa8eb18cbb2affa850846fc90b82475fbac13f44d2fbca0fd2321024f4a6e28f",
+      "sha256:a3fbfef98e5f02b7a3213dadbb7270e3ee87f0c9084725eb6f3735cc3a03f13b",
+      "sha256:2ce097c5843f7a098e361f87299ca43ad16b4ef595acbcc6fb7a5b8927c4c1de"
+    ]
+  },
+  "rationale": "D1, data-informed (not zero-shot): the first candidate of the multistate droplet spec for methanol, written after studying the experiment and the train runs. The train data show two extinction mechanisms that the first-generation model blurred into one: droplets below a critical diameter burn to a diffusive extinction at De/D0 near 0.5 whatever their size, droplets above it lose the flame to radiation about 0.9 of a diffusion-clock unit after ignition, and droplets far above it never establish a flame. The critical diameter falls from about 9 mm in air to 2.3 mm at 12 % O2 and is lowered by CO2 and helium. Rate law: hinge network on train plateau rates with a heat-up that scales with D0^2. Post-extinction evaporation decays from 0.06-0.08 to 0.02 mm2/s. Numbers typed from train tables by the author; no fit, no search.",
+  "origin": "system"
+}

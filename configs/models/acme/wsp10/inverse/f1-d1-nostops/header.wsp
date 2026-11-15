@@ -1,0 +1,30 @@
+# acme_inverse.wsp10 — F1-D1-NOSTOPS: wsp3/inverse/d1-nostops with the fuel table F1
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like its source for ethane, propane and butane;
+# zero-shot for the fuels the table adds. No law value below was typed again: they are the stored
+# values of the source release, copied statement by statement by tools/wsp/fuel_member_edits.py.
+# The lines typed for this file are the fuel table:
+
+# The fuel table of inverse burner flames, F1. Typed by claude-fable-5-2 (Anthropic) from
+# docs/wsp/research/phys_spherical_fuels.md, section 3.4 and 3.5, where every number has its source
+# and derivation. ZERO-SHOT for ethylene with respect to Flame Design: no per-test outcome was read.
+# Not blind to the aggregate arms of the Flame Design transfer test of 14 November (PROTOCOL 11.3).
+# Ethane, propane and butane keep unit coordinates and zero shifts: their forecasts are those of the
+# source release, bit for bit. Ethylene is the only new fuel any of the three investigations burned
+# inverted; methane and hydrogen are refused.
+#
+# rows: 0 ethane, 1 propane, 2 butane, 3 ethylene, 4 methane, 5 hydrogen
+fuel.admit[0:6] = [1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+fuel.mw_g_mol[0:6] = [30.07, 44.1, 58.12, 28.054, 16.043, 2.016]
+# Not read by the inverse laws: the burner-side reactant is oxygen and the flux is an oxygen flux.
+fuel.s[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# No adopted inverse self-extinction law has an indicator weight; ethylene is written as its nearest fuel.
+fuel.se_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
+# The +0.3 of ethane in the heating law is three times what its Lewis number gives and follows
+# pressure as well as fuel on train. Ethylene: half of it (judgement): the Lewis-number rise (+0.13,
+# theory) and the median of the one ethane session near 1 atm (+0.13, carried from train).
+fuel.ft_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.5, 0.0], [0.0, 0.0], [0.0, 0.0]]
+# A lean ethylene flame should not pulsate (Lewis number 1.28, below that of ethane) and then ends at
+# the published critical flux of 0.68 g O2 m-2 s-1 instead of the 1.0 at which propane and butane
+# begin to pulsate. Twice the clock (judgement): two routes give 1.8, and 1.5 to 3.
+fuel.dosc[0:6] = [0.0, 0.0, 0.0, 0.7, 0.0, 0.0]
+fuel.tad_min_k[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

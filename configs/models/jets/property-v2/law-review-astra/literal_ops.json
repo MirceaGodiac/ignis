@@ -1,0 +1,5 @@
+[
+  {"op":"set","tensor":"analytic_constants","index":[0],"value":3.141592653589793},
+  {"op":"set","tensor":"analytic_constants","index":[1],"value":2.0},
+  {"op":"set","tensor":"analytic_constants","index":[2],"value":4.0}
+]

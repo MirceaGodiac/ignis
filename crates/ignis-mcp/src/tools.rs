@@ -127,6 +127,15 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
+            let mut d = d;
+            // The served releases and their inputs come from the model service (its served list).
+            if matches!(d.name.as_str(), "models_inspect" | "models_forecast")
+                && unavailable.is_none()
+            {
+                if let Some(note) = services.models.as_ref().and_then(|m| m.tool_note()) {
+                    d.summary = format!("{} {note}", d.summary);
+                }
+            }
             ToolAvailability {
                 descriptor: d,
                 unavailable,

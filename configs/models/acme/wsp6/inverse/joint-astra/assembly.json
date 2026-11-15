@@ -1,0 +1,1398 @@
+{
+  "checks": [
+    {
+      "check": "spec_valid",
+      "detail": "ModelSpec::validate",
+      "status": "passed"
+    },
+    {
+      "check": "patch_valid",
+      "detail": "HandwrittenWeightPatch::validate_against",
+      "status": "passed"
+    },
+    {
+      "check": "tensors_complete",
+      "detail": "2730 authored elements (276 nonzero), 112 constants",
+      "status": "passed"
+    },
+    {
+      "check": "strict_forward_audit",
+      "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)",
+      "status": "passed"
+    },
+    {
+      "check": "finite_forward_on_fixture",
+      "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact",
+      "status": "passed"
+    }
+  ],
+  "construction_method": "literal_revision",
+  "counts": {
+    "authored_nonzero": 276,
+    "authored_total": 2730,
+    "constant_total": 112,
+    "per_tensor": {
+      "a0.ft.atom_logit": [
+        8,
+        8
+      ],
+      "a0.ft.atom_t_s": [
+        8,
+        0
+      ],
+      "a0.ft.atom_w": [
+        64,
+        0
+      ],
+      "a0.ft.log_base": [
+        1,
+        1
+      ],
+      "a0.ft.shape": [
+        1,
+        1
+      ],
+      "a0.ft.tau.W1": [
+        64,
+        0
+      ],
+      "a0.ft.tau.b0": [
+        1,
+        1
+      ],
+      "a0.ft.tau.b1": [
+        8,
+        0
+      ],
+      "a0.ft.tau.skip": [
+        8,
+        0
+      ],
+      "a0.ft.tau.w2": [
+        8,
+        0
+      ],
+      "a0.norm.mdot_ref_kg_s": [
+        1,
+        1
+      ],
+      "a0.norm.o2_ref": [
+        1,
+        1
+      ],
+      "a0.norm.o2_scale": [
+        1,
+        1
+      ],
+      "a0.norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "a0.norm.tad_ref_k": [
+        1,
+        1
+      ],
+      "a0.norm.tad_scale_k": [
+        1,
+        1
+      ],
+      "a0.norm.xf_ref": [
+        1,
+        1
+      ],
+      "a0.norm.zst_ref": [
+        1,
+        1
+      ],
+      "a0.norm.zst_scale": [
+        1,
+        1
+      ],
+      "a0.num.atom_half_s": [
+        1,
+        1
+      ],
+      "a0.num.dt_s": [
+        1,
+        1
+      ],
+      "a0.num.horizon_s": [
+        1,
+        1
+      ],
+      "a0.se.flash.W1": [
+        64,
+        0
+      ],
+      "a0.se.flash.b0": [
+        1,
+        1
+      ],
+      "a0.se.flash.b1": [
+        8,
+        0
+      ],
+      "a0.se.flash.skip": [
+        8,
+        0
+      ],
+      "a0.se.flash.w2": [
+        8,
+        0
+      ],
+      "a0.se.flash_shape": [
+        1,
+        1
+      ],
+      "a0.se.flash_tau_s": [
+        1,
+        1
+      ],
+      "a0.se.floor_s": [
+        1,
+        0
+      ],
+      "a0.se.shape": [
+        1,
+        1
+      ],
+      "a0.se.tau.W1": [
+        64,
+        0
+      ],
+      "a0.se.tau.b0": [
+        1,
+        1
+      ],
+      "a0.se.tau.b1": [
+        8,
+        0
+      ],
+      "a0.se.tau.skip": [
+        8,
+        0
+      ],
+      "a0.se.tau.w2": [
+        8,
+        0
+      ],
+      "a1.ft.atom_logit": [
+        8,
+        8
+      ],
+      "a1.ft.atom_t_s": [
+        8,
+        0
+      ],
+      "a1.ft.atom_w": [
+        64,
+        0
+      ],
+      "a1.ft.log_base": [
+        1,
+        1
+      ],
+      "a1.ft.shape": [
+        1,
+        1
+      ],
+      "a1.ft.tau.W1": [
+        64,
+        0
+      ],
+      "a1.ft.tau.b0": [
+        1,
+        1
+      ],
+      "a1.ft.tau.b1": [
+        8,
+        0
+      ],
+      "a1.ft.tau.skip": [
+        8,
+        0
+      ],
+      "a1.ft.tau.w2": [
+        8,
+        0
+      ],
+      "a1.norm.mdot_ref_kg_s": [
+        1,
+        1
+      ],
+      "a1.norm.o2_ref": [
+        1,
+        1
+      ],
+      "a1.norm.o2_scale": [
+        1,
+        1
+      ],
+      "a1.norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "a1.norm.tad_ref_k": [
+        1,
+        1
+      ],
+      "a1.norm.tad_scale_k": [
+        1,
+        1
+      ],
+      "a1.norm.xf_ref": [
+        1,
+        1
+      ],
+      "a1.norm.zst_ref": [
+        1,
+        1
+      ],
+      "a1.norm.zst_scale": [
+        1,
+        1
+      ],
+      "a1.num.atom_half_s": [
+        1,
+        1
+      ],
+      "a1.num.dt_s": [
+        1,
+        1
+      ],
+      "a1.num.horizon_s": [
+        1,
+        1
+      ],
+      "a1.se.flash.W1": [
+        64,
+        0
+      ],
+      "a1.se.flash.b0": [
+        1,
+        1
+      ],
+      "a1.se.flash.b1": [
+        8,
+        0
+      ],
+      "a1.se.flash.skip": [
+        8,
+        0
+      ],
+      "a1.se.flash.w2": [
+        8,
+        0
+      ],
+      "a1.se.flash_shape": [
+        1,
+        1
+      ],
+      "a1.se.flash_tau_s": [
+        1,
+        1
+      ],
+      "a1.se.floor_s": [
+        1,
+        0
+      ],
+      "a1.se.shape": [
+        1,
+        1
+      ],
+      "a1.se.tau.W1": [
+        64,
+        0
+      ],
+      "a1.se.tau.b0": [
+        1,
+        1
+      ],
+      "a1.se.tau.b1": [
+        8,
+        0
+      ],
+      "a1.se.tau.skip": [
+        8,
+        0
+      ],
+      "a1.se.tau.w2": [
+        8,
+        0
+      ],
+      "b0.bt.limit_c": [
+        3,
+        2
+      ],
+      "b0.bt.limit_w": [
+        3,
+        2
+      ],
+      "b0.bt.rise.W1": [
+        28,
+        0
+      ],
+      "b0.bt.rise.b0": [
+        1,
+        1
+      ],
+      "b0.bt.rise.b1": [
+        4,
+        0
+      ],
+      "b0.bt.rise.skip": [
+        7,
+        3
+      ],
+      "b0.bt.rise.w2": [
+        4,
+        0
+      ],
+      "b0.bt.shape": [
+        1,
+        1
+      ],
+      "b0.bt.sigma": [
+        1,
+        1
+      ],
+      "b0.bt.t0_c": [
+        1,
+        1
+      ],
+      "b0.bt.tau_s": [
+        1,
+        1
+      ],
+      "b0.ft.atom_logit": [
+        8,
+        8
+      ],
+      "b0.ft.atom_t_s": [
+        8,
+        6
+      ],
+      "b0.ft.atom_w": [
+        64,
+        0
+      ],
+      "b0.ft.log_base": [
+        1,
+        1
+      ],
+      "b0.norm.mdot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b0.norm.mtot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b0.norm.o2_ref": [
+        1,
+        1
+      ],
+      "b0.norm.o2_scale": [
+        1,
+        1
+      ],
+      "b0.norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "b0.norm.r_ref_mm": [
+        1,
+        1
+      ],
+      "b0.norm.tad_ref_k": [
+        1,
+        1
+      ],
+      "b0.norm.tad_scale_k": [
+        1,
+        1
+      ],
+      "b0.norm.xf_ref": [
+        1,
+        1
+      ],
+      "b0.norm.zst_ref": [
+        1,
+        1
+      ],
+      "b0.norm.zst_scale": [
+        1,
+        1
+      ],
+      "b0.num.atom_half_s": [
+        1,
+        1
+      ],
+      "b0.num.bt_nodes": [
+        1,
+        1
+      ],
+      "b0.num.dt_s": [
+        1,
+        1
+      ],
+      "b0.num.horizon_s": [
+        1,
+        1
+      ],
+      "b0.num.phi_nodes": [
+        1,
+        1
+      ],
+      "b0.num.tau_cap_s": [
+        1,
+        1
+      ],
+      "b0.phys.mw_butane": [
+        1,
+        1
+      ],
+      "b0.phys.mw_ethane": [
+        1,
+        1
+      ],
+      "b0.phys.mw_n2": [
+        1,
+        1
+      ],
+      "b0.phys.mw_o2": [
+        1,
+        1
+      ],
+      "b0.phys.mw_propane": [
+        1,
+        1
+      ],
+      "b0.se.diff.W1": [
+        64,
+        0
+      ],
+      "b0.se.diff.b0": [
+        1,
+        1
+      ],
+      "b0.se.diff.b1": [
+        8,
+        0
+      ],
+      "b0.se.diff.skip": [
+        8,
+        0
+      ],
+      "b0.se.diff.w2": [
+        8,
+        0
+      ],
+      "b0.se.flash.W1": [
+        64,
+        1
+      ],
+      "b0.se.flash.b0": [
+        1,
+        1
+      ],
+      "b0.se.flash.b1": [
+        8,
+        1
+      ],
+      "b0.se.flash.skip": [
+        8,
+        1
+      ],
+      "b0.se.flash.w2": [
+        8,
+        1
+      ],
+      "b0.se.flash_shape": [
+        1,
+        1
+      ],
+      "b0.se.flash_tau_s": [
+        1,
+        1
+      ],
+      "b0.se.floor_s": [
+        1,
+        1
+      ],
+      "b0.se.flux.W1": [
+        64,
+        0
+      ],
+      "b0.se.flux.b0": [
+        1,
+        1
+      ],
+      "b0.se.flux.b1": [
+        8,
+        0
+      ],
+      "b0.se.flux.skip": [
+        8,
+        0
+      ],
+      "b0.se.flux.w2": [
+        8,
+        0
+      ],
+      "b0.se.hold_log_rate": [
+        1,
+        1
+      ],
+      "b0.se.osc.W1": [
+        64,
+        3
+      ],
+      "b0.se.osc.b0": [
+        1,
+        1
+      ],
+      "b0.se.osc.b1": [
+        8,
+        3
+      ],
+      "b0.se.osc.skip": [
+        8,
+        2
+      ],
+      "b0.se.osc.w2": [
+        8,
+        3
+      ],
+      "b0.se.osc_shape": [
+        1,
+        1
+      ],
+      "b0.se.rho_d_g_m_s": [
+        1,
+        1
+      ],
+      "b0.se.shape": [
+        1,
+        1
+      ],
+      "b0.se.sigma_phi": [
+        1,
+        1
+      ],
+      "b1.bt.limit_c": [
+        3,
+        2
+      ],
+      "b1.bt.limit_w": [
+        3,
+        2
+      ],
+      "b1.bt.rise.W1": [
+        28,
+        0
+      ],
+      "b1.bt.rise.b0": [
+        1,
+        1
+      ],
+      "b1.bt.rise.b1": [
+        4,
+        0
+      ],
+      "b1.bt.rise.skip": [
+        7,
+        3
+      ],
+      "b1.bt.rise.w2": [
+        4,
+        0
+      ],
+      "b1.bt.shape": [
+        1,
+        1
+      ],
+      "b1.bt.sigma": [
+        1,
+        1
+      ],
+      "b1.bt.t0_c": [
+        1,
+        1
+      ],
+      "b1.bt.tau_s": [
+        1,
+        1
+      ],
+      "b1.ft.atom_logit": [
+        8,
+        8
+      ],
+      "b1.ft.atom_t_s": [
+        8,
+        6
+      ],
+      "b1.ft.atom_w": [
+        64,
+        0
+      ],
+      "b1.ft.log_base": [
+        1,
+        1
+      ],
+      "b1.norm.mdot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b1.norm.mtot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b1.norm.o2_ref": [
+        1,
+        1
+      ],
+      "b1.norm.o2_scale": [
+        1,
+        1
+      ],
+      "b1.norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "b1.norm.r_ref_mm": [
+        1,
+        1
+      ],
+      "b1.norm.tad_ref_k": [
+        1,
+        1
+      ],
+      "b1.norm.tad_scale_k": [
+        1,
+        1
+      ],
+      "b1.norm.xf_ref": [
+        1,
+        1
+      ],
+      "b1.norm.zst_ref": [
+        1,
+        1
+      ],
+      "b1.norm.zst_scale": [
+        1,
+        1
+      ],
+      "b1.num.atom_half_s": [
+        1,
+        1
+      ],
+      "b1.num.bt_nodes": [
+        1,
+        1
+      ],
+      "b1.num.dt_s": [
+        1,
+        1
+      ],
+      "b1.num.horizon_s": [
+        1,
+        1
+      ],
+      "b1.num.phi_nodes": [
+        1,
+        1
+      ],
+      "b1.num.tau_cap_s": [
+        1,
+        1
+      ],
+      "b1.phys.mw_butane": [
+        1,
+        1
+      ],
+      "b1.phys.mw_ethane": [
+        1,
+        1
+      ],
+      "b1.phys.mw_n2": [
+        1,
+        1
+      ],
+      "b1.phys.mw_o2": [
+        1,
+        1
+      ],
+      "b1.phys.mw_propane": [
+        1,
+        1
+      ],
+      "b1.se.diff.W1": [
+        64,
+        0
+      ],
+      "b1.se.diff.b0": [
+        1,
+        1
+      ],
+      "b1.se.diff.b1": [
+        8,
+        0
+      ],
+      "b1.se.diff.skip": [
+        8,
+        0
+      ],
+      "b1.se.diff.w2": [
+        8,
+        0
+      ],
+      "b1.se.flash.W1": [
+        64,
+        1
+      ],
+      "b1.se.flash.b0": [
+        1,
+        1
+      ],
+      "b1.se.flash.b1": [
+        8,
+        1
+      ],
+      "b1.se.flash.skip": [
+        8,
+        1
+      ],
+      "b1.se.flash.w2": [
+        8,
+        1
+      ],
+      "b1.se.flash_shape": [
+        1,
+        1
+      ],
+      "b1.se.flash_tau_s": [
+        1,
+        1
+      ],
+      "b1.se.floor_s": [
+        1,
+        1
+      ],
+      "b1.se.flux.W1": [
+        64,
+        0
+      ],
+      "b1.se.flux.b0": [
+        1,
+        1
+      ],
+      "b1.se.flux.b1": [
+        8,
+        0
+      ],
+      "b1.se.flux.skip": [
+        8,
+        0
+      ],
+      "b1.se.flux.w2": [
+        8,
+        0
+      ],
+      "b1.se.hold_log_rate": [
+        1,
+        1
+      ],
+      "b1.se.osc.W1": [
+        64,
+        5
+      ],
+      "b1.se.osc.b0": [
+        1,
+        1
+      ],
+      "b1.se.osc.b1": [
+        8,
+        4
+      ],
+      "b1.se.osc.skip": [
+        8,
+        2
+      ],
+      "b1.se.osc.w2": [
+        8,
+        4
+      ],
+      "b1.se.osc_shape": [
+        1,
+        1
+      ],
+      "b1.se.rho_d_g_m_s": [
+        1,
+        1
+      ],
+      "b1.se.shape": [
+        1,
+        1
+      ],
+      "b1.se.sigma_phi": [
+        1,
+        1
+      ],
+      "b2.bt.limit_c": [
+        3,
+        2
+      ],
+      "b2.bt.limit_w": [
+        3,
+        2
+      ],
+      "b2.bt.rise.W1": [
+        28,
+        0
+      ],
+      "b2.bt.rise.b0": [
+        1,
+        1
+      ],
+      "b2.bt.rise.b1": [
+        4,
+        0
+      ],
+      "b2.bt.rise.skip": [
+        7,
+        3
+      ],
+      "b2.bt.rise.w2": [
+        4,
+        0
+      ],
+      "b2.bt.shape": [
+        1,
+        1
+      ],
+      "b2.bt.sigma": [
+        1,
+        1
+      ],
+      "b2.bt.t0_c": [
+        1,
+        1
+      ],
+      "b2.bt.tau_s": [
+        1,
+        1
+      ],
+      "b2.ft.atom_logit": [
+        8,
+        8
+      ],
+      "b2.ft.atom_t_s": [
+        8,
+        6
+      ],
+      "b2.ft.atom_w": [
+        64,
+        0
+      ],
+      "b2.ft.log_base": [
+        1,
+        1
+      ],
+      "b2.norm.mdot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b2.norm.mtot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b2.norm.o2_ref": [
+        1,
+        1
+      ],
+      "b2.norm.o2_scale": [
+        1,
+        1
+      ],
+      "b2.norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "b2.norm.r_ref_mm": [
+        1,
+        1
+      ],
+      "b2.norm.tad_ref_k": [
+        1,
+        1
+      ],
+      "b2.norm.tad_scale_k": [
+        1,
+        1
+      ],
+      "b2.norm.xf_ref": [
+        1,
+        1
+      ],
+      "b2.norm.zst_ref": [
+        1,
+        1
+      ],
+      "b2.norm.zst_scale": [
+        1,
+        1
+      ],
+      "b2.num.atom_half_s": [
+        1,
+        1
+      ],
+      "b2.num.bt_nodes": [
+        1,
+        1
+      ],
+      "b2.num.dt_s": [
+        1,
+        1
+      ],
+      "b2.num.horizon_s": [
+        1,
+        1
+      ],
+      "b2.num.phi_nodes": [
+        1,
+        1
+      ],
+      "b2.num.tau_cap_s": [
+        1,
+        1
+      ],
+      "b2.phys.mw_butane": [
+        1,
+        1
+      ],
+      "b2.phys.mw_ethane": [
+        1,
+        1
+      ],
+      "b2.phys.mw_n2": [
+        1,
+        1
+      ],
+      "b2.phys.mw_o2": [
+        1,
+        1
+      ],
+      "b2.phys.mw_propane": [
+        1,
+        1
+      ],
+      "b2.se.diff.W1": [
+        64,
+        0
+      ],
+      "b2.se.diff.b0": [
+        1,
+        1
+      ],
+      "b2.se.diff.b1": [
+        8,
+        0
+      ],
+      "b2.se.diff.skip": [
+        8,
+        0
+      ],
+      "b2.se.diff.w2": [
+        8,
+        0
+      ],
+      "b2.se.flash.W1": [
+        64,
+        1
+      ],
+      "b2.se.flash.b0": [
+        1,
+        1
+      ],
+      "b2.se.flash.b1": [
+        8,
+        1
+      ],
+      "b2.se.flash.skip": [
+        8,
+        1
+      ],
+      "b2.se.flash.w2": [
+        8,
+        1
+      ],
+      "b2.se.flash_shape": [
+        1,
+        1
+      ],
+      "b2.se.flash_tau_s": [
+        1,
+        1
+      ],
+      "b2.se.floor_s": [
+        1,
+        1
+      ],
+      "b2.se.flux.W1": [
+        64,
+        0
+      ],
+      "b2.se.flux.b0": [
+        1,
+        1
+      ],
+      "b2.se.flux.b1": [
+        8,
+        0
+      ],
+      "b2.se.flux.skip": [
+        8,
+        0
+      ],
+      "b2.se.flux.w2": [
+        8,
+        0
+      ],
+      "b2.se.hold_log_rate": [
+        1,
+        1
+      ],
+      "b2.se.osc.W1": [
+        64,
+        3
+      ],
+      "b2.se.osc.b0": [
+        1,
+        1
+      ],
+      "b2.se.osc.b1": [
+        8,
+        3
+      ],
+      "b2.se.osc.skip": [
+        8,
+        2
+      ],
+      "b2.se.osc.w2": [
+        8,
+        3
+      ],
+      "b2.se.osc_shape": [
+        1,
+        1
+      ],
+      "b2.se.rho_d_g_m_s": [
+        1,
+        1
+      ],
+      "b2.se.shape": [
+        1,
+        1
+      ],
+      "b2.se.sigma_phi": [
+        1,
+        1
+      ],
+      "b3.bt.limit_c": [
+        3,
+        2
+      ],
+      "b3.bt.limit_w": [
+        3,
+        2
+      ],
+      "b3.bt.rise.W1": [
+        28,
+        0
+      ],
+      "b3.bt.rise.b0": [
+        1,
+        1
+      ],
+      "b3.bt.rise.b1": [
+        4,
+        0
+      ],
+      "b3.bt.rise.skip": [
+        7,
+        3
+      ],
+      "b3.bt.rise.w2": [
+        4,
+        0
+      ],
+      "b3.bt.shape": [
+        1,
+        1
+      ],
+      "b3.bt.sigma": [
+        1,
+        1
+      ],
+      "b3.bt.t0_c": [
+        1,
+        1
+      ],
+      "b3.bt.tau_s": [
+        1,
+        1
+      ],
+      "b3.ft.atom_logit": [
+        8,
+        8
+      ],
+      "b3.ft.atom_t_s": [
+        8,
+        6
+      ],
+      "b3.ft.atom_w": [
+        64,
+        0
+      ],
+      "b3.ft.log_base": [
+        1,
+        1
+      ],
+      "b3.norm.mdot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b3.norm.mtot_ref_kg_s": [
+        1,
+        1
+      ],
+      "b3.norm.o2_ref": [
+        1,
+        1
+      ],
+      "b3.norm.o2_scale": [
+        1,
+        1
+      ],
+      "b3.norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "b3.norm.r_ref_mm": [
+        1,
+        1
+      ],
+      "b3.norm.tad_ref_k": [
+        1,
+        1
+      ],
+      "b3.norm.tad_scale_k": [
+        1,
+        1
+      ],
+      "b3.norm.xf_ref": [
+        1,
+        1
+      ],
+      "b3.norm.zst_ref": [
+        1,
+        1
+      ],
+      "b3.norm.zst_scale": [
+        1,
+        1
+      ],
+      "b3.num.atom_half_s": [
+        1,
+        1
+      ],
+      "b3.num.bt_nodes": [
+        1,
+        1
+      ],
+      "b3.num.dt_s": [
+        1,
+        1
+      ],
+      "b3.num.horizon_s": [
+        1,
+        1
+      ],
+      "b3.num.phi_nodes": [
+        1,
+        1
+      ],
+      "b3.num.tau_cap_s": [
+        1,
+        1
+      ],
+      "b3.phys.mw_butane": [
+        1,
+        1
+      ],
+      "b3.phys.mw_ethane": [
+        1,
+        1
+      ],
+      "b3.phys.mw_n2": [
+        1,
+        1
+      ],
+      "b3.phys.mw_o2": [
+        1,
+        1
+      ],
+      "b3.phys.mw_propane": [
+        1,
+        1
+      ],
+      "b3.se.diff.W1": [
+        64,
+        0
+      ],
+      "b3.se.diff.b0": [
+        1,
+        1
+      ],
+      "b3.se.diff.b1": [
+        8,
+        0
+      ],
+      "b3.se.diff.skip": [
+        8,
+        0
+      ],
+      "b3.se.diff.w2": [
+        8,
+        0
+      ],
+      "b3.se.flash.W1": [
+        64,
+        1
+      ],
+      "b3.se.flash.b0": [
+        1,
+        1
+      ],
+      "b3.se.flash.b1": [
+        8,
+        1
+      ],
+      "b3.se.flash.skip": [
+        8,
+        1
+      ],
+      "b3.se.flash.w2": [
+        8,
+        1
+      ],
+      "b3.se.flash_shape": [
+        1,
+        1
+      ],
+      "b3.se.flash_tau_s": [
+        1,
+        1
+      ],
+      "b3.se.floor_s": [
+        1,
+        1
+      ],
+      "b3.se.flux.W1": [
+        64,
+        0
+      ],
+      "b3.se.flux.b0": [
+        1,
+        1
+      ],
+      "b3.se.flux.b1": [
+        8,
+        0
+      ],
+      "b3.se.flux.skip": [
+        8,
+        0
+      ],
+      "b3.se.flux.w2": [
+        8,
+        0
+      ],
+      "b3.se.hold_log_rate": [
+        1,
+        1
+      ],
+      "b3.se.osc.W1": [
+        64,
+        5
+      ],
+      "b3.se.osc.b0": [
+        1,
+        1
+      ],
+      "b3.se.osc.b1": [
+        8,
+        4
+      ],
+      "b3.se.osc.skip": [
+        8,
+        2
+      ],
+      "b3.se.osc.w2": [
+        8,
+        4
+      ],
+      "b3.se.osc_shape": [
+        1,
+        1
+      ],
+      "b3.se.rho_d_g_m_s": [
+        1,
+        1
+      ],
+      "b3.se.shape": [
+        1,
+        1
+      ],
+      "b3.se.sigma_phi": [
+        1,
+        1
+      ],
+      "condition.flow_multiplier": [
+        5,
+        5
+      ],
+      "condition.pressure_multiplier": [
+        5,
+        5
+      ],
+      "condition.w": [
+        5,
+        5
+      ],
+      "mix.w": [
+        6,
+        2
+      ],
+      "mix.w_script": [
+        6,
+        2
+      ],
+      "script.onset_s": [
+        1,
+        1
+      ]
+    }
+  },
+  "directory": "artifacts\\models\\2106112d3bedb9874efb71b0a13b9af253fb4c65e689607657f18f3a8c894d3d",
+  "forward_hash": "sha256:462ccaf6ad79f7a1b82cd0b2a4f3f08c01cb88b388e1e47c637518d046ce989f",
+  "model_name": "acme_inverse.wsp6",
+  "patch_hash": "sha256:1c1f2550e38064036d9fd0e12c404dd64f3555dfe28b1b0079ad8f6fd0e75b7a",
+  "release_id": "sha256:2106112d3bedb9874efb71b0a13b9af253fb4c65e689607657f18f3a8c894d3d",
+  "spec_hash": "sha256:6eb0e4f2cff7a8f6bd78aa4bee3fa54af5248f0c16ffb529e60742d2d3377cd1",
+  "state": "experimental",
+  "trained_on": "not_trained",
+  "weights_hash": "sha256:f61a18f999bf2e49ceca7ec1048cd79a909b0402686d9947e77c2d416cc8ffca"
+}

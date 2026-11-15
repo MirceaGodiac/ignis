@@ -160,6 +160,9 @@ pub enum Quantity {
     SpreadRate,
     FlowVelocity,
     GravityLevel,
+    /// Time at which the modelled phase ends, seconds since the time origin: the target of event
+    /// models (ACME). Their artifacts are event partitions and carry no quantity of their own.
+    PhaseEndTime,
 }
 
 impl Quantity {
@@ -176,6 +179,7 @@ impl Quantity {
             VolumeFlow => "m3/s",
             StdVolumeFlow => "Sm3/s",
             SpreadRate | FlowVelocity => "m/s",
+            PhaseEndTime => "s",
         }
     }
 }

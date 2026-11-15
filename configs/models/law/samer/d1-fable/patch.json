@@ -1,0 +1,135 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-samer-v1-d1-fable",
+  "spec_hash": "sha256:1ac8d550b9f92f76f349dcb69e9cd93f2aad11aaa0bd7b342906563d91232312",
+  "parent_release_id": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_samer_d1.md(sha256:8b610f1d584b01ed4cfb781fd4a372a40d6682e17bd2e05fbd6fa7cc22ac3786;data-informed-D1-from-train-days)",
+      "repo:docs/wsp/feedback/samer_train_anatomy.md(train-days-only)",
+      "coordinator-summary-of-the-13.2-blind-look(aggregates-only;no-validation-case)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "samer-train-cases(transfer_samer/cases_train.jsonl)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-validation-aggregates-of-the-W0-parent"
+    ],
+    "prior_candidates": [
+      "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "d10.median.skip",
+      "index": [
+        3
+      ],
+      "value": 0.324
+    },
+    {
+      "op": "fill_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        3,
+        3
+      ],
+      "shape": [
+        4,
+        1
+      ],
+      "value": 0.268
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.skip",
+      "index": [
+        3
+      ],
+      "value": 0.257
+    },
+    {
+      "op": "fill_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        3,
+        3
+      ],
+      "shape": [
+        4,
+        1
+      ],
+      "value": 0.268
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.skip",
+      "index": [
+        3
+      ],
+      "value": 0.19
+    },
+    {
+      "op": "fill_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        3,
+        2
+      ],
+      "shape": [
+        4,
+        1
+      ],
+      "value": -0.536
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.skip",
+      "index": [
+        2
+      ],
+      "value": -0.125
+    },
+    {
+      "op": "fill_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        3,
+        2
+      ],
+      "shape": [
+        4,
+        1
+      ],
+      "value": -0.536
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.skip",
+      "index": [
+        2
+      ],
+      "value": -0.125
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.skip",
+      "index": [
+        2
+      ],
+      "value": -0.77
+    }
+  ],
+  "rationale": "D1 of samer.wsp (PROTOCOL 13.3): one damped step typed by the author from the train anatomy of the W0 law; the Edits block of docs/wsp/research/phys_samer_d1.md (sha256 8b610f1d584b01ed4cfb781fd4a372a40d6682e17bd2e05fbd6fa7cc22ac3786) verbatim as a revision of the W0 release. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

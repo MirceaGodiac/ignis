@@ -1,0 +1,22 @@
+{
+  "patch_id": "acme_inverse-wsp-v8-baseline-clock-theory",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/flame4.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame.rs(spec-of-the-hinge-law-tensors)",
+      "repo:crates/ignis-wsp/src/flame3.rs(spec-of-the-burner-tensors)",
+      "repo:configs/models/acme/wsp2/inverse/baseline-clock(reference-baseline;its-stored-values-are-the-hinge-law-tensors)",
+      "repo:configs/models/acme/wsp3/inverse/baseline-theory(reference-baseline;its-stored-values-are-the-burner-tensors)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-constant:rhoD-of-Kim-et-al-2023;it-was-measured-on-ISS-flames-of-the-ACME-campaigns)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root of the hinge-law spec with the burner-heating law, not a candidate: the hinge-law tensors of the reference baseline of the hinge-law spec and the burner tensors of the published theory alone, which weighs no burner limit. No number was taken from the PSI-159 tables and none was typed: the values are copied from the two baseline releases by tools/wsp/flame4_edits.py, which chooses nothing. Data-informed candidates of acme_inverse-wsp-v8 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

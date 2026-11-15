@@ -34,6 +34,11 @@ pub struct ForecastSettings {
     /// time grid so that event metrics compare like with like.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub times_s: Option<Vec<f64>>,
+    /// Which declared target to forecast, for releases that declare several (the generic law
+    /// forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+    /// of every other request is unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
 }
 
 impl ForecastSettings {

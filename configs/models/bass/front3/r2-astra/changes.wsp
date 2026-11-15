@@ -1,0 +1,9 @@
+# Astra R2 BASS review: NO CANDIDATE, NO LITERAL CHANGES.
+# DATA-INFORMED, not zero-shot. This file is a decision record, not an assembly patch.
+# Exact retained reference: configs/models/bass/front3/joint-astra
+# Parent/reference release: sha256:79d27b0203a7935f1bdaa275e2f508f24f0d2a52edd67ebe38fd327647c5a1e0
+# Spec: bass_front-wsp-v3. All reference literals remain unchanged.
+# No new mechanism can be justified by changing an existing scalar on one TRAIN day.
+# In particular, do not retune oxygen.member_weight, residence_s, density, encoder,
+# or uncertainty from the observed losses. Do not assemble a duplicate R2 release.
+# Rationale and exposure: docs/wsp/research/astra_r2_bass_loss_analysis.md

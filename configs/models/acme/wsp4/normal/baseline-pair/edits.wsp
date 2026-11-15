@@ -1,0 +1,145 @@
+# acme_normal.wsp4 — reference baseline "the two reference baselines together", spec acme_normal-wsp-v4
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the lineage root of the blend spec. Member a
+# is the reference baseline of the hinge-law spec (one condition-free clock per cause), member b the
+# published theory alone. No number here comes from the PSI-159 tables.
+#
+# The member values below were not typed again. They are the stored values of the two releases named
+# in the two member blocks, copied statement by statement by tools/wsp/blend_edits.py with the prefix
+# a. or b. added; that script chooses and computes nothing. The one line typed for this file:
+
+# Equal say for the two members.
+mix.w[0:2] = [1.0, 1.0]
+
+# ---- member a: the stored values of sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7
+#      (49 statements)
+a.se.tau.skip[0] = 0.0
+a.se.tau.skip[1] = 0.0
+a.se.tau.skip[2] = 0.0
+a.se.tau.skip[3] = 0.0
+a.se.tau.skip[4] = 0.0
+a.se.tau.skip[5] = 0.0
+a.se.tau.skip[6] = 0.0
+a.se.tau.skip[7] = 0.0
+a.se.tau.b0 = 3.4
+a.se.flash.skip[0] = 0.0
+a.se.flash.skip[1] = 0.0
+a.se.flash.skip[2] = 0.0
+a.se.flash.skip[3] = 0.0
+a.se.flash.skip[4] = 0.0
+a.se.flash.skip[5] = 0.0
+a.se.flash.skip[6] = 0.0
+a.se.flash.skip[7] = 0.0
+a.se.flash.b0 = -40.0
+a.ft.tau.skip[0] = 0.0
+a.ft.tau.skip[1] = 0.0
+a.ft.tau.skip[2] = 0.0
+a.ft.tau.skip[3] = 0.0
+a.ft.tau.skip[4] = 0.0
+a.ft.tau.skip[5] = 0.0
+a.ft.tau.skip[6] = 0.0
+a.ft.tau.skip[7] = 0.0
+a.ft.tau.b0 = 4.6
+a.se.floor_s = 0.0
+a.se.shape = 1.0
+a.se.flash_tau_s = 1.0
+a.se.flash_shape = 4.0
+a.ft.shape = 1.0
+a.ft.atom_t_s[0] = 0.0
+a.ft.atom_t_s[1] = 0.0
+a.ft.atom_t_s[2] = 0.0
+a.ft.atom_t_s[3] = 0.0
+a.ft.atom_t_s[4] = 0.0
+a.ft.atom_t_s[5] = 0.0
+a.ft.atom_t_s[6] = 0.0
+a.ft.atom_t_s[7] = 0.0
+a.ft.atom_logit[0] = -40.0
+a.ft.atom_logit[1] = -40.0
+a.ft.atom_logit[2] = -40.0
+a.ft.atom_logit[3] = -40.0
+a.ft.atom_logit[4] = -40.0
+a.ft.atom_logit[5] = -40.0
+a.ft.atom_logit[6] = -40.0
+a.ft.atom_logit[7] = -40.0
+a.ft.log_base = -40.0
+
+# ---- member b: the stored values of sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad
+#      (79 statements)
+b.se.flux.skip[0] = 0.0
+b.se.flux.skip[1] = 0.0
+b.se.flux.skip[2] = 0.0
+b.se.flux.skip[3] = 0.0
+b.se.flux.skip[4] = 0.0
+b.se.flux.skip[5] = 0.0
+b.se.flux.skip[6] = 0.0
+b.se.flux.skip[7] = 0.0
+b.se.flux.b0 = -1.609
+b.se.diff.skip[0] = -1.0
+b.se.diff.skip[1] = 0.0
+b.se.diff.skip[2] = 0.0
+b.se.diff.skip[3] = 0.0
+b.se.diff.skip[4] = 0.0
+b.se.diff.skip[5] = 0.0
+b.se.diff.skip[6] = 0.0
+b.se.diff.skip[7] = 0.0
+b.se.diff.b0 = 3.332
+b.se.flash.skip[0] = 0.0
+b.se.flash.skip[1] = 0.0
+b.se.flash.skip[2] = 0.0
+b.se.flash.skip[3] = 0.0
+b.se.flash.skip[4] = 0.0
+b.se.flash.skip[5] = 0.0
+b.se.flash.skip[6] = 0.0
+b.se.flash.skip[7] = 0.0
+b.se.flash.b0 = -40.0
+b.se.osc.skip[0] = 0.0
+b.se.osc.skip[1] = 0.0
+b.se.osc.skip[2] = 0.0
+b.se.osc.skip[3] = 0.0
+b.se.osc.skip[4] = 0.0
+b.se.osc.skip[5] = 0.0
+b.se.osc.skip[6] = 0.0
+b.se.osc.skip[7] = 0.0
+b.se.osc.b0 = 13.0
+b.bt.rise.skip[0] = 0.0
+b.bt.rise.skip[1] = 0.0
+b.bt.rise.skip[2] = 0.0
+b.bt.rise.skip[3] = 0.0
+b.bt.rise.skip[4] = 0.0
+b.bt.rise.skip[5] = 0.0
+b.bt.rise.skip[6] = 0.0
+b.bt.rise.b0 = 5.0
+b.se.rho_d_g_m_s = 0.0334
+b.se.sigma_phi = 0.2
+b.se.hold_log_rate = -40.0
+b.se.floor_s = 0.0
+b.se.shape = 4.0
+b.se.osc_shape = 3.0
+b.se.flash_tau_s = 1.0
+b.se.flash_shape = 4.0
+b.bt.tau_s = 30.0
+b.bt.t0_c = 30.0
+b.bt.sigma = 0.0
+b.bt.shape = 8.0
+b.bt.limit_c[0] = 0.0
+b.bt.limit_c[1] = 0.0
+b.bt.limit_c[2] = 0.0
+b.bt.limit_w[0] = 0.0
+b.bt.limit_w[1] = 0.0
+b.bt.limit_w[2] = 0.0
+b.ft.atom_t_s[0] = 0.0
+b.ft.atom_t_s[1] = 0.0
+b.ft.atom_t_s[2] = 0.0
+b.ft.atom_t_s[3] = 0.0
+b.ft.atom_t_s[4] = 0.0
+b.ft.atom_t_s[5] = 0.0
+b.ft.atom_t_s[6] = 0.0
+b.ft.atom_t_s[7] = 0.0
+b.ft.atom_logit[0] = -40.0
+b.ft.atom_logit[1] = -40.0
+b.ft.atom_logit[2] = -40.0
+b.ft.atom_logit[3] = -40.0
+b.ft.atom_logit[4] = -40.0
+b.ft.atom_logit[5] = -40.0
+b.ft.atom_logit[6] = -40.0
+b.ft.atom_logit[7] = -40.0
+b.ft.log_base = -40.0

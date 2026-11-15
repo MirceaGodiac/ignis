@@ -1,0 +1,52 @@
+# acme_inverse.wsp3 — reference baseline "published theory", spec acme_inverse-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: what the published physics of a
+# burner-supported spherical diffusion flame says with its published constants and nothing else. No
+# number here comes from the PSI-159 tables. It is the lineage root of the spec and the comparison
+# "what does the theory score before anyone looks at this campaign".
+#
+#   quasi-steady radius  r_ss = m_tot / (4 pi rhoD L),  L = ln(1 / Z_st),  rhoD = 0.0334 g m-1 s-1
+#                        (Kim et al., Proc. Combust. Inst. 39, 2023)
+#   critical O2 flux     0.68 g m-2 s-1 at radiative extinction
+#                        (Irace et al., Proc. Combust. Inst. 39, 2023: ethylene inverse flames, 1 bar)
+#   growth               far-field diffusion from a point source, D = 28 mm2/s at 1 atm (air), D ~ 1/p
+# No establishment time, no weak class, no second clock, no burner limit, no programmed stop.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7
+
+se.rho_d_g_m_s = 0.0334
+# ln(0.68 g m-2 s-1)
+se.flux.b0 = -0.386
+se.flux.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# ln(28 mm2/s), and D ~ 1/p
+se.diff.b0 = 3.332
+se.diff.skip[0:8] = [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+se.sigma_phi = 0.2
+se.hold_log_rate = -40.0
+se.floor_s = 0.0
+se.shape = 4.0
+
+# second clock off (a median beyond any horizon)
+se.osc.b0 = 13.0
+se.osc.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+se.osc_shape = 3.0
+
+# weak class off
+se.flash.b0 = -40.0
+se.flash.skip[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+se.flash_tau_s = 1.0
+se.flash_shape = 4.0
+
+# burner limit off (no limit weights)
+bt.rise.b0 = 5.0
+bt.rise.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+bt.tau_s = 30.0
+bt.t0_c = 30.0
+bt.sigma = 0.0
+bt.shape = 8.0
+bt.limit_c[0:3] = [0.0, 0.0, 0.0]
+bt.limit_w[0:3] = [0.0, 0.0, 0.0]
+
+# no programmed stop, no background
+ft.atom_t_s[0:8] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+ft.atom_logit[0:8] = [-40.0, -40.0, -40.0, -40.0, -40.0, -40.0, -40.0, -40.0]
+ft.log_base = -40.0

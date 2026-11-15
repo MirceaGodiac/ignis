@@ -1,0 +1,62 @@
+{
+  "patch_id": "acme_inverse-wsp-v12-f2-fable",
+  "parent_release_id": "sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "analysis:the-author's-own-audit-of-the-carried-model's-confident-misses-on-the-train-table(forecasts-of-train-runs-beside-train-outcomes)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "analysis:forecasts-of-the-carried-models-on-the-conditions-of-the-validation-runs(inputs-and-model-outputs-only;no-outcome)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;no-per-test-result-was-read)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-weights-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp3/inverse/d1-fable(slot-b0)",
+      "repo:configs/models/acme/wsp3/inverse/d5-fable(slot-b1)",
+      "repo:configs/models/acme/wsp3/inverse/d1-nostops(slot-b2)",
+      "repo:configs/models/acme/wsp3/inverse/d5-nostops(slot-b3)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-planned-stops-from-its-tables:99-of-99-early-ended-train-tests-have-a-planned-stop-later-than-their-burn-time;29-scripted-ends-fall-at-the-stage-sum-minus-0.4-s-after-flame-onset)",
+      "nasa:PSI-159-as-run-script-parameter-files(planned-stage-durations-set-before-ignition;read-into-a-private-copy-of-the-data-root-as-the-condition-programmed_stop-for-train-and-validation-runs-by-tools/wsp/ext/acme_script.py,which-prints-counts-only)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "author:pretraining-knowledge(unverifiable)",
+      "repo:docs/wsp/research/phys_spherical_fuels.md(fuel-descriptors-and-coordinates-typed-from-property-tables-and-theory;its-author-read-CFI-G-train-rows-and-knew-the-aggregate-arms-of-the-Flame-Design-transfer-test;no-per-test-outcome-of-Flame-Design-or-s-Flame)",
+      "repo:docs/wsp/feedback/acme_planned_stop_v2.md(the-planned-stop-computed-from-the-script-parameter-file-alone;checked-on-TRAIN-tests-that-ran-to-the-scripted-end;burner-limit-setting-by-session-from-the-script-log,an-input)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:04d5503ee0627a42dae648817a3fc0904cd67db66fda549f83d641056517af09",
+      "sha256:19c156e60036d15f46fa92f7827d1122f8e595f6747ad1d5b7363463777422eb",
+      "sha256:9bdd4d278e217cb978ac764ddd8979749052fefea3db8f7b0adbc3b1056df9bc",
+      "sha256:e6fbed49896d863a27560c69df6b3c6befa6b79f874d6d113780e0ba1a9abe0d",
+      "sha256:446e5ba70ed21c6d106abd3bd057bb472f94e020022ffcb57a21f90355be1f23",
+      "sha256:d0a1366034b9f10aa91633c670071bb8029bcf7d9c945608f2cd1d8f5a8b184b",
+      "sha256:3d7d010fd8488d7071e756719f4bf8e7a2fb1f8a768179b063f55ec38d226424",
+      "sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634",
+      "sha256:748af0b0e59e6b6ab309d2773f89870d9a2e02ca63d599a812edcb1d077a27be",
+      "sha256:f151ebce43623337e1abcf288a765b258199f8a29912f883ba5afc5827a2138f",
+      "sha256:359402bbf49c9aab78ff379bbd0eee679aee2df2c1a8d8c15546384d5ce155d4",
+      "sha256:e7a14c3b096edcba8f6bcd1540c27cf3bbb88fab4f92eedd09402c3f892e7989",
+      "sha256:d59251cfba37d46cf264dd706f1df58bb59be8e4ef8964335944dd6c372c3b42"
+    ]
+  },
+  "rationale": "F2 of the third committee spec for inverse flames, data-informed: F1 with the planned stop computed from the script file, read at -1, 0 and +1 s. Members and fuel table unchanged.",
+  "origin": "system"
+}

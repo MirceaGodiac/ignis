@@ -1,0 +1,21 @@
+# flex_methanol.wsp — D2 literal revision of D1 sha256:f1f72389…28fb, spec flex_methanol-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED. Calibration only: no law of D1 changes.
+#
+# What was seen before writing this: the aggregate validation table of D1 (CRPS 46.3 um, coverage of
+# the 90 % band 0.80, of the 50 % band 0.53) and the validation run CONDITIONS (inputs). No per-run
+# validation score or outcome was read. The validation ambients are mostly combinations of O2, CO2,
+# helium and pressure that the train partition does not contain, so a law typed against the train
+# table errs more there than its train residuals say. D1's spread had been narrowed on train
+# (coverage 0.88); that was optimism. The spread is put back where a law carried to new ambients
+# needs it, and the radiative class is made less sure of itself by the same argument.
+
+# Sd of a run's ln K around the population law, before and after prefix evidence.
+unc.s_pop = 0.18
+unc.s_floor = 0.08
+# Sd of one diameter measurement around the latent diameter.
+unc.sigma_d = 2.0e-5
+# The critical diameter of an ambient outside the train table is uncertain by more than the 7 % the
+# train bracketing suggested: the class is even at 7 % below D_crit as before, but 10 % in D0 now
+# moves it from 0.5 to 0.72 instead of 0.79.
+class.kappa = 10.0
+class.bias = 0.7

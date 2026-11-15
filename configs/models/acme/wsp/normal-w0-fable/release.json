@@ -1,0 +1,458 @@
+{
+  "id": "sha256:7ef0c7ab236bf8b495e6659822839bc5d9d5d9955096cc1ff96f3863aecc66f5",
+  "family": "acme_normal",
+  "model_name": "acme_normal.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::acme::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 13,
+      "authored_total": 284,
+      "constant_total": 13,
+      "per_tensor": {
+        "ext.W1": [
+          108,
+          1
+        ],
+        "ext.b0": [
+          1,
+          1
+        ],
+        "ext.b1": [
+          12,
+          1
+        ],
+        "ext.skip": [
+          9,
+          4
+        ],
+        "ext.w2": [
+          12,
+          1
+        ],
+        "haz.log_cap": [
+          1,
+          1
+        ],
+        "norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "norm.o2_ref": [
+          1,
+          1
+        ],
+        "norm.o2_scale": [
+          1,
+          1
+        ],
+        "norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "norm.t_ref_s": [
+          1,
+          1
+        ],
+        "norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "norm.xf_ref": [
+          1,
+          1
+        ],
+        "norm.zst_ref": [
+          1,
+          1
+        ],
+        "norm.zst_scale": [
+          1,
+          1
+        ],
+        "num.dt_s": [
+          1,
+          1
+        ],
+        "num.horizon_s": [
+          1,
+          1
+        ],
+        "op.W1": [
+          108,
+          1
+        ],
+        "op.b0": [
+          1,
+          1
+        ],
+        "op.b1": [
+          12,
+          1
+        ],
+        "op.skip": [
+          9,
+          1
+        ],
+        "op.w2": [
+          12,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:4b575d7af8f8b05a18cb7ec9264df155191632c27d040d9cc8f5c03323e97a53",
+    "spec_id": "acme_normal-wsp-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "c_logp",
+    "c_logm",
+    "c_o2",
+    "c_xf",
+    "c_tad",
+    "c_zst",
+    "f_ethane",
+    "f_butane",
+    "x_t"
+  ],
+  "units": {
+    "c_logm": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "c_tad": "1",
+    "c_xf": "1",
+    "c_zst": "1",
+    "f_butane": "1",
+    "f_ethane": "1",
+    "x_t": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "censoring": "handled by the evaluator; the forward conditions on the phase being established at the cutoff",
+    "endpoint": "cause-specific event time; an operator stop is its own cause, never an extinction",
+    "prefix": "prospective conditions and control stages known at the cutoff; no time series"
+  },
+  "numerics": {
+    "horizon_s": 600.0,
+    "integrator": "midpoint hazards, step <= num.dt_s, exact competing-risk split within a step",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "ext.W1",
+      "shape": [
+        12,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "998c6ecb711f5466393e53fd78ce3dab218fdc299fc6d70a467d7439ea71ae3a",
+      "trainable": false
+    },
+    {
+      "name": "ext.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4d99b042f200a50a34e16c9783e16551701a2092987f72227428fb13cab14399",
+      "trainable": false
+    },
+    {
+      "name": "ext.b1",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "2f6afa78e8c90a6c361bb1c57b945add84a2c5bf2831c3e7473ec56e5999c0cf",
+      "trainable": false
+    },
+    {
+      "name": "ext.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "152000e5cfcc0ed5e9a5ef876de2c3e50db2ca6e5306ff84313c96575968dd3d",
+      "trainable": false
+    },
+    {
+      "name": "ext.w2",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "26ba3b8fa88a82a9000530112bd09a9bbf3428cc322121498894389c1135f2c1",
+      "trainable": false
+    },
+    {
+      "name": "haz.log_cap",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2506c7d86f85080830dcae8287d0dcef0f872345db27ce9cd5569e6f682bf772",
+      "trainable": false
+    },
+    {
+      "name": "norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "norm.t_ref_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "op.W1",
+      "shape": [
+        12,
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "998c6ecb711f5466393e53fd78ce3dab218fdc299fc6d70a467d7439ea71ae3a",
+      "trainable": false
+    },
+    {
+      "name": "op.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4c81d9b1c5dc27fcc230680d3a1f96edbea542d8159c914a935fe1bfdb91d83f",
+      "trainable": false
+    },
+    {
+      "name": "op.b1",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "6e5d0b7698ff4224834c314ebfca40e366070992b4d22a87c2b38cf411a046b8",
+      "trainable": false
+    },
+    {
+      "name": "op.skip",
+      "shape": [
+        9
+      ],
+      "dtype": "float64",
+      "sha256": "1e1a51574e67a3d064af233be278629706446058d6874fa33f1f18859c51946d",
+      "trainable": false
+    },
+    {
+      "name": "op.w2",
+      "shape": [
+        12
+      ],
+      "dtype": "float64",
+      "sha256": "0d9525c5b5f4e76f20ba40dcedfac7870717e1a8030a4f13c1e288ef6a1947b9",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:92fb4728e88ed5175bd47da77707d042a0f046abca1bd8df351fd1d69fea4701",
+  "split_id": "sha256:c77bc5baee98d3e3494de144fa3f98ce0dee904efa35d5f7c0b48b91dbc82d14",
+  "source_manifest_hash": "sha256:11a1bdbd4bdbda6e3731309deeabe7e6996fa8fa8c43f84c9aae2e4bc793e126",
+  "code_version": "ignis-wsp@0.1.0+fwd.d66abd56024b49f5",
+  "applicability": {
+    "configuration": "normal",
+    "domain": [
+      {
+        "feature": "c_logp",
+        "max": 1.25,
+        "min": -0.92
+      },
+      {
+        "feature": "c_logm",
+        "max": 1.39,
+        "min": -2.31
+      },
+      {
+        "feature": "c_o2",
+        "max": 1.5,
+        "min": -1.5
+      },
+      {
+        "feature": "c_xf",
+        "max": 1.21,
+        "min": -2.71
+      },
+      {
+        "feature": "c_tad",
+        "max": 2.33,
+        "min": -2.67
+      },
+      {
+        "feature": "c_zst",
+        "max": 2.5,
+        "min": -1.1
+      }
+    ],
+    "fuels": [
+      "ethane",
+      "propane",
+      "butane"
+    ],
+    "interpretation": "observational event prediction under the observed experimental policy; operator termination is not spontaneous extinction",
+    "meaning": "declared physical domain of the handwritten hazards, not a training-support region",
+    "population": "established hot flame of a burner-stabilised gas flame (PSI-159)",
+    "time_origin": "hot ignition per table 'burn time (sec)' (not adjudicated against logs)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": null,
+  "lineage": "literal_authoring",
+  "lineage_note": "W0, one shot. Two cause-specific log-hazards over the role-aware conditions and elapsed time. Extinction: a radiative-loss index (flow, pressure, adiabatic temperature) and a hazard that rises while the flame grows, then stays flat. Operato",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-13T19:37:16.682095Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_one_shot",
+    "spec_id": "acme_normal-wsp-v1",
+    "spec_hash": "sha256:4b575d7af8f8b05a18cb7ec9264df155191632c27d040d9cc8f5c03323e97a53",
+    "patch_id": "acme_normal-wsp-v1-w0-fable",
+    "patch_hash": "sha256:a1e5141e3494fd0d2bc1f61913db225db9650e4fde91f553b3d70190054371ed",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/design/IGNIS_MASTER_V2.md",
+        "repo:crates/ignis-acme(code-and-config-only)",
+        "repo:configs/models/acme",
+        "web:rikiyat.github.io/blog/weight-space-programming",
+        "author:pretraining-knowledge(unverifiable;may-include-published-ACME-results)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "acme_normal-c77bc5baee98d3e3(input-metadata-only:conditions)",
+          "partitions": [
+            "train"
+          ]
+        }
+      ],
+      "development_feedback": [],
+      "prior_candidates": []
+    },
+    "weights_hash": "sha256:0c940ed4b6bffb6c4e1c1a8f2381ad0aaa6d9ffdd5a4e59fccfad6d3f09d1252",
+    "forward": {
+      "entry_point": "ignis_wsp::acme::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:d66abd56024b49f502c12e1bdad496b78b5dbfe0ab8f7cc7ba90f7a484c9191a",
+    "code_version": "ignis-wsp@0.1.0+fwd.d66abd56024b49f5",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "284 authored elements (13 nonzero), 13 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

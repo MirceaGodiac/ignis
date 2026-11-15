@@ -1,0 +1,35 @@
+{
+  "patch_id": "bass_front-wsp-v2-carry-d1",
+  "parent_release_id": "sha256:a100f728646296dabc3dc7c5ee42478a433bd4a64397dec04784bd3ef4b871f7",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Carry of D1 on the second front forward, new entries off; not a new candidate. Its numbers are those of D1 of bass_front.wsp (sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c), typed by the author, copied statement by statement without change; the entries added by bass_front-wsp-v2 (speed.split, speed.pow_i, speed.kappa, over.tau_up_s, unc.flow_abs_cm_s, unc.flow_rel, unc.flow_w) are switched off (one oxygen power, one overhang time, no slow-down downstream, one run on the flow as read). With them off the second front forward returns what the first returns, so this release gives the forecasts of D1 case by case and stands in for D1 in paired comparisons with candidates of bass_front-wsp-v2. Exposure: that of D1.",
+  "origin": "system"
+}

@@ -1,0 +1,21 @@
+{
+  "patch_id": "law-same-v1-w0-fable",
+  "parent_release_id": "sha256:070a2a61038b73cd06698df7443760da7055d3376af65bca81595b5b24b62193",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_same_w0.md(zero-shot-W0-law;exposure-in-its-section-8)",
+      "repo:docs/wsp/research/phys_samer_w0.md(exposure-of-section-8.3-applies)",
+      "repo:docs/wsp/feedback/same_feasibility.md(sections-for-the-physicist,2,3;no-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0 of same.wsp: the zero-shot law of docs/wsp/research/phys_same_w0.md (the SAME-R network without temperature, no-flow and heating-time terms, with dibutyl phthalate), its section 7.2 typed verbatim as a revision of the neutral root. SAME is held whole. Not fitted. Source: docs/wsp/research/phys_same_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

@@ -1,0 +1,486 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "flex_methanol-wsp-v2-d1-fable",
+  "spec_hash": "sha256:23e207439d2f55238a98ed8be76f656b6439f5baea1921ffedb8f6610895daf2",
+  "parent_release_id": "sha256:6c6fd99d756e4d2edb550547d1b5f0767a8878cf3a63d73866fc799dbca16962",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "repo:docs/wsp/feedback/(train-and-validation-feedback-of-flex.wsp-W0,W1,W2;validation-read-per-run-in-phase-1)",
+      "repo:crates/ignis-wsp/src/droplet.rs(forward-and-spec)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;per-run-validation-scores-of-flex.wsp-W1-seen-in-phase-1)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:fa8eb18cbb2affa850846fc90b82475fbac13f44d2fbca0fd2321024f4a6e28f",
+      "sha256:a3fbfef98e5f02b7a3213dadbb7270e3ee87f0c9084725eb6f3735cc3a03f13b",
+      "sha256:2ce097c5843f7a098e361f87299ca43ad16b4ef595acbcc6fb7a5b8927c4c1de"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "rate.b0",
+      "index": [],
+      "value": -0.53
+    },
+    {
+      "op": "set_box",
+      "tensor": "rate.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.14,
+        -0.04,
+        0.18,
+        0.1,
+        0.0,
+        -0.35,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        0
+      ],
+      "value": -0.19
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        1
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        1
+      ],
+      "value": 0.21
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        2,
+        4
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        2,
+        5
+      ],
+      "value": -0.65
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        2
+      ],
+      "value": -0.3
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        2
+      ],
+      "value": -0.5
+    },
+    {
+      "op": "set",
+      "tensor": "rate.W1",
+      "index": [
+        3,
+        6
+      ],
+      "value": -5.56
+    },
+    {
+      "op": "set",
+      "tensor": "rate.b1",
+      "index": [
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rate.w2",
+      "index": [
+        3
+      ],
+      "value": -0.6
+    },
+    {
+      "op": "set",
+      "tensor": "crit.b0",
+      "index": [],
+      "value": 1.51
+    },
+    {
+      "op": "set_box",
+      "tensor": "crit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.75,
+        -0.16,
+        -0.18,
+        0.7
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "class.kappa",
+      "index": [],
+      "value": 14.0
+    },
+    {
+      "op": "set",
+      "tensor": "class.bias",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b0",
+      "index": [],
+      "value": 1.35
+    },
+    {
+      "op": "set_box",
+      "tensor": "diff.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.12,
+        0.0,
+        0.0,
+        -0.6,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "diff.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b1",
+      "index": [
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.w2",
+      "index": [
+        0
+      ],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "diff.W1",
+      "index": [
+        1,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.b1",
+      "index": [
+        1
+      ],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "diff.w2",
+      "index": [
+        1
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "diff.sharp",
+      "index": [],
+      "value": 14.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b0",
+      "index": [],
+      "value": -0.105
+    },
+    {
+      "op": "set_box",
+      "tensor": "rad.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "rad.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b1",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.w2",
+      "index": [
+        0
+      ],
+      "value": -1.2
+    },
+    {
+      "op": "set",
+      "tensor": "rad.W1",
+      "index": [
+        1,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.b1",
+      "index": [
+        1
+      ],
+      "value": -0.45
+    },
+    {
+      "op": "set",
+      "tensor": "rad.w2",
+      "index": [
+        1
+      ],
+      "value": -11.0
+    },
+    {
+      "op": "set",
+      "tensor": "rad.sharp",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "post.k_inf",
+      "index": [],
+      "value": 1.5e-8
+    },
+    {
+      "op": "set",
+      "tensor": "post.k_hot",
+      "index": [],
+      "value": 6e-8
+    },
+    {
+      "op": "set",
+      "tensor": "post.tau0_s",
+      "index": [],
+      "value": 4.5
+    },
+    {
+      "op": "set",
+      "tensor": "post.size_exp",
+      "index": [],
+      "value": 0.72
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        2.0,
+        0.5,
+        2.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": -1.5
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.mix",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.85,
+        0.15
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.e_clip",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.6,
+        0.8
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "filt.sd_evap",
+      "index": [],
+      "value": 0.15
+    },
+    {
+      "op": "set",
+      "tensor": "filt.l_floor",
+      "index": [],
+      "value": 0.03
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.14
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.05
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_d",
+      "index": [],
+      "value": 0.000015
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_frame",
+      "index": [],
+      "value": 6e-6
+    },
+    {
+      "op": "set",
+      "tensor": "haz.log_disruption",
+      "index": [],
+      "value": -4.83
+    }
+  ],
+  "rationale": "D1, data-informed (not zero-shot): the first candidate of the multistate droplet spec for methanol, written after studying the experiment and the train runs. The train data show two extinction mechanisms that the first-generation model blurred into one: droplets below a critical diameter burn to a diffusive extinction at De/D0 near 0.5 whatever their size, droplets above it lose the flame to radiation about 0.9 of a diffusion-clock unit after ignition, and droplets far above it never establish a flame. The critical diameter falls from about 9 mm in air to 2.3 mm at 12 % O2 and is lowered by CO2 and helium. Rate law: hinge network on train plateau rates with a heat-up that scales with D0^2. Post-extinction evaporation decays from 0.06-0.08 to 0.02 mm2/s. Numbers typed from train tables by the author; no fit, no search.",
+  "origin": "system"
+}

@@ -1,0 +1,342 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-spice-v1-root",
+  "spec_hash": "sha256:0dce43b67260ae6d91fd96c7156db8f98fe83167cb4630f8af0f294564143a92",
+  "author": {
+    "provider": "ignis",
+    "model_id": "ignis-wsp-law-root"
+  },
+  "exposure": {
+    "sources": [],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "smoke_point_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.b0",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "smoke_point_length.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.tail_weight",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.tail_width",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "smoke_point_fuel_flow.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.spread.b0",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "smoke_point_fuel_flow.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.tail_weight",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.tail_width",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.spread.b0",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_length.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_weight",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_width",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "emits_soot.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "value": 0.0
+    }
+  ],
+  "rationale": "Neutral root of a law slug, generated from the spec alone by `ignis wsp law-root`: no claim (no feature weight, no hinge, the widest spread and clock shapes the spec allows, domain at the tensor bounds). A lineage root for literal revisions; never a candidate.",
+  "origin": "system"
+}

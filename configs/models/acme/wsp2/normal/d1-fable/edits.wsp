@@ -1,0 +1,65 @@
+# acme_normal.wsp2 — D1 literal revision of the baseline clock, spec acme_normal-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: written after reading the TRAIN rows of the
+# PSI-159 normal-flame table (conditions, SE/FT label, burn time, peak burner temperature, comments),
+# the control timelines of the train tests that have one, and the published CFI-G reports. Not
+# zero-shot. Every number was typed by the author from the train table; no fit, no search.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logp = ln(p / 101325 Pa)        c_logm = ln(fuel mass flow / 1 mg/s)
+#   c_o2 = (ambient x_O2 - 0.30)/0.10  c_xf = ln(injected fuel fraction / 0.30)
+#   c_tad = (T_ad - 2200 K)/300 K     c_zst = (Z_st - 0.25)/0.2      propane is the reference fuel
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Radiative self-extinction: T = floor + R, ln(median R / 1 s) = N_tau(c)
+# =====================================================================================================
+# No train flame self-extinguishes radiatively before about 5 s; air flames go out at 5-13 s whatever
+# the flow above 1 mg/s. The flame must first establish.
+se.floor_s = 6.0
+
+# Train, 30 % ethane in 39 % O2 at 1 atm: 43 s at 2.36 mg/s, 71 s at 1.5, 158-232 s at 1.0, 304 s at
+# 0.85: the life grows faster than any power as the flow falls to the flow a flame can hold for good
+# (about 0.7 mg/s; below it the test ends on the burner temperature limit instead). In ln R against
+# ln flow: slope -1.1 above 1.5 mg/s, -2.6 below.
+# Oxygen: 44 s against 88 s at 34 % and 38 % O2 (same flow, 0.5 atm): +2.2 per 10 % O2, which also
+# carries the law from 39 % O2 to air (9-13 s).
+# Pressure: 59, 43 and 34 s at 0.5, 1 and 2 atm (2.36 mg/s): -0.33 per e-fold.
+# Dilution of the fuel barely matters for ethane (pure to 25 %: 37-50 s at 2 mg/s); the dilute butane
+# tests are a little shorter: +0.2 per e-fold of injected fuel fraction.
+# Butane flames go out sooner than ethane ones at the same flow (47 s against 71 s): -0.3.
+se.tau.b0 = 2.67
+se.tau.skip[0:8] = [-0.33, -1.1, 2.2, 0.2, 0.0, 0.0, 0.0, -0.3]
+# Unit 0: below 1.5 mg/s the life lengthens steeply, relu(0.405 - c_logm).
+se.tau.W1[0, 1] = -1.0
+se.tau.b1[0] = 0.405
+se.tau.w2[0] = 1.5
+# Repeats of one condition differ by 10-30 %; conditions the law was not typed against by more.
+se.shape = 4.0
+
+# Weak class: every train flame with T_ad of 1600-1700 K (4.5 % fuel in air at 1-3 atm) was gone
+# within a second or two of ignition; at 1795 K (3 % butane in 39 % O2) most were not.
+se.flash.b0 = -18.0
+se.flash.skip[0:8] = [0.0, 0.0, 0.0, 0.0, -12.0, 0.0, 0.0, 0.0]
+se.flash_tau_s = 1.0
+se.flash_shape = 4.0
+
+# =====================================================================================================
+# 2. Flow termination
+# =====================================================================================================
+# Burner temperature limit. A low-flow flame sits close to the burner and heats it: the train tests
+# at 0.5 mg/s were cut at 28-56 s with the burner above 500 C, those at 0.75 mg/s at 80-160 s
+# (butane) or not within 275 s (ethane), and at 1 mg/s the flame self-extinguished first with the
+# burner at 360-375 C. ln(median / 1 s) = 6.0 + 3.0 c_logm; butane reaches the limit sooner.
+ft.tau.b0 = 6.0
+ft.tau.skip[0:8] = [0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.6]
+ft.shape = 4.0
+
+# Programmed stops of the campaign scripts (flames still burning when a script duration or time-out
+# ran out): 61-62 s (3 of about 25 train flames alive then, all at 1 mg/s or less), 98 s, 125-127 s,
+# 274-276 s (2 of the 3 alive). Times in seconds since the time origin; unused atoms are off.
+ft.atom_t_s[0:8] = [61.5, 98.0, 126.5, 275.5, 0.0, 0.0, 0.0, 0.0]
+ft.atom_logit[0:8] = [-2.0, -2.9, -2.2, 0.85, -40.0, -40.0, -40.0, -40.0]
+# The 61-62 s stop was used on low-flow tests.
+ft.atom_w[0, 1] = -2.0
+# Other operator stops are rare (one train test in 81 was cut at 13 s).
+ft.log_base = -7.6

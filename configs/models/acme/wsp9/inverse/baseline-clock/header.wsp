@@ -1,0 +1,22 @@
+# acme_inverse.wsp9 — reference baseline, spec acme_inverse-wsp-v9
+# Not a candidate: the lineage root of the spec of the hinge laws with the fuel table (flame5.rs).
+# The law numbers are those of the root of acme_inverse.wsp2 (flame.rs), wsp2/inverse/baseline-clock
+# sha256:04d5503e…af09. They were not typed again: the stored values are copied statement by
+# statement by tools/wsp/fuel_member_edits.py, which chooses and computes nothing. No number here
+# comes from the PSI-159 tables.
+#
+# The fuel table is the neutral table: the release answers for ethane, propane and butane and for
+# nothing else; ethane, propane and butane sit on their own vertices (1, 0), (0, 0), (0, 1) in both
+# groups of laws; the molar masses of rows 0 to 2 are the three constants the indicators chose until
+# now (phys.mw_ethane, phys.mw_propane, phys.mw_butane of the growth-clock root, stored as 30.07, 44.1,
+# 58.12 g/mol) and rows 3 to 5, which are not admitted, repeat them; no oxygen-demand shift, no shift of
+# the quench clock, no temperature bound. With this table every forecast of ethane, propane and butane
+# is the forecast of the source release bit for bit (docs/wsp/research/phys_spherical_fuels.md, 3.3).
+# Rows: 0 ethane, 1 propane, 2 butane, 3 ethylene, 4 methane, 5 hydrogen.
+fuel.admit[0:6] = [1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+fuel.mw_g_mol[0:6] = [30.07, 44.1, 58.12, 30.07, 44.1, 58.12]
+fuel.s[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+fuel.se_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
+fuel.ft_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
+fuel.dosc[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+fuel.tad_min_k[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

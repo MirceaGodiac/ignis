@@ -1,0 +1,19 @@
+{
+  "scope":"packet-local aliases; no app database registration claimed",
+  "classification":"synthetic-and-physics-review-informed candidate; not independent W0",
+  "sources":[
+    {"id":"solids-w0-author-source","locator":"crates/ignis-wsp/src/property_solids_w0.rs","extent":"own complete predecessor source including synthetic tests","origin":"prior unregistered author source packet"},
+    {"id":"solids-w0-author-packet","locator":"configs/models/solids/property-w0/cleanroom-astra/ and docs/wsp/research/astra_solids_w0.md","extent":"own authored spec, ops, meta, derivation and test harness","origin":"prior unregistered author source packet"},
+    {"id":"thermal-review-synthetic-20261114","locator":"docs/wsp/research/astra_property_thermal_check.md","extent":"complete report, including incidental other-family limitation descriptions","origin":"independent synthetic and physical-law review"},
+    {"id":"thermal-review-domain-repro","locator":"runs/tooling/astra-thermal-review/domain.rs","extent":"complete synthetic reproducer","origin":"synthetic_fixture"},
+    {"id":"nist-fds-1018e6-solid-theory","locator":"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.1018e6.pdf","extent":"inherited W0 intentional sections 7.1-7.2 and incidental excerpts disclosed in W0 reading ledger; no new web read","origin":"generic primary theory"},
+    {"id":"nist-molar-gas-constant","locator":"https://physics.nist.gov/cuu/pdf/all.pdf and https://pages.nist.gov/feasst/docs/source/physical_constants.html","extent":"inherited W0 NIST molar gas constant search excerpts only","origin":"generic universal constant"},
+    {"id":"nist-stefan-boltzmann","locator":"https://physics.nist.gov/cgi-bin/cuu/Value?sigma%7Csearch_for=stefan+boltzmann","extent":"inherited W0 NIST Stefan-Boltzmann value excerpt only","origin":"generic universal constant"}
+  ],
+  "numbers":[
+    {"tensor":"gas_constant","value":8.31446261815324,"unit":"J/(mol K)","source_id":"nist-molar-gas-constant","origin":"inherited physical literal unchanged"},
+    {"tensor":"stefan_boltzmann","value":5.670374419e-8,"unit":"W/(m2 K4)","source_id":"nist-stefan-boltzmann","origin":"inherited physical literal unchanged"},
+    {"tensor":"contraction_ceiling","value":0.75,"unit":"1","source_id":"thermal-review-synthetic-20261114","origin":"manually authored numerical choice by gpt-6-astra","reason":"first-order expected ratio 0.5; ceiling below unity allows moderate pre-asymptotic behavior; conditional geometric tail factor r/(1-r), not rigorous guarantee"}
+  ],
+  "dataset_outcomes":[],"nasa_outcomes":[],"final_test_exposure":[]
+}

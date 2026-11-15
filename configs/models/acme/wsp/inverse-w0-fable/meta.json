@@ -1,0 +1,28 @@
+{
+  "patch_id": "acme_inverse-wsp-v1-w0-fable",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-acme(code-and-config-only)",
+      "repo:configs/models/acme",
+      "web:rikiyat.github.io/blog/weight-space-programming",
+      "author:pretraining-knowledge(unverifiable;may-include-published-ACME-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(input-metadata-only:conditions)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0, one shot. Two cause-specific log-hazards over the role-aware conditions and elapsed time. Extinction: a radiative-loss index (flow, pressure, adiabatic temperature) and a hazard that rises while the flame grows, then stays flat. Operator termination: a protocol hazard with no dependence on conditions. Every number is a hypothesis written before the model was run; the time scales in particular are guesses that only data can settle. See edits.wsp.",
+  "origin": "system"
+}

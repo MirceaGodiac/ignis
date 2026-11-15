@@ -1,0 +1,39 @@
+# acme_normal.wsp12 — F2 literal revision of the baseline, spec acme_normal-wsp-v12
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot.
+#
+# F2 is F1 (the adopted acme_normal.wsp7 P3 reading the fuel from a typed table) revised once, by
+# PROTOCOL 12.3, after its blind run on Flame Design (12.8), from the TRAIN DAYS of Flame Design and
+# the TRAIN partition of CFI-G only:
+#   1. the ethylene row of the fuel table (in the members; see configs/models/acme/fuel_tables/normal-f2-*.wsp);
+#   2. the planned stop is now the one computed from the script file alone by
+#      tools/wsp/ext/acme_script2.py (stage sum + igniter delay before retract + fibre step - igniter
+#      travel); this release is meant for that input, and for the stage sum where the file is incomplete;
+#   3. the days on which the burner limit changed are those of the script's own log.
+# On ethane, propane and butane without the planned stop it returns the forecasts of P3 wherever the
+# era of the test is unchanged.
+#
+# Slot values are copied from the stored fuel-table members by tools/wsp/committee3_edits.py.
+# The lines typed for this file:
+
+# The two laws of different kinds with equal say, both of the era of the test, as in P3.
+mix.w_early[0:10] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+
+# The burner limit is written by the script at the start of each test: 500 C through 23 August 2021
+# (day 235) and 450 C from 13 September 2021 (day 256) on CFI-G. P3 had typed 30 August and 27
+# September from the trips of the train tests; no train test lies between the two readings. This is
+# an input of the test, read for every session, not an outcome.
+era.last_early_day = 2021235.0
+era.first_late_day = 2021256.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.15
+
+# The planned stop from the script file lands on the recorded stop: on train tests that ran to the
+# scripted end the recorded stop minus the planned one has a median of +0.04 s (Flame Design normal,
+# 86 % within 1 s), +0.21 s (Flame Design inverse, 77 %), -0.70 s (CFI-G normal, all within 1 s) and
+# -0.02 s (CFI-G inverse, all within 1 s). Three readings a second apart, the middle one with half
+# the weight, centred on the planned stop.
+script.offset_s[0:3] = [-1.0, 0.0, 1.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]

@@ -1,0 +1,37 @@
+# acme_normal.wsp7 — P3 literal revision of the baseline sha256:00000000…0000, spec acme_normal-wsp-v7
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: every member is a data-informed
+# candidate (see their own edits files for what each number was typed from).
+#
+#   slots c0, c1   acme_normal.wsp8 D1-EARLY, D1-LATE: the hinge law with the burner-heating law in
+#                  place of its own burner-limit clock, for the early and the late era
+#   slots c2, c3   the same two without their guessed stop times
+#   slots b0, b1   acme_normal.wsp3 D3-EARLY, D3-LATE: the growth clock of each era
+#   slots b2, b3   the same two without their guessed stop times
+#   slots a0, a1   acme_normal.wsp2 D4 and D4-NOSTOPS, filled and silent here
+#
+# P3 is P2 with one change: the hinge member answers through the physical heating law of the burner
+# instead of its own burner-limit clock. That clock is a log-logistic in fuel flow alone and gives a
+# cool low-flow flame a limit trip it cannot have (21125A2 on TRAIN: a trip forecast at 17 s with
+# the burner at 61 C; that one test is 16 % of P1's extinction loss on TRAIN). The heating law knows
+# the total flow and the flame radius. Everything else is as in P2: the era by the date of the
+# test, the planned stop after the stage sum, the three corrected statements.
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee2_edits.py with the slot
+# prefix added. That script chooses and computes nothing. The lines typed for this file:
+
+# The two laws of different kinds with equal say; both members are those of the test's era.
+mix.w_early[0:10] = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+
+# When the prefix carries the planned stop: the same two laws without their guessed stops.
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+
+# The era and the planned stop exactly as in P2 (see its file for the reasons).
+era.last_early_day = 2021242.0
+era.first_late_day = 2021270.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.15
+script.offset_s[0:3] = [0.0, 1.0, 2.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]

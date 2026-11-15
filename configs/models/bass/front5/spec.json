@@ -1,0 +1,1026 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "bass_front-wsp-v5",
+  "family": "bass",
+  "model_name": "bass_front.wsp5",
+  "target": {
+    "quantity": "front_position",
+    "unit": "m",
+    "description": "Position of the downstream tip of the visible flame along a thin fuel strip in concurrent flow, measured from the upstream (igniter) end of the sample, after the cutoff and conditional on the flow history up to each forecast time; with the probability that the sample ignites, that a flame is alive, that it has been quenched, and that its tip has reached the end of the sample. The model works in sample widths; metres follow from the sample width of the prefix. For opposed flow or a material other than the cotton-fibreglass fabric only the event probabilities are given.",
+    "excludes": [
+      "the flow history: the operator's steps are an input, known up to each forecast time",
+      "the tip of an opposed-flow flame, thick fuels, and the tip on materials other than the cotton-fibreglass fabric",
+      "a metric position without a sample width in metres from the data lane",
+      "temperature, heat flux, species or soot inferred from image intensity",
+      "a calibrated posterior: the spread of the tip is assumed, the width of the boundary is the author's propagated uncertainty"
+    ]
+  },
+  "features": [
+    {
+      "name": "u",
+      "unit": "1",
+      "source": "control:flow_velocity",
+      "transform": "U / norm.u_ref_cm_s - 1, U in cm/s, not below norm.u_min_cm_s @1"
+    },
+    {
+      "name": "c_o2",
+      "unit": "1",
+      "source": "condition:x_o2",
+      "transform": "(x - norm.o2_ref) / norm.o2_scale @1"
+    },
+    {
+      "name": "c_w",
+      "unit": "1",
+      "source": "condition:width",
+      "transform": "ln(W / W_ref) @1"
+    },
+    {
+      "name": "tip",
+      "unit": "sample width",
+      "source": "observation:front_position/tip@prefix",
+      "transform": "position / W; stills after the igniter is off and at or before the cutoff @1"
+    },
+    {
+      "name": "base",
+      "unit": "sample width",
+      "source": "observation:front_position/base@prefix",
+      "transform": "position / W; the same stills @1"
+    },
+    {
+      "name": "p",
+      "unit": "atm",
+      "source": "condition:pressure",
+      "transform": "Pa / 101325; 1 atm when the prefix has no pressure @1"
+    },
+    {
+      "name": "dir",
+      "unit": "1",
+      "source": "condition:flow_direction",
+      "transform": "0 concurrent, 1 opposed; concurrent when absent @1"
+    },
+    {
+      "name": "mat",
+      "unit": "1",
+      "source": "condition:material",
+      "transform": "0 SIBAL fabric, 1 PMMA sheet 1 mm; 0 when absent @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "speed.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the spread rate of the pyrolysis front, reference sample widths per second; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "speed.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the spread rate of the pyrolysis front, reference sample widths per second (hinge positions)."
+    },
+    {
+      "name": "speed.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the spread rate of the pyrolysis front, reference sample widths per second."
+    },
+    {
+      "name": "speed.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the spread rate of the pyrolysis front, reference sample widths per second in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "speed.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1/s",
+      "bounds": {
+        "min": -1.0,
+        "max": 5.0
+      },
+      "description": "Value of the spread rate of the pyrolysis front, reference sample widths per second at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "over.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "over.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths (hinge positions)."
+    },
+    {
+      "name": "over.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths."
+    },
+    {
+      "name": "over.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "over.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -5.0,
+        "max": 20.0
+      },
+      "description": "Value of the steady overhang of the visible flame tip beyond the pyrolysis front, reference sample widths at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "burn.W1",
+      "shape": [
+        6,
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden weights of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns; row j reads (u, c_o2, c_w)."
+    },
+    {
+      "name": "burn.b1",
+      "shape": [
+        6
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hidden biases of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns (hinge positions)."
+    },
+    {
+      "name": "burn.w2",
+      "shape": [
+        6
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Output weights of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns."
+    },
+    {
+      "name": "burn.skip",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear part of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns in (u, c_o2, c_w); every element is stated."
+    },
+    {
+      "name": "burn.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -3.0,
+        "max": 8.0
+      },
+      "description": "Value of the burn-through time ln(tau_b / 1 s): how long a place on the sample burns at u = c_o2 = c_w = 0 before hinge terms."
+    },
+    {
+      "name": "speed.pow",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "description": "Powers of (X_O2 / o2_ref) and of (W / W_ref) that multiply the spread rate in sample widths per second (a sample half as wide with the same speed in mm/s has the width power -1)."
+    },
+    {
+      "name": "over.pow",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "description": "Powers of (X_O2 / o2_ref) and of (W / W_ref) that multiply the overhang in sample widths."
+    },
+    {
+      "name": "over.tau_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.05,
+        "max": 60.0
+      },
+      "description": "Time over which the overhang relaxes to its steady value after a change of flow."
+    },
+    {
+      "name": "ign.gain",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Spread rate while the igniter is on, as a multiple of the law (the hot wire pilots the flame)."
+    },
+    {
+      "name": "ign.delay_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 30.0
+      },
+      "description": "Time after the igniter is switched on before the front starts to move."
+    },
+    {
+      "name": "end.linger_s",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.0,
+        "max": 60.0
+      },
+      "description": "Time the flame is still seen after its tip has reached the end of the sample."
+    },
+    {
+      "name": "enc.gain_w",
+      "shape": [
+        2
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": -20.0,
+        "max": 20.0
+      },
+      "description": "Weights of the gain logit on ln(span / 10 s) and on the settled share min(1, seconds since the last change of flow / 10)."
+    },
+    {
+      "name": "enc.gain_b",
+      "shape": [],
+      "role": "bias",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "bounds": {
+        "min": -20.0,
+        "max": 20.0
+      },
+      "description": "Bias of the gain logit: gain = sigmoid(gain_b + gain_w . inputs)."
+    },
+    {
+      "name": "enc.mix",
+      "shape": [
+        2
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weights of the tip-based and base-based offsets in the observed run offset (normalised over those available)."
+    },
+    {
+      "name": "enc.e_clip",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Largest run offset carried, below and above: E lies in [exp(-e_clip[0]), exp(e_clip[1])]."
+    },
+    {
+      "name": "unc.s_pop",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Relative sd of the spread rate of a run before its prefix says anything."
+    },
+    {
+      "name": "unc.s_floor",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Relative sd of the spread rate that remains when the prefix is fully trusted."
+    },
+    {
+      "name": "unc.s_far",
+      "shape": [
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "Relative sd added (in quadrature) per unit of |c_o2| and of |c_w|: the laws are known less well away from the reference oxygen and sample."
+    },
+    {
+      "name": "unc.sigma_w",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "description": "sd of the tip position at the cutoff, sample widths (measurement and the still-to-overlay clock)."
+    },
+    {
+      "name": "unc.sigma_x0_w",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "sd of the tip position when no still exists before the cutoff, sample widths."
+    },
+    {
+      "name": "unc.rel_over",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "description": "sd of a change of the overhang, as a share of the modelled change."
+    },
+    {
+      "name": "unc.drift_w",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s^-1/2",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Slow drift of the tip: sd in sample widths per square root of a second of lead."
+    },
+    {
+      "name": "sus.x0",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction",
+      "bounds": {
+        "min": 0.08,
+        "max": 0.3
+      },
+      "description": "Floor of the oxygen limit, per material [M]."
+    },
+    {
+      "name": "sus.cp",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction per e-fold of 1/p",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.1
+      },
+      "description": "Pressure shift of the floor, per material [M]: X_lim gains cp ln(1/p), p in atm."
+    },
+    {
+      "name": "sus.sb",
+      "shape": [
+        2,
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction per cm/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.01
+      },
+      "description": "Blow-off slope [M, D]: X_lim gains sb U_e."
+    },
+    {
+      "name": "sus.ar",
+      "shape": [
+        2,
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction cm/s atm",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.5
+      },
+      "description": "Radiative-loss coefficient [M, D]: A = ar + aw / W, X_lim gains A / (p U_e)."
+    },
+    {
+      "name": "sus.aw",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction cm^2/s atm",
+      "bounds": {
+        "min": -0.2,
+        "max": 0.3
+      },
+      "description": "Lateral coefficient [M] (loss positive), divided by the sample width W in cm."
+    },
+    {
+      "name": "sus.us",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "cm/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "description": "Self-spread speed [M]: U_e = U + us (opposed), sqrt(U^2 + us^2) (concurrent)."
+    },
+    {
+      "name": "sus.sd_x0",
+      "shape": [
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction",
+      "bounds": {
+        "min": 0.001,
+        "max": 0.05
+      },
+      "description": "sd of x0 [M]."
+    },
+    {
+      "name": "sus.sd_cp",
+      "shape": [
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction per e-fold of 1/p",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.1
+      },
+      "description": "sd of cp [M]."
+    },
+    {
+      "name": "sus.sd_sb",
+      "shape": [
+        2,
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction per cm/s",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.01
+      },
+      "description": "sd of sb [M, D]."
+    },
+    {
+      "name": "sus.sd_ar",
+      "shape": [
+        2,
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction cm/s atm",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.5
+      },
+      "description": "sd of ar [M, D]."
+    },
+    {
+      "name": "sus.sd_aw",
+      "shape": [
+        2
+      ],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction cm^2/s atm",
+      "bounds": {
+        "min": 0.0,
+        "max": 0.3
+      },
+      "description": "sd of aw [M]."
+    },
+    {
+      "name": "ign.dx",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction",
+      "bounds": {
+        "min": -0.02,
+        "max": 0.05
+      },
+      "description": "Extra oxygen needed for a kernel to survive [M]."
+    },
+    {
+      "name": "ign.sd_a",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction",
+      "bounds": {
+        "min": 0.001,
+        "max": 0.03
+      },
+      "description": "Run-to-run scatter of ignition."
+    },
+    {
+      "name": "ign.t_req",
+      "shape": [
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.1,
+        "max": 120.0
+      },
+      "description": "Igniter on-time at which half the attempts light [M]."
+    },
+    {
+      "name": "ign.sd_lnt",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln",
+      "bounds": {
+        "min": 0.1,
+        "max": 2.0
+      },
+      "description": "Spread of that on-time, in ln of the time."
+    },
+    {
+      "name": "ext.tau",
+      "shape": [
+        2,
+        2
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 0.1,
+        "max": 300.0
+      },
+      "description": "Time for a flame outside the boundary to go out [M, B]: B = 0 radiative quench, 1 blow-off."
+    },
+    {
+      "name": "ext.width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "mole fraction",
+      "bounds": {
+        "min": 0.0005,
+        "max": 0.01
+      },
+      "description": "Smoothing of the inside/outside switch: the rate carries Phi(-margin / width)."
+    },
+    {
+      "name": "norm.u_ref_cm_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          5.0
+        ]
+      },
+      "unit": "cm/s",
+      "description": "Reference flow speed of u."
+    },
+    {
+      "name": "norm.u_min_cm_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.1
+        ]
+      },
+      "unit": "cm/s",
+      "description": "Smallest flow speed the laws are evaluated at."
+    },
+    {
+      "name": "norm.o2_ref",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.19
+        ]
+      },
+      "unit": "1",
+      "description": "Reference oxygen mole fraction of c_o2 and of the oxygen powers."
+    },
+    {
+      "name": "norm.o2_scale",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.02
+        ]
+      },
+      "unit": "1",
+      "description": "Scale of c_o2."
+    },
+    {
+      "name": "norm.w_ref_m",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.022
+        ]
+      },
+      "unit": "m",
+      "description": "Width of the reference sample (the 2 cm class), used only when a prefix gives a width in metres."
+    },
+    {
+      "name": "norm.v_min",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.001
+        ]
+      },
+      "unit": "1/s",
+      "description": "Smallest spread rate, sample widths per second."
+    },
+    {
+      "name": "enc.end_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          4.0
+        ]
+      },
+      "unit": "s",
+      "description": "Length of the first and of the last window of stills in the prefix."
+    },
+    {
+      "name": "enc.min_span_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          3.0
+        ]
+      },
+      "unit": "s",
+      "description": "Shortest time between the two windows for a run offset to be read."
+    },
+    {
+      "name": "enc.change_cm_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.8
+        ]
+      },
+      "unit": "cm/s",
+      "description": "Smallest difference from the flow at the last window counted as a change of flow: the flow last changed at the start of the first entry after the most recent entry that differs from it by at least this much (a one-unit fan flicker is not a change, a slow ramp is one once it has moved this far)."
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.25
+        ]
+      },
+      "unit": "s",
+      "description": "Integration step."
+    },
+    {
+      "name": "num.max_lead_s",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          600.0
+        ]
+      },
+      "unit": "s",
+      "description": "Longest lead time after the cutoff."
+    },
+    {
+      "name": "quad.z",
+      "shape": [
+        41
+      ],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          -2.2509256965027937,
+          -1.7917642873785158,
+          -1.54663527139923,
+          -1.3698564795107977,
+          -1.2278262613112725,
+          -1.107002880537908,
+          -1.0004905456193152,
+          -0.9042673435995684,
+          -0.8157657139309344,
+          -0.7332357831855119,
+          -0.6554235052344266,
+          -0.5813930065324557,
+          -0.5104216426632189,
+          -0.44193452638497827,
+          -0.3754617702355184,
+          -0.31060942538225567,
+          -0.24703899073897723,
+          -0.1844524370947431,
+          -0.12258084388880242,
+          -0.06117541103855111,
+          0.0,
+          0.06117541103855111,
+          0.12258084388880242,
+          0.1844524370947431,
+          0.24703899073897723,
+          0.31060942538225567,
+          0.3754617702355184,
+          0.44193452638497827,
+          0.5104216426632189,
+          0.5813930065324557,
+          0.6554235052344266,
+          0.7332357831855119,
+          0.8157657139309344,
+          0.9042673435995684,
+          1.0004905456193152,
+          1.107002880537908,
+          1.2278262613112725,
+          1.3698564795107977,
+          1.54663527139923,
+          1.7917642873785158,
+          2.2509256965027937
+        ]
+      },
+      "unit": "1",
+      "description": "Equal-probability nodes of a standard normal variable, the quantiles at (k - 0.5) / 41 for k = 1..41: where the true boundary lies, in units of its sd s."
+    },
+    {
+      "name": "quad.w",
+      "shape": [
+        41
+      ],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025,
+          0.024390243902439025
+        ]
+      },
+      "unit": "1",
+      "description": "Weights of the equal-probability nodes, 1/41 each."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::front5::forecast",
+    "version": "5",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Time is seconds after the igniter is switched off. The law path is integrated from the moment the igniter is switched on (front at the igniter, no overhang) with step num.dt_s: dx = g v dt with g = ign.gain while the igniter is on (after ign.delay_s) and 1 after; h relaxes exactly, h <- h_ss + (h - h_ss) exp(-dt / over.tau_s). Flow is a step function of time. Prefix windows: the stills of the first and of the last enc.end_s seconds of the prefix; window means of time, tip and base. Tip offset: ln of the advance of (tip - h) between the windows over the law's advance in the same interval; base offset: ln of the advance of the base over the law's advance in the interval shifted back by tau_b at the later window. Offsets need enc.min_span_s between the windows and a positive law advance; a non-positive observed advance is taken as -enc.e_clip[0]. E = exp(clamp(gain x observed offset)), gain = sigmoid(enc.gain_b + enc.gain_w . (ln(span / 10 s), settled)), settled = clamp((t_e - t_change) / 10 s, 0, 1) at the last-window time t_e: with U_e the flow at t_e, t_change is the start time of the first flow entry after the most recent entry at or before t_e whose flow differs from U_e by at least enc.change_cm_s, and the time the igniter is switched on when no entry differs (never earlier than it). Position at the cutoff: last-window mean tip minus the modelled overhang there, carried along the law. Spread of ln E: sqrt(gain s_floor^2 + (1 - gain) s_pop^2 + (s_far[0] c_o2)^2 + (s_far[1] c_w)^2). sd of the tip at lead: sqrt(sigma^2 + (s E advance)^2 + (rel_over x overhang change)^2 + drift_w^2 lead), Gaussian quantiles, cut at the end of the sample when its length is known. Reached the end by t: the probability that the uncut tip was at or beyond the end at t - end.linger_s. Boundary law (dossier phys_quench_w0.md 6.3): W = width ratio x norm.w_ref_m in cm; U_e = U + us (opposed), sqrt(U^2 + us^2) (concurrent), refused when not positive; A = ar + aw / W; X_lim = x0 + cp ln(1/p) + sb U_e + A / (p U_e); s^2 = sd_x0^2 + (sd_cp ln(1/p))^2 + (sd_sb U_e)^2 + (sd_ar^2 + (sd_aw / W)^2) / (p U_e)^2; P_sus = Phi((X - X_lim) / s); P_ign = Phi((X - X_lim(U_ign) - dx) / sqrt(s(U_ign)^2 + sd_a^2)) Phi(ln(t_on / t_req) / sd_lnt), U_ign the flow when the igniter is switched on, t_on the time it was on. Nodes e_k and weights w_k: quad.z, quad.w (41 equal-probability nodes), the same node at every time. lit_k = Phi((X - X_lim(U_ign) - dx - s(U_ign) e_k) / sd_a) Phi(ln(t_on / t_req) / sd_lnt); margin_k(t) = X - X_lim(U(t)) - s(U(t)) e_k; w_r = r / (r + b) with r = max(A / (p U_e), 0), b = sb U_e, and 1/2 when r + b = 0; rate_k = (w_r / tau[m,0] + (1 - w_r) / tau[m,1]) Phi(-margin_k / ext.width); Lambda_k(t) = integral of rate_k from igniter-off to t, exact on the steps of the flow history. Without a flame still in the prefix: P_alive(t) = sum w_k lit_k exp(-Lambda_k(t)), P_quenched_by(t) = sum w_k lit_k (1 - exp(-Lambda_k(t))). With one, t_c the time of the last flame still: pi_k proportional to w_k Phi((X - X_lim(U_ign) - dx - s(U_ign) e_k) / sd_a) exp(-Lambda_k(t_c)), P_alive(t) = sum pi_k exp(-(Lambda_k(t) - Lambda_k(t_c))), P_quenched_by = 1 - P_alive. No flame at t: 1 - P_alive(t). Rows: active = (1 - no flame)(1 - reached), extinction = no flame, reached_end = (1 - no flame) reached. The tip forecast is given for the fabric (material 0) in concurrent flow only; otherwise the rows are active = P_alive, extinction = 1 - P_alive and the tip is refused. Nothing is fitted at request time. Uncertainty kind: assumed_noise."
+}

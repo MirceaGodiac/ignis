@@ -1,0 +1,26 @@
+# acme_inverse.wsp12 — F2 literal revision of the baseline, spec acme_inverse-wsp-v12
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot.
+#
+# F2 is F1 (the adopted acme_inverse.wsp5 P1 reading the fuel from a typed table) with one change:
+# the planned stop is the one computed from the script file alone by tools/wsp/ext/acme_script2.py,
+# read at -1, 0 and +1 s. The members and their fuel table are those of F1, slot by slot: the fuel
+# table did what its dossier expected on the train days of Flame Design and is not touched.
+# Without the planned stop this release returns the forecasts of F1.
+#
+# Slot values are copied from the slots of F1 by tools/wsp/committee3_edits.py.
+# The lines typed for this file:
+
+# The carried law with weight 2 and the hold scenario with weight 1, as in P1 and F1; no era is told apart.
+mix.w_early[0:10] = [0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+era.last_early_day = 1900001.0
+era.first_late_day = 2100366.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.5
+
+# The planned stop from the script file lands on the recorded stop (see the normal-flame F2 for the
+# four train sets). Three readings a second apart, centred on it.
+script.offset_s[0:3] = [-1.0, 0.0, 1.0]
+script.offset_w[0:3] = [0.25, 0.5, 0.25]

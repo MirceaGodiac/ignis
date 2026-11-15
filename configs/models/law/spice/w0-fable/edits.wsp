@@ -1,0 +1,135 @@
+# Variant B of docs/wsp/research/phys_spice_w0.md section 5.1: the section 7.4 block (lines 382-513), with the eight
+# lines of section 5.1 (lines 298-305) substituted in place, same tensor element, number as typed there; nothing else changed.
+# spice.wsp: W0, zero-shot. Author claude-fable-5-2. Source: docs/wsp/research/phys_spice_w0.md
+# features z = (z_d, z_u, z_m, z_x, f_propane, f_propylene, f_methane), columns 0..6
+x.nozzle_diameter.centre = 0.001
+x.nozzle_diameter.scale = 1.0
+x.nozzle_diameter.lo = 0.0003
+x.nozzle_diameter.hi = 0.004
+x.coflow_speed.centre = 0.25
+x.coflow_speed.scale = 1.0
+x.coflow_speed.lo = 0.03
+x.coflow_speed.hi = 0.9
+x.fuel_mass_flow.centre = 0.000001
+x.fuel_mass_flow.scale = 1.0
+x.fuel_mass_flow.lo = 0.00000005
+x.fuel_mass_flow.hi = 0.00002
+x.x_fuel.centre = 1.0
+x.x_fuel.scale = 1.0
+x.x_fuel.lo = 0.4
+x.x_fuel.hi = 1.0
+x.is_propane.centre = 0.0
+x.is_propane.scale = 1.0
+x.is_propane.lo = 0.0
+x.is_propane.hi = 1.0
+x.is_propylene.centre = 0.0
+x.is_propylene.scale = 1.0
+x.is_propylene.lo = 0.0
+x.is_propylene.hi = 1.0
+x.is_methane.centre = 0.0
+x.is_methane.scale = 1.0
+x.is_methane.lo = 0.0
+x.is_methane.hi = 1.0
+
+# --- smoke-point length. b0 = ln(0.021 m), the still-air floor of ethylene (Urban 2000).
+# skip: dilution -0.82 per e-fold of fuel fraction; floors of propane (28 mm), propylene (7.5 mm),
+# methane (7.4 times ethylene) relative to ethylene.
+smoke_point_length.median.b0 = -3.863
+smoke_point_length.median.skip[0:7] = [0.0, 0.0, 0.0, -0.72, 0.287, -1.304, 2.0]
+# unit 0: the coflow term above the floor. 1.342 = ln(21.2 mm * 25^0.414 / 21 mm); exponents
+# -0.91 (diameter) and 0.414 (coflow), Dotson 2011; fuel offsets ln(A/L0) relative to ethylene.
+smoke_point_length.median.W1[0, 0] = -0.91
+smoke_point_length.median.W1[0, 1] = 0.414
+smoke_point_length.median.W1[0, 4] = -0.092
+smoke_point_length.median.W1[0, 5] = 0.299
+smoke_point_length.median.b1[0] = 1.347
+smoke_point_length.median.w2[0] = 1.0
+# unit 1: dilution below 75 % fuel is steeper (cooler core): 2.30 at 50 % against 1.26 at 75 %.
+smoke_point_length.median.W1[1, 3] = -1.0
+smoke_point_length.median.b1[1] = -0.288
+smoke_point_length.median.w2[1] = 0.0
+# spread: 0.30 at the floor, 0.20 once the coflow term is half an e-fold above it.
+smoke_point_length.spread.b0 = 0.45
+smoke_point_length.spread.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+smoke_point_length.spread.W1[0, 0] = -0.91
+smoke_point_length.spread.W1[0, 1] = 0.414
+smoke_point_length.spread.W1[0, 4] = -0.423
+smoke_point_length.spread.W1[0, 5] = -0.224
+smoke_point_length.spread.b1[0] = 1.342
+smoke_point_length.spread.w2[0] = 0.0
+smoke_point_length.spread.W1[1, 0] = -0.91
+smoke_point_length.spread.W1[1, 1] = 0.414
+smoke_point_length.spread.W1[1, 4] = -0.423
+smoke_point_length.spread.W1[1, 5] = -0.224
+smoke_point_length.spread.b1[1] = 0.842
+smoke_point_length.spread.w2[1] = 0.0
+smoke_point_length.tail_weight = 0.1
+smoke_point_length.tail_width = 3.0
+
+# --- smoke-point fuel flow = L_sp Z_st / (K F). b0 = -3.863 + ln(0.0637) - ln(1296).
+# skip: dilution of L_sp (-0.82) and of Z_st (-0.66); Z_st of propane and methane.
+smoke_point_fuel_flow.median.b0 = -13.784
+smoke_point_fuel_flow.median.skip[0:7] = [0.0, 0.0, 0.0, -1.48, 0.232, -1.030, 1.857]
+smoke_point_fuel_flow.median.W1[0, 0] = -0.91
+smoke_point_fuel_flow.median.W1[0, 1] = 0.414
+smoke_point_fuel_flow.median.W1[0, 4] = -0.423
+smoke_point_fuel_flow.median.W1[0, 5] = -0.224
+smoke_point_fuel_flow.median.b1[0] = 1.342
+smoke_point_fuel_flow.median.w2[0] = 1.0
+smoke_point_fuel_flow.median.W1[1, 3] = -1.0
+smoke_point_fuel_flow.median.b1[1] = -0.288
+smoke_point_fuel_flow.median.w2[1] = 0.65
+# units 2, 3: the jet factor F at the smoke point. y = ln(0.5 / r_sp) for F = 1; ln F =
+# 0.1289 clip(y, 0, 3.695) once the effect of F on r is solved (0.148 / 1.148).
+smoke_point_fuel_flow.median.W1[2, 0:7] = [-2.91, -0.586, 0.0, -1.75, -0.643, -1.659, 2.416]
+smoke_point_fuel_flow.median.b1[2] = 2.158
+smoke_point_fuel_flow.median.w2[2] = -0.1289
+smoke_point_fuel_flow.median.W1[3, 0:7] = [-2.91, -0.586, 0.0, -1.75, -0.643, -1.659, 2.416]
+smoke_point_fuel_flow.median.b1[3] = -1.537
+smoke_point_fuel_flow.median.w2[3] = 0.1289
+smoke_point_fuel_flow.spread.b0 = 0.30
+smoke_point_fuel_flow.spread.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+smoke_point_fuel_flow.tail_weight = 0.1
+smoke_point_fuel_flow.tail_width = 3.0
+
+# --- luminous flame length at a setting = K mdot F / Z_st, shorter far below the smoke point.
+# b0 = ln(1296) + ln(1e-6) - ln(0.0637): 20.3 mm at 1 mg/s of ethylene in strong coflow.
+flame_length.median.b0 = -3.895
+flame_length.median.skip[0:7] = [0.0, 0.0, 1.0, 0.66, 0.055, 0.0, 0.143]
+# units 0, 1: ln F = 0.148 clip(ln(0.5 / r), 0, 3.219); ln(0.5 / r) = 0.784 at the centre.
+flame_length.median.W1[0, 0:7] = [-2.0, -1.0, 1.0, -0.27, -0.452, -0.405, 0.559]
+flame_length.median.b1[0] = 0.784
+flame_length.median.w2[0] = 0.148
+flame_length.median.W1[1, 0:7] = [-2.0, -1.0, 1.0, -0.27, -0.452, -0.405, 0.559]
+flame_length.median.b1[1] = -2.435
+flame_length.median.w2[1] = -0.148
+# units 2, 3: less soot, shorter glow: -0.14 per e-fold below the smoke point, at most -0.15.
+flame_length.median.W1[2, 0:7] = [-0.91, 0.414, -1.0, -1.48, -0.191, -1.254, 1.857]
+flame_length.median.b1[2] = 1.374
+flame_length.median.w2[2] = -0.14
+flame_length.median.W1[3, 0:7] = [-0.91, 0.414, -1.0, -1.48, -0.191, -1.254, 1.857]
+flame_length.median.b1[3] = 0.274
+flame_length.median.w2[3] = 0.14
+flame_length.spread.b0 = 0.22
+flame_length.spread.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+flame_length.tail_weight = 0.1
+flame_length.tail_width = 3.0
+
+# --- soot leaves the tip: logit = 6.1 (ln L - ln L_sp), L without the soot term.
+emits_soot.logit.b0 = -0.195
+emits_soot.logit.skip[0:7] = [0.0, 0.0, 6.1, 9.03, -1.415, 6.283, -11.33]
+emits_soot.logit.W1[0, 0:7] = [-2.0, -1.0, 1.0, -0.27, -0.452, -0.405, 0.559]
+emits_soot.logit.b1[0] = 0.784
+emits_soot.logit.w2[0] = 0.903
+emits_soot.logit.W1[1, 0:7] = [-2.0, -1.0, 1.0, -0.27, -0.452, -0.405, 0.559]
+emits_soot.logit.b1[1] = -2.435
+emits_soot.logit.w2[1] = -0.903
+emits_soot.logit.W1[2, 0] = -0.91
+emits_soot.logit.W1[2, 1] = 0.414
+emits_soot.logit.W1[2, 4] = -0.423
+emits_soot.logit.W1[2, 5] = -0.224
+emits_soot.logit.b1[2] = 1.342
+emits_soot.logit.w2[2] = -6.1
+emits_soot.logit.W1[3, 3] = -1.0
+emits_soot.logit.b1[3] = -0.288
+emits_soot.logit.w2[3] = -3.965

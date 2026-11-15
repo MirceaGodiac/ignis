@@ -1,0 +1,29 @@
+# bass.wsp — W0 literal coefficients, spec bass-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). One shot, written from the frozen spec and front kinematics.
+# No BASS contour, calibration or video was looked at, and no metric BASS observation exists in this
+# repository to compare with: these numbers have never been scored and cannot be yet.
+#
+# Mode m of the front on the transverse coordinate xi in [0, 1]: phi_0 = 1 (the mean position),
+# phi_m = sqrt(2) cos(m pi xi), m = 1..3 (tilt, bow, S-shape).
+#   a_m(t_n + D) = a_m exp(-damp_m D) + gain_m v_m T_m (1 - exp(-D / T_m))
+
+# Carried velocity. A thin fuel in a steady flow spreads steadily, so the mean front keeps the
+# velocity the prefix shows. The drift of the shape modes is mostly a transient and measurement
+# scatter: half of it is carried for the tilt, a quarter for the bow, none for the S-shape.
+op.gain[0:4] = [1.0, 0.5, 0.25, 0.0]
+
+# How long that drift persists. The mean spread is steady over any horizon the model serves
+# (1000 s); the shape drifts fade over a few seconds.
+op.persist_s[0:4] = [1000.0, 5.0, 3.0, 1.0]
+
+# Smoothing of the front shape. A front that moves normal to itself with a curvature correction
+# relaxes mode m at a rate nu (m pi / W)^2. With nu / W^2 = 0.01 per second (a 20 mm wide sample and
+# nu = 4e-6 m2/s, between a solid-phase and a gas-phase diffusivity) that is 0.099, 0.395 and
+# 0.888 per second for m = 1, 2, 3. The mean position is not damped.
+op.damp_per_s[0:4] = [0.0, 0.099, 0.395, 0.888]
+
+# Assumed spread of the mean front: 0.3 mm of contour scatter at zero lead, 20 % of the carried
+# velocity plus 0.1 mm/s on the velocity.
+unc.sigma_m = 3.0e-4
+unc.rel_v = 0.2
+unc.sigma_v_m_s = 1.0e-4

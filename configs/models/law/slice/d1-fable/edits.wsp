@@ -1,0 +1,8 @@
+# D1 of slice.wsp: the Edits block of docs/wsp/research/phys_slice_d1.md (lines 62-67, sha256 adad2fbff877db6e6a5eaf6881ba34e1622d44446afb0d4721dfa57a619d648a),
+# verbatim, as a revision of the registered W0 release sha256:d10c94bc…006e; every other number is the parent's.
+lifted.logit.W1[0, 3] = 0.0
+lifted.logit.W1[1, 3] = 0.0
+lifted.logit.W1[2, 3] = 0.0
+blow_off.logit.W1[0, 3] = 0.0
+blow_off.logit.W1[1, 3] = 0.0
+blow_off.logit.W1[2, 3] = 0.0

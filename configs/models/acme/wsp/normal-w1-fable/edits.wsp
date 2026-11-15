@@ -1,0 +1,47 @@
+# acme_normal.wsp — W1 literal revision over W0 (parent sha256:7ef0c7ab…66f5), spec acme_normal-wsp-v1
+# Author: claude-fable-5-2 (Anthropic).
+#
+# NOT zero-shot: written after reading the train endpoints (docs/wsp/feedback/acme_normal_w0_train.md).
+# Typed by the author from that table; no optimizer, regression or search chose a value. Of the
+# validation partition only the aggregate scores of W0 were seen.
+#
+# What the table showed. W0 gave every flame a median life near 20 s. Observed: in air-like ambient
+# (21 % O2) the flame goes out after 5-20 s, at once when the fuel is diluted to T_ad ~ 1600-1700 K;
+# in enriched ambient (33-40 % O2) it lasts 30-300 s and the life falls steeply with fuel flow
+# (about flow^-1.8), or the operator ends the run. In air the flow hardly matters.
+#
+# Extinction: ln(hazard) = A(c) + 3 x_t, i.e. a hazard growing as (1 + t/10 s)^3, with the level A
+# set through L = 3.4 + 1.2 c_o2 + 0.7 c_tad - 0.3 c_logp (roughly ln of the median life in seconds):
+#   A = -0.4 - 1.5 L - 0.9 relu(L - 2.0) - 1.2 relu(L - 3.3)        (the level a median life L needs)
+#       + 1.5 relu(-c_tad - 0.33)                                    (below ~2100 K: gone in a second)
+#       + 6.0 [relu(c_logm + 1.67 c_o2 + 0.5) - relu(1.67 c_o2 + 0.5)]  (flow counts only when enriched)
+ext.b0 = -5.5
+#               c_logp c_logm c_o2  c_xf c_tad  c_zst eth  but  x_t
+ext.skip[0:9] = [0.45, 0.0, -1.8, 0.0, -1.05, 0.0, 0.0, 0.0, 3.0]
+# unit 0: was the time flattening of W0; now relu(L - 2.0)
+ext.W1[0, 0:9] = [-0.3, 0.0, 1.2, 0.0, 0.7, 0.0, 0.0, 0.0, 0.0]
+ext.b1[0] = 1.4
+ext.w2[0] = -0.9
+# unit 1: relu(L - 3.3)
+ext.W1[1, 0:5] = [-0.3, 0.0, 1.2, 0.0, 0.7]
+ext.b1[1] = 0.1
+ext.w2[1] = -1.2
+# unit 2: relu(-c_tad - 0.33)
+ext.W1[2, 4] = -1.0
+ext.b1[2] = -0.33
+ext.w2[2] = 1.5
+# units 3-4: the flow effect, gated by ambient oxygen
+ext.W1[3, 1:3] = [1.0, 1.67]
+ext.b1[3] = 0.5
+ext.w2[3] = 6.0
+ext.W1[4, 2] = 1.67
+ext.b1[4] = 0.5
+ext.w2[4] = -6.0
+
+# Operator termination: 16 of 81 train runs, spread from 12 s to 275 s with no preferred time, almost
+# all in enriched ambient (the others are out before anyone acts). About 0.004 per second once the
+# flame is 20 s old, less before.
+op.b0 = -7.7
+op.skip[0:9] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0]
+op.b1[0] = -1.1
+op.w2[0] = -2.0

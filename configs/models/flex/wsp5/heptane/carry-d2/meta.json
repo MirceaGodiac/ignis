@@ -1,0 +1,47 @@
+{
+  "patch_id": "flex_heptane-wsp-v5-carry-d2",
+  "parent_release_id": "sha256:adac8c30e1907804928d876fc85ab0b84eec8d4fd786a063a8497e6cbabc5b33",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+      "sha256:74b3a0f195884a860d28ab41d9fb3250633a346d0b980138ee1c7d84881842a3"
+    ]
+  },
+  "rationale": "Neutral carry, not a candidate: carry of flex_heptane.wsp4 carry-d2 (sha256:02c1d72443178154e251e19e0075094b8fcb163e1e8b8d6375bd5421547e7953; the numbers of flex_heptane.wsp2 D2) on the sixth droplet forward (droplet6.rs), new entries off (sc.on = 0, dy.frac = 0, ce.on = 0: self-cooling evaporation of the unlit droplet, a dying flame, the cool-flame end in oxygen partial pressure). It gives the same forecasts on any prefix and stands in for that release in paired comparisons. No number was changed or added beyond the switched-off block, which the author typed.",
+  "origin": "system"
+}

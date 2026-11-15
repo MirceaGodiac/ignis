@@ -1,0 +1,146 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_inverse-wsp-v2-d3-fable",
+  "spec_hash": "sha256:760a6f084afacff92cff9a27c1490f1d406d4cf8b830af9261114842fc081f54",
+  "parent_release_id": "sha256:6a3d5837ca973eaa91b9813c63ecd6d59dd96fb2195ee365f8dac39031b83cad",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-session-transfer-audit-of-D1-and-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-run-by-run)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D1-and-D2:integrated-Brier-scores-only)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-D1-and-D2;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:6a3d5837ca973eaa91b9813c63ecd6d59dd96fb2195ee365f8dac39031b83cad",
+      "sha256:908d02101e4989954a75b16b01a9beaf4a0930a8b7b0b4a9ed809a98ba4a518a"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -9.36
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.flash.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        -6.0,
+        -10.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.b0",
+      "index": [],
+      "value": 6.53
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        2.0,
+        -1.2,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_t_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        66.0,
+        90.0,
+        136.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_logit",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        1.1,
+        -0.4,
+        0.0,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -6.0
+    }
+  ],
+  "rationale": "D3, data-informed revision of D1. The self-extinction clock is unchanged. The weak class is decided by what the train flashes share (air injected into a lean ambient), not by the adiabatic temperature, which gave fuel-rich flames that burned for a minute a 0.94 chance of flashing. Stops that happened once (time-outs, operator decisions, unexplained ends) lose their own atoms and become a background rate, because a time seen in one session does not transfer to another; the scripted 66 s stop stays, at the frequency sessions used it. The burner-limit clock is steeper in flow and wider. Every number typed by the author from the train table; no fit, no search; nothing chosen from validation.",
+  "origin": "system"
+}

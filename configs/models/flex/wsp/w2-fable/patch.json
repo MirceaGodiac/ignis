@@ -1,0 +1,155 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "flex-wsp-v1-w2-fable",
+  "spec_hash": "sha256:f67da795eb231b5eee48a1e2d86fc7e4121f86eddfe72514dd26f7d178ff79c9",
+  "parent_release_id": "sha256:a3fbfef98e5f02b7a3213dadbb7270e3ee87f0c9084725eb6f3735cc3a03f13b",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-flex(code-and-config-only)",
+      "repo:docs/wsp/feedback/flex_w0_train.md",
+      "repo:docs/wsp/feedback/flex_w1_validation.md",
+      "author:pretraining-knowledge(unverifiable;may-include-published-FLEX-results)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "wsp-dev:feedback:train:flex-w0:sha256:9e5df8360d5bce325c049d573e96c58701c389d41729c129e4005fbe0b284b1a",
+      "wsp-dev:flex-table:train:flex-w0:sha256:c40068541fe72cd6bdfafc4a1122063da6b5514f1fc68eaec9284cdfaad383f7",
+      "wsp-dev:feedback:train:flex-w1:sha256:2828fb9b018a002f7d5b1eaa4a456a37ed9ab60b2ef994164d03f16313d1a5cc",
+      "ignis-eval:compare:validation:flex-w0-w1-vs-d2-baselines",
+      "wsp-dev:feedback:validation:flex-w1:sha256:7b7652b1f7ff0d31ff0be42be4aa8cdb3ff75da4e554be93d9d58fd4eeebc47c",
+      "wsp-dev:flex-table:validation:flex-w1:sha256:2fbcd1128622debffbfae907da3b2a6353e5af338866ea34cd1a22f47cc27037"
+    ],
+    "prior_candidates": [
+      "sha256:fa8eb18cbb2affa850846fc90b82475fbac13f44d2fbca0fd2321024f4a6e28f",
+      "sha256:a3fbfef98e5f02b7a3213dadbb7270e3ee87f0c9084725eb6f3735cc3a03f13b",
+      "sha256:4bfddff5060f096d8f6a18cb382058ebd231dffd76b9b7f4b52f48bbbbef4894",
+      "sha256:d99ac9b6a533c6ba878ae9d9694d435edcd33996881a4454489f28eebcc9ea7e"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "haz.b0",
+      "index": [],
+      "value": -7.4816
+    },
+    {
+      "op": "set_box",
+      "tensor": "haz.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        -1.08,
+        0.36,
+        0.0,
+        0.0,
+        0.0,
+        12.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "haz.w2",
+      "index": [
+        0
+      ],
+      "value": 0.54
+    },
+    {
+      "op": "set_box",
+      "tensor": "haz.W1",
+      "start": [
+        6,
+        0
+      ],
+      "shape": [
+        1,
+        5
+      ],
+      "values": [
+        -0.37,
+        0.1,
+        0.15,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "haz.b1",
+      "index": [
+        6
+      ],
+      "value": -0.75
+    },
+    {
+      "op": "set",
+      "tensor": "haz.w2",
+      "index": [
+        6
+      ],
+      "value": 14.4
+    },
+    {
+      "op": "set_box",
+      "tensor": "haz.W1",
+      "start": [
+        7,
+        0
+      ],
+      "shape": [
+        1,
+        5
+      ],
+      "values": [
+        -0.37,
+        0.1,
+        0.15,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "haz.b1",
+      "index": [
+        7
+      ],
+      "value": -1.1
+    },
+    {
+      "op": "set",
+      "tensor": "haz.w2",
+      "index": [
+        7
+      ],
+      "value": -8.4
+    },
+    {
+      "op": "set",
+      "tensor": "haz.link_b",
+      "index": [],
+      "value": -6.0
+    }
+  ],
+  "rationale": "W2, data-informed direct revision (not zero-shot; validation detail was read, so validation is development data for this candidate). W1 scored worse than W0 on validation because a pressure term in the radiative extinction branch, read off a handful of 0.7-atm train runs, did not hold. W2 removes that term, softens the size threshold, returns the extinction sharpness to 12 and reduces the offset coupling. The rate law of W1 is unchanged. See edits.wsp.",
+  "origin": "system"
+}

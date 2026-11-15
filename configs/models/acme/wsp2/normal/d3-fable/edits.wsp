@@ -1,0 +1,101 @@
+# acme_normal.wsp2 — D3 literal revision of D2 sha256:3c90129e…49b1, spec acme_normal-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: typed after the author re-read the TRAIN rows
+# of the PSI-159 normal-flame table together with a train-only session-transfer audit of D1/D2
+# delegated to an analysis agent, whose claims the author rechecked run by run. Not zero-shot. No
+# fit, no search: every number below was typed by the author from the train table. The author had
+# also seen the aggregate validation table of D1 and D2 (integrated Brier scores) and the validation
+# run conditions; nothing below was chosen from them.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logp = ln(p / 101325 Pa)        c_logm = ln(fuel mass flow / 1 mg/s)
+#   c_o2 = (ambient x_O2 - 0.30)/0.10  c_xf = ln(injected fuel fraction / 0.30)
+#   c_tad = (T_ad - 2200 K)/300 K     c_zst = (Z_st - 0.25)/0.2      propane is the reference fuel
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# 1. Radiative self-extinction: T = floor + R, ln(median R / 1 s) = N_tau(c)
+# =====================================================================================================
+# The propane-air flames at 2 and 3 atm go out at 5-7 s (seven train tests); D1's floor of 6 s forbade
+# the shortest of them.
+se.floor_s = 4.0
+
+# The law is rebuilt around one idea: what matters is the flow relative to the flow a flame can hold
+# for good, and that flow rises with oxygen. D1 and D2 gave flow and oxygen separate terms and so
+# could not say that flow hardly matters in air (9-10 s from 2.36 down to 1.0 mg/s) while it matters
+# steeply at 39 % O2 (43, 71, 158-232, 304 s at 2.36, 1.5, 1.0, 0.85 mg/s).
+#
+#   z = c_logm - 0.65 c_o2 + 0.24 c_logp        (ln of the reduced flow)
+#   ln R = 2.43 + 0.84 c_o2 - 0.28 c_logp + 1.4 relu(0.50 - z) + 2.0 relu(-0.22 - z) + fuel terms
+#
+# Above the first hinge (3 mg/s at 39 % O2, 0.9 mg/s in air) the life does not depend on flow; below
+# it the life lengthens as flow^-1.4; below the second (1.5 mg/s at 39 % O2, 0.44 mg/s in air) as
+# flow^-3.4, towards the flow that holds a flame until something else ends the test.
+# Typed against, and reproducing within about 15 % except the 0.85 mg/s flame (T in s, law / measured):
+#   ethane 30 %, 1 atm, 39-40 % O2: 43/43, 72/71, 233/232, 169/158, 235/304   (2.36 ... 0.85 mg/s)
+#   ethane 30 %, 1 atm, air:        9.5/9, 9.5/9, 9.5/9, 11/11, 16/16-19      (2.36 ... 0.5 mg/s)
+#   ethane 30 %, 0.5 atm, 34-39 %:  54/59, 84/88, 225/258, 45/44
+#   ethane 30 %, 2 atm, 38-40 %:    29/34, 50/51, 41/44, 128/123, 118/131
+# Oxygen at a fixed reduced flow: +0.84 per 10 % O2 (air to 39 % O2 at high flow: 5.5 s to 39 s).
+# Pressure: -0.28 per e-fold at a fixed reduced flow, and the hinges move down by 0.24 per e-fold
+# (0.5 -> 1 atm shortens the life by 0.8 in ln at 1.5-2.4 mg/s; near the second hinge by more).
+se.tau.b0 = 2.43
+# Dilution of ethane does nothing once the oxygen drift of the session is counted (pure to 25 %:
+# 50, 43, 42, 37 s at 39.4, 39.0, 38.0, 37.3 % O2). The fuel terms are in units 2-5.
+se.tau.skip[0:8] = [-0.28, 0.0, 0.84, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Unit 0: first hinge of the reduced flow.
+se.tau.W1[0, 0] = -0.24
+se.tau.W1[0, 1] = -1.0
+se.tau.W1[0, 2] = 0.65
+se.tau.b1[0] = 0.50
+se.tau.w2[0] = 1.4
+# Unit 1: second hinge.
+se.tau.W1[1, 0] = -0.24
+se.tau.W1[1, 1] = -1.0
+se.tau.W1[1, 2] = 0.65
+se.tau.b1[1] = -0.22
+se.tau.w2[1] = 2.0
+# Units 2 and 3: dilute butane flames are shorter. Butane at 15 % against 30 % (47 -> 27 s, 161 -> 83 s)
+# and at 25 % and 12.5 % against 50 % (two sessions): -0.35 per e-fold below 30 %, levelling off below
+# 12 % (the 3 % butane flames of a third session are only 0.2-0.3 below).
+se.tau.W1[2, 3] = -1.0
+se.tau.W1[2, 7] = 5.0
+se.tau.b1[2] = -5.0
+se.tau.w2[2] = -0.35
+se.tau.W1[3, 3] = -1.0
+se.tau.W1[3, 7] = 5.0
+se.tau.b1[3] = -5.9
+se.tau.w2[3] = 0.35
+# Unit 4: butane flames in enriched oxygen go out sooner than ethane ones at the same conditions
+# (ratio 0.57-0.83 in nine comparisons, two sessions), but not in air (14-20 s at 0.8 mg/s and
+# 0.5 atm, where the ethane law gives 14 s): -0.25 per 10 % O2 above air, -0.45 at 39 % O2. A sooting
+# flame radiates more, and butane soots in enriched oxygen.
+se.tau.W1[4, 2] = 1.0
+se.tau.W1[4, 7] = 5.0
+se.tau.b1[4] = -4.1
+se.tau.w2[4] = -0.25
+# Unit 5: propane in enriched oxygen has no train test. Half of the butane penalty, by its place
+# between ethane and butane; in air propane is on the ethane law.
+se.tau.W1[5, 2] = 1.0
+se.tau.W1[5, 6] = -5.0
+se.tau.W1[5, 7] = -5.0
+se.tau.b1[5] = 0.9
+se.tau.w2[5] = -0.12
+# Repeats of one condition differ by 0.15 in ln T; the law above misses the train lives of its own
+# sessions by about 0.1-0.2 and will miss a new session by more (D1's session medians ranged from
+# -0.40 to +0.12). Shape 3: sd of ln R 0.6. Between D1 (4) and D2 (2.5).
+se.shape = 3.0
+
+# =====================================================================================================
+# 2. Flow termination
+# =====================================================================================================
+# Burner temperature limit. Ethane at 0.5 mg/s reached it at 28, 49 and 56 s; at 0.75 mg/s it had not
+# reached it after 275 s (421 and 436 C): the clock is steeper in flow than D1's 3.0. Butane reaches
+# it sooner (72, 80, 125 and 158 s at 0.75-0.8 mg/s). ln(median / 1 s) = 7.04 + 4.5 c_logm for
+# ethane: 50 s at 0.5 mg/s, 310 s at 0.75 mg/s; butane -1.1 (105 s at 0.75 mg/s); propane between.
+ft.tau.b0 = 6.5
+ft.tau.skip[0:8] = [0.0, 4.5, 0.0, 0.0, 0.0, 0.0, 0.54, -0.56]
+# The limit itself was set near 455 C on one day and at 505 C or more on others: the clock stays wide.
+ft.shape = 2.5
+# Programmed stops. The 275 s stop ended both flames alive at 275 s in one session; in the other
+# session with a flame alive then, it burned on to self-extinction at 304 s. Probability 0.5.
+ft.atom_logit[0:8] = [-2.0, -2.9, -2.2, 0.0, -40.0, -40.0, -40.0, -40.0]

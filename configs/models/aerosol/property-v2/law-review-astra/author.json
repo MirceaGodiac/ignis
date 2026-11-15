@@ -1,0 +1,29 @@
+{
+  "private_artifact_schema": "ignis.aerosol-science-author.v2",
+  "revision_author": {"provider": "openai", "model_id": "gpt-6-astra", "effort": "high"},
+  "origin": "system",
+  "experiment": "synthetic_review_informed_revision",
+  "zero_shot": false,
+  "review_informed": true,
+  "trained_on": "not_trained",
+  "state": "experimental",
+  "frozen": false,
+  "registered_release": false,
+  "spec_hash": null,
+  "predecessor_kernel_sha256": "aaaf4a97cb92a4d278f77246391768bbaaa3afa638e23e6711ccdd9108a7f0b5",
+  "original_literal_author_envelope": "original-author.json",
+  "original_literal_parameter_ledger": "original-parameter-ledger.md",
+  "literal_authorship": "All seven scalar assignments are byte-for-byte copies from the original GPT-6 Astra W0 packet. Original author/origin/source/domain claims remain in the copied original envelope and ledger. No new empirical coefficient or numeric fitting was introduced.",
+  "review_exposure": [
+    {"path":"docs/wsp/research/astra_property_transport_check.md","extent":"Independent shell/jet/aerosol derivations visible; report marked in progress at first read. No other-family implementation read."},
+    {"path":"runs/tooling/astra-transport-review/aerosol_independent.rs","extent":"Entire standalone synthetic reproducer, compiled and executed unchanged against W0 before correcting."},
+    {"path":"runs/tooling/astra-transport-review/aerosol_v2_independent.rs","extent":"Strengthened independent synthetic re-review reproducer, read and executed unchanged before correcting the same-ID, internally valid Liquid-to-Solid context substitution. Included exact-film signed-Pe checks."},
+    {"path":"crates/ignis-wsp/src/property_aerosol_w0.rs","extent":"Own predecessor implementation, copied into a separate v2 file."}
+  ],
+  "nasa_outcome_exposure": [],
+  "project_dataset_exposure": [],
+  "holdout_or_test_partition_exposure": [],
+  "incidental_coordination_exposure": "After v2 code and 18 tests were complete, the agent-status tool returned sibling completion summaries containing broad behaviors, file hashes and synthetic test counts. No sibling parameter vectors, implementation bodies, NASA data or NASA outcomes were shown. No scientific coefficient or physical branch was revised from these summaries.",
+  "new_physical_branch": "Explicit steady planar drift-diffusion absorbing-film boundary-value solution, derived symbolically; independently supplied applicability required. Predecessor additive branch remains separately selectable.",
+  "freeze_gate": "Do not freeze until independent re-review completes. No registered aerosol/detector contract exists."
+}

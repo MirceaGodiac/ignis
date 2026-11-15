@@ -1,0 +1,56 @@
+{
+  "patch_id": "flex_decane-wsp-v1-w0-fable",
+  "parent_release_id": "sha256:1d93eb6633cda7ee719f1532910b6d26ad37738c7fabaa75648f7a7f8b903fad",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_droplet_fuels.md(derivations-of-this-file:property-values-with-sources,ratios-worked-by-hand,registered-expectations)",
+      "repo:configs/models/flex/wsp5/heptane/{carry-d2,p0-fable,p1-fable}/edits.wsp(the-n-heptane-numbers-carried-here;typed-after-the-n-heptane-train-partition)",
+      "repo:configs/models/flex/wsp5/methanol/{carry-d3,p0-fable,p1-fable}/edits.wsp(read;typed-after-the-methanol-train-partition)",
+      "repo:docs/wsp/research/phys_flex_heptane.md;repo:docs/wsp/research/phys_flex_methanol.md(physics-dossiers:train-runs-and-published-theory)",
+      "repo:docs/wsp/research/lit_droplets.md(published-literature,including-aggregate-published-results-for-n-octane-and-n-decane-droplets-on-the-ISS)",
+      "repo:docs/wsp/research/properties/properties.csv(verified-property-values-of-n-heptane-and-methanol)",
+      "repo:docs/wsp/cards/flex_droplet6.md;repo:docs/wsp/cards/flex_droplet3.md;repo:docs/wsp/PROTOCOL.md(sections-1-5-and-10:aggregate-train-and-validation-tables-of-the-FLEX-candidates;no-per-run-validation-outcome)",
+      "repo:docs/wsp/atlas/cards/PSI-68.json;repo:docs/wsp/atlas/cards/PSI-39.json;repo:docs/wsp/atlas/INVESTIGATIONS.md(conditions-only:fuels,ranges-of-oxygen,pressure,size,diluent,support;the-names-and-cell-counts-of-the-CFI-outcome-columns-were-seen,no-value)",
+      "web:NIST-Chemistry-WebBook-SRD-69(phase-change-and-condensed-phase-pages-of-n-decane,read-15-Nov-2026-as-summaries-from-a-fetch-tool)",
+      "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)",
+      "author:pretraining-knowledge(unverifiable;may-include-published-FLEX-2-results-for-n-decane)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;numbers-typed-after-the-train-partition,read-through-the-edits-and-the-physics-dossier;no-series-opened-for-this-file)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;numbers-typed-after-the-train-partition,read-through-the-edits-and-the-physics-dossier)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:adac8c30e1907804928d876fc85ab0b84eec8d4fd786a063a8497e6cbabc5b33",
+      "sha256:03e0f63cf88c1b2c626e7726356746dd16d673a3a208cca5461c9d1ec360bf0b",
+      "sha256:c2c7b700867f3fab86e956100db6aed3db100438f6584347c9af5be6b75ad760",
+      "sha256:c27df7bb7f70bc3ce8cda22a1edc5c1b4a8b8c94b7760de61cedf901e40de360",
+      "sha256:575b0f63d5939811a2a7083eb302443d51eb486b394e67c3dd8d54d864e47a2d",
+      "sha256:2181b643430a31aefa8e774e9b9523f6f09b343957f1bdcae04ea435512545be",
+      "sha256:2e4c55f44b78b5eaae555b879358c22fafc675002d6f441255acbe8af4989397",
+      "sha256:7884e61c9995d40b7f12f140a68b782aa02a811e774143cd128f6e71e25c141a"
+    ]
+  },
+  "rationale": "W0 for n-decane (a fuel of FLEX-2, PSI-68), one shot for this fuel and not zero-shot: no n-decane outcome was opened, but the law is the n-heptane law of flex_heptane.wsp5, whose numbers were typed after the n-heptane train partition. Not fully blind either: the repository's literature review quotes published aggregate rates of n-decane droplets on the ISS; the hot and cool levels here were worked from property tables first and compared afterwards (0.41 against 0.3-0.4 and 0.29 against 0.33 mm2/s), and the oxygen limit of the cool flame (0.03 atm) is typed under the bound those published cool flames set. Each fuel-specific number is the n-heptane number times a ratio worked by hand from property values: the hot-flame level, its oxygen and pressure dependence and the heat-up from a transfer number that includes the heating of the liquid; the critical diameter of radiative extinction as the inverse of the mass burning flux; the cool-flame rate from the wet-bulb transfer number under a 700 K flame and its end diameter from an equal residence time; the unlit droplet as self-cooling evaporation with property constants. The prefix is trusted more and every spread is wider than for n-heptane. Literal revision of the fuel's lineage root (the D^2-law reference of n-heptane, copied without change), not a root, because the author has seen other candidates; it writes every authored element, so nothing of the root survives. The parent id is a placeholder until the fuel is registered in droplet6.rs and the root is built: tools/wsp/reassemble.py then writes it. See docs/wsp/research/phys_droplet_fuels.md.",
+  "origin": "system"
+}

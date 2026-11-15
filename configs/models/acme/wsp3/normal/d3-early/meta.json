@@ -1,0 +1,53 @@
+{
+  "patch_id": "acme_normal-wsp-v3-d3-early",
+  "parent_release_id": "sha256:4fa8de0bc17ef8f562b63de1f3494d9df4bf4ee6ad7168ee17f0da5f1d221991",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only)",
+      "repo:docs/wsp/cards/acme_clock.md(states-which-fuel-and-pressure-combinations-the-validation-sessions-hold;written-in-phase-2;not-used-here)",
+      "repo:docs/wsp/research/phys_acme_normal.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;a-proposal;the-author-rechecked-what-he-typed)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-limit-levels-and-the-planned-stops-from-its-tables)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:docs/wsp/RESULTS_GEN5.md(aggregate-validation-tables-of-the-fifth-generation:integrated-Brier-scores-only)",
+      "repo:docs/wsp/feedback/acme_normal_gen6_train_analysis.md(train-only-analysis-by-a-delegated-analysis-agent,claude-fable-5-2,high-effort;no-fitting;the-author-reran-its-limit-and-stop-tables-and-re-evaluated-the-member-laws-at-the-corrected-inputs)",
+      "repo:docs/wsp/measure/DISCREPANCIES.md(document-lane-cross-check-of-NASA-condition-tables-against-setpoints,readbacks-and-scripts;conditions-only;train-and-validation-rows;no-outcome;the-author-read-that-the-table-errors-of-injection-fields-are-all-on-train-rows)",
+      "repo:docs/wsp/feedback/astra-r2-20261115/results/acme_normal.json(per-case-TRAIN-scores-of-acme_normal.wsp5-P1)",
+      "repo:runs/dev/gen6/acme_normal/author_candidate.py(train-diagnostic-of-the-candidate-through-a-Python-transcription-of-the-forwards;run-once-after-these-numbers-were-typed;no-number-changed-after-it)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments,raw-channels-and-script-files)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-earlier-candidates-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7",
+      "sha256:00bd009a8e5eb69bc40705eed7597e9e08bfe1092a545d4616bb7b91601043ab",
+      "sha256:3c90129eb746e3530d440822f5d447d8fbc422c590bd9f1bb9aace29d9d549b1",
+      "sha256:32822270de2ca8a6b25f32fbf1888b5e83475f8e2a9ec3306e2b002ae25894d7",
+      "sha256:221a2ea22aca8a8c1e3813745ea566e591863fca13d8dd456c69c38986d49027",
+      "sha256:4fa8de0bc17ef8f562b63de1f3494d9df4bf4ee6ad7168ee17f0da5f1d221991",
+      "sha256:f71fce5f22f272cc1c336d89e32530f53a21640c91797e6a50e6219f985e69a7"
+    ]
+  },
+  "rationale": "D3 of the growth-clock spec for normal flames, early era, data-informed (not zero-shot): D2 with butane's clock faster than ethane's in air as well as in enriched oxygen (+0.27 at any oxygen; the flames that seemed to be on the ethane clock in air burned 0.49 to 0.66 mg/s, not the table's 0.8), the oxygen slope lowered so that the term at 39 % oxygen is unchanged, and the burner limit of the early era alone (about 500 C through 30 August 2021). Every number typed by the author; no fit, no search; nothing chosen from validation.",
+  "origin": "system"
+}

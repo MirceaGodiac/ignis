@@ -1,0 +1,99 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "bass-wsp-v1-w0-fable",
+  "spec_hash": "sha256:fe03eb0d05cce37d2a49c3c4012b0bd3365d92ac2c4576998d69ae5685934cd1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/design/IGNIS_MASTER_V2.md",
+      "repo:crates/ignis-bass(code-and-config-only)",
+      "repo:crates/ignis-vision(code-only)",
+      "repo:configs/models/bass",
+      "web:rikiyat.github.io/blog/weight-space-programming",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(input-metadata-only:conditions,calibration-status)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set_box",
+      "tensor": "op.gain",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        1.0,
+        0.5,
+        0.25,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "op.persist_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        1000.0,
+        5.0,
+        3.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "op.damp_per_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.0,
+        0.099,
+        0.395,
+        0.888
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_m",
+      "index": [],
+      "value": 0.0003
+    },
+    {
+      "op": "set",
+      "tensor": "unc.rel_v",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_v_m_s",
+      "index": [],
+      "value": 0.0001
+    }
+  ],
+  "rationale": "W0, one shot. A diagonal operator on four cosine modes of the front contour: the mean front keeps the velocity the prefix shows, the shape modes relax at curvature-smoothing rates and their drift fades. Twelve coefficients and three assumed-spread numbers, written from front kinematics. No metric BASS observation exists in this repository, so these numbers have never been scored; the forward refuses pixel-only contours. See edits.wsp.",
+  "origin": "system"
+}

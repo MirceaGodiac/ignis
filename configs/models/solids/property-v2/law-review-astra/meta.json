@@ -1,0 +1,10 @@
+{
+  "patch_id":"solids-property-law-review-astra-v2-literals",
+  "author":{"provider":"openai","model_id":"gpt-6-astra"},
+  "exposure":{
+    "sources":["solids-w0-author-source","solids-w0-author-packet","thermal-review-synthetic-20261114","thermal-review-domain-repro","nist-fds-1018e6-solid-theory","nist-molar-gas-constant","nist-stefan-boltzmann"],
+    "datasets":[],"development_feedback":[],"prior_candidates":[]
+  },
+  "rationale":"Synthetic/physics-review-informed V2, not a new clean-room W0. The predecessor local source packet and independent synthetic counterexamples were read; no app ReleaseId/EvaluationId exists for these local files, so exposure is explicit through packet-local SourceId aliases in source_inventory.json. Original R/sigma physical literals are unchanged. New 0.75 literal controls numerical refinement only. No NASA outcome exposure. New checked split-path domain admission and separate observed-asymptotic temporal estimator guard do not certify exact coupled physics, spatial accuracy, physical uncertainty or full spread qualification. Parent release omitted because coordinator has not supplied an app-registered parent release and the new forward/spec differs.",
+  "origin":"system"
+}

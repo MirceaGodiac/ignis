@@ -1,0 +1,231 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_normal-wsp-v2-d1-fable",
+  "spec_hash": "sha256:3c9ab8becd5a1c743227fecf4a208545536a41b307185240df42148a93005300",
+  "parent_release_id": "sha256:23d7e5fe6974f175f25f1da49a3d4134df054e44d490325f24cd9d9e1cb467c7",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:docs/wsp/feedback/acme_normal_w0_train.md(train-feedback-of-the-first-generation)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-validation-scores-of-the-first-generation,phase-1)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:7ef0c7ab236bf8b495e6659822839bc5d9d5d9955096cc1ff96f3863aecc66f5",
+      "sha256:a75ba790658108fe8218677326376fedbc34c0d1422ef34c67aff00e619f251c",
+      "sha256:fa1ab73e498a9d1a5a7f19236bf9d14c28b5ec4e5d832e6d2b688408a209eb10"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.floor_s",
+      "index": [],
+      "value": 6.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b0",
+      "index": [],
+      "value": 2.67
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        -0.33,
+        -1.1,
+        2.2,
+        0.2,
+        0.0,
+        0.0,
+        0.0,
+        -0.3
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        0
+      ],
+      "value": 0.405
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        0
+      ],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "se.shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -18.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.flash.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -12.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_tau_s",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.tau.b0",
+      "index": [],
+      "value": 6.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.tau.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        3.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.6
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_t_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        61.5,
+        98.0,
+        126.5,
+        275.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_logit",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        -2.0,
+        -2.9,
+        -2.2,
+        0.85,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_w",
+      "index": [
+        0,
+        1
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -7.6
+    }
+  ],
+  "rationale": "D1, data-informed (not zero-shot): the first candidate of the clock spec for normal flames. The train table shows what the generic hazard surface of the first generation could not hold: self-extinction is radiative and its time diverges as the fuel flow falls towards the flow a flame can hold (about 0.7 mg/s in 39 % O2), with a floor of about 6 s while the flame establishes; below that flow the test ends on the burner temperature limit, sooner the lower the flow; flames with T_ad below about 1750 K go out within a second or two; and a few tests end at script durations. Numbers typed from the train table by the author; no fit, no search.",
+  "origin": "system"
+}

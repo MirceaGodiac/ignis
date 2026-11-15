@@ -1,0 +1,19 @@
+{
+  "patch_id": "flex_farnesane-wsp-v1-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-heptane-burning-rate)",
+      "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/droplet8.rs(forward-and-spec;the-law-of-droplet6.rs-for-eight-fuels)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the statements of configs/models/flex/wsp5/heptane/baseline-d2 (flex_heptane.wsp5) copied without change under spec flex_farnesane-wsp-v1 on droplet8.rs (the law of droplet6.rs for eight fuels); copied by the engineer (claude-opus-5-5), no number typed. It is the root of flex_farnesane.wsp7 because farnesane has no D^2-law reference of its own: phys_droplet_fuels.md section 3.1 makes the anchor's (heptane) baseline the lineage root; a candidate of this spec writes every authored element, so no number of this root survives in it.",
+  "origin": "system"
+}

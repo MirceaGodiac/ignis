@@ -1,0 +1,20 @@
+{
+  "patch_id": "flex_octane-wsp-v2-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-opus-5-5"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-heptane-burning-rate)",
+      "repo:configs/models/flex/wsp7/octane/baseline-d2/edits.wsp(statements-copied-without-change;typed-by-claude-fable-5-2)",
+      "repo:crates/ignis-wsp/src/droplet9.rs(forward-and-spec)",
+      "repo:docs/wsp/research/phys_droplet_fuels.md(sections-3.2-and-3.3:tensors-shapes-bounds-of-the-switched-off-entries;no-number-taken)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the statements of configs/models/flex/wsp7/octane/baseline-d2 (the classical D^2-law, typed by claude-fable-5-2) copied without change under spec flex_octane-wsp-v2 on droplet9.rs, and the entries droplet9.rs adds (composition and staged burning, warm flame, direct cool ignition, fibre) switched off by the engineer (claude-opus-5-5), who typed no scientific number: zero skip elements, switches 0, and in-bound placeholders under switches that are off.",
+  "origin": "system"
+}

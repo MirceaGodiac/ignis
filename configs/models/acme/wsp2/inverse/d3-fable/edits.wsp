@@ -1,0 +1,50 @@
+# acme_inverse.wsp2 — D3 literal revision of D1 sha256:6a3d5837…3cad, spec acme_inverse-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: typed after the author re-read the TRAIN rows
+# of the PSI-159 inverse-flame table together with a train-only session-transfer audit of D1/D2
+# delegated to an analysis agent, whose claims the author rechecked run by run. Not zero-shot. No
+# fit, no search. The author had also seen the aggregate validation table of D1 and D2 (integrated
+# Brier scores); nothing below was chosen from it. D3 revises D1, the carried candidate (D2, D1 with
+# wider clocks, did not improve on validation and stays as a negative result).
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logp = ln(p / 101325 Pa)             c_logm = ln(injected O2/N2 mass flow / 5 mg/s)
+#   c_o2 = (injected x_O2 - 0.50)/0.25     c_xf = ln(ambient fuel fraction / 0.10)
+#   c_tad = (T_ad - 2200 K)/300 K          c_zst = (Z_st - 0.45)/0.2
+#
+# The self-extinction clock of D1 is unchanged: on train its flow, oxygen, fuel and fuel-fraction
+# dependences each hold across the sessions that test them.
+
+# =====================================================================================================
+# 1. The weak class (a flash at ignition)
+# =====================================================================================================
+# D1 let the adiabatic temperature decide. It does not: the three train flashes were at 1835, 1868 and
+# 1879 K, while flames at 1783-1787 K (15 % O2 into 29 % ethane) burned 36-66 s and D1 gave them a
+# 0.94 chance of flashing. What the flashes share is air injected into a lean ambient: 7.0 % fuel
+# (flash), 8.0 % (flash), 8.7-8.8 % (one flash in four), and none in nine tests at 19.6 % fuel or
+# more; with 50 % or 85 % O2 injected a lean ambient gives a short flame of the main class, not a
+# flash. logit = -9.36 - 6 c_o2 - 10 c_xf: with air, 0.76 at 7 % fuel, 0.46 at 8 %, 0.25 at 8.8 %,
+# nothing at 20 %; with 50 % O2, 0.003 at 7 %.
+se.flash.b0 = -9.36
+se.flash.skip[0:8] = [0.0, 0.0, -6.0, -10.0, 0.0, 0.0, 0.0, 0.0]
+
+# =====================================================================================================
+# 2. Flow termination
+# =====================================================================================================
+# Burner temperature limit (85 % O2 in a fuel-rich ambient). Within one session 2.68 mg/s reached it
+# at 35-43 s while 4.03 mg/s was still under it at 90 s: the clock is steeper in flow than D1's 1.6.
+# 2.0, with the 2.7 mg/s time kept: 37 s at 2.68 mg/s, 83 s at 4.03 mg/s.
+ft.tau.b0 = 6.53
+ft.tau.skip[0:8] = [0.0, 2.0, -1.2, 0.0, 0.0, 0.0, 0.0, 0.0]
+# The limit was set near 455 C in one session and 515-650 C in others.
+ft.shape = 3.0
+
+# Stops. D1 gave every unscripted stop of the train table its own atom (26, 35.5, 43, 60, 63.5 s): a
+# time-out, an operator's decision, an automatic extinction detection and unexplained ends. None of
+# those times recurs in a second session, and a new session will have its own. They are replaced by
+# what transfers: unscripted stops happen at a rate of about one in 400 flame-seconds (seven in the
+# train table), and the scripted 66 s stop, used by four of the five sessions with a flame alive at
+# 65 s, where it ended 13 of 14 such flames: 0.8 x 0.93 = 0.75. The 90 s stop comes from one session
+# (two of its three flames alive then) and the 136 s stop from one flame: 0.4 and 0.5.
+ft.atom_t_s[0:8] = [66.0, 90.0, 136.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+ft.atom_logit[0:8] = [1.1, -0.4, 0.0, -40.0, -40.0, -40.0, -40.0, -40.0]
+ft.log_base = -6.0

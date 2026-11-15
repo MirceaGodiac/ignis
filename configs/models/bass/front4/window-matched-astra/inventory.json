@@ -1,0 +1,10 @@
+{
+  "candidate_status": "data-informed; experimental; not_trained",
+  "candidate_release_id": "sha256:01a4edf415434f4f041a91a7b44cde9999ea9afa8f921c28f6200a7d3837c87a",
+  "parent_release_id": "sha256:79d27b0203a7935f1bdaa275e2f508f24f0d2a52edd67ebe38fd327647c5a1e0",
+  "weights_hash": "sha256:af3736b89b18d7731d50062e5a749898f09a0a45861ddf5ca40ef48e6066bd22",
+  "newly_chosen_scalar_positions": 0,
+  "changed_scalar_positions": 0,
+  "literal_inspections_identical": true,
+  "every_npz_tensor_entry_byte_identical": true
+}

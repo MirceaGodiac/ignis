@@ -1,0 +1,47 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "jets-property-cleanroom-astra-w0-v1",
+  "family": "other",
+  "model_name": "jets_property_cleanroom_astra_w0",
+  "target": {
+    "quantity": "temperature",
+    "unit": "K",
+    "description": "Conditional adiabatic complete-reaction caloric temperature on a laminar Boussinesq jet/coflow field; experimental and unqualified.",
+    "excludes": ["visible_flame_diameter", "uv_flame_diameter", "lift_off_height", "extinction_time", "ignition_time", "qualified_NASA_predictions", "electric_field_response"]
+  },
+  "features": [
+    {"name":"jet_composition","unit":"1","source":"explicit:species_elements_properties_raw_fractions_and_basis","transform":"validated_composition@1"},
+    {"name":"coflow_composition","unit":"1","source":"explicit:species_elements_properties_raw_fractions_and_basis","transform":"validated_composition@1"},
+    {"name":"stoichiometric_products","unit":"1","source":"explicit:complete_products_elements_properties_and_fractions","transform":"element_mass_balance@1"},
+    {"name":"heat_release_st","unit":"J/kg","source":"explicit:thermochemical_reaction_heat_per_kg_stoichiometric_mixture_at_reference","transform":"identity@1"},
+    {"name":"atomic_molar_masses","unit":"kg/mol","source":"explicit:CHONS_He_Ar_atomic_masses_and_provenance","transform":"identity@1"},
+    {"name":"inlet_radius","unit":"m","source":"explicit:inlet_geometry","transform":"declared_unit_conversion@1"},
+    {"name":"outer_inlet_radius","unit":"m","source":"explicit:outer_streamline_geometry","transform":"declared_unit_conversion@1"},
+    {"name":"jet_axial_speed","unit":"m/s","source":"explicit:jet_boundary","transform":"identity@1"},
+    {"name":"coflow_axial_speed","unit":"m/s","source":"explicit:coflow_boundary","transform":"identity@1"},
+    {"name":"jet_temperature","unit":"K","source":"explicit:jet_boundary","transform":"identity@1"},
+    {"name":"coflow_temperature","unit":"K","source":"explicit:coflow_boundary","transform":"identity@1"},
+    {"name":"pressure","unit":"Pa","source":"explicit:common_pressure_boundary","transform":"declared_unit_conversion@1"},
+    {"name":"common_scalar_diffusivity","unit":"m2/s","source":"explicit:constant_domain_species_and_enthalpy_transport","transform":"identity@1"},
+    {"name":"kinematic_viscosity","unit":"m2/s","source":"explicit:constant_domain_momentum_transport","transform":"identity@1"},
+    {"name":"reference_density","unit":"kg/m3","source":"explicit:coflow_reference_density","transform":"identity@1"},
+    {"name":"axis","unit":"1","source":"explicit:unit_axis_and_coordinate_frame","transform":"identity@1"},
+    {"name":"gravity","unit":"m/s2","source":"explicit:three_components_in_same_frame","transform":"signed_axial_projection@1"},
+    {"name":"electric_field","unit":"V/m","source":"explicit:three_components_zero_only_supported","transform":"identity@1"},
+    {"name":"maximum_boussinesq_density_change","unit":"1","source":"explicit:caller_approximation_budget_not_universal_threshold","transform":"identity@1"},
+    {"name":"axial_distance","unit":"m","source":"explicit:requested_spatial_station_not_time","transform":"identity@1"}
+  ],
+  "domain": [
+    {"feature":"inlet_radius","min":0.0},
+    {"feature":"jet_axial_speed","min":0.0},
+    {"feature":"coflow_axial_speed","min":0.0},
+    {"feature":"common_scalar_diffusivity","min":0.0},
+    {"feature":"kinematic_viscosity","min":0.0},
+    {"feature":"maximum_boussinesq_density_change","min":0.0,"max":1.0}
+  ],
+  "tensors": [
+    {"name":"analytic_constants","shape":[3],"role":"physical_parameter","fill":{"rule":"author_writes_all"},"unit":"1","bounds":{"min":1.0,"max":5.0},"description":"Author-typed pi, two and four: circle/streamfunction geometry and heat kernel. Analytic identities, no tunable empirical coefficient. Forward checks exact frozen values."}
+  ],
+  "forward": {"entry_point":"ignis_wsp::property_jets_w0::forward","version":"1","profile":"strict_no_fitting"},
+  "notes":"Internal kernel input records are richer than the current scalar forecast route; structural integration must preserve every record and assumption and may not infer defaults. Coupled signed axial gravity is a conditional Boussinesq approximation, unqualified for strong thermal expansion or finite-rate/electric/optical outcomes. Reaction-sheet brackets remain local diagnostics, without aliasing Quantity. family=other intentionally covers normal/inverse generic jets and is not a NASA-family release. Numerical resolution/CFL/resource budgets are explicit call settings, not physical coefficients. All inequalities at zero are strict in the forward. Uncertainty is retained and not propagated. This spec is not a published release."
+}

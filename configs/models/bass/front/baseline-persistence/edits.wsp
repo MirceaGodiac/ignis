@@ -1,0 +1,48 @@
+# bass_front.wsp — reference baseline "persistence", spec bass_front-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the forecast a ruler gives. The tip keeps the
+# speed the prefix shows, whatever the flow does afterwards. No law of flow, oxygen or width, no
+# overhang, no quench. It is the lineage root of the spec and the comparison "what does a forecast
+# score that knows nothing about the flow".
+#
+# features (u, c_o2, c_w), columns 0..2:
+#   u = U / 5 cm/s - 1     c_o2 = (X_O2 - 0.19) / 0.02     c_w = ln(W / W_ref)
+# N(c) = b0 + skip . c + sum_j w2[j] relu(b1[j] + W1[j, :] . c)
+
+# The law's own speed is a placeholder: with a gain of 1 the run offset replaces it by the speed the
+# prefix shows. 0.05 sample widths per second is a round number of the right order.
+speed.b0 = 0.05
+speed.skip[0:3] = [0.0, 0.0, 0.0]
+speed.pow[0:2] = [0.0, 0.0]
+
+# No overhang: the tip is the front.
+over.b0 = 0.0
+over.skip[0:3] = [0.0, 0.0, 0.0]
+over.pow[0:2] = [0.0, 0.0]
+over.tau_s = 2.0
+
+# Burn-through time (only places the base, which this baseline does not use): 6 s.
+burn.b0 = 1.79
+burn.skip[0:3] = [0.0, 0.0, 0.0]
+
+# No quench.
+quench.b0 = -40.0
+quench.skip[0:3] = [0.0, 0.0, 0.0]
+
+ign.gain = 1.0
+ign.delay_s = 0.0
+end.linger_s = 5.0
+
+# The prefix is believed entirely, from the tip alone.
+enc.gain_w[0:2] = [0.0, 0.0]
+enc.gain_b = 10.0
+enc.mix[0:2] = [1.0, 0.0]
+enc.e_clip[0:2] = [3.0, 3.0]
+
+# Spread: wide before a prefix, 15 % of the carried speed after it.
+unc.s_pop = 0.5
+unc.s_floor = 0.15
+unc.s_far[0:2] = [0.0, 0.0]
+unc.sigma_w = 0.04
+unc.sigma_x0_w = 1.0
+unc.rel_over = 0.0
+unc.drift_w = 0.01

@@ -1,0 +1,148 @@
+# bass_front.wsp2 — carry of D1, literal revision of the baseline sha256:a100f728…71f7, spec bass_front-wsp-v2
+# CARRY of the candidate D1 of bass_front.wsp (sha256:ac15e49f…855c) on the second front forward
+# (front2.rs); not a new candidate. The assignment statements below, with their comments, are those
+# of configs/models/bass/front/d1-fable/edits.wsp, copied statement by statement without change. The
+# block at the end switches the entries of the second front forward off; with them off the forecast
+# is that of front.rs, so this release gives the forecasts of D1 case by case and stands in for D1 in
+# paired comparisons on this forward.
+#
+# bass_front.wsp — D1 literal revision of the baseline sha256:ce53fe1f…de46, spec bass_front-wsp-v1
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: typed after the author read the front tracks of
+# the four TRAIN burns (T5, T6, T16, T10: tip and base of the flame in sample widths, the fan history,
+# the fan calibration; tools/wsp/bass_optical/tracks/train/ and docs/wsp/feedback/bass_train_tracks.md)
+# and a review of the published theory, numerical models and other experiments of concurrent flame
+# spread (docs/wsp/research/lit_flame_spread.md), which by its own rule left out the measured results
+# of the BASS-II concurrent tests. The author also read the INPUTS of the seventeen validation track
+# files (oxygen, sample label, band width, restrictor, igniter interval, calibration rows, the set of
+# fan values) to check that the reader accepts them; no position, time or outcome of a validation
+# burn was read. Not zero-shot. Every number typed by the author; no fit, no search.
+#
+# features (u, c_o2, c_w), columns 0..2:
+#   u = U / 5 cm/s - 1     c_o2 = (X_O2 - 0.19) / 0.02     c_w = ln(W / W_ref), W_ref the 2 cm sample
+# N(c) = b0 + skip . c + sum_j w2[j] relu(b1[j] + W1[j, :] . c)
+# Lengths in sample widths (w); the train samples are all of the 2 cm class.
+
+# =====================================================================================================
+# 1. Spread rate of the front
+# =====================================================================================================
+# Theory and every numerical model of concurrent spread over a thin fuel give a steady spread whose
+# rate is linear in the flow speed and close to linear in oxygen. Train, steady phases after the fan
+# steps: 0.0374 and 0.0389 w/s at 2.4 cm/s in 18.8 % O2 (T5, T6), 0.0379 w/s at 3.0 cm/s in 17.6 %
+# (T16); before the steps, 0.043-0.044 w/s at 4.7 cm/s in 17.6 % (T16, nearly steady) and 0.07-0.10
+# w/s at 10.9 cm/s in 18.8 % (T5, from the base, which repeats the front one burn-through time later).
+# With oxygen as a power 1.5 of X/0.19 (the models say 1 to 2), the two low-flow groups give
+#   v = 0.0229 + 0.0066 U   [w/s, U in cm/s]
+# which puts 0.048 at 4.7 cm/s (measured 0.043) and 0.093 at 10.9 cm/s. The three flames slow by
+# 5-30 % over their last 40 s, and against whole prefixes of 35 s the first version of this file ran
+# 1-8 % fast in all three, so the law is typed 4 % lower:
+#   v = 0.0215 + 0.0064 U  =  0.0535 + 0.032 u
+# The intercept is a spread at
+# no forced flow that the theory does not have; the low fan settings sit below the calibrated rows, so
+# their speeds are the straight line to the stall point, and the intercept may be part calibration.
+# At 20 cm/s in 22 % O2 the law gives 0.19 w/s, 0.4 cm/s on a 2.2 cm sample; published large-scale
+# tests of this fabric measured 0.2-0.36 cm/s at 20-25 cm/s, more in the smaller duct.
+speed.b0 = 0.0535
+speed.skip[0:3] = [0.032, 0.0, 0.0]
+# Oxygen power 1.5. Width power -1: a narrow sample is taken to spread at the same speed in mm/s, so
+# faster in its own widths. The published work disagrees on the sign of the width effect at low flow
+# (side oxygen helps, holder loss hurts); the spread below carries that.
+speed.pow[0:2] = [1.5, -1.0]
+
+# =====================================================================================================
+# 2. Overhang of the visible tip, and the burn-through time
+# =====================================================================================================
+# At a step down in flow the tip stops or retreats while the front goes on: the overhang shrank by
+# about 0.5 w when the flow fell from 10.9 to 2.4 cm/s (T5: the tip fell back 0.21 w in 4.7 s while the
+# front advanced), 0.14 w from 5.2 to 2.4 cm/s (T6: the tip stalled 3.5 s), 0.05 w from 4.7 to 3.0
+# cm/s (T16). Flame and pyrolysis lengths are linear in flow in every model: h = 0.065 U at 18.8 % O2
+# (0.055 U, the first version of this file, left the tip of all three burns behind the law across
+# its step: offsets of -0.06, -0.10 and -0.31 read at 20 s).
+over.b0 = 0.325
+over.skip[0:3] = [0.325, 0.0, 0.0]
+# The flame shortens fast towards the oxygen limit: half the slope at 17.6 % (T16) against 18.8 %.
+# Power 3 of X/0.19 gives 0.8 of it; one burn, so not the full measured ratio. Width power -1.
+over.pow[0:2] = [3.0, -1.0]
+# The tip answers within the 0.5 s of the video and has settled in 2-8 s.
+over.tau_s = 2.0
+
+# The base repeats the front one burn-through time later. Steady length minus overhang over speed:
+# 6.6 s (T5, T6) and 6.0 s (T16); after the T5 step the base keeps the old speed for about 7 s.
+# Large samples of this fabric in air burn through in about 22 s; nothing in train says how the time
+# changes with oxygen, flow or width, so it is one number.
+burn.b0 = 1.84
+burn.skip[0:3] = [0.0, 0.0, 0.0]
+
+# While the igniter is on the front moves at the law's speed from the igniter: that puts the tip at
+# 1.08, 0.58 and 0.67 w at igniter-off against the measured 1.06, 0.51-0.62 and 0.82 w.
+ign.gain = 1.0
+ign.delay_s = 0.0
+# T5: the tip reaches the end of the sample at 94.5 s and the flame is gone at 99.5 s.
+end.linger_s = 5.0
+
+# =====================================================================================================
+# 3. Quench
+# =====================================================================================================
+# The published boundary of a thin fuel has a quench velocity that rises as oxygen falls (1.0, 1.5,
+# 1.8, 2.7 cm/s at 21, 19, 17, 15 % for tissue) and a lowest oxygen near 5 cm/s. This fabric on its
+# holder needs more oxygen: train, no flame at 16.4 % and 6 cm/s (T10), spread at 17.6 % and 3-4.7
+# cm/s (T16). With the tissue curve moved up by 3 % oxygen: U_q = 2.27 - 1.33 c_o2 cm/s (2.4 at
+# 18.8 %, 3.2 at 17.6 %, 0.9 at 21 %). The three train flames spread for 100 s within 0.3 cm/s of
+# that line, thinning slowly; one of them was gone at the end of the sample.
+# A flame well above the line: one quench in 1100 s.
+quench.b0 = -7.0
+quench.skip[0:3] = [0.0, 0.0, 0.0]
+# Unit 0: below the quench velocity, ln rate + 2.5 per cm/s of deficit: at 0.3 cm/s below, one in 500 s;
+# with the fan off at 18.8 % O2, five seconds (turning the fan off always puts the flame out).
+quench.W1[0, 0] = -5.0
+quench.W1[0, 1] = -1.33
+quench.b1[0] = -2.73
+quench.w2[0] = 2.5
+# Unit 1: below 17.2 % oxygen at any flow, + 12 per 2 % of oxygen: at 16.4 % the flame is gone within
+# ten seconds of the igniter (T10).
+quench.W1[1, 1] = -1.0
+quench.b1[1] = -0.9
+quench.w2[1] = 12.0
+
+# =====================================================================================================
+# 4. What the prefix adds
+# =====================================================================================================
+# The offset is the advance seen over the advance the law gives under the same flow history, so a
+# changing flow is already accounted for; what a short or unsettled prefix cannot give is the
+# overhang, which the tip offset needs and the base offset does not. On train the offsets read at
+# 20 s, with the fan step inside the prefix, were -0.11 and -0.16 where the settled offsets at 40 s
+# are -0.04 and -0.08, and the base offsets were the worse of the two (-0.19 to -0.75 in short
+# prefixes: the base starts late at the igniter). So a prefix just after a change of flow is trusted
+# less and the base carries a fifth of the offset. A prefix of 4 s is the ignition transient (offsets
+# of -0.06 to -0.24 there): gain 0.25 for 4 s of settled prefix, 0.3 for 14 s that end 2 s after a fan
+# step, 0.8 for 14 s that end 8 s after one, 0.99 for 35 s of settled spread.
+enc.gain_w[0:2] = [2.5, 3.5]
+enc.gain_b = -2.3
+enc.mix[0:2] = [0.8, 0.2]
+enc.e_clip[0:2] = [0.7, 0.7]
+
+# =====================================================================================================
+# 5. Spread
+# =====================================================================================================
+# Before a prefix: the three train burns agree within 5 % at one flow and one day; other days, flows
+# to 45 cm/s and 21 % oxygen are outside them: 25 %. After a trusted prefix: 6 %.
+unc.s_pop = 0.25
+unc.s_floor = 0.06
+# Further from the reference: 6 % per 2 % of oxygen, 25 % per e-fold of width (0.15 for the 1 cm sample).
+unc.s_far[0:2] = [0.06, 0.25]
+# The tip is measured to 0.01-0.02 w; the still camera's clock is known to 0.3-1.5 s against the fan
+# history, which is 0.02-0.1 w of travel.
+unc.sigma_w = 0.04
+unc.sigma_x0_w = 0.3
+# Half of a modelled change of overhang is in doubt (three steps, the smallest overpredicted twofold).
+unc.rel_over = 0.5
+unc.drift_w = 0.01
+
+# Entries of the second front forward, all switched off: with them the forecast is that of
+# front.rs. Typed by the author (claude-fable-5-2).
+speed.split = 0.0
+speed.pow_i = 0.0
+speed.kappa = 0.0
+over.tau_up_s = 0.0
+unc.flow_abs_cm_s = 0.0
+unc.flow_rel = 0.0
+unc.flow_w[0:3] = [0.0, 1.0, 0.0]
