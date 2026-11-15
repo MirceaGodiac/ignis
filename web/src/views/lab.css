@@ -56,6 +56,8 @@
 .fc-obar > span { display: block; height: 100%; min-width: 2px; }
 .fc-olegend { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
 .fc-olegend li { display: inline-flex; align-items: center; gap: 6px; }
+.fc-recorded { margin: 0; font-size: 13px; padding-top: 6px; border-top: 1px dashed var(--rule); }
+.fc-recorded .glyph { display: inline-block; vertical-align: -1px; margin-right: 2px; }
 .fc-legend { font-size: 12.5px; }
 .chart-wrap { position: relative; }
 .chart-wrap .chart { min-height: 340px; touch-action: none; }
