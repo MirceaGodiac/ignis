@@ -79,28 +79,79 @@
 .lab-models { grid-template-columns: minmax(0, 1fr); }
 .lab-models > h2 { font-size: 15px; }
 .lab-start { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; }
-.lab-model-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 13.5px; }
-.lab-model-row > label { color: var(--ink-2); }
-.lab-model-row #hw-model { flex: 0 1 auto; width: auto; max-width: min(100%, 720px); text-overflow: ellipsis; }
 .lab-why { margin: 0; }
 .fc { min-width: 0; }
 .fc-model { align-items: flex-start; gap: 10px 16px; }
 .fc-model-name { flex: 1 1 320px; min-width: 0; gap: 4px; }
+.fc-model-full { font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; }
 .fc-model-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .fc-model-actions.seg { flex: none; }
-.fc-inputs { display: grid; gap: 12px; margin: 0; }
-.fc-in { display: grid; grid-template-columns: minmax(160px, 240px) minmax(0, 1fr); gap: 4px 16px; align-items: start; }
-.fc-in dt { display: grid; gap: 1px; font-size: 13.5px; color: var(--ink); padding-top: 6px; }
-.fc-in-name { font-size: 11px; color: var(--ink-3); background: none; padding: 0; }
-.fc-in dd { margin: 0; display: grid; gap: 4px; min-width: 0; }
-.fc-in .field { width: 100%; max-width: 440px; }
-.fc-in textarea.field { height: auto; min-height: 64px; padding: 6px 10px; resize: vertical; line-height: 1.45; }
+
+/* Model chooser: one radio list grouped by what the models forecast; collapses to one line once chosen. */
+.mc { display: grid; gap: 8px; min-width: 0; }
+.mc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13.5px; }
+.mc-title { color: var(--ink-2); }
+.mc-list { display: grid; gap: 14px; max-height: min(62vh, 520px); overflow: auto; padding: 10px; border: 1px solid var(--rule); border-radius: var(--r-c); background: var(--sheet); }
+.mc-group { display: grid; gap: 2px; }
+.mc-group-h { font-size: 12.5px; font-weight: 500; color: var(--ink-3); margin: 0 0 4px 8px; }
+.mc-opt { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; align-items: start; padding: 8px 10px; border-radius: 7px; cursor: pointer; transition: background 140ms; }
+.mc-opt:hover { background: var(--hover); }
+.mc-opt.on { background: var(--wash); }
+.mc-opt:has(input:focus-visible) { outline: 2px solid color-mix(in srgb, var(--flame) 70%, transparent); outline-offset: -2px; }
+.mc-dot { width: 14px; height: 14px; margin-top: 3px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--rule-2); background: var(--sheet); transition: box-shadow 140ms; }
+.mc-opt.on .mc-dot { box-shadow: inset 0 0 0 1.5px var(--ink), inset 0 0 0 4.5px var(--sheet); background: var(--ink); }
+.mc-main { display: grid; gap: 1px; min-width: 0; }
+.mc-main b { font-size: 13.5px; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+.mc-what { font-size: 12.5px; color: var(--ink-3); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mc-side { display: inline-flex; align-items: center; gap: 8px; padding-top: 1px; }
+.mc-slug { font-size: 11.5px; color: var(--ink-3); background: none; padding: 0; white-space: nowrap; }
+.mc-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 13.5px; }
+.mc-line b { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.mc-line .btn { align-self: center; }
+
+/* Typed conditions: a short bar (the example), then one fieldset per kind of input, labels above fields. */
+.fc-typed-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; font-size: 12.5px; }
+.fc-inputs { display: grid; gap: 16px; margin: 0; }
+.fc-group { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 8px; }
+.fc-group > legend { padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 18px; }
+.fc-in { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.fc-in-wide { grid-column: 1 / -1; }
+.fc-in-label { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; font-size: 13px; color: var(--ink); cursor: default; }
+.fc-opt { font-size: 12px; color: var(--ink-3); }
+.fc-in .field { width: 100%; }
 .fc-in-note { font-size: 12px; overflow-wrap: anywhere; }
 .fc-in-src { color: var(--ink-2); font-weight: 500; }
 .fc-in-record .field { background: var(--wash); }
 .fc-in-missing .field { border-color: var(--ink-3); }
+
+/* A series or a stage list as a small editable table. */
+.fc-rows { display: grid; gap: 4px; justify-items: start; max-width: 460px; }
+.fc-rows table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.fc-rows th { text-align: left; font-size: 12px; font-weight: 500; color: var(--ink-3); padding: 0 6px 4px 0; }
+.fc-rows td { padding: 0 6px 4px 0; }
+.fc-rows .field { height: 28px; padding: 0 8px; }
+.fc-rows .fc-rows-x { width: 30px; padding-right: 0; }
+.fc-rows-x .btn { color: var(--ink-3); }
+.fc-rows-add { margin-left: -9px; }
 @media (max-width: 640px) {
-  .fc-in { grid-template-columns: minmax(0, 1fr); }
-  .fc-in dt { padding-top: 0; }
-  .lab-model-row #hw-model { width: 100%; }
+  .fc-grid { grid-template-columns: minmax(0, 1fr); }
+  .fc-rows { max-width: 100%; }
+  .mc-opt { grid-template-columns: auto minmax(0, 1fr); }
+  .mc-side { grid-column: 2; }
+  .mc-list { padding: 6px; }
+}
+
+/* Law releases: one line per declared target, the question left and the answer right. */
+.fc-law { list-style: none; margin: 0; padding: 0; display: grid; }
+.fc-law li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, auto); gap: 4px 20px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+.fc-law li:first-child { border-top: 0; padding-top: 2px; }
+.fc-law-q { color: var(--ink); }
+.fc-law-a { display: inline-flex; align-items: center; gap: 8px; justify-self: end; text-align: right; }
+.fc-law-a b { font-weight: 650; }
+.fc-law-bar { display: inline-block; width: 84px; height: 6px; border-radius: 3px; background: var(--wash); overflow: hidden; }
+.fc-law-bar > span { display: block; height: 100%; background: var(--model); }
+@media (max-width: 640px) {
+  .fc-law li { grid-template-columns: minmax(0, 1fr); }
+  .fc-law-a { justify-self: start; text-align: left; }
 }

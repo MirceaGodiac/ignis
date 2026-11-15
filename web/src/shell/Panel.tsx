@@ -1,8 +1,9 @@
 // The side panel (Linear peek / Slack thread): the selected run, claim, source, figure, route step
 // or release, with a back trail. Every link inside it pushes onto the trail; Escape closes it.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ResearchAnswer, SourceLocator } from "../contracts/generated";
+import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ReadResult, ResearchAnswer, SearchHit, SourceLocator } from "../contracts/generated";
+import type { ToolCallState } from "../research/eventLog";
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
@@ -14,9 +15,10 @@ import { INVESTIGATIONS } from "../data/investigations";
 import { conditionRows, gapText } from "../research/runConditions";
 import { useData } from "./data";
 import { itemKey, usePanel, type PanelItem } from "./inspector";
-import { FamilyMark, FAMILY_LABEL, IconBack, IconClose } from "./icons";
+import { FamilyMark, FAMILY_LABEL, IconBack, IconChevron, IconClose } from "./icons";
 import { href } from "./router";
-import { TOOL_LABEL } from "../views/turns";
+import { callArgs, callQuery, callValue, describeCall, rangeText, sourceTitle, TOOL_KIND, TOOL_LABEL } from "../views/turns";
+import "../views/trail.css";
 import { isTypedArtifact } from "../research/artifactViews";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
 import { SourceOriginal, httpUrl } from "./SourceOriginal";
@@ -27,6 +29,9 @@ import { JsonView } from "./JsonView";
 
 const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation", original: "NASA original" };
 
+/** The panel heading of a step: what kind of work it was; the sentence below says exactly what. */
+const STEP_TITLE: Record<string, string> = { search: "Search", read: "Reading", data: "Test conditions", model: "Model", compute: "Analysis", web: "Web" };
+
 const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer", AnswerRefusal: "Refused answer", VisualObservationBundle: "Video contours" };
 
 function itemTitle(i: PanelItem): string {
@@ -36,7 +41,7 @@ function itemTitle(i: PanelItem): string {
     case "claim":
       return `Claim ${i.keyLabel}`;
     case "step":
-      return `Step ${i.index}: ${TOOL_LABEL[i.call.tool] ?? words(i.call.tool)}`;
+      return STEP_TITLE[TOOL_KIND[i.call.tool] ?? ""] ?? TOOL_LABEL[i.call.tool] ?? words(i.call.tool);
     case "release":
       return i.release.model_name;
     case "investigation":
@@ -695,107 +700,344 @@ function Payload({ payload, onArtifact, title = "Result" }: { payload: InlinePay
   );
 }
 
+const STEP_STATE_NOTE: Record<string, { title: string; tone: string }> = {
+  failed: { title: "This step failed", tone: "note-refusal" },
+  refused: { title: "IGNIS declined this step", tone: "note-refusal" },
+  cancelled: { title: "This step was cancelled", tone: "note-gap" },
+};
+
+/** The call's result value: inline, or read from its stored artifact when only a preview travelled. */
+function useResultValue(call: ToolCallState): Record<string, unknown> | null {
+  const { client, researchMode } = useData();
+  const inline = callValue(call);
+  const full = call.result?.result?.partial ? call.result.result.full ?? null : null;
+  const q = useQuery({
+    queryKey: [researchMode, "artifact", full?.artifact_id],
+    queryFn: () => client.getArtifactJson(full!.artifact_id),
+    enabled: !!full && (full.media_type ?? "").includes("json"),
+    retry: false,
+    staleTime: Infinity,
+  });
+  const loaded = q.data && typeof q.data === "object" && !Array.isArray(q.data) ? (q.data as Record<string, unknown>) : null;
+  return loaded ?? inline;
+}
+
+const strs = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : []);
+
+/** What a search was given and what came back, as a reader would want it: the query, its limits, the passages. */
+function SearchStep({ call }: { call: ToolCallState }) {
+  const panel = usePanel();
+  const a = callArgs(call);
+  const v = callValue(call);
+  const full = useResultValue(call);
+  const q = callQuery(call);
+  const terms = Array.isArray(a?.expected_terms) ? (a!.expected_terms as { term?: unknown }[]).flatMap((t) => (typeof t?.term === "string" ? [t.term] : [])) : [];
+  const f = (a?.filters ?? null) as Record<string, unknown> | null;
+  const limits = [...strs(f?.families).map((x) => FAMILY_LABEL[x] ?? x), ...strs(f?.investigation_ids)];
+  const hits = Array.isArray(full?.hits) ? (full!.hits as SearchHit[]) : null;
+  const total = typeof full?.total_count === "number" ? full.total_count : null;
+  const down = Array.isArray(full?.backends) ? (full!.backends as { backend?: string; status?: string; detail?: string | null }[]).filter((b) => b?.status === "unavailable") : [];
+  return (
+    <>
+      {q && (
+        <div className="panel-sec">
+          <h3>Query</h3>
+          <p className="step-query">{q}</p>
+          {terms.length > 0 && <p className="muted small">Also looking for: {terms.join(", ")}</p>}
+          {limits.length > 0 && <p className="muted small">Limited to {limits.join(", ")}</p>}
+        </div>
+      )}
+      {(down.length > 0 || v?.degraded === true) && (
+        <div className="note note-gap">
+          <b>The search ran degraded</b>
+          {down.map((b, i) => (
+            <span key={i}>
+              {words(b.backend ?? "a backend")} was unavailable{b.detail ? `: ${b.detail}` : "."}
+            </span>
+          ))}
+          {!down.length && <span>The service reported degraded results.</span>}
+        </div>
+      )}
+      {hits && (
+        <div className="panel-sec">
+          <h3>
+            {hits.length === 0 ? "No passages came back" : `${hits.length} passage${hits.length === 1 ? "" : "s"}${total != null && total > hits.length ? ` of ${total}` : ""}`}
+          </h3>
+          {hits.length === 0 && <p className="muted small">An empty page does not prove the corpus lacks it.</p>}
+          <ol className="step-hits">
+            {hits.map((h) => (
+              <li key={`${h.rank}-${h.evidence.evidence_id}`}>
+                <button className="step-hit" onClick={() => panel.push({ kind: "evidence", evidence: h.evidence })}>
+                  <span className="step-hit-title">{h.title ?? sourceTitle(h.evidence.source_id) ?? "Untitled source"}</span>
+                  <span className="muted small">{placeShort(h.evidence)}</span>
+                  {h.snippet && <span className="step-hit-snippet">{h.snippet}</span>}
+                </button>
+              </li>
+            ))}
+          </ol>
+          {typeof full?.next_cursor === "string" && <p className="muted small">More results exist past this page.</p>}
+        </div>
+      )}
+    </>
+  );
+}
+
+/** What a read looked at and the text that came back, page by page. */
+function ReadStep({ call }: { call: ToolCallState }) {
+  const panel = usePanel();
+  const a = callArgs(call);
+  const v = useResultValue(call) as Partial<ReadResult> | null;
+  const sid = typeof a?.source_id === "string" ? a.source_id : null;
+  const title = sourceTitle(sid);
+  const where = rangeText(a?.range);
+  const segs = Array.isArray(v?.segments) ? v!.segments! : [];
+  const range = a?.range as { kind?: string; first?: number } | undefined;
+  const loc: SourceLocator | null = segs[0]?.locator ?? (sid && range?.kind === "pages" && typeof range.first === "number" ? { asset_sha256: sid.replace(/^sha256:/, ""), page: range.first } : null);
+  return (
+    <>
+      {sid && (
+      <div className="panel-sec">
+        <h3>Source</h3>
+        <p className="step-source">{title ?? "A source without a known title"}</p>
+        {where && <p className="muted small">{where.charAt(0).toUpperCase() + where.slice(1)}</p>}
+          <div className="toolbar">
+            <button className="btn btn-s" onClick={() => panel.push({ kind: "original", sourceId: sid, loc, title })}>
+              Open the original{loc?.page != null ? ` at page ${loc.page}` : ""}
+            </button>
+          </div>
+      </div>
+      )}
+      {segs.length > 0 && (
+        <div className="panel-sec">
+          <h3>What it read</h3>
+          {segs.map((s, i) => (
+            <Passage key={i} caption={s.locator ? pageCaption(s.locator) : null} text={s.text} />
+          ))}
+          {v?.complete === false && <p className="muted small">Part of the range: the rest was left for a next read.</p>}
+        </div>
+      )}
+    </>
+  );
+}
+
+function Passage({ caption, text }: { caption: string | null; text: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > 700;
+  return (
+    <figure className={`step-passage${open || !long ? " open" : ""}`}>
+      {caption && caption !== "no page" && <figcaption className="muted small">{caption.charAt(0).toUpperCase() + caption.slice(1)}</figcaption>}
+      <blockquote className="quote">{text}</blockquote>
+      {long && (
+        <button className="linkish small" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+          {open ? "Show less" : "Show the whole passage"}
+        </button>
+      )}
+    </figure>
+  );
+}
+
+/** A conditions lookup: what was asked for, and how much came back. */
+function ConditionsStep({ call, onArtifact }: { call: ToolCallState; onArtifact: (a: ArtifactRef) => void }) {
+  const a = callArgs(call);
+  const v = callValue(call);
+  const p = call.result?.result;
+  const inv = strs(a?.investigation_ids);
+  const keys = strs(a?.keys);
+  const rows = Array.isArray(v?.rows) ? v!.rows.length : null;
+  const total = typeof v?.total_count === "number" ? v.total_count : null;
+  return (
+    <div className="panel-sec">
+      <h3>Asked for</h3>
+      <p style={{ fontSize: 13.5 }}>
+        {inv.length ? `Runs of ${inv.join(", ")}` : "Runs of every investigation"}
+        {keys.length ? `, with ${keys.map(words).join(", ")}` : ", every recorded condition"}
+      </p>
+      {rows != null && (
+        <p style={{ fontSize: 13.5 }}>
+          {rows === 0 ? "No run matched." : `${total != null && total > rows ? `${rows} of ${total}` : rows} run${rows === 1 ? "" : "s"} came back.`}
+        </p>
+      )}
+      {p?.partial && (
+        <p style={{ fontSize: 13 }}>
+          <span className="tag tag-warn">preview only</span>{" "}
+          {p.full && (
+            <button className="linkish" onClick={() => onArtifact(p.full!)}>
+              Open the full table
+            </button>
+          )}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
   const panel = usePanel();
   const { synthetic } = useData();
-  const r = item.call.result;
+  const call = item.call;
+  const r = call.result;
+  const d = describeCall(call, { full: true });
+  const onArtifact = (a: ArtifactRef) => panel.push({ kind: "artifact", artifact: a });
   // A refused answer_submit carries its problems as an AnswerRefusal artifact (M7); the error message
   // repeats them as text, so it is shown only when that artifact cannot be read.
   const refusalRef = r?.tool === "answer_submit" && r.execution_status === "refused" ? (r.artifact_refs ?? []).find((a) => a.contract === "AnswerRefusal") ?? null : null;
+  const bad = r ? STEP_STATE_NOTE[r.execution_status] : undefined;
+  const sci = r?.scientific_status;
+  const verdict = sci && sci !== "not_assessed" && sci !== "conclusive" ? SCI_NOTE[sci] : null;
+  const generic = !["sources_search", "sources_read", "conditions_query"].includes(call.tool);
+  const v = r?.result?.value;
+  const flat = v && typeof v === "object" && !Array.isArray(v) && !("stored_as_artifact" in v) && Object.values(v as object).every((x) => x === null || ["string", "number", "boolean"].includes(typeof x));
+  const outputs = (r?.artifact_refs ?? []).filter((a) => a.contract !== "AnswerRefusal");
   return (
     <>
-      <div className="panel-sec">
-        <p style={{ fontSize: 13 }}>
-          Tool <code>{item.call.tool}</code> · call <code>{shortId(item.call.call_id)}</code>
-          {item.call.started_seq != null && <span className="muted"> · event {item.call.started_seq}</span>}
-        </p>
-        {!r && <p className="muted">Running: no result yet.</p>}
-        {r && (
-          <dl className="kv">
-            <dt>execution</dt>
-            <dd>
-              <b>{words(r.execution_status)}</b> <span className="muted">{EXEC_NOTE[r.execution_status]}</span>
-            </dd>
-            <dt>science</dt>
-            <dd>
-              <b>{words(r.scientific_status)}</b> <span className="muted">{SCI_NOTE[r.scientific_status]}</span>
-            </dd>
-          </dl>
-        )}
+      <div className="panel-sec step-lead">
+        <p className="step-sentence">{d.text}</p>
+        {!r && <p className="muted small">Working: no result yet.</p>}
+        {r?.execution_status === "accepted" && <p className="muted small">Started as a background job.</p>}
+        {verdict && <p className="small">{verdict}</p>}
+        {call.tool === "models_forecast" && <p className="muted small">A forecast is model output, never a measurement.</p>}
         {r && <OriginMark origin={r.origin} pageSynthetic={synthetic} />}
       </div>
-      <div className="panel-sec">
-        <h3>Arguments</h3>
-        {item.call.arguments ? (
-          <>
-            <Payload payload={item.call.arguments.value} title={null} onArtifact={(a) => panel.push({ kind: "artifact", artifact: a })} />
-            {(item.call.arguments.redacted ?? []).length > 0 && (
-              <p className="muted small">
-                Removed by scope before recording: {item.call.arguments.redacted!.map((p) => <code key={p}>{p} </code>)}
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="muted small">Not recorded for this call: the runtime sent no arguments with it.</p>
-        )}
-      </div>
+      {bad && !refusalRef && (
+        <div className={`note ${bad.tone}`}>
+          <b>{bad.title}</b>
+          {r?.error?.message && <p>{r.error.message}</p>}
+        </div>
+      )}
+      {refusalRef && <SubmissionRefusal refusalRef={refusalRef} fallback={r?.error?.message ?? null} />}
+      {call.tool === "sources_search" && <SearchStep call={call} />}
+      {call.tool === "sources_read" && <ReadStep call={call} />}
+      {call.tool === "conditions_query" && <ConditionsStep call={call} onArtifact={onArtifact} />}
+      {generic && flat && <Payload payload={r!.result!} onArtifact={onArtifact} />}
+      {call.tool !== "conditions_query" && r?.result?.partial && r.result.full && (
+        <div className="panel-sec">
+          <p style={{ fontSize: 13 }}>
+            <span className="tag tag-warn">preview only</span>{" "}
+            <button className="linkish" onClick={() => onArtifact(r.result!.full!)}>
+              Open the full result
+            </button>
+          </p>
+        </div>
+      )}
       {r?.job && (
         <div className="panel-sec">
-          <h3>Job</h3>
-          <dl className="kv">
-            <dt>job</dt>
-            <dd>
-              <code>{r.job.job_id}</code> ({words(r.job.kind)})
-            </dd>
-            <dt>status</dt>
-            <dd>{words(r.job.status)}</dd>
+          <h3>Background job</h3>
+          <p style={{ fontSize: 13.5 }}>
+            <span className="muted">When the call returned: </span>
+            {words(r.job.status)}
             {r.job.progress && (
+              <span className="muted">
+                {" "}
+                · {r.job.progress.completed}
+                {r.job.progress.total != null ? ` of ${r.job.progress.total}` : " (total unknown)"} {r.job.progress.unit}
+              </span>
+            )}
+          </p>
+        </div>
+      )}
+      {outputs.length > 0 && (
+        <div className="panel-sec">
+          <h3>What it produced</h3>
+          <div className="toolbar" style={{ flexWrap: "wrap" }}>
+            {outputs.map((a) => (
+              <button key={a.artifact_id} className="btn btn-s" onClick={() => onArtifact(a)}>
+                Open {(ARTIFACT_TITLE[a.contract ?? ""] ?? "result").toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {call.rationale.length > 0 && (
+        <div className="panel-sec">
+          <h3>Why, in the agent's words</h3>
+          {call.rationale.map((n) => (
+            <blockquote key={n.seq} className="quote step-why">
+              {n.text}
+            </blockquote>
+          ))}
+          <p className="muted small">The model's own explanation. It may not match what it computed.</p>
+        </div>
+      )}
+      <details className="step-tech">
+        <summary>
+          Technical details <IconChevron className="chev" aria-hidden="true" />
+        </summary>
+        <div className="step-tech-body">
+          <dl className="kv">
+            <dt>Tool</dt>
+            <dd>
+              <code>{call.tool}</code>
+            </dd>
+            <dt>Call</dt>
+            <dd>
+              <code>{call.call_id}</code>
+            </dd>
+            {call.started_seq != null && (
               <>
-                <dt>progress</dt>
-                <dd className="num">
-                  {r.job.progress.completed}
-                  {r.job.progress.total != null ? ` of ${r.job.progress.total}` : " (total unknown)"} {r.job.progress.unit}
+                <dt>Event</dt>
+                <dd className="num">{call.started_seq}</dd>
+              </>
+            )}
+            {r && (
+              <>
+                <dt>Execution</dt>
+                <dd>
+                  {words(r.execution_status)} <span className="muted">{EXEC_NOTE[r.execution_status]}</span>
+                </dd>
+                <dt>Science</dt>
+                <dd>
+                  {words(r.scientific_status)} <span className="muted">{SCI_NOTE[r.scientific_status]}</span>
+                </dd>
+                <dt>Origin</dt>
+                <dd>{words(r.origin)}</dd>
+                <dt>Contract</dt>
+                <dd>
+                  <code>{r.schema_version}</code>
                 </dd>
               </>
             )}
-          </dl>
-        </div>
-      )}
-      {r?.result && <Payload payload={r.result} onArtifact={(a) => panel.push({ kind: "artifact", artifact: a })} />}
-      {refusalRef && <SubmissionRefusal refusalRef={refusalRef} fallback={r?.error?.message ?? null} />}
-      {r?.error && !refusalRef && (
-        <div className="note note-refusal">
-          <b>
-            Tool error <code>{r.error.code}</code>
-          </b>
-          <p>{r.error.message}</p>
-        </div>
-      )}
-      {(r?.artifact_refs ?? []).length > 0 && (
-        <div className="panel-sec">
-          <h3>Artifacts</h3>
-          {r!.artifact_refs!.map((a) => (
-            <button key={a.artifact_id} className="linkish" onClick={() => panel.push({ kind: "artifact", artifact: a })}>
-              {a.contract ?? a.media_type} · {shortId(a.artifact_id)}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="panel-sec">
-        <h3>Why this step</h3>
-        {item.call.rationale.length === 0 ? (
-          <p className="muted small">The model gave no explanation for this call.</p>
-        ) : (
-          <>
-            {item.call.rationale.map((n) => (
-              <blockquote key={n.seq} className="quote">
-                {n.text}
-              </blockquote>
+            {r?.error && (
+              <>
+                <dt>Error</dt>
+                <dd>
+                  <code>{r.error.code}</code> <span className="muted">retry {words(r.error.retry.kind)}</span>
+                </dd>
+              </>
+            )}
+            {r?.job && (
+              <>
+                <dt>Job</dt>
+                <dd>
+                  <code>{r.job.job_id}</code> ({words(r.job.kind)})
+                </dd>
+              </>
+            )}
+            {(r?.artifact_refs ?? []).map((a) => (
+              <div key={a.artifact_id} style={{ display: "contents" }}>
+                <dt>Artifact</dt>
+                <dd>
+                  <button className="linkish" onClick={() => onArtifact(a)}>
+                    {a.contract ?? a.media_type} · {shortId(a.artifact_id)}
+                  </button>
+                </dd>
+              </div>
             ))}
-            <p className="muted small">The model's own explanation of this step. It may not match what the model computed.</p>
-          </>
-        )}
-      </div>
+          </dl>
+          {call.arguments ? (
+            <>
+              <Payload payload={call.arguments.value} title="Arguments" onArtifact={onArtifact} />
+              {(call.arguments.redacted ?? []).length > 0 && (
+                <p className="muted small">
+                  Removed by scope before recording: {call.arguments.redacted!.map((p) => <code key={p}>{p} </code>)}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="muted small">Arguments not recorded for this call: the runtime sent none with it.</p>
+          )}
+          {r?.result && <Payload payload={r.result} onArtifact={onArtifact} />}
+        </div>
+      </details>
     </>
   );
 }
@@ -805,7 +1047,7 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
 function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }) {
   const { synthetic } = useData();
   const r = item.release;
-  const trained = r.trained_on === "not_trained" ? "not trained (literal weights)" : r.trained_on === "synthetic" ? "synthetic data" : r.trained_on;
+  const trained = r.trained_on === "not_trained" ? "hand-written (literal weights)" : r.trained_on === "synthetic" ? "synthetic data" : r.trained_on;
   return (
     <>
       <div className="toolbar">

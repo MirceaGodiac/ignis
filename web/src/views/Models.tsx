@@ -7,10 +7,9 @@ import { FamilyMark, FAMILY_LABEL } from "../shell/icons";
 import { ErrorNote, Gap, ReleaseState, shortId, words } from "../ui/common";
 
 export function Models() {
-  const { caps, health } = useData();
+  const { caps } = useData();
   const panel = usePanel();
   const releases = useReleases();
-  const experts = health.data?.experts ?? [];
   return (
     <div className="view">
       <div className="view-head">
@@ -30,7 +29,7 @@ export function Models() {
                 <th>Model</th>
                 <th>Family</th>
                 <th>State</th>
-                <th>Trained on</th>
+                <th>Weights</th>
                 <th>Release</th>
               </tr>
             </thead>
@@ -46,7 +45,7 @@ export function Models() {
                   <td>
                     <ReleaseState state={r.state} />
                   </td>
-                  <td>{words(r.trained_on)}</td>
+                  <td>{r.trained_on === "not_trained" ? "hand-written" : words(r.trained_on)}</td>
                   <td>
                     <code>{shortId(r.id, 20)}</code>
                   </td>
@@ -59,35 +58,6 @@ export function Models() {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {experts.length > 0 && (
-        <div className="tbl-wrap">
-          <table className="tbl">
-            <caption>Experts available to the forecast lab in this data source</caption>
-            <thead>
-              <tr>
-                <th>Expert</th>
-                <th>Family</th>
-                <th>Role</th>
-              </tr>
-            </thead>
-            <tbody>
-              {experts.map((e) => (
-                <tr key={e.model_name}>
-                  <td>
-                    <code>{e.model_name}</code>
-                  </td>
-                  <td>
-                    <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                      <FamilyMark family={e.family} size={9} /> {FAMILY_LABEL[e.family] ?? e.family}
-                    </span>
-                  </td>
-                  <td>{e.is_baseline ? "baseline" : "expert"}</td>
-                </tr>
-              ))}
             </tbody>
           </table>
         </div>

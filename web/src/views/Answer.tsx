@@ -116,6 +116,7 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
             </p>
           );
         })}
+        <Limits answer={answer} />
         <SourcesRow answer={answer} srcNo={srcNo} />
         <AnswerActions answer={answer} />
         <NextSteps answer={answer} keyOf={keyOf} />
@@ -314,6 +315,27 @@ function AnswerActions({ answer }: { answer: ResearchAnswer }) {
   );
 }
 
+/** What limits this answer, as a calm note under it; each limit can be asked about. */
+function Limits({ answer }: { answer: ResearchAnswer }) {
+  const ls = answer.limitations ?? [];
+  if (!ls.length) return null;
+  return (
+    <aside className="answer-limits" aria-label="Limits of this answer">
+      <b>{ls.length === 1 ? "Limit of this answer" : "Limits of this answer"}</b>
+      <ul>
+        {ls.map((l) => (
+          <li key={l}>
+            <span>{l}</span>{" "}
+            <button className="linkish" onClick={() => draftFollowUp(`Can you resolve this limitation: ${l}`)}>
+              Ask about it
+            </button>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+}
+
 /** Put a drafted follow-up into the composer; the researcher edits and sends it. */
 export const draftFollowUp = (text: string) => window.dispatchEvent(new CustomEvent("ignis:followup", { detail: text }));
 
@@ -335,7 +357,6 @@ function NextSteps({ answer, keyOf }: { answer: ResearchAnswer; keyOf: (id: stri
         go("compare");
       },
     });
-  for (const l of answer.limitations ?? []) steps.push({ label: l, run: () => draftFollowUp(`Can you resolve this limitation: ${l}`) });
   for (const c of unsupported.slice(0, 2)) steps.push({ label: `Find support for claim ${keyOf(c.claim_id)}`, run: () => draftFollowUp(`Claim ${keyOf(c.claim_id)} has no support. Find a source or computation for it, or withdraw it.`) });
   if (answer.status === "partial" || answer.status === "insufficient_evidence")
     steps.push({ label: "Which evidence is missing?", run: () => draftFollowUp("Which data or sources are missing to make this answer complete, and where could they come from?") });

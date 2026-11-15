@@ -1,0 +1,3081 @@
+{
+ "model": "bass5.wsp",
+ "derivation": "tools/wsp/ext/law_inputs.py bass5_row (WSP lane), conditions only",
+ "sources": [
+  {
+   "file": "transfer_bass1/cases_train.jsonl",
+   "sha256": "462d7a704c4ef0b5edea7311d8466c895c039822b69ef40b5dc7969a929706b3"
+  },
+  {
+   "file": "transfer_bass1/cases_validation_inputs.jsonl",
+   "sha256": "631ebe22a8d0eca3615794fd23e608fda837dfc608f8627ef523c6ebb854205c"
+  },
+  {
+   "file": "transfer_bass1/cases_test_inputs.jsonl",
+   "sha256": "48eb896a5342628c1880aae6d1e363937ef86fa01c9c175deaf6b0265a47ec63"
+  }
+ ],
+ "runs": {
+  "PSI-25:B1": {
+   "coverage": "flat",
+   "material": "100 micron pmma film, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B10": {
+   "coverage": "flat",
+   "material": "1 cm, 0.2 mm pmma film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.06247,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:B11": {
+   "coverage": "flat",
+   "material": "2 cm, 0.2 mm pmma film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.08556,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B12": {
+   "coverage": "flat",
+   "material": "300 micron film, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.02013,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B13": {
+   "coverage": "flat",
+   "material": "2 cm, 0.4 mm thick film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.11576,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0004,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B14": {
+   "coverage": "flat",
+   "material": "1 cm wide 200 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.15,
+    "flow_speed": 0.04275,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.0478135,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:B15": {
+   "coverage": "flat",
+   "material": "2 cm, 0.1 mm pmma film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.10086,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.070462,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B16": {
+   "coverage": "flat",
+   "material": "2 cm 100 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.173,
+    "flow_speed": 0.03375,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.0478135,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B17": {
+   "coverage": "flat",
+   "material": "1 cm wide 200 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.175,
+    "flow_speed": 0.05378,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.0478135,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:B18": {
+   "coverage": "flat",
+   "material": "1 cm wide 200 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.174,
+    "flow_speed": 0.07198,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.070462,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:B19": {
+   "coverage": "flat",
+   "material": "2 cm 100 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.173,
+    "flow_speed": 0.07461,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.070462,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B2": {
+   "coverage": "flat",
+   "material": "200 micron pmma film, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B20": {
+   "coverage": "flat",
+   "material": "2 cm 100 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.174,
+    "flow_speed": 0.0527,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.0478135,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B21": {
+   "coverage": "flat",
+   "material": "1 cm wide 200 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.208,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:B22": {
+   "coverage": "flat",
+   "material": "1 cm wide 200 micron thick pmma",
+   "inputs": {
+    "x_o2": 0.207,
+    "flow_speed": 0.06336,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:B3": {
+   "coverage": "flat",
+   "material": "100 micron film, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.02013,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B4": {
+   "coverage": "flat",
+   "material": "300 micron pmma film, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B5": {
+   "coverage": "flat",
+   "material": "200 micron  2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B6": {
+   "coverage": "flat",
+   "material": "2 cm 0.1 mm pmma film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.0302,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B7": {
+   "coverage": "flat",
+   "material": "400 micron film, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.02013,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0004,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B8": {
+   "coverage": "flat",
+   "material": "2 cm, 0.2 mm pmma film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.10086,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0002,
+    "u_pot1": 0.070462,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:B9": {
+   "coverage": "flat",
+   "material": "2 cm, 0.1 mm pmma film",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.02013,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0001,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:F1": {
+   "coverage": "flat",
+   "material": "Nomex natural (nomex III)",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.09563,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 1.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.025165,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:F2": {
+   "coverage": "flat",
+   "material": "Nomex natural (nomex III)",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.15099,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 1.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:F3": {
+   "coverage": "flat",
+   "material": "Nomex natural (nomex III)",
+   "inputs": {
+    "x_o2": 0.217,
+    "flow_speed": 0.08053,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 1.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M1": {
+   "coverage": "flat",
+   "material": "1 mm thick pmma, 1 sided, 2 cm",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.001,
+    "u_pot1": 0.025165,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M10": {
+   "coverage": "flat",
+   "material": "4 mm thick, 1 cm wide pmma slab",
+   "inputs": {
+    "x_o2": 0.201,
+    "flow_speed": 0.12171,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.004,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:M11": {
+   "coverage": "flat",
+   "material": "1 cm wide pmma 5 mm thick",
+   "inputs": {
+    "x_o2": 0.2,
+    "flow_speed": 0.12784,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:M12": {
+   "coverage": "flat",
+   "material": "2 mm thick pmma, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.217,
+    "flow_speed": 0.01776,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.002,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M13": {
+   "coverage": "flat",
+   "material": "4 mm thick pmma, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.208,
+    "flow_speed": 0.0604,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.004,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M14": {
+   "coverage": "flat",
+   "material": "2mm thick pmma, 1 sided, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.05838,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.002,
+    "u_pot1": 0.025165,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M15": {
+   "coverage": "flat",
+   "material": "2 cm, 4 mm 1 sided pmma slab",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.35231,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.004,
+    "u_pot1": 0.040264,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M16": {
+   "coverage": "flat",
+   "material": "1 mm thick pmma, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.192,
+    "flow_speed": 0.11439,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.001,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M17": {
+   "coverage": "flat",
+   "material": "2 cm wide pmma 2 mm thick",
+   "inputs": {
+    "x_o2": 0.188,
+    "flow_speed": 0.12683,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.002,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M18": {
+   "coverage": "flat",
+   "material": "2 cm wide pmma 3 mm thick",
+   "inputs": {
+    "x_o2": 0.179,
+    "flow_speed": 0.12079,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.003,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M19": {
+   "coverage": "flat",
+   "material": "4 mm thick, 2 cm 2ide pmma slab",
+   "inputs": {
+    "x_o2": 0.19,
+    "flow_speed": 0.12171,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.004,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M2": {
+   "coverage": "flat",
+   "material": "3 mm thick pmma 1 sided , 2 cm wide",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.55837,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.003,
+    "u_pot1": 0.110726,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M20": {
+   "coverage": "flat",
+   "material": "5 mm thick pmma, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.18,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M3": {
+   "coverage": "flat",
+   "material": "2 cm wide, 5 mm thick 1 sided pmma",
+   "inputs": {
+    "x_o2": 0.208,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M4": {
+   "coverage": "flat",
+   "material": "5 mm thick pmma, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.218,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M5": {
+   "coverage": "flat",
+   "material": "3 mm thick pmma, 2 sided, 2 cm thick",
+   "inputs": {
+    "x_o2": 0.222,
+    "flow_speed": 0.20132,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.003,
+    "u_pot1": 0.110726,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M6": {
+   "coverage": "flat",
+   "material": "1 mm thick pmma, 2 cm wide",
+   "inputs": {
+    "x_o2": 0.218,
+    "flow_speed": 0.13441,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.001,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:M7": {
+   "coverage": "flat",
+   "material": "1 cm wide pmma 1 mm thick",
+   "inputs": {
+    "x_o2": 0.189,
+    "flow_speed": 0.08858,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.001,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:M8": {
+   "coverage": "flat",
+   "material": "1 cm wide pmma 2 mm thick",
+   "inputs": {
+    "x_o2": 0.191,
+    "flow_speed": 0.10972,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.002,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:M9": {
+   "coverage": "flat",
+   "material": "1 cm wide pmma 3 mm thick",
+   "inputs": {
+    "x_o2": 0.18,
+    "flow_speed": 0.10972,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.003,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-25:O10": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.167,
+    "flow_speed": 0.04263,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O11": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.154,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O12": {
+   "coverage": "nose",
+   "material": "3/8\" clear rod",
+   "inputs": {
+    "x_o2": 0.136,
+    "flow_speed": 0.05329,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O13a": {
+   "coverage": "nose",
+   "material": "1/2\" clear pmma rod",
+   "inputs": {
+    "x_o2": 0.159,
+    "flow_speed": 0.49323,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O13b": {
+   "coverage": "nose",
+   "material": "1/2\" clear pmma rod",
+   "inputs": {
+    "x_o2": 0.146,
+    "flow_speed": 0.07046,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O14": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.163,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O15a": {
+   "coverage": "nose",
+   "material": "3/8\" clear rod",
+   "inputs": {
+    "x_o2": 0.171,
+    "flow_speed": 0.04619,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O15b": {
+   "coverage": "nose",
+   "material": "3/8\" clear rod",
+   "inputs": {
+    "x_o2": 0.167,
+    "flow_speed": 0.04619,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O16": {
+   "coverage": "nose",
+   "material": "3/8\"clear rod",
+   "inputs": {
+    "x_o2": 0.145,
+    "flow_speed": 0.05211,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O17": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.151,
+    "flow_speed": 0.04263,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O18": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.152,
+    "flow_speed": 0.045,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O19": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.153,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O3a": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.18,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O3b": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.18,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O4": {
+   "coverage": "nose",
+   "material": "3/8\"clear rod",
+   "inputs": {
+    "x_o2": 0.148,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O5a": {
+   "coverage": "nose",
+   "material": "1/2\" clear pmma rod",
+   "inputs": {
+    "x_o2": 0.151,
+    "flow_speed": 0.0601,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O5b": {
+   "coverage": "nose",
+   "material": "1/2\" clear pmma rod",
+   "inputs": {
+    "x_o2": 0.142,
+    "flow_speed": 0.0601,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O6": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.167,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O7": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.16,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O8a": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.157,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O8b": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.155,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:O9": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.15,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P1": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.177,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P10": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.17,
+    "flow_speed": 0.05566,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P12": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.175,
+    "flow_speed": 0.05211,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P13a": {
+   "coverage": "nose",
+   "material": "0.5\" black rod",
+   "inputs": {
+    "x_o2": 0.207,
+    "flow_speed": 0.04244,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P13b": {
+   "coverage": "nose",
+   "material": "0.5\" black rod",
+   "inputs": {
+    "x_o2": 0.206,
+    "flow_speed": 0.04678,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P14": {
+   "coverage": "nose",
+   "material": "1/4 blac rod",
+   "inputs": {
+    "x_o2": 0.184,
+    "flow_speed": 0.04737,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P15": {
+   "coverage": "nose",
+   "material": "1/4 black rod",
+   "inputs": {
+    "x_o2": 0.18,
+    "flow_speed": 0.04737,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P16": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.182,
+    "flow_speed": 0.04263,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P17": {
+   "coverage": "nose",
+   "material": "1/4\"  black rod",
+   "inputs": {
+    "x_o2": 0.168,
+    "flow_speed": 0.05211,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P18": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.2,
+    "flow_speed": 0.04026,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P19": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.175,
+    "flow_speed": 0.04263,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P2": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.174,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P20": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.19,
+    "flow_speed": 0.04026,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P21a": {
+   "coverage": "nose",
+   "material": "1/4 black rod",
+   "inputs": {
+    "x_o2": 0.163,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P21b": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.163,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P22a": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.208,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P22b": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.2,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P23": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.182,
+    "flow_speed": 0.04026,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P24": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.19,
+    "flow_speed": 0.04026,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.020132,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P25": {
+   "coverage": "nose",
+   "material": "3/8\" clear rod",
+   "inputs": {
+    "x_o2": 0.209,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P3a": {
+   "coverage": "nose",
+   "material": "1/4\" clear rod",
+   "inputs": {
+    "x_o2": 0.177,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P3b": {
+   "coverage": "nose",
+   "material": "1/4 clear rod",
+   "inputs": {
+    "x_o2": 0.174,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P4": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.185,
+    "flow_speed": 0.05566,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P5": {
+   "coverage": "nose",
+   "material": "0.5\" black rod",
+   "inputs": {
+    "x_o2": 0.193,
+    "flow_speed": 0.05112,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P6": {
+   "coverage": "nose",
+   "material": "1/4\" black rod",
+   "inputs": {
+    "x_o2": 0.189,
+    "flow_speed": 0.05566,
+    "nose_radius": 0.003175,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P8": {
+   "coverage": "nose",
+   "material": "3/8\" black rod",
+   "inputs": {
+    "x_o2": 0.164,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.0047625,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.05033,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:P9": {
+   "coverage": "nose",
+   "material": "0.5\" black rod",
+   "inputs": {
+    "x_o2": 0.176,
+    "flow_speed": 0.05112,
+    "nose_radius": 0.00635,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 1.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:T3": {
+   "coverage": "nose",
+   "material": "4 cm spherical section",
+   "inputs": {
+    "x_o2": 0.172,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.02,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.035231,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-25:T7": {
+   "coverage": "nose",
+   "material": "4 cm spherical section",
+   "inputs": {
+    "x_o2": 0.173,
+    "flow_speed": 0.10569,
+    "nose_radius": 0.02,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.040264,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-03-30:1": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.221,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-03-30:18": {
+   "coverage": "nose",
+   "material": "PMMA sphere 1 cm",
+   "inputs": {
+    "x_o2": 0.221,
+    "flow_speed": 0.10954,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-03-30:42": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.221,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-04-05:7": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.219,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-04-05:8": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.219,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-04-09:43": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.217,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-04-09:44": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.217,
+    "flow_speed": 0.10954,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-04-09:45": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.217,
+    "flow_speed": 0.10954,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-05-02:19": {
+   "coverage": "nose",
+   "material": "PMMA sphere 1 cm",
+   "inputs": {
+    "x_o2": 0.2189,
+    "flow_speed": 0.0604,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-05-02:20": {
+   "coverage": "nose",
+   "material": "PMMA sphere 1 cm",
+   "inputs": {
+    "x_o2": 0.2189,
+    "flow_speed": 0.06114,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-05-02:21": {
+   "coverage": "nose",
+   "material": "PMMA sphere 1 cm",
+   "inputs": {
+    "x_o2": 0.2189,
+    "flow_speed": 0.02072,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-05-10:10": {
+   "coverage": "flat",
+   "material": "SIBAL 1 cm",
+   "inputs": {
+    "x_o2": 0.2163,
+    "flow_speed": 0.11073,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-05-10:12": {
+   "coverage": "flat",
+   "material": "Nomex blend 2 cm",
+   "inputs": {
+    "x_o2": 0.2163,
+    "flow_speed": 0.15099,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-05-10:4": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.2163,
+    "flow_speed": 0.22145,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-05:12-R": {
+   "coverage": "flat",
+   "material": "Nomex blend 2 cm",
+   "inputs": {
+    "x_o2": 0.2117,
+    "flow_speed": 0.09059,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-05:12-R2": {
+   "coverage": "flat",
+   "material": "Nomex blend 2 cm",
+   "inputs": {
+    "x_o2": 0.2117,
+    "flow_speed": 0.09059,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-11:46": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.2118,
+    "flow_speed": 0.08823,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-11:47": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.2118,
+    "flow_speed": 0.08823,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-11:48": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.2118,
+    "flow_speed": 0.08823,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-11:49": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.2118,
+    "flow_speed": 0.08823,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-14:22": {
+   "coverage": "nose",
+   "material": "1 cm sphere",
+   "inputs": {
+    "x_o2": 0.2089,
+    "flow_speed": 0.09814,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-14:23": {
+   "coverage": "nose",
+   "material": "1 cm sphere",
+   "inputs": {
+    "x_o2": 0.2089,
+    "flow_speed": 0.08823,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-14:24": {
+   "coverage": "nose",
+   "material": "1 cm sphere",
+   "inputs": {
+    "x_o2": 0.2089,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-14:25": {
+   "coverage": "nose",
+   "material": "1 cm sphere",
+   "inputs": {
+    "x_o2": 0.2089,
+    "flow_speed": 0.04026,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-28:14": {
+   "coverage": "flat",
+   "material": "Nomex III Natural",
+   "inputs": {
+    "x_o2": 0.2198,
+    "flow_speed": 0.14596,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-28:5": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.2198,
+    "flow_speed": 0.05492,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-29:16": {
+   "coverage": "flat",
+   "material": "ultem sheet",
+   "inputs": {
+    "x_o2": 0.2189,
+    "flow_speed": 0.14596,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00025,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-29:35": {
+   "coverage": "nose",
+   "material": "1 cm sphere",
+   "inputs": {
+    "x_o2": 0.2189,
+    "flow_speed": 0.01554,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-06-29:5b": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm, opposed flow",
+   "inputs": {
+    "x_o2": 0.2189,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-03:6": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.2222,
+    "flow_speed": 0.09533,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-19:13": {
+   "coverage": "flat",
+   "material": "Nomex blend 2 cm",
+   "inputs": {
+    "x_o2": 0.2253,
+    "flow_speed": 0.15099,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-19:15": {
+   "coverage": "flat",
+   "material": "nomex natural III",
+   "inputs": {
+    "x_o2": 0.2253,
+    "flow_speed": 0.30198,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0003,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-19:17": {
+   "coverage": "flat",
+   "material": "ultem sheet",
+   "inputs": {
+    "x_o2": 0.2253,
+    "flow_speed": 0.08053,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00025,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 1.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-19:2": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.2272,
+    "flow_speed": 0.13263,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-19:3": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.2267,
+    "flow_speed": 0.13263,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-23:118": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.2258,
+    "flow_speed": 0.04737,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-23:62": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.2258,
+    "flow_speed": 0.14685,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-23:63": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.2258,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-23:64": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.2258,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-07-23:65": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.2258,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.10066,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-08-09:102": {
+   "coverage": "nose",
+   "material": "PMMA sphere 2 cm",
+   "inputs": {
+    "x_o2": 0.2158,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-08-09:11": {
+   "coverage": "flat",
+   "material": "SIBAL 1 cm",
+   "inputs": {
+    "x_o2": 0.2152,
+    "flow_speed": 0.20132,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2012-08-09:9": {
+   "coverage": "flat",
+   "material": "SIBAL 2 cm",
+   "inputs": {
+    "x_o2": 0.2158,
+    "flow_speed": 0.10599,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.5,
+    "is_rod": 0.0,
+    "flat_thickness": 0.00032,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 1.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-05:98": {
+   "coverage": "nose",
+   "material": "PMMA 2 cm",
+   "inputs": {
+    "x_o2": 0.1707,
+    "flow_speed": 0.12079,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-05:99": {
+   "coverage": "nose",
+   "material": "PMMA 2 cm",
+   "inputs": {
+    "x_o2": 0.1707,
+    "flow_speed": 0.11665,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-09:114": {
+   "coverage": "nose",
+   "material": "PMMA 2 cm",
+   "inputs": {
+    "x_o2": 0.211,
+    "flow_speed": 0.07549,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-09:115": {
+   "coverage": "nose",
+   "material": "pmma 2 cm",
+   "inputs": {
+    "x_o2": 0.211,
+    "flow_speed": 0.07549,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-09:116": {
+   "coverage": "nose",
+   "material": "pmma 2 cm",
+   "inputs": {
+    "x_o2": 0.211,
+    "flow_speed": 0.08053,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-09:117": {
+   "coverage": "nose",
+   "material": "pmma 2 cm",
+   "inputs": {
+    "x_o2": 0.211,
+    "flow_speed": 0.09533,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-09:117a": {
+   "coverage": "nose",
+   "material": "pmma 2 cm",
+   "inputs": {
+    "x_o2": 0.211,
+    "flow_speed": 0.09533,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-12:100": {
+   "coverage": "nose",
+   "material": "pmma 2 cm",
+   "inputs": {
+    "x_o2": 0.2111,
+    "flow_speed": 0.09533,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-16:26": {
+   "coverage": "nose",
+   "material": "pmma 1 cm",
+   "inputs": {
+    "x_o2": 0.173,
+    "flow_speed": 0.09533,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-16:27": {
+   "coverage": "nose",
+   "material": "pmma 1 cm",
+   "inputs": {
+    "x_o2": 0.171,
+    "flow_speed": 0.09533,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-16:28": {
+   "coverage": "nose",
+   "material": "pmma 1 cm",
+   "inputs": {
+    "x_o2": 0.171,
+    "flow_speed": 0.06114,
+    "nose_radius": 0.005,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-23:103": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1753,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-23:104": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1753,
+    "flow_speed": 0.06114,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-23:105": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.205,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-26:72": {
+   "coverage": "flat",
+   "material": "pmma slab opposed",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.09059,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.002,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-26:2013-04-26:73": {
+   "coverage": "flat",
+   "material": "pmma slab, oppsed",
+   "inputs": {
+    "x_o2": 0.21,
+    "flow_speed": 0.15099,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.002,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 1.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.01
+   }
+  },
+  "PSI-26:2013-04-29:118": {
+   "coverage": "nose",
+   "material": "2 cm pmma sphere",
+   "inputs": {
+    "x_o2": 0.1734,
+    "flow_speed": 0.08053,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-04-29:119": {
+   "coverage": "nose",
+   "material": "2 cm pmma sphere",
+   "inputs": {
+    "x_o2": 0.1734,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-15:50": {
+   "coverage": "nose",
+   "material": "2 cm pmma sphere",
+   "inputs": {
+    "x_o2": 0.172,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-15:51": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.172,
+    "flow_speed": 0.05033,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-15:52": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.171,
+    "flow_speed": 0.11274,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-15:53": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1713,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-17:106": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1717,
+    "flow_speed": 0.13086,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-17:107": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1717,
+    "flow_speed": 0.13086,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-05-17:108": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1724,
+    "flow_speed": 0.13086,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-06-01:109": {
+   "coverage": "nose",
+   "material": "2 cm sphere",
+   "inputs": {
+    "x_o2": 0.1724,
+    "flow_speed": 0.13086,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-06-01:53": {
+   "coverage": "nose",
+   "material": "pmma sphere",
+   "inputs": {
+    "x_o2": 0.2118,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  },
+  "PSI-26:2013-06-01:53a": {
+   "coverage": "nose",
+   "material": "pmma sphere",
+   "inputs": {
+    "x_o2": 0.2118,
+    "flow_speed": 0.10066,
+    "nose_radius": 0.01,
+    "heat_time": 200.0,
+    "is_concurrent": 0.0,
+    "is_rod": 0.0,
+    "flat_thickness": 0.0005,
+    "u_pot1": 0.04403875,
+    "is_one_sided": 0.0,
+    "is_sibal": 0.0,
+    "is_nomex_ultem": 0.0,
+    "flat_width": 0.02
+   }
+  }
+ },
+ "not_covered": {
+  "PSI-25:F4": "not_covered:candle|stagnation",
+  "PSI-25:O1": "not_covered:pmma_rod|None",
+  "PSI-25:O2": "not_covered:pmma_rod|None",
+  "PSI-26:2012-05-11:110": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-05-11:54": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-05-11:55": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-05-11:56": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-05-11:57": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-05:30": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-05:31": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-05:32": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-05:33": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-18:58": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-18:59": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-18:60": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-18:61": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-06-28:66": "not_covered:pmma_slab|None",
+  "PSI-26:2012-06-28:67": "not_covered:pmma_slab|None",
+  "PSI-26:2012-06-29:34": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-07-03:68": "not_covered:pmma_slab|None",
+  "PSI-26:2012-07-03:82": "not_covered:candle|forward stagnation",
+  "PSI-26:2012-07-03:82a": "not_covered:candle|forward stagnation",
+  "PSI-26:2012-07-03:82b": "not_covered:candle|forward stagnation",
+  "PSI-26:2012-07-12:111": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-07-12:112": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-07-12:113": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-07-12:69": "not_covered:pmma_slab|None",
+  "PSI-26:2012-07-19:114": "not_covered:pmma_sphere|wake",
+  "PSI-26:2012-08-16:83a": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:83b": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:83c": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:84a": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:84b": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:86a": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:86b": "not_covered:candle|wake",
+  "PSI-26:2012-08-16:86c": "not_covered:candle|wake",
+  "PSI-26:2012-08-21:70": "not_covered:pmma_slab|None",
+  "PSI-26:2012-08-21:71": "not_covered:pmma_slab|None",
+  "PSI-26:2012-08-21:74": "not_covered:wax_slab|None",
+  "PSI-26:2012-08-21:75": "not_covered:wax_slab|None",
+  "PSI-26:2013-04-12:85": "not_covered:candle|wake",
+  "PSI-26:2013-04-12:93": "not_covered:candle|wake",
+  "PSI-26:2013-04-23:87": "not_covered:candle|forward stagnation",
+  "PSI-26:2013-04-26:38": "not_covered:pmma_sphere|wake",
+  "PSI-26:2013-04-26:39": "not_covered:pmma_sphere|wake",
+  "PSI-26:2013-04-26:40": "not_covered:pmma_sphere|wake",
+  "PSI-26:2013-05-02:78": "not_covered:wax_slab|None",
+  "PSI-26:2013-05-02:89": "not_covered:candle|forward stagnation",
+  "PSI-26:2013-05-02:92": "not_covered:candle|forward stagnation",
+  "PSI-26:2013-05-02:95": "not_covered:candle|forward stagnation",
+  "PSI-26:2013-06-01:75": "not_covered:wax_slab|None",
+  "PSI-26:2013-06-01:79": "not_covered:wax_slab|None",
+  "PSI-26:2013-06-01:80": "not_covered:wax_slab|None"
+ }
+}

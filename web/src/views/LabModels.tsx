@@ -2,7 +2,7 @@
 // with what it is (hand-written, experimental, zero-shot or data-informed), what it reads and what
 // its authors reported. A forecast runs the release's strict forward on a stored run of the train
 // partition or on conditions typed here; a typed scenario is a synthetic input, never a NASA run.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import type { AnalysisArtifact, EndpointRecord, JobRef, ModelCard, ModelInput, ScenarioAdmitted, ToolResult } from "../contracts/generated";
 import { call, type ExperimentDetail, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
@@ -122,6 +122,7 @@ export type Reach = "ready" | "conditions" | "typed" | "sealed" | "none";
 export function useReach(runs: ExperimentSummary[]): Map<string, Reach> | null {
   const { origin } = useData();
   const { base, cards } = useModelCards();
+  const tables = useTables(cards.data);
   const stored = (cards.data ?? []).filter((c) => c.stored_runs);
   const trains = useQueries({ queries: stored.map((c) => trainQuery(base, origin, c.release_id)) });
   if (!base || cards.isError) return null;
@@ -132,21 +133,78 @@ export function useReach(runs: ExperimentSummary[]): Map<string, Reach> | null {
   const m = new Map<string, Reach>();
   for (const r of runs) {
     const ready = readable.some(({ c, ids, needsSeries }) => c.family === r.family && ids.has(r.id) && (!needsSeries || hasSeries(r)));
-    const mine = typed.filter((c) => c.family === r.family);
+    const mine = typed.filter((c) => fit(c, r).score >= 0);
     // "conditions" only when the record fills every required input; otherwise the user types the rest.
-    const complete = mine.some((c) => {
-      const v = fromRun(c, r);
-      return c.inputs.every((i) => !i.required || v[i.name] !== undefined);
-    });
-    m.set(r.id, ready ? "ready" : complete ? "conditions" : mine.length ? "typed" : storedFamilies.has(r.family) ? "sealed" : "none");
+    const filled = mine.some((c) => complete(c, r, tables));
+    m.set(r.id, ready ? "ready" : filled ? "conditions" : mine.length ? "typed" : storedFamilies.has(r.family) ? "sealed" : "none");
   }
   return m;
 }
 
+/**
+ * Inputs the WSP lane derived per run, for models whose features the registry does not hold as conditions
+ * (fan curve at pot 1, material class, sides burning...). Built by tools/web/<slug>_inputs.py from the
+ * lane's case input files only; keyed by the lane's case id.
+ */
+interface TableRow {
+  coverage: string;
+  material?: string;
+  inputs: Record<string, number>;
+}
+interface RecordTable {
+  runs: Record<string, TableRow>;
+}
+export type Tables = Map<string, RecordTable>;
+const TABLES: Record<string, string> = { "bass5.wsp": "data/bass5_inputs.json" };
+
+export function useTables(cards: ModelCard[] | undefined): Tables {
+  const names = [...new Set((cards ?? []).map((c) => c.model_name).filter((n) => TABLES[n]))];
+  const qs = useQueries({
+    queries: names.map((n) => ({
+      queryKey: ["record-table", n],
+      queryFn: async () => {
+        const res = await fetch(import.meta.env.BASE_URL + TABLES[n]);
+        if (!res.ok) throw new Error(`${TABLES[n]}: ${res.status}`);
+        return (await res.json()) as RecordTable;
+      },
+      staleTime: Infinity,
+      retry: false,
+    })),
+  });
+  const m: Tables = new Map();
+  names.forEach((n, k) => qs[k].data && m.set(n, qs[k].data!));
+  return m;
+}
+
+/** A run's row in a lane table: the same id, or (PSI-26) the lane's "<investigation>:<date>:<test>". */
+function tableRow(t: RecordTable | undefined, r: ExperimentSummary): TableRow | null {
+  if (!t) return null;
+  if (t.runs[r.id]) return t.runs[r.id];
+  const test = (r.aliases ?? []).find((a) => a.scheme === "test_number")?.name;
+  const date = r.session_id?.match(/\d{4}-\d{2}-\d{2}/)?.[0];
+  if (!test || !date) return null;
+  const exact = t.runs[`${r.investigation_id}:${date}:${test}`];
+  if (exact) return exact;
+  // A mistyped year in the registry (2103 for 2013): the same test on the same month and day.
+  const near = Object.keys(t.runs).filter((k) => k.startsWith(`${r.investigation_id}:`) && k.endsWith(`-${date.slice(5)}:${test}`));
+  return near.length === 1 ? t.runs[near[0]] : null;
+}
+
+/** Whether the record fills every required input of a model for a run. */
+export function complete(card: ModelCard, r: ExperimentSummary, tables: Tables): boolean {
+  const v = fromRun(card, r, tables);
+  return card.inputs.every((i) => !i.required || v[i.name] !== undefined);
+}
+
 /** A model's inputs filled from what the NASA record holds for a run; anything it lacks stays empty. */
-function fromRun(card: ModelCard, r: ExperimentSummary): Record<string, string> {
+function fromRun(card: ModelCard, r: ExperimentSummary, tables: Tables): Record<string, string> {
   const v: Record<string, string> = {};
   const num = (x: number) => String(+x.toPrecision(6));
+  const row = tableRow(tables.get(card.model_name), r);
+  if (row) {
+    for (const i of card.inputs) if (row.inputs[i.name] !== undefined) v[i.name] = num(row.inputs[i.name]);
+    return v;
+  }
   for (const i of card.inputs) {
     const cell = r.conditions?.[i.name];
     if (i.kind === "condition") {
@@ -170,24 +228,36 @@ function fromRun(card: ModelCard, r: ExperimentSummary): Record<string, string> 
 export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | null; pickRun: (id: string) => void; runs: ExperimentSummary[] }) {
   const { origin } = useData();
   const { base, modelsCap, cards } = useModelCards();
+  const tables = useTables(cards.data);
   const [pickByRun, setPickByRun] = useState<Record<string, string>>({});
   // With no run picked, the panel stays closed until the user asks to type conditions.
   const [typing, setTyping] = useState(false);
   const ranked = useMemo(() => {
     const all = cards.data ?? [];
     if (!run) return all.map((c) => ({ c, score: 0, why: [] as string[] }));
-    return all.map((c) => ({ c, ...fit(c, run) })).sort((x, y) => y.score - x.score);
-  }, [cards.data, run]);
+    return all
+      .map((c) => {
+        const f = fit(c, run);
+        // A model the record fills completely beats one that needs values typed in.
+        if (f.score >= 0 && !c.stored_runs && complete(c, run, tables)) return { c, score: f.score + 3, why: [...f.why, "every input from the NASA record"] };
+        return { c, ...f };
+      })
+      .sort((x, y) => y.score - x.score);
+  }, [cards.data, run, tables]);
   const fitting = ranked.filter((x) => x.score >= 0 && run);
-  const auto = run ? fitting[0] ?? null : ranked[0] ?? null;
+  // With a run, the best fit is chosen for the user; typing conditions with no run, the user picks.
+  const auto = run ? fitting[0] ?? null : null;
   const key = run?.id ?? "";
   const manual = pickByRun[key];
   const chosen = ranked.find((x) => x.c.release_id === manual) ?? auto;
   const card = chosen?.c ?? null;
+  // The model list is open while nothing is chosen, or when the user asks to change it (per run).
+  const [listFor, setListFor] = useState<string | null>(null);
+  const listOpen = !chosen || listFor === key;
 
   if (!base) return null;
   const open = !!run || typing;
-  const label = (c: ModelCard) => `${c.investigation} (${c.model_name} ${c.candidate})`;
+  const pick = (id: string) => setPickByRun((m) => ({ ...m, [key]: id }));
   return (
     <section className="sheet lab-models" aria-labelledby="hw-h">
       <h2 id="hw-h">Model and forecast</h2>
@@ -209,37 +279,32 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
         </div>
       )}
 
-      {open && ranked.length > 0 && (
-        <div className="lab-model-row">
-          <label htmlFor="hw-model">Model</label>
-          <select id="hw-model" className="field" value={manual && ranked.some((x) => x.c.release_id === manual) ? manual : ""} onChange={(e) => setPickByRun((m) => ({ ...m, [key]: e.target.value }))}>
-            <option value="">{auto ? (run ? `Best fit: ${label(auto.c)}` : label(auto.c)) : "Choose a model"}</option>
-            {run && fitting.length > 0 && (
-              <optgroup label="Written for this run's family">
-                {fitting.map(({ c }) => (
-                  <option key={c.release_id} value={c.release_id}>
-                    {label(c)}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            <optgroup label={run && fitting.length ? "Other models (you type the conditions)" : "All served models"}>
-              {ranked
-                .filter((x) => !(run && x.score >= 0) && x !== (run ? null : auto))
-                .map(({ c }) => (
-                  <option key={c.release_id} value={c.release_id}>
-                    {label(c)}
-                  </option>
-                ))}
-            </optgroup>
-          </select>
-          {!run && (
-            <button className="btn btn-s btn-quiet" onClick={() => setTyping(false)}>
-              Cancel
-            </button>
-          )}
+      {open && !run && ranked.length > 0 && (
+        <div className="lab-start">
+          <p className="muted">Forecast from conditions you type: pick the model, then enter its inputs.</p>
+          <button className="btn btn-s btn-quiet" onClick={() => setTyping(false)}>
+            ← Back to picking a run
+          </button>
         </div>
       )}
+
+      {open && ranked.length > 0 &&
+        (listOpen ? (
+          <ModelChooser items={ranked} run={run} best={auto?.c.release_id ?? null} selected={chosen?.c.release_id ?? null} onPick={(id) => (pick(id), setListFor(key))} onDone={() => setListFor(null)} />
+        ) : (
+          chosen && (
+            <div className="mc-line">
+              <span className="muted">Model</span>
+              <b title={chosen.c.investigation}>{shortName(chosen.c)}</b>
+              <code className="mc-slug">
+                {chosen.c.model_name} {chosen.c.candidate}
+              </code>
+              <button className="btn btn-s btn-quiet" aria-expanded={false} onClick={() => setListFor(key)}>
+                Change
+              </button>
+            </div>
+          )
+        ))}
       {open && chosen && run && (
         <p className="muted lab-why">
           {!manual ? (
@@ -253,33 +318,38 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
         </p>
       )}
       {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (
-        <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the menu and type its conditions.</Gap>
+        <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the list and type its conditions.</Gap>
       )}
       {open && card && (!run || chosen!.score >= 0 || manual) && (
-        <ModelPanel key={`${card.release_id}|${run?.id ?? ""}`} card={card} base={base} legacy={origin} run={run && chosen!.score >= 0 ? run : null} pickRun={pickRun} allRuns={runs} />
+        <ModelPanel key={`${card.release_id}|${run?.id ?? ""}`} card={card} base={base} legacy={origin} run={run && chosen!.score >= 0 ? run : null} pickRun={pickRun} allRuns={runs} tables={tables} />
       )}
     </section>
   );
 }
 
-function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card: ModelCard; base: string; legacy: "registry" | "fixtures"; run: ExperimentSummary | null; pickRun: (id: string) => void; allRuns: ExperimentSummary[] }) {
+function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }: { card: ModelCard; base: string; legacy: "registry" | "fixtures"; run: ExperimentSummary | null; pickRun: (id: string) => void; allRuns: ExperimentSummary[]; tables: Tables }) {
+  // A law release (conditions only, several declared targets): every target that applies to the sample is forecast.
+  const law = card.inputs.every((i) => i.kind === "condition") ? lawTargets(card) : [];
+  const row = fixed ? tableRow(tables.get(card.model_name), fixed) : null;
+  const targets = law.filter((t) => !row || t.applies === null || t.applies === row.coverage);
   const obsInput = card.inputs.find((i) => i.kind === "observation");
   const unit = obsInput?.unit_si ?? "";
   const d = display(unit);
   // Without a run the panel only opens to type conditions; with one, a model that reads stored runs reads it.
   const [mode, setMode] = useState<Mode>(card.stored_runs && fixed ? "stored" : "typed");
   // Typed conditions start from what the NASA record holds for the run picked above.
-  const recorded = useMemo(() => (fixed ? fromRun(card, fixed) : {}), [card, fixed]);
+  const recorded = useMemo(() => (fixed ? fromRun(card, fixed, tables) : {}), [card, fixed, tables]);
   const [values, setValues] = useState<Record<string, string>>(recorded);
   const set = (k: string, v: string) => setValues((m) => ({ ...m, [k]: v }));
   // A run picked above fixes the input; the cutoff starts at 40 % of its recorded series.
   const series = fixed?.quantities.find((q) => q.quantity === obsInput?.name);
   const extent = series ? series.archive_t_max_s : null;
-  const [cutoff, setCutoff] = useState(() => (extent != null && extent > 0 ? String(+(extent * 0.4).toPrecision(3)) : fixed ? "3" : ""));
+  const [cutoff, setCutoff] = useState(() => (extent != null && extent > 0 ? String(+(extent * 0.4).toPrecision(3)) : law.length ? "0" : fixed ? "3" : ""));
   const run = fixed?.id ?? "";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [art, setArt] = useState<AnalysisArtifact | null>(null);
+  const [answers, setAnswers] = useState<{ t: LawTarget; art: AnalysisArtifact }[] | null>(null);
   const [observed, setObserved] = useState<ChartPoint[]>([]);
   const seq = useRef(0);
 
@@ -363,23 +433,35 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
         input = { kind: "prefix", input_hash: admitted.input_hash };
         points = observations.map((p) => ({ t: p.time_s, v: p.value_si * d.k }));
       }
-      const tr = await v1<ToolResult>(base, "/analyses", { schema_version: "wsp.v1", release_id: card.release_id, input });
-      let job = tr.job as JobRef;
-      for (let n = 0; !["succeeded", "failed", "cancelled"].includes(job.status); n++) {
-        if (n > 600) throw new Error("the forecast job did not finish");
-        await new Promise((r) => setTimeout(r, 400));
-        job = await v1<JobRef>(base, `/jobs/${encodeURIComponent(job.job_id)}`);
+      const run1 = async (settings?: { target: string }) => {
+        const tr = await v1<ToolResult>(base, "/analyses", { schema_version: "wsp.v1", release_id: card.release_id, input, ...(settings ? { settings } : {}) });
+        let job = tr.job as JobRef;
+        for (let n = 0; !["succeeded", "failed", "cancelled"].includes(job.status); n++) {
+          if (n > 600) throw new Error("the forecast job did not finish");
+          await new Promise((r) => setTimeout(r, 400));
+          job = await v1<JobRef>(base, `/jobs/${encodeURIComponent(job.job_id)}`);
+        }
+        if (job.status !== "succeeded") throw new V1Error({ code: job.error?.code ?? job.status, message: job.error?.message ?? "the forecast did not run" });
+        const out = job.outputs?.[0];
+        if (!out) throw new Error("the forecast job stored no artifact");
+        return v1<AnalysisArtifact>(base, `/artifacts/${encodeURIComponent(out.artifact_id)}`);
+      };
+      if (targets.length) {
+        const got = await Promise.all(targets.map(async (t) => ({ t, art: await run1({ target: t.name }) })));
+        if (!live()) return;
+        setArt(null);
+        setAnswers(got);
+        return;
       }
-      if (job.status !== "succeeded") throw new V1Error({ code: job.error?.code ?? job.status, message: job.error?.message ?? "the forecast did not run" });
-      const out = job.outputs?.[0];
-      if (!out) throw new Error("the forecast job stored no artifact");
-      const a = await v1<AnalysisArtifact>(base, `/artifacts/${encodeURIComponent(out.artifact_id)}`);
+      const a = await run1();
       if (!live()) return;
+      setAnswers(null);
       setArt(a);
       setObserved(points);
     } catch (e) {
       if (!live()) return;
       setArt(null);
+      setAnswers(null);
       setError(e instanceof V1Error ? `${words(e.envelope.code)}: ${e.envelope.message}` : String((e as Error).message ?? e));
     } finally {
       if (live()) setBusy(false);
@@ -389,6 +471,12 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
   // With a run fixed above, the forecast runs by itself and follows the cutoff (debounced).
   const inTrain = !!fixed && runs.some((r) => r.id === fixed.id);
   const auto = !!fixed && mode === "stored" && inTrain;
+  // A law release whose every input the record fills forecasts the picked run by itself, once.
+  const lawAuto = !!fixed && targets.length > 0 && mode === "typed" && card.inputs.every((i) => !i.required || recorded[i.name] !== undefined);
+  useEffect(() => {
+    if (lawAuto) void forecast();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lawAuto]);
   useEffect(() => {
     if (!auto) return;
     const t = setTimeout(() => void forecast(), 350);
@@ -428,7 +516,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
     <div className="fc">
       <div className="fc-model">
         <div className="fc-model-name">
-          <b>{card.investigation}</b>
+          <span className="fc-model-full">{card.investigation}</span>
           <span className="fc-model-meta">
             <span className="muted">
               {card.model_name} {card.candidate}
@@ -504,41 +592,65 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
 
       {mode === "typed" && (
         <div className="fc-typed">
-          <Caution title={fixed ? `Conditions from ${runLabel(fixed)}, entered as your own input` : "Your conditions are a synthetic input, not a NASA run"}>
-            {fixed ? "Values the NASA record holds are filled in; complete the rest. The forecast is model output for these values, not a reading of the run." : "The forecast is model output for the values you enter."}
-          </Caution>
-          <dl className="fc-inputs">
-            {card.inputs.map((i) => (
-              <InputField
-                key={i.name}
-                input={i}
-                value={values[i.name] ?? ""}
-                onChange={(v) => set(i.name, v)}
-                source={fixed ? (recorded[i.name] !== undefined && recorded[i.name] === values[i.name] ? "record" : !(values[i.name] ?? "").trim() && i.required ? "missing" : null) : null}
+          {!lawAuto && (
+            <Caution title={fixed ? `Conditions from ${runLabel(fixed)}, entered as your own input` : "Your conditions are a synthetic input, not a NASA run"}>
+              {fixed ? "Values the NASA record holds are filled in; complete the rest. The forecast is model output for these values, not a reading of the run." : "The forecast is model output for the values you enter."}
+            </Caution>
+          )}
+          {(() => {
+            const fields = (
+              <InputGroups
+                inputs={card.inputs}
+                values={values}
+                set={set}
+                sourceOf={(i) => (fixed ? (recorded[i.name] !== undefined && recorded[i.name] === values[i.name] ? "record" : !(values[i.name] ?? "").trim() && i.required ? "missing" : null) : null)}
               />
-            ))}
-          </dl>
-          <button className="btn btn-s btn-quiet" style={{ justifySelf: "start" }} onClick={fillExamples}>
-            {fixed ? "Replace with example values" : "Fill example values"}
-          </button>
+            );
+            const hasExamples = card.inputs.some((i) => i.example !== undefined && i.example !== null);
+            return lawAuto ? (
+              <details className="fc-about">
+                <summary>
+                  The {card.inputs.length} inputs, all from the NASA record of this {row?.coverage === "nose" ? "rod or sphere" : "sample"}
+                </summary>
+                {fields}
+              </details>
+            ) : (
+              <>
+                <div className="fc-typed-bar">
+                  <span className="muted">Every field is needed unless it says optional.</span>
+                  {hasExamples && (
+                    <button className="btn btn-s" onClick={fillExamples}>
+                      {fixed ? "Replace with example values" : "Start from an example"}
+                    </button>
+                  )}
+                </div>
+                {fields}
+              </>
+            );
+          })()}
         </div>
       )}
 
       {!slide && !(mode === "stored" && fixed && !inTrain) && (
         <div className="fc-row">
-          <label htmlFor="hw-cutoff">{obsInput ? "The model sees the first" : "Start the forecast at"}</label>
-          <input id="hw-cutoff" className="field num fc-num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void forecast()} />
-          <span>s</span>
+          {!law.length && (
+            <>
+              <label htmlFor="hw-cutoff">{obsInput ? "The model sees the first" : "Start the forecast at"}</label>
+              <input id="hw-cutoff" className="field num fc-num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void forecast()} />
+              <span>s</span>
+            </>
+          )}
           {auto ? (
             busy && <span className="muted fc-busy">Forecasting…</span>
           ) : (
-            <button className="btn btn-s btn-primary" disabled={busy} onClick={forecast}>
-              {busy ? "Forecasting…" : "Forecast"}
+            <button className={`btn btn-s ${lawAuto ? "btn-quiet" : "btn-primary"}`} disabled={busy} onClick={forecast}>
+              {busy ? "Forecasting…" : lawAuto && answers ? "Forecast again with these inputs" : "Forecast"}
             </button>
           )}
         </div>
       )}
 
+      {answers && <LawAnswers answers={answers} card={card} />}
       {error && <Gap title="No forecast">{error}</Gap>}
       {art && !art.support.admitted && (
         <>
@@ -641,6 +753,92 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
         </section>
       )}
     </div>
+  );
+}
+
+/** A target a law release declares, parsed from its card ("name (kind, unit): description; ..."). */
+interface LawTarget {
+  name: string;
+  kind: string;
+  unit: string | null;
+  description: string;
+  /** "nose" for rod tips and spheres, "flat" for films and slabs, null when the target names no sample kind. */
+  applies: string | null;
+}
+function lawTargets(card: ModelCard): LawTarget[] {
+  const out: LawTarget[] = [];
+  for (const m of card.forecasts.matchAll(/(\w+) \((binary|positive|event)(?:, ([^)]*))?\): ([^;]+)/g)) {
+    const description = m[4].trim().replace(/\.$/, "");
+    const applies = /^rod tip or sphere:/.test(description) ? "nose" : /^film or slab:/.test(description) ? "flat" : null;
+    out.push({ name: m[1], kind: m[2], unit: m[3] ?? null, description, applies });
+  }
+  return out;
+}
+
+const lawQuestion = (t: LawTarget) => {
+  const q = t.description.replace(/^(rod tip or sphere|film or slab):\s*/, "");
+  return q[0].toUpperCase() + q.slice(1);
+};
+
+/** A law value in the unit a reader expects: speeds in cm/s, mole fractions in percent. */
+const lawValue = (v: number, unit: string | null) => (unit === "m/s" ? `${fmtNum(v * 100)} cm/s` : unit === "1" ? `${fmtNum(v * 100)} %` : `${fmtNum(v)}${unit ? ` ${unit}` : ""}`);
+
+function LawAnswers({ answers, card }: { answers: { t: LawTarget; art: AnalysisArtifact }[]; card: ModelCard }) {
+  return (
+    <section className="sheet fc-main" aria-label="Forecast" aria-live="polite">
+      <ul className="fc-law">
+        {answers.map(({ t, art }) => {
+          let a: ReactNode;
+          if (!art.support.admitted) a = <span className="muted">outside the model&apos;s domain{art.support.reasons?.length ? `: ${art.support.reasons.join("; ")}` : ""}</span>;
+          else if (t.kind === "binary") {
+            const yes = Math.max(0, (art.event_categories ?? []).indexOf("yes"));
+            const p = art.event_cdf?.[yes]?.[0] ?? NaN;
+            a = (
+              <>
+                <span className="fc-law-bar" aria-hidden="true">
+                  <span style={{ width: `${Math.round(p * 100)}%` }} />
+                </span>
+                <b className="num">{p >= 0.995 ? ">99" : p < 0.01 ? "<1" : (p * 100).toFixed(0)}%</b> <span className="muted">likely</span>
+              </>
+            );
+          } else {
+            const lv = art.quantile_levels ?? [];
+            const q = (art.quantiles ?? []).map((r) => r[0]);
+            const mi = lv.findIndex((x) => Math.abs(x - 0.5) < 1e-9);
+            const med = mi >= 0 ? q[mi] : art.mean?.[0];
+            a =
+              med == null ? (
+                <span className="muted">no value</span>
+              ) : (
+                <>
+                  <b className="num">{lawValue(med, t.unit)}</b>
+                  {q.length > 1 && (
+                    <span className="muted num">
+                      {" "}
+                      ({Math.round((lv[lv.length - 1] - lv[0]) * 100)}% range {lawValue(q[0], t.unit)} to {lawValue(q[q.length - 1], t.unit)})
+                    </span>
+                  )}
+                </>
+              );
+          }
+          return (
+            <li key={t.name}>
+              <span className="fc-law-q">{lawQuestion(t)}</span>
+              <span className="fc-law-a">{a}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="muted fc-foot">Model output, not a measurement. {card.authorship === "data_informed" ? "Its authors read the NASA runs while writing it, so this is inspection, not a test." : ""}</p>
+      <details className="fc-tech">
+        <summary>Technical details</summary>
+        {answers.map(({ t, art }) => (
+          <p key={t.name} className="muted">
+            <code>{t.name}</code> · artifact <code>{art.id}</code>
+          </p>
+        ))}
+      </details>
+    </section>
   );
 }
 
@@ -761,44 +959,265 @@ function inputLabel(input: ModelInput): { label: string; rest: string } {
   return { label: head[0].toUpperCase() + head.slice(1), rest: rest.filter(Boolean).join("; ") };
 }
 
-function InputField({ input, value, onChange, source }: { input: ModelInput; value: string; onChange: (v: string) => void; source: "record" | "missing" | null }) {
+/** Hint parts that only explain the implementation (the forward, the lane, weights, raw formulas): hidden, kept in the tooltip. */
+const DEV_HINT = /\b(release|forward|prefix|law|laws|lane|lane-local|weights?|case input|refused|reads)\b|\b[a-z]+_[a-z0-9_]+\b|^optional$/i;
+const readableHint = (rest: string) =>
+  rest
+    .split(/;\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s && !DEV_HINT.test(s))
+    .join("; ");
+
+type Source = "record" | "missing" | null;
+
+/** The typed inputs grouped by what they are: conditions, control stages, measurements before the cutoff, timing. */
+const INPUT_GROUPS: { kinds: ModelInput["kind"][]; label: string }[] = [
+  { kinds: ["condition"], label: "Conditions" },
+  { kinds: ["control"], label: "Controls over time" },
+  { kinds: ["observation"], label: "Measured before the cutoff" },
+  { kinds: ["phase_start", "test_date"], label: "Timing" },
+];
+
+function InputGroups({ inputs, values, set, sourceOf }: { inputs: ModelInput[]; values: Record<string, string>; set: (k: string, v: string) => void; sourceOf: (i: ModelInput) => Source }) {
+  return (
+    <div className="fc-inputs">
+      {INPUT_GROUPS.map((g) => {
+        const mine = inputs.filter((i) => g.kinds.includes(i.kind));
+        if (!mine.length) return null;
+        return (
+          <fieldset key={g.label} className="fc-group">
+            <legend>{g.label}</legend>
+            <div className="fc-grid">
+              {mine.map((i) => (
+                <InputField key={i.name} input={i} value={values[i.name] ?? ""} onChange={(v) => set(i.name, v)} source={sourceOf(i)} />
+              ))}
+            </div>
+          </fieldset>
+        );
+      })}
+    </div>
+  );
+}
+
+function InputField({ input, value, onChange, source }: { input: ModelInput; value: string; onChange: (v: string) => void; source: Source }) {
   const multi = input.kind === "observation" || input.kind === "control";
   const id = `hw-in-${input.name}`;
   const { label, rest } = inputLabel(input);
   const unit = !input.text && input.unit_si && input.unit_si !== "1" ? input.unit_si : null;
   const example = input.example !== undefined && input.example !== null && !multi ? fmtExample(input.example) : "";
+  // A series or a stage table explains its own format; a scalar keeps only the hint a reader can use.
+  const hint = multi ? (input.kind === "control" ? "Leave End empty for a stage that stays on." : "") : readableHint(rest);
+  const tip = `${input.name}${input.note ? ` — ${input.note}` : ""}`;
+  const cols = input.kind === "control" ? ["Start [s]", "End [s]", `Value${unit ? ` [${unit}]` : ""}`] : ["t [s]", `Value${unit ? ` [${unit}]` : ""}`];
   return (
-    <div className={`fc-in${source ? ` fc-in-${source}` : ""}`}>
-      <dt>
-        <label htmlFor={id}>
+    <div className={`fc-in${multi ? " fc-in-wide" : ""}${source ? ` fc-in-${source}` : ""}`}>
+      <label htmlFor={id} id={`${id}-l`} className="fc-in-label" title={tip}>
+        <span>
           {label}
-          {unit && <span className="muted"> [{unit}]</span>}
-          {!input.required && <span className="muted"> · optional</span>}
-        </label>
-        <code className="fc-in-name">{input.name}</code>
-      </dt>
-      <dd>
-        {multi ? (
-          <textarea
-            id={id}
-            className="field num"
-            rows={3}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={input.kind === "control" ? "one stage per line: start s, end s (empty = open), value" : `one point per line: t s, value${unit ? ` [${unit}]` : ""}`}
-          />
-        ) : (
-          <input id={id} className="field num" value={value} onChange={(e) => onChange(e.target.value)} placeholder={input.kind === "test_date" ? "YYYY-MM-DD" : example ? `e.g. ${example}` : input.text ? "text" : ""} />
+          {unit && !multi && <span className="muted"> [{unit}]</span>}
+        </span>
+        {!input.required && <span className="fc-opt">optional</span>}
+      </label>
+      {multi ? (
+        <RowsEditor id={id} labelledBy={`${id}-l`} cols={cols} value={value} onChange={onChange} />
+      ) : (
+        <input id={id} className="field num" value={value} onChange={(e) => onChange(e.target.value)} placeholder={input.kind === "test_date" ? "YYYY-MM-DD" : example ? `e.g. ${example}` : input.text ? "text" : ""} />
+      )}
+      {(hint || source) && (
+        <span className="muted fc-in-note">
+          {source === "record" && <span className="fc-in-src">from the NASA record</span>}
+          {source === "missing" && <span className="fc-in-src">not in the NASA record: enter it</span>}
+          {source && hint ? " · " : ""}
+          {hint}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A small table over the same text the forecast parses: one line per row, cells joined by ", "
+ * ("t, v" or "start, end, value"), an empty cell left empty. The table always shows at least one row.
+ */
+function RowsEditor({ id, labelledBy, cols, value, onChange }: { id: string; labelledBy: string; cols: string[]; value: string; onChange: (v: string) => void }) {
+  const split = (l: string) => (l.includes(",") ? l.split(",") : l.trim() ? l.trim().split(/[;\t ]+/) : []);
+  const grid = (value === "" ? [""] : value.split("\n")).map((l) => {
+    const cells = split(l);
+    return cols.map((_, k) => (cells[k] ?? "").trim());
+  });
+  const write = (g: string[][]) => onChange(g.length === 1 && g[0].every((c) => c === "") ? "" : g.map((r) => (r.every((c) => c === "") ? "" : r.join(", "))).join("\n"));
+  const setCell = (k: number, j: number, v: string) => write(grid.map((r, a) => (a === k ? r.map((c, b) => (b === j ? v.replace(/[\s,;]/g, "") : c)) : r)));
+  const remove = (k: number) => write(grid.length > 1 ? grid.filter((_, a) => a !== k) : [cols.map(() => "")]);
+  const add = () => onChange(value === "" ? "\n" : value + "\n");
+  // Pasting several lines (or "t, v" pairs) into a cell fills the rows from there.
+  const paste = (k: number, text: string) => {
+    const lines = text.split(/\r?\n/).filter((l) => l.trim());
+    if (lines.length < 2 && !/[,;\t ]/.test(text.trim())) return false;
+    const pasted = lines.map((l) => cols.map((_, j) => (split(l)[j] ?? "").trim()));
+    write([...grid.slice(0, k), ...pasted, ...grid.slice(k + pasted.length)]);
+    return true;
+  };
+  return (
+    <div className="fc-rows" role="group" aria-labelledby={labelledBy}>
+      <table>
+        <thead>
+          <tr>
+            {cols.map((c) => (
+              <th key={c} scope="col">
+                {c}
+              </th>
+            ))}
+            <th className="fc-rows-x">
+              <span className="sr-only">Remove</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {grid.map((r, k) => (
+            <tr key={k}>
+              {r.map((cell, j) => (
+                <td key={j}>
+                  <input
+                    id={k === 0 && j === 0 ? id : undefined}
+                    className="field num"
+                    inputMode="decimal"
+                    aria-label={`${cols[j]}, row ${k + 1}`}
+                    value={cell}
+                    onChange={(e) => setCell(k, j, e.target.value)}
+                    onPaste={(e) => paste(k, e.clipboardData.getData("text")) && e.preventDefault()}
+                  />
+                </td>
+              ))}
+              <td className="fc-rows-x">
+                <button type="button" className="btn btn-s btn-quiet btn-icon" aria-label={`Remove row ${k + 1}`} title="Remove row" onClick={() => remove(k)}>
+                  ×
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <button type="button" className="btn btn-s btn-quiet fc-rows-add" onClick={add}>
+        + Add row
+      </button>
+    </div>
+  );
+}
+
+/** A short human name from the investigation: the part before its colon, without the PSI numbers in brackets. */
+export function shortName(c: ModelCard): string {
+  const inv = c.investigation.trim();
+  const colon = inv.indexOf(":");
+  let head = (colon > 0 ? inv.slice(0, colon) : inv).split(/;\s/)[0];
+  head = head.replace(/\s*\([^)]*\)/g, "").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
+  const bare = head.replace(/^PSI-\d+,\s*/, "");
+  if (bare) head = bare;
+  if (!head) return inv;
+  return head.length > 56 ? head.slice(0, 54).replace(/[\s,]+\S*$/, "") + "…" : head;
+}
+
+/** What a model forecasts, in one short line: its first question for a law release, else the first sentence without its mechanics. */
+function shortForecast(c: ModelCard): string {
+  const plain = (s: string) => s.replace(/\s*\([^)]*\)/g, "").replace(/\s{2,}/g, " ").trim();
+  const law = c.inputs.every((i) => i.kind === "condition") ? lawTargets(c) : [];
+  if (law.length) {
+    // The first target that says something on its own ("as slice" does not), raw names read as words.
+    const lead = law.find((t) => t.description.length >= 20) ?? law[0];
+    const q = plain(lawQuestion(lead)).replace(/_/g, " ");
+    return law.length > 1 ? `${q}, and ${law.length - 1} more answer${law.length > 2 ? "s" : ""}` : q;
+  }
+  let s = c.forecasts.replace(/^Generic law forward[^.]*\.\s*/, "");
+  const dot = s.search(/\.\s/);
+  if (dot > 0) s = s.slice(0, dot);
+  return plain(s)
+    .replace(/,?\s+from (its|the) (conditions|test)\b.*$/, "")
+    .replace(/\.$/, "");
+}
+
+/** The served models grouped by what they forecast. */
+const MODEL_GROUPS: { label: string; families: string[] }[] = [
+  { label: "FLEX droplets", families: ["flex"] },
+  { label: "ACME burner flames", families: ["acme_normal", "acme_inverse"] },
+  { label: "BASS solids", families: ["bass"] },
+  { label: "Other NASA investigations", families: ["other"] },
+];
+
+function ModelChooser({
+  items,
+  run,
+  best,
+  selected,
+  onPick,
+  onDone,
+}: {
+  items: { c: ModelCard; score: number }[];
+  run: ExperimentSummary | null;
+  best: string | null;
+  selected: string | null;
+  onPick: (id: string) => void;
+  onDone?: () => void;
+}) {
+  const groups: { label: string; items: ModelCard[] }[] = [];
+  const fits = run ? items.filter((x) => x.score >= 0).map((x) => x.c) : [];
+  if (fits.length) groups.push({ label: `Written for ${familyLabel(run!.family)} runs`, items: fits });
+  const rest = items.filter((x) => !fits.includes(x.c)).map((x) => x.c);
+  for (const g of MODEL_GROUPS) {
+    const mine = rest.filter((c) => g.families.includes(c.family));
+    if (mine.length) groups.push({ label: fits.length ? `${g.label} (you type the conditions)` : g.label, items: mine });
+  }
+  const known = new Set(MODEL_GROUPS.flatMap((g) => g.families));
+  const unknown = rest.filter((c) => !known.has(c.family));
+  if (unknown.length) groups.push({ label: "Other models", items: unknown });
+  return (
+    <div className="mc">
+      <div className="mc-head">
+        <span id="hw-model-l" className="mc-title">
+          {selected ? "Model" : "Choose the model to forecast with"}
+        </span>
+        {selected && onDone && (
+          <button className="btn btn-s btn-quiet" onClick={onDone}>
+            Done
+          </button>
         )}
-        {(rest || source) && (
-          <span className="muted fc-in-note">
-            {source === "record" && <span className="fc-in-src">from the NASA record</span>}
-            {source === "missing" && <span className="fc-in-src">not in the NASA record: enter it</span>}
-            {source && rest ? " · " : ""}
-            {rest}
-          </span>
-        )}
-      </dd>
+      </div>
+      <div className="mc-list" role="radiogroup" aria-labelledby="hw-model-l">
+        {groups.map((g, gi) => (
+          <div key={g.label} className="mc-group" role="group" aria-labelledby={`hw-mg-${gi}`}>
+            <h3 id={`hw-mg-${gi}`} className="mc-group-h">
+              {g.label}
+            </h3>
+            {g.items.map((c) => {
+              const on = c.release_id === selected;
+              return (
+                <label key={c.release_id} className={`mc-opt${on ? " on" : ""}`} title={c.investigation}>
+                  <input
+                    type="radio"
+                    name="hw-model"
+                    className="sr-only"
+                    checked={on}
+                    onChange={() => onPick(c.release_id)}
+                    // A pointer click picks and closes the list (after the pick lands); arrow keys only move the choice.
+                    onClick={(e) => {
+                      if (e.detail > 0 && onDone) setTimeout(onDone, 0);
+                    }}
+                  />
+                  <span className="mc-dot" aria-hidden="true" />
+                  <span className="mc-main">
+                    <b>{shortName(c)}</b>
+                    <span className="mc-what">{shortForecast(c)}</span>
+                  </span>
+                  <span className="mc-side">
+                    {c.release_id === best && <span className="tag">best fit</span>}
+                    <code className="mc-slug">
+                      {c.model_name} {c.candidate}
+                    </code>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
