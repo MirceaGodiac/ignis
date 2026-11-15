@@ -7,7 +7,15 @@
 //! - artifacts against this workspace's artifact store, and every JSON Pointer against the
 //!   artifact's bytes (a number must sit under an object that states its `unit`, so a value is never
 //!   cited without one);
-//! - releases against the episode's pins.
+//! - releases against the episode's pins;
+//! - every number a claim binds (task M7b) against its reference ([`crate::grounding`]): a table
+//!   cell (the artifact's digest must be the pinned one, the row keys must select exactly one row;
+//!   a number written by `analysis_execute` must also cite that run's `ExecutionRecord` and its
+//!   exact inputs), or a quote a retrieval tool returned in this episode (text level only). The
+//!   host records what each reference resolved to; a stated value must equal it in SI. A single
+//!   number cited by pointer alone states nothing the host could check. Under
+//!   [`GroundingMode::Log`] these grounding problems are recorded in the stored answer; under
+//!   `Enforce` they refuse it.
 //!
 //! Then the contract rules of the assembled answer run ([`ResearchAnswer::problems`]: evidence class
 //! of observed claims, predictions only from `AnalysisArtifact`, view contracts). The refusal lists
@@ -15,18 +23,23 @@
 //! one resubmission can fix them all. A retry with the same `client_request_id` returns the answer
 //! stored the first time.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use ignis_core::contracts::{
     AnswerId, AnswerProblem, AnswerProblemKind, AnswerRefusal, AnswerSubmission, ArtifactId,
-    ArtifactRef, Causation, ClaimSupport, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope,
-    EventBody, ExecutionScope, Origin, Producer, ResearchAnswer, ResearchSchema, RetryPolicy,
-    Timestamp, ToolCallId, ViewSpec,
+    ArtifactRef, Causation, Claim, ClaimSupport, ConditionsQuery, ConditionsTable, DatasetSchema,
+    Digest, EntityRef, EpisodeId, EpisodePins, ErrorCode, ErrorEnvelope, EventBody, EvidenceId,
+    EvidenceRef, ExecutionOutcome, ExecutionRecord, ExecutionScope, Finite, GroundingLevel,
+    GroundingMode, GroundingReport, Origin, Producer, ResearchAnswer, ResearchSchema,
+    ResolvedValue, RetryPolicy, Timestamp, ToolCallId, ValueDerivation, ValueSource, ViewSpec,
 };
 use ignis_core::hashing::sha256_hex;
-use ignis_core::services::{ArtifactDraft, ArtifactStore, ServiceResult};
+use ignis_core::services::{ArtifactDraft, ArtifactStore, DatasetService, ServiceResult};
 use ignis_research::ResearchStore;
 use serde_json::Value;
+
+use crate::grounding;
+use crate::tools::ANALYSIS_JOB;
 
 /// What a submission became.
 pub(crate) enum Submitted {
@@ -47,6 +60,10 @@ pub(crate) struct AnswerHost<'a> {
     pub store: &'a ResearchStore,
     pub artifacts: &'a dyn ArtifactStore,
     pub origin: Origin,
+    /// Whether a grounding problem refuses the answer or is only recorded in it (M7b).
+    pub grounding: GroundingMode,
+    /// Conditions of experimental runs, to read a `conditions_cell` back (absent: not served).
+    pub datasets: Option<&'a dyn DatasetService>,
 }
 
 fn internal(msg: impl Into<String>) -> ErrorEnvelope {
@@ -121,6 +138,10 @@ impl AnswerHost<'_> {
             ));
         }
         problems.extend(self.pointer_problems(scope, &sub, &artifacts));
+        let mut claims = sub.claims;
+        let (grounded, grounding_problems) =
+            self.ground_values(scope, &ep.pins, &mut claims, &artifacts, &found)?;
+        problems.extend(grounding_problems);
 
         let answer = ResearchAnswer {
             schema_version: ResearchSchema::V2,
@@ -128,7 +149,7 @@ impl AnswerHost<'_> {
             episode_id: episode.clone(),
             status: sub.status,
             blocks: sub.blocks,
-            claims: sub.claims,
+            claims,
             evidence: cited_evidence
                 .iter()
                 .filter_map(|id| found.get(id).cloned())
@@ -136,13 +157,32 @@ impl AnswerHost<'_> {
             artifacts: artifacts.into_values().collect(),
             model_releases: sub.model_releases,
             limitations: sub.limitations,
+            grounding: None,
             origin: self.origin,
             created_at: Timestamp::now(),
         };
+        let mut answer = answer;
         for p in answer.problems().into_iter().map(explain) {
             if !problems.contains(&p) {
                 problems.push(p);
             }
+        }
+        // Grounding problems refuse under `enforce`; under `log` the answer records them.
+        let logged: Vec<AnswerProblem> = match self.grounding {
+            GroundingMode::Enforce => vec![],
+            GroundingMode::Log => {
+                let (g, rest) = problems.into_iter().partition(|p| p.kind.is_grounding());
+                problems = rest;
+                g
+            }
+        };
+        let states_numbers = answer.claims.iter().any(|c| !c.values.is_empty());
+        if states_numbers || !logged.is_empty() {
+            answer.grounding = Some(GroundingReport {
+                mode: self.grounding,
+                grounded,
+                problems: logged,
+            });
         }
         if problems.is_empty() {
             if let Err(e) = answer.validate() {
@@ -328,6 +368,19 @@ impl AnswerHost<'_> {
                     continue;
                 }
                 let Some(d) = doc(artifact_id) else { continue };
+                if d.as_ref()
+                    .is_ok_and(|d| d.pointer(pointer).is_some_and(Value::is_number))
+                {
+                    out.push(AnswerProblem {
+                        kind: AnswerProblemKind::UngroundedNumber,
+                        claim_id: Some(c.claim_id.clone()),
+                        block: None,
+                        detail: format!(
+                            "{artifact_id} {pointer:?} is a single number cited by position without stating it; move it to the claim's values (stated value, unit, row keys, column) so the host can check it"
+                        ),
+                    });
+                    continue;
+                }
                 if let Err(detail) = d.and_then(|d| resolve(&d, pointer, Want::Cited)) {
                     out.push(AnswerProblem {
                         kind: AnswerProblemKind::UnresolvedPointer,
@@ -383,6 +436,346 @@ impl AnswerHost<'_> {
             }
         }
         out
+    }
+
+    /// Resolve every value reference (M7b) and record what it resolved to in `resolved`. Returns
+    /// how many resolved without a problem, and the problems. Malformed bindings, unknown
+    /// artifacts and unknown evidence are reported elsewhere and skipped here.
+    fn ground_values(
+        &self,
+        scope: &ExecutionScope,
+        pins: &EpisodePins,
+        claims: &mut [Claim],
+        artifacts: &BTreeMap<ArtifactId, ArtifactRef>,
+        evidence: &BTreeMap<EvidenceId, EvidenceRef>,
+    ) -> ServiceResult<(u32, Vec<AnswerProblem>)> {
+        let mut docs: BTreeMap<ArtifactId, Result<Value, String>> = BTreeMap::new();
+        // The conditions snapshot, read once per submission from the service (never the client).
+        let mut conditions: Option<Result<(Digest, ConditionsTable), String>> = None;
+        let mut out = Vec::new();
+        let mut grounded = 0u32;
+        for c in claims.iter_mut() {
+            let claim_id = c.claim_id.clone();
+            for (n, v) in c.values.iter_mut().enumerate() {
+                if v.validate().is_err() {
+                    continue;
+                }
+                let before = out.len();
+                let mut push = |kind: AnswerProblemKind, detail: String| {
+                    out.push(AnswerProblem {
+                        kind,
+                        claim_id: Some(claim_id.clone()),
+                        block: None,
+                        detail,
+                    })
+                };
+                let stated = v
+                    .value
+                    .map(|x| format!(" ({} {})", x.get(), v.unit.as_deref().unwrap_or_default()))
+                    .unwrap_or_default();
+                match &v.source {
+                    ValueSource::EvidenceQuote { evidence_id } => {
+                        let Some(e) = evidence.get(evidence_id) else {
+                            continue;
+                        };
+                        let (Some(x), Some(unit)) = (v.value, v.unit.as_deref()) else {
+                            continue;
+                        };
+                        let at = format!("value {n}{stated} quoted from {evidence_id}");
+                        let Some(quote) = e.quote.as_deref() else {
+                            push(
+                                AnswerProblemKind::UngroundedNumber,
+                                format!(
+                                    "{at}: the evidence carries no quote; cite evidence whose returned quote contains the number (e.g. from sources_read)"
+                                ),
+                            );
+                            continue;
+                        };
+                        match grounding::find_in_quote(quote, x.get(), unit) {
+                            Ok(()) => {
+                                v.resolved = Some(ResolvedValue {
+                                    level: GroundingLevel::Text,
+                                    value: x,
+                                    unit: unit.trim().to_string(),
+                                })
+                            }
+                            Err((kind, detail)) => push(kind, format!("{at}: {detail}")),
+                        }
+                    }
+                    ValueSource::ConditionsCell {
+                        snapshot,
+                        investigation_id,
+                        run_id,
+                        key,
+                        locator,
+                        reading,
+                    } => {
+                        let at = format!(
+                            "value {n}{stated} from the {key:?} condition of {investigation_id}"
+                        );
+                        let read = conditions
+                            .get_or_insert_with(|| self.read_conditions(scope))
+                            .as_ref();
+                        let (current, table) = match read {
+                            Ok(t) => t,
+                            Err(e) => {
+                                push(AnswerProblemKind::UnresolvedRow, format!("{at}: {e}"));
+                                continue;
+                            }
+                        };
+                        if current != snapshot {
+                            push(
+                                AnswerProblemKind::StaleSnapshot,
+                                format!(
+                                    "{at}: read under conditions snapshot {snapshot}, but the conditions are now {current}; query them again and bind the current snapshot"
+                                ),
+                            );
+                            continue;
+                        }
+                        let cell = match grounding::conditions_cell(
+                            table,
+                            investigation_id,
+                            run_id.as_ref(),
+                            *key,
+                            locator.as_ref(),
+                            *reading,
+                        ) {
+                            Ok(cell) => cell,
+                            Err((kind, detail)) => {
+                                push(kind, format!("{at}: {detail}"));
+                                continue;
+                            }
+                        };
+                        v.resolved = Finite::new(cell.value).ok().map(|value| ResolvedValue {
+                            level: GroundingLevel::Cell,
+                            value,
+                            unit: cell.unit.clone(),
+                        });
+                        if let (Some(x), Some(unit)) = (v.value, v.unit.as_deref()) {
+                            if let Err((kind, detail)) =
+                                grounding::compare(x.get(), unit, v.significant_digits, &cell)
+                            {
+                                push(kind, format!("{at}: {detail}"));
+                            }
+                        }
+                    }
+                    ValueSource::ArtifactCell {
+                        artifact_id,
+                        sha256,
+                        rows,
+                        column,
+                    } => {
+                        let Some(a) = artifacts.get(artifact_id) else {
+                            continue;
+                        };
+                        let at = format!("value {n}{stated} from {artifact_id}");
+                        if let Some(problem) =
+                            self.derivation_problem(scope, a, v.derivation.as_ref(), artifacts)?
+                        {
+                            push(
+                                AnswerProblemKind::UngroundedDerivation,
+                                format!("{at}: {problem}"),
+                            );
+                        }
+                        if &a.sha256 != sha256 {
+                            push(
+                                AnswerProblemKind::StaleSnapshot,
+                                format!(
+                                    "{at}: bound to snapshot {sha256}, but the artifact is {}; re-read the artifact and bind its current digest",
+                                    a.sha256
+                                ),
+                            );
+                            continue;
+                        }
+                        let doc = docs
+                            .entry(artifact_id.clone())
+                            .or_insert_with(|| self.read_json(scope, a));
+                        let doc = match doc {
+                            Ok(d) => &*d,
+                            Err(e) => {
+                                push(AnswerProblemKind::UnresolvedRow, format!("{at}: {e}"));
+                                continue;
+                            }
+                        };
+                        if let (Some(pinned), Some(built)) = (
+                            &pins.corpus_snapshot,
+                            doc.get("corpus_snapshot").and_then(Value::as_str),
+                        ) {
+                            if pinned.as_str() != built {
+                                push(
+                                    AnswerProblemKind::StaleSnapshot,
+                                    format!(
+                                        "{at}: the table was built from corpus snapshot {built}, the episode is pinned to {pinned}; rebuild it on the pinned snapshot"
+                                    ),
+                                );
+                                continue;
+                            }
+                        }
+                        let cell = match grounding::read_cell(doc, rows, column) {
+                            Ok(cell) => cell,
+                            Err((kind, detail)) => {
+                                push(kind, format!("{at}: {detail}"));
+                                continue;
+                            }
+                        };
+                        // The cell is the truth the answer shows, whatever was stated.
+                        v.resolved = Finite::new(cell.value).ok().map(|value| ResolvedValue {
+                            level: GroundingLevel::Cell,
+                            value,
+                            unit: cell.unit.clone(),
+                        });
+                        if let (Some(x), Some(unit)) = (v.value, v.unit.as_deref()) {
+                            if let Err((kind, detail)) =
+                                grounding::compare(x.get(), unit, v.significant_digits, &cell)
+                            {
+                                push(kind, format!("{at}: {detail}"));
+                            }
+                        }
+                    }
+                }
+                if out.len() == before && v.resolved.is_some() {
+                    grounded += 1;
+                }
+            }
+        }
+        Ok((grounded, out))
+    }
+
+    /// The conditions the scope sees, every page, under one snapshot: read before and after the
+    /// query, so a table that changed while it was read is not taken for either version.
+    fn read_conditions(&self, scope: &ExecutionScope) -> Result<(Digest, ConditionsTable), String> {
+        let Some(ds) = self.datasets else {
+            return Err(
+                "this host serves no experimental conditions (conditions_query is not configured)"
+                    .into(),
+            );
+        };
+        let msg = |e: ErrorEnvelope| format!("the conditions could not be read: {}", e.message);
+        let before = ds.conditions_snapshot(scope).map_err(msg)?;
+        let mut q = ConditionsQuery {
+            schema_version: DatasetSchema::V2,
+            investigation_ids: vec![],
+            run_ids: vec![],
+            keys: vec![],
+            filters: vec![],
+            include_unknown: true,
+            include_envelopes: false,
+            page_size: None,
+            cursor: None,
+        };
+        let mut table = ds.conditions(scope, &q).map_err(msg)?;
+        while let Some(cursor) = table.next_cursor.take() {
+            q.cursor = Some(cursor);
+            let page = ds.conditions(scope, &q).map_err(msg)?;
+            table.rows.extend(page.rows);
+            table.next_cursor = page.next_cursor;
+        }
+        let after = ds.conditions_snapshot(scope).map_err(msg)?;
+        if before != after {
+            return Err(format!(
+                "the conditions changed while they were read ({before} then {after}); submit again"
+            ));
+        }
+        Ok((after, table))
+    }
+
+    /// Whether the cell's artifact was computed by `analysis_execute`, and if so whether the
+    /// derivation cites that run's record and exactly the inputs it mounted. `None` when it holds.
+    fn derivation_problem(
+        &self,
+        scope: &ExecutionScope,
+        cell: &ArtifactRef,
+        derivation: Option<&ValueDerivation>,
+        artifacts: &BTreeMap<ArtifactId, ArtifactRef>,
+    ) -> ServiceResult<Option<String>> {
+        let job = match &cell.produced_by.job_id {
+            Some(j) => match self.store.job(scope, j) {
+                Ok(job) => Some(job),
+                Err(e) if e.code == ErrorCode::NotFound => None,
+                Err(e) => return Err(e),
+            },
+            None => None,
+        };
+        let executed = job.as_ref().is_some_and(|j| j.kind == ANALYSIS_JOB);
+        let id = &cell.artifact_id;
+        let d = match (executed, derivation) {
+            (false, None) => return Ok(None),
+            (false, Some(_)) => {
+                return Ok(Some(format!(
+                    "{id} was not written by an analysis_execute run; drop the derivation"
+                )))
+            }
+            (true, None) => {
+                return Ok(Some(format!(
+                    "{id} was computed by analysis_execute job {}; cite that run's ExecutionRecord as derivation.computation and every input it mounted as derivation.inputs",
+                    job.map(|j| j.job_id.to_string()).unwrap_or_default()
+                )))
+            }
+            (true, Some(d)) => d,
+        };
+        // An unknown computation is already an unknown artifact.
+        let Some(comp) = artifacts.get(&d.computation) else {
+            return Ok(None);
+        };
+        if comp.contract.as_deref() != Some("ExecutionRecord") {
+            return Ok(Some(format!(
+                "derivation.computation {} is {:?}, not the ExecutionRecord of the run",
+                d.computation, comp.contract
+            )));
+        }
+        let record: ExecutionRecord = match self.read_json(scope, comp).and_then(|v| {
+            serde_json::from_value(v).map_err(|e| format!("is not an ExecutionRecord: {e}"))
+        }) {
+            Ok(r) => r,
+            Err(e) => {
+                return Ok(Some(format!(
+                    "derivation.computation {}: {e}",
+                    d.computation
+                )))
+            }
+        };
+        let wrote = record.outputs.iter().any(|o| &o.artifact.artifact_id == id)
+            || record
+                .stdout
+                .artifact
+                .as_ref()
+                .is_some_and(|a| &a.artifact_id == id);
+        if !wrote {
+            return Ok(Some(format!(
+                "the run recorded in {} did not write {id}; cite the ExecutionRecord of the run that did",
+                d.computation
+            )));
+        }
+        if record.outcome != (ExecutionOutcome::Exited { exit_code: 0 }) {
+            return Ok(Some(format!(
+                "the run recorded in {} ended {:?}; a failed run grounds no number",
+                d.computation, record.outcome
+            )));
+        }
+        let mounted: BTreeSet<&ArtifactId> = record
+            .inputs
+            .iter()
+            .map(|m| &m.artifact.artifact_id)
+            .collect();
+        let cited: BTreeSet<&ArtifactId> = d.inputs.iter().collect();
+        if mounted != cited {
+            let list = |s: Vec<&&ArtifactId>| {
+                if s.is_empty() {
+                    "none".to_string()
+                } else {
+                    s.iter()
+                        .map(|a| a.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                }
+            };
+            return Ok(Some(format!(
+                "derivation.inputs must be exactly the run's mounted inputs; missing: {}; not mounted: {}",
+                list(mounted.difference(&cited).collect()),
+                list(cited.difference(&mounted).collect())
+            )));
+        }
+        Ok(None)
     }
 
     fn read_json(&self, scope: &ExecutionScope, a: &ArtifactRef) -> Result<Value, String> {

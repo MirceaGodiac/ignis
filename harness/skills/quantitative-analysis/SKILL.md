@@ -25,9 +25,20 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
 
 ## 3. Report what was computed, and its limits
 
-- Each reported number is a `computed` claim whose support is the artifact value: the output
-  artifact id plus the JSON Pointer of the field (`/burning_rate/value`). Do not retype numbers into
-  text without that binding.
+- Each reported number is a `computed` claim that binds it in `values`, never as a bare numeral:
+  `{"value": 1.23, "unit": "mm2/s", "source": {"kind": "artifact_cell", "artifact_id": <output>,
+  "sha256": <its digest>, "column": "/burning_rate"}, "derivation": {"computation": <the
+  ExecutionRecord artifact>, "inputs": [<every mounted input>]}}`. Pick a row of a table with
+  `"rows": [{"table": "/rows", "where": [{"field": "/run_id", "equals": "..."}]}]`, by key fields,
+  never by position. The host reads the cell back, records it as `resolved` and compares your value
+  in SI; you may omit `value`/`unit` to show the cell as it is. A pointer to a single number in
+  `support` is reported as an ungrounded number.
+- A measured condition is an `observed` claim: bind it with `"source": {"kind":
+  "conditions_cell", "snapshot": <x-ignis-snapshot of the conditions>, "investigation_id": ...,
+  "run_id": ..., "key": ...}` (a conflicting cell needs the candidate's `locator`). A number from a
+  PDF passage binds with `"source": {"kind": "evidence_quote", "evidence_id": ...}`: the host only
+  checks that the number and unit are written in the returned quote. Numbers in PDF tables cannot be
+  bound yet; say so instead of retyping them.
 - State the method in one line (fit, average, interval). Report the effect size with its
   uncertainty and sample size, computed by the program; a p-value alone is not a result, and
   significance is not importance.
