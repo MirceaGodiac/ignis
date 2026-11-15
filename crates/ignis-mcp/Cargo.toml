@@ -31,5 +31,7 @@ rmcp = { version = "=3.10.0", default-features = false, features = ["server", "t
 
 [dev-dependencies]
 tempfile = "3"
+# A real DatasetStore (and an R2b sensor bundle) behind the dataset-view grounding test.
+ignis-data = { path = "../ignis-data" }
 tower = { workspace = true }
 http-body-util = "0.1"

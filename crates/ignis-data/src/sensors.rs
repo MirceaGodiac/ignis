@@ -36,7 +36,9 @@
 //!
 //! **Partition.** These investigations have no frozen split and hold no held-out outcome (the four
 //! lockbox investigations are refused here), so a bundle declares the single partition `train` with
-//! `split_id = unsplit`: every row is builder-visible. It is not a modelling split.
+//! `split_id = unsplit`: every row is builder-visible. It is not a modelling split. Once a frozen
+//! split assigns any run of the investigation, the split wins: `DatasetStore` withholds the unsplit
+//! bundle (`dataset::unsplit_superseded`) until it is rebuilt on the split.
 //!
 //! **Cost.** One file at a time (a few MB), one Parquet row group per file, written to disk as it
 //! goes and hashed after; an investigation is never held in memory.
@@ -812,7 +814,7 @@ pub fn build_investigation(
         family: Family::Other,
         audience: BundleAudience::Builder,
         cohort_id: format!("{inv}:all-sensor-files"),
-        split_id: "unsplit".into(),
+        split_id: crate::dataset::UNSPLIT.into(),
         partitions: [Partition::Train].into_iter().collect(),
         source_manifest_hash: format!("sha256:{}", hex::encode(manifest.finalize())),
         time_origin: TIME_ORIGIN.into(),
