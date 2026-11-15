@@ -1557,7 +1557,7 @@ fn append_tx(
             ep.status = *to;
         }
         let ev = ResearchEvent {
-            schema_version: ResearchSchema::V1,
+            schema_version: ResearchSchema::V2,
             event_id: EventId::new(new_id("ev")).expect("generated id"),
             episode_id: ep.episode_id.clone(),
             seq: ep.last_seq + 1,

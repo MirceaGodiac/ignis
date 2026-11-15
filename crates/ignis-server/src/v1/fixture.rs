@@ -380,6 +380,7 @@ impl Fixture {
                 models: Some(Arc::new(FixtureModels { release })),
                 sandbox: None,
                 models_disabled: false,
+                conditions: false,
             },
             known,
         })
