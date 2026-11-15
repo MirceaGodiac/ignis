@@ -288,7 +288,7 @@ export function describeCall(call: ToolCallState, opts: { full?: boolean } = {})
       return { kind, text: id ? `Inspected the dataset ${clip(id, 48)}` : "Inspected a dataset", detail: preview, sourceId: null };
     }
     case "models_forecast":
-      return { kind, text: "Asked for a model forecast", detail: join("model output", preview), sourceId: null };
+      return { kind, text: "Asked for a model forecast", detail: preview, sourceId: null };
     case "analysis_execute": {
       const lang = str(a?.language);
       return { kind, text: lang ? `Ran an analysis in ${lang}` : "Ran an analysis", detail: preview, sourceId: null };
@@ -345,7 +345,11 @@ export function isBookkeeping(s: Stop): boolean {
   return s.kind === "tool" && BOOKKEEPING.has(s.call.tool) && stepState(s) === "ok";
 }
 
-/** "Searched 3 times, read 2 sources, looked up conditions once". Null when there was no tool work. */
+/**
+ * One quiet line for the route: "Searched 3 times, read 2 sources, ran 1 forecast". Each kind of
+ * work is said once; steps that fit no kind are not enumerated (they are in the trail). Null when
+ * there was no tool work.
+ */
 export function routeSummary(stops: Stop[]): string | null {
   const tried = stops.filter((s) => s.kind === "tool" && !isBookkeeping(s));
   if (!tried.length) return null;
@@ -363,13 +367,13 @@ export function routeSummary(stops: Stop[]): string | null {
     parts.push(reads.every((c) => c.tool === "sources_read" || c.tool === "sources_outline") ? `read ${plural(sources, "source")}` : `read ${times(reads.length)}`);
   }
   const data = by("data").length;
-  if (data) parts.push(`looked up conditions ${times(data)}`);
+  if (data) parts.push(`checked conditions ${times(data)}`);
+  // Forecasts and analyses share one verb: "ran 1 forecast and 4 analyses".
   const fc = calls.filter((c) => c.tool === "models_forecast").length;
-  if (fc) parts.push(`asked for ${plural(fc, "forecast")}`);
   const an = calls.filter((c) => c.tool === "analysis_execute").length;
-  if (an) parts.push(`ran ${plural(an, "analysis", "analyses")}`);
-  const rest = calls.length - search - reads.length - data - fc - an;
-  if (rest > 0) parts.push(`${plural(rest, "other step")}`);
+  const ran = [fc ? plural(fc, "forecast") : null, an ? plural(an, "analysis", "analyses") : null].filter(Boolean);
+  if (ran.length) parts.push(`ran ${ran.join(" and ")}`);
+  if (!parts.length) return plural(calls.length, "step");
   const out = parts.join(", ");
   return out.charAt(0).toUpperCase() + out.slice(1);
 }

@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { fmtNum, fullNum, sortRows, type TableColumn } from "../research/chartRows";
 
 const PAGE = 100;
+/** Column headers in sentence case ("pressure" → "Pressure"; "o2 mole fraction" → "O2 mole fraction"). */
+const sentence = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 function Cell({ v, numeric }: { v: unknown; numeric: boolean }) {
   if (v == null || v === "") return <td className={`dim${numeric ? " r" : ""}`}>—</td>;
@@ -43,8 +45,8 @@ export function DataTable({ columns, rows, caption, maxHeight = 420 }: { columns
                 const on = sort?.col === j;
                 return (
                   <th key={c.key} scope="col" className={c.numeric ? "r" : undefined} aria-sort={on ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}>
-                    <button className={`sort${on ? " on" : ""}`} onClick={() => toggle(j)} title={`Sort by ${c.key}`}>
-                      <span>{c.title}</span>
+                    <button className={`sort${on ? " on" : ""}`} onClick={() => toggle(j)} title={`Sort by ${c.title}`}>
+                      <span>{sentence(c.title)}</span>
                       {c.unit && <span className="unit">{c.unit}</span>}
                       <span className="sort-mark" aria-hidden="true">
                         {on ? (sort.dir === "asc" ? "↑" : "↓") : "↕"}

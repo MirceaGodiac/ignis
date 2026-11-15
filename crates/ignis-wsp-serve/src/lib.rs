@@ -31,8 +31,8 @@ use ignis_core::contracts::{AnalysisArtifact, Finite};
 use ignis_core::contracts::{
     Authorship, Capability, ControlStage, ErrorCode, ErrorEnvelope, EvidenceClass, ExecutionScope,
     Family, ForecastInput, ForecastRequest, Measured, ModelCard, ModelInput, ModelInputKind,
-    ModelRelease, PrefixBundle, RawValue, ReleaseId, ReportedScore, Resolution, RetryPolicy,
-    ScenarioAdmitted, ScenarioRequest, ScenarioValue, WspSchema,
+    ModelRelease, PrefixBundle, Qualification, RawValue, ReleaseId, ReportedScore, Resolution,
+    RetryPolicy, ScenarioAdmitted, ScenarioRequest, ScenarioValue, WspSchema,
 };
 use ignis_core::hashing::{content_hash, hex_part};
 use ignis_core::prefix::ProspectivePolicy;
@@ -59,6 +59,9 @@ fn envelope(code: ErrorCode, message: impl Into<String>) -> ErrorEnvelope {
 pub struct ServedEntry {
     pub release_id: ReleaseId,
     pub model_name: String,
+    pub title: String,
+    pub summary: String,
+    pub qualification: Qualification,
     pub family: Family,
     pub investigation: String,
     pub candidate: String,
@@ -287,6 +290,9 @@ impl<S: PrefixSource> ServedModels<S> {
                 schema_version: WspSchema::default(),
                 release_id: e.release_id.clone(),
                 model_name: r.model_name.clone(),
+                title: e.title.clone(),
+                summary: e.summary.clone(),
+                qualification: e.qualification.clone(),
                 family: r.family,
                 investigation: e.investigation.clone(),
                 candidate: e.candidate.clone(),
@@ -417,8 +423,8 @@ impl<S: PrefixSource> ServedModels<S> {
     /// One paragraph for the model tools' descriptions: what is served and what each needs.
     pub fn served_note(&self) -> String {
         let mut s = String::from(
-            "Served hand-written releases (literal weights, not trained, experimental; outputs \
-             are model_output):",
+            "Served hand-written releases (literal weights an author model typed, nothing fitted; \
+             each is qualified for use on the scores its card lists; outputs are model_output):",
         );
         for c in &self.cards {
             let needs: Vec<&str> = c
@@ -434,7 +440,8 @@ impl<S: PrefixSource> ServedModels<S> {
                 .map(|l| format!(" {l}"))
                 .unwrap_or_default();
             s.push_str(&format!(
-                " {} {} `{}` ({}, {}; needs {}; {}).{warn}",
+                " {}: {} {} `{}` ({}, {}; needs {}; {}).{warn}",
+                c.title,
                 c.model_name,
                 c.candidate,
                 c.release_id,
