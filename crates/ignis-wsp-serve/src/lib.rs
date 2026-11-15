@@ -77,6 +77,9 @@ pub struct ServedEntry {
     /// and the first is the default). Absent = every declared target.
     #[serde(default)]
     pub targets: Option<Vec<String>>,
+    /// Why the other declared targets are not served (returned with their refusal).
+    #[serde(default)]
+    pub targets_note: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -251,7 +254,7 @@ pub struct ServedModels<S> {
     /// Releases of the generic law forward (no expert, so not runnable through `inner`), loaded.
     law: BTreeMap<String, Arc<registry::LoadedRelease>>,
     /// Served targets of law releases that restrict them (release id -> targets).
-    targets: BTreeMap<String, Vec<String>>,
+    targets: BTreeMap<String, (Vec<String>, Option<String>)>,
     records: Vec<ModelRelease>,
     cards: Vec<ModelCard>,
     policies: BTreeMap<String, ProspectivePolicy>,
@@ -344,7 +347,10 @@ impl<S: PrefixSource> ServedModels<S> {
                     );
                 }
                 ensure!(!t.is_empty(), "{}: empty target list", e.release_id);
-                targets.insert(e.release_id.as_str().to_string(), t.clone());
+                targets.insert(
+                    e.release_id.as_str().to_string(),
+                    (t.clone(), e.targets_note.clone()),
+                );
             }
         }
         Ok(ServedModels {
@@ -393,8 +399,14 @@ impl<S: PrefixSource> ServedModels<S> {
                 .filter(|i| i.required)
                 .map(|i| i.name.as_str())
                 .collect();
+            let warn = c
+                .limits
+                .iter()
+                .find(|l| l.starts_with("Do not use"))
+                .map(|l| format!(" {l}"))
+                .unwrap_or_default();
             s.push_str(&format!(
-                " {} {} `{}` ({}, {}; needs {}; {}).",
+                " {} {} `{}` ({}, {}; needs {}; {}).{warn}",
                 c.model_name,
                 c.candidate,
                 c.release_id,
@@ -611,7 +623,7 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
             ));
         }
         let mut settings = req.settings.clone();
-        if let Some(served) = self.targets.get(&release.id) {
+        if let Some((served, note)) = self.targets.get(&release.id) {
             match &settings.target {
                 None => settings.target = Some(served[0].clone()),
                 Some(t) if served.contains(t) => {}
@@ -619,8 +631,9 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
                     return Err(envelope(
                         ErrorCode::InvalidRequest,
                         format!(
-                            "target {t} of {} is not served (it is not the model); served: {}",
+                            "target {t} of {} is not served: {}; served: {}",
                             release.model_name,
+                            note.as_deref().unwrap_or("it is not the model"),
                             served.join(", ")
                         ),
                     ))
