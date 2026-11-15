@@ -341,6 +341,76 @@ fn reading_an_artifact_never_makes_its_evidence_citable() {
     assert!(answers(&w, &w.ep).is_empty());
 }
 
+/// The agent cannot pin a release: one its own forecast of this episode ran successfully is
+/// citable; the same release unpinned and not run here (or run in another episode) is not.
+#[test]
+fn a_release_the_episode_forecast_with_is_citable_without_a_pin() {
+    let w = world();
+    let unpinned = |crid: &str| {
+        w.h.store
+            .create_episode(
+                &w.sc,
+                "Synthetic fixture goal",
+                &ClientRequestId::new(crid).unwrap(),
+                EpisodePins::default(),
+                Origin::SyntheticFixture,
+            )
+            .unwrap()
+            .0
+            .episode_id
+    };
+    let ep = unpinned("crid-unpinned-a");
+    let other = unpinned("crid-unpinned-b");
+    search(&w, &ep);
+    let forecast_in = |e: &EpisodeId, ok: bool| {
+        w.h.store
+            .submit_job(
+                &w.sc,
+                NewJob {
+                    kind: ignis_mcp::FORECAST_JOB.into(),
+                    input: json!({"schema_version": "wsp.v1", "release_id": RELEASE}),
+                    episode_id: Some(e.clone()),
+                    client_request_id: None,
+                    idempotent: true,
+                    priority: JobPriority::Interactive,
+                    causation: Causation::default(),
+                },
+            )
+            .unwrap();
+        let c =
+            w.h.store
+                .claim_job(
+                    "test",
+                    &[ignis_mcp::FORECAST_JOB],
+                    std::time::Duration::from_secs(60),
+                )
+                .unwrap()
+                .unwrap();
+        let outcome = if ok {
+            ignis_research::store::JobOutcome::Succeeded { outputs: vec![] }
+        } else {
+            ignis_research::store::JobOutcome::Cancelled
+        };
+        w.h.store.finish_job(&c.job_id, c.fence, outcome).unwrap();
+    };
+    let unpinned_refused = |e: &EpisodeId| {
+        let r = submit(&w, e, submission(&w));
+        r.error.is_some() && kinds(&refusal(&w, &r)).contains(&AnswerProblemKind::UnpinnedRelease)
+    };
+
+    assert!(unpinned_refused(&ep), "nothing ran yet");
+    forecast_in(&other, true);
+    forecast_in(&ep, false);
+    assert!(
+        unpinned_refused(&ep),
+        "a forecast of another episode, or one that did not succeed, does not count"
+    );
+    forecast_in(&ep, true);
+    let r = submit(&w, &ep, submission(&w));
+    assert!(r.error.is_none(), "{:?}", r.error);
+    assert_eq!(answers(&w, &ep).len(), 1);
+}
+
 #[test]
 fn a_refusal_lists_every_problem_at_once() {
     let w = world();
