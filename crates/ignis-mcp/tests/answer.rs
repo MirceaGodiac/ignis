@@ -1060,6 +1060,122 @@ fn a_condition_resolves_against_the_conditions_snapshot() {
     assert_eq!(kinds(&refused), vec![K::StaleSnapshot; 3], "{refused:#?}");
 }
 
+/// A number cited from a dataset view (a bundle's Parquet artifact, here an R2b sensor bundle) is
+/// read back through `DatasetService::view_rows` by identity keys at the pinned digest: a correct
+/// transcription grounds, a wrong one is caught, and an unknown column or ambiguous keys are named.
+#[test]
+fn a_number_from_a_dataset_view_is_read_back_from_its_row() {
+    let w = world();
+    let tmp = tempfile::tempdir().unwrap();
+    let raw = tmp.path().join("PSI-68");
+    std::fs::create_dir_all(&raw).unwrap();
+    // Synthetic fixture in the shape of an MDCA export.
+    std::fs::write(
+        raw.join("A001D01_Chamber_Readings.txt"),
+        "\"FCU TimeStamp\",\"FCU_MP_PT16(PSIA)\",\"FCU_MP_TM1(Deg C)\"\n\
+         \"2016-04-18 15:00:17.500000\",14.70,23.00\n\
+         \"2016-04-18 15:00:18.500000\",14.71,23.10\n",
+    )
+    .unwrap();
+    let store = Arc::new(ignis_data::dataset::DatasetStore {
+        builder_root: tmp.path().join("datasets"),
+        evaluator_root: tmp.path().join("holdout"),
+    });
+    let built = ignis_data::sensors::build_investigation("PSI-68", &raw, &store).unwrap();
+    let view = &built.bundle.views[0];
+    // The agent cites the view by the ArtifactRef `datasets_inspect` returned (not a workspace
+    // artifact); the host finds it among the bundles the scope reads.
+    let a = view.artifact.clone();
+
+    let host = ignis_mcp::ToolHost::new(
+        ignis_mcp::ToolServices {
+            knowledge: Some(w.h.knowledge.clone()),
+            datasets: Some(store.clone()),
+            ..Default::default()
+        },
+        w.h.store.clone(),
+        w.h.artifacts.clone(),
+        Origin::SyntheticFixture,
+        Arc::new(|| {}),
+    )
+    .with_grounding(GroundingMode::Enforce);
+    search(&w, &w.ep);
+    let at = |channel: &str, t: f64, column: &str, value: f64, unit: &str| {
+        json!({
+            "value": value, "unit": unit,
+            "source": {
+                "kind": "artifact_cell",
+                "artifact_id": a.artifact_id.as_str(),
+                "sha256": a.sha256.as_str(),
+                "rows": [{"table": "", "where": [
+                    {"field": "/run_id", "equals": "PSI-68:A001D01"},
+                    {"field": "/channel", "equals": channel},
+                    {"field": "/time_s", "equals": t}
+                ]}],
+                "column": column
+            }
+        })
+    };
+    let pa = 14.71 * 6894.757293168;
+    let submit = |s: Value| host.call_in(&w.sc, Some(&w.ep), "answer_submit", s);
+
+    // Correct: the SI cell in Pa, the same cell in kPa to 5 digits, a temperature in K.
+    let mut kpa = at("FCU_MP_PT16", 1.0, "/value_si", 101.42, "kPa");
+    kpa["significant_digits"] = json!(5);
+    let mut kelvin = at("FCU_MP_TM1", 0.0, "/value_si", 296.15, "K");
+    kelvin["significant_digits"] = json!(5);
+    let r = submit(observed(vec![
+        at("FCU_MP_PT16", 1.0, "/value_si", pa, "Pa"),
+        kpa,
+        kelvin,
+    ]));
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let answer: ResearchAnswer =
+        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let resolved: Vec<(f64, String)> = answer.claims[0]
+        .values
+        .iter()
+        .map(|v| {
+            let r = v.resolved.as_ref().unwrap();
+            assert_eq!(r.level, GroundingLevel::Cell);
+            (r.value.get(), r.unit.clone())
+        })
+        .collect();
+    assert_eq!(resolved[0], (pa, "Pa".to_string()));
+
+    // Wrong: a misread value (the other sample), an unknown column, ambiguous keys.
+    let mut s = observed(vec![
+        at(
+            "FCU_MP_PT16",
+            1.0,
+            "/value_si",
+            14.70 * 6894.757293168,
+            "Pa",
+        ),
+        at("FCU_MP_PT16", 1.0, "/value_kpa", 101.4, "kPa"),
+    ]);
+    let mut ambiguous = at("FCU_MP_PT16", 1.0, "/value_si", pa, "Pa");
+    ambiguous["source"]["rows"][0]["where"] =
+        json!([{"field": "/channel", "equals": "FCU_MP_PT16"}]);
+    s["claims"][0]["values"]
+        .as_array_mut()
+        .unwrap()
+        .push(ambiguous);
+    s["client_request_id"] = json!("crid-view-wrong");
+    let refused = refusal(&w, &submit(s));
+    use AnswerProblemKind as K;
+    let mut got = kinds(&refused);
+    got.sort();
+    let mut want = vec![K::ValueMismatch, K::UnknownColumn, K::UnresolvedRow];
+    want.sort();
+    assert_eq!(got, want, "{refused:#?}");
+    let all: String = refused.problems.iter().map(|p| p.detail.clone()).collect();
+    assert!(
+        all.contains("value_si"),
+        "the unknown column lists the permitted ones: {all}"
+    );
+}
+
 /// A malformed submission is refused with the JSON path of the offending field, so the model fixes
 /// that field (seen live: four retries that moved `kind` between blocks and claims without a path).
 #[test]

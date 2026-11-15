@@ -281,3 +281,115 @@ fn file_names_give_test_point_and_stream() {
         "Chamber_Readings"
     );
 }
+
+fn built_68(tmp: &Path) -> (DatasetStore, sensors::SensorBuild) {
+    let raw = tmp.join("raw/PSI-68");
+    write(&raw, "A001D01_Chamber_Readings.txt", MDCA);
+    let store = DatasetStore {
+        builder_root: tmp.join("datasets"),
+        evaluator_root: tmp.join("holdout"),
+    };
+    let b = sensors::build_investigation("PSI-68", &raw, &store).unwrap();
+    (store, b)
+}
+
+#[test]
+fn view_rows_select_by_identity_keys_at_the_pinned_digest() {
+    use ignis_core::contracts::{Finite, KeyValue};
+    use ignis_core::services::{ViewCell, ViewRowsQuery};
+    let tmp = tempfile::tempdir().unwrap();
+    let (store, b) = built_68(tmp.path());
+    let sc = scope(&[Partition::Train]);
+    let view = &b.bundle.views[0];
+    let q = |keys: Vec<(&str, KeyValue)>, columns: &[&str], limit| ViewRowsQuery {
+        view_sha256: view.artifact.sha256.clone(),
+        keys: keys.into_iter().map(|(k, v)| (k.to_string(), v)).collect(),
+        columns: columns.iter().map(|c| c.to_string()).collect(),
+        with_unit_columns: true,
+        limit,
+    };
+    let text = |s: &str| KeyValue::Text(s.into());
+    let r = store
+        .view_rows(
+            &sc,
+            &q(
+                vec![
+                    ("run_id", text("PSI-68:A001D01")),
+                    ("channel", text("FCU_MP_PT16")),
+                    ("time_s", KeyValue::Number(Finite::new(1.0).unwrap())),
+                ],
+                &["value_si", "raw_value", "status"],
+                2,
+            ),
+        )
+        .unwrap();
+    assert_eq!(
+        (r.dataset_id.as_str(), r.view.as_str()),
+        ("sensors-psi-68", "sensor_samples")
+    );
+    assert_eq!(r.rows.len(), 1);
+    assert!(!r.truncated);
+    let row = &r.rows[0];
+    assert_eq!(row["raw_value"], ViewCell::Text("14.71".into()));
+    assert_eq!(
+        row["raw_unit"],
+        ViewCell::Text("PSIA".into()),
+        "unit columns come along"
+    );
+    assert_eq!(row["unit_si"], ViewCell::Text("Pa".into()));
+    assert_eq!(row["value_si"], ViewCell::Number(14.71 * 6894.757293168));
+    assert_eq!(row["status"], ViewCell::Text("ok".into()));
+
+    // Bounded: three samples of one channel, limit 2 → truncated.
+    let many = store
+        .view_rows(
+            &sc,
+            &q(vec![("channel", text("FCU_MP_PT16"))], &["value_si"], 2),
+        )
+        .unwrap();
+    assert_eq!(many.rows.len(), 2);
+    assert!(many.truncated);
+
+    // Unknown columns fail closed with the permitted names; a measured column is not a key.
+    let e = store
+        .view_rows(&sc, &q(vec![("channel", text("x"))], &["nope"], 2))
+        .unwrap_err();
+    assert!(
+        e.message.contains("no column \"nope\"") && e.message.contains("value_si"),
+        "{}",
+        e.message
+    );
+    let e = store
+        .view_rows(
+            &sc,
+            &q(
+                vec![("value_si", KeyValue::Number(Finite::new(1.0).unwrap()))],
+                &["status"],
+                2,
+            ),
+        )
+        .unwrap_err();
+    assert!(e.message.contains("measured column"), "{}", e.message);
+    assert!(
+        store.view_rows(&sc, &q(vec![], &["status"], 2)).is_err(),
+        "no keys, no read"
+    );
+
+    // Another digest (a rebuilt view) or a scope without the bundle's partition: not found.
+    let mut other = q(vec![("channel", text("FCU_MP_PT16"))], &["value_si"], 2);
+    other.view_sha256 = b.bundle.views[1].artifact.sha256.clone();
+    let e = store.view_rows(&sc, &other).unwrap_err();
+    assert!(
+        e.message.contains("sensor_files: no column \"channel\""),
+        "the pinned digest picks the view: {}",
+        e.message
+    );
+    other.view_sha256 = ignis_core::contracts::Digest::of_bytes(b"not a view");
+    assert!(store.view_rows(&sc, &other).is_err());
+    assert!(store
+        .view_rows(
+            &scope(&[Partition::Validation]),
+            &q(vec![("channel", text("FCU_MP_PT16"))], &["value_si"], 2)
+        )
+        .is_err());
+}
