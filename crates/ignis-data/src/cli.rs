@@ -155,6 +155,15 @@ pub enum DataCmd {
     Conditions,
     /// List the builder bundles in the store (ids, partitions, content digest).
     Bundles,
+    /// Sensor/settings text of a non-modelled investigation -> DatasetBundle `sensors-<inv>` (R2b):
+    /// raw value/unit, SI value, explicit statuses, cell locators; local files only, no network.
+    Sensors {
+        investigations: Vec<String>,
+        /// Directory of the investigation's files (default `<IGNIS_DATA>/raw/samples/<inv>`); with
+        /// several investigations, a directory holding one `<inv>/` per investigation.
+        #[arg(long)]
+        raw: Option<PathBuf>,
+    },
     /// Write the array views for a cohort as Parquet (physical SI scaling only).
     Views {
         cohort_id: String,
@@ -1118,6 +1127,33 @@ pub fn run_data(cmd: DataCmd) -> anyhow::Result<()> {
                 json!({"out": out.display().to_string(), "rows": t.rows.len(),
                        "investigations": t.envelopes.len(), "values_per_investigation": per})
             );
+        }
+        DataCmd::Sensors {
+            investigations,
+            raw,
+        } => {
+            let store = crate::dataset::DatasetStore::default_roots();
+            let many = investigations.len() > 1;
+            for inv in &investigations {
+                let dir = match &raw {
+                    Some(r) if many => r.join(inv),
+                    Some(r) => r.clone(),
+                    None => paths::raw(Some(inv)),
+                };
+                let b = crate::sensors::build_investigation(inv, &dir, &store)?;
+                println!(
+                    "{} -> {}: {} files read, {} skipped, {} sample rows; statuses {}",
+                    inv,
+                    b.path.display(),
+                    b.files.len(),
+                    b.skipped.len(),
+                    b.bundle.views[0].row_count,
+                    b.quality["status_counts"]
+                );
+                for (f, why) in b.skipped.iter().take(10) {
+                    println!("  skipped {f}: {why}");
+                }
+            }
         }
         DataCmd::Bundles => {
             use ignis_core::services::DatasetService;
