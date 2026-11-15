@@ -667,6 +667,45 @@ impl ResearchStore {
         })
     }
 
+    /// The `release_id` of every job of `kind` that succeeded in episode `id`: the releases the
+    /// episode actually ran (an agent's forecast job is attached to its episode when the tool call
+    /// finishes). Content-addressed ids, so citing one is as reproducible as a pin.
+    pub fn episode_job_releases(
+        &self,
+        scope: &ExecutionScope,
+        id: &EpisodeId,
+        kind: &str,
+    ) -> ServiceResult<std::collections::BTreeSet<String>> {
+        self.read(|c| {
+            load_episode(c, scope, id)?;
+            let mut st = c
+                .prepare_cached(
+                    "SELECT input FROM jobs WHERE episode_id = ?1 AND workspace_id = ?2 AND kind = ?3 AND status = ?4",
+                )
+                .map_err(db("episode job releases"))?;
+            let rows = st
+                .query_map(
+                    params![
+                        id.as_str(),
+                        scope.workspace_id.as_str(),
+                        kind,
+                        wire(&JobStatus::Succeeded)
+                    ],
+                    |r| r.get::<_, String>(0),
+                )
+                .map_err(db("episode job releases"))?;
+            let mut out = std::collections::BTreeSet::new();
+            for input in rows {
+                let input = input.map_err(db("episode job releases"))?;
+                let v: Value = from_json(&input)?;
+                if let Some(r) = v.get("release_id").and_then(Value::as_str) {
+                    out.insert(r.to_owned());
+                }
+            }
+            Ok(out)
+        })
+    }
+
     /// The `answer.completed` event an earlier submission with the same idempotency key appended,
     /// if any (a different submission under the same key is a conflict).
     pub fn prior_answer(
