@@ -64,6 +64,18 @@ fn handshake_then_a_turn_with_deltas_a_message_and_a_tool_call() {
 }
 
 #[test]
+fn a_tool_call_records_its_arguments_and_the_message_that_introduced_it() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = Harness::new(dir.path());
+    let sc = scope("ws-a", false);
+    let ep = h.episode(&sc, "explain");
+    h.say(&sc, &ep, "explain then compute");
+    let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+    check_event_log(&evs).unwrap();
+    assert_explained_call(&evs, h.artifacts.as_ref(), &sc, &["/api_key"]);
+}
+
+#[test]
 fn a_host_refusal_is_recorded_as_refused_with_its_reason() {
     let dir = tempfile::tempdir().unwrap();
     let h = Harness::new(dir.path());

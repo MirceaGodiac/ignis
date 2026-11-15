@@ -157,9 +157,12 @@ fn research_services() -> ignis_server::v1::ResearchServices {
         );
         None
     };
+    // conditions_query is offered only once its table is built (`ignis data conditions`).
+    let conditions = datasets.is_some() && ignis_data::conditions::table_path().exists();
     ignis_server::v1::ResearchServices {
         knowledge,
         datasets,
+        conditions,
         ..Default::default()
     }
 }

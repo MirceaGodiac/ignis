@@ -21,10 +21,10 @@ use std::sync::Arc;
 
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
-    Causation, ClientRequestId, DatasetRef, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope,
-    EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, InlinePayload, JobLookup,
-    JobRef, Origin, Producer, ReadRequest, ReleaseRef, RetryPolicy, ScientificStatus,
-    SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
+    Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef, EpisodeId, ErrorCode,
+    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, InlinePayload,
+    JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, ResponseFormat, RetryPolicy,
+    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -41,7 +41,12 @@ use crate::answer::{AnswerHost, Submitted};
 /// whose `EvidenceRef`s an episode may cite. Never `artifacts_read` or `jobs_get`: an artifact can
 /// be written by agent-authored analysis code (a forged `EvidenceRef`) or belong to another episode
 /// (its answer's evidence), and reading it must not make that evidence citable here.
-const RETRIEVES_EVIDENCE: &[&str] = &["sources_search", "sources_read", "datasets_inspect"];
+const RETRIEVES_EVIDENCE: &[&str] = &[
+    "sources_search",
+    "sources_read",
+    "datasets_inspect",
+    "conditions_query",
+];
 
 /// Called after the host appended events to an episode log (wakes its SSE readers).
 pub type CommitHook = Arc<dyn Fn(&EpisodeId, u64) + Send + Sync>;
@@ -67,7 +72,14 @@ pub struct ToolServices {
     /// The deployment switched the model families (FLEX/ACME/BASS) off. Their contracts and tool
     /// descriptors stay in the catalog; the model tools are not registered and report this reason.
     pub models_disabled: bool,
+    /// The DatasetService can answer `conditions_query` (its conditions table is built). Without
+    /// it the tool is not registered and capability status says why.
+    pub conditions: bool,
 }
+
+/// Why `conditions_query` is absent while datasets are configured.
+pub const CONDITIONS_NOT_BUILT: &str =
+    "conditions table not built in this deployment (run `ignis data conditions`)";
 
 /// Why the model tools are absent when the deployment switched the model families off.
 pub const MODELS_DISABLED: &str =
@@ -91,9 +103,10 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 "sources_search" | "sources_read" if services.knowledge.is_none() => {
                     Some("KnowledgeService not configured")
                 }
-                "datasets_inspect" if services.datasets.is_none() => {
+                "datasets_inspect" | "conditions_query" if services.datasets.is_none() => {
                     Some("DatasetService not configured")
                 }
+                "conditions_query" if !services.conditions => Some(CONDITIONS_NOT_BUILT),
                 "models_inspect" | "models_forecast" if services.models_disabled => {
                     Some(MODELS_DISABLED)
                 }
@@ -104,9 +117,11 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                     Some("isolated runner not configured or failed preflight")
                 }
                 "wiki_patch" => Some("wiki service not implemented"),
-                "sources_search" | "sources_read" | "datasets_inspect" | "models_inspect"
-                | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get"
-                | "answer_submit" => None,
+                "sources_search" | "sources_read" | "datasets_inspect" | "conditions_query"
+                | "models_inspect" | "models_forecast" | "analysis_execute" | "artifacts_read"
+                | "jobs_get" | "answer_submit" => None,
+                // sources_outline, graph_neighbors, wiki_read, web_search, web_fetch: their
+                // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
             ToolAvailability {
@@ -154,9 +169,18 @@ fn decode<T: DeserializeOwned>(contract: &str, args: Value) -> ServiceResult<T> 
     serde_json::from_value(args).map_err(|e| {
         envelope(
             ErrorCode::InvalidRequest,
-            format!("arguments are not a valid {contract}: {e}"),
+            format!(
+                "arguments are not a valid {contract}: {e}. The tool's input schema is the \
+                 {contract} contract; fix that field and call again."
+            ),
         )
     })
+}
+
+/// `concise` (the default) or `detailed`. It changes the size of each item, never which items
+/// are returned or their order (`ResponseFormat`).
+fn concise(f: Option<ResponseFormat>) -> bool {
+    f.unwrap_or(ResponseFormat::Concise) == ResponseFormat::Concise
 }
 
 fn checked(r: Result<(), ignis_core::contracts::ContractError>) -> ServiceResult<()> {
@@ -245,7 +269,14 @@ impl ToolHost {
         let outcome = match self.registered.iter().find(|d| d.name == tool) {
             None => Err(envelope(
                 ErrorCode::NotFound,
-                format!("no tool {tool:?} is registered in this deployment"),
+                format!(
+                    "no tool {tool:?} is registered in this deployment; registered: {}",
+                    self.registered
+                        .iter()
+                        .map(|d| d.name.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
             )),
             Some(d) => d
                 .capabilities
@@ -287,7 +318,12 @@ impl ToolHost {
             "sources_search" => {
                 let req: SearchRequest = decode(contract, args)?;
                 checked(req.validate())?;
-                value(self.knowledge()?.search(scope, &req))
+                let mut page = self.knowledge()?.search(scope, &req)?;
+                if concise(req.response_format) {
+                    // Ranking scores are for comparing hits, not for citing them.
+                    page.hits.iter_mut().for_each(|h| h.scores.clear());
+                }
+                value(Ok(page))
             }
             "sources_read" => {
                 let req: ReadRequest = decode(contract, args)?;
@@ -297,6 +333,11 @@ impl ToolHost {
             "datasets_inspect" => {
                 let req: DatasetRef = decode(contract, args)?;
                 value(self.datasets()?.dataset(scope, &req.dataset_id))
+            }
+            "conditions_query" => {
+                let q: ConditionsQuery = decode(contract, args)?;
+                checked(q.validate())?;
+                value(self.datasets()?.conditions(scope, &q))
             }
             "models_inspect" => {
                 let req: ReleaseRef = decode(contract, args)?;
