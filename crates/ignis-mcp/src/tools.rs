@@ -414,6 +414,7 @@ impl ToolHost {
                     origin: self.origin,
                     grounding: self.grounding,
                     datasets: self.services.datasets.as_deref(),
+                    knowledge: self.services.knowledge.as_deref(),
                 };
                 match host.submit(scope, ep, call_id, sub)? {
                     Submitted::Stored {

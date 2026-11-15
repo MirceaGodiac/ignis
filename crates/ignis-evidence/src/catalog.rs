@@ -580,6 +580,51 @@ impl Filters {
     }
 }
 
+/// A passage of a document a family filter excludes only because the document carries no family
+/// label, with what the lockbox needs to decide whether a scope may see it.
+#[derive(Debug, Clone)]
+pub struct UnlabelledMatch {
+    pub publication_id: String,
+    pub outcome_bearing: bool,
+    pub describes_runs: Vec<String>,
+    pub continues_runs: Vec<String>,
+    pub investigation_ids: Vec<String>,
+}
+
+/// Passages whose text matches `query` and every filter except the family ones, in publications
+/// with an empty `families_json`: what a family filter leaves out only for the missing label. Empty
+/// when no family filter is set. The caller applies the scope's lockbox before counting.
+pub fn unlabelled_family_matches(
+    con: &Connection,
+    query: &str,
+    filters: &Filters,
+) -> Result<Vec<UnlabelledMatch>> {
+    if filters.families.is_empty() && filters.family.is_none() {
+        return Ok(vec![]);
+    }
+    let mut f = filters.clone();
+    f.families.clear();
+    f.family = None;
+    let (where_, fargs) = f.sql();
+    let sql = format!(
+        "SELECT c.publication_id, c.outcome_bearing, c.describes_runs_json, c.continues_runs_json,          p.investigation_ids_json FROM chunks_fts JOIN chunks c ON c.rowid = chunks_fts.rowid          JOIN publications p ON p.id = c.publication_id          WHERE chunks_fts MATCH ? AND coalesce(json_array_length(p.families_json), 0) = 0{where_}"
+    );
+    let mut args = vec![SqlValue::Text(fts_query(query)?)];
+    args.extend(fargs);
+    let arr = |s: String| serde_json::from_str::<Vec<String>>(&s).unwrap_or_default();
+    let mut st = con.prepare(&sql)?;
+    let rows = st.query_map(rusqlite::params_from_iter(args), |r| {
+        Ok(UnlabelledMatch {
+            publication_id: r.get(0)?,
+            outcome_bearing: r.get::<_, i64>(1)? != 0,
+            describes_runs: arr(r.get(2)?),
+            continues_runs: arr(r.get(3)?),
+            investigation_ids: arr(r.get(4)?),
+        })
+    })?;
+    Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
+}
+
 #[derive(Debug, Clone)]
 pub struct LexHit {
     pub chunk_id: String,

@@ -4,7 +4,7 @@
 #![allow(dead_code)]
 
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use ignis_core::contracts::*;
@@ -36,6 +36,10 @@ pub struct FakeKnowledge {
     pub repeat: AtomicUsize,
     /// Replaces the quote of every hit (a passage that states numbers).
     pub quote: Mutex<Option<String>>,
+    /// Hits carry no quote, as the real search returns them.
+    pub quote_less: AtomicBool,
+    /// The passage text `resolve_evidence` returns for a fixture hit (none: not found).
+    pub passage: Mutex<Option<String>>,
 }
 
 impl KnowledgeService for FakeKnowledge {
@@ -45,6 +49,11 @@ impl KnowledgeService for FakeKnowledge {
         if let Some(q) = self.quote.lock().unwrap().clone() {
             for h in &mut page.hits {
                 h.evidence.quote = Some(q.clone());
+            }
+        }
+        if self.quote_less.load(Ordering::SeqCst) {
+            for h in &mut page.hits {
+                h.evidence.quote = None;
             }
         }
         let n = self.repeat.load(Ordering::SeqCst);
@@ -59,6 +68,17 @@ impl KnowledgeService for FakeKnowledge {
         Ok(fixture("evidence/read_result.json"))
     }
     fn resolve_evidence(&self, _: &ExecutionScope, id: &EvidenceId) -> ServiceResult<EvidenceRef> {
+        let page: SearchPage = fixture("evidence/search_page.json");
+        let hit = page
+            .hits
+            .into_iter()
+            .find(|h| &h.evidence.evidence_id == id);
+        if let (Some(h), Some(text)) = (hit, self.passage.lock().unwrap().clone()) {
+            return Ok(EvidenceRef {
+                quote: Some(text),
+                ..h.evidence
+            });
+        }
         Err(ErrorEnvelope::new(
             ErrorCode::NotFound,
             format!("{id}"),
