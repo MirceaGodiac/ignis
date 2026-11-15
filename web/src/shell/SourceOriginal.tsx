@@ -49,7 +49,7 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
       <div className="toolbar">
         <h3 style={{ margin: 0 }}>Original</h3>
         <span className="muted small">{MODE_TEXT[a.mode]}</span>
-        <OpenOriginal sourceId={evidence.source_id} loc={loc} label="New tab ↗" className="btn btn-s" />
+        <OpenOriginal sourceId={evidence.source_id} loc={loc} label="New tab ↗" className="btn btn-s" newTab />
         {httpUrl(a.landing_url) && (
           <a className="btn btn-s" style={{ marginLeft: "auto" }} href={a.landing_url} target="_blank" rel="noopener noreferrer">
             Open at NASA ↗

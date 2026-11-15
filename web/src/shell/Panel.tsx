@@ -2,7 +2,7 @@
 // or release, with a back trail. Every link inside it pushes onto the trail; Escape closes it.
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ResearchAnswer } from "../contracts/generated";
+import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ResearchAnswer, SourceLocator } from "../contracts/generated";
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
@@ -13,17 +13,18 @@ import { useCompare } from "./compare";
 import { INVESTIGATIONS } from "../data/investigations";
 import { conditionRows, gapText } from "../research/runConditions";
 import { useData } from "./data";
-import { usePanel, type PanelItem } from "./inspector";
+import { itemKey, usePanel, type PanelItem } from "./inspector";
 import { FamilyMark, FAMILY_LABEL, IconBack, IconClose } from "./icons";
 import { href } from "./router";
 import { TOOL_LABEL } from "../views/turns";
 import { isTypedArtifact } from "../research/artifactViews";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
-import { SourceOriginal } from "./SourceOriginal";
+import { SourceOriginal, httpUrl } from "./SourceOriginal";
+import { MODE_TEXT as ORIGINAL_MODE_TEXT, OriginalBody } from "../views/Original";
 import { OpenOriginal } from "./OpenOriginal";
 import { runSources } from "./runSources";
 
-const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation" };
+const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation", original: "NASA original" };
 
 const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer", AnswerRefusal: "Refused answer", VisualObservationBundle: "Video contours" };
 
@@ -39,6 +40,8 @@ function itemTitle(i: PanelItem): string {
       return i.release.model_name;
     case "investigation":
       return INVESTIGATIONS.get(i.id)?.acronym ?? i.id;
+    case "original":
+      return i.title ?? "NASA original";
     case "artifact":
       return ARTIFACT_TITLE[i.artifact.contract ?? ""] ?? "Artifact";
     default:
@@ -87,6 +90,7 @@ export function Panel() {
         {current.kind === "release" && <ReleaseItem item={current} />}
         {current.kind === "sources" && <SourcesItem answers={current.answers} />}
         {current.kind === "investigation" && <InvestigationItem id={current.id} />}
+        {current.kind === "original" && <OriginalItem key={itemKey(current)} sourceId={current.sourceId} loc={current.loc} title={current.title} />}
       </div>
     </aside>
   );
@@ -828,5 +832,38 @@ function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }
       </dl>
       <ReleaseConstruction release={r} />
     </>
+  );
+}
+
+/** A NASA original inside the panel (the page stays where it is): the PDF page with the cited region,
+ * the video at its time, or the table record, streamed through SourceAccess. */
+function OriginalItem({ sourceId, loc, title }: { sourceId: string; loc: SourceLocator | null; title: string | null }) {
+  const { client, researchMode } = useData();
+  const access = useQuery({
+    queryKey: [researchMode, "access", sourceId],
+    queryFn: () => client.sourceAccess(sourceId),
+    retry: false,
+    staleTime: (q) => {
+      const a = q.state.data;
+      return a?.expires_at ? Math.max(0, Date.parse(a.expires_at) - Date.now() - 30_000) : 5 * 60_000;
+    },
+  });
+  const a = access.data;
+  const l: SourceLocator = loc ?? { asset_sha256: sourceId.replace(/^sha256:/, "") };
+  return (
+    <div className="panel-sec">
+      <div className="toolbar" style={{ flexWrap: "wrap" }}>
+        {a && <span className="muted small">{ORIGINAL_MODE_TEXT[a.mode]}</span>}
+        <OpenOriginal sourceId={sourceId} loc={loc} title={title} label="New tab ↗" newTab />
+        {a && httpUrl(a.landing_url) && (
+          <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
+            Open at NASA ↗
+          </a>
+        )}
+      </div>
+      {access.isPending && <p className="muted">Finding the original…</p>}
+      {access.error && <ErrorNote error={access.error} title="The original cannot be opened from here" />}
+      {a && <OriginalBody a={a} loc={l} kind={locatorKind(l)} title={title ?? l.path ?? sourceId} />}
+    </div>
   );
 }

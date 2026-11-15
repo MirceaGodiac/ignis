@@ -1,7 +1,7 @@
 // The side panel's own navigation: a stack of items, so a scientist can go claim → evidence →
 // source → run and come back the same way. Items hold contract objects, not copies.
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import type { ArtifactRef, Claim, EvidenceRef, ModelRelease, ResearchAnswer } from "../contracts/generated";
+import type { ArtifactRef, Claim, EvidenceRef, ModelRelease, ResearchAnswer, SourceLocator } from "../contracts/generated";
 import type { ToolCallState } from "../research/eventLog";
 
 export type PanelItem =
@@ -12,7 +12,8 @@ export type PanelItem =
   | { kind: "step"; call: ToolCallState; index: number }
   | { kind: "release"; release: ModelRelease }
   | { kind: "sources"; answers: ResearchAnswer[] }
-  | { kind: "investigation"; id: string };
+  | { kind: "investigation"; id: string }
+  | { kind: "original"; sourceId: string; loc: SourceLocator | null; title: string | null };
 
 export const itemKey = (i: PanelItem): string => {
   switch (i.kind) {
@@ -32,6 +33,8 @@ export const itemKey = (i: PanelItem): string => {
       return "sources";
     case "investigation":
       return `inv:${i.id}`;
+    case "original":
+      return `orig:${i.sourceId}:${i.loc?.page ?? ""}:${i.loc?.row ?? ""}:${i.loc?.pts_s ?? ""}`;
   }
 };
 
