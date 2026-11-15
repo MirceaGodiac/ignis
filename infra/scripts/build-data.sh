@@ -35,6 +35,8 @@ run() {
 }
 
 run sources inspect PSI-69 PSI-159 PSI-25 PSI-26
+# FLEX: every run's processed diameter series (DropletData, ColorCamData, LLUVData; 740 text files,
+# ~20 MB) and CIR logs; the FLEX models read the measured diameters up to the cutoff from them.
 run sources samples
 # Records and the conditions table first: they read only the NASA sample files, so a problem in
 # the evidence-corpus steps below cannot leave the Conditions page stale.

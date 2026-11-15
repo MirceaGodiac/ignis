@@ -146,7 +146,7 @@ that takes investigations and gets none uses these four.
 | Command | `ignis sources samples` |
 | Inputs | The listing: the raw response saved by `inspect` when present, otherwise the committed `data/manifests/<INV>.listing.jsonl`. A fresh checkout can therefore fetch without calling the metadata endpoint |
 | Outputs | Bytes in `data/raw/samples/<INV>/<file_name>`; one `Source` record per file in `data/manifests/<INV>.jsonl` (`id = sha256:<hex of the bytes>`, `file_version`, `investigation_version`, `size_bytes`, `canonical_url`, `rights`, `retrieved_at`) |
-| Selection | Deterministic per investigation (`crates/ignis-data/src/sources/samples.rs`). A file over `MAX_FILE_BYTES` (12,000,000) or marked restricted is skipped and reported. PSI-69 runs in two stages: stage 1 fetches the test sheets, then stage 2 picks the first two methanol runs of every sixth test date, up to 14 runs (`flex_stage2` in `cli.rs`) |
+| Selection | Deterministic per investigation (`crates/ignis-data/src/sources/samples.rs`). A file over `MAX_FILE_BYTES` (12,000,000) or marked restricted is skipped and reported. PSI-69 runs in two stages: stage 1 fetches the summary table and the test sheets, then stage 2 fetches every run's processed series NASA lists (`DropletData`, `ColorCamData`, `LLUVData`: 740 text files, 19.5 MB) and its CIR test-point logs, whatever the fuel (`flex_stage2` in `samples.rs`) |
 | Idempotency | A file is not downloaded again when it exists locally and its manifest record has the listing's `file_version`. The manifest is merged, not replaced |
 | Code | `SourcesCmd::Samples` and `fetch_all` in `crates/ignis-data/src/cli.rs` |
 
