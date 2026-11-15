@@ -1174,6 +1174,7 @@ fn a_number_from_a_dataset_view_is_read_back_from_its_row() {
         all.contains("value_si"),
         "the unknown column lists the permitted ones: {all}"
     );
+}
 
 /// A malformed submission is refused with the JSON path of the offending field, so the model fixes
 /// that field (seen live: four retries that moved `kind` between blocks and claims without a path).
