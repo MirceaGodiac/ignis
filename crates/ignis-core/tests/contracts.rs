@@ -652,6 +652,133 @@ fn answers_cannot_report_predictions_as_observations() {
     );
 }
 
+/// M7b: a number in a claim's value slot always carries the cell it was read from (digest, row
+/// keys, column), never a position, and its tier fixes the artifact it may come from.
+#[test]
+fn claim_values_bind_numbers_to_cells_never_to_positions() {
+    let sub = fixture("research/answer_submission.json");
+    let bound = &sub["claims"][2]["values"][0];
+    typed::<ClaimValue>(bound).validate().unwrap();
+    assert!(
+        typed::<AnswerSubmission>(&sub).problems().is_empty(),
+        "a bound value supports a predicted claim"
+    );
+
+    // A bare numeral (no source) does not parse; a malformed binding is refused by validate().
+    let mut bare = bound.clone();
+    bare.as_object_mut().unwrap().remove("source");
+    assert!(serde_json::from_value::<ClaimValue>(bare).is_err());
+    let refused = |f: &dyn Fn(&mut Value)| {
+        let mut v = bound.clone();
+        f(&mut v);
+        typed::<ClaimValue>(&v).validate().is_err()
+    };
+    assert!(refused(&|v| v["unit"] = json!(" ")), "no unit");
+    assert!(refused(&|v| v["significant_digits"] = json!(0)));
+    assert!(refused(&|v| v["significant_digits"] = json!(18)));
+    assert!(
+        refused(&|v| v["source"]["rows"][0]["where"] = json!([])),
+        "a row is selected by key fields, never by position"
+    );
+    assert!(refused(
+        &|v| v["source"]["rows"][0]["where"] =
+            json!([{"field": "/t", "equals": 1}, {"field": "/t", "equals": 2}])
+    ));
+    assert!(refused(&|v| v["source"]["column"] = json!("mean")));
+    assert!(refused(
+        &|v| v["derivation"] = json!({"computation": "a-rec", "inputs": ["a-in", "a-in"]})
+    ));
+    assert!(refused(
+        &|v| v["derivation"] = json!({"computation": "a-rec", "inputs": ["a-rec"]})
+    ));
+    // The reference is the source of truth: a value may be left to the host, but a stated value
+    // carries its unit, and a quoted number is always stated (it is searched for in the quote).
+    let mut unstated = bound.clone();
+    unstated.as_object_mut().unwrap().remove("value");
+    unstated.as_object_mut().unwrap().remove("unit");
+    typed::<ClaimValue>(&unstated).validate().unwrap();
+    assert!(refused(&|v| {
+        v.as_object_mut().unwrap().remove("unit");
+    }));
+    assert!(!refused(
+        &|v| v["source"] = json!({"kind": "evidence_quote", "evidence_id": "e-1"})
+    ));
+    let mut quote = unstated.clone();
+    quote["source"] = json!({"kind": "evidence_quote", "evidence_id": "e-1"});
+    assert!(typed::<ClaimValue>(&quote).validate().is_err());
+    // A condition is read under a snapshot; a row without a run id is selected by locator.
+    let mut cond = bound.clone();
+    cond["source"] = json!({"kind": "conditions_cell", "snapshot": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "investigation_id": "inv-a", "run_id": "run-1", "key": "pressure"});
+    typed::<ClaimValue>(&cond).validate().unwrap();
+    cond["source"].as_object_mut().unwrap().remove("run_id");
+    assert!(typed::<ClaimValue>(&cond).validate().is_err());
+    cond["source"]["locator"] = json!({"asset_sha256": "2e", "path": "t.csv", "row": 5});
+    typed::<ClaimValue>(&cond).validate().unwrap();
+    for (path, v) in [
+        ("unit", json!("")),
+        (
+            "resolved",
+            json!({"level": "cell", "value": 0.69, "unit": "m"}),
+        ),
+    ] {
+        let mut bad = sub.clone();
+        bad["claims"][2]["values"][0][path] = v;
+        assert_eq!(
+            typed::<AnswerSubmission>(&bad)
+                .problems()
+                .into_iter()
+                .map(|p| p.kind)
+                .collect::<Vec<_>>(),
+            vec![AnswerProblemKind::InvalidStructure],
+            "{path}: malformed, or written by the agent instead of the host"
+        );
+    }
+
+    // A grounding report lists grounding problems only, and an enforced answer stores none.
+    let report = |mode: &str, kind: &str| {
+        typed::<GroundingReport>(&json!({"mode": mode, "grounded": 0,
+            "problems": [{"kind": kind, "detail": "x"}]}))
+        .validate()
+        .is_ok()
+    };
+    assert!(report("log", "value_mismatch"));
+    assert!(!report("enforce", "value_mismatch"));
+    assert!(!report("log", "unknown_evidence"));
+
+    // In the stored answer, a value's artifact fits the claim's tier.
+    let answer = fixture("research/answer_v2.json");
+    let value_from = |artifact: &str| {
+        let mut v = bound.clone();
+        v["source"]["artifact_id"] = json!(artifact);
+        v
+    };
+    let kinds = |claim: usize, value: Value| -> Vec<AnswerProblemKind> {
+        let mut v = answer.clone();
+        v["claims"][claim]["values"] = json!([value]);
+        typed::<ResearchAnswer>(&v)
+            .problems()
+            .into_iter()
+            .map(|p| p.kind)
+            .collect()
+    };
+    use AnswerProblemKind as K;
+    assert!(kinds(1, value_from("fixture-artifact-conditions-01")).is_empty());
+    assert_eq!(
+        kinds(1, value_from("fixture-artifact-forecast-01")),
+        vec![K::KindSupportMismatch],
+        "an observed number read from a model output"
+    );
+    assert_eq!(
+        kinds(4, value_from("fixture-artifact-forecast-01")),
+        vec![K::KindSupportMismatch],
+        "a computed number read from a model output"
+    );
+    let mut derived = value_from("fixture-artifact-observed-01");
+    derived["derivation"] = json!({"computation": "no-such-record", "inputs": []});
+    assert_eq!(kinds(4, derived), vec![K::UnknownArtifact]);
+}
+
 #[test]
 fn evaluation_counts_every_case_and_only_a_real_final_test_qualifies() {
     let base = fixture("evaluation/result_dev.json");

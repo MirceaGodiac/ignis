@@ -15,7 +15,7 @@
     {"path": "research/episode_v2.json", "contract": "ResearchEpisode", "shows": "research.v2 episode pinned to a harness (bundle digest, runtime build, model, effort)"},
     {"path": "research/events_v2.json", "contract": "ResearchEvent[]", "shows": "research.v2 log: step rationale (model explanation only), tool arguments (inline and partial preview), answer_submit, answer.completed"},
     {"path": "research/answer_v2.json", "contract": "ResearchAnswer", "shows": "answer with catalog views (source excerpt, observed vs predicted series with band, conditions matrix, release card) and support checks"},
-    {"path": "research/answer_submission.json", "contract": "AnswerSubmission", "shows": "what the agent submits: ids only, no support checks; the host resolves evidence, artifacts and releases"},
+    {"path": "research/answer_submission.json", "contract": "AnswerSubmission", "shows": "what the agent submits: ids only, no support checks; a predicted number bound to its cell (digest, row key, column) instead of a position; the host resolves evidence, artifacts, releases and stated values"},
     {"path": "research/answer_refusal.json", "contract": "AnswerRefusal", "shows": "answer_submit refusal listing every actionable problem (unknown evidence, kind/support mismatch, unpinned release)"},
     {"path": "research/trace_bundle.json", "contract": "TraceBundle", "shows": "episode trace of one harness run: event range, tool I/O artifacts, measured usage, price-list cost, partitions touched"},
     {"path": "research/capabilities.json", "contract": "Capabilities", "shows": "/api/v1/capabilities: runtime build manifest, unconfigured services and tools with reasons"},
