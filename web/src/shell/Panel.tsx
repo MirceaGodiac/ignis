@@ -16,15 +16,15 @@ import { INVESTIGATIONS } from "../data/investigations";
 import { CONDITION_GROUPS, conditionLabel, conditionRows, gapText, humanKey, type ConditionRow } from "../research/runConditions";
 import { useData } from "./data";
 import { itemKey, usePanel, type PanelItem } from "./inspector";
-import { FamilyMark, FAMILY_LABEL, IconBack, IconChevron, IconClose, IconSources, IconTable, IconVideo } from "./icons";
+import { FamilyMark, FAMILY_LABEL, IconBack, IconChevron, IconClose, IconExternal, IconSources, IconTable, IconVideo } from "./icons";
 import { href } from "./router";
 import { callArgs, callQuery, callValue, describeCall, rangeText, sourceTitle, TOOL_KIND, TOOL_LABEL } from "../views/turns";
 import "../views/trail.css";
 import { isTypedArtifact } from "../research/artifactViews";
 import { refusalSummary, splitListMessage } from "../research/noteText";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
-import { SourceOriginal, httpUrl } from "./SourceOriginal";
-import { MODE_TEXT as ORIGINAL_MODE_TEXT, OriginalBody } from "../views/Original";
+import { MODE_TEXT as ORIGINAL_MODE_TEXT, PdfSkeleton, SourceOriginal, httpUrl } from "./SourceOriginal";
+import { OriginalBody } from "../views/Original";
 import { OpenOriginal } from "./OpenOriginal";
 import { runSources } from "./runSources";
 import { JsonView } from "./JsonView";
@@ -1290,15 +1290,14 @@ function OriginalItem({ sourceId, loc, title }: { sourceId: string; loc: SourceL
   return (
     <div className="panel-sec">
       <div className="toolbar" style={{ flexWrap: "wrap" }}>
-        {a && <span className="muted small">{ORIGINAL_MODE_TEXT[a.mode]}</span>}
-        <OpenOriginal sourceId={sourceId} loc={loc} title={title} label="Originals tab ↗" />
+        <OpenOriginal sourceId={sourceId} loc={loc} title={title} label="New tab" className="btn btn-s btn-quiet" />
         {a && httpUrl(a.landing_url) && (
-          <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
-            Open at NASA ↗
+          <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer" title={ORIGINAL_MODE_TEXT[a.mode]}>
+            Open at NASA <IconExternal width={13} height={13} />
           </a>
         )}
       </div>
-      {access.isPending && <p className="muted">Finding the original…</p>}
+      {access.isPending && (locatorKind(l) === "page" ? <PdfSkeleton label="Finding the original…" /> : <p className="muted">Finding the original…</p>)}
       {access.error && <ErrorNote error={access.error} title="The original cannot be opened from here" />}
       {a && <OriginalBody a={a} loc={l} kind={locatorKind(l)} title={title ?? l.path ?? sourceId} />}
     </div>

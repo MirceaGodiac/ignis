@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { getDocument, GlobalWorkerOptions, PDFDataRangeTransport, TextLayer, type PDFDocumentLoadingTask, type PDFDocumentProxy, type RenderTask } from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { bboxStyle } from "../research/units";
+import { IconBack, IconChevron } from "./icons";
 import { fmtBytes } from "../ui/common";
 import { clampPage, contentLength, contentRangeLength, rangeHeader } from "../research/sourceAccess";
 
@@ -64,21 +65,32 @@ async function lengthFromGet(url: string, signal: AbortSignal): Promise<number |
   }
 }
 
-async function openPdf(url: string, range: boolean, knownLength: number | null, signal: AbortSignal, onError: (e: unknown) => void, stats: PdfLoadStats): Promise<PDFDocumentLoadingTask> {
+async function openPdf(url: string, range: boolean, knownLength: number | null, hidesLength: boolean, signal: AbortSignal, onError: (e: unknown) => void, stats: PdfLoadStats): Promise<PDFDocumentLoadingTask> {
   let length = knownLength;
   if (range && length == null) {
-    const probe = await fetch(url, { headers: { Range: "bytes=0-0" }, signal });
-    if (probe.status === 206) {
-      length = contentRangeLength(probe.headers.get("Content-Range"));
-      await probe.body?.cancel();
-      if (length == null) length = await lengthFromGet(url, signal);
-    } else if (probe.ok) {
-      const data = new Uint8Array(await probe.arrayBuffer());
-      stats.mode = "whole";
-      stats.bytes = data.byteLength;
-      return getDocument({ data });
-    } else {
-      throw new Error(`The source answered ${probe.status}.`);
+    // A store known to hide Content-Range (PSI's S3, `direct`) needs the size GET anyway: it runs
+    // beside the probe instead of after it, which saves one round trip before the first byte range.
+    const sizeAc = new AbortController();
+    const stopSize = () => sizeAc.abort();
+    signal.addEventListener("abort", stopSize, { once: true });
+    const early = hidesLength ? lengthFromGet(url, sizeAc.signal).catch(() => null) : null;
+    try {
+      const probe = await fetch(url, { headers: { Range: "bytes=0-0" }, signal });
+      if (probe.status === 206) {
+        length = contentRangeLength(probe.headers.get("Content-Range"));
+        await probe.body?.cancel();
+        if (length == null) length = await (early ?? lengthFromGet(url, signal));
+      } else if (probe.ok) {
+        const data = new Uint8Array(await probe.arrayBuffer());
+        stats.mode = "whole";
+        stats.bytes = data.byteLength;
+        return getDocument({ data });
+      } else {
+        throw new Error(`The source answered ${probe.status}.`);
+      }
+    } finally {
+      sizeAc.abort();
+      signal.removeEventListener("abort", stopSize);
     }
   }
   if (range && length != null) {
@@ -99,8 +111,36 @@ async function openPdf(url: string, range: boolean, knownLength: number | null, 
   return getDocument({ data });
 }
 
-export default function PdfPage({ url, range, length, page, bbox, title }: { url: string; range: boolean; length: number | null; page: number; bbox: number[] | null | undefined; title: string }) {
+/** Timing marks for the devtools Performance panel ("ignis:pdf …"): open → document → first paint. */
+function perf(name: string, from?: string) {
+  try {
+    performance.mark(name);
+    if (from) performance.measure(`${from} → ${name}`, from, name);
+  } catch {
+    /* a missing start mark (page re-rendered) is not an error */
+  }
+}
+
+export default function PdfPage({
+  url,
+  range,
+  length,
+  hidesLength = false,
+  page,
+  bbox,
+  title,
+}: {
+  url: string;
+  range: boolean;
+  length: number | null;
+  /** The store hides Content-Range from scripts (PSI's S3 under `direct` access). */
+  hidesLength?: boolean;
+  page: number;
+  bbox: number[] | null | undefined;
+  title: string;
+}) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
+  const [painted, setPainted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState(page);
   const [width, setWidth] = useState(0);
@@ -116,17 +156,21 @@ export default function PdfPage({ url, range, length, page, bbox, title }: { url
     const ac = new AbortController();
     let loading: PDFDocumentLoadingTask | null = null;
     setDoc(null);
+    setPainted(false);
     setError(null);
     stats.bytes = 0;
+    perf("ignis:pdf:open");
     const fail = (e: unknown) => setError(e instanceof Error ? e.message : String(e));
-    openPdf(url, range, length, ac.signal, fail, stats)
+    openPdf(url, range, length, hidesLength, ac.signal, fail, stats)
       .then((t) => {
         loading = t;
         if (ac.signal.aborted) void t.destroy();
         return t.promise;
       })
       .then((d) => {
-        if (!ac.signal.aborted) setDoc(d);
+        if (ac.signal.aborted) return;
+        perf("ignis:pdf:document", "ignis:pdf:open");
+        setDoc(d);
       })
       .catch((e) => {
         if (!ac.signal.aborted) fail(e);
@@ -135,7 +179,7 @@ export default function PdfPage({ url, range, length, page, bbox, title }: { url
       ac.abort();
       void loading?.destroy();
     };
-  }, [url, range, length, stats]);
+  }, [url, range, length, hidesLength, stats]);
 
   useEffect(() => {
     const el = wrap.current;
@@ -166,6 +210,8 @@ export default function PdfPage({ url, range, length, page, bbox, title }: { url
       task = p.render({ canvas: c, viewport, transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : undefined });
       await task.promise;
       if (cancelled) return;
+      perf("ignis:pdf:painted", "ignis:pdf:open");
+      setPainted(true);
       // Text layer: selectable, searchable and readable by assistive technology (the canvas is not).
       const t = text.current!;
       t.replaceChildren();
@@ -188,28 +234,24 @@ export default function PdfPage({ url, range, length, page, bbox, title }: { url
   return (
     <div className="pdf">
       <div className="toolbar">
-        <button className="btn btn-s" disabled={!doc || current <= 1} onClick={() => setCurrent((c) => c - 1)} aria-label="Previous page">
-          ‹
+        <button className="btn btn-s btn-icon" disabled={!doc || current <= 1} onClick={() => setCurrent((c) => c - 1)} aria-label="Previous page">
+          <IconBack width={14} height={14} />
         </button>
-        <span className="small num" aria-live="polite">
-          {doc ? `Page ${clampPage(current, pages)} of ${pages}` : error ? "Not loaded" : "Loading…"}
+        <span className="small num" aria-live="polite" title={doc ? `${fmtBytes(stats.bytes)} read from the original ${stats.mode === "range" ? "by byte ranges" : "whole"}` : undefined}>
+          {doc ? `Page ${clampPage(current, pages)} of ${pages}` : error ? "Not loaded" : "Opening the page…"}
         </span>
-        <button className="btn btn-s" disabled={!doc || current >= pages} onClick={() => setCurrent((c) => c + 1)} aria-label="Next page">
-          ›
+        <button className="btn btn-s btn-icon" disabled={!doc || current >= pages} onClick={() => setCurrent((c) => c + 1)} aria-label="Next page">
+          <IconChevron width={14} height={14} />
         </button>
         {current !== page && (
           <button className="btn btn-s btn-quiet" onClick={() => setCurrent(page)}>
             Back to cited page
           </button>
         )}
-        {doc && (
-          <span className="muted small num" style={{ marginLeft: "auto" }} title={stats.mode === "range" ? "Fetched by byte ranges" : "Fetched whole"}>
-            {fmtBytes(stats.bytes)} {stats.mode === "range" ? "by range" : "whole"}
-          </span>
-        )}
       </div>
       {error && <p className="note note-refusal small">The PDF could not be opened here: {error}</p>}
-      <div ref={wrap} className="pdf-page" hidden={!!error}>
+      {/* Until the first paint the page keeps a letter-size box, so nothing below it jumps. */}
+      <div ref={wrap} className="pdf-page" data-loading={painted ? undefined : ""} aria-busy={!painted} hidden={!!error}>
         <canvas ref={canvas} role="img" aria-label={`${title}, page ${clampPage(current, pages || 1)}`} />
         <div ref={text} className="textLayer" />
         {box && <div className="bbox" style={box} title="Cited region" />}

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ExperimentSummary } from "../api";
 import { FamilyMark } from "../shell/icons";
 import { words } from "../ui/common";
-import type { Reach } from "./LabModels";
+import type { Reach, Reaches } from "./LabModels";
 
 const FAMILY_LABEL: Record<string, string> = { flex: "FLEX", acme_normal: "ACME normal", acme_inverse: "ACME inverse", bass: "BASS" };
 export const familyLabel = (f: string) => FAMILY_LABEL[f] ?? words(f);
@@ -30,13 +30,15 @@ interface Props {
   onPick: (id: string) => void;
   loading?: boolean;
   autoFocus?: boolean;
-  /** What a served model can do with each run; null while it is being worked out or when no model is served. */
-  reach: Map<string, Reach> | null;
+  /** What a served model can do with each run, with a short reason for some and the held-out runs; null while it is being worked out or when no model is served. */
+  reach: Reaches | null;
 }
 
 const REACH_ORDER: Record<Reach, number> = { ready: 0, conditions: 1, typed: 2, sealed: 3, none: 4 };
 
-export function RunPicker({ runs, value, onPick, loading, autoFocus, reach }: Props) {
+export function RunPicker({ runs, value, onPick, loading, autoFocus, reach: reaches }: Props) {
+  const reach = reaches?.reach ?? null;
+  const heldOut = reaches?.heldOut;
   const [q, setQ] = useState("");
   const [family, setFamily] = useState<string>("all");
   const [onlyReady, setOnlyData] = useState(true);
@@ -115,8 +117,14 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus, reach }: Pr
               <span className="runpick-main">
                 <b>{runLabel(r)}</b>
                 <code>{r.id}</code>
+                {heldOut?.has(r.id) && (
+                  <span className="muted runpick-part" title="Validation or test run: the model was written without reading it">
+                    held out
+                  </span>
+                )}
+                {reaches?.why.get(r.id) && <small className="runpick-why muted">{reaches.why.get(r.id)}</small>}
               </span>
-              <ReachTag r={r} reach={reach?.get(r.id) ?? null} />
+              <ReachTag r={r} reach={reach?.get(r.id) ?? null} why={reaches?.why.get(r.id) ?? null} />
             </button>
           </li>
         ))}
@@ -127,7 +135,7 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus, reach }: Pr
 
 const NL = String.fromCharCode(10);
 
-function ReachTag({ r, reach }: { r: ExperimentSummary; reach: Reach | null }) {
+function ReachTag({ r, reach, why }: { r: ExperimentSummary; reach: Reach | null; why: string | null }) {
   const points = (r.quantities ?? []).map((x) => `${words(x.quantity)}: ${x.count}`).join(NL);
   if (reach === "ready")
     return (
@@ -143,7 +151,7 @@ function ReachTag({ r, reach }: { r: ExperimentSummary; reach: Reach | null }) {
     );
   if (reach === "typed")
     return (
-      <span className="tag tag-line" title="A model is written for this family, but it needs values the NASA record does not hold: you type them">
+      <span className="tag tag-line" title={`A model is written for this family, but it needs values the NASA record does not hold: you type them${why ? `.${NL}${why}` : ""}`}>
         you type its data
       </span>
     );
@@ -155,8 +163,8 @@ function ReachTag({ r, reach }: { r: ExperimentSummary; reach: Reach | null }) {
     );
   if (reach === "none")
     return (
-      <span className="tag tag-line" title="No served model is written for this family">
-        no model
+      <span className="tag tag-line" title={why ? `No served model is written for this run: ${why}` : "No served model is written for this family"}>
+        {why ? "outside the model" : "no model"}
       </span>
     );
   return hasSeries(r) ? (

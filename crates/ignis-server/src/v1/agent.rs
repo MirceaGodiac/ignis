@@ -18,7 +18,7 @@ use ignis_core::services::ArtifactStore;
 use ignis_research::runtime::{
     claude_preflight, preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, CodexBridge,
     CodexConfig, HarnessBundle, HarnessShelf, HarnessSource, McpAttachment, RuntimeBuildManifest,
-    PINNED_CODEX_VERSION,
+    ToolDescriptions, PINNED_CODEX_VERSION,
 };
 use ignis_research::ResearchStore;
 
@@ -53,6 +53,11 @@ pub struct CodexArgs {
     /// Model the Codex runtime uses (recorded in the build manifest). Unset: Codex's default.
     #[arg(long = "codex-model", env = "IGNIS_CODEX_MODEL")]
     pub model: Option<String>,
+    /// Reasoning effort of every Codex turn (`none`, `minimal`, `low`, `medium`, `high`, `xhigh`;
+    /// recorded in the build manifest and pinned per episode). Unset: the runtime's default for
+    /// the model (`medium` for GPT-6 with Codex 0.169).
+    #[arg(long = "codex-reasoning-effort", env = "IGNIS_CODEX_REASONING_EFFORT")]
+    pub reasoning_effort: Option<String>,
     /// A CODEX_HOME signed in with a ChatGPT account (`codex login`, or `codex login --device-auth`
     /// on a headless host), used instead of an API key. Every workspace shares it, and its plan
     /// limits. Must be writable: Codex refreshes the token in place.
@@ -114,6 +119,12 @@ impl Preflighted {
                     let mut cfg = CodexConfig::new(bin, home);
                     cfg.expected_sha256 = args.sha256.clone();
                     cfg.model = args.model.clone();
+                    cfg.reasoning_effort = args
+                        .reasoning_effort
+                        .as_deref()
+                        .map(str::trim)
+                        .filter(|e| !e.is_empty())
+                        .map(str::to_ascii_lowercase);
                     cfg.login_home = args.login_home.clone();
                     let outcome = preflight(&cfg);
                     (Some(Prepared::Codex(cfg)), outcome)
@@ -190,14 +201,20 @@ pub fn runtime(
         .as_ref()
         .map(|m| m.enabled_tools.clone())
         .unwrap_or_default();
+    // Codex defers MCP tool definitions, so its prefix carries each tool's description; Claude Code
+    // sends every definition with each request, so its prefix only lists the tools.
+    let descriptions = match pre.cfg {
+        Some(Prepared::Claude(_)) => ToolDescriptions::Index,
+        _ => ToolDescriptions::Full,
+    };
     let bundle = match &pre.harness_dir {
-        None => Ok(HarnessBundle::embedded(&attached)),
+        None => Ok(HarnessBundle::embedded_with(&attached, descriptions)),
         Some(dir) => HarnessSource::load(dir).and_then(|src| {
             let label = dir
                 .file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_else(|| "custom".into());
-            HarnessBundle::render(&label, &src, &attached)
+            HarnessBundle::render_with(&label, &src, &attached, descriptions)
         }),
     };
     let bundle = match bundle {

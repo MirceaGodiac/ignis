@@ -98,7 +98,7 @@ export function Lab({ runId }: { runId: string | null }) {
   const [table, setTable] = useState(false);
 
   const runs = experiments.data?.experiments ?? [];
-  const reach = useReach(runs);
+  const reaches = useReach(runs);
 
   const summary = runs.find((x) => x.id === runId) ?? detail.data?.summary ?? null;
   const [picking, setPicking] = useState(false);
@@ -160,7 +160,7 @@ export function Lab({ runId }: { runId: string | null }) {
             </div>
           </div>
         )}
-        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} reach={reach} />}
+        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} reach={reaches} />}
       </section>
 
       {runId && detail.error && <RefusalNote refusal={asRefusal(detail.error)!} next="Choose another run, or switch the data source in the sidebar." />}

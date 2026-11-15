@@ -1,11 +1,13 @@
 // Hand-written models in the forecast lab: the releases the research server serves (/api/v1), each
 // with its plain name, what it forecasts, what it reads and how it scored (every served model is
-// qualified). A forecast runs the release's strict forward on a stored run of the train
-// partition or on conditions typed here; a typed scenario is a synthetic input, never a NASA run.
+// qualified). A forecast runs the release's strict forward on a stored run the server lists for
+// it (train, plus validation and test runs the deployment opened once their final test was spent:
+// held out, the model never read them) or on conditions typed here; a typed scenario is a synthetic
+// input, never a NASA run.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
-import type { AnalysisArtifact, EndpointRecord, JobRef, ModelCard, ModelInput, ScenarioAdmitted, ToolResult } from "../contracts/generated";
-import { call, type ExperimentDetail, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
+import type { AnalysisArtifact, EndpointRecord, JobRef, ModelCard, ModelInput, ScenarioAdmitted, StoredRunList, ToolResult } from "../contracts/generated";
+import { call, type ExperimentDetail, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
 import { ForecastChart, type Bands, type ChartPoint } from "../components/ForecastChart";
 import { useData } from "../shell/data";
 import { builtParagraph, readerLimits, scoreParts, useModelCards, v1, V1Error, writtenBy } from "../shell/models";
@@ -60,60 +62,87 @@ export function fit(card: ModelCard, run: ExperimentSummary): { score: number; w
   return { score, why };
 }
 
-/** The runs a release may read here: the train partition of its split (validation and test stay sealed). */
-const trainOf = async (base: string, legacy: "registry" | "fixtures", releaseId: string) => {
-  const r = await v1<{ split_id: string }>(base, `/models/${encodeURIComponent(releaseId)}`);
-  return call<ExperimentList>(legacy, `/experiments?split=${encodeURIComponent(r.split_id)}&partition=train`);
-};
-const trainQuery = (base: string | null, legacy: "registry" | "fixtures", releaseId: string, enabled = true) => ({
-  queryKey: [legacy, "hw-split", releaseId],
-  queryFn: () => trainOf(base!, legacy, releaseId),
+/**
+ * The stored runs a release may forecast here, each with its partition: train, plus the validation
+ * and test runs the deployment opened for it (held out: no author of the model read them).
+ */
+const runsQuery = (base: string | null, releaseId: string, enabled = true) => ({
+  queryKey: [base, "hw-runs", releaseId],
+  queryFn: () => v1<StoredRunList>(base!, `/models/${encodeURIComponent(releaseId)}/runs`),
   enabled: !!base && enabled,
   retry: false,
   staleTime: 300_000,
 });
 
+/** Does the deployment let this release forecast validation or test runs (their final test spent)? */
+export const opensHeldOut = (c: ModelCard) => (c.open_partitions ?? []).some((p) => p !== "train");
+
 /**
  * What a served model can do with each run: forecast it from the stored record ("ready"), forecast it
  * from its conditions filled in for the user ("conditions"), forecast it only with values the user
  * types because the record lacks some ("typed"), nothing because the run is sealed for evaluation
- * ("sealed"), or nothing because no model is written for its family ("none").
+ * ("sealed", only where the deployment kept validation and test closed), or nothing because no model
+ * is written for its family ("none"). `heldOut` holds the runs a model forecasts that are validation
+ * or test runs: the model never read them.
  */
 export type Reach = "ready" | "conditions" | "typed" | "sealed" | "none";
-export function useReach(runs: ExperimentSummary[]): Map<string, Reach> | null {
-  const { origin } = useData();
+/** Each run's reach, a short reason for some (what the record lacks, or why the model leaves it out), and the held-out runs a model forecasts (validation or test: never read by it). */
+export interface Reaches {
+  reach: Map<string, Reach>;
+  why: Map<string, string>;
+  heldOut: Set<string>;
+}
+export function useReach(runs: ExperimentSummary[]): Reaches | null {
   const { base, cards } = useModelCards();
   const tables = useTables(cards.data);
   const stored = (cards.data ?? []).filter((c) => c.stored_runs);
-  const trains = useQueries({ queries: stored.map((c) => trainQuery(base, origin, c.release_id)) });
+  const lists = useQueries({ queries: stored.map((c) => runsQuery(base, c.release_id)) });
   if (!base || cards.isError) return null;
-  if (!cards.data || trains.some((t) => t.isLoading)) return null;
-  const readable = stored.map((c, k) => ({ c, ids: new Set((trains[k].data?.experiments ?? []).map((x) => x.id)), needsSeries: c.inputs.some((i) => i.kind === "observation") }));
+  if (!cards.data || lists.some((t) => t.isLoading)) return null;
+  const readable = stored.map((c, k) => ({ c, runs: new Map((lists[k].data?.runs ?? []).map((x) => [x.run_id as string, x])), needsSeries: c.inputs.some((i) => i.kind === "observation") }));
   const typed = cards.data.filter((c) => !c.stored_runs);
-  const storedFamilies = new Set(stored.map((c) => c.family));
-  const m = new Map<string, Reach>();
+  // A family is sealed only where a stored-run release keeps validation and test closed.
+  const sealedFamilies = new Set(stored.filter((c) => !opensHeldOut(c)).map((c) => c.family));
+  const reach = new Map<string, Reach>();
+  const why = new Map<string, string>();
+  const heldOut = new Set<string>();
   for (const r of runs) {
-    const ready = readable.some(({ c, ids, needsSeries }) => c.family === r.family && ids.has(r.id) && (!needsSeries || hasSeries(r)));
-    const mine = typed.filter((c) => fit(c, r).score >= 0);
+    const listed = readable.filter(({ c, runs }) => c.family === r.family && runs.has(r.id));
+    const hit = listed.find(({ needsSeries }) => !needsSeries || hasSeries(r));
+    if (hit?.runs.get(r.id)?.held_out) heldOut.add(r.id);
+    const fitting = typed.filter((c) => fit(c, r).score >= 0);
+    const mine = fitting.filter((c) => !excludedWhy(c, r, tables));
     // "conditions" only when the record fills every required input; otherwise the user types the rest.
     const filled = mine.some((c) => complete(c, r, tables));
-    m.set(r.id, ready ? "ready" : filled ? "conditions" : mine.length ? "typed" : storedFamilies.has(r.family) ? "sealed" : "none");
+    // Every typed model that fits leaves the run out: "none", with the model's reason (a candle, a wake-lit sphere...).
+    const outside = !hit && fitting.length && !mine.length ? fitting.map((c) => excludedWhy(c, r, tables)).find(Boolean) : null;
+    // A listed run without a recorded series can still be forecast from values the user types.
+    const k: Reach = hit ? "ready" : filled ? "conditions" : mine.length || listed.length ? "typed" : outside ? "none" : sealedFamilies.has(r.family) ? "sealed" : "none";
+    reach.set(r.id, k);
+    const lacking = k === "typed" ? mine.map((c) => lacks(c, r, tables)).find(Boolean) : null;
+    if (lacking ?? outside) why.set(r.id, (lacking ?? outside)!);
   }
-  return m;
+  return { reach, why, heldOut };
 }
 
 /**
- * Inputs the WSP lane derived per run, for models whose features the registry does not hold as conditions
- * (fan curve at pot 1, material class, sides burning...). Built by tools/web/<slug>_inputs.py from the
- * lane's case input files only; keyed by the lane's case id.
+ * Inputs derived per run from NASA's records, for models whose features the registry does not hold as
+ * conditions (fan curve at pot 1, material class, sides burning...). Built by tools/web/<slug>_inputs.py
+ * with the WSP lane's derivation; keyed by IGNIS run id. A "partial" row lists the inputs the records do
+ * not hold (the user types them); `excluded` names the runs the model is not written for, with the reason.
  */
 interface TableRow {
-  coverage: string;
+  coverage: "complete" | "partial";
+  /** Which of the model's targets apply: "nose" rod tips and spheres, "flat" films and slabs, "fabric". */
+  kind: string;
   material?: string;
   inputs: Record<string, number>;
+  missing?: string[];
+  note?: string;
 }
 interface RecordTable {
   runs: Record<string, TableRow>;
+  excluded?: Record<string, string>;
 }
 export type Tables = Map<string, RecordTable>;
 const TABLES: Record<string, string> = { "bass5.wsp": "data/bass5_inputs.json" };
@@ -137,19 +166,25 @@ export function useTables(cards: ModelCard[] | undefined): Tables {
   return m;
 }
 
-/** A run's row in a lane table: the same id, or (PSI-26) the lane's "<investigation>:<date>:<test>". */
 function tableRow(t: RecordTable | undefined, r: ExperimentSummary): TableRow | null {
-  if (!t) return null;
-  if (t.runs[r.id]) return t.runs[r.id];
-  const test = (r.aliases ?? []).find((a) => a.scheme === "test_number")?.name;
-  const date = r.session_id?.match(/\d{4}-\d{2}-\d{2}/)?.[0];
-  if (!test || !date) return null;
-  const exact = t.runs[`${r.investigation_id}:${date}:${test}`];
-  if (exact) return exact;
-  // A mistyped year in the registry (2103 for 2013): the same test on the same month and day.
-  const near = Object.keys(t.runs).filter((k) => k.startsWith(`${r.investigation_id}:`) && k.endsWith(`-${date.slice(5)}:${test}`));
-  return near.length === 1 ? t.runs[near[0]] : null;
+  return t?.runs[r.id] ?? null;
 }
+
+/** Why a model's table leaves a run out (the burn is not one the model is written for), or null. */
+function excludedWhy(card: ModelCard, r: ExperimentSummary, tables: Tables): string | null {
+  return tables.get(card.model_name)?.excluded?.[r.id] ?? null;
+}
+
+/** What the NASA record lacks for a model's inputs on a run, in a few words, or null. */
+function lacks(card: ModelCard, r: ExperimentSummary, tables: Tables): string | null {
+  const row = tableRow(tables.get(card.model_name), r);
+  if (!row?.missing?.length) return null;
+  return row.note ?? `not in the NASA record: ${row.missing.map(words).join(", ")}`;
+}
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Whether a law target applies to the sample kind of a table row (fabrics: the flat kept-burning pair only). */
+const appliesTo = (t: LawTarget, kind: string) => t.applies === null || t.applies === kind || (kind === "fabric" && t.applies === "flat" && t.kind === "binary");
 
 /** Whether the record fills every required input of a model for a run. */
 export function complete(card: ModelCard, r: ExperimentSummary, tables: Tables): boolean {
@@ -193,12 +228,15 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
   const [pickByRun, setPickByRun] = useState<Record<string, string>>({});
   // With no run picked, the panel stays closed until the user asks to type conditions.
   const [typing, setTyping] = useState(false);
-  const ranked = useMemo(() => {
+  const ranked = useMemo((): { c: ModelCard; score: number; why: string[]; outside?: string }[] => {
     const all = cards.data ?? [];
-    if (!run) return all.map((c) => ({ c, score: 0, why: [] as string[] }));
+    if (!run) return all.map((c) => ({ c, score: 0, why: [] }));
     return all
       .map((c) => {
         const f = fit(c, run);
+        // A model whose table leaves the run out is not written for this burn (a candle, a wake-lit sphere...).
+        const outside = f.score >= 0 ? excludedWhy(c, run, tables) : null;
+        if (outside) return { c, score: -1, why: [], outside };
         // A model the record fills completely beats one that needs values typed in.
         if (f.score >= 0 && !c.stored_runs && complete(c, run, tables)) return { c, score: f.score + 3, why: [...f.why, "every input from the NASA record"] };
         return { c, ...f };
@@ -275,9 +313,16 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
           ) : null}
         </p>
       )}
-      {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (
-        <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the list and type its conditions.</Gap>
-      )}
+      {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (() => {
+        const out = ranked.find((x) => x.outside);
+        return out?.outside ? (
+          <Gap title={`${out.c.title} is not written for this run`}>
+            {cap(out.outside)}. Choose another run, or pick a model in the list and type its conditions.
+          </Gap>
+        ) : (
+          <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the list and type its conditions.</Gap>
+        );
+      })()}
       {open && card && (!run || chosen!.score >= 0 || manual) && (
         <ModelPanel key={`${card.release_id}|${run?.id ?? ""}`} card={card} base={base} legacy={origin} run={run && chosen!.score >= 0 ? run : null} pickRun={pickRun} allRuns={runs} tables={tables} />
       )}
@@ -291,7 +336,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   const release = useReleases().data?.find((r) => r.id === card.release_id) ?? null;
   const limits = readerLimits(card);
   const row = fixed ? tableRow(tables.get(card.model_name), fixed) : null;
-  const targets = law.filter((t) => !row || t.applies === null || t.applies === row.coverage);
+  const targets = law.filter((t) => !row || appliesTo(t, row.kind));
   const obsInput = card.inputs.find((i) => i.kind === "observation");
   const unit = obsInput?.unit_si ?? "";
   const d = display(unit);
@@ -313,9 +358,13 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   const [observed, setObserved] = useState<ChartPoint[]>([]);
   const seq = useRef(0);
 
-  // Stored runs offered: the train partition of the release's split (the research scope reads train only).
-  const split = useQuery(trainQuery(base, legacy, card.release_id, card.stored_runs && !!fixed));
-  const runs = split.data?.experiments ?? [];
+  // Stored runs offered: the runs the server lists for this release (train, and validation and
+  // test runs when the deployment opened them: held out).
+  const split = useQuery(runsQuery(base, card.release_id, card.stored_runs && !!fixed));
+  const runs = split.data?.runs ?? [];
+  const entry = fixed ? runs.find((r) => r.run_id === fixed.id) : undefined;
+  const heldOut = !!entry?.held_out;
+  const opened = opensHeldOut(card);
 
   const fillExamples = () => {
     const v: Record<string, string> = {};
@@ -429,7 +478,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   };
 
   // With a run fixed above, the forecast runs by itself and follows the cutoff (debounced).
-  const inTrain = !!fixed && runs.some((r) => r.id === fixed.id);
+  const inTrain = !!entry;
   const auto = !!fixed && mode === "stored" && inTrain;
   // A law release whose every input the record fills forecasts the picked run by itself, once.
   const lawAuto = !!fixed && targets.length > 0 && mode === "typed" && card.inputs.every((i) => !i.required || recorded[i.name] !== undefined);
@@ -445,7 +494,8 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   }, [auto, cutoff]);
   const slide = auto && extent != null && extent > 0;
   // An event model (no observed series) is read against how the run actually ended: the server
-  // serves the endpoint only for train runs, and the model never receives it.
+  // serves the endpoint only for runs whose outcomes it serves (train, and held-out runs the
+  // deployment opened), and the model never receives it.
   const ended = useQuery({
     queryKey: [legacy, "run-endpoint", fixed?.id],
     queryFn: () => call<ExperimentDetail>(legacy, `/experiments/${encodeURIComponent(fixed!.id)}`),
@@ -455,7 +505,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   });
   const endpoint = auto && !obsInput ? ended.data?.endpoint ?? null : null;
   const trainWithData = useMemo(() => {
-    const ids = new Set(runs.map((r) => r.id));
+    const ids = new Set(runs.map((r) => r.run_id as string));
     return allRuns.filter((r) => ids.has(r.id) && (!obsInput || hasSeries(r))).slice(0, 6);
   }, [runs, allRuns, obsInput]);
 
@@ -470,7 +520,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
   const moveCutoff = (t: number) => setCutoff(String(+Math.max(0, extentMax != null ? Math.min(t, extentMax) : t).toPrecision(3)));
   const summary = bands ? quantileSummary(bands, c) : null;
   const quantityLabel = obsInput ? words(obsInput.name) : "";
-  const inspectionNote = inTrain && card.authorship === "data_informed" ? "The authors read this run while writing the model, so this is inspection, not a test." : null;
+  const inspectionNote = inTrain && !heldOut && card.authorship === "data_informed" ? "The authors read this run while writing the model, so this is inspection, not a test." : null;
 
   return (
     <div className="fc">
@@ -557,8 +607,9 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
       {mode === "stored" && fixed && split.isLoading && <p className="muted">Checking which runs this model may read…</p>}
       {mode === "stored" && fixed && split.error && <Gap title="The model's runs could not be listed">{String((split.error as Error).message ?? split.error)}</Gap>}
       {mode === "stored" && fixed && split.data && !inTrain && (
-        <Caution title="This run is sealed for evaluation">
-          The model reads only its training runs here, so it cannot be fed this one. {trainWithData.length > 0 ? "Pick one it can read:" : "None of its training runs has a recorded series in IGNIS yet."}
+        <Caution title={opened ? "This run is not one of the model's runs" : "This run is sealed for evaluation"}>
+          {opened ? "It is outside the split the model was written on, so it cannot be fed this one." : "The model reads only its training runs here, so it cannot be fed this one."}{" "}
+          {trainWithData.length > 0 ? "Pick one it can read:" : "None of its runs has a recorded series in IGNIS yet."}
         </Caution>
       )}
       {mode === "stored" && fixed && split.data && !inTrain && trainWithData.length > 0 && (
@@ -576,6 +627,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
           {!lawAuto && (
             <Caution title={fixed ? `Conditions from ${runLabel(fixed)}, entered as your own input` : "Your conditions are a synthetic input, not a NASA run"}>
               {fixed ? "Values the NASA record holds are filled in; complete the rest. The forecast is model output for these values, not a reading of the run." : "The forecast is model output for the values you enter."}
+              {row?.note && row.missing?.length ? ` ${cap(row.note)}.` : ""}
             </Caution>
           )}
           {(() => {
@@ -591,7 +643,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
             return lawAuto ? (
               <details className="fc-about">
                 <summary>
-                  The {card.inputs.length} inputs, all from the NASA record of this {row?.coverage === "nose" ? "rod or sphere" : "sample"}
+                  The {card.inputs.length} inputs, all from the NASA record of this {row?.kind === "nose" ? "rod or sphere" : "sample"}
                 </summary>
                 {fields}
               </details>
@@ -643,6 +695,11 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
       {(art?.support.admitted || slide || (obsInput && observed.length > 0)) && (
         <section className="sheet fc-main" aria-label="Forecast">
           <div className="fc-answer" aria-live="polite">
+            {mode === "stored" && heldOut && (
+              <span className="tag tag-flame fc-heldout" title={`A ${entry!.partition} run: the model was written without reading it. ${card.open_reason ?? ""}`.trim()}>
+                Held-out run · the model never read it
+              </span>
+            )}
             {summary ? (
               <p>
                 Seeing the first <b className="num">{fmtNum(c)} s</b>, the model expects the {quantityLabel} to be{" "}

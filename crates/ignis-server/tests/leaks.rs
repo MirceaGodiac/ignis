@@ -6,12 +6,22 @@ use std::path::{Path, PathBuf};
 
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
+use ignis_core::contracts::{
+    AnalysisArtifact, ExecutionScope, ForecastRequest, ModelRelease, Partition, ReleaseId,
+};
+use ignis_core::services::{not_provided, ModelService, ServiceResult};
 use ignis_server::v1::io::AuthMode;
 use ignis_server::{app, ServeArgs, Services};
 use serde_json::{json, Value};
+use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
 use tower::ServiceExt;
 
 fn router(dir: &Path, internal_routes: bool) -> axum::Router {
+    router_with(dir, internal_routes, Services::default())
+}
+
+fn router_with(dir: &Path, internal_routes: bool, services: Services) -> axum::Router {
     let crate_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let args = ServeArgs {
         port: 0,
@@ -43,7 +53,63 @@ fn router(dir: &Path, internal_routes: bool) -> axum::Router {
         r2: Default::default(),
         access: Default::default(),
     };
-    app(args, Services::default())
+    app(args, services)
+}
+
+/// A served list that opened the test partition of the fixture split (and nothing else).
+struct OpenedTest;
+
+impl ModelService for OpenedTest {
+    fn releases(&self, _: &ExecutionScope) -> ServiceResult<Vec<ModelRelease>> {
+        Ok(vec![])
+    }
+    fn release(&self, _: &ExecutionScope, _: &ReleaseId) -> ServiceResult<ModelRelease> {
+        not_provided("release")
+    }
+    fn forecast(&self, _: &ExecutionScope, _: &ForecastRequest) -> ServiceResult<AnalysisArtifact> {
+        not_provided("forecast")
+    }
+    fn opened_splits(&self) -> BTreeMap<String, BTreeSet<Partition>> {
+        BTreeMap::from([(
+            "fixture-split".to_string(),
+            BTreeSet::from([Partition::Test]),
+        )])
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn partitions_the_served_list_opened_are_served_and_the_rest_stay_sealed() {
+    let dir = tempfile::tempdir().unwrap();
+    let services = Services {
+        research: ignis_server::v1::ResearchServices {
+            models: Some(Arc::new(OpenedTest)),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let r = router_with(dir.path(), false, services);
+    // The opened test run: its recorded series and how it ended are served like a train run's.
+    for route in ["observations", "series", "overlay"] {
+        let (st, v) = call(
+            &r,
+            "GET",
+            &format!("/api/experiments/fixture-flex-3/{route}?cutoff_s=1e9"),
+            None,
+        )
+        .await;
+        assert_eq!(st, StatusCode::OK, "{route}: {v}");
+    }
+    let (_, one) = call(&r, "GET", "/api/experiments/fixture-flex-3", None).await;
+    assert_eq!(one["summary"]["outcomes_withheld"], false, "{one}");
+    // Validation was not opened: still refused.
+    let (st, v) = call(
+        &r,
+        "GET",
+        "/api/experiments/fixture-flex-2/observations?cutoff_s=1e9",
+        None,
+    )
+    .await;
+    assert_eq!(st, StatusCode::FORBIDDEN, "{v}");
 }
 
 async fn call(

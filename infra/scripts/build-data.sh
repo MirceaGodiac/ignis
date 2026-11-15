@@ -34,9 +34,15 @@ run() {
     --entrypoint /usr/local/bin/ignis "$image" "$@"
 }
 
+<<<<<<< HEAD
 run sources inspect PSI-69 PSI-159 PSI-25 PSI-26
 # FLEX: every run's processed diameter series (DropletData, ColorCamData, LLUVData; 740 text files,
 # ~20 MB) and CIR logs; the FLEX models read the measured diameters up to the cutoff from them.
+=======
+# Metadata and listing of all 19 flight investigations (small JSON; no data bytes): the PSI
+# investigation records below and the listing check at the end read them.
+run sources inspect PSI-69 PSI-68 PSI-39 PSI-159 PSI-10 PSI-23 PSI-20 PSI-21 PSI-22 PSI-107 PSI-106   PSI-25 PSI-26 PSI-98 PSI-99 PSI-100 PSI-102 PSI-101 PSI-47
+>>>>>>> origin/main
 run sources samples
 # Records and the conditions table first: they read only the NASA sample files, so a problem in
 # the evidence-corpus steps below cannot leave the Conditions page stale.
@@ -60,6 +66,13 @@ for d in "$base"/data/views/*/; do [ -d "$d" ] && views+=("/data/work/views/$(ba
 if [ ${#views[@]} -gt 0 ] && [ -d "$base/data/raw/samples" ]; then
   run evidence import-views "${views[@]}" --pdf-root /data/work/raw/samples
 fi
+# Each investigation's PSI record (DOI, version, licence, hardware, investigators, dates, objectives,
+# file counts and sizes) as a citable source; offline, from the metadata saved by `sources inspect`.
+# Writes data/evidence/psi_records/ (records.jsonl: the server opens each record's PSI landing page).
+run evidence corpus records
+# Content classes (body | fragment | glossary | references | contents) of every stored chunk, from
+# its section and text: views imported before the classes existed, or skipped as already stored.
+run evidence reclassify
 run evidence verify
 run evidence corpus snapshot
 for family in flex acme_normal acme_inverse bass; do

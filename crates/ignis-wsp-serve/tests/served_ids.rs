@@ -141,3 +141,49 @@ fn a_changed_record_or_an_unlisted_forward_is_refused() {
     .unwrap();
     assert!(ServedModels::open(dir.path(), MemoryPrefixes::new()).is_err());
 }
+
+/// Opening validation or test runs is a recorded deployment decision: the committed list opens
+/// them for the modelled families whose final test was spent, each with its reason; an opening
+/// without a reason, or without train, is refused.
+#[test]
+fn opened_partitions_carry_their_reason() {
+    use ignis_core::contracts::Partition;
+    let list = ServedList::read(&served().join("served.json")).unwrap();
+    let opened: Vec<&str> = list
+        .releases
+        .iter()
+        .filter(|e| e.open().len() > 1)
+        .map(|e| e.model_name.as_str())
+        .collect();
+    assert_eq!(
+        opened,
+        [
+            "flex_methanol.wsp2",
+            "flex_heptane.wsp2",
+            "acme_normal.wsp13",
+            "acme_inverse.wsp12",
+            "bass_front.wsp"
+        ]
+    );
+    for e in &list.releases {
+        if e.open().contains(&Partition::Test) {
+            assert!(e.open_reason.as_deref().unwrap().contains("12.11"));
+        }
+    }
+
+    let dir = tempfile::tempdir().unwrap();
+    copy_dir(&served(), dir.path());
+    let path = dir.path().join("served.json");
+    let original: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    for (field, value) in [
+        ("open_reason", serde_json::Value::Null),
+        ("open_partitions", serde_json::json!(["validation", "test"])),
+    ] {
+        let mut v = original.clone();
+        v["releases"][0][field] = value;
+        std::fs::write(&path, v.to_string()).unwrap();
+        let e = ServedList::read(&path).err().expect("refused");
+        assert!(format!("{e:#}").contains("open_"), "{e:#}");
+    }
+}

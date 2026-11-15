@@ -186,6 +186,10 @@ fn origin(
     pool: Arc<rayon::ThreadPool>,
     experts: Vec<Box<dyn Expert>>,
     acquisition: Option<AcquisitionScorer>,
+    opened: std::collections::BTreeMap<
+        String,
+        std::collections::BTreeSet<ignis_core::contracts::Partition>,
+    >,
 ) -> Arc<Origin> {
     let runs_root = std::env::var_os("IGNIS_RUNS")
         .map(PathBuf::from)
@@ -228,6 +232,7 @@ fn origin(
         jobs: RwLock::new(Default::default()),
         pool,
         public_scope: v1::io::research_scope("local", false),
+        opened,
         internal_routes: args.internal_routes || kind == DataOrigin::DevelopmentFixture,
         reveal_log,
     })
@@ -293,6 +298,11 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
         pool.clone(),
         experts,
         acquisition.clone(),
+        // The partitions the served list opened (only when models are served at all).
+        match (&research.models, args.enable_models) {
+            (Some(m), true) => m.opened_splits(),
+            _ => Default::default(),
+        },
     );
     let reg = main_origin.registry();
     tracing::info!(experiments = reg.experiments.len(), errors = reg.errors.len(), dir = %reg.dir.display(),
@@ -310,6 +320,7 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
             pool.clone(),
             fixture_experts,
             acquisition,
+            Default::default(),
         );
         tracing::warn!(
             experiments = fixture.registry().experiments.len(),

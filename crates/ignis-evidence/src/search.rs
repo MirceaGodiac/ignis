@@ -35,6 +35,72 @@ pub fn rrf(rankings: &[&[String]], k: f64) -> Vec<(String, f64)> {
     v
 }
 
+/// At most this many hits of one (source, page) before every other hit: the rest of that page
+/// follows the whole list, so a page of results shows several pages instead of one page's lines.
+pub const PER_PAGE_HITS: usize = 2;
+
+/// The fused order as served: by content tier ([`crate::content_class::tier`]; the body first,
+/// glossary rows and fragments next, reference lists and contents pages last), stable within a
+/// tier; then at most [`PER_PAGE_HITS`] hits per (source, page), the longest passages of the
+/// page's best tier taking that page's places (passages of a class the query asks for first, in
+/// rank order), the others moved after every other hit (still in order; their count is returned).
+/// Deterministic, so a cached order pages the same way. Ids without a shape (none in practice)
+/// count as body passages of their own page.
+pub fn arrange(
+    order: Vec<String>,
+    shapes: &HashMap<String, catalog::ChunkShape>,
+    with_body: &[String],
+) -> (Vec<String>, usize) {
+    let tier = |id: &str| {
+        shapes.get(id).map_or(0, |s| {
+            crate::content_class::tier(&s.content_class, with_body)
+        })
+    };
+    let mut order: Vec<(usize, String)> = order.into_iter().enumerate().collect();
+    order.sort_by_key(|(i, id)| (tier(id), *i));
+    let key = |id: &str| {
+        shapes
+            .get(id)
+            .map(|s| (s.publication_id.clone(), s.page))
+            .unwrap_or_else(|| (id.to_string(), 0))
+    };
+    let mut groups: HashMap<(String, i64), Vec<usize>> = HashMap::new();
+    for (pos, (_, id)) in order.iter().enumerate() {
+        groups.entry(key(id)).or_default().push(pos);
+    }
+    let mut slot: Vec<Option<String>> = vec![None; order.len()];
+    let mut overflow: Vec<usize> = Vec::new();
+    for positions in groups.values() {
+        if positions.len() <= PER_PAGE_HITS {
+            for &p in positions {
+                slot[p] = Some(order[p].1.clone());
+            }
+            continue;
+        }
+        let mut pick = positions.clone();
+        // a class the query asks for keeps its rank order; otherwise the longest passage first
+        pick.sort_by_key(|&p| {
+            let id = &order[p].1;
+            let s = shapes.get(id);
+            let asked = s.is_some_and(|s| with_body.contains(&s.content_class));
+            let chars = s.map_or(0, |s| s.chars);
+            (tier(id), !asked, if asked { 0 } else { -chars }, p)
+        });
+        let (kept, rest) = pick.split_at(PER_PAGE_HITS);
+        let mut kept = kept.to_vec();
+        kept.sort_unstable();
+        for (place, from) in positions.iter().take(PER_PAGE_HITS).zip(kept) {
+            slot[*place] = Some(order[from].1.clone());
+        }
+        overflow.extend_from_slice(rest);
+    }
+    overflow.sort_unstable();
+    let mut out: Vec<String> = slot.into_iter().flatten().collect();
+    let moved = overflow.len();
+    out.extend(overflow.into_iter().map(|p| order[p].1.clone()));
+    (out, moved)
+}
+
 #[derive(Debug, Clone)]
 pub struct SearchOpts {
     pub limit: usize,
@@ -213,6 +279,9 @@ impl Retriever {
                 withheld += 1;
             }
         }
+        let shapes = catalog::chunk_shapes(&self.con, &order)?;
+        let (arranged, moved) = arrange(order, &shapes, &filters.ranked_with_body);
+        order = arranged;
         let top_n = o.rerank_top.unwrap_or(self.cfg.reranker.top_n);
         let mut rerank: HashMap<String, f32> = HashMap::new();
         let mut rerank_ok = false;
@@ -224,7 +293,11 @@ impl Retriever {
                     stages.insert("rerank".into(), json!(format!("fallback_rrf: {e}")));
                 }
                 Ok(client) => {
-                    let head: Vec<String> = order.iter().take(top_n).cloned().collect();
+                    let head: Vec<String> = order
+                        .iter()
+                        .take(top_n.min(order.len() - moved))
+                        .cloned()
+                        .collect();
                     let rows = catalog::get_chunks(&self.con, &head)?;
                     let docs: Vec<String> = head
                         .iter()
@@ -324,6 +397,7 @@ impl Retriever {
             timings,
             usage,
             rrf_k: k,
+            moved,
         })
     }
 
@@ -386,4 +460,7 @@ pub struct Ranked {
     pub timings: serde_json::Map<String, Value>,
     pub usage: serde_json::Map<String, Value>,
     pub rrf_k: f64,
+    /// trailing hits moved there by the per-page limit ([`arrange`]); a lexical tail serves them
+    /// after its own matches
+    pub moved: usize,
 }

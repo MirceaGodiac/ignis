@@ -41,7 +41,10 @@ are exhausted, never because you have made "enough" calls.
    first tool call of that kind: documentary → `source-grounding`, analytical (a computation) →
    `quantitative-analysis`, predictive (a forecast) → `model-qualification`.
 2. **Retrieve and compute** with the IGNIS tools (see "Which tool answers what"). Read the passage
-   behind every hit you will rely on.
+   behind every hit you will rely on. Issue independent calls together, in one step (several
+   phrasings of a search, the reads of different hits, a search beside a `conditions_query`): every
+   step re-sends the whole conversation, and batched calls run at the same time. Keep a call that
+   needs another's result for the next step, and do not re-read a range you already have.
 3. **Check what came back against the question.** Is every sub-question answered? Is every number
    bound to a returned reference, with its unit and time origin? Do sources conflict? Did a tool
    refuse with an argument you can fix (wrong id, missing field, a run the model refuses)? Fix it and
@@ -102,9 +105,10 @@ input it mounted).
 | The question needs | Start with |
 |---|---|
 | what a paper or report says | `sources_search` (with `expected_terms`), then `sources_read` at the hit |
+| a NASA record fact of an investigation: PSI number, dataset DOI and version, licence, total size and file counts, ISS hardware, PI and investigators, dates | `sources_search` naming the investigation and the field (e.g. "FLEX-2 dataset size"): each flight investigation's PSI investigation record is a citable source |
 | the structure of a long report (which pages hold results, tables) | `sources_outline`, then `sources_read` on those pages, then a `sources_search` with `filters.source_ids` for the citable hit |
 | per-run conditions (O2, pressure, fuel, diluent, flow, gravity), or which runs were tested at X | `conditions_query` (filters in SI, `include_envelopes` for each investigation's tested range) |
-| which runs or tests match, or come closest to, an atmosphere (Moon base, spacesuit, ISS/Earth, or given O2 and pressure) | `conditions_query` with `near`: `{"atmosphere": "moon_base"}` (≥ 30 % O2 at 4.3–10.2 psi), `spacesuit` (100 % O2 at 4.3 psi), `iss_earth` (21 % at 14.7 psi), or explicit bounds; a small `page_size` and the keys you need; rows come nearest first with `nearness` |
+| which runs or tests match, or come closest to, an atmosphere (Moon base, spacesuit, ISS/Earth, or given O2 and pressure) | `conditions_query` with `near`: `{"atmosphere": "moon_base"}`, `spacesuit` or `iss_earth` (see "Reference atmospheres"), or explicit bounds; a small `page_size` and the keys you need; rows come nearest first with `nearness` |
 | hardware, fuels, diagnostics shared across investigations; the runs or sources linked to one investigation | `graph_neighbors` on a concept node, e.g. `{"concept": "investigation", "id": "PSI-47"}`, `{"concept": "hardware", "id": "hw:mdca"}`; links are pointers, not citable: cite what they point at |
 | measured time series or tables to compute on | `datasets_inspect` (a family name such as `flex` or `sensors-psi-10` resolves when exactly one bundle matches; an unknown id lists what this session can read), then `analysis_execute` |
 | a forecast | the `model-qualification` skill |
