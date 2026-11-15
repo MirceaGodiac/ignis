@@ -27,6 +27,9 @@ export function Sources({ initial }: { initial: string | null }) {
 
   return (
     <div className="view">
+      <div className="view-head">
+        <h1>Sources</h1>
+      </div>
       <form
         className="toolbar"
         onSubmit={(e) => {
@@ -37,13 +40,12 @@ export function Sources({ initial }: { initial: string | null }) {
         <label className="sr-only" htmlFor="src-q">
           Search query
         </label>
-        <input id="src-q" className="field" style={{ flex: "1 1 320px", height: 34, fontSize: 14 }} value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. droplet extinction diameter at elevated oxygen" disabled={unavailable} />
+        <input id="src-q" className="field" style={{ flex: "1 1 320px", height: 34, fontSize: 14 }} value={text} onChange={(e) => setText(e.target.value)} placeholder="Search NASA documents" disabled={unavailable} />
         <button className="btn btn-primary" type="submit" disabled={!text.trim() || unavailable}>
           Search
         </button>
       </form>
-      {unavailable && <Gap title="Search is not configured in this deployment">{caps.data?.knowledge.detail}</Gap>}
-      {!submitted && !unavailable && <p className="muted">Results show the hit's evidence class, where it sits in its source, and how it was ranked.</p>}
+      {unavailable && <Gap title="Search is not available on this server">{caps.data?.knowledge.detail}</Gap>}
       {q.isFetching && <p className="muted">Searching…</p>}
       {q.error && <ErrorNote error={q.error} title={q.error instanceof ApiError && q.error.envelope.code === "capability_unavailable" ? "Search is not configured" : "The search failed"} />}
       {page && (
