@@ -134,7 +134,7 @@ fn only_tools_with_a_configured_service_are_registered() {
 fn the_service_receives_the_host_scope_and_returns_its_contract() {
     let h = host();
     let s = scope("ws_a");
-    let r = h.host.call(&s, "sources_search", search_args());
+    let r = h.host.call(&s, "sources_search", detailed_search_args());
     ok(&r);
     assert_eq!(r.execution_status, ExecutionStatus::Completed);
     let page: SearchPage = serde_json::from_value(r.result.unwrap().value).unwrap();
@@ -142,25 +142,79 @@ fn the_service_receives_the_host_scope_and_returns_its_contract() {
     assert_eq!(h.knowledge.calls.lock().unwrap().as_slice(), &[s]);
 }
 
+fn detailed_search_args() -> Value {
+    let mut a = search_args();
+    a["schema_version"] = json!("evidence.v2");
+    a["response_format"] = json!("detailed");
+    a
+}
+
 #[test]
 fn search_results_are_concise_by_default_and_detailed_on_request() {
     let h = host();
     let s = scope("ws_a");
-    let scores = |r: ToolResult| -> Vec<usize> {
-        ok(&r);
-        let page: SearchPage = serde_json::from_value(r.result.unwrap().value).unwrap();
-        page.validate().unwrap();
-        page.hits.iter().map(|h| h.scores.len()).collect()
-    };
-    // The same hits in the same order either way; only the per-hit size changes.
-    let concise = scores(h.host.call(&s, "sources_search", search_args()));
-    assert!(!concise.is_empty() && concise.iter().all(|n| *n == 0));
-    let mut detailed = search_args();
-    detailed["schema_version"] = json!("evidence.v2");
-    detailed["response_format"] = json!("detailed");
-    let detailed = scores(h.host.call(&s, "sources_search", detailed));
-    assert_eq!(detailed.len(), concise.len());
-    assert!(detailed.iter().any(|n| *n > 0));
+    // Ten hits of the fixture page, as a real first page.
+    h.knowledge.repeat.store(10, Ordering::SeqCst);
+    h.knowledge.quote_less.store(true, Ordering::SeqCst);
+    let concise = h.host.call(&s, "sources_search", search_args());
+    ok(&concise);
+    let concise = concise.result.unwrap().value;
+    let detailed = h.host.call(&s, "sources_search", detailed_search_args());
+    ok(&detailed);
+    let detailed = detailed.result.unwrap().value;
+    let page: SearchPage = serde_json::from_value(detailed.clone()).unwrap();
+    assert!(page.hits.iter().any(|h| !h.scores.is_empty()));
+
+    // The same hits in the same order either way, with what the agent needs to choose and cite.
+    let hits = concise["hits"].as_array().unwrap();
+    assert_eq!(hits.len(), page.hits.len());
+    for (c, d) in hits.iter().zip(&page.hits) {
+        assert_eq!(c["rank"], json!(d.rank));
+        assert_eq!(c["evidence_id"], json!(d.evidence.evidence_id));
+        assert_eq!(c["evidence_class"], json!(d.evidence.evidence_class));
+        assert_eq!(c["source_id"], json!(d.evidence.source_id));
+        assert_eq!(c["snippet"], json!(d.snippet));
+        let l = d.evidence.locator.as_ref().unwrap();
+        assert_eq!(c["page"], json!(l.page));
+        assert_eq!(c["page_label"], json!(l.page_label));
+        // Locator internals, scores and the page's own origin stay out of the concise view.
+        for k in [
+            "locator",
+            "scores",
+            "origin",
+            "title",
+            "evidence",
+            "parse_view_id",
+        ] {
+            assert!(c.get(k).is_none(), "{k} in a concise hit: {c}");
+        }
+    }
+    // Each source's title once, and only the backends that changed the search.
+    let title = page.hits[0].title.clone().unwrap();
+    assert_eq!(
+        concise["sources"],
+        json!({ page.hits[0].evidence.source_id.as_str(): title })
+    );
+    let backends: Vec<&str> = concise["backends"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|b| b["backend"].as_str().unwrap())
+        .collect();
+    assert_eq!(
+        backends,
+        ["dense"],
+        "the degraded backend is reported, the rest not"
+    );
+    assert_eq!(concise["next_cursor"], json!(page.next_cursor));
+    assert_eq!(concise["origin"], json!(page.origin));
+    let (c, d) = (concise.to_string().len(), detailed.to_string().len());
+    eprintln!("ten fixture hits: concise {c} bytes, detailed {d} bytes");
+    assert!(
+        c * 2 < d,
+        "concise {c} bytes is not compact next to detailed {d}"
+    );
+
     // A v2 field under the v1 tag is refused with what to change.
     let mut v1 = search_args();
     v1["response_format"] = json!("detailed");
@@ -387,4 +441,114 @@ fn a_large_result_is_stored_and_previewed_not_inlined() {
         json!({"artifact_id": full.artifact_id, "json_pointer": "/hits/0"}),
     );
     ok(&first);
+}
+
+/// A second host over the same store that waits up to `wait` for jobs (as `ignis serve` does).
+fn waiting_host(h: &Host, wait: std::time::Duration) -> ignis_mcp::ToolHost {
+    ignis_mcp::ToolHost::new(
+        ignis_mcp::ToolServices {
+            knowledge: Some(h.knowledge.clone()),
+            models: Some(std::sync::Arc::new(FakeModels)),
+            ..Default::default()
+        },
+        h.store.clone(),
+        h.artifacts.clone(),
+        Origin::SyntheticFixture,
+        std::sync::Arc::new(|| {}),
+    )
+    .with_job_wait(wait)
+}
+
+/// What the server's job runner does: claim the next forecast after `delay`, then end it.
+fn run_forecast_after(
+    h: &Host,
+    delay: std::time::Duration,
+    outcome: ignis_research::store::JobOutcome,
+) -> std::thread::JoinHandle<()> {
+    let store = h.store.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(delay);
+        let job = store
+            .claim_job(
+                "test-runner",
+                &[ignis_mcp::FORECAST_JOB],
+                std::time::Duration::from_secs(60),
+            )
+            .unwrap()
+            .expect("a queued forecast");
+        store.finish_job(&job.job_id, job.fence, outcome).unwrap();
+    })
+}
+
+#[test]
+fn jobs_get_waits_for_the_job_so_one_call_returns_it_finished() {
+    use ignis_research::store::JobOutcome;
+    use std::time::{Duration, Instant};
+    let h = host();
+    let a = scope("ws_a");
+    let waiting = waiting_host(&h, Duration::from_secs(20));
+
+    // Queued without waiting (no runner yet), then finished by the runner while jobs_get waits.
+    let r = h
+        .host
+        .call(&a, "models_forecast", forecast_args("crid-wait-1"));
+    assert_eq!(r.execution_status, ExecutionStatus::Accepted);
+    let job = r.job.unwrap();
+    let output = put_json(&h, &a, &json!({"forecast": "synthetic"}));
+    let runner = run_forecast_after(
+        &h,
+        Duration::from_millis(300),
+        JobOutcome::Succeeded {
+            outputs: vec![output.clone()],
+        },
+    );
+    let started = Instant::now();
+    let get = waiting.call(&a, "jobs_get", json!({"job_id": job.job_id}));
+    runner.join().unwrap();
+    ok(&get);
+    let got: JobRef = serde_json::from_value(get.result.unwrap().value).unwrap();
+    assert_eq!(
+        got.status,
+        JobStatus::Succeeded,
+        "one call returns the finished job"
+    );
+    assert_eq!(got.outputs, vec![output]);
+    assert!(
+        started.elapsed() < Duration::from_secs(10),
+        "returned when the job ended"
+    );
+
+    // A job that ends within the wait answers its submission directly, failures with their error.
+    let runner = run_forecast_after(
+        &h,
+        Duration::from_millis(200),
+        JobOutcome::Failed {
+            error: ErrorEnvelope::new(
+                ErrorCode::Internal,
+                "synthetic runner failure",
+                RetryPolicy::Never,
+            ),
+        },
+    );
+    let r = waiting.call(&a, "models_forecast", forecast_args("crid-wait-2"));
+    runner.join().unwrap();
+    r.validate().unwrap();
+    assert_eq!(r.execution_status, ExecutionStatus::Failed, "{r:#?}");
+    assert_eq!(r.job.as_ref().unwrap().status, JobStatus::Failed);
+    assert!(r
+        .error
+        .unwrap()
+        .message
+        .contains("synthetic runner failure"));
+
+    // Nothing runs it: the wait is bounded and answers with the current state.
+    let short = waiting_host(&h, Duration::from_millis(300));
+    let r = h
+        .host
+        .call(&a, "models_forecast", forecast_args("crid-wait-3"));
+    let started = Instant::now();
+    let get = short.call(&a, "jobs_get", json!({"job_id": r.job.unwrap().job_id}));
+    assert!(started.elapsed() >= Duration::from_millis(300));
+    ok(&get);
+    assert_eq!(get.result.unwrap().value["status"], json!("queued"));
 }

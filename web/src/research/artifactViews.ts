@@ -104,6 +104,8 @@ export const CONTRACT_COVERAGE = {
   JobLookup: { notShown: "Request: shown through the job it names" },
   DatasetRef: { notShown: "Reference: shown through its DatasetBundle" },
   ReleaseRef: { notShown: "Reference: shown through its ModelRelease" },
+  SkillRef: { notShown: "Request: the agent reads a harness skill (skills_read)" },
+  SkillText: { notShown: "Harness method text for the agent; identified by the episode's harness pin" },
 } satisfies Record<keyof IgnisContracts, Coverage>;
 
 /** The contracts that get a typed body in the artifact side panel. */

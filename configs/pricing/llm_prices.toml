@@ -14,9 +14,9 @@
 # into the binary as the default.
 
 name = "ignis-llm-prices"
-version = "2026-11-15"
+version = "2026-11-15b"
 currency = "USD"
-source = "Anthropic first-party API list prices as cached by the Claude API reference on 2026-11-03 (input, output, cache read); cache writes at Anthropic's 1.25x input rate for the 5-minute cache. OpenAI/Codex models are not listed (no verified price): their usage is unpriced."
+source = "Anthropic first-party API list prices as cached by the Claude API reference on 2026-11-03 (input, output, cache read); cache writes at Anthropic's 1.25x input rate for the 5-minute cache. OpenAI standard-tier short-context prices from developers.openai.com/api/docs/pricing, read 2026-11-15."
 
 [[models]]
 id = "claude-opus-5-5"
@@ -41,3 +41,57 @@ output_per_mtok = 40.0
 
 # Claude Haiku 5.5 is not listed: its price depends on the prompt length of each request (above
 # 100K tokens it doubles), which per-turn usage totals do not show.
+
+# OpenAI (Codex App Server runtime). Standard tier, short context (<= 272K input tokens per
+# request), from developers.openai.com/api/docs/pricing on 2026-11-15. A request above 272K input
+# tokens is billed at the long-context tier (about 2x input, 1.5x output), which per-turn usage
+# totals cannot show: a cost computed from this list is a lower bound for a turn in which any single
+# request exceeded 272K input tokens. Codex reports no cache writes, so none is priced.
+
+[[models]]
+id = "gpt-6-astra"
+input_per_mtok = 10.0
+cached_input_per_mtok = 1.0
+output_per_mtok = 50.0
+
+[[models]]
+id = "gpt-6-sol"
+input_per_mtok = 2.0
+cached_input_per_mtok = 0.20
+output_per_mtok = 10.0
+
+[[models]]
+id = "gpt-6-luna"
+input_per_mtok = 0.10
+cached_input_per_mtok = 0.01
+output_per_mtok = 0.50
+
+[[models]]
+id = "gpt-6.1-sol"
+input_per_mtok = 2.0
+cached_input_per_mtok = 0.10
+output_per_mtok = 10.0
+
+[[models]]
+id = "gpt-6.1-terra"
+input_per_mtok = 1.0
+cached_input_per_mtok = 0.05
+output_per_mtok = 5.0
+
+[[models]]
+id = "gpt-5.6-sol"
+input_per_mtok = 4.0
+cached_input_per_mtok = 0.40
+output_per_mtok = 20.0
+
+[[models]]
+id = "gpt-5.6-terra"
+input_per_mtok = 2.0
+cached_input_per_mtok = 0.20
+output_per_mtok = 12.0
+
+[[models]]
+id = "gpt-5.6-luna"
+input_per_mtok = 0.20
+cached_input_per_mtok = 0.02
+output_per_mtok = 1.20
