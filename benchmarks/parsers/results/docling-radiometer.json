@@ -1,0 +1,31 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "radiometer-cell",
+   "kind": "cell",
+   "basis": "glyphs",
+   "found": true,
+   "text_found": true,
+   "iou": 0.904
+  },
+  {
+   "id": "radiometer-passage",
+   "kind": "passage",
+   "basis": "glyphs",
+   "found": true,
+   "iou": 0.233,
+   "coverage": 0.821,
+   "spill": 3.35
+  }
+ ],
+ "perf": {
+  "radiometer": {
+   "pages": 56,
+   "wall_s": 62.46,
+   "cpu_s": 143.76,
+   "units": 1718
+  }
+ },
+ "peak_rss_mb": 4969
+}
