@@ -54,11 +54,15 @@ CREATE INDEX IF NOT EXISTS chunks_pub_page ON chunks(publication_id, page);
 -- Parse view: the exact text of every physical page (1-based) of a publication, as defined by the
 -- publication's parser_version. Chunk char spans index these texts. The view id is
 -- 'pv-<sha16>@<parser_version>' (ignis_evidence::records::parse_view_id). Pages without text are ''.
+-- Several views of one publication coexist (catalog v3): re-parsing with another parser adds a view
+-- and makes it active (`publications.parser_version`); older views stay readable, so citations made
+-- against them still resolve. Search covers the active view only.
 CREATE TABLE IF NOT EXISTS pages (
   publication_id    TEXT NOT NULL REFERENCES publications(id) ON DELETE CASCADE,
+  parse_view_id     TEXT NOT NULL,
   page              INTEGER NOT NULL,
   text              TEXT NOT NULL,
-  PRIMARY KEY (publication_id, page)
+  PRIMARY KEY (publication_id, parse_view_id, page)
 );
 
 -- Where this host keeps the bytes of an asset (a cache hint, not an identity: readers re-hash).

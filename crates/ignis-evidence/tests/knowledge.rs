@@ -9,9 +9,9 @@ use std::path::{Path, PathBuf};
 
 use ignis_core::contracts::{
     BackendStatus, Capability, CorpusSnapshotId, ErrorCode, EvidenceId, EvidenceSchema,
-    ExecutionScope, Family, OffsetUnit, PageCursor, Partition, PrincipalId, ReadRange, ReadRequest,
-    RetrievalBackend, ScopeId, ScopeRole, SearchFilters, SearchMode, SearchRequest, SourceId,
-    SourceLocator, Split, WorkspaceId,
+    ExecutionScope, Family, OffsetUnit, PageCursor, ParseViewId, Partition, PrincipalId, ReadRange,
+    ReadRequest, RetrievalBackend, ScopeId, ScopeRole, SearchFilters, SearchMode, SearchRequest,
+    SourceId, SourceLocator, Split, WorkspaceId,
 };
 use ignis_core::services::KnowledgeService;
 use ignis_evidence::service::{EvidenceService, Lockbox};
@@ -78,6 +78,11 @@ const SHA: &str = "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdc
 /// A catalog with one FLEX publication whose chunks are laid out on `pages` exactly as the parser
 /// would: each chunk is `page_text[start..end]` of its page in parse view `pv-<sha16>@test`.
 fn catalog_with(dir: &Path, specs: &[Spec], pages: usize) -> PathBuf {
+    catalog_view(dir, specs, pages, "test")
+}
+
+/// [`catalog_with`] writing the view of parser version `pv` (another call adds a second view).
+fn catalog_view(dir: &Path, specs: &[Spec], pages: usize, pv: &str) -> PathBuf {
     let db = dir.join("evidence.sqlite");
     let mut con = catalog::connect(&db, false).unwrap();
     let publ = records::Publication {
@@ -98,7 +103,7 @@ fn catalog_with(dir: &Path, specs: &[Spec], pages: usize) -> PathBuf {
         describes_runs: vec![],
         outcome_bearing: true,
         ingested_at: "2026-11-13T00:00:00Z".into(),
-        parser_version: "test".into(),
+        parser_version: pv.into(),
     };
     let view = records::parse_view_id(&publ.id, &publ.parser_version);
     let mut page_text: Vec<String> = vec![String::new(); pages];
@@ -682,5 +687,112 @@ fn the_snapshot_id_changes_with_anything_that_changes_an_answer() {
     .unwrap();
     let b = ignis_evidence::corpus::snapshot(&con).unwrap();
     assert_ne!(a.snapshot_id, b.snapshot_id);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn a_new_parse_view_leaves_citations_of_the_old_one_resolvable() {
+    let dir = tmp("views");
+    let spec = |text| Spec {
+        page: 1,
+        text,
+        outcome: false,
+        runs: &[],
+        continues: &[],
+    };
+    catalog_view(
+        &dir,
+        &[spec("old parser text about droplet ignition.")],
+        1,
+        "test",
+    );
+    let old = EvidenceId::new(format!("pv-{}@test:p1:00000", &SHA[..16])).unwrap();
+    // A second parser's view of the same PDF becomes the active one.
+    let db = catalog_view(
+        &dir,
+        &[spec("new parser text about droplet extinction.")],
+        1,
+        "test2",
+    );
+    let svc = service(&db, cfg());
+    let source = SourceId::new(format!("sha256:{SHA}")).unwrap();
+
+    // Search covers the active view only.
+    let hits = |q: &str| {
+        svc.search(&research(), &req(q, SearchMode::Lexical, 10, None))
+            .unwrap()
+            .hits
+    };
+    assert!(hits("ignition").is_empty(), "the old view is not searched");
+    assert_eq!(hits("extinction").len(), 1);
+    assert!(hits("extinction")[0]
+        .evidence
+        .evidence_id
+        .as_str()
+        .contains("@test2:"));
+
+    // The old citation still resolves and its view still reads.
+    let e = svc.resolve_evidence(&research(), &old).unwrap();
+    assert_eq!(e.evidence_id, old);
+    let old_view = ParseViewId::new(format!("pv-{}@test", &SHA[..16])).unwrap();
+    let r = svc
+        .read(
+            &research(),
+            &ReadRequest {
+                schema_version: EvidenceSchema::V2,
+                source_id: source.clone(),
+                parse_view_id: Some(old_view.clone()),
+                range: ReadRange::Pages { first: 1, last: 1 },
+                response_format: None,
+            },
+        )
+        .unwrap();
+    assert_eq!(r.parse_view_id, old_view);
+    assert!(r.segments[0].text.contains("ignition"));
+    // A view that was never stored is still refused.
+    let none = svc.read(
+        &research(),
+        &ReadRequest {
+            schema_version: EvidenceSchema::V2,
+            source_id: source,
+            parse_view_id: Some(ParseViewId::new("pv-0000000000000000@never").unwrap()),
+            range: ReadRange::Pages { first: 1, last: 1 },
+            response_format: None,
+        },
+    );
+    assert_eq!(none.unwrap_err().code, ErrorCode::NotFound);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn a_v2_catalog_migrates_its_pages_under_the_active_view() {
+    let dir = tmp("migrate");
+    let db = dir.join("evidence.sqlite");
+    {
+        let con = rusqlite::Connection::open(&db).unwrap();
+        con.execute_batch(
+            "CREATE TABLE publications (id TEXT PRIMARY KEY, source_sha256 TEXT NOT NULL UNIQUE, title TEXT, \
+             authors_json TEXT NOT NULL DEFAULT '[]', year INTEGER, ntrs_id TEXT, doi TEXT, canonical_url TEXT, \
+             investigation_ids_json TEXT NOT NULL DEFAULT '[]', families_json TEXT NOT NULL DEFAULT '[]', \
+             file_name TEXT, n_pages INTEGER NOT NULL, rights_status TEXT NOT NULL, license TEXT, \
+             describes_runs_json TEXT NOT NULL DEFAULT '[]', outcome_bearing INTEGER NOT NULL DEFAULT 1, \
+             ingested_at TEXT NOT NULL, parser_version TEXT NOT NULL); \
+             CREATE TABLE pages (publication_id TEXT NOT NULL, page INTEGER NOT NULL, text TEXT NOT NULL, \
+             PRIMARY KEY (publication_id, page)); \
+             INSERT INTO publications(id, source_sha256, n_pages, rights_status, ingested_at, parser_version) \
+             VALUES ('pub-abcd', 'abcd', 1, 'verified', '2026-11-13T00:00:00Z', 'old'); \
+             INSERT INTO pages VALUES ('pub-abcd', 1, 'page one');",
+        )
+        .unwrap();
+    }
+    let con = catalog::connect(&db, false).unwrap();
+    assert_eq!(
+        catalog::views(&con, "pub-abcd").unwrap(),
+        vec!["pv-abcd@old".to_string()]
+    );
+    assert_eq!(
+        catalog::page_texts(&con, "pub-abcd", "pv-abcd@old", 1, 1).unwrap(),
+        vec![(1, "page one".to_string())]
+    );
     let _ = std::fs::remove_dir_all(dir);
 }
