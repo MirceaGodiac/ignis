@@ -1073,6 +1073,35 @@ fn k1_knowledge_contracts_keep_identity_gaps_and_versions_honest() {
     let mut wrong_end = link(0);
     wrong_end["to"] = json!({"concept": "hardware", "id": "x"});
     assert!(typed::<ProvenanceLink>(&wrong_end).validate().is_err());
+    // A link value is a cell with its locator; part_of points at an investigation or a source.
+    let cell = link(3);
+    typed::<ProvenanceLink>(&cell).validate().unwrap();
+    let mut no_locator = cell.clone();
+    no_locator["value"]["locator"] = json!(null);
+    assert!(typed::<ProvenanceLink>(&no_locator).validate().is_err());
+    let mut text_si = cell.clone();
+    text_si["value"]["raw_value"] = json!("thirty");
+    assert!(
+        typed::<ProvenanceLink>(&text_si).validate().is_err(),
+        "an SI value comes from a raw number"
+    );
+    let mut v1_value = cell.clone();
+    v1_value["schema_version"] = json!("evidence.v1");
+    v1_value["relation"] = json!("describes");
+    v1_value["to"] = json!({"kind": "source", "id": "fixture-source"});
+    assert!(
+        typed::<ProvenanceLink>(&v1_value).validate().is_err(),
+        "a link value is v2"
+    );
+    let mut part_of = link(4);
+    typed::<ProvenanceLink>(&part_of).validate().unwrap();
+    part_of["to"] = json!({"concept": "fuel", "id": "fuel:x"});
+    assert!(typed::<ProvenanceLink>(&part_of).validate().is_err());
+    let bad_range = json!({"schema_version": "evidence.v2", "node": {"concept": "condition", "id": "c"},
+        "value_min_si": 0.4, "value_max_si": 0.3});
+    assert!(typed::<GraphNeighborsRequest>(&bad_range)
+        .validate()
+        .is_err());
 
     // A model label is resolved only by two agreeing passes.
     let mut label = fixture("evidence/source_labels.json")[0].clone();
