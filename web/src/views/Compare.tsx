@@ -35,7 +35,7 @@ export function Compare() {
   return (
     <div className="view">
       <div className="view-head">
-        <p className="muted small">Conditions as recorded (SI). Differences describe the runs; they are not causal effects.</p>
+        <h1>Compare</h1>
         {enabled && (
           <div className="toolbar">
             <label className="toolbar" style={{ fontSize: 13 }}>
