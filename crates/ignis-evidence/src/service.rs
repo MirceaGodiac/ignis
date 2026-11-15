@@ -529,7 +529,8 @@ impl EvidenceService {
         loop {
             let batch = {
                 let ret = self.retriever.lock().expect("retriever");
-                catalog::lexical_from(&ret.con, query, filters, pos, window).map_err(internal)?
+                catalog::lexical_expanded(&ret.con, query, &r.expansions, filters, pos, window)
+                    .map_err(internal)?
             };
             if batch.is_empty() {
                 return Ok((out, false));
@@ -705,6 +706,7 @@ impl KnowledgeService for EvidenceService {
             canonical_json(&json!({
                 "snapshot": self.snapshot.snapshot_id, "query": req.query, "mode": req.mode,
                 "filters": req.filters, "sealed": Lockbox::sealed_key(&sealed),
+                "expected_terms": req.expected_terms,
             }))
             .as_bytes(),
         )[..32]
@@ -752,6 +754,27 @@ impl KnowledgeService for EvidenceService {
                 origin: Origin::System,
             });
         };
+        // SIRA query side: the finalizer keeps the expected terms the corpus holds (sira.rs)
+        let expansions: Vec<(String, f64)> = if req.expected_terms.is_empty() {
+            Vec::new()
+        } else {
+            let proposals: Vec<(String, f64)> = req
+                .expected_terms
+                .iter()
+                .map(|t| {
+                    (
+                        t.term.clone(),
+                        ignis_core::contracts::TermImportance::weight(t.importance),
+                    )
+                })
+                .collect();
+            let ret = self.retriever.lock().expect("retriever");
+            crate::sira::select_expressions(&ret.con, &proposals)
+                .map_err(internal)?
+                .into_iter()
+                .filter_map(|c| c.weight.map(|w| (c.expression, w)))
+                .collect()
+        };
         let opts = SearchOpts {
             limit: usize::MAX,
             use_lexical: req.mode != SearchMode::Dense,
@@ -759,6 +782,7 @@ impl KnowledgeService for EvidenceService {
             use_rerank: req.mode == SearchMode::Hybrid,
             rerank_top: None,
             rerank_timeout_s: None,
+            expansions,
         };
         let ranked = self.ranked(&digest, &req.query, &filters, &opts, &sealed)?;
         if cursor

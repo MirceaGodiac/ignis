@@ -122,6 +122,7 @@ fn search(svc: &EvidenceService, s: &ExecutionScope, q: &str) -> Vec<String> {
             page_size: Some(200),
             cursor: None,
             response_format: None,
+            expected_terms: Vec::new(),
         },
     )
     .unwrap()
