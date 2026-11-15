@@ -4,6 +4,14 @@
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "ResponseFormat": {
+      "description": "How much a search or read returns per item: `concise` keeps ids, locators and short text for\nscanning, `detailed` adds scores, full quotes and context. Absent = the service default. It\nchanges the size of each item, never which items match or their order.",
+      "enum": [
+        "concise",
+        "detailed"
+      ],
+      "type": "string"
     }
   },
   "$id": "ignis/2.1.0/ReleaseRef",
@@ -13,6 +21,17 @@
   "properties": {
     "release_id": {
       "$ref": "#/$defs/ReleaseId"
+    },
+    "response_format": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResponseFormat"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "`concise` (default): the release's card (title, summary, qualification, inputs, scores,\nlimits) and its applicability domain; `detailed`: the full `ModelRelease` record."
     }
   },
   "required": [

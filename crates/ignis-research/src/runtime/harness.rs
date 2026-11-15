@@ -5,8 +5,10 @@
 //!   `skills/<name>/SKILL.md` in the agentskills.io format). The default bundle is compiled into the
 //!   binary, so the deployed bundle is exactly the one of the build; `IGNIS_HARNESS_DIR` (read by
 //!   the host) loads a variant from a directory instead.
-//! - The tool section is generated from [`tool_catalog`], restricted to the tools the runtime is
-//!   actually attached to, so descriptions cannot drift from the contract.
+//! - The tool section is generated from the descriptors the tool host serves (the catalog with the
+//!   deployment's notes, e.g. the served model releases; [`HarnessShelf::tools_for`]), restricted
+//!   to the tools the runtime is actually attached to, so descriptions cannot drift from what the
+//!   MCP server lists.
 //! - Skills load on demand. Both runtimes run without a shell, file tools or the Skill tool
 //!   (`--tools ""`), so a skill on disk could be listed but never read; instead the prefix carries
 //!   a one-line skill index and the IGNIS tool `skills_read` serves a skill's full text from the
@@ -38,6 +40,7 @@ use std::sync::{Arc, RwLock};
 
 use ignis_core::contracts::{
     tool_catalog, Digest, EpisodeId, ExecutionScope, HarnessRef, RuntimeBuildId, SkillText,
+    ToolDescriptor,
 };
 use ignis_core::services::ServiceResult;
 
@@ -204,13 +207,20 @@ pub enum ToolDescriptions {
     Index,
 }
 
-/// The tool section: one entry per catalog tool the runtime is attached to, in name order.
-fn tool_section(tools: &[String], descriptions: ToolDescriptions) -> String {
-    let mut catalog: Vec<_> = tool_catalog()
+/// The catalog descriptors of the tools named `tools` (wire names; unknown names are left out).
+fn catalog_of(tools: &[String]) -> Vec<ToolDescriptor> {
+    tool_catalog()
         .into_iter()
         .filter(|t| tools.iter().any(|n| n == &t.name))
-        .collect();
+        .collect()
+}
+
+/// The tool section: one entry per tool the runtime is attached to, in name order, with the
+/// description the tool host serves.
+fn tool_section(tools: &[ToolDescriptor], descriptions: ToolDescriptions) -> String {
+    let mut catalog: Vec<&ToolDescriptor> = tools.iter().collect();
     catalog.sort_by(|a, b| a.name.cmp(&b.name));
+    catalog.dedup_by(|a, b| a.name == b.name);
     let mut out = String::from(
         "## IGNIS tools\n\nGenerated from the IGNIS tool catalog; these are the IGNIS tools attached to this runtime.\n",
     );
@@ -265,6 +275,18 @@ impl HarnessBundle {
         tools: &[String],
         descriptions: ToolDescriptions,
     ) -> Result<Self, String> {
+        Self::render_tools(label, source, &catalog_of(tools), descriptions)
+    }
+
+    /// [`Self::render_with`] over the descriptors the tool host serves (the catalog with the
+    /// deployment's notes, [`HarnessShelf::tools_for`]), so the prefix describes each tool exactly
+    /// as the MCP server lists it.
+    pub fn render_tools(
+        label: &str,
+        source: &HarnessSource,
+        tools: &[ToolDescriptor],
+        descriptions: ToolDescriptions,
+    ) -> Result<Self, String> {
         if label.trim().is_empty() {
             return Err("harness label is empty".into());
         }
@@ -281,7 +303,7 @@ impl HarnessBundle {
         if let Some(w) = skills.windows(2).find(|w| w[0].name == w[1].name) {
             return Err(format!("skill {} appears twice", w[0].name));
         }
-        let on_demand = !skills.is_empty() && tools.iter().any(|t| t == SKILLS_TOOL);
+        let on_demand = !skills.is_empty() && tools.iter().any(|t| t.name == SKILLS_TOOL);
         let mut text = investigator;
         text.push_str("\n\n");
         text.push_str(&tool_section(tools, descriptions));
@@ -322,7 +344,12 @@ impl HarnessBundle {
 
     /// [`Self::embedded`] with the tool section `descriptions` the runtime needs.
     pub fn embedded_with(tools: &[String], descriptions: ToolDescriptions) -> Self {
-        Self::render_with(
+        Self::embedded_tools(&catalog_of(tools), descriptions)
+    }
+
+    /// [`Self::embedded_with`] over the descriptors the tool host serves.
+    pub fn embedded_tools(tools: &[ToolDescriptor], descriptions: ToolDescriptions) -> Self {
+        Self::render_tools(
             EMBEDDED_LABEL,
             &HarnessSource::embedded(),
             tools,
@@ -393,13 +420,17 @@ pub(crate) fn short(label: &str, digest: &Digest) -> String {
 }
 
 /// The bundles a host rendered for its runtimes, by digest: where `skills_read` finds the skill
-/// texts of the bundle an episode is pinned to. Cheap to clone (shared).
+/// texts of the bundle an episode is pinned to. It also holds the tool descriptors the host serves,
+/// so a bundle's tool section is rendered from them. Cheap to clone (shared).
 #[derive(Clone, Default)]
-pub struct HarnessShelf(Arc<RwLock<Vec<HarnessBundle>>>);
+pub struct HarnessShelf {
+    bundles: Arc<RwLock<Vec<HarnessBundle>>>,
+    served: Arc<RwLock<Vec<ToolDescriptor>>>,
+}
 
 impl std::fmt::Debug for HarnessShelf {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let held = self.0.read().map(|v| v.len()).unwrap_or_default();
+        let held = self.bundles.read().map(|v| v.len()).unwrap_or_default();
         f.debug_struct("HarnessShelf")
             .field("bundles", &held)
             .finish()
@@ -407,22 +438,43 @@ impl std::fmt::Debug for HarnessShelf {
 }
 
 impl HarnessShelf {
+    /// The descriptors the tool host serves (the catalog with the deployment's notes).
+    pub fn set_tools(&self, tools: Vec<ToolDescriptor>) {
+        *self.served.write().unwrap_or_else(|e| e.into_inner()) = tools;
+    }
+
+    /// The descriptor of each tool named in `names` as the host serves it, or as the catalog
+    /// states it when the host set none for that name.
+    pub fn tools_for(&self, names: &[String]) -> Vec<ToolDescriptor> {
+        let served = self.served.read().unwrap_or_else(|e| e.into_inner());
+        catalog_of(names)
+            .into_iter()
+            .map(|d| {
+                served
+                    .iter()
+                    .find(|s| s.name == d.name)
+                    .cloned()
+                    .unwrap_or(d)
+            })
+            .collect()
+    }
+
     /// Hold `bundle` (once per digest); the last one added is the host's current bundle.
     pub fn add(&self, bundle: HarnessBundle) {
-        let mut v = self.0.write().unwrap_or_else(|e| e.into_inner());
+        let mut v = self.bundles.write().unwrap_or_else(|e| e.into_inner());
         v.retain(|b| b.digest != bundle.digest);
         v.push(bundle);
     }
 
     /// The bundle with this digest, when this host holds it.
     pub fn get(&self, digest: &Digest) -> Option<HarnessBundle> {
-        let v = self.0.read().unwrap_or_else(|e| e.into_inner());
+        let v = self.bundles.read().unwrap_or_else(|e| e.into_inner());
         v.iter().find(|b| &b.digest == digest).cloned()
     }
 
     /// The bundle added last (what a call outside an episode reads).
     pub fn current(&self) -> Option<HarnessBundle> {
-        let v = self.0.read().unwrap_or_else(|e| e.into_inner());
+        let v = self.bundles.read().unwrap_or_else(|e| e.into_inner());
         v.last().cloned()
     }
 }

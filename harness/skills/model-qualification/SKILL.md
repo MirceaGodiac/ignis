@@ -40,63 +40,65 @@ Typed conditions only: stored runs are refused, and a forecast needs `input.kind
 `input_hash` of a scenario a person admitted in the forecast lab (you cannot admit or assemble one).
 With such an `input_hash`, pick a target with `settings.target` (default the first); event targets
 need `settings.times_s` or `horizon_s`. Without one, answer from the release itself: name it, its
-required inputs (the served list), its scores below, and say a person can type the scenario in the
+required inputs (the served list), its card's scores, and say a person can type the scenario in the
 forecast lab; do not call `models_forecast` on a stored run of these releases.
 
-Scores in this skill are recorded by IGNIS (the served list and the authoring lane's reports), not
-returned by a tool in this episode: when you use one, say so ("score recorded by IGNIS") in an
-`interpretation` claim or in `limitations`, never as a cited claim. A forecast, a score or a run's
-outcome is never a `background` claim from your own knowledge. Lower is better; each is beside
-its baseline. Unless the row says otherwise it is from the investigation's test days, scored once on
-a frozen list; "held whole" means the whole investigation was kept from the author and scored once.
+Scores are the card's: `models_inspect` returns each served release's card with its `scores`
+(metric, value, baseline comparison and the document it is quoted from), `qualification.basis` and
+`limits`. They are recorded by IGNIS (the served list and the authoring lane's reports), not
+measured in this episode: when you use one, say so ("score recorded by IGNIS") in an
+`interpretation` claim or in `limitations`, never as a cited claim, and report a target whose
+score did not beat its baseline as such. A forecast, a score or a run's outcome is never a
+`background` claim from your own knowledge.
 
-| Model name | Investigation | Use it for | Recorded score against baseline |
-|---|---|---|---|
-| `bre.wsp` D3 | BRE (PSI-20) | target `lasts` only (`flame_end` is refused: it is not the model). Extinction by time h = 1 - lasts(h) / lasts(cutoff) | extinction 0.139 vs incidence 0.222 (95 cases) |
-| `cld.wsp` D1 | CLD Flame (PSI-21) | flame lost, radiometer level | 0.073 vs 0.102; 0.115 vs 0.144 (63 cases). D1 was chosen after the test run, where the newer law lost on timing |
-| `efield3.wsp` S1 | E-FIELD (PSI-22) | ion current, flame out in window | 0.319 µA vs space-charge 0.575 (788 levels); 0.055 vs 0.133 |
-| `bass5.wsp` S1 | BASS / BASS-II plastics and fabrics | kept burning (`flat_holds_*`, `holds_*`) and the quench speed (`quench_speed`, `flat_quench_speed`); typed after the final run with every partition seen; in-sample on all data; no held-out score exists for the quench speed | kept burning 0.048 vs 0.071 (42 burns, held, fabrics included); quench speed in-sample 0.114 / 0.108 / 0.126 cm/s vs constant 0.671 / 0.547 / 0.916 (train / validation / test, corrected coding) |
-| `slice2.wsp` S1 | SLICE (PSI-106) | blow-off, lifting = lift_noted x (past_lift - past_blow) / (1 - past_blow) | 31 test lines with no blow-off or lifting event: the test says little |
-| `spice.wsp` P3 | SPICE (PSI-107) | smoke-point length, flame length | 4.18 mm vs 10.3; 1.18 vs 2.56 (6 points); not blind to the published fit |
-| `samer.wsp` S1 | SAME-R (PSI-101) | particle diameter, detector at full scale | 0.167 vs 0.256; 0.014 vs 0.019 (33 rows) |
-| `same.wsp` W0 | SAME (PSI-102) | particle diameter, detector | held whole: 0.184 vs 0.192; 0.059 vs per-material 0.055 |
-| `daft.wsp` W0 | DAFT (PSI-47) | number concentration | held whole: 0.777 vs 2.678 |
+| Model name | Investigation | Use it for |
+|---|---|---|
+| `bre.wsp` D3 | BRE (PSI-20) | target `lasts` only (`flame_end` is refused: it is not the model). Extinction by time h = 1 - lasts(h) / lasts(cutoff) |
+| `cld.wsp` D1 | CLD Flame (PSI-21) | flame lost, radiometer level |
+| `efield3.wsp` S1 | E-FIELD (PSI-22) | ion current, flame out in window |
+| `bass5.wsp` S1 | BASS / BASS-II plastics and fabrics | kept burning (`flat_holds_*`, `holds_*`) and the quench speed (`quench_speed`, `flat_quench_speed`); typed after the final run with every partition seen (in-sample, no held-out score for the quench speed) |
+| `slice2.wsp` S1 | SLICE (PSI-106) | blow-off, lifting = lift_noted x (past_lift - past_blow) / (1 - past_blow) |
+| `spice.wsp` P3 | SPICE (PSI-107) | smoke-point length, flame length (not blind to the published fit) |
+| `samer.wsp` S1 | SAME-R (PSI-101) | particle diameter, detector at full scale |
+| `same.wsp` W0 | SAME (PSI-102) | particle diameter, detector |
+| `daft.wsp` W0 | DAFT (PSI-47) | number concentration |
 
 Transfers of the family releases: the n-heptane FLEX model covers FLEX-2 (PSI-68); the normal
-burner-flame F4 covers s-Flame: nitrogen flames as F3 (validation 0.205 vs incidence 0.279), helium
-and hydrogen answered in-sample (helium validation 0.111 vs 0.330; helium test days without ramped
-tests 0.242 vs 0.414, with them 0.708 vs 0.481; hydrogen train 0.314 vs 0.909); a hydrogen and
-methane blend is refused (no blend law) and a test whose flow is ramped after ignition is outside
-the model; the BASS front model covers Saffire I to III as blind transfers. A zero-shot n-dodecane
-model for CFI (PSI-39) exists but is not served. Report a target that did not beat its
-baseline as such.
+burner-flame F4 covers s-Flame (nitrogen flames as F3; helium and hydrogen answered in-sample); a
+hydrogen and methane blend is refused (no blend law) and a test whose flow is ramped after ignition
+is outside the model; the BASS front model covers Saffire I to III as blind transfers. A zero-shot
+n-dodecane model for CFI (PSI-39) exists but is not served.
 
 **Quench speed:** answered by `bass5.wsp`, but say it was typed after the final run with every
 partition seen (in-sample, no held-out score), and that below about 4 cm/s the recorded outcome is a
 fan setting, not a calibrated speed. Do not use `bass_front.wsp` for whether a fabric keeps burning,
-its quench or its ignition outcome (worse than a constant: 0.170 against 0.125); use it for the
-flame-tip position only, and `bass5.wsp` for kept burning.
+its quench or its ignition outcome (its card's quench score does not beat a constant); use it for
+the flame-tip position only, and `bass5.wsp` for kept burning.
 
 ## 2. Procedure
 
-1. `models_inspect` the release: read `applicability` (domain), `lineage_note` and the construction
+1. `models_inspect` the release: its card (title, `qualification.basis`, inputs, `scores`, `limits`)
+   and `applicability` (domain); `response_format: detailed` only when you need the construction
    manifest. Check the run's conditions lie in the domain before forecasting.
 2. `models_forecast` with `"schema_version": "wsp.v1"`, the `release_id` and `"input": {"kind":
    "stored_run", "run_id": ..., "cutoff_s": ...}`: `cutoff_s` is seconds after the run's time origin
    (the phase entry of the curated views; `datasets_inspect` states it). Pick a cutoff where the run
    is still burning and has several measurements before it. Use `input.kind = prefix` only with an
    `input_hash` a person admitted in the forecast lab; never assemble a prefix yourself.
-3. A quick forecast answers `completed` with its output; otherwise call `jobs_get` once (it waits
-   for the job) and again only while it is still running. Read the `AnalysisArtifact` with
-   `artifacts_read`. Check it before you state it: its release id, run, cutoff, `support.admitted`, units and time grid. To compare with data,
+3. A quick forecast answers `completed` with a summary of its `AnalysisArtifact`; otherwise call
+   `jobs_get` once (it waits for the job) and again only while it is still running. The summary
+   gives the release id, run, cutoff, `support` (admitted and reasons), unit, the median and band at
+   a few times and the `series` pointers; check them before you state them, and read the artifact
+   with `artifacts_read` only for a value beyond those points. To compare with data,
    read the run's measurements after the cutoff from its dataset view (an `analysis_execute`
    computing the error is a `computed` claim).
 4. List the release id in `model_releases` of `answer_submit`; claims from it are `predicted`.
-   A release your own successful `models_forecast` of this episode ran is accepted; you cannot
-   pin one yourself, and a release you did not run here must be pinned by the person.
+   A release your own successful `models_forecast` of this episode ran is accepted; one you only
+   inspected here is accepted for its `release_card` and for claims about the release, not for a
+   `predicted` claim. You cannot pin one yourself.
 5. Show it: a `release_card` view of the release, and a `series_comparison` view of the forecast
-   (its `AnalysisArtifact` as a series with `role` predicted, pointers such as `/times_s`, `/mean`,
-   `/unit`, `/time_origin`) against the observed series when you have one.
+   (the summary's `series`: `artifact_id`, `role` predicted, `time_pointer`, `value_pointer`,
+   `unit_pointer`, `time_origin_pointer` and `band`) against the observed series when you have one.
 
 ## 3. Refusals
 
@@ -119,9 +121,9 @@ valid cutoff for it; if the run itself is refused, that refusal is the answer.
 - Name the model in plain words first (its card title, e.g. "FLEX methanol droplet model"), then
   its model name, candidate and release id once. Say it is qualified and hand-written: an AI author
   model (the release's construction names it, e.g. Claude Fable 5.2) wrote every weight, nothing was
-  fitted; zero-shot or data-informed as listed. Qualified is the IGNIS serving state, resting on the
-  scores below; do not claim a NASA-STD-7009 credibility assessment or an independent technical
-  review.
+  fitted; zero-shot or data-informed as its card says. Qualified is the IGNIS serving state, resting
+  on the basis and scores its card states; do not claim a NASA-STD-7009 credibility assessment or an
+  independent technical review.
 - State the run id (or scenario input_hash), cutoff and input source of every forecast in the claim
   text.
 - Report each forecast as its median with the quantile band the artifact gives (e.g. 10 to 90 %),
@@ -129,15 +131,9 @@ valid cutoff for it; if the run itself is refused, that refusal is the answer.
   this forecast. Say how the band was obtained: the release's hand-written quantile law, not
   calibrated on held-out data unless a test score is listed.
 - Relay in `limitations` every warning or `support.reasons` entry of an admitted forecast and every
-  listed limit that applies (in-sample, typed after the final run, baseline not beaten), each with
+  card limit that applies (in-sample, typed after the final run, baseline not beaten), each with
   one line on how it changes the reading.
-- Development scores recorded by IGNIS (validation partitions read as aggregates, so development
-  numbers, not a test; state them as recorded, see section 1): methanol D3 CRPS 40.0 µm; heptane D2
-  46.1 µm; normal flames F4: its nitrogen ethane, propane, butane and ethylene forecasts are those of
-  F3 stage 1, integrated Brier 0.154 extinction / 0.096 flow termination on CFI-G validation without
-  the planned stop, methane in nitrogen 0.092 (validation days, sum); inverse flames F2 0.129 /
-  0.088; BASS D1 CRPS 0.117 sample widths, with a quench boundary that fails (0.170 against 0.125
-  for a constant).
+- State development scores as the card records them (section 1), each beside its baseline.
 - Limits to carry when relevant: droplet tracker artefacts are scored as data; burner-flame
   validation days are few and ethylene below 1900 K is refused; BASS scores are in sample widths and
   its quench law must not be read as an ignition forecast.

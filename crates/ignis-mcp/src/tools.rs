@@ -17,17 +17,19 @@
 //! A tool whose service is not configured is not registered at all, and is reported in capability
 //! status (see [`catalog`]); it never answers with a negative result.
 
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
-    Author, AuthorKind, Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef,
-    EpisodeId, ErrorCode, ErrorEnvelope, EvidenceRef, ExecutionRecord, ExecutionScope,
-    ExecutionStatus, ForecastRequest, GraphNeighborsRequest, GroundingMode, InlinePayload,
-    JobLookup, JobRef, Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef, ResponseFormat,
-    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
-    ToolsSchema, WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
+    Author, AuthorKind, Causation, ClientRequestId, ConditionKey, ConditionsQuery, DatasetRef,
+    EntityRef, EpisodeId, ErrorCode, ErrorEnvelope, EventBody, EvidenceRef, ExecutionRecord,
+    ExecutionScope, ExecutionStatus, ForecastInput, ForecastRequest, GraphNeighborsRequest,
+    GroundingMode, InlinePayload, JobId, JobLookup, JobRef, ModelCard, ModelRelease, Origin,
+    OutlineRequest, Producer, ReadRequest, ReleaseId, ReleaseRef, ResponseFormat, RetryPolicy,
+    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
+    WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
 };
 use ignis_core::contracts::{SkillRef, SkillText};
 use ignis_core::services::{
@@ -63,6 +65,15 @@ pub const FORECAST_JOB: &str = "models_forecast";
 
 /// Job kind of an isolated analysis run (the job runner hands it to the [`Sandbox`]).
 pub const ANALYSIS_JOB: &str = "analysis_execute";
+
+/// Contract of the artifact `models_inspect` stores in an episode: the release record the agent
+/// inspected. Its `artifact.created` event is how `answer_submit` knows the release was inspected
+/// here (a `release_card` of it is accepted without a forecast).
+pub const INSPECTED_RELEASE: &str = "ModelRelease";
+
+/// The page size `conditions_query` uses when a query ranks (`near`) or filters and names none:
+/// the rows an answer states, not the whole matching table (a view draws every row by artifact id).
+pub const CONDITIONS_COMPACT_PAGE: u32 = 25;
 
 /// Results larger than this (serialized) are stored as an artifact; the tool result carries a
 /// preview that points at it, so a model context never receives an unbounded payload.
@@ -222,6 +233,9 @@ pub struct ToolHost {
     registered: Vec<ToolDescriptor>,
     /// The harness bundles this host's runtimes were started with: what `skills_read` serves.
     harness: HarnessShelf,
+    /// The input of each forecast job this host queued, so its summary states the cutoff (the job
+    /// record keeps only its outputs). In memory: a job of another process is summarized without it.
+    forecasts: Mutex<HashMap<JobId, ForecastInput>>,
 }
 
 fn envelope(code: ErrorCode, msg: impl Into<String>) -> ErrorEnvelope {
@@ -247,22 +261,160 @@ fn refusal(code: ErrorCode) -> bool {
 /// Decode tool arguments; a failure names the JSON path of the offending field (`claims[0].kind`),
 /// so the model fixes that field instead of guessing where it belongs.
 fn decode<T: DeserializeOwned>(contract: &str, args: Value) -> ServiceResult<T> {
-    serde_path_to_error::deserialize(args).map_err(|e| {
-        let path = e.path().to_string();
-        let at = if path.is_empty() || path == "." {
-            "at the top level".to_string()
-        } else {
-            format!("at `{path}`")
-        };
-        envelope(
-            ErrorCode::InvalidRequest,
-            format!(
-                "arguments are not a valid {contract}: {at}: {}. The tool's input schema is the \
-                 {contract} contract; fix that field and call again.",
-                e.inner()
-            ),
-        )
-    })
+    // serde stops at the first error; an unknown field is set aside and the decode repeated, so
+    // one refusal lists every unknown field and the first other error, not one per call.
+    let mut work = args;
+    let mut problems: Vec<String> = Vec::new();
+    for _ in 0..64 {
+        match serde_path_to_error::deserialize::<_, T>(work.clone()) {
+            Ok(v) if problems.is_empty() => return Ok(v),
+            Ok(_) => break,
+            Err(e) => {
+                let path = e.path().to_string();
+                let at = if path.is_empty() || path == "." {
+                    "at the top level".to_string()
+                } else {
+                    format!("at `{path}`")
+                };
+                let inner = e.inner().to_string();
+                let hint = did_you_mean(&inner)
+                    .map(|s| format!(" (did you mean `{s}`?)"))
+                    .unwrap_or_default();
+                problems.push(format!("{at}: {inner}{hint}"));
+                let unknown = inner
+                    .strip_prefix("unknown field `")
+                    .and_then(|r| r.split('`').next())
+                    .map(str::to_string);
+                match unknown {
+                    Some(f) if remove_first_key(&mut work, &f) => continue,
+                    _ => break,
+                }
+            }
+        }
+    }
+    Err(envelope(
+        ErrorCode::InvalidRequest,
+        format!(
+            "arguments are not a valid {contract}: {}. The tool's input schema is the {contract} \
+             contract; fix {} and call again.",
+            problems.join("; "),
+            if problems.len() > 1 {
+                "all of them"
+            } else {
+                "that field"
+            }
+        ),
+    ))
+}
+
+/// Remove the first object key named `key` (depth first); whether one was found.
+fn remove_first_key(v: &mut Value, key: &str) -> bool {
+    match v {
+        Value::Object(o) => {
+            if o.remove(key).is_some() {
+                return true;
+            }
+            o.values_mut().any(|x| remove_first_key(x, key))
+        }
+        Value::Array(a) => a.iter_mut().any(|x| remove_first_key(x, key)),
+        _ => false,
+    }
+}
+
+/// For serde's "unknown field `x`, expected one of `a`, `b`" (or "unknown variant"), the valid
+/// name the model most likely meant: one that contains the unknown name or is contained in it
+/// (`time_origin` -> `time_origin_pointer`), else the nearest by edit distance when it is close.
+pub fn did_you_mean(message: &str) -> Option<String> {
+    let start = ["unknown field `", "unknown variant `"]
+        .iter()
+        .find_map(|m| message.find(m).map(|i| i + m.len()))?;
+    let rest = &message[start..];
+    let end = rest.find('`')?;
+    let unknown = rest[..end].to_lowercase();
+    let tail = &rest[end + 1..];
+    let expected = &tail[tail.find("expected")?..];
+    let candidates: Vec<&str> = expected.split('`').skip(1).step_by(2).collect();
+    if unknown.is_empty() || candidates.is_empty() {
+        return None;
+    }
+    let mut related: Vec<&str> = candidates
+        .iter()
+        .copied()
+        .filter(|c| c.contains(unknown.as_str()) || (c.len() >= 3 && unknown.contains(c)))
+        .collect();
+    if !related.is_empty() {
+        related.sort_by_key(|c| (c.len().abs_diff(unknown.len()), *c));
+        return Some(related[0].to_string());
+    }
+    let (best, d) = candidates
+        .iter()
+        .map(|c| (*c, levenshtein(&unknown, c)))
+        .min_by_key(|(c, d)| (*d, *c))?;
+    (d <= (unknown.chars().count() / 3).max(2)).then(|| best.to_string())
+}
+
+fn levenshtein(a: &str, b: &str) -> usize {
+    let b: Vec<char> = b.chars().collect();
+    let mut row: Vec<usize> = (0..=b.len()).collect();
+    for (i, ca) in a.chars().enumerate() {
+        let mut diag = row[0];
+        row[0] = i + 1;
+        for (j, cb) in b.iter().enumerate() {
+            let up = row[j + 1];
+            row[j + 1] = (diag + usize::from(ca != *cb)).min(up + 1).min(row[j] + 1);
+            diag = up;
+        }
+    }
+    row[b.len()]
+}
+
+/// A ranking (`near`) or filtering `conditions_query` that names no page size or keys gets the
+/// compact form: [`CONDITIONS_COMPACT_PAGE`] rows and the keys the query is about. Returns what was
+/// applied, for the result, or `None` when nothing was (the query named both, or neither ranks
+/// nor filters). Defaults only: `page_size`, `keys` and `next_cursor` reach everything.
+fn compact_conditions(q: &mut ConditionsQuery) -> Option<Value> {
+    if q.near.is_none() && q.filters.is_empty() {
+        return None;
+    }
+    let mut applied = serde_json::Map::new();
+    if q.page_size.is_none() {
+        q.page_size = Some(CONDITIONS_COMPACT_PAGE);
+        applied.insert("page_size".into(), json!(CONDITIONS_COMPACT_PAGE));
+    }
+    // Envelopes cover the requested keys only, so a query that asks for them keeps every key.
+    if q.keys.is_empty() && !q.include_envelopes {
+        let mut keys: Vec<ConditionKey> = Vec::new();
+        if q.near.is_some() {
+            keys.extend([
+                ConditionKey::OxygenMoleFraction,
+                ConditionKey::Pressure,
+                ConditionKey::Fuel,
+            ]);
+        }
+        for f in &q.filters {
+            if !keys.contains(&f.key) {
+                keys.push(f.key);
+            }
+        }
+        applied.insert("keys".into(), json!(keys));
+        q.keys = keys;
+    }
+    if applied.is_empty() {
+        return None;
+    }
+    applied.insert(
+        "note".into(),
+        json!("defaults of a ranking or filtering query; pass keys or page_size to change them (next_cursor pages on)"),
+    );
+    Some(Value::Object(applied))
+}
+
+/// What `artifacts_read` adds to a slice of a stored array: a view draws the rows by reference.
+fn slice_note(contract: Option<&str>) -> &'static str {
+    match contract {
+        Some("ConditionsTable") => "do not page through this table: an atmosphere_map or conditions_matrix view (`table`: this artifact_id) or a chart (`pointer` \"/rows\") names the artifact and the client draws every row; read only the rows you will state, or narrow conditions_query (run_ids, keys, filters, near, page_size) to get them",
+        _ => "do not page through the whole list: an artifact_table or chart view names this artifact_id and pointer and the client draws every item; read only the items you will state",
+    }
 }
 
 /// `concise` (the default) or `detailed`. It changes the size of each item, never which items
@@ -318,11 +470,14 @@ impl ToolHost {
         origin: Origin,
         wake_jobs: Arc<dyn Fn() + Send + Sync>,
     ) -> Self {
-        let registered = catalog(&services)
+        let registered: Vec<ToolDescriptor> = catalog(&services)
             .into_iter()
             .filter(|t| t.unavailable.is_none())
             .map(|t| t.descriptor)
             .collect();
+        // The runtime's prefix describes the tools exactly as this host serves them.
+        let harness = HarnessShelf::default();
+        harness.set_tools(registered.clone());
         ToolHost {
             services,
             store,
@@ -333,7 +488,8 @@ impl ToolHost {
             grounding: GroundingMode::default(),
             job_wait: JOB_WAIT,
             registered,
-            harness: HarnessShelf::default(),
+            harness,
+            forecasts: Mutex::new(HashMap::new()),
         }
     }
 
@@ -496,19 +652,42 @@ impl ToolHost {
                 value(self.datasets()?.dataset(scope, &req.dataset_id))
             }
             "conditions_query" => {
-                let q: ConditionsQuery = decode(contract, args)?;
+                let mut q: ConditionsQuery = decode(contract, args)?;
                 checked(q.validate())?;
+                let applied = compact_conditions(&mut q);
                 self.conditions_result(scope, episode, call_id, &q)
-                    .map(Outcome::Inline)
+                    .map(|mut p| {
+                        if let Some(a) = applied {
+                            p.value["defaults"] = a;
+                        }
+                        Outcome::Inline(p)
+                    })
             }
             "models_inspect" => {
                 let req: ReleaseRef = decode(contract, args)?;
-                value(self.models()?.release(scope, &req.release_id))
+                let models = self.models()?;
+                let release = models.release(scope, &req.release_id)?;
+                if let Some(ep) = episode {
+                    self.record_inspected(scope, ep, call_id, &req.release_id, &release);
+                }
+                if !concise(req.response_format) {
+                    return value(Ok(release));
+                }
+                // A deployment without cards still answers with the release's own fields.
+                let card = models
+                    .cards(scope)
+                    .ok()
+                    .and_then(|cs| cs.into_iter().find(|c| c.release_id == req.release_id));
+                Ok(Outcome::Value(release_view(
+                    &req.release_id,
+                    &release,
+                    card.as_ref(),
+                )))
             }
             "models_forecast" => {
                 let req: ForecastRequest = decode(contract, args)?;
                 self.models()?;
-                let job = self.submit_forecast(scope, &req, None, None, call_id)?;
+                let job = self.submit_forecast(scope, &req, episode.cloned(), None, call_id)?;
                 Ok(Outcome::Job(self.settle(scope, job)?))
             }
             "analysis_execute" => {
@@ -522,13 +701,22 @@ impl ToolHost {
                     self.artifacts.as_ref(),
                     self.services.datasets.as_deref(),
                 )?;
-                let job = self.submit_analysis(scope, &req, call_id)?;
+                let job = self.submit_analysis(scope, &req, episode.cloned(), call_id)?;
                 Ok(Outcome::Job(self.settle(scope, job)?))
             }
             "artifacts_read" => {
                 let req: ArtifactReadRequest = decode(contract, args)?;
-                ignis_research::artifacts::read_for_tool(self.artifacts.as_ref(), scope, &req)
-                    .map(Outcome::Inline)
+                ignis_research::artifacts::read_for_tool(self.artifacts.as_ref(), scope, &req).map(
+                    |mut p| {
+                        // A slice of a stored array (`items`, `next_item`): say how to show it
+                        // without reading it all.
+                        if p.value.get("next_item").is_some() && p.value.get("items").is_some() {
+                            let contract = p.full.as_ref().and_then(|a| a.contract.as_deref());
+                            p.value["note"] = json!(slice_note(contract));
+                        }
+                        Outcome::Inline(p)
+                    },
+                )
             }
             "jobs_get" => {
                 let req: JobLookup = decode(contract, args)?;
@@ -573,6 +761,9 @@ impl ToolHost {
                         if let Some(g) = &answer.grounding {
                             value["grounding"] = serde_json::to_value(g)
                                 .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))?;
+                            if !g.problems.is_empty() {
+                                value["note"] = json!("the answer is stored; its grounding problems are recorded with it for review: do not resubmit");
+                            }
                         }
                         Ok(Outcome::Stored { value, artifact })
                     }
@@ -621,6 +812,10 @@ impl ToolHost {
                 },
             },
         )?;
+        self.forecasts
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .insert(job.job_id.clone(), req.input.clone());
         (self.wake_jobs)();
         Ok(job)
     }
@@ -628,10 +823,13 @@ impl ToolHost {
     /// Queue an isolated analysis run. Idempotent on the request's `client_request_id`. Inputs are
     /// checked when the job runs, with the same scope (an artifact of another workspace is not
     /// found there).
+    /// `episode` attaches the job to the episode an agent's call is bound to, so its updates reach
+    /// that episode's log.
     pub fn submit_analysis(
         &self,
         scope: &ExecutionScope,
         req: &AnalysisExecuteRequest,
+        episode: Option<EpisodeId>,
         call_id: &ToolCallId,
     ) -> ServiceResult<JobRef> {
         let input =
@@ -641,7 +839,7 @@ impl ToolHost {
             NewJob {
                 kind: ANALYSIS_JOB.into(),
                 input,
-                episode_id: None,
+                episode_id: episode,
                 client_request_id: req.client_request_id.clone(),
                 // No effect outside its own artifacts: a lost lease re-runs it.
                 idempotent: true,
@@ -809,6 +1007,8 @@ impl ToolHost {
                         let mut r = base(ExecutionStatus::Completed, None);
                         if job.kind == ANALYSIS_JOB {
                             r.result = Some(self.analysis_summary(scope, &job));
+                        } else if job.kind == FORECAST_JOB {
+                            r.result = Some(self.forecast_summary(scope, &job));
                         }
                         r
                     }
@@ -823,7 +1023,18 @@ impl ToolHost {
                     )),
                     _ => base(ExecutionStatus::Accepted, None),
                 };
-                r.job = Some(job);
+                r.job = Some(if r.result.is_some() {
+                    // The summary carries what the agent needs; the job is its handle only. The
+                    // outputs stay referenced once, so the trail lists them.
+                    r.artifact_refs = job.outputs.clone();
+                    JobRef {
+                        outputs: vec![],
+                        progress: None,
+                        ..job
+                    }
+                } else {
+                    job
+                });
                 r
             }
             Ok(Outcome::Refused { error, artifact }) => {
@@ -1006,6 +1217,111 @@ impl ToolHost {
         }
     }
 
+    /// What a succeeded `models_forecast` job answers: the AnalysisArtifact's reference, the release,
+    /// run and cutoff it was run on, whether the forward admitted the input (and why not), the
+    /// median and band at a few times (or the event probabilities), and the pointers of a
+    /// `series_comparison` series over it, so the agent states and draws the forecast without
+    /// reading the artifact.
+    fn forecast_summary(&self, scope: &ExecutionScope, job: &JobRef) -> InlinePayload {
+        let inline = |value| InlinePayload {
+            value,
+            partial: false,
+            full: None,
+        };
+        let found = job
+            .outputs
+            .iter()
+            .find(|a| a.contract.as_deref() == Some("AnalysisArtifact"));
+        let read = found
+            .ok_or_else(|| "the job stored no AnalysisArtifact".to_string())
+            .and_then(|meta| {
+                ignis_research::artifacts::read_json_pointer(
+                    self.artifacts.as_ref(),
+                    scope,
+                    meta,
+                    "",
+                )
+                .map_err(|e| e.message)
+                .and_then(|p| {
+                    serde_json::from_value::<ignis_core::contracts::AnalysisArtifact>(p.value)
+                        .map_err(|e| e.to_string())
+                })
+                .map(|a| (meta, a))
+            });
+        let (meta, a) = match read {
+            Ok(x) => x,
+            Err(why) => {
+                return inline(json!({
+                    "outputs": job.outputs.iter().map(|o| json!(o.artifact_id)).collect::<Vec<_>>(),
+                    "note": format!("the forecast's AnalysisArtifact could not be read ({why}); read job.outputs with artifacts_read"),
+                }))
+            }
+        };
+        let input = self
+            .forecasts
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .get(&job.job_id)
+            .cloned();
+        inline(forecast_view(meta, &a, input.as_ref()))
+    }
+
+    /// Store the release record `models_inspect` returned in episode `ep` and log it there
+    /// (`artifact.created`), so `answer_submit` accepts a `release_card` of it. Best effort: a lost
+    /// record makes a later card of the release refused, never accepted.
+    fn record_inspected(
+        &self,
+        scope: &ExecutionScope,
+        ep: &EpisodeId,
+        call_id: &ToolCallId,
+        id: &ReleaseId,
+        release: &ModelRelease,
+    ) {
+        let recorded = serde_json::to_vec(release)
+            .map_err(|e| envelope(ErrorCode::Internal, e.to_string()))
+            .and_then(|bytes| {
+                self.artifacts.put(
+                    scope,
+                    ArtifactDraft {
+                        media_type: "application/json".into(),
+                        contract: Some(INSPECTED_RELEASE.into()),
+                        produced_by: Producer {
+                            episode_id: Some(ep.clone()),
+                            job_id: None,
+                            tool_call_id: Some(call_id.clone()),
+                            release_id: Some(id.clone()),
+                        },
+                        inputs: Vec::<EntityRef>::new(),
+                        origin: self.origin,
+                    },
+                    &mut bytes.as_slice(),
+                )
+            })
+            .and_then(|artifact| {
+                self.store.append(
+                    scope,
+                    ep,
+                    vec![(
+                        Causation {
+                            tool_call_id: Some(call_id.clone()),
+                            ..Default::default()
+                        },
+                        EventBody::ArtifactCreated { artifact },
+                    )],
+                )
+            });
+        match recorded {
+            Ok(events) => {
+                if let (Some(last), Some(hook)) = (events.last(), &self.on_commit) {
+                    hook(ep, last.seq);
+                }
+            }
+            Err(e) => {
+                tracing::warn!(episode = %ep, release = %id, error = %e.message, "inspected release not recorded")
+            }
+        }
+    }
+
     /// Small values travel inline; large ones become an artifact with a preview that says how to
     /// read the rest.
     fn inline_or_store(
@@ -1071,6 +1387,146 @@ impl ToolHost {
             full: Some(full),
         })
     }
+}
+
+/// The `concise` view of a served release for the agent: its card (what the deployment states:
+/// title, summary, qualification and its basis, inputs, scores, limits) and the release's
+/// applicability domain. The registry's internal construction state is left out (the card's
+/// `qualification` is the served state); `response_format: detailed` returns the whole record.
+fn release_view(id: &ReleaseId, release: &ModelRelease, card: Option<&ModelCard>) -> Value {
+    let mut v = json!({
+        "release_id": id,
+        "model_name": release.model_name,
+        "family": release.family,
+        "trained_on": release.trained_on,
+        "applicability": release.applicability,
+        "detailed": "response_format detailed returns the full release record (construction manifest, tensor index)",
+    });
+    match card.and_then(|c| serde_json::to_value(c).ok()) {
+        Some(Value::Object(mut c)) => {
+            for k in [
+                "schema_version",
+                "release_id",
+                "model_name",
+                "family",
+                "state",
+            ] {
+                c.remove(k);
+            }
+            v["card"] = Value::Object(c);
+        }
+        _ => {
+            if let Some(n) = &release.lineage_note {
+                v["lineage_note"] = json!(n);
+            }
+            v["note"] = json!("this deployment states no card for this release");
+        }
+    }
+    v
+}
+
+/// The summary of a forecast (see [`ToolHost::forecast_summary`]).
+fn forecast_view(
+    meta: &ArtifactRef,
+    a: &ignis_core::contracts::AnalysisArtifact,
+    input: Option<&ForecastInput>,
+) -> Value {
+    use ignis_core::contracts::QualificationState as Q;
+    let mut v = json!({
+        "analysis_artifact": meta.artifact_id,
+        "sha256": meta.sha256,
+        "release_id": a.model_release_id,
+        "run_id": a.run_id,
+        "time_origin": a.time_origin,
+        "support": {"admitted": a.support.admitted, "reasons": a.support.reasons},
+        "evidence_class": a.evidence_class,
+    });
+    match input {
+        Some(ForecastInput::StoredRun { cutoff_s, .. }) => v["cutoff_s"] = json!(cutoff_s),
+        Some(ForecastInput::Prefix { input_hash }) => v["input_hash"] = json!(input_hash),
+        None => {}
+    }
+    // A refusal's status is part of the finding; the construction state of an admitted forecast is not.
+    if matches!(
+        a.status,
+        Q::Unsupported | Q::InsufficientInference | Q::Failed
+    ) {
+        v["status"] = json!(a.status);
+    }
+    if let Some(q) = a.quantity {
+        v["quantity"] = json!(q);
+    }
+    if let Some(u) = &a.unit {
+        v["unit"] = json!(u);
+    }
+    let n = a.times_s.len();
+    // A few times across the horizon: first, quarter points and last.
+    let mut at: Vec<usize> = (0..5).map(|k| k * n.saturating_sub(1) / 4).collect();
+    at.dedup();
+    if n == 0 {
+        at.clear();
+    }
+    let levels = &a.quantile_levels;
+    if !levels.is_empty() {
+        let median = (0..levels.len())
+            .min_by(|i, j| {
+                (levels[*i] - 0.5)
+                    .abs()
+                    .total_cmp(&(levels[*j] - 0.5).abs())
+            })
+            .unwrap_or(0);
+        let (lo, hi) = (0, levels.len() - 1);
+        v["band"] = json!({"median_level": levels[median], "lower_level": levels[lo], "upper_level": levels[hi]});
+        v["forecast"] = json!(at
+            .iter()
+            .map(|&t| json!({
+                "t_s": a.times_s[t],
+                "median": a.quantiles[median][t],
+                "lower": a.quantiles[lo][t],
+                "upper": a.quantiles[hi][t],
+            }))
+            .collect::<Vec<_>>());
+        let value = if a.mean.is_empty() {
+            format!("/quantiles/{median}")
+        } else {
+            "/mean".to_string()
+        };
+        let mut series = json!({
+            "artifact_id": meta.artifact_id,
+            "role": "predicted",
+            "time_pointer": "/times_s",
+            "value_pointer": value,
+            "unit_pointer": "/unit",
+            "time_origin_pointer": "/time_origin",
+        });
+        if hi > lo {
+            series["band"] = json!({"lower_pointer": format!("/quantiles/{lo}"), "upper_pointer": format!("/quantiles/{hi}")});
+        }
+        v["series"] = series;
+    } else if !a.mean.is_empty() {
+        v["forecast"] = json!(at
+            .iter()
+            .map(|&t| json!({"t_s": a.times_s[t], "mean": a.mean[t]}))
+            .collect::<Vec<_>>());
+    }
+    if !a.event_categories.is_empty() {
+        v["events"] = json!(at
+            .iter()
+            .map(|&t| {
+                let p: serde_json::Map<String, Value> = a
+                    .event_categories
+                    .iter()
+                    .zip(&a.event_cdf)
+                    .map(|(c, row)| (c.clone(), json!(row[t])))
+                    .collect();
+                json!({"t_s": a.times_s[t], "probability_by": p})
+            })
+            .collect::<Vec<_>>());
+    }
+    v["how_to_read"] = json!(format!(
+        "{n} forecast times are in the AnalysisArtifact; a series_comparison view with `series` draws all of them. Read it with artifacts_read only for a value you state beyond these points."
+    ));
+    v
 }
 
 const HOW_TO_READ_STORED: &str = "the preview holds every small field whole and the first items of each long list (`cut` says how many of how many); the stored artifact is the full (detailed) result: read the rest with artifacts_read, this artifact_id and a json_pointer to an item (\"/rows/40\") or to a list with item_offset (\"/rows\", item_offset 40), or narrow the call (filters, a page_size) and call again";

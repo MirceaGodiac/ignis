@@ -32,7 +32,7 @@ use ignis_core::contracts::{
     Authorship, Capability, ControlStage, ErrorCode, ErrorEnvelope, EvidenceClass, ExecutionScope,
     Family, ForecastInput, ForecastRequest, Measured, ModelCard, ModelInput, ModelInputKind,
     ModelRelease, PrefixBundle, Qualification, RawValue, ReleaseId, ReportedScore, Resolution,
-    RetryPolicy, ScenarioAdmitted, ScenarioRequest, ScenarioValue, WspSchema,
+    RetryPolicy, RunId, ScenarioAdmitted, ScenarioRequest, ScenarioValue, WspSchema,
 };
 use ignis_core::hashing::{content_hash, hex_part};
 use ignis_core::prefix::ProspectivePolicy;
@@ -249,6 +249,15 @@ impl<S: PrefixSource> PrefixSource for ServedPrefixes<S> {
                 .ok_or_else(|| envelope(ErrorCode::NotFound, "scenario not admitted")),
             ForecastInput::StoredRun { .. } => self.stored.prefix(scope, release, policy, input),
         }
+    }
+
+    fn resolve_run(
+        &self,
+        scope: &ExecutionScope,
+        release: &ModelRelease,
+        run_id: &RunId,
+    ) -> ServiceResult<Option<RunId>> {
+        self.stored.resolve_run(scope, release, run_id)
     }
 }
 

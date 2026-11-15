@@ -207,14 +207,16 @@ pub fn runtime(
         Some(Prepared::Claude(_)) => ToolDescriptions::Index,
         _ => ToolDescriptions::Full,
     };
+    // Described as the tool host serves them (the served releases and their inputs included).
+    let served = shelf.tools_for(&attached);
     let bundle = match &pre.harness_dir {
-        None => Ok(HarnessBundle::embedded_with(&attached, descriptions)),
+        None => Ok(HarnessBundle::embedded_tools(&served, descriptions)),
         Some(dir) => HarnessSource::load(dir).and_then(|src| {
             let label = dir
                 .file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_else(|| "custom".into());
-            HarnessBundle::render_with(&label, &src, &attached, descriptions)
+            HarnessBundle::render_tools(&label, &src, &served, descriptions)
         }),
     };
     let bundle = match bundle {

@@ -20,10 +20,12 @@ description: Answer documentary questions from the IGNIS corpus with claims boun
   {"term": "radiative loss", "importance": "medium"}]`. Never put the answer you expect in a term.
   Terms the corpus does not hold are ignored silently (the page does not say which were kept): when
   hits stay off-topic, change the terms and the query.
-- Search hits are pointers, not proof. Open every hit you will rely on with `sources_read`
-  (`{"kind": "passage", "evidence_id": ...}`) to see the surrounding passage, table or caption;
-  follow `next` when it continues. For a long report, `sources_outline` shows which pages hold
-  results; read them, then search their wording with `filters.source_ids` to get the citable hit.
+- Cite the search hit directly when its snippet or quote holds the statement or the value: a hit
+  is the citable evidence, and `sources_read` adds no evidence id. Read (`{"kind": "passage",
+  "evidence_id": ...}`) only when the passage is cut off before what you need, or to check a
+  decisive number in context. For a long report, `sources_outline` shows which pages hold results;
+  search their wording with `filters.source_ids` to get the citable hit.
+- Show the decisive passage with a `source_excerpt` view (`evidence_id` of the hit).
 - An empty or short page does not prove the corpus lacks the information (`total_count` may be
   absent). Try other phrasings and filters, and say what you searched for before concluding that
   nothing was found.
@@ -31,10 +33,8 @@ description: Answer documentary questions from the IGNIS corpus with claims boun
   or runs of replacement characters), its parse view is damaged: do not quote, paraphrase or cite
   the damaged part. Cite only the readable lines, look for the same fact in another hit or source,
   and name the damaged page in `limitations`.
-- The lexical backend's lockbox note (outcome-bearing passages about runs of sealed partitions are
-  withheld) is a standing rule of the session, not a sign that this search lost a hit. When a
-  question about how runs ended finds no passage, say outcome passages about sealed-partition runs
-  are withheld in this session, not that no source reports it, and answer from the rest.
+- A lockbox note in the lexical backend's detail is the session's standing rule (see "Lockbox" in
+  your instructions), not a lost hit.
 - A backend reported `unavailable` in `backends` means the search was degraded; say so.
 
 ## 2. Bind every statement
@@ -42,7 +42,7 @@ description: Answer documentary questions from the IGNIS corpus with claims boun
 - One claim per checkable statement. `source_reports` for "source X reports ...", `observed` for a
   measured value with its evidence. What a hit carries is grounded, even when you also knew it:
   prefer it over a `background` claim. Cite the `evidence_id` of the sources_search hit whose passage
-  contains it (read segments carry no evidence id).
+  contains it.
 - Keep numbers exactly as the source states them, with the source's unit, and bind each in the
   claim's `values` as `{"value": 3.05, "unit": "mm", "source": {"kind": "evidence_quote",
   "evidence_id": ...}}`: the host checks the number and unit are written in that hit's own passage,

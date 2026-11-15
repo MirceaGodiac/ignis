@@ -23,14 +23,14 @@
   "description": "`web_fetch`: fetch one URL into a snapshot. The host applies the SSRF policy (schemes, DNS/IP\nafter redirects, no private, link-local or metadata addresses); the contract only admits http(s).",
   "properties": {
     "schema_version": {
-      "$ref": "#/$defs/EvidenceSchema"
+      "$ref": "#/$defs/EvidenceSchema",
+      "default": "evidence.v2"
     },
     "url": {
       "type": "string"
     }
   },
   "required": [
-    "schema_version",
     "url"
   ],
   "title": "WebFetchRequest",
