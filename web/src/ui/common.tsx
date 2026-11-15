@@ -65,7 +65,16 @@ export function ErrorNote({ error, title }: { error: unknown; title?: string }) 
         {error instanceof ApiError && error.httpStatus != null && <span className="muted">HTTP {error.httpStatus}</span>}
       </b>
       <p>{env ? env.message : String(error)}</p>
-      {env && <p className="muted">{retryText(env)}</p>}
+      {staleSignIn(error) ? (
+        <p>
+          Your sign-in is no longer accepted by the server (it may predate a key rotation).{" "}
+          <a className="btn btn-s" href="/cdn-cgi/access/logout">
+            Sign in again
+          </a>
+        </p>
+      ) : (
+        env && <p className="muted">{retryText(env)}</p>
+      )}
     </div>
   );
 }
@@ -134,4 +143,11 @@ export const isQualified = (state: string | null | undefined) => !!state && QUAL
 export function ReleaseState({ state }: { state: string | null | undefined }) {
   const s = state ?? "unknown";
   return <span className={`tag ${isQualified(s) ? "tag-ok" : "tag-warn"}`}>{isQualified(s) ? words(s) : `${words(s)} · not qualified`}</span>;
+}
+
+/** A 401 from the origin's Access check (behind Cloudflare Access): the browser holds a session the
+ * edge accepts but the origin cannot verify (expired, or signed before a key rotation). Signing out
+ * of Access and in again issues a fresh assertion; retrying the same request cannot. */
+export function staleSignIn(error: unknown): boolean {
+  return error instanceof ApiError && error.httpStatus === 401 && error.envelope.code === "scope_denied" && /not authenticated/i.test(error.envelope.message);
 }
