@@ -6,7 +6,8 @@ use std::sync::Arc;
 
 use ignis_core::contracts::{
     EpisodeId, ErrorCode, ErrorEnvelope, EventBody, ExecutionScope, ExecutionStatus, InlinePayload,
-    Origin, Producer, RetryPolicy, ScientificStatus, ToolCallId, ToolResult, ToolsSchema,
+    Origin, Producer, RetryPolicy, ScientificStatus, ToolArguments, ToolCallId, ToolResult,
+    ToolsSchema,
 };
 use ignis_core::services::{ArtifactDraft, ArtifactStore, ServiceResult};
 use serde_json::{json, Value};
@@ -18,6 +19,78 @@ use crate::ResearchStore;
 
 /// Tool results larger than this (serialized) go to an artifact; the event keeps a reference.
 pub(super) const INLINE_MAX: usize = 64 * 1024;
+
+/// Strings longer than this are cut in the preview of archived arguments (the artifact keeps them).
+const PREVIEW_STRING_BYTES: usize = 2 * 1024;
+
+/// Member names whose values are credentials, never written to the log. IGNIS tools take no
+/// credentials (scope is host-derived), so such a member can only come from another server or a
+/// confused model; its value is dropped and its pointer listed as redacted.
+fn secret_like(key: &str) -> bool {
+    let k = key.to_ascii_lowercase().replace(['-', '_'], "");
+    [
+        "authorization",
+        "password",
+        "passwd",
+        "secret",
+        "token",
+        "apikey",
+        "cookie",
+        "credential",
+        "privatekey",
+    ]
+    .iter()
+    .any(|s| k.contains(s))
+}
+
+fn pointer_segment(key: &str) -> String {
+    key.replace('~', "~0").replace('/', "~1")
+}
+
+/// Remove secret-like members (at any depth), returning their JSON Pointers.
+fn redact(v: &mut Value, at: &str, out: &mut Vec<String>) {
+    match v {
+        Value::Object(o) => {
+            let keys: Vec<String> = o.keys().cloned().collect();
+            for k in keys {
+                let p = format!("{at}/{}", pointer_segment(&k));
+                if secret_like(&k) {
+                    o.remove(&k);
+                    out.push(p);
+                } else if let Some(x) = o.get_mut(&k) {
+                    redact(x, &p, out);
+                }
+            }
+        }
+        Value::Array(a) => {
+            for (i, x) in a.iter_mut().enumerate() {
+                redact(x, &format!("{at}/{i}"), out);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// The same shape with long strings cut (marked with their full length); the full value is in the
+/// artifact the preview points at.
+fn preview(v: &Value) -> Value {
+    match v {
+        Value::String(s) if s.len() > PREVIEW_STRING_BYTES => {
+            let mut end = PREVIEW_STRING_BYTES;
+            while !s.is_char_boundary(end) {
+                end -= 1;
+            }
+            Value::String(format!(
+                "{}… [{} bytes in the artifact]",
+                &s[..end],
+                s.len()
+            ))
+        }
+        Value::Object(o) => Value::Object(o.iter().map(|(k, x)| (k.clone(), preview(x))).collect()),
+        Value::Array(a) => Value::Array(a.iter().map(preview).collect()),
+        other => other.clone(),
+    }
+}
 
 /// The IGNIS `ToolResult` in an MCP call result: its structured content, or the JSON text of a
 /// content block (clients that only keep text content).
@@ -60,6 +133,42 @@ impl Recorder {
             },
             &mut bytes.as_slice(),
         )
+    }
+
+    /// The arguments of a started call as the log shows them: secret-like members redacted, and
+    /// arguments larger than [`INLINE_MAX`] archived whole (after redaction) behind a partial
+    /// preview. A runtime that sends arguments as a JSON string gets them parsed.
+    pub(super) fn tool_arguments(
+        &self,
+        scope: &ExecutionScope,
+        ep: &EpisodeId,
+        origin: Origin,
+        arguments: Value,
+    ) -> ServiceResult<ToolArguments> {
+        let mut v = match arguments {
+            Value::String(s) => serde_json::from_str(&s).unwrap_or(Value::String(s)),
+            other => other,
+        };
+        let mut redacted = vec![];
+        redact(&mut v, "", &mut redacted);
+        let size = serde_json::to_vec(&v).map_or(0, |b| b.len());
+        let value = if size > INLINE_MAX {
+            let full = self.archive(scope, ep, origin, &v)?;
+            InlinePayload {
+                value: preview(&v),
+                partial: true,
+                full: Some(full),
+            }
+        } else {
+            InlinePayload {
+                value: v,
+                partial: false,
+                full: None,
+            }
+        };
+        let a = ToolArguments { value, redacted };
+        a.validate().map_err(ErrorEnvelope::from)?;
+        Ok(a)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -195,6 +304,35 @@ impl Recorder {
                         mark,
                         causation,
                         change: RuntimeChange::Event(EventBody::RuntimeOpaque { method, payload }),
+                    });
+                }
+                Mapped::ToolStarted {
+                    call_id,
+                    tool,
+                    arguments,
+                    causation,
+                    mark,
+                } => {
+                    // Seen again (item/completed after item/started, or a replay): already logged,
+                    // and its arguments already archived.
+                    if self.store.runtime_marked(ep, &mark).unwrap_or(false) {
+                        continue;
+                    }
+                    let arguments = arguments.and_then(|a| {
+                        self.tool_arguments(scope, ep, origin, a)
+                            .map_err(|e| {
+                                tracing::warn!(error = %e, %tool, "tool arguments not recorded");
+                            })
+                            .ok()
+                    });
+                    records.push(RuntimeRecord {
+                        mark: Some(mark),
+                        causation,
+                        change: RuntimeChange::Event(EventBody::ToolStarted {
+                            call_id,
+                            tool,
+                            arguments,
+                        }),
                     });
                 }
                 Mapped::ToolFinished {

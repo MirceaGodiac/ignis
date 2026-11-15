@@ -8,7 +8,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use ignis_core::contracts::*;
-use ignis_core::services::{KnowledgeService, ModelService, ServiceResult};
+use ignis_core::services::{DatasetService, KnowledgeService, ModelService, ServiceResult};
 use ignis_mcp::{ToolHost, ToolServices};
 use ignis_research::{LocalArtifactStore, ResearchStore};
 use serde::de::DeserializeOwned;
@@ -60,6 +60,29 @@ impl KnowledgeService for FakeKnowledge {
     }
 }
 
+/// Datasets and conditions from the C0/K1 fixtures; records the queries it answered.
+#[derive(Default)]
+pub struct FakeDatasets {
+    pub queries: Mutex<Vec<(ExecutionScope, ConditionsQuery)>>,
+}
+
+impl DatasetService for FakeDatasets {
+    fn dataset(&self, _: &ExecutionScope, _: &DatasetId) -> ServiceResult<DatasetBundle> {
+        Ok(fixture("data/dataset_bundle.json"))
+    }
+    fn conditions(
+        &self,
+        scope: &ExecutionScope,
+        q: &ConditionsQuery,
+    ) -> ServiceResult<ConditionsTable> {
+        self.queries
+            .lock()
+            .unwrap()
+            .push((scope.clone(), q.clone()));
+        Ok(fixture("data/conditions_table.json"))
+    }
+}
+
 pub struct FakeModels;
 
 impl ModelService for FakeModels {
@@ -99,6 +122,18 @@ pub fn host() -> Host {
 
 /// [`host`] with an analysis runner (a sandbox that passed preflight).
 pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host {
+    host_full(sandbox, None)
+}
+
+/// [`host`] with a DatasetService.
+pub fn host_with_datasets(datasets: Arc<FakeDatasets>) -> Host {
+    host_full(None, Some(datasets))
+}
+
+fn host_full(
+    sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>,
+    datasets: Option<Arc<FakeDatasets>>,
+) -> Host {
     let dir = tempfile::tempdir().unwrap();
     let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
     let artifacts = Arc::new(LocalArtifactStore::open(dir.path().join("artifacts")).unwrap());
@@ -108,10 +143,11 @@ pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host
     let host = Arc::new(ToolHost::new(
         ToolServices {
             knowledge: Some(knowledge.clone()),
-            datasets: None,
+            datasets: datasets.map(|d| d as Arc<dyn DatasetService>),
             models: Some(Arc::new(FakeModels)),
             sandbox,
             models_disabled: false,
+            conditions: true,
         },
         store.clone(),
         artifacts.clone(),

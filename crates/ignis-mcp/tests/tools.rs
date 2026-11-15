@@ -45,6 +45,45 @@ fn every_catalog_input_has_an_inlined_object_schema() {
     }
 }
 
+/// Presence lint over every catalog description (not prose quality), after the smell taxonomies of
+/// Hasan et al. (arXiv 2602.14878) and Wang et al. (arXiv 2602.18914): states its usage (when to
+/// use it, or what to use instead), a limitation (what it never returns, paging, refusal,
+/// partial results), and names at least one of its own arguments as `name`; never repeats its
+/// own tool name; no few-shot examples (a description documents, Hsieh et al. arXiv 2308.00675).
+#[test]
+fn every_tool_description_states_usage_limits_and_arguments() {
+    let usage = ["Use ", "use "];
+    let limits = [
+        "never", "not ", "refused", "partial", "Paged", "paged", "only", "withheld",
+    ];
+    for t in tool_catalog() {
+        let d = &t.summary;
+        let n = &t.name;
+        assert!(!d.contains(n.as_str()), "{n}: repeats its own name");
+        assert!(
+            usage.iter().any(|u| d.contains(u)),
+            "{n}: no usage guideline"
+        );
+        assert!(
+            limits.iter().any(|l| d.contains(l)),
+            "{n}: no stated limitation"
+        );
+        assert!(
+            !d.contains("Example") && !d.contains("e.g. {"),
+            "{n}: few-shot example in the description"
+        );
+        let schema = input_schema(&t.input_contract).unwrap();
+        let args: Vec<&String> = schema["properties"]
+            .as_object()
+            .map(|o| o.keys().filter(|k| *k != "schema_version").collect())
+            .unwrap_or_default();
+        assert!(
+            args.iter().any(|a| d.contains(&format!("`{a}`"))),
+            "{n}: names none of its arguments {args:?}"
+        );
+    }
+}
+
 #[test]
 fn only_tools_with_a_configured_service_are_registered() {
     let h = host();
@@ -101,6 +140,108 @@ fn the_service_receives_the_host_scope_and_returns_its_contract() {
     let page: SearchPage = serde_json::from_value(r.result.unwrap().value).unwrap();
     page.validate().unwrap();
     assert_eq!(h.knowledge.calls.lock().unwrap().as_slice(), &[s]);
+}
+
+#[test]
+fn search_results_are_concise_by_default_and_detailed_on_request() {
+    let h = host();
+    let s = scope("ws_a");
+    let scores = |r: ToolResult| -> Vec<usize> {
+        ok(&r);
+        let page: SearchPage = serde_json::from_value(r.result.unwrap().value).unwrap();
+        page.validate().unwrap();
+        page.hits.iter().map(|h| h.scores.len()).collect()
+    };
+    // The same hits in the same order either way; only the per-hit size changes.
+    let concise = scores(h.host.call(&s, "sources_search", search_args()));
+    assert!(!concise.is_empty() && concise.iter().all(|n| *n == 0));
+    let mut detailed = search_args();
+    detailed["schema_version"] = json!("evidence.v2");
+    detailed["response_format"] = json!("detailed");
+    let detailed = scores(h.host.call(&s, "sources_search", detailed));
+    assert_eq!(detailed.len(), concise.len());
+    assert!(detailed.iter().any(|n| *n > 0));
+    // A v2 field under the v1 tag is refused with what to change.
+    let mut v1 = search_args();
+    v1["response_format"] = json!("detailed");
+    let r = h.host.call(&s, "sources_search", v1);
+    refused(&r, ErrorCode::InvalidRequest);
+    assert!(r.error.unwrap().message.contains("evidence.v2"));
+}
+
+#[test]
+fn conditions_query_is_a_thin_adapter_over_the_dataset_service() {
+    let datasets = std::sync::Arc::new(FakeDatasets::default());
+    let h = host_with_datasets(datasets.clone());
+    let s = scope("ws_a");
+    assert!(h
+        .host
+        .registered()
+        .iter()
+        .any(|d| d.name == "conditions_query"));
+    let r = h.host.call(
+        &s,
+        "conditions_query",
+        json!({"schema_version": "dataset.v2", "include_envelopes": true}),
+    );
+    ok(&r);
+    let table: ConditionsTable = serde_json::from_value(r.result.unwrap().value).unwrap();
+    table.validate().unwrap();
+    let q = datasets.queries.lock().unwrap().clone();
+    assert_eq!(q.len(), 1);
+    assert_eq!(q[0].0, s, "the host scope reaches the service");
+    assert!(q[0].1.include_envelopes);
+    // Invalid queries are refused before the service runs; so is a scope without read_data.
+    let r = h.host.call(
+        &s,
+        "conditions_query",
+        json!({"schema_version": "dataset.v2", "page_size": 0}),
+    );
+    refused(&r, ErrorCode::InvalidRequest);
+    let mut no_data = s.clone();
+    no_data.capabilities.remove(&Capability::ReadData);
+    let r = h.host.call(
+        &no_data,
+        "conditions_query",
+        json!({"schema_version": "dataset.v2"}),
+    );
+    refused(&r, ErrorCode::ScopeDenied);
+    assert_eq!(datasets.queries.lock().unwrap().len(), 1);
+    // Datasets present but the conditions table not built: not registered, and status says why.
+    let services = ignis_mcp::ToolServices {
+        datasets: Some(datasets.clone()),
+        conditions: false,
+        ..Default::default()
+    };
+    let why = ignis_mcp::catalog(&services)
+        .into_iter()
+        .find(|t| t.descriptor.name == "conditions_query")
+        .and_then(|t| t.unavailable);
+    assert_eq!(why, Some(ignis_mcp::CONDITIONS_NOT_BUILT));
+}
+
+#[test]
+fn errors_say_what_to_do_next() {
+    let h = host();
+    let r = h.host.call(&scope("ws_a"), "sources_serach", json!({}));
+    refused(&r, ErrorCode::NotFound);
+    assert!(r.error.unwrap().message.contains("sources_search"));
+    let r = h
+        .host
+        .call(&scope("ws_a"), "sources_search", json!({"query": "x"}));
+    refused(&r, ErrorCode::InvalidRequest);
+    let m = r.error.unwrap().message;
+    assert!(
+        m.contains("schema_version") && m.contains("SearchRequest"),
+        "{m}"
+    );
+    // A closed value that is not permitted is refused with the permitted values.
+    let mut args = search_args();
+    args["mode"] = json!("fuzzy");
+    let r = h.host.call(&scope("ws_a"), "sources_search", args);
+    refused(&r, ErrorCode::InvalidRequest);
+    let m = r.error.unwrap().message;
+    assert!(m.contains("hybrid") && m.contains("lexical"), "{m}");
 }
 
 #[test]
