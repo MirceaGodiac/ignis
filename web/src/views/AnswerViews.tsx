@@ -21,7 +21,8 @@ import { ContourVideo } from "../shell/ContourVideo";
 import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
 import { useReleases } from "../shell/queries";
-import { ErrorNote, EvidenceClassTag, ReleaseState, shortId, words } from "../ui/common";
+import { ErrorNote, EvidenceClassTag, Qualified, shortId } from "../ui/common";
+import { headlineScore, modelTitle, scoreParts, useServedCard, writtenBy } from "../shell/models";
 import { ConditionsMatrix } from "./Conditions";
 
 const KIND_TITLE: Record<ViewSpec["kind"], string> = {
@@ -170,24 +171,34 @@ function BundleArtifact({ id, sourceId, client }: { id: string; sourceId: string
 function ReleaseCard({ id }: { id: string }) {
   const panel = usePanel();
   const releases = useReleases();
+  const card = useServedCard(id);
   const r = releases.data?.find((x) => x.id === id);
-  if (releases.isPending) return <p className="muted small view-wait">Reading the model registry…</p>;
-  if (!r) return <p className="note note-gap small">Release {shortId(id, 22)} is not in this server's model registry.</p>;
+  if (releases.isPending) return <p className="muted small view-wait">Reading the model…</p>;
+  if (!r) return <p className="note note-gap small">{card ? card.title : "This model"} is not served here.</p>;
+  const score = headlineScore(card);
+  const parts = score && scoreParts(score);
   return (
     <div className="release-card">
       <span className="release-glyph" aria-hidden="true">
         <span className="glyph g-predicted" />
       </span>
       <span className="release-t">
-        <b>{r.model_name}</b>
-        <span>
-          {words(r.trained_on)} · {r.construction ? words(r.construction.construction_method) : "no build manifest"}
+        <span className="release-name">
+          <b>{modelTitle(r.model_name, card)}</b>
+          <Qualified basis={card?.qualification.basis} />
         </span>
-        <code title={r.id}>{shortId(r.id, 28)}</code>
+        {card && <span className="release-sum">{card.summary}</span>}
+        <span className="release-meta">
+          <span>{writtenBy(r)}</span>
+          {score && parts && (
+            <span title={score.metric}>
+              <b className="num">{parts.value}</b> vs {parts.vs}
+            </span>
+          )}
+        </span>
       </span>
-      <ReleaseState state={r.state} />
       <button className="btn btn-s" onClick={() => panel.open({ kind: "release", release: r })}>
-        Construction and checks
+        About this model
       </button>
     </div>
   );

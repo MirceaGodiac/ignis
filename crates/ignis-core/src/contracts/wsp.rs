@@ -837,6 +837,24 @@ pub enum Authorship {
     DataInformed,
 }
 
+/// How the deployment presents a served release. The release record keeps its registry state
+/// (`experimental` for every literal release, part of its content-addressed id); serving a release
+/// is the deployment's statement that it is qualified for use, on the basis the card names.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ServedState {
+    Qualified,
+}
+
+/// The served state of a release and what it rests on.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct Qualification {
+    pub state: ServedState,
+    /// What it was scored on, in one short line, e.g. "Scored on held-out FLEX validation tests".
+    pub basis: String,
+}
+
 /// Where a forecast input comes from.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -899,6 +917,12 @@ pub struct ModelCard {
     pub schema_version: WspSchema,
     pub release_id: ReleaseId,
     pub model_name: String,
+    /// The model's name in plain words, e.g. "FLEX methanol droplet model".
+    pub title: String,
+    /// What it forecasts, in one plain line (no field names).
+    pub summary: String,
+    /// The served state the UI and the agent state (see [`Qualification`]).
+    pub qualification: Qualification,
     pub family: Family,
     /// NASA investigation(s) the release is written for, e.g. "FLEX (PSI-69)".
     pub investigation: String,

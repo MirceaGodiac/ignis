@@ -96,6 +96,24 @@
         }
       ]
     },
+    "Qualification": {
+      "additionalProperties": false,
+      "description": "The served state of a release and what it rests on.",
+      "properties": {
+        "basis": {
+          "description": "What it was scored on, in one short line, e.g. \"Scored on held-out FLEX validation tests\".",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ServedState"
+        }
+      },
+      "required": [
+        "state",
+        "basis"
+      ],
+      "type": "object"
+    },
     "QualificationState": {
       "oneOf": [
         {
@@ -154,6 +172,13 @@
         "source"
       ],
       "type": "object"
+    },
+    "ServedState": {
+      "description": "How the deployment presents a served release. The release record keeps its registry state\n(`experimental` for every literal release, part of its content-addressed id); serving a release\nis the deployment's statement that it is qualified for use, on the basis the card names.",
+      "enum": [
+        "qualified"
+      ],
+      "type": "string"
     },
     "TrainedOn": {
       "description": "What data conventionally trained the release's parameters. There is deliberately no default:\nschema 2.0.0 defaulted to `nasa`, which labels any release that omits the field (a handwritten\none, say) as NASA-trained. Writers must state it. Legacy files without the field are read by\n[`crate::registry::parse_release`] with their old meaning, and only when they carry no\n`construction` record.",
@@ -238,6 +263,10 @@
     "model_name": {
       "type": "string"
     },
+    "qualification": {
+      "$ref": "#/$defs/Qualification",
+      "description": "The served state the UI and the agent state (see [`Qualification`])."
+    },
     "release_id": {
       "$ref": "#/$defs/ReleaseId"
     },
@@ -258,6 +287,14 @@
       "description": "Whether this deployment builds its prefix from a stored NASA run.",
       "type": "boolean"
     },
+    "summary": {
+      "description": "What it forecasts, in one plain line (no field names).",
+      "type": "string"
+    },
+    "title": {
+      "description": "The model's name in plain words, e.g. \"FLEX methanol droplet model\".",
+      "type": "string"
+    },
     "trained_on": {
       "$ref": "#/$defs/TrainedOn",
       "description": "Copied from the release record: `not_trained` for a literal release."
@@ -267,6 +304,9 @@
     "schema_version",
     "release_id",
     "model_name",
+    "title",
+    "summary",
+    "qualification",
     "family",
     "investigation",
     "candidate",

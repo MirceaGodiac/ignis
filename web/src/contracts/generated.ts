@@ -1540,6 +1540,15 @@ export type Authorship = "zero_shot" | "data_informed";
  */
 export type ModelInputKind = "condition" | "control" | "observation" | "test_date" | "phase_start";
 /**
+ * How the deployment presents a served release. The release record keeps its registry state
+ * (`experimental` for every literal release, part of its content-addressed id); serving a release
+ * is the deployment's statement that it is qualified for use, on the basis the card names.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ServedState".
+ */
+export type ServedState = "qualified";
+/**
  * Copied from the release record: `experimental` for a literal release.
  */
 export type QualificationState2 =
@@ -4970,6 +4979,7 @@ export interface ModelCard {
   investigation: string;
   limits: string[];
   model_name: string;
+  qualification: Qualification;
   release_id: ReleaseId;
   schema_version: WspSchema;
   scores: ReportedScore[];
@@ -4978,6 +4988,14 @@ export interface ModelCard {
    * Whether this deployment builds its prefix from a stored NASA run.
    */
   stored_runs: boolean;
+  /**
+   * What it forecasts, in one plain line (no field names).
+   */
+  summary: string;
+  /**
+   * The model's name in plain words, e.g. "FLEX methanol droplet model".
+   */
+  title: string;
   trained_on: TrainedOn1;
 }
 /**
@@ -5014,6 +5032,16 @@ export interface ModelInput {
    * SI unit of the value (`1` for dimensionless and text values).
    */
   unit_si: string;
+}
+/**
+ * The served state the UI and the agent state (see [`Qualification`]).
+ */
+export interface Qualification {
+  /**
+   * What it was scored on, in one short line, e.g. "Scored on held-out FLEX validation tests".
+   */
+  basis: string;
+  state: ServedState;
 }
 /**
  * A score as the authoring lane reported it, with where it was reported. Development numbers
@@ -5665,6 +5693,19 @@ export interface ForecastSettings2 {
    * time grid so that event metrics compare like with like.
    */
   times_s?: number[] | null;
+}
+/**
+ * The served state of a release and what it rests on.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "Qualification".
+ */
+export interface Qualification1 {
+  /**
+   * What it was scored on, in one short line, e.g. "Scored on held-out FLEX validation tests".
+   */
+  basis: string;
+  state: ServedState;
 }
 
 export const SCHEMA_VERSION = "2.1.0";

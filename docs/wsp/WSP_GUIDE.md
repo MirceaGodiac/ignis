@@ -644,6 +644,8 @@ list, never from a request.
 | Field | Meaning |
 |---|---|
 | `release_id`, `model_name`, `family` | identity (checked against the record at startup) |
+| `title`, `summary` | the model's name in plain words ("FLEX methanol droplet model") and what it forecasts in one plain line; the UI leads with these |
+| `qualification` | `{state: "qualified", basis}`: the served state the UI and the agent state, and what it was scored on in one line. The record keeps `state = experimental` (part of its id); serving the release is the deployment's qualification |
 | `investigation` | e.g. "FLEX (PSI-69), methanol droplets" |
 | `candidate` | the lane's name (D3, F2, ...) |
 | `forecasts` | what it forecasts, in one sentence |

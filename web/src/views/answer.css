@@ -73,15 +73,18 @@ figure.view-block > .view-cap { display: flex; flex-wrap: wrap; align-items: bas
 .view-meta .btn { margin-left: auto; }
 
 /* release_card */
-.release-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; }
+.release-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: start; }
 .release-glyph { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--flame-wash); }
-.release-t { display: grid; gap: 1px; min-width: 0; }
-.release-t b { font-size: 14px; font-weight: 600; color: var(--ink); }
-.release-t > span { font-size: 12.5px; color: var(--ink-2); }
-.release-t code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.release-t { display: grid; gap: 4px; min-width: 0; }
+.release-name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 22px; }
+.release-name b { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.release-sum { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); max-width: 66ch; }
+.release-meta { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.release-meta b { font-weight: 600; color: var(--ink); }
+.release-card > .btn { align-self: center; }
 @media (max-width: 620px) {
   .release-card { grid-template-columns: auto minmax(0, 1fr); }
-  .release-card > :nth-child(n + 3) { grid-column: 2; justify-self: start; }
+  .release-card > .btn { grid-column: 2; justify-self: start; }
 }
 
 /* ------------------------------------------------------------------ chart */
