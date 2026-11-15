@@ -111,6 +111,7 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 || base == "WikiPatch"
                 || base == "AnswerSubmission"
                 || base == "Capabilities"
+                || base == "EpisodeMetrics"
                 || base == "ErrorEnvelope",
             "{path}: no origin label"
         );
@@ -127,6 +128,7 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "AnswerSubmission" => drop(check::<AnswerSubmission>(&v, AnswerSubmission::validate)),
             "AnswerRefusal" => drop(check::<AnswerRefusal>(&v, AnswerRefusal::validate)),
             "TraceBundle" => drop(check::<TraceBundle>(&v, TraceBundle::validate)),
+            "EpisodeMetrics" => drop(check::<EpisodeMetrics>(&v, EpisodeMetrics::validate)),
             "Capabilities" => drop(check::<Capabilities>(&v, Capabilities::validate)),
             "SearchRequest" => drop(check::<SearchRequest>(&v, SearchRequest::validate)),
             "SearchPage" => drop(check::<SearchPage>(&v, SearchPage::validate)),
@@ -1168,6 +1170,33 @@ fn k1_research_contracts_bind_views_and_keep_versions_honest() {
     assert!(trace_refused(
         &|v| v["partitions_touched"] = json!(["train", "train"])
     ));
+
+    // Usage (M5): v2 only; cache and reasoning counts stay within their totals; a reported cost
+    // is the provider's. Metrics never show an unpriced cost without its models and reasons.
+    let usage = fixture("research/events_usage.json")[1].clone();
+    let usage_refused = |f: &dyn Fn(&mut Value)| {
+        let mut v = usage.clone();
+        f(&mut v);
+        typed::<ResearchEvent>(&v).validate().is_err()
+    };
+    assert!(usage_refused(
+        &|v| v["schema_version"] = json!("research.v1")
+    ));
+    assert!(usage_refused(
+        &|v| v["body"]["payload"]["usage"]["cache_write_tokens"] = json!(2001)
+    ));
+    assert!(usage_refused(
+        &|v| v["body"]["payload"]["usage"]["reasoning_tokens"] = json!(501)
+    ));
+    assert!(usage_refused(&|v| v["body"]["payload"]["usage"]
+        ["reported_cost"]["basis"] =
+        json!("price_list")));
+    let mut metrics = fixture("research/episode_metrics.json");
+    metrics["cost"]["models"] = json!([]);
+    assert!(typed::<EpisodeMetrics>(&metrics).validate().is_err());
+    let mut metrics = fixture("research/episode_metrics.json");
+    metrics["tools"][0]["latency"]["p50_ms"] = json!(400.0);
+    assert!(typed::<EpisodeMetrics>(&metrics).validate().is_err());
 
     // Capabilities give a reason exactly for what is unavailable.
     let mut caps = fixture("research/capabilities.json");

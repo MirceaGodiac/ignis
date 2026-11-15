@@ -1,7 +1,7 @@
 //! Test double of headless Claude Code (`claude -p --output-format stream-json`) for the offline
 //! tests of `ClaudeBridge`. It checks the isolation flags and the cleared environment, keeps
 //! sessions as files in `CLAUDE_CONFIG_DIR`, and acts on keywords in the prompt:
-//! `tool` (one IGNIS tool call), `delegate` (a subtask through the subagent tool), `nested` (a
+//! `tool` (one IGNIS tool call), `usage` (the result carries usage and cost), `delegate` (a subtask through the subagent tool), `nested` (a
 //! subagent that tries to delegate again), `explain` (a message, then a call it introduces, with arguments
 //! larger than an event inlines), `slow` (runs 30 s), `limit` (plan limit result), `crash` (exits
 //! without a result). It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log` and the text of
@@ -185,9 +185,18 @@ fn main() {
     emit(
         serde_json::json!({"type":"assistant","message":{"id":format!("m-{}", uuid_like()),"content":[{"type":"text","text":format!("Answer: {first}")}]}}),
     );
-    emit(
-        serde_json::json!({"type":"result","subtype":"success","is_error":false,"result":"ok","session_id":session}),
-    );
+    let mut result = serde_json::json!({"type":"result","subtype":"success","is_error":false,"result":"ok","session_id":session});
+    if prompt.contains("usage") {
+        // What Claude Code reports: Anthropic usage (cache reads/writes apart from input) and
+        // per-model usage with its own cost.
+        result["usage"] = serde_json::json!({"input_tokens": 200, "cache_read_input_tokens": 6000,
+            "cache_creation_input_tokens": 1800, "output_tokens": 500});
+        result["total_cost_usd"] = serde_json::json!(0.0254);
+        result["modelUsage"] = serde_json::json!({"claude-opus-5-5": {"inputTokens": 200,
+            "outputTokens": 500, "cacheReadInputTokens": 6000, "cacheCreationInputTokens": 1800,
+            "costUSD": 0.0254}});
+    }
+    emit(result);
 }
 
 fn uuid_like() -> String {

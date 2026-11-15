@@ -57,6 +57,10 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<AnswerSubmission>("AnswerSubmission"),
         one::<AnswerRefusal>("AnswerRefusal"),
         one::<TraceBundle>("TraceBundle"),
+        // M5: observability (derived from the event log)
+        one::<UsageReport>("UsageReport"),
+        one::<EpisodeMetrics>("EpisodeMetrics"),
+        one::<WorkspaceMetrics>("WorkspaceMetrics"),
         one::<CreateEpisode>("CreateEpisode"),
         one::<PostMessage>("PostMessage"),
         one::<MessageAccepted>("MessageAccepted"),
