@@ -10,6 +10,13 @@ description: Answer documentary questions from the IGNIS corpus with claims boun
 - Start with `sources_search` using the researcher's own technical terms (fuel, experiment, quantity,
   condition), then a reformulation with synonyms if the first page is thin. Use filters (experiment,
   source type) rather than longer queries.
+- Every documentary search carries `"schema_version": "evidence.v2"` and `expected_terms`: before
+  calling, write down 3 to 8 terms a relevant passage would contain that the query itself does not
+  (equivalent phrasings, abbreviations, instruments, materials, the quantity's other names), each as
+  an object with `term` and `importance` (`high` for the terms that discriminate, `low` for broad
+  ones). Shape: `"expected_terms": [{"term": "extinction diameter", "importance": "high"},
+  {"term": "radiative loss", "importance": "medium"}]`. Never put the answer you expect in a term.
+  The page reports which terms the corpus held; drop the rest from your next search.
 - Search hits are pointers, not proof. When a hit is decisive, open it with `sources_read` at its
   locator to see the surrounding passage, table or figure caption; follow `next` when the passage
   continues.
