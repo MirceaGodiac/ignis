@@ -552,6 +552,12 @@ export type EventBody =
         method: string;
         payload?: ArtifactRef | null;
       };
+    }
+  | {
+      kind: "usage.reported";
+      payload: {
+        usage: UsageReport;
+      };
     };
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -624,6 +630,20 @@ export type AnswerId = string;
  * via the `definition` "AnswerStatus".
  */
 export type AnswerStatus = ("complete" | "partial" | "failed") | "insufficient_evidence";
+/**
+ * How the counts of a [`UsageReport`] add up.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "UsageAccounting".
+ */
+export type UsageAccounting = "increment" | "thread_total";
+/**
+ * Where a cost figure comes from.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostBasis".
+ */
+export type CostBasis = "provider_reported" | "price_list";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ClientRequestId".
@@ -981,17 +1001,59 @@ export type ExecutionOutcome =
       kind: "out_of_memory";
     };
 /**
- * Where a cost figure comes from.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "CostBasis".
- */
-export type CostBasis = "provider_reported" | "price_list";
-/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "TraceId".
  */
 export type TraceId = string;
+/**
+ * The money a range of usage cost. Fails closed: usage of a model the price list does not
+ * price, or of a token class it has no price for, is `unpriced`, never zero.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostStatus".
+ */
+export type CostStatus =
+  | {
+      status: "no_usage";
+    }
+  | {
+      cost: CostFigure;
+      status: "priced";
+    }
+  | {
+      /**
+       * The models (or `unreported`) whose usage could not be priced.
+       */
+      models: string[];
+      /**
+       * Why, one line per problem.
+       */
+      reasons: string[];
+      status: "unpriced";
+    };
+/**
+ * The money a range of usage cost. Fails closed: usage of a model the price list does not
+ * price, or of a token class it has no price for, is `unpriced`, never zero.
+ */
+export type CostStatus1 =
+  | {
+      status: "no_usage";
+    }
+  | {
+      cost: CostFigure;
+      status: "priced";
+    }
+  | {
+      /**
+       * The models (or `unreported`) whose usage could not be priced.
+       */
+      models: string[];
+      /**
+       * Why, one line per problem.
+       */
+      reasons: string[];
+      status: "unpriced";
+    };
 /**
  * Idempotency key: retrying the same request returns the same episode.
  */
@@ -1526,6 +1588,9 @@ export interface IgnisContracts {
   AnswerSubmission?: AnswerSubmission;
   AnswerRefusal?: AnswerRefusal;
   TraceBundle?: TraceBundle;
+  UsageReport?: UsageReport;
+  EpisodeMetrics?: EpisodeMetrics;
+  WorkspaceMetrics?: WorkspaceMetrics;
   CreateEpisode?: CreateEpisode;
   PostMessage?: PostMessage;
   MessageAccepted?: MessageAccepted;
@@ -2444,6 +2509,62 @@ export interface JobProgress {
   unit: string;
 }
 /**
+ * Token usage as one runtime notification reported it (M5). Input counts include the cached
+ * part; output counts include reasoning. A count the runtime did not report stays absent.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "UsageReport".
+ */
+export interface UsageReport {
+  accounting: UsageAccounting;
+  /**
+   * Of `input_tokens`, written to the provider's prompt cache (priced apart by some providers).
+   */
+  cache_write_tokens?: number | null;
+  /**
+   * Of `input_tokens`, read from the provider's prompt cache.
+   */
+  cached_input_tokens?: number | null;
+  /**
+   * Every input token, cache reads and cache writes included.
+   */
+  input_tokens: number;
+  /**
+   * Model id as the runtime reported it; absent when the notification does not name it (Codex),
+   * in which case the episode's harness pin names the model.
+   */
+  model?: string | null;
+  /**
+   * Every output token, reasoning included.
+   */
+  output_tokens: number;
+  /**
+   * Of `output_tokens`, spent on reasoning.
+   */
+  reasoning_tokens?: number | null;
+  /**
+   * What the runtime said these calls cost (`provider_reported`), when it says. IGNIS's own
+   * figures come from a price list; this is kept next to them, never mixed in.
+   */
+  reported_cost?: CostFigure | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CostFigure".
+ */
+export interface CostFigure {
+  amount: number;
+  basis: CostBasis;
+  /**
+   * ISO 4217 code, e.g. `USD`.
+   */
+  currency: string;
+  /**
+   * Identity of the price list (provider page and date); present exactly for `price_list`.
+   */
+  price_list?: string | null;
+}
+/**
  * Why an event happened. Ids from the runtime are kept for correlation, but a scientific job is
  * never keyed only by a Codex id.
  *
@@ -3099,22 +3220,6 @@ export interface TraceBundle {
   wall_time_s: number;
 }
 /**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "CostFigure".
- */
-export interface CostFigure {
-  amount: number;
-  basis: CostBasis;
-  /**
-   * ISO 4217 code, e.g. `USD`.
-   */
-  currency: string;
-  /**
-   * Identity of the price list (provider page and date); present exactly for `price_list`.
-   */
-  price_list?: string | null;
-}
-/**
  * A contiguous range of one episode's log, both ends included.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -3176,6 +3281,141 @@ export interface TokenUsage {
   model: string;
   output_tokens: number;
   reasoning_tokens?: number | null;
+}
+/**
+ * Metrics of one episode.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EpisodeMetrics".
+ */
+export interface EpisodeMetrics {
+  cost: CostStatus;
+  episode_id: EpisodeId;
+  harness?: HarnessRef | null;
+  /**
+   * Highest `seq` the metrics read (the log is read from seq 1).
+   */
+  last_seq: number;
+  /**
+   * Identity of the price list costs were computed with (`<name>@<version>`).
+   */
+  price_list: string;
+  questions: QuestionMetrics[];
+  tokens: TokenTotals;
+  tools: ToolMetrics[];
+  turns: TurnMetrics[];
+}
+/**
+ * One user question: its `message.user` and the turns that started under it (before the next
+ * question).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "QuestionMetrics".
+ */
+export interface QuestionMetrics {
+  cost: CostStatus;
+  message_seq: number;
+  tokens: TokenTotals;
+  tool_calls: number;
+  turns: number;
+  /**
+   * From the `message.user` to the last event before the next question (host clock).
+   */
+  wall_time_s: number;
+}
+/**
+ * Token totals of a turn, a question, an episode or a workspace (sums of reported usage).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TokenTotals".
+ */
+export interface TokenTotals {
+  /**
+   * `100 * cached_input_tokens / input_tokens`; absent when the cached count is unknown or
+   * there was no input.
+   */
+  cache_hit_pct?: number | null;
+  cache_write_tokens?: number | null;
+  /**
+   * Absent when no contributing report gave a cached count (unknown, not zero).
+   */
+  cached_input_tokens?: number | null;
+  input_tokens: number;
+  output_tokens: number;
+  reasoning_tokens?: number | null;
+  /**
+   * `usage.reported` events that contributed.
+   */
+  reports: number;
+}
+/**
+ * One tool's calls in the measured range.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ToolMetrics".
+ */
+export interface ToolMetrics {
+  /**
+   * Calls started.
+   */
+  calls: number;
+  /**
+   * Absent when no call finished.
+   */
+  latency?: LatencyStats | null;
+  tool: string;
+  /**
+   * Calls started whose `tool.finished` is not in the log (still running, or cut).
+   */
+  unfinished: number;
+}
+/**
+ * Latency of finished tool calls, measured from `tool.started` to `tool.finished` (the
+ * `occurred_at` of each, stamped by the host when it records them). Percentiles use the
+ * nearest-rank method over the measured samples; nothing is interpolated or estimated.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "LatencyStats".
+ */
+export interface LatencyStats {
+  max_ms: number;
+  p50_ms: number;
+  p95_ms: number;
+  samples: number;
+}
+/**
+ * One runtime turn.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "TurnMetrics".
+ */
+export interface TurnMetrics {
+  cost: CostStatus;
+  events: EventRange;
+  /**
+   * `seq` of the `message.user` the turn answers, when the log has one before it.
+   */
+  question_seq?: number | null;
+  runtime_turn_id: string;
+  tokens: TokenTotals;
+  tool_calls: number;
+}
+/**
+ * Aggregate over the episodes of a workspace: latencies over every call (never averaged
+ * per-episode percentiles), token sums, and the mean cost per question when every question is
+ * priced.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "WorkspaceMetrics".
+ */
+export interface WorkspaceMetrics {
+  cost: CostStatus;
+  cost_per_question: CostStatus1;
+  episodes: number;
+  price_list: string;
+  questions: number;
+  tokens: TokenTotals;
+  tools: ToolMetrics[];
 }
 /**
  * `POST /api/v1/episodes`.

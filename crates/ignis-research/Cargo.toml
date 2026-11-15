@@ -20,6 +20,8 @@ uuid = { version = "1", features = ["v4"] }
 schemars.workspace = true
 tracing.workspace = true
 chrono.workspace = true
+# The LLM price list of the cost metrics (configs/pricing).
+toml.workspace = true
 # R2 (S3 API): SigV4 HMAC and blocking HTTP; same versions as the rest of the tree.
 ring = "0.17"
 ureq = "3"
