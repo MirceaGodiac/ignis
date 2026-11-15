@@ -159,6 +159,7 @@ fn refusal(code: ErrorCode) -> bool {
             | ErrorCode::ScopeDenied
             | ErrorCode::NotFound
             | ErrorCode::SourceMissing
+            | ErrorCode::SourceGone
             | ErrorCode::Unsupported
             | ErrorCode::CapabilityUnavailable
             | ErrorCode::Conflict
