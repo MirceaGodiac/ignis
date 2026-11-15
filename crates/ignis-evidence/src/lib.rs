@@ -26,6 +26,7 @@ pub mod outline;
 #[cfg(feature = "pdf")]
 pub mod pdf;
 pub mod records;
+pub mod retrieval_eval;
 pub mod search;
 pub mod service;
 pub mod sira;
@@ -315,6 +316,32 @@ pub enum EvidenceCmd {
         db: Option<PathBuf>,
         #[arg(long)]
         execute: bool,
+    },
+    /// Retrieval evaluation and τ/w sweep (R12b) on the T10 **dev** tasks: nDCG@10 and recall@10
+    /// per question type for plain BM25, query expansion (`--expected-terms`), document expansion
+    /// and both. Refuses `holdout/`, any non-dev task and a scope that may read the test
+    /// partition. Writes `report.json`, `report.md` and `proposal.json` (never applied).
+    RetrievalEval {
+        /// GoldTask array (`benchmarks/t10/dev/tasks.json`), GoldSet or JSONL; dev split only.
+        #[arg(long)]
+        tasks: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// Expansion pack (`<catalog dir>/expansion-llm`); needed to sweep τ (re-enriches a copy).
+        #[arg(long)]
+        pack: Option<PathBuf>,
+        /// `{"<task_id>": [ExpectedTerm, ...]}` from the agent's sketches; enables the query arms.
+        #[arg(long)]
+        expected_terms: Option<PathBuf>,
+        /// τ grid, comma separated (default 0.01,0.02,0.05,0.1,0.2 with --pack).
+        #[arg(long)]
+        tau: Option<String>,
+        /// w grid, comma separated (default 0.1,0.2,0.4,0.6,0.8,1,2,4).
+        #[arg(long)]
+        w: Option<String>,
+        /// Output directory (default `<catalog dir>/retrieval_eval`).
+        #[arg(long)]
+        out: Option<PathBuf>,
     },
     /// Dependency-graph check: protected scientific crates must not depend on ignis-evidence.
     Firewall {
@@ -787,6 +814,32 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 print(&serde_json::to_value(&s)?)?;
             }
             Ok(())
+        }
+        EvidenceCmd::RetrievalEval { tasks, db, pack, expected_terms, tau, w, out } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let scope = local_research_scope();
+            retrieval_eval::check_scope(&scope)?;
+            let svc = service::EvidenceService::open(&db, cfg()?, service::Lockbox::load()?)?.offline();
+            let withheld = |id: &str| svc.withholds_chunk(&scope, id);
+            let taus = tau.as_deref().map(retrieval_eval::parse_list).transpose()?;
+            let ws = match w.as_deref() {
+                Some(s) => retrieval_eval::parse_list(s)?,
+                None => retrieval_eval::DEFAULT_WS.to_vec(),
+            };
+            let out = out.unwrap_or_else(retrieval_eval::default_out);
+            let args = retrieval_eval::SweepArgs {
+                tasks: &tasks,
+                db: &db,
+                pack: pack.as_deref(),
+                expected_terms: expected_terms.as_deref(),
+                taus,
+                ws,
+                out: &out,
+            };
+            let r = retrieval_eval::sweep(&args, &scope, &withheld)?;
+            print(&json!({"out": out.display().to_string(), "origin": r.origin,
+                "scored": r.preparation.tasks.len(), "excluded": r.preparation.excluded.len(),
+                "baseline": r.baseline.arms, "proposal": r.proposal}))
         }
         EvidenceCmd::Firewall { manifest } => {
             let protected = firewall::protected_from_config(&ignis_core::resources::configs_dir().join("evidence").join("firewall.toml"))?;

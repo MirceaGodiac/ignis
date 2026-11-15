@@ -378,6 +378,16 @@ impl EvidenceService {
         Ok(())
     }
 
+    /// True when the lockbox withholds this chunk from `scope`, or the chunk is not in the catalog.
+    /// The retrieval evaluation (`retrieval_eval`) ranks with the same rule the search applies.
+    pub fn withholds_chunk(&self, scope: &ExecutionScope, chunk_id: &str) -> anyhow::Result<bool> {
+        let sealed = self.lockbox.sealed(scope);
+        Ok(match self.chunk(chunk_id)? {
+            Some(c) => self.withheld(&sealed, &c),
+            None => true,
+        })
+    }
+
     fn chunk(&self, id: &str) -> anyhow::Result<Option<ChunkRow>> {
         let con = self.meta.lock().expect("meta");
         let row = con
