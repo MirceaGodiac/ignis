@@ -379,10 +379,25 @@ impl<S: PrefixSource> ServedModels<S> {
             .iter()
             .find(|r| hex_part(&r.id) == hex_part(id.as_str()) && r.id == id.as_str())
             .ok_or_else(|| {
-                envelope(
-                    ErrorCode::NotFound,
-                    format!("release {id} is not served by this deployment"),
-                )
+                // A model name is the usual mistake: say which id it has, and list what is served,
+                // so the caller retries with an id instead of concluding nothing is served.
+                let named = self.records.iter().find(|r| r.model_name == id.as_str());
+                let served: Vec<String> = self
+                    .records
+                    .iter()
+                    .map(|r| format!("{} = {}", r.model_name, r.id))
+                    .collect();
+                let message = match named {
+                    Some(r) => format!(
+                        "{id} is a model name, not a release_id; it is served as release_id {}: call again with that id",
+                        r.id
+                    ),
+                    None => format!(
+                        "release {id} is not served by this deployment; served release_ids: {}",
+                        served.join("; ")
+                    ),
+                };
+                envelope(ErrorCode::NotFound, message)
             })
     }
 
