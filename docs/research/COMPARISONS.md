@@ -15,6 +15,12 @@ score.
 - The last commit of each script is given beside it.
 - The release folders under `configs/models/` and the forwards are identical in this repository.
 
+**How each comparison is laid out.** Sections 1 to 4 follow one order: **As published** (the
+comparator's equations, from the paper), **Rebuild** (how it was rebuilt and how faithfully), the
+IGNIS release, the **Cases** and **Metric**, the score table, a **Reading** where one is needed, and
+the command that reproduces the numbers. Sections 5 to 7 use the same labels where they apply. The
+IGNIS models themselves are written out in [FORMULAS.md](FORMULAS.md).
+
 ## Papers we compared against
 
 The strongest results come first. Each IGNIS release was frozen before the data it is scored on here
@@ -87,7 +93,7 @@ The same frozen releases, the same final runs.
 
 ## 1. Frolov et al. (2023): flame-out time on Flame Design
 
-**What they publish.**
+**As published.**
 - **The model.** A transient one-dimensional spherical flame with detailed chemistry that computes the
   burner heating itself. That makes it a real forecast from the inputs of a test.
 - **What is read from the paper.** For 37 Flame Design flames, the paper gives whether and when the
@@ -95,14 +101,14 @@ The same frozen releases, the same final runs.
 - **The transcription** is in `docs/wsp/research/frolov2023_flames.json`, with provenance.
 - **Their published comparisons were reproduced** for 22018G3.
 
-**How the comparator is built** (`tools/wsp/final/posthoc_frolov_snegirev.py`, `09c22d3`):
+**Rebuild** (`tools/wsp/final/posthoc_frolov_snegirev.py`, `09c22d3`):
 - **Step forecast.** The flame goes out at their modelled time, taken as the window midpoint or the
   plotted time.
 - **Stop path.** When the planned stop is known and comes first, the flame ends at the stop.
 - **Which flames have a forecast.** It exists for the flames their model puts out within 50 s. A second
   block adds the flames their model never puts out, forecast as no extinction.
 
-**IGNIS model.** `acme_normal.wsp12` F2 (`sha256:55fcf4cb…971d`), frozen before the final run.
+**IGNIS release.** `acme_normal.wsp12` F2 (`sha256:55fcf4cb…971d`), frozen before the final run.
 
 **Cases.** Flame Design (PSI-10) test days, split `docs/wsp/atlas/splits/PSI-10.json`. The endpoints
 and sealed forecasts are the final run's own (`runs/final/20261115/flame-design.json`).
@@ -164,7 +170,7 @@ R=\frac{r_{ss}}{r_{ext}}>1\ \Rightarrow\ \text{the flame extinguishes radiativel
 - **Our assumptions**, flagged in the code: a sphere radius $R_s$ = 3.2 mm, and $\kappa_f$ computed per
   test from Eq. 35.
 
-**Comparator** (`tools/wsp/final/posthoc_irace_testdays.py`, `740b3df`; Snegirev in
+**Rebuild** (`tools/wsp/final/posthoc_irace_testdays.py`, `740b3df`; Snegirev in
 `posthoc_frolov_snegirev.py`):
 - **"As published" (R only).** The criterion decides whether the flame goes out, and the forecast says
   it goes out at the first horizon. This is the published criterion with nothing of ours added.
