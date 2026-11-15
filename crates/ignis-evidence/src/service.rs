@@ -610,29 +610,59 @@ impl EvidenceService {
         })
     }
 
+    /// What this deployment can run besides lexical search: dense retrieval needs a vector set in
+    /// the catalog and the provider key (to embed the query); reranking needs the key. Dense and
+    /// rerank are out by decision (LANES_V2 R12a: lexical + SIRA), so normally both are false.
+    fn deployed(&self) -> (bool, bool) {
+        let ret = self.retriever.lock().expect("retriever");
+        let key = ret.api_key.is_some();
+        let vectors = catalog::embedding_set_id(&ret.con).ok().flatten().is_some();
+        (vectors && key, key)
+    }
+
+    /// The backends a mode runs here: `lexical` = lexical; `dense` = dense (reported unavailable
+    /// when it cannot run); `hybrid` = lexical + SIRA expansion, plus dense and rerank only where
+    /// this deployment has them. A backend the deployment lacks is not requested by `hybrid`, so a
+    /// default search never reports itself degraded for a stage that was never part of it.
+    fn requested(mode: SearchMode, (dense, rerank): (bool, bool)) -> (bool, bool, bool) {
+        match mode {
+            SearchMode::Lexical => (true, false, false),
+            SearchMode::Dense => (false, true, false),
+            SearchMode::Hybrid => (true, dense, rerank),
+        }
+    }
+
     fn backends(
         &self,
         mode: SearchMode,
         r: Option<&Ranked>,
         sealed: &BTreeSet<Partition>,
     ) -> Vec<BackendReport> {
+        let deployed = self.deployed();
+        let (want_lex, want_dense, want_rerank) = Self::requested(mode, deployed);
+        let absent = |b: &str| {
+            (mode == SearchMode::Hybrid).then(|| {
+                format!("{b} is not part of this deployment (hybrid = lexical + SIRA expansion)")
+            })
+        };
         let stage = |k: &str| {
             r.and_then(|r| r.stages.get(k))
                 .and_then(Value::as_str)
                 .map(String::from)
         };
-        let report = |b: RetrievalBackend, requested: bool, used: bool, detail: Option<String>| {
-            BackendReport {
-                backend: b,
-                status: match (requested, used) {
-                    (false, _) => BackendStatus::NotRequested,
-                    (true, true) => BackendStatus::Used,
-                    (true, false) => BackendStatus::Unavailable,
-                },
-                detail: if requested { detail } else { None },
-            }
+        let report = |b: RetrievalBackend,
+                      requested: bool,
+                      used: bool,
+                      detail: Option<String>,
+                      not_requested: Option<String>| BackendReport {
+            backend: b,
+            status: match (requested, used) {
+                (false, _) => BackendStatus::NotRequested,
+                (true, true) => BackendStatus::Used,
+                (true, false) => BackendStatus::Unavailable,
+            },
+            detail: if requested { detail } else { not_requested },
         };
-        let hybrid = mode == SearchMode::Hybrid;
         let lockbox = (!sealed.is_empty()).then(|| {
             format!(
                 "scope lockbox: outcome-bearing passages about runs of {sealed:?} (or unattributed, \
@@ -642,21 +672,24 @@ impl EvidenceService {
         vec![
             report(
                 RetrievalBackend::Lexical,
-                mode != SearchMode::Dense,
+                want_lex,
                 r.is_some_and(|r| r.lexical_used),
                 lockbox.or_else(|| stage("lexical")),
+                None,
             ),
             report(
                 RetrievalBackend::Dense,
-                mode != SearchMode::Lexical,
+                want_dense,
                 r.is_some_and(|r| r.dense_used),
                 stage("dense"),
+                absent("dense retrieval").filter(|_| !deployed.0),
             ),
             report(
                 RetrievalBackend::Rerank,
-                hybrid,
+                want_rerank,
                 r.is_some_and(|r| r.rerank_used),
                 stage("rerank"),
+                absent("reranking").filter(|_| !deployed.1),
             ),
         ]
     }
@@ -794,11 +827,12 @@ impl KnowledgeService for EvidenceService {
                 .filter_map(|c| c.weight.map(|w| (c.expression, w)))
                 .collect()
         };
+        let (use_lexical, use_dense, use_rerank) = Self::requested(req.mode, self.deployed());
         let opts = SearchOpts {
             limit: usize::MAX,
-            use_lexical: req.mode != SearchMode::Dense,
-            use_dense: req.mode != SearchMode::Lexical,
-            use_rerank: req.mode == SearchMode::Hybrid,
+            use_lexical,
+            use_dense,
+            use_rerank,
             rerank_top: None,
             rerank_timeout_s: None,
             expansions,
