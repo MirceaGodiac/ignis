@@ -933,6 +933,49 @@ fn a_quoted_number_must_be_written_in_the_returned_quote() {
     assert_eq!(answer.grounding.as_ref().unwrap().grounded, 2);
 }
 
+/// Real search hits carry no quote and `sources_read` returns segments, not references: the host
+/// reads the passage of a returned evidence id from the corpus itself.
+#[test]
+fn a_quote_less_hit_is_grounded_against_its_passage_in_the_corpus() {
+    let w = world();
+    w.h.knowledge
+        .quote_less
+        .store(true, std::sync::atomic::Ordering::SeqCst);
+    search(&w, &w.ep);
+    let quoted = |value: f64, unit: &str| {
+        json!({"value": value, "unit": unit,
+               "source": {"kind": "evidence_quote", "evidence_id": "fixture-evidence-01"}})
+    };
+
+    // The corpus cannot give the passage: refused with the reason, not a hint to re-read.
+    let r = submit(&w, &w.ep, observed(vec![quoted(3.05, "mm")]));
+    let refused = refusal(&w, &r);
+    assert_eq!(
+        kinds(&refused),
+        vec![AnswerProblemKind::UngroundedNumber],
+        "{refused:#?}"
+    );
+    assert!(refused.problems[0].detail.contains("could not be read"));
+
+    *w.h.knowledge.passage.lock().unwrap() =
+        Some("Synthetic fixture passage: the droplet (d0 = 3.05 mm) burned for 12.4 s.".into());
+    let r = submit(&w, &w.ep, observed(vec![quoted(3.5, "mm")]));
+    assert_eq!(
+        kinds(&refusal(&w, &r)),
+        vec![AnswerProblemKind::ValueMismatch]
+    );
+
+    let r = submit(
+        &w,
+        &w.ep,
+        observed(vec![quoted(3.05, "mm"), quoted(12.4, "s")]),
+    );
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let answer: ResearchAnswer =
+        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    assert_eq!(answer.grounding.as_ref().unwrap().grounded, 2);
+}
+
 /// The C0 conditions table behind a snapshot the test can move (M11's `conditions_snapshot`).
 struct Conditions {
     snapshot: std::sync::Mutex<Digest>,
