@@ -4,6 +4,7 @@
 
 import type { ResearchAnswer, SeriesRef, ViewSpec } from "../contracts/generated";
 import { resolvePointer } from "./units.ts";
+import { looksLikeId, quantityLabel, rangeLabel } from "./chartRows.ts";
 
 export type ViewKind = ViewSpec["kind"];
 
@@ -75,6 +76,36 @@ export interface Series {
   unit: string;
   timeOrigin: string;
   band: { lower: (number | null)[]; upper: (number | null)[] } | null;
+  /** What the series measures, when its artifact says (`quantity`), as a reader says it. */
+  quantity: string | null;
+  /** The artifact's quantile levels (0.05, 0.5, 0.95), when it carries them. */
+  levels: number[];
+}
+
+/** The level a pointer like `/quantiles/2` selects from the artifact's quantile levels. */
+function levelAt(pointer: string, levels: number[]): number | null {
+  const m = /\/quantiles\/(\d+)$/.exec(pointer);
+  return m && levels[+m[1]] != null ? levels[+m[1]] : null;
+}
+
+/** The legend name of a series: its own label when that names a thing, else what its role is. */
+export function seriesName(ref: SeriesRef, levels: number[]): string {
+  if (ref.label && !looksLikeId(ref.label)) return ref.label;
+  if (ref.role === "observed") return "Measured";
+  if (ref.role === "computed") return "Computed";
+  const level = levelAt(ref.value_pointer, levels);
+  const p = ref.value_pointer.toLowerCase();
+  if (level === 0.5 || /median|q50|p50/.test(p)) return "Forecast (median)";
+  if (level != null) return `Forecast (${+(level * 100).toPrecision(3)}th percentile)`;
+  if (/mean$/.test(p)) return "Forecast (mean)";
+  return "Forecast";
+}
+
+/** The legend name of a series' band: "Forecast range (5–95%)". */
+export function bandName(ref: SeriesRef, levels: number[]): string {
+  const who = ref.role === "predicted" ? "Forecast range" : "Range";
+  const r = ref.band ? rangeLabel(levelAt(ref.band.lower_pointer, levels), levelAt(ref.band.upper_pointer, levels)) : null;
+  return r ? `${who} (${r})` : who;
 }
 
 const numArray = (v: unknown): (number | null)[] | null => (Array.isArray(v) && v.every((x) => x === null || (typeof x === "number" && Number.isFinite(x))) ? (v as (number | null)[]) : null);
@@ -97,7 +128,11 @@ export function readSeries(doc: unknown, ref: SeriesRef): Series | string {
     if (!lower || !upper || lower.length !== times.length || upper.length !== times.length) return "the band does not match the times";
     band = { lower, upper };
   }
-  return { ref, times: times as number[], values, unit, timeOrigin: origin, band };
+  // Siblings of the unit, when the artifact carries them (an AnalysisArtifact does).
+  const base = ref.unit_pointer.replace(/\/[^/]*$/, "");
+  const lv = numArray(resolvePointer(doc, `${base}/quantile_levels`));
+  const levels = lv ? lv.filter((x): x is number => x != null) : [];
+  return { ref, times: times as number[], values, unit, timeOrigin: origin, band, quantity: quantityLabel(resolvePointer(doc, `${base}/quantity`)), levels };
 }
 
 /** Series share one chart only on one time origin and one unit; otherwise the view says why it will not draw them. */

@@ -2,12 +2,15 @@
 // places a component by kind and references; the UI renders it from its own trusted components and
 // never renders agent markup. A view that references something the answer does not cite is refused
 // with the reason (A2UI's model: the client owns the catalog). A new kind is a contract change.
-import { useMemo, useState } from "react";
+// A reader sees what a view shows, not how it was addressed: artifact ids, pointers and the exact
+// reason a view did not draw stay in a "Technical details" disclosure or a tooltip.
+import { useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ConditionsTable, ResearchAnswer, ViewSpec, VisualObservationBundle } from "../contracts/generated";
 import { SeriesChart } from "../components/SeriesChart";
 import { readSeries, seriesProblems, viewProblems, type Series } from "../research/viewSpec";
 import { chartRows, rowCount, skippedNote, tableModel, type ChartView } from "../research/chartRows";
+import { sourceTitle } from "./turns";
 import { compactKeys } from "../research/noteText";
 import { AnswerChart } from "../components/AnswerChart";
 import { DataTable } from "../components/DataTable";
@@ -25,17 +28,39 @@ import { ErrorNote, EvidenceClassTag, ReleaseState, shortId, words } from "../ui
 import { ConditionsMatrix } from "./Conditions";
 
 const KIND_TITLE: Record<ViewSpec["kind"], string> = {
-  source_excerpt: "Source excerpt",
-  series_comparison: "Series comparison",
-  conditions_matrix: "Conditions matrix",
+  source_excerpt: "Source passage",
+  series_comparison: "Over time",
+  conditions_matrix: "Test conditions",
   atmosphere_map: "Habitat atmospheres",
-  video_overlay: "Video with contour",
-  release_card: "Model release",
+  video_overlay: "Video",
+  release_card: "Model",
   artifact_table: "Table",
   chart: "Chart",
 };
 
-export function ViewBlock({ view, caption, answer, client, claimKeys }: { view: ViewSpec; caption?: string | null; answer: ResearchAnswer; client: ResearchClient; claimKeys: string[] }) {
+/**
+ * A view that cannot be drawn: one plain sentence, and the exact reasons (ids, pointers, contract
+ * names) folded under "Technical details" for whoever needs them.
+ */
+export function NotShown({ children, reasons }: { children: ReactNode; reasons: string[] }) {
+  return (
+    <div className="note note-gap small view-gap">
+      <p>{children}</p>
+      {reasons.length > 0 && (
+        <details className="view-tech">
+          <summary>Technical details</summary>
+          <ul>
+            {reasons.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+}
+
+export function ViewBlock({ view, caption, answer, client, claimKeys, srcNo }: { view: ViewSpec; caption?: string | null; answer: ResearchAnswer; client: ResearchClient; claimKeys: string[]; srcNo?: Map<string, number> }) {
   const problems = viewProblems(view, answer);
   const claims = claimKeys.length ? compactKeys(claimKeys) : null;
   return (
@@ -49,15 +74,17 @@ export function ViewBlock({ view, caption, answer, client, claimKeys }: { view: 
           </span>
         )}
       </figcaption>
-      <div className="view-body">{problems.length > 0 ? <p className="note note-gap small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}</div>
+      <div className="view-body">
+        {problems.length > 0 ? <NotShown reasons={problems}>This view refers to something the answer does not cite, so it is not drawn.</NotShown> : <ViewBody view={view} answer={answer} client={client} srcNo={srcNo} caption={caption} />}
+      </div>
     </figure>
   );
 }
 
-function ViewBody({ view, answer, client }: { view: ViewSpec; answer: ResearchAnswer; client: ResearchClient }) {
+function ViewBody({ view, answer, client, srcNo, caption }: { view: ViewSpec; answer: ResearchAnswer; client: ResearchClient; srcNo?: Map<string, number>; caption?: string | null }) {
   switch (view.kind) {
     case "source_excerpt":
-      return <SourceExcerpt evidenceId={view.evidence_id} answer={answer} />;
+      return <SourceExcerpt evidenceId={view.evidence_id} answer={answer} srcNo={srcNo} />;
     case "series_comparison":
       return <SeriesView view={view} client={client} />;
     case "conditions_matrix":
@@ -71,7 +98,7 @@ function ViewBody({ view, answer, client }: { view: ViewSpec; answer: ResearchAn
     case "artifact_table":
       return <ArtifactTable id={view.artifact_id} pointer={view.pointer} client={client} />;
     case "chart":
-      return <ChartArtifact view={view} client={client} />;
+      return <ChartArtifact view={view} client={client} caption={caption} />;
   }
 }
 
@@ -82,19 +109,24 @@ function useArtifact<T>(client: ResearchClient, id: string) {
 
 // ---------------------------------------------------------------- source_excerpt
 
-function SourceExcerpt({ evidenceId, answer }: { evidenceId: string; answer: ResearchAnswer }) {
+function SourceExcerpt({ evidenceId, answer, srcNo }: { evidenceId: string; answer: ResearchAnswer; srcNo?: Map<string, number> }) {
   const panel = usePanel();
   const e = (answer.evidence ?? []).find((x) => x.evidence_id === evidenceId)!;
   const loc = e.locator;
-  const where = loc?.page != null ? `page ${loc.page}${loc.bbox ? ", marked region" : ""}` : loc?.pts_s != null ? `video at ${loc.pts_s} s` : loc?.path ? loc.path : "metadata only";
+  const where = loc?.page != null ? `page ${loc.page_label ?? loc.page}${loc.bbox ? ", marked region" : ""}` : loc?.pts_s != null ? `video at ${(+loc.pts_s).toFixed(1)} s` : loc?.path ? "a data table" : "record only";
+  // The source by its title when a search named it, else by its number in this answer.
+  const n = srcNo?.get(e.source_id);
+  const name = sourceTitle(e.source_id) ?? (n != null ? `Source ${n}` : "The source");
   return (
     <div className="excerpt">
       {e.quote ? <blockquote className="excerpt-quote">{e.quote}</blockquote> : <p className="muted small">No quote is carried with this citation; open the original to read it at its place.</p>}
       <div className="view-meta">
         <EvidenceClassTag cls={e.evidence_class} />
         <span className="view-meta-t">
-          <code title={e.source_id}>{shortId(e.source_id, 36)}</code>
-          <span>{where}</span>
+          <span className="view-meta-src" title={e.source_id}>
+            {name}
+          </span>
+          <span title={loc?.path ?? undefined}>{where}</span>
         </span>
         <button className="btn btn-s" onClick={() => panel.open({ kind: "evidence", evidence: e })}>
           Open original
@@ -120,16 +152,12 @@ function SeriesView({ view, client }: { view: Extract<ViewSpec, { kind: "series_
   });
   if (q.isPending) return <p className="muted small view-wait">Reading the series…</p>;
   if (q.error) return <ErrorNote quiet error={q.error} title="The series could not be read" />;
-  const bad = q.data.flatMap((s, i) => (typeof s === "string" ? [`series ${i + 1}: ${s}`] : []));
-  if (bad.length) return <p className="note note-gap small">Not drawn: {bad.join("; ")}.</p>;
+  const bad = q.data.flatMap((s, i) => (typeof s === "string" ? [`series ${i + 1} (${view.series[i].artifact_id}): ${s}`] : []));
+  if (bad.length) return <NotShown reasons={bad}>{bad.length === 1 && view.series.length > 1 ? "One of the series" : "The series"} could not be read from the results it names, so the chart is not drawn.</NotShown>;
   const series = q.data as Series[];
   const mismatch = seriesProblems(series);
-  if (mismatch.length) return <p className="note note-gap small">Not drawn on one axis: {mismatch.join("; ")}.</p>;
-  return (
-    <>
-      <SeriesChart series={series} id={`series:${view.series.map((s) => s.artifact_id).join(",")}`} />
-    </>
-  );
+  if (mismatch.length) return <NotShown reasons={mismatch}>These series are not on one time axis or in one unit, so they are not drawn together.</NotShown>;
+  return <SeriesChart series={series} id={`series:${view.series.map((s) => s.artifact_id).join(",")}`} />;
 }
 
 // ---------------------------------------------------------------- tables and bundles
@@ -157,11 +185,7 @@ function BundleArtifact({ id, sourceId, client }: { id: string; sourceId: string
   if (q.isPending) return <p className="muted small view-wait">Reading the contour bundle…</p>;
   if (q.error) return <ErrorNote quiet error={q.error} title="The contour bundle could not be read" />;
   if (q.data.video_source_id !== sourceId)
-    return (
-      <p className="note note-gap small">
-        Not shown: the bundle was extracted from {q.data.video_source_id}, not from {sourceId}.
-      </p>
-    );
+    return <NotShown reasons={[`the bundle was extracted from ${q.data.video_source_id}, not from ${sourceId}`]}>The contour belongs to a different video, so it is not drawn over this one.</NotShown>;
   return <ContourVideo bundle={q.data} />;
 }
 
@@ -200,27 +224,35 @@ function ArtifactTable({ id, pointer, client }: { id: string; pointer: string; c
   const t = useMemo(() => (q.data === undefined ? null : tableModel(resolvePointer(q.data, pointer))), [q.data, pointer]);
   if (q.isPending) return <p className="muted small view-wait">Reading the artifact…</p>;
   if (q.error) return <ErrorNote quiet error={q.error} title="The artifact could not be read" />;
-  if (!t) return <p className="note note-gap small">Not shown: {pointer || "the document"} is not a table.</p>;
+  if (!t) return <NotShown reasons={[`${pointer || "the document"} of ${id} is not a table`]}>This result has no rows to show as a table.</NotShown>;
   return <DataTable columns={t.columns} rows={t.rows} />;
 }
 
 // ---------------------------------------------------------------- chart
 
-function ChartArtifact({ view, client }: { view: ChartView; client: ResearchClient }) {
+function ChartArtifact({ view, client, caption }: { view: ChartView; client: ResearchClient; caption?: string | null }) {
   const q = useArtifact<unknown>(client, view.artifact_id);
   const d = useMemo(() => (q.data === undefined ? null : chartRows(q.data, view)), [q.data, view]);
   if (q.isPending) return <p className="muted small view-wait">Reading the rows…</p>;
   if (q.error) return <ErrorNote quiet error={q.error} title="The chart's artifact could not be read" />;
-  if (typeof d === "string" || !d) return <p className="note note-gap small">Not drawn: {d ?? "no rows"}.</p>;
-  if (!d.points.length) return <p className="note note-gap small">Not drawn: none of the {d.total} rows has plottable values{d.skipped ? ` (${skippedNote(d)})` : ""}.</p>;
+  if (typeof d === "string" || !d) return <NotShown reasons={[`${view.artifact_id}: ${d ?? "no rows"}`]}>The chart's rows could not be read from its result.</NotShown>;
+  if (!d.points.length) return <NotShown reasons={[skippedNote(d) ?? `${view.artifact_id}${view.pointer}: ${d.total} rows`]}>None of the rows has a value that can be plotted.</NotShown>;
   const note = skippedNote(d);
+  // A count of tests says something; a count of rows of a computed table does not, so it is not shown.
+  const count = d.noun === "test" ? rowCount(d.points.length, d.noun) : null;
   return (
     <>
-      <AnswerChart view={view} data={d} />
-      <p className="view-foot">
-        <span title={`From ${view.artifact_id}${view.pointer ? ` ${view.pointer}` : ""}`}>{rowCount(d.points.length, d.noun)}</span>
-        {note && <span className="view-skip">{note}</span>}
-      </p>
+      <AnswerChart view={view} data={d} caption={caption} />
+      {(count || note) && (
+        <p className="view-foot">
+          {count && <span>{count}</span>}
+          {note && (
+            <span className="view-skip" title={note}>
+              {d.skipped} {d.skipped === 1 ? `${d.noun} has` : `${d.noun}s have`} no value to plot
+            </span>
+          )}
+        </p>
+      )}
     </>
   );
 }

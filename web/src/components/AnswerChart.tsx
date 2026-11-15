@@ -4,7 +4,7 @@
 // groups, each with a categorical colour from the validated chart palette and its own legend entry
 // (click to hide). Hover shows the row's label and every value with its unit.
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
-import { axisTitle, shownUnit, fmtNum, fullNum, logTicks, niceTicks, rowCount, type ChartData, type ChartPoint, type ChartView } from "../research/chartRows";
+import { axisTitle, shownUnit, fmtNum, fullNum, logTicks, niceTicks, percentileBand, quantityFromText, rowCount, type ChartData, type ChartPoint, type ChartView } from "../research/chartRows";
 
 const H = 300;
 const CH = 6.4; // approximate width of one 11.5px label character
@@ -57,27 +57,49 @@ interface Hover {
   y: number;
 }
 
-export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }) {
+export function AnswerChart({ view, data, caption }: { view: ChartView; data: ChartData; caption?: string | null }) {
   const [box, W] = useWidth();
   const [hidden, setHidden] = useState<Set<number>>(new Set());
   const [hover, setHover] = useState<Hover | null>(null);
   const ny = view.y.length;
+  // Percentiles (or lower/central/upper bounds) of one quantity: one line per group over a shaded
+  // band, not three unrelated lines. Only on a numeric x where each group has one row per x.
+  const band = useMemo(() => {
+    if (data.categorical || view.mark === "bar") return null;
+    const b = percentileBand(view.y);
+    if (!b) return null;
+    const seen = new Set<string>();
+    for (const p of data.points) {
+      const key = `${p.group}|${p.x}`;
+      if (seen.has(key)) return null;
+      seen.add(key);
+    }
+    return b;
+  }, [data, view.mark, view.y]);
   const series = useMemo(
     () =>
       data.groups.flatMap((g, gi) =>
-        view.y.map((a, k) => ({ id: gi * ny + k, group: g, k, name: g != null && ny > 1 ? `${g} · ${a.title}` : g ?? a.title })),
+        band
+          ? [{ id: gi * ny + band.mid, group: g, k: band.mid, name: g ?? band.midTitle }]
+          : view.y.map((a, k) => ({ id: gi * ny + k, group: g, k, name: g != null && ny > 1 ? `${g} · ${a.title}` : g ?? a.title })),
       ),
-    [data.groups, view.y, ny],
+    [data.groups, view.y, ny, band],
   );
   const sid = (p: ChartPoint, k: number) => data.groups.indexOf(p.group) * ny + k;
-  const visible = (p: ChartPoint, k: number) => p.y[k] != null && !hidden.has(sid(p, k));
+  // With a band, the central line carries the marks and the hover; the edges are the shaded area.
+  const visible = (p: ChartPoint, k: number) => p.y[k] != null && (!band || k === band.mid) && !hidden.has(sid(p, k));
+  const inView = (p: ChartPoint, k: number) => p.y[k] != null && !hidden.has(sid(p, band ? band.mid : k));
 
   const yUnit = [...new Set(view.y.map((a) => shownUnit(a.unit)).filter(Boolean))];
-  const yTitle = ny === 1 ? axisTitle(view.y[0]) : `${view.y.map((a) => a.title).join(", ")}${yUnit.length ? ` (${yUnit.join(", ")})` : ""}`;
+  const yTitle = band
+    ? `${band.quantity ?? quantityFromText(caption) ?? band.midTitle}${yUnit.length ? ` (${yUnit.join(", ")})` : ""}`
+    : ny === 1
+      ? axisTitle(view.y[0])
+      : `${view.y.map((a) => a.title).join(", ")}${yUnit.length ? ` (${yUnit.join(", ")})` : ""}`;
   const ylog = view.y.some((a) => a.log);
   const bars = data.categorical && view.mark === "bar";
 
-  const yVals = data.points.flatMap((p) => p.y.flatMap((v, k) => (v != null && visible(p, k) ? [v] : [])));
+  const yVals = data.points.flatMap((p) => p.y.flatMap((v, k) => (v != null && inView(p, k) ? [v] : [])));
   const allY = yVals.length ? yVals : data.points.flatMap((p) => p.y.filter((v): v is number => v != null));
   const yTickText = (v: number) => fmtNum(v);
   // Left margin fits the widest tick label; bottom fits category labels, rotated when they crowd.
@@ -126,6 +148,18 @@ export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }
             return { s, d: pts.map((p, i) => `${i ? "L" : "M"}${xs!.pos(p.x as number).toFixed(1)},${ys.pos(p.y[s.k]!).toFixed(1)}`).join("") };
           });
 
+  const bandPaths = !band
+    ? []
+    : series
+        .filter((s) => !hidden.has(s.id))
+        .map((s) => {
+          const pts = data.points.filter((p) => p.group === s.group && p.y[band.lo] != null && p.y[band.hi] != null).sort((a, b) => (a.x as number) - (b.x as number));
+          if (pts.length < 2) return { s, d: "" };
+          const up = pts.map((p, i) => `${i ? "L" : "M"}${xs!.pos(p.x as number).toFixed(1)},${ys.pos(p.y[band.hi]!).toFixed(1)}`).join("");
+          const down = [...pts].reverse().map((p) => `L${xs!.pos(p.x as number).toFixed(1)},${ys.pos(p.y[band.lo]!).toFixed(1)}`).join("");
+          return { s, d: `${up}${down}Z` };
+        });
+
   const onMove = (e: MouseEvent<SVGSVGElement>) => {
     if (bars) return;
     const r = e.currentTarget.getBoundingClientRect();
@@ -148,7 +182,9 @@ export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }
 
   const nPts = data.points.length;
   const showDots = view.mark === "scatter" || data.categorical || nPts <= 80;
-  const label = `${view.mark} chart of ${view.y.map((a) => a.title).join(", ")} by ${view.x.title}, ${rowCount(nPts, data.noun)}`;
+  const label = band
+    ? `${view.mark} chart of ${band.quantity ?? quantityFromText(caption) ?? band.midTitle} by ${view.x.title}, with the ${band.range} shaded, ${rowCount(nPts, data.noun)}`
+    : `${view.mark} chart of ${view.y.map((a) => a.title).join(", ")} by ${view.x.title}, ${rowCount(nPts, data.noun)}`;
   // Points drawn on the same pixel (same x and y): the dots are translucent so a stack reads darker,
   // and the tooltip counts them.
   const here = (x: number, y: number) => `${Math.round(x)}:${Math.round(y)}`;
@@ -164,14 +200,27 @@ export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }
 
   return (
     <div className="chart-box" ref={box}>
-      {series.length > 1 && (
+      {(series.length > 1 || band) && (
         <div className="chart-legend" role="group" aria-label="Series">
-          {series.map((s) => (
-            <button key={s.id} className={`chart-key${hidden.has(s.id) ? " off" : ""}`} aria-pressed={!hidden.has(s.id)} onClick={() => setHidden((h) => { const n = new Set(h); if (n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })}>
-              <span className="chart-sw" style={{ background: color(s.id) }} aria-hidden="true" />
-              {s.name}
-            </button>
-          ))}
+          {series.length > 1
+            ? series.map((s) => (
+                <button key={s.id} className={`chart-key${hidden.has(s.id) ? " off" : ""}`} aria-pressed={!hidden.has(s.id)} onClick={() => setHidden((h) => { const n = new Set(h); if (n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })}>
+                  <span className={`chart-sw${band ? " chart-sw-line" : ""}`} style={{ background: color(s.id) }} aria-hidden="true" />
+                  {s.name}
+                </button>
+              ))
+            : series.map((s) => (
+                <span key={s.id} className="chart-key chart-key-static">
+                  <span className="chart-sw chart-sw-line" style={{ background: color(s.id) }} aria-hidden="true" />
+                  {s.name}
+                </span>
+              ))}
+          {band && (
+            <span className="chart-key chart-key-static">
+              <span className="chart-sw chart-sw-band" style={{ background: series.length > 1 ? "var(--ink-3)" : color(series[0]?.id ?? 0) }} aria-hidden="true" />
+              {band.range}
+            </span>
+          )}
         </div>
       )}
       <svg className="answer-chart" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
@@ -223,6 +272,7 @@ export function AnswerChart({ view, data }: { view: ChartView; data: ChartData }
         </text>
 
         {/* marks */}
+        {bandPaths.map(({ s, d }) => (d ? <path key={`band${s.id}`} className="ch-band" d={d} style={{ fill: color(s.id) }} /> : null))}
         {lines.map(({ s, d }) => (
           <path key={s.id} className="ch-line" d={d} style={{ stroke: color(s.id) }} strokeDasharray={DASH[Math.floor(s.id / 5) % DASH.length]} />
         ))}

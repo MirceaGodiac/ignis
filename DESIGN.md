@@ -304,8 +304,10 @@ bottom. The header holds the breadcrumb, "Sources" (every cited source of the qu
 panel) and a "…" menu (pause, resume, cancel, copy link, details). No tabs, no properties column.
 
 Citations: after each claim, a chip names its source by number (in order of first citation) and the
-place: "1 · p. 14", "2 · row 41", "+1" for more supports; "computed" for a value read from an artifact;
-a dashed "interpretation" chip for the agent's own reading. Hover shows the quoted passage with 1/N
+place: "1 · p. 14", "2 · row 41", "+1" for more supports. A claim without a passage gets a quiet
+inline mark instead of a chip, its evidence glyph and a muted word with no fill: "computed" (diamond)
+for a value read from an artifact, "interpretation" (dashed ring) for the agent's own reading,
+"model knowledge" (dotted square). Hover shows the quoted passage with 1/N
 across supports and "Open", which shows the original at that place in the side panel. Under the
 answer: a "Sources" line (stacked numbers, counts) that expands to every passage, copy, and follow-ups.
 The evidence contract carries no source title yet, so sources are numbered, not named.
@@ -379,7 +381,8 @@ Neutral by default, red only for refusals.
 - **Caution:** neutral note with a 6px ink dot before the heading.
 - **Ok:** neutral note with a 6px green dot before the heading.
 - **Gap:** transparent with an inset 1px hairline and pencil-grey text. It names data that the contracts do not carry yet. A view or figure inside an answer that cannot be drawn ("Not shown: …") is a gap, not a refusal.
-- **Declined step:** a refused or failed tool step in the side panel is a neutral note: a one-line human heading from the error code ("This dataset isn't available here"), then the tool's message; a list it names after a colon becomes a short bulleted list (name in mono, parenthetical muted). The raw message and code stay in Technical details. The trail keeps "1 step did not run" in red, and that line opens the step.
+- **Declined step:** a refused or failed tool step in the side panel is a neutral note: a one-line human heading from the error code ("This dataset isn't available here"), then the tool's message; a list it names after a colon becomes a short bulleted list (name in mono, parenthetical muted). The raw message and code stay in Technical details. The trail's one line ends with a muted "· 1 step did not run" (ink 3, never red), and that line opens the step.
+- **Answer views:** a reader sees what a view shows, never how it is addressed. Series read in the unit that fits their magnitude (SI metres as mm or µm), legends are named by role ("Measured", "Forecast (median)", "Forecast range (5–95%)"), the x title is "Time (s)" with the time origin in a tooltip, and a 2px cutoff bar marks where a forecast starts. Three percentile axes of one quantity draw as one line over a shaded band, titled by the quantity. Artifact ids, pointers and the exact reason a view did not draw stay in a "Technical details" disclosure or a tooltip.
 - **Limits:** one quiet line under the answer (info icon, "3 limits", chevron) that opens into a list on a faint wash; each limit leads with its first sentence, the rest muted; the ask button appears on row hover or focus, always on touch.
 
 ### Evidence glyphs (signature)

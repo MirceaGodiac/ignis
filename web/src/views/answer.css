@@ -22,6 +22,7 @@
 .md em { font-style: italic; }
 .md b { font-weight: 600; color: var(--ink); }
 .md-ic { font: 0.86em/1 var(--font-data); padding: 2px 5px; border-radius: 5px; background: var(--wash); color: var(--ink); overflow-wrap: anywhere; }
+.md-ic.md-id { color: var(--ink-3); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); cursor: help; }
 .md-code { font: 12.5px/1.6 var(--font-data); padding: 12px 14px; border-radius: 10px; background: var(--wash); color: var(--ink); overflow-x: auto; white-space: pre; }
 .md-code code { font: inherit; }
 .md-tail { margin: -4px 0 0; }
@@ -50,6 +51,17 @@
 .dt-scroll { overflow: auto; }
 .dt-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; font-size: 12px; color: var(--ink-3); }
 
+/* ------------------------------------------------------------------ claim kinds without a passage
+   "computed", "interpretation", "model knowledge": a quiet inline mark in the chip's geometry (glyph
+   and a short muted word, no fill); the card on hover carries the detail. */
+.cite.cite-kind { gap: 5px; height: 20px; padding: 0 6px; margin: 0 1px; background: transparent; box-shadow: none; color: var(--ink-3); font-size: 11.5px; font-weight: 500; font-style: normal; vertical-align: 1px; }
+.cite.cite-kind .glyph { width: 7px; height: 7px; opacity: 0.85; }
+.cite.cite-kind .g-computed { transform: rotate(45deg) scale(0.78); }
+.cite.cite-kind:hover, .cite.cite-kind:focus-visible { background: var(--wash); color: var(--ink-2); }
+.cite.cite-kind.on { background: var(--flame-wash); color: var(--flame); }
+.cite-card-head .src-no .glyph { width: 8px; height: 8px; }
+.sources-list .src-name { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* ------------------------------------------------------------------ the view frame */
 figure.view-block { width: 100%; min-width: 0; margin: 4px 0; display: grid; gap: 0; border: 1px solid var(--rule); border-radius: var(--r); background: var(--sheet); overflow: hidden; }
 figure.view-block > .view-cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 13px 16px 11px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
@@ -62,7 +74,18 @@ figure.view-block > .view-cap { display: flex; flex-wrap: wrap; align-items: bas
 .view-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 14px; margin: 0; font-size: 12px; color: var(--ink-3); }
 .view-foot > span { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: baseline; }
 .view-foot code, .view-meta code, .release-t code { font: 11.5px/1.4 var(--font-data); color: var(--ink-3); }
-.view-skip { color: var(--ink-2); }
+.view-skip { color: var(--ink-3); cursor: help; }
+.view-meta-src { color: var(--ink-2); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }
+/* a view that cannot be drawn: one sentence; the exact reasons folded */
+.view-gap { display: grid; gap: 6px; }
+.view-gap > p { margin: 0; }
+.view-tech > summary { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-3); cursor: pointer; list-style: none; }
+.view-tech > summary::-webkit-details-marker { display: none; }
+.view-tech > summary:hover { color: var(--ink-2); }
+.view-tech > summary::after { content: ""; width: 5px; height: 5px; margin-left: 2px; border-right: 1.25px solid currentColor; border-bottom: 1.25px solid currentColor; transform: rotate(-45deg); transition: transform 160ms var(--ease); }
+.view-tech[open] > summary::after { transform: rotate(45deg); }
+.view-tech ul { display: grid; gap: 2px; margin: 6px 0 0; padding: 0; }
+.view-tech li { list-style: none; font: 11.5px/1.5 var(--font-data); color: var(--ink-3); overflow-wrap: anywhere; }
 .view-series_comparison .view-body, .view-chart .view-body { padding-top: 2px; }
 
 /* source_excerpt */
@@ -84,7 +107,31 @@ figure.view-block > .view-cap { display: flex; flex-wrap: wrap; align-items: bas
   .release-card > :nth-child(n + 3) { grid-column: 2; justify-self: start; }
 }
 
+/* ------------------------------------------------------------------ series comparison */
+.series { display: grid; gap: 4px; min-width: 0; }
+.series .chart { min-height: 260px; }
+.series-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; min-height: 26px; font-size: 12.5px; color: var(--ink-2); }
+.series-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0; padding: 0; }
+.series-legend li { list-style: none; display: inline-flex; align-items: center; gap: 7px; }
+.series-band { color: var(--ink-3); }
+.series-val { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.series-val .unit { font-weight: 400; color: var(--ink-3); }
+.series-t { color: var(--ink-3); font-size: 12px; }
+.series-origin { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-3); font-size: 12px; cursor: help; border-radius: 6px; }
+.series-origin svg { width: 13px; height: 13px; }
+.series-legend .swatch { flex: none; }
+.series-legend .swatch-observed { width: 7px; height: 7px; border-radius: 50%; }
+.series-legend .swatch-predicted, .series-legend .swatch-computed { width: 14px; height: 2px; border-radius: 1px; }
+.series-legend .swatch-band { width: 14px; height: 9px; border-radius: 2px; }
+.series-legend .swatch-band-predicted { background: color-mix(in srgb, var(--model) 22%, transparent); }
+.series-legend .swatch-band-computed, .series-legend .swatch-band-observed { background: color-mix(in srgb, var(--fg-muted) 22%, transparent); }
+.series-legend .swatch-cutoff { width: 2px; height: 12px; border-radius: 0; background: var(--cutoff); }
+
 /* ------------------------------------------------------------------ chart */
+.ch-band { stroke: none; opacity: 0.16; }
+.chart-sw.chart-sw-band { opacity: 0.3; width: 14px; }
+.chart-sw.chart-sw-line { height: 2px; width: 14px; border-radius: 1px; }
+.chart-key-static, .chart-key-static:hover { cursor: default; background: none; color: var(--ink-2); }
 .chart-box { position: relative; width: 100%; min-width: 0; }
 .answer-chart { display: block; max-width: 100%; overflow: visible; }
 .ch-grid { stroke: var(--grid); stroke-width: 1; }
