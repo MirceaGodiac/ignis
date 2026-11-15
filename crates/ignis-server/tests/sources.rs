@@ -1130,3 +1130,44 @@ fn live_geode_signs_a_psi_file_for_about_an_hour() {
     let left = (s.expires_at - chrono::Utc::now()).num_minutes();
     assert!((30..=90).contains(&left), "signed for {left} min");
 }
+
+/// Evidence-corpus documents fetched from NTRS are cited by byte hash: they resolve through the
+/// NTRS discovery record with the same record id (seen live: the FLEX results report, the most
+/// cited source, was `not_found`); one without a discovery record links out to its NTRS page.
+#[test]
+fn evidence_corpus_ntrs_documents_resolve_by_their_byte_hash() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data/manifests");
+    let cat = Catalog::load(&root).unwrap();
+    assert!(cat.rejected.is_empty(), "{:?}", cat.rejected);
+    let flex_tp =
+        SourceId::new("sha256:b4f6ca983e2792c33a0b92220a791a818f426bb635b94f7fd33dc8c9c471e79d")
+            .unwrap();
+    let e = cat.get(&flex_tp).expect("FLEX results report");
+    assert!(
+        matches!(&e.address, ignis_server::v1::sources::catalog::Address::Ntrs { pdf_url: Some(u) } if u.contains("20150023456")),
+        "{e:?}"
+    );
+    // An NTRS corpus document without a discovery record: a link out to its NTRS page.
+    let corpus = std::fs::read_to_string(root.join("../corpus/manifest.jsonl")).unwrap();
+    let seed: serde_json::Value = corpus
+        .lines()
+        .map(|l| serde_json::from_str::<serde_json::Value>(l).unwrap())
+        .find(|v| v["entry_id"] == "ntrs-20210021781")
+        .unwrap();
+    let id = SourceId::new(seed["source_id"].as_str().unwrap()).unwrap();
+    let e = cat
+        .get(&id)
+        .expect("corpus document without a discovery record");
+    assert!(
+        matches!(
+            e.address,
+            ignis_server::v1::sources::catalog::Address::LinkOut
+        ),
+        "{e:?}"
+    );
+    assert!(
+        e.landing_url
+            .starts_with("https://ntrs.nasa.gov/citations/"),
+        "{e:?}"
+    );
+}
