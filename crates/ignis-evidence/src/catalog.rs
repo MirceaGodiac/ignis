@@ -390,6 +390,15 @@ pub fn views(con: &Connection, publication_id: &str) -> Result<Vec<String>> {
 }
 
 /// Where this host keeps the bytes of `sha256`, if recorded at ingest.
+/// Where the bytes of `sha256` are kept on this host (a cache hint; readers verify the hash).
+pub fn record_location(con: &Connection, sha256: &str, rel_path: &str) -> Result<()> {
+    con.execute(
+        "INSERT OR REPLACE INTO asset_locations(sha256, rel_path) VALUES (?1, ?2)",
+        params![sha256, rel_path],
+    )?;
+    Ok(())
+}
+
 pub fn asset_location(con: &Connection, sha256: &str) -> Result<Option<String>> {
     use rusqlite::OptionalExtension;
     Ok(con

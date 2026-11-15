@@ -333,3 +333,57 @@ fn a_pdfium_view_never_displaces_a_docling_view() {
     }
     let _ = std::fs::remove_dir_all(dir);
 }
+
+/// `import-views`: PDFium and Docling directories in one batch. The Docling view ends active, the
+/// PDFium view stays stored and resolvable, a second run imports nothing (incremental), and a view
+/// whose PDF is missing is refused without stopping the batch.
+#[test]
+fn import_views_is_incremental_and_docling_wins() {
+    let dir = std::env::temp_dir().join(format!("ignis-import-views-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let (pdfium, docling, pdfs) = (dir.join("pdfium"), dir.join("docling"), dir.join("raw"));
+    for d in [&pdfium, &docling, &pdfs] {
+        std::fs::create_dir_all(d.join("PSI-69")).unwrap();
+    }
+    let pdfium_view = VIEW.replace(".docling.json", ".pdfium.json");
+    std::fs::copy(fixture(VIEW), docling.join("PSI-69").join(VIEW)).unwrap();
+    std::fs::copy(
+        fixture(&pdfium_view),
+        pdfium.join("PSI-69").join(&pdfium_view),
+    )
+    .unwrap();
+    std::fs::copy(fixture(PDF), pdfs.join("PSI-69").join(PDF)).unwrap();
+    // A view of a PDF that is not stored: refused, reported, the rest imports.
+    std::fs::create_dir_all(pdfium.join("PSI-1")).unwrap();
+    std::fs::copy(
+        fixture(&pdfium_view),
+        pdfium.join("PSI-1").join("missing.pdfium.json"),
+    )
+    .unwrap();
+    let db = dir.join("evidence.sqlite");
+    catalog::connect(&db, false).unwrap();
+
+    let roots = [pdfium.clone(), docling.clone()];
+    let r = ignis_evidence::import_views(&roots, &pdfs, &db, &rp(), false).unwrap();
+    assert_eq!(r["views"], 3, "{r}");
+    assert_eq!(r["imported"], 2, "{r}");
+    assert_eq!(r["refused"].as_array().unwrap().len(), 1, "{r}");
+
+    let con = catalog::connect(&db, true).unwrap();
+    let pub_id = format!("pub-{}", &view().source.sha256[..16]);
+    let active = catalog::active_parser(&con, &pub_id).unwrap().unwrap();
+    assert!(active.starts_with("docling-"), "active view {active}");
+    assert_eq!(
+        catalog::views(&con, &pub_id).unwrap().len(),
+        2,
+        "both views stay stored"
+    );
+    drop(con);
+
+    let again = ignis_evidence::import_views(&roots, &pdfs, &db, &rp(), false).unwrap();
+    assert_eq!(again["imported"], 0, "{again}");
+    // The refused copy has the same bytes as a stored view, so it counts as stored too.
+    assert_eq!(again["already_stored"], 3, "{again}");
+    assert!(again["refused"].as_array().unwrap().is_empty(), "{again}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
