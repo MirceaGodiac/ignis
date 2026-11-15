@@ -679,7 +679,7 @@ pub fn tool_catalog() -> Vec<ToolDescriptor> {
         t("datasets_inspect", "Metadata of one curated dataset bundle by `dataset_id`: family, cohort, split, partitions, the time_origin of its experimental times (seconds), views (each an artifact with typed columns, SI units and row count) and quality report. Use before analysis_execute to learn columns and units and which view artifact_id to mount. Returns no measurement rows; refused (scope_denied) when a partition is not granted to this session.", E::Read, true, &[C::ReadData], "DatasetRef", "DatasetBundle", false, Lane::Raul),
         t("models_inspect", "One model release by `release_id`: family (FLEX/ACME/BASS), construction manifest, applicability domain, training and qualification state. Use before models_forecast to check the run lies in the release's domain. A release's outputs are model_output, never measurements.", E::Read, true, &[C::RunModels], "ReleaseRef", "ModelRelease", false, Lane::Iancu),
         t("models_forecast", "Queue a strict forward run of `release_id` on an admitted prefix (`input`: a stored run up to `cutoff_s`, seconds after its time_origin, or an uploaded prefix by input_hash). Use after models_inspect, to compare a release with data. Answers `accepted` with a job: poll jobs_get, then read the AnalysisArtifact with artifacts_read. Idempotent on `client_request_id`. The forecast is model_output, not a measurement; inputs outside the release's admitted domain are refused with the reason.", E::Compute, true, &[C::RunModels, C::ReadData], "ForecastRequest", "AnalysisArtifact", true, Lane::Iancu),
-        t("analysis_execute", "Run a Python `source` once in the isolated runner: no network, read-only root, `inputs` are artifacts of this workspace mounted read-only at /in/<name>. Use for every computation you report (unit conversions, fits, statistics) so the number is an artifact with code identity. stdout, stderr and files under /out become artifacts of an ExecutionRecord. Answers `accepted` with a job: poll jobs_get, then artifacts_read. Idempotent on `client_request_id`. A non-zero exit or timeout is the program's outcome, not a tool failure.", E::Compute, true, &[C::ExecuteCode], "AnalysisExecuteRequest", "ExecutionRecord", true, Lane::Mircea),
+        t("analysis_execute", "Run a Python `source` once in the isolated runner: no network, read-only root, `inputs` name data by reference (an `artifact_id`, a `dataset_view`, or a complete `conditions` query), resolved by the host under your scope and mounted read-only at /in/<name>; /job/inputs.json lists them with digests and units. Use for every computation you report (unit conversions, fits, statistics) so the number is an artifact with code identity. stdout, stderr and files under /out become artifacts of an ExecutionRecord. Answers `accepted` with a job: poll jobs_get, then artifacts_read. Idempotent on `client_request_id`. A non-zero exit or timeout is the program's outcome, not a tool failure.", E::Compute, true, &[C::ExecuteCode], "AnalysisExecuteRequest", "ExecutionRecord", true, Lane::Mircea),
         t("artifacts_read", "Part of a stored artifact of this workspace by `artifact_id`: `json_pointer` into a JSON artifact (\"\" = whole) or `byte_offset`/`byte_length` of any artifact. Use to continue a `partial` preview and to read job outputs or analysis stdout. Reading never makes content citable evidence.", E::Read, true, &[], "ArtifactReadRequest", "InlinePayload", false, Lane::Mircea),
         t("jobs_get", "State of a job this workspace submitted (models_forecast, analysis_execute) by `job_id`: status, progress, output artifacts or error. Use after an `accepted` result: poll until succeeded, failed or cancelled, then read outputs with artifacts_read. A job of another workspace is not found.", E::Read, true, &[], "JobLookup", "JobRef", false, Lane::Mircea),
         t("wiki_patch", "Write a revision of wiki page `page_id` against `base_revision` (compare-and-swap) with itemized `ops`; `title` creates or renames. Use wiki_read first for the head revision. A moved head is refused as `conflict`: read the page with wiki_read and reapply. Author and episode come from the session, never from arguments.", E::WorkspaceWrite, false, &[C::WikiWrite], "WikiPatch", "WikiRevision", false, Lane::Raul),
@@ -719,20 +719,41 @@ pub enum AnalysisLanguage {
     Python,
 }
 
-/// One input of an analysis: an artifact of the caller's workspace, mounted read-only at
-/// `/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+/// One input of an analysis, named by reference and mounted read-only at `/in/<name>`. Exactly one
+/// of `artifact_id`, `dataset_view` or `conditions` is set. The host resolves the reference under
+/// the caller's scope (every partition check applies, also to the lineage of an artifact), copies
+/// the bytes and verifies their digest; the request never carries the data itself. The runner never
+/// sees the host filesystem or other stores. `/job/inputs.json` lists the mounted inputs
+/// ([`MountedInput`]) for the program.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct AnalysisInput {
     /// File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).
     pub name: String,
-    pub artifact_id: ArtifactId,
+    /// An artifact of the caller's workspace (e.g. the output of an earlier analysis).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub artifact_id: Option<ArtifactId>,
+    /// One columnar view (Parquet) of a curated dataset, as `datasets_inspect` lists it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dataset_view: Option<DatasetViewRef>,
+    /// The complete answer of a `conditions_query` (every page), as one `ConditionsTable` JSON
+    /// document; `cursor` must be absent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conditions: Option<super::ConditionsQuery>,
+}
+
+/// A view of a dataset bundle by name.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct DatasetViewRef {
+    pub dataset_id: super::DatasetId,
+    pub view: String,
 }
 
 /// Argument of `analysis_execute`: a program run once in the isolated runner (no network, read-only
 /// root, separate uid, no host secrets). Its stdout, stderr and the regular files it writes under
 /// `/out` become artifacts of an [`ExecutionRecord`].
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct AnalysisExecuteRequest {
     pub language: AnalysisLanguage,
@@ -780,6 +801,29 @@ impl AnalysisExecuteRequest {
                 "AnalysisExecuteRequest",
                 || format!("input name {:?} is used twice", i.name),
             )?;
+            let refs = usize::from(i.artifact_id.is_some())
+                + usize::from(i.dataset_view.is_some())
+                + usize::from(i.conditions.is_some());
+            ensure(refs == 1, "AnalysisExecuteRequest", || {
+                format!(
+                    "input {:?} names {refs} references; exactly one of artifact_id, dataset_view, conditions",
+                    i.name
+                )
+            })?;
+            if let Some(v) = &i.dataset_view {
+                ensure(!v.view.is_empty(), "AnalysisExecuteRequest", || {
+                    format!("input {:?}: the view name is empty", i.name)
+                })?;
+            }
+            if let Some(q) = &i.conditions {
+                q.validate()?;
+                ensure(q.cursor.is_none(), "AnalysisExecuteRequest", || {
+                    format!(
+                        "input {:?}: a mounted conditions table is complete; drop the cursor",
+                        i.name
+                    )
+                })?;
+            }
         }
         Ok(())
     }
@@ -860,12 +904,44 @@ pub struct AnalysisOutput {
     pub artifact: ArtifactRef,
 }
 
-/// An input as the program saw it: `/in/<name>` held exactly these bytes.
+/// An input as the program saw it: `/in/<name>` held exactly these bytes (`artifact.sha256`,
+/// verified while copying). `resolved` says what a dataset or conditions reference resolved to; it
+/// is absent for a workspace artifact.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct MountedInput {
     pub name: String,
     pub artifact: ArtifactRef,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resolved: Option<ResolvedInput>,
+}
+
+/// What a by-reference input resolved to when it was mounted, so a result names exactly the data
+/// it read (and its units).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ResolvedInput {
+    /// A view of a dataset bundle. `artifact` of the mounted input is the view's Parquet artifact.
+    DatasetView {
+        dataset_id: super::DatasetId,
+        view: String,
+        /// [`super::DatasetBundle::content_digest`] of the bundle the view belongs to.
+        bundle_digest: Digest,
+        /// Partitions of the bundle, each granted by the scope that mounted it.
+        partitions: BTreeSet<Partition>,
+        /// Event that defines t = 0 for every time column.
+        time_origin: String,
+        columns: Vec<super::ColumnSpec>,
+        row_count: u64,
+    },
+    /// The complete answer of a conditions query. `artifact` of the mounted input is the stored
+    /// `ConditionsTable` document.
+    Conditions {
+        query: super::ConditionsQuery,
+        /// `conditions_snapshot` of the data the table was answered from.
+        snapshot: Digest,
+        row_count: u64,
+    },
 }
 
 /// A path under `/out` that was not kept, and why (symbolic link, special file, budget).

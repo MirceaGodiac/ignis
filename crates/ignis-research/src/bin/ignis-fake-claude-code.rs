@@ -1,7 +1,8 @@
 //! Test double of headless Claude Code (`claude -p --output-format stream-json`) for the offline
 //! tests of `ClaudeBridge`. It checks the isolation flags and the cleared environment, keeps
 //! sessions as files in `CLAUDE_CONFIG_DIR`, and acts on keywords in the prompt:
-//! `tool` (one IGNIS tool call), `usage` (the result carries usage and cost), `explain` (a message, then a call it introduces, with arguments
+//! `tool` (one IGNIS tool call), `usage` (the result carries usage and cost), `delegate` (a subtask through the subagent tool), `nested` (a
+//! subagent that tries to delegate again), `explain` (a message, then a call it introduces, with arguments
 //! larger than an event inlines), `slow` (runs 30 s), `limit` (plan limit result), `crash` (exits
 //! without a result). It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log` and the text of
 //! `--append-system-prompt-file` to `<CLAUDE_CONFIG_DIR>/system-prompts.jsonl`.
@@ -39,7 +40,27 @@ fn main() {
         eprintln!("{msg}");
         std::process::exit(2);
     };
-    if flag("--tools").as_deref() != Some("") || !args.iter().any(|a| a == "--strict-mcp-config") {
+    // The only built-in tool ever enabled is the subagent tool, and only with an IGNIS subagent
+    // definition whose tools are IGNIS MCP tools and include no subagent tool.
+    let tools_ok = match flag("--tools").as_deref() {
+        Some("") => flag("--agents").is_none(),
+        Some("Agent") => flag("--agents").is_some_and(|a| {
+            let v: serde_json::Value = serde_json::from_str(&a).unwrap_or_default();
+            let defs = v.as_object().cloned().unwrap_or_default();
+            !defs.is_empty()
+                && defs.values().all(|d| {
+                    d["tools"].as_array().is_some_and(|t| {
+                        t.iter().all(|n| {
+                            n.as_str().is_some_and(|n| {
+                                n.starts_with("mcp__ignis__") && n != "mcp__ignis__answer_submit"
+                            })
+                        })
+                    })
+                })
+        }),
+        _ => false,
+    };
+    if !tools_ok || !args.iter().any(|a| a == "--strict-mcp-config") {
         fail("isolation flags missing");
     }
     if std::env::var_os("IGNIS_TEST_HOST_SECRET").is_some() {
@@ -87,6 +108,40 @@ fn main() {
     );
     if prompt.contains("crash") {
         fail("Invalid API key · Please run /login");
+    }
+    // `delegate`: one subtask through the subagent tool, the subagent makes an IGNIS call and
+    // reports; `nested` adds a subagent trying to delegate again (the host must stop the turn).
+    if prompt.contains("delegate") || prompt.contains("nested") {
+        if flag("--agents").is_none() {
+            fail("delegation requested without a subagent definition");
+        }
+        let sub = "tu-agent-1";
+        emit(
+            serde_json::json!({"type":"assistant","parent_tool_use_id":null,"message":{"id":"m-del","content":[
+            {"type":"text","text":"Delegating the aggregation."},
+            {"type":"tool_use","id":sub,"name":"Agent","input":{"subagent_type":"ignis-subinvestigator","description":"aggregate","prompt":"aggregate burn rates"}}]}}),
+        );
+        emit(
+            serde_json::json!({"type":"assistant","parent_tool_use_id":sub,"message":{"id":"m-sub-1","content":[
+            {"type":"text","text":"Sub: searching."},
+            {"type":"tool_use","id":"tu-sub-1","name":"mcp__ignis__sources_search","input":{"query":"burn rate"}}]}}),
+        );
+        emit(
+            serde_json::json!({"type":"user","parent_tool_use_id":sub,"message":{"content":[
+            {"type":"tool_result","tool_use_id":"tu-sub-1","content":[{"type":"text","text":"{\"hits\":[]}"}]}]}}),
+        );
+        if prompt.contains("nested") {
+            emit(
+                serde_json::json!({"type":"assistant","parent_tool_use_id":sub,"message":{"id":"m-sub-2","content":[
+                {"type":"tool_use","id":"tu-sub-2","name":"Agent","input":{"prompt":"go deeper"}}]}}),
+            );
+            // A real CLI would keep going; the host must stop it here.
+            std::thread::sleep(std::time::Duration::from_secs(30));
+        }
+        emit(
+            serde_json::json!({"type":"user","parent_tool_use_id":null,"message":{"content":[
+            {"type":"tool_result","tool_use_id":sub,"content":[{"type":"text","text":"Report: no hits for burn rate."}]}]}}),
+        );
     }
     if prompt.contains("tool") {
         emit(
