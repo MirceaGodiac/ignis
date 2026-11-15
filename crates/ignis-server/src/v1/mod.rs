@@ -20,6 +20,7 @@ pub mod agent;
 pub mod data;
 pub mod fixture;
 pub mod io;
+mod metrics;
 mod runner;
 pub mod sandbox;
 pub mod sources;
@@ -428,6 +429,7 @@ pub fn build(state: Arc<V1>) -> Router {
         )
         .merge(sources::routes())
         .merge(data::routes())
+        .merge(metrics::routes())
         // Short commands only: research work runs as jobs, big results are artifacts.
         .layer(TimeoutLayer::with_status_code(
             axum::http::StatusCode::REQUEST_TIMEOUT,

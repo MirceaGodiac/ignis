@@ -24,8 +24,9 @@ use std::sync::{Arc, Mutex, Weak};
 use std::time::Duration;
 
 use ignis_core::contracts::{
-    ApprovalDecision, ApprovalId, Causation, EpisodeId, EpisodeStatus, ErrorCode, ErrorEnvelope,
-    ExecutionScope, Origin, RetryPolicy, RuntimeBuildId, RuntimeKind, RuntimeThreadRef, Timestamp,
+    ApprovalDecision, ApprovalId, Causation, CostBasis, CostFigure, EpisodeId, EpisodeStatus,
+    ErrorCode, ErrorEnvelope, EventBody, ExecutionScope, Finite, Origin, RetryPolicy,
+    RuntimeBuildId, RuntimeKind, RuntimeThreadRef, Timestamp, UsageAccounting, UsageReport,
 };
 use ignis_core::hashing::sha256_hex;
 use ignis_core::services::{ArtifactStore, ServiceResult};
@@ -196,6 +197,8 @@ pub struct Translator {
     tools: HashMap<String, (String, String)>,
     /// Text the model wrote right before a `tool_use` becomes that call's `step.rationale`.
     preamble: Preamble,
+    /// The model the `system`/`init` line named (for a `result` without `modelUsage`).
+    model: Option<String>,
 }
 
 /// `mcp__<server>__<tool>` → (server, tool); anything else is reported under server `claude`.
@@ -225,7 +228,79 @@ impl Translator {
             turn: turn.into(),
             tools: HashMap::new(),
             preamble: Preamble::default(),
+            model: None,
         }
+    }
+
+    /// The `usage.reported` records of a `result` line: one increment per model of `modelUsage`
+    /// (with the cost Claude Code reports), else one from `usage` for the model `init` named.
+    /// Anthropic counts cache reads and writes apart from `input_tokens`; the report folds them in.
+    fn usage(&self, v: &Value) -> Vec<Mapped> {
+        fn n(o: &Value, k: &str) -> Option<u64> {
+            o.get(k).and_then(Value::as_u64)
+        }
+        fn report(
+            model: Option<String>,
+            o: &Value,
+            camel: bool,
+            cost: Option<f64>,
+        ) -> Option<UsageReport> {
+            let key =
+                |snake: &'static str, camel_k: &'static str| if camel { camel_k } else { snake };
+            let read = n(o, key("cache_read_input_tokens", "cacheReadInputTokens"));
+            let write = n(
+                o,
+                key("cache_creation_input_tokens", "cacheCreationInputTokens"),
+            );
+            let usage = UsageReport {
+                accounting: UsageAccounting::Increment,
+                model,
+                input_tokens: n(o, key("input_tokens", "inputTokens"))?
+                    .checked_add(read.unwrap_or(0))?
+                    .checked_add(write.unwrap_or(0))?,
+                cached_input_tokens: read,
+                cache_write_tokens: write,
+                output_tokens: n(o, key("output_tokens", "outputTokens"))?,
+                reasoning_tokens: None,
+                reported_cost: cost
+                    .and_then(|a| Finite::new(a).ok())
+                    .map(|amount| CostFigure {
+                        amount,
+                        currency: "USD".into(),
+                        basis: CostBasis::ProviderReported,
+                        price_list: None,
+                    }),
+            };
+            usage.validate().is_ok().then_some(usage)
+        }
+        let mut reports = vec![];
+        if let Some(per_model) = v.get("modelUsage").and_then(Value::as_object) {
+            for (model, o) in per_model {
+                let cost = o.get("costUSD").and_then(Value::as_f64);
+                reports.extend(report(Some(model.clone()), o, true, cost));
+            }
+        } else if let Some(o) = v.get("usage") {
+            let cost = v.get("total_cost_usd").and_then(Value::as_f64);
+            reports.extend(report(self.model.clone(), o, false, cost));
+        }
+        reports
+            .into_iter()
+            .map(|usage| {
+                let mark = format!(
+                    "usage:{}:{}",
+                    self.turn,
+                    usage.model.as_deref().unwrap_or("unreported")
+                );
+                Mapped::Record(RuntimeRecord {
+                    mark: Some(mark),
+                    causation: Causation {
+                        runtime_turn_id: Some(self.turn.clone()),
+                        ..Default::default()
+                    },
+                    change: RuntimeChange::Event(EventBody::UsageReported { usage }),
+                })
+            })
+            .collect()
     }
 
     /// Map one stream-json line. The `result` line is returned separately; it ends the turn.
@@ -322,8 +397,13 @@ impl Translator {
                 }
                 (out, None)
             }
-            "result" => (vec![], Some(v.clone())),
+            "result" => (self.usage(v), Some(v.clone())),
             "system" => {
+                if v.get("subtype").and_then(Value::as_str) == Some("init") {
+                    if let Some(m) = v.get("model").and_then(Value::as_str) {
+                        self.model = Some(m.to_string());
+                    }
+                }
                 // Say so when the IGNIS server did not connect: the turn then has no tools.
                 let ignis_down = v
                     .get("mcp_servers")

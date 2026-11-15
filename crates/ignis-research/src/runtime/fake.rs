@@ -12,7 +12,9 @@
 //! - The turn scenario is chosen by words in the user input: `tool`, `approval`, `shell`,
 //!   `permissions`, `opaque`, `hang` (wait for `turn/interrupt`), `fail`, `explain` (a message, then
 //!   an `analysis_execute` call it introduces, with arguments larger than an event inlines, and
-//!   a secret-like member); plain text just answers.
+//!   a secret-like member), `slowtool` (the tool call takes 150 ms), `usage` (running
+//!   `thread/tokenUsage/updated` totals, one partial and one final per turn); plain text just
+//!   answers.
 //!   `hang` also persists the items produced so far, so a restart can replay them.
 //! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`; the
 //!   `developerInstructions` of each `thread/start` / `thread/resume` to `fake-instructions.jsonl`.
@@ -504,14 +506,54 @@ fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
         done["status"] = json!("completed");
         done["result"] = json!({"content": [{"type": "text", "text": "1 hit"}], "structuredContent": tool_result});
         persist_item(&done);
+        sh.out.send(n(
+            "item/started",
+            base(json!({"item": started, "startedAtMs": 0})),
+        ));
+        // `slowtool`: the call takes a measurable time (M5 latency tests).
+        if has("slowtool") {
+            std::thread::sleep(std::time::Duration::from_millis(150));
+        }
+        sh.out.send(n(
+            "item/completed",
+            base(json!({"item": done, "completedAtMs": 0})),
+        ));
+    }
+    if has("usage") {
+        // Running thread totals like the real server: after the k-th turn of the thread,
+        // input 1000k (cached 200k(k+1)), output 100k (reasoning 40k); one partial total first.
+        let k = sh
+            .store
+            .lock()
+            .unwrap()
+            .threads
+            .get(tid)
+            .and_then(|t| t["turns"].as_array().map(|a| a.len() as u64))
+            .unwrap_or(1)
+            .max(1);
+        let cached = |k: u64| 200 * k * (k + 1);
+        let total = |input: u64, cached: u64, output: u64, reasoning: u64| {
+            json!({"tokenUsage": {
+                "total": {"totalTokens": input + output, "inputTokens": input,
+                          "cachedInputTokens": cached, "outputTokens": output,
+                          "reasoningOutputTokens": reasoning},
+                "last": {"totalTokens": 0, "inputTokens": 0, "cachedInputTokens": 0,
+                         "outputTokens": 0, "reasoningOutputTokens": 0},
+                "modelContextWindow": 200000}})
+        };
         sh.out.send_all(&[
             n(
-                "item/started",
-                base(json!({"item": started, "startedAtMs": 0})),
+                "thread/tokenUsage/updated",
+                base(total(
+                    1000 * k - 500,
+                    cached(k - 1) + 100,
+                    100 * k - 50,
+                    40 * k - 20,
+                )),
             ),
             n(
-                "item/completed",
-                base(json!({"item": done, "completedAtMs": 0})),
+                "thread/tokenUsage/updated",
+                base(total(1000 * k, cached(k), 100 * k, 40 * k)),
             ),
         ]);
     }

@@ -1,0 +1,285 @@
+{
+  "$defs": {
+    "CostBasis": {
+      "description": "Where a cost figure comes from.",
+      "oneOf": [
+        {
+          "const": "provider_reported",
+          "description": "The provider or runtime reported the cost of these calls.",
+          "type": "string"
+        },
+        {
+          "const": "price_list",
+          "description": "Measured tokens multiplied by a dated price list (named in `price_list`).",
+          "type": "string"
+        }
+      ]
+    },
+    "CostFigure": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "basis": {
+          "$ref": "#/$defs/CostBasis"
+        },
+        "currency": {
+          "description": "ISO 4217 code, e.g. `USD`.",
+          "type": "string"
+        },
+        "price_list": {
+          "description": "Identity of the price list (provider page and date); present exactly for `price_list`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "amount",
+        "currency",
+        "basis"
+      ],
+      "type": "object"
+    },
+    "CostStatus": {
+      "description": "The money a range of usage cost. Fails closed: usage of a model the price list does not\nprice, or of a token class it has no price for, is `unpriced`, never zero.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "No usage was reported in the range: there is nothing to price (not \"free\").",
+          "properties": {
+            "status": {
+              "const": "no_usage",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Every reported token was priced by the price list (`basis = price_list`).",
+          "properties": {
+            "cost": {
+              "$ref": "#/$defs/CostFigure"
+            },
+            "status": {
+              "const": "priced",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "cost"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Some usage could not be priced; the amount is unknown.",
+          "properties": {
+            "models": {
+              "description": "The models (or `unreported`) whose usage could not be priced.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "reasons": {
+              "description": "Why, one line per problem.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "status": {
+              "const": "unpriced",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "models",
+            "reasons"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "LatencyStats": {
+      "additionalProperties": false,
+      "description": "Latency of finished tool calls, measured from `tool.started` to `tool.finished` (the\n`occurred_at` of each, stamped by the host when it records them). Percentiles use the\nnearest-rank method over the measured samples; nothing is interpolated or estimated.",
+      "properties": {
+        "max_ms": {
+          "type": "number"
+        },
+        "p50_ms": {
+          "type": "number"
+        },
+        "p95_ms": {
+          "type": "number"
+        },
+        "samples": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "samples",
+        "p50_ms",
+        "p95_ms",
+        "max_ms"
+      ],
+      "type": "object"
+    },
+    "TokenTotals": {
+      "additionalProperties": false,
+      "description": "Token totals of a turn, a question, an episode or a workspace (sums of reported usage).",
+      "properties": {
+        "cache_hit_pct": {
+          "description": "`100 * cached_input_tokens / input_tokens`; absent when the cached count is unknown or\nthere was no input.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "cache_write_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cached_input_tokens": {
+          "description": "Absent when no contributing report gave a cached count (unknown, not zero).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "input_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoning_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "reports": {
+          "description": "`usage.reported` events that contributed.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reports",
+        "input_tokens",
+        "output_tokens"
+      ],
+      "type": "object"
+    },
+    "ToolMetrics": {
+      "additionalProperties": false,
+      "description": "One tool's calls in the measured range.",
+      "properties": {
+        "calls": {
+          "description": "Calls started.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "latency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LatencyStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent when no call finished."
+        },
+        "tool": {
+          "type": "string"
+        },
+        "unfinished": {
+          "description": "Calls started whose `tool.finished` is not in the log (still running, or cut).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tool",
+        "calls",
+        "unfinished"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "ignis/2.1.0/WorkspaceMetrics",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Aggregate over the episodes of a workspace: latencies over every call (never averaged\nper-episode percentiles), token sums, and the mean cost per question when every question is\npriced.",
+  "properties": {
+    "cost": {
+      "$ref": "#/$defs/CostStatus"
+    },
+    "cost_per_question": {
+      "$ref": "#/$defs/CostStatus",
+      "description": "`cost / questions`; `unpriced` when any usage is, `no_usage` when none was reported."
+    },
+    "episodes": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "price_list": {
+      "type": "string"
+    },
+    "questions": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "tokens": {
+      "$ref": "#/$defs/TokenTotals"
+    },
+    "tools": {
+      "items": {
+        "$ref": "#/$defs/ToolMetrics"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "episodes",
+    "questions",
+    "price_list",
+    "tools",
+    "tokens",
+    "cost",
+    "cost_per_question"
+  ],
+  "title": "WorkspaceMetrics",
+  "type": "object"
+}

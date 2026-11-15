@@ -1,0 +1,69 @@
+[
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0301",
+    "episode_id": "fixture-episode-03",
+    "seq": 1,
+    "occurred_at": "2026-11-15T09:00:00Z",
+    "body": {
+      "kind": "message.user",
+      "payload": {
+        "message_id": "fixture-message-31",
+        "text": "What spread rate does the cited table give?"
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0302",
+    "episode_id": "fixture-episode-03",
+    "seq": 2,
+    "occurred_at": "2026-11-15T09:00:04Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-31"
+    },
+    "body": {
+      "kind": "usage.reported",
+      "payload": {
+        "usage": {
+          "accounting": "increment",
+          "model": "fixture-model",
+          "input_tokens": 8000,
+          "cached_input_tokens": 6000,
+          "cache_write_tokens": 1800,
+          "output_tokens": 500,
+          "reported_cost": {
+            "amount": 0.0254,
+            "currency": "USD",
+            "basis": "provider_reported"
+          }
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  },
+  {
+    "schema_version": "research.v2",
+    "event_id": "fixture-event-0303",
+    "episode_id": "fixture-episode-03",
+    "seq": 3,
+    "occurred_at": "2026-11-15T09:00:05Z",
+    "causation": {
+      "runtime_turn_id": "fixture-turn-32"
+    },
+    "body": {
+      "kind": "usage.reported",
+      "payload": {
+        "usage": {
+          "accounting": "thread_total",
+          "input_tokens": 4000,
+          "cached_input_tokens": 2000,
+          "output_tokens": 300,
+          "reasoning_tokens": 120
+        }
+      }
+    },
+    "origin": "synthetic_fixture"
+  }
+]
