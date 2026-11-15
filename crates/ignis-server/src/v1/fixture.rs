@@ -381,6 +381,7 @@ impl Fixture {
                 sandbox: None,
                 models_disabled: false,
                 conditions: false,
+                wiki: false,
             },
             known,
         })

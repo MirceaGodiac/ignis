@@ -2008,6 +2008,7 @@ dependencies = [
  "http-body-util",
  "ignis-core",
  "ignis-data",
+ "ignis-evidence",
  "ignis-research",
  "rmcp",
  "schemars",

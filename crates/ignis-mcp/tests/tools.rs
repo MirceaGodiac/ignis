@@ -103,7 +103,7 @@ fn only_tools_with_a_configured_service_are_registered() {
     ] {
         assert!(names.contains(&n), "{n} missing from {names:?}");
     }
-    // DatasetService is not configured and the wiki has no service: not tools, not negative results.
+    // DatasetService is not configured and no wiki store is attached: not tools, not negative results.
     assert!(!names.contains(&"datasets_inspect"));
     assert!(!names.contains(&"wiki_patch"));
     // No runner passed preflight: code execution is not offered at all (and never on the host).

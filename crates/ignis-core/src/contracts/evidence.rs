@@ -16,8 +16,8 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 
 use super::common::{
     check_id, ensure, opaque_id, ArtifactRef, ContractError, CorpusSnapshotId, Digest, EntityRef,
-    EpisodeId, EvidenceId, Finite, LinkId, Origin, PageCursor, ParseViewId, RunId, SourceId,
-    Timestamp, WikiPageId,
+    EpisodeId, EvidenceId, Finite, LinkId, Origin, PageCursor, ParseViewId, RunId, ScopeId,
+    SourceId, Timestamp, WikiPageId,
 };
 use super::{
     Derivation, EvidenceClass, Family, Method, Partition, Quantity, Resolution, Rights,
@@ -1357,6 +1357,10 @@ pub struct WikiEntry {
     /// the author). A reader needs every one of them: summarizing does not launder a restriction.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub requires_partitions: BTreeSet<Partition>,
+    /// The page revision that last added or revised this item: its `author`, `episode_id` and
+    /// `scope_id` are the item's provenance (host-derived, never from the patch).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub written_in: Option<u64>,
 }
 
 /// An immutable wiki revision: the full item list after `ops`, content-addressed by
@@ -1379,6 +1383,9 @@ pub struct WikiRevision {
     pub author: Author,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub episode_id: Option<EpisodeId>,
+    /// The execution scope that wrote this revision (host-derived).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scope_id: Option<ScopeId>,
     pub created_at: Timestamp,
     pub origin: Origin,
 }
@@ -1402,6 +1409,27 @@ impl WikiRevision {
             ensure(ids.insert(&e.item_id), c, || {
                 format!("item {} listed twice", e.item_id)
             })?;
+            ensure(
+                e.written_in
+                    .is_none_or(|w| (1..=self.revision).contains(&w)),
+                c,
+                || format!("item {} written in a revision after this one", e.item_id),
+            )?;
+        }
+        for op in &self.ops {
+            if let WikiOp::Add { item } | WikiOp::Revise { item } = op {
+                let e = self.items.iter().find(|e| e.item_id == item.item_id);
+                ensure(
+                    e.is_some_and(|e| e.written_in.is_none_or(|w| w == self.revision)),
+                    c,
+                    || {
+                        format!(
+                            "item {} written by this revision is missing or misdated",
+                            item.item_id
+                        )
+                    },
+                )?;
+            }
         }
         let expected = Self::digest_of(&self.title, &self.items);
         ensure(self.content_digest == expected, c, || {
