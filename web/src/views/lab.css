@@ -29,3 +29,50 @@
   #hw-model { width: 100%; }
   .runpick-toggle { white-space: normal; }
 }
+
+/* Forecast panel: one model line, the answer first, an interactive chart, the cutoff under it. */
+.fc { display: grid; gap: 12px; }
+.fc-model { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.fc-model-name { display: grid; margin-right: 4px; }
+.fc-model-name b { font-size: 14.5px; font-weight: 600; }
+.fc-model-name .muted { font-size: 12px; }
+.fc-model-actions { margin-left: auto; font-size: 13px; }
+.fc-about { font-size: 13px; color: var(--ink-2); }
+.fc-about > summary { cursor: pointer; color: var(--ink-3); font-size: 12.5px; width: max-content; max-width: 100%; }
+.fc-about[open] { display: grid; gap: 8px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--r-c); background: var(--sheet); }
+.fc-about h4 { font-size: 12.5px; font-weight: 600; margin-top: 4px; }
+.fc-about ul { padding-left: 18px; display: grid; gap: 2px; }
+.fc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px; }
+.fc-num { width: 90px; height: 28px; }
+.fc-typed { display: grid; gap: 10px; }
+.fc-inputs { grid-template-columns: max-content minmax(0, 1fr); }
+.fc-main { gap: 14px; }
+.fc-answer { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.fc-answer p { font-size: 16px; line-height: 1.45; color: var(--ink); max-width: 75ch; }
+.fc-answer b { font-weight: 650; }
+.fc-busy { font-size: 12px; }
+.fc-outcomes { display: grid; gap: 6px; }
+.fc-obar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--wash); }
+.fc-obar > span { display: block; height: 100%; min-width: 2px; }
+.fc-olegend { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
+.fc-olegend li { display: inline-flex; align-items: center; gap: 6px; }
+.fc-legend { font-size: 12.5px; }
+.chart-wrap { position: relative; }
+.chart-wrap .chart { min-height: 340px; touch-action: none; }
+.chart-tip { position: absolute; display: none; pointer-events: none; z-index: 2; padding: 7px 10px; border-radius: 8px; background: var(--sheet); border: 1px solid var(--rule-2); box-shadow: 0 4px 14px rgb(0 0 0 / 0.12); font-size: 12.5px; line-height: 1.55; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chart-tip .ft-obs { color: var(--observed); }
+.chart-tip .ft-rev { color: var(--revealed); }
+.chart-tip .ft-mod, .chart-tip .ft-band { color: var(--model); }
+.fc-cutoff { display: grid; gap: 6px; padding-top: 2px; }
+.fc-cutoff-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; font-size: 13.5px; }
+.fc-presets { display: inline-flex; gap: 2px; }
+.fc-range { width: 100%; accent-color: var(--model); }
+.fc-hint, .fc-foot { font-size: 12px; }
+.fc-tech { font-size: 12.5px; }
+.fc-tech > summary { cursor: pointer; color: var(--ink-3); width: max-content; }
+.fc-tech[open] { display: grid; gap: 8px; }
+@media (max-width: 640px) {
+  .fc-model-actions { margin-left: 0; width: 100%; }
+  .fc-answer p { font-size: 15px; }
+  .fc-inputs { grid-template-columns: minmax(0, 1fr); }
+}
