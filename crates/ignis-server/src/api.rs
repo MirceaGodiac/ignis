@@ -123,29 +123,40 @@ fn origin_value(o: &Origin) -> Value {
 
 // ---------------------------------------------------------------- partition scope
 
-/// Partitions `run` is assigned to across the frozen splits.
-fn run_partitions(reg: &ignis_core::records::Registry, run: &str) -> BTreeSet<Partition> {
+/// Partitions `run` is assigned to across the frozen splits, with the split of each.
+fn run_partitions<'a>(
+    reg: &'a ignis_core::records::Registry,
+    run: &'a str,
+) -> impl Iterator<Item = (&'a str, Partition)> + 'a {
     reg.splits
         .iter()
-        .filter_map(|s| s.partition_of(run))
-        .collect()
+        .filter_map(move |s| s.partition_of(run).map(|p| (s.id.as_str(), p)))
+}
+
+/// Did the deployment open partition `p` of split `split` for its served releases (the served
+/// list's `open_partitions`, with its reason)?
+fn opened(o: &Origin, split: &str, p: Partition) -> bool {
+    o.opened.get(split).is_some_and(|s| s.contains(&p))
 }
 
 /// May the outcomes of `run` (observations past any cutoff, contours, control history, archive
 /// extent) be served under the origin's public scope? Every partition the run is in must be
-/// granted; unassigned runs have no evaluation role. The synthetic fixture origin is exempt.
+/// granted, or opened by the deployment for that split; unassigned runs have no evaluation role.
+/// The synthetic fixture origin is exempt.
 fn outcomes_allowed(o: &Origin, reg: &ignis_core::records::Registry, run: &str) -> bool {
     o.origin == DataOrigin::DevelopmentFixture
         || run_partitions(reg, run)
-            .into_iter()
-            .all(|p| o.public_scope.require_partition(p).is_ok())
+            .all(|(s, p)| o.public_scope.require_partition(p).is_ok() || opened(o, s, p))
 }
 
 fn require_outcomes(o: &Origin, reg: &ignis_core::records::Registry, run: &str) -> ApiResult<()> {
     if o.origin == DataOrigin::DevelopmentFixture {
         return Ok(());
     }
-    for p in run_partitions(reg, run) {
+    for (s, p) in run_partitions(reg, run) {
+        if opened(o, s, p) {
+            continue;
+        }
         if let Err(d) = o.public_scope.require_partition(p) {
             return Err(Refusal::scope_denied(
                 "partition_not_granted",
@@ -160,7 +171,8 @@ fn require_outcomes(o: &Origin, reg: &ignis_core::records::Registry, run: &str) 
     Ok(())
 }
 
-/// Runs under sealed evaluation (validation or test partition of any frozen split).
+/// Runs under sealed evaluation (validation or test partition of any frozen split, unless the
+/// deployment opened that partition of that split).
 fn sealed_runs(o: &Origin) -> BTreeSet<String> {
     if o.origin == DataOrigin::DevelopmentFixture {
         return BTreeSet::new();
@@ -168,11 +180,7 @@ fn sealed_runs(o: &Origin) -> BTreeSet<String> {
     let reg = o.registry();
     reg.experiments
         .keys()
-        .filter(|r| {
-            run_partitions(&reg, r)
-                .iter()
-                .any(|p| matches!(p, Partition::Validation | Partition::Test))
-        })
+        .filter(|r| recording_sealed(o, &reg, r))
         .cloned()
         .collect()
 }
@@ -546,15 +554,12 @@ struct OverlayQuery {
     cutoff_s: f64,
 }
 
-/// A run's recording belongs to the evaluation when it is in a validation or test partition: the
-/// clip would show the sealed continuation, so its file and links are withheld.
-fn recording_sealed(reg: &ignis_core::records::Registry, run: &str) -> bool {
-    reg.splits.iter().any(|s| {
-        matches!(
-            s.partition_of(run),
-            Some(Partition::Validation | Partition::Test)
-        )
-    })
+/// A run's recording belongs to the evaluation when it is in a validation or test partition the
+/// deployment did not open: the clip would show the sealed continuation, so its file and links
+/// are withheld.
+fn recording_sealed(o: &Origin, reg: &ignis_core::records::Registry, run: &str) -> bool {
+    run_partitions(reg, run)
+        .any(|(s, p)| matches!(p, Partition::Validation | Partition::Test) && !opened(o, s, p))
 }
 
 fn local_video(o: &Origin, row: &Value) -> Option<std::path::PathBuf> {
@@ -585,7 +590,7 @@ async fn get_overlay(
         .get(&id)
         .ok_or_else(|| Refusal::not_found("run_not_found", format!("run {id}")))?;
     require_outcomes(&o, &reg, &id)?;
-    let sealed = recording_sealed(&reg, &id);
+    let sealed = recording_sealed(&o, &reg, &id);
     let videos: Vec<Value> = reg
         .videos
         .get(&id)
@@ -632,7 +637,7 @@ async fn get_video(
     if !reg.experiments.contains_key(&id) {
         return Err(Refusal::not_found("run_not_found", format!("run {id}")));
     }
-    if recording_sealed(&reg, &id) {
+    if recording_sealed(&o, &reg, &id) {
         return Err(Refusal::unsupported("recording_sealed", "this run is in a validation/test partition; its recording would show the sealed continuation"));
     }
     let row = reg.videos.get(&id).and_then(|v| {

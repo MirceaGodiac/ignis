@@ -10,7 +10,7 @@ use axum::extract::{Path, State};
 use axum::Json;
 use ignis_core::contracts::{
     Capability, ErrorCode, ErrorEnvelope, ModelCard, ReleaseId, RetryPolicy, ScenarioAdmitted,
-    ScenarioRequest,
+    ScenarioRequest, StoredRunList,
 };
 use schemars::JsonSchema;
 use serde::Deserialize;
@@ -26,6 +26,19 @@ struct ScenarioPath {
 async fn cards(State(v): State<Arc<V1>>, c: Caller) -> ApiResult<Json<Vec<ModelCard>>> {
     let m = models(&v)?;
     Ok(Json(blocking(move || m.cards(&c.scope)).await?))
+}
+
+/// The stored runs this caller may forecast with one release, each with its partition in the
+/// release's frozen split (`held_out` for validation and test runs the deployment opened).
+async fn stored_runs(
+    State(v): State<Arc<V1>>,
+    c: Caller,
+    Path(p): Path<ScenarioPath>,
+) -> ApiResult<Json<StoredRunList>> {
+    let m = models(&v)?;
+    Ok(Json(
+        blocking(move || m.stored_runs(&c.scope, &p.id)).await?,
+    ))
 }
 
 /// Admits conditions a person typed (the forecast lab) as a synthetic prefix of one release;
@@ -62,6 +75,12 @@ pub fn routes() -> ApiRouter<Arc<V1>> {
                 o.summary(
                     "Served hand-written releases: inputs, authorship, reported scores, limits",
                 )
+            }),
+        )
+        .api_route(
+            "/models/{id}/runs",
+            get_with(stored_runs, |o| {
+                o.summary("Stored runs a release may forecast here, each with its partition")
             }),
         )
         .api_route(

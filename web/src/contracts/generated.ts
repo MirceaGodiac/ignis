@@ -1851,6 +1851,7 @@ export interface IgnisContracts {
   ModelCard?: ModelCard;
   ScenarioRequest?: ScenarioRequest;
   ScenarioAdmitted?: ScenarioAdmitted;
+  StoredRunList?: StoredRunList;
   EvaluationRequest?: EvaluationRequest;
   EvaluationResult?: EvaluationResult;
   GoldTask?: GoldTask;
@@ -4980,6 +4981,18 @@ export interface ModelCard {
   investigation: string;
   limits: string[];
   model_name: string;
+  /**
+   * Partitions of the release's frozen split whose stored runs a research scope (the forecast
+   * lab, its agents) may forecast here. `train` alone unless the deployment opened more for this
+   * release in its served list, with [`ModelCard::open_reason`]. Evaluator bundles and `ignis
+   * eval` are unaffected: they never read this.
+   */
+  open_partitions?: Partition[];
+  /**
+   * Why the deployment opened validation or test runs of this release (e.g. the final test was
+   * spent). Present exactly when `open_partitions` holds more than `train`.
+   */
+  open_reason?: string | null;
   qualification: Qualification;
   release_id: ReleaseId;
   schema_version: WspSchema;
@@ -5138,6 +5151,35 @@ export interface ScenarioAdmitted {
   input_hash: string;
   observation_count: number;
   release_id: ReleaseId;
+}
+/**
+ * The stored runs of a release's frozen split that the caller's scope may forecast with it
+ * (`GET /api/v1/models/{id}/runs`): every run of the partitions [`ModelCard::open_partitions`]
+ * names. Empty for a release that reads no stored run.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "StoredRunList".
+ */
+export interface StoredRunList {
+  open_partitions: Partition[];
+  open_reason?: string | null;
+  release_id: ReleaseId;
+  runs: StoredRunEntry[];
+  schema_version: WspSchema;
+  split_id: string;
+}
+/**
+ * One stored run a release may forecast in this deployment, with its partition in the release's
+ * frozen split. `held_out` = the partition is validation or test: no author of the release read
+ * the run while writing it.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "StoredRunEntry".
+ */
+export interface StoredRunEntry {
+  held_out: boolean;
+  partition: Partition;
+  run_id: RunId;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
