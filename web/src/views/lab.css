@@ -22,11 +22,9 @@
 .runpick-main b { font-size: 13.5px; font-weight: 500; }
 .runpick-main code { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-#hw-model { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
 .lab > * { min-width: 0; }
 
 @media (max-width: 640px) {
-  #hw-model { width: 100%; }
   .runpick-toggle { white-space: normal; }
 }
 
@@ -45,7 +43,6 @@
 .fc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px; }
 .fc-num { width: 90px; height: 28px; }
 .fc-typed { display: grid; gap: 10px; }
-.fc-inputs { grid-template-columns: max-content minmax(0, 1fr); }
 .fc-main { gap: 14px; }
 .fc-answer { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .fc-answer p { font-size: 16px; line-height: 1.45; color: var(--ink); max-width: 75ch; }
@@ -76,5 +73,34 @@
 @media (max-width: 640px) {
   .fc-model-actions { margin-left: 0; width: 100%; }
   .fc-answer p { font-size: 15px; }
-  .fc-inputs { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The model sheet: one column that never grows past the page (a long model name used to push it). */
+.lab-models { grid-template-columns: minmax(0, 1fr); }
+.lab-models > h2 { font-size: 15px; }
+.lab-start { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; }
+.lab-model-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 13.5px; }
+.lab-model-row > label { color: var(--ink-2); }
+.lab-model-row #hw-model { flex: 0 1 auto; width: auto; max-width: min(100%, 720px); text-overflow: ellipsis; }
+.lab-why { margin: 0; }
+.fc { min-width: 0; }
+.fc-model { align-items: flex-start; gap: 10px 16px; }
+.fc-model-name { flex: 1 1 320px; min-width: 0; gap: 4px; }
+.fc-model-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.fc-model-actions.seg { flex: none; }
+.fc-inputs { display: grid; gap: 12px; margin: 0; }
+.fc-in { display: grid; grid-template-columns: minmax(160px, 240px) minmax(0, 1fr); gap: 4px 16px; align-items: start; }
+.fc-in dt { display: grid; gap: 1px; font-size: 13.5px; color: var(--ink); padding-top: 6px; }
+.fc-in-name { font-size: 11px; color: var(--ink-3); background: none; padding: 0; }
+.fc-in dd { margin: 0; display: grid; gap: 4px; min-width: 0; }
+.fc-in .field { width: 100%; max-width: 440px; }
+.fc-in textarea.field { height: auto; min-height: 64px; padding: 6px 10px; resize: vertical; line-height: 1.45; }
+.fc-in-note { font-size: 12px; overflow-wrap: anywhere; }
+.fc-in-src { color: var(--ink-2); font-weight: 500; }
+.fc-in-record .field { background: var(--wash); }
+.fc-in-missing .field { border-color: var(--ink-3); }
+@media (max-width: 640px) {
+  .fc-in { grid-template-columns: minmax(0, 1fr); }
+  .fc-in dt { padding-top: 0; }
+  .lab-model-row #hw-model { width: 100%; }
 }
