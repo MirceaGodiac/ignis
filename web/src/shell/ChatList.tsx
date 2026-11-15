@@ -1,7 +1,8 @@
 // The recent questions in the left rail, grouped by last activity, each with a "…" menu:
 // rename, pin, copy link, remove from list. Names, pins and removals are this browser's own
-// (chatPrefs.ts); a removal can be undone for a few seconds.
-import { useEffect, useRef, useState } from "react";
+// (chatPrefs.ts); a removal can be undone for a few seconds. Only the list scrolls (the rest of the
+// rail stays put); its edges fade where more questions sit above or below.
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { EpisodeStatus, ResearchEpisode } from "../contracts/generated";
 import { chatTitle, groupChats, rename, setHidden, setPinned, TITLE_MAX, useChatPrefs } from "./chatPrefs";
 import { IconMore, IconThread } from "./icons";
@@ -17,6 +18,7 @@ export function ChatList({ episodes, route, onNavigate }: { episodes: ResearchEp
   const [editing, setEditing] = useState<string | null>(null);
   const [menu, setMenu] = useState<string | null>(null);
   const [removed, setRemoved] = useState<string | null>(null);
+  const scroller = useEdgeFade<HTMLDivElement>();
 
   useEffect(() => {
     if (!removed) return;
@@ -42,39 +44,41 @@ export function ChatList({ episodes, route, onNavigate }: { episodes: ResearchEp
           Recent questions
         </a>
       </div>
-      {groups.map((g) => (
-        <div key={g.label} className="chat-group">
-          <div className="chat-group-label">{g.label}</div>
-          <div className="tree">
-            {g.items.map((e) => (
-              <ChatRow
-                key={e.episode_id}
-                episode={e}
-                title={chatTitle(prefs, e)}
-                current={route.view === "research" && route.id === e.episode_id}
-                pinned={prefs.pinned.includes(e.episode_id)}
-                renamed={e.episode_id in prefs.titles}
-                editing={editing === e.episode_id}
-                menuOpen={menu === e.episode_id}
-                onMenu={(open) => setMenu(open ? e.episode_id : null)}
-                onEdit={(on) => setEditing(on ? e.episode_id : null)}
-                onRename={(t) => update((p) => rename(p, e.episode_id, t))}
-                onPin={(on) => update((p) => setPinned(p, e.episode_id, on))}
-                onRemove={() => {
-                  update((p) => setHidden(p, e.episode_id, true));
-                  setRemoved(e.episode_id);
-                }}
-                onNavigate={onNavigate}
-              />
-            ))}
+      <div className="side-scroll chat-scroll" ref={scroller}>
+        {groups.map((g) => (
+          <div key={g.label} className="chat-group">
+            <div className="chat-group-label">{g.label}</div>
+            <div className="tree">
+              {g.items.map((e) => (
+                <ChatRow
+                  key={e.episode_id}
+                  episode={e}
+                  title={chatTitle(prefs, e)}
+                  current={route.view === "research" && route.id === e.episode_id}
+                  pinned={prefs.pinned.includes(e.episode_id)}
+                  renamed={e.episode_id in prefs.titles}
+                  editing={editing === e.episode_id}
+                  menuOpen={menu === e.episode_id}
+                  onMenu={(open) => setMenu(open ? e.episode_id : null)}
+                  onEdit={(on) => setEditing(on ? e.episode_id : null)}
+                  onRename={(t) => update((p) => rename(p, e.episode_id, t))}
+                  onPin={(on) => update((p) => setPinned(p, e.episode_id, on))}
+                  onRemove={() => {
+                    update((p) => setHidden(p, e.episode_id, true));
+                    setRemoved(e.episode_id);
+                  }}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
-      {total > shown && (
-        <a className="nav-item chat-more" href={href("research")} onClick={onNavigate}>
-          <span className="grow">All {total} questions</span>
-        </a>
-      )}
+        ))}
+        {total > shown && (
+          <a className="nav-item chat-more" href={href("research")} onClick={onNavigate}>
+            <span className="grow">All {total} questions</span>
+          </a>
+        )}
+      </div>
       {removed && (
         <div className="chat-undo" role="status">
           <span className="grow">Removed from this list</span>
@@ -96,6 +100,36 @@ export function ChatList({ episodes, route, onNavigate }: { episodes: ResearchEp
       )}
     </div>
   );
+}
+
+/** Marks a scroller with data-above / data-below while content is hidden past its top or bottom edge
+ * (the CSS fades that edge). Written to the element directly: scrolling never re-renders the list. */
+function useEdgeFade<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const mark = () => {
+      el.toggleAttribute("data-above", el.scrollTop > 1);
+      el.toggleAttribute("data-below", el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+    };
+    mark();
+    el.addEventListener("scroll", mark, { passive: true });
+    const ro = new ResizeObserver(mark);
+    ro.observe(el);
+    for (const c of el.children) ro.observe(c);
+    const mo = new MutationObserver(() => {
+      for (const c of el.children) ro.observe(c);
+      mark();
+    });
+    mo.observe(el, { childList: true });
+    return () => {
+      el.removeEventListener("scroll", mark);
+      ro.disconnect();
+      mo.disconnect();
+    };
+  }, []);
+  return ref;
 }
 
 type RowProps = {

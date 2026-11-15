@@ -498,6 +498,34 @@ impl AnswerHost<'_> {
                     artifact_id,
                     pointer,
                 } => checks.push((artifact_id, pointer.as_str(), Want::Table)),
+                ViewSpec::Chart {
+                    artifact_id,
+                    pointer,
+                    x,
+                    y,
+                    group,
+                    label,
+                    ..
+                } => {
+                    if !is_json_pointer(pointer) {
+                        continue;
+                    }
+                    let Some(d) = doc(artifact_id) else { continue };
+                    let fields: Vec<(&str, &str, bool)> =
+                        std::iter::once(("x", x.field.as_str(), false))
+                            .chain(y.iter().map(|a| ("y", a.field.as_str(), true)))
+                            .chain(group.iter().map(|g| ("group", g.as_str(), false)))
+                            .chain(label.iter().map(|l| ("label", l.as_str(), false)))
+                            .collect();
+                    if let Err(detail) = d.and_then(|d| chart_rows(&d, pointer, &fields)) {
+                        out.push(AnswerProblem {
+                            kind: AnswerProblemKind::UnresolvedPointer,
+                            claim_id: None,
+                            block: Some(i as u32),
+                            detail: format!("{artifact_id} {pointer:?}: {detail}"),
+                        });
+                    }
+                }
                 _ => {}
             }
             for (a, p, want) in checks {
@@ -1106,6 +1134,39 @@ fn has_unit(doc: &Value, pointer: &str, v: &Value) -> bool {
         }
     }
     false
+}
+
+/// A chart reads an array of rows at `pointer`; each field (relative to a row) must resolve in at
+/// least one row, and a `y` field must be a number there. Rows where a field does not resolve (a
+/// missing or conflicting conditions cell has no `/value`) are left out by the client, not refused.
+fn chart_rows(doc: &Value, pointer: &str, fields: &[(&str, &str, bool)]) -> Result<(), String> {
+    let Some(rows) = doc.pointer(pointer) else {
+        return Err("does not resolve in the artifact".into());
+    };
+    let Some(rows) = rows.as_array() else {
+        return Err("a chart reads an array of rows; this pointer resolves to something else (e.g. use \"/rows\" of a ConditionsTable)".into());
+    };
+    if rows.is_empty() {
+        return Err("resolves to an empty array: nothing to draw".into());
+    }
+    for (axis, field, numeric) in fields {
+        if !ignis_core::contracts::is_json_pointer(field) {
+            continue;
+        }
+        let mut found = rows.iter().filter_map(|r| r.pointer(field));
+        let ok = if *numeric {
+            found.any(Value::is_number)
+        } else {
+            found.next().is_some()
+        };
+        if !ok {
+            return Err(format!(
+                "{axis} field {field:?} {} in no row (fields are JSON Pointers relative to one row, e.g. \"/cells/0/value/value_si\" for the first requested key of a ConditionsTable, \"/nearness/distance\")",
+                if *numeric { "is a number" } else { "resolves" }
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// Contract details name the problem; add what the agent should do about the resolution ones.

@@ -1407,3 +1407,117 @@ fn a_malformed_submission_names_the_field_path() {
     assert_eq!(e.code, ErrorCode::InvalidRequest);
     assert!(e.message.contains("`claims[0].support[0]"), "{}", e.message);
 }
+
+// ---------------------------------------------------------------- views over a conditions table
+
+/// A host whose conditions_query answers from the C0 fixture table under snapshot A.
+fn conditions_host(w: &World) -> ignis_mcp::ToolHost {
+    ignis_mcp::ToolHost::new(
+        ignis_mcp::ToolServices {
+            knowledge: Some(w.h.knowledge.clone()),
+            datasets: Some(Arc::new(Conditions {
+                snapshot: std::sync::Mutex::new(Digest::parse(SNAP_A).unwrap()),
+            })),
+            conditions: true,
+            ..Default::default()
+        },
+        w.h.store.clone(),
+        w.h.artifacts.clone(),
+        Origin::SyntheticFixture,
+        Arc::new(|| {}),
+    )
+    .with_grounding(GroundingMode::Enforce)
+}
+
+/// One observed claim on a run's O2 (a conditions cell), shown by `views`.
+fn shown(snapshot: &Value, views: Vec<Value>) -> Value {
+    let mut cell = condition("fixture-run-01", "oxygen_mole_fraction", 0.21, "1");
+    cell["source"]["snapshot"] = snapshot.clone();
+    let mut s = observed(vec![cell]);
+    s["claims"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("support")
+        .unwrap();
+    let blocks = s["blocks"].as_array_mut().unwrap();
+    for v in views {
+        blocks.push(
+            json!({"type": "view", "view": v, "caption": "Synthetic fixture.",
+                           "claim_ids": ["claim-p"]}),
+        );
+    }
+    s
+}
+
+/// The table conditions_query stored is drawable: an atmosphere map and a chart over its rows are
+/// accepted (the fields conditions_query names under `view_fields`), the stored answer lists the
+/// table among its artifacts, and a chart whose pointer is not an array of rows, or whose y field
+/// is a number in no row, is refused with unresolved_pointer.
+#[test]
+fn views_draw_the_table_conditions_query_stored() {
+    let w = world();
+    let host = conditions_host(&w);
+    let r = host.call_in(
+        &w.sc,
+        Some(&w.ep),
+        "conditions_query",
+        json!({"schema_version": "dataset.v2", "keys": ["oxygen_mole_fraction", "pressure"]}),
+    );
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let v = r.result.as_ref().unwrap().value.clone();
+    let fields = &v["view_fields"];
+    assert_eq!(fields["rows"], json!("/rows"));
+    assert_eq!(
+        fields["oxygen_mole_fraction"],
+        json!({"field": "/cells/0/value/value_si", "unit": "1"})
+    );
+    assert_eq!(
+        fields["pressure"],
+        json!({"field": "/cells/1/value/value_si", "unit": "Pa"})
+    );
+    let table = v["artifact_id"].clone();
+    let chart = |pointer: &str, y: &str| {
+        json!({"kind": "chart", "artifact_id": table, "pointer": pointer, "mark": "scatter",
+               "x": {"field": fields["pressure"]["field"], "title": "Pressure", "unit": "Pa"},
+               "y": [{"field": y, "title": "O2 mole fraction", "unit": "1"}],
+               "group": "/investigation_id", "label": "/run/run_id"})
+    };
+    let snapshot = v["conditions_snapshot"].clone();
+    let submit = |s: Value| host.call_in(&w.sc, Some(&w.ep), "answer_submit", s);
+
+    let good = shown(
+        &snapshot,
+        vec![
+            json!({"kind": "atmosphere_map", "table": table}),
+            json!({"kind": "conditions_matrix", "table": table}),
+            chart("/rows", "/cells/0/value/value_si"),
+        ],
+    );
+    let r = submit(good);
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let answer = stored(&w, &r);
+    let listed: Vec<&str> = answer
+        .artifacts
+        .iter()
+        .map(|a| a.artifact_id.as_str())
+        .collect();
+    assert_eq!(listed, vec![table.as_str().unwrap()]);
+    assert_eq!(answer.blocks.len(), 4);
+
+    // The whole table (an object), a string, and a y field that is a number in no row.
+    use AnswerProblemKind as K;
+    for (i, (pointer, y)) in [
+        ("", "/cells/0/value/value_si"),
+        ("/keys/0", "/cells/0/value/value_si"),
+        ("/rows", "/cells/0/value/raw_unit"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let mut s = shown(&snapshot, vec![chart(pointer, y)]);
+        s["client_request_id"] = json!(format!("crid-bad-chart-{i}"));
+        let refused = refusal(&w, &submit(s));
+        assert_eq!(kinds(&refused), vec![K::UnresolvedPointer], "{refused:#?}");
+        assert_eq!(refused.problems[0].block, Some(1), "{refused:#?}");
+    }
+}

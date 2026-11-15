@@ -6,7 +6,11 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ConditionsTable, ResearchAnswer, ViewSpec, VisualObservationBundle } from "../contracts/generated";
 import { SeriesChart } from "../components/SeriesChart";
-import { readSeries, seriesProblems, tableOf, viewProblems, type Series } from "../research/viewSpec";
+import { readSeries, seriesProblems, viewProblems, type Series } from "../research/viewSpec";
+import { chartRows, skippedNote, tableModel, type ChartView } from "../research/chartRows";
+import { AnswerChart } from "../components/AnswerChart";
+import { DataTable } from "../components/DataTable";
+import "./answer.css";
 import type { HabitatId } from "../research/habitats";
 import { conditionsView } from "../research/testPoints";
 import { ConditionsMap, HOME, type Domain } from "./ConditionsMap";
@@ -27,17 +31,23 @@ const KIND_TITLE: Record<ViewSpec["kind"], string> = {
   video_overlay: "Video with contour",
   release_card: "Model release",
   artifact_table: "Table",
+  chart: "Chart",
 };
 
 export function ViewBlock({ view, caption, answer, client, claimKeys }: { view: ViewSpec; caption?: string | null; answer: ResearchAnswer; client: ResearchClient; claimKeys: string[] }) {
   const problems = viewProblems(view, answer);
   return (
-    <figure className="view-block" aria-label={KIND_TITLE[view.kind]}>
-      <figcaption>
-        <b>{KIND_TITLE[view.kind]}.</b> {caption ?? ""}
-        {claimKeys.length > 0 && <span className="dim"> · illustrates claim {claimKeys.join(", ")}</span>}
+    <figure className={`view-block view-${view.kind}`} aria-label={caption ? `${KIND_TITLE[view.kind]}: ${caption}` : KIND_TITLE[view.kind]}>
+      <figcaption className="view-cap">
+        <span className="view-kind">{KIND_TITLE[view.kind]}</span>
+        {caption && <span className="view-caption">{caption}</span>}
+        {claimKeys.length > 0 && (
+          <span className="view-claims">
+            {claimKeys.length === 1 ? "Claim" : "Claims"} {claimKeys.join(", ")}
+          </span>
+        )}
       </figcaption>
-      {problems.length > 0 ? <p className="note note-refusal small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}
+      <div className="view-body">{problems.length > 0 ? <p className="note note-refusal small">Not shown: {problems.join("; ")}.</p> : <ViewBody view={view} answer={answer} client={client} />}</div>
     </figure>
   );
 }
@@ -58,6 +68,8 @@ function ViewBody({ view, answer, client }: { view: ViewSpec; answer: ResearchAn
       return <ReleaseCard id={view.release_id} />;
     case "artifact_table":
       return <ArtifactTable id={view.artifact_id} pointer={view.pointer} client={client} />;
+    case "chart":
+      return <ChartArtifact view={view} client={client} />;
   }
 }
 
@@ -74,17 +86,18 @@ function SourceExcerpt({ evidenceId, answer }: { evidenceId: string; answer: Res
   const loc = e.locator;
   const where = loc?.page != null ? `page ${loc.page}${loc.bbox ? ", marked region" : ""}` : loc?.pts_s != null ? `video at ${loc.pts_s} s` : loc?.path ? loc.path : "metadata only";
   return (
-    <div className="panel-sec">
-      <div className="toolbar">
+    <div className="excerpt">
+      {e.quote ? <blockquote className="excerpt-quote">{e.quote}</blockquote> : <p className="muted small">No quote is carried with this citation; open the original to read it at its place.</p>}
+      <div className="view-meta">
         <EvidenceClassTag cls={e.evidence_class} />
-        <span className="muted small">
-          <code>{e.source_id}</code> · {where}
+        <span className="view-meta-t">
+          <code title={e.source_id}>{shortId(e.source_id, 36)}</code>
+          <span>{where}</span>
         </span>
-        <button className="btn btn-s" style={{ marginLeft: "auto" }} onClick={() => panel.open({ kind: "evidence", evidence: e })}>
+        <button className="btn btn-s" onClick={() => panel.open({ kind: "evidence", evidence: e })}>
           Open original
         </button>
       </div>
-      {e.quote ? <blockquote className="quote">{e.quote}</blockquote> : <p className="muted small">No quote is carried with this citation; open the original to read it at its place.</p>}
     </div>
   );
 }
@@ -103,7 +116,7 @@ function SeriesView({ view, client }: { view: Extract<ViewSpec, { kind: "series_
     retry: false,
     staleTime: Infinity,
   });
-  if (q.isPending) return <p className="muted small">Reading the series…</p>;
+  if (q.isPending) return <p className="muted small view-wait">Reading the series…</p>;
   if (q.error) return <ErrorNote error={q.error} title="The series could not be read" />;
   const bad = q.data.flatMap((s, i) => (typeof s === "string" ? [`series ${i + 1}: ${s}`] : []));
   if (bad.length) return <p className="note note-refusal small">Not drawn: {bad.join("; ")}.</p>;
@@ -132,14 +145,14 @@ const ALL_HABITATS = new Set<HabitatId>(["moon", "suit", "iss"]);
 
 function TableArtifact({ id, client, render }: { id: string; client: ResearchClient; render: (t: ConditionsTable) => JSX.Element }) {
   const q = useArtifact<ConditionsTable>(client, id);
-  if (q.isPending) return <p className="muted small">Reading the conditions…</p>;
+  if (q.isPending) return <p className="muted small view-wait">Reading the conditions…</p>;
   if (q.error) return <ErrorNote error={q.error} title="The conditions table could not be read" />;
   return render(q.data);
 }
 
 function BundleArtifact({ id, sourceId, client }: { id: string; sourceId: string; client: ResearchClient }) {
   const q = useArtifact<VisualObservationBundle>(client, id);
-  if (q.isPending) return <p className="muted small">Reading the contour bundle…</p>;
+  if (q.isPending) return <p className="muted small view-wait">Reading the contour bundle…</p>;
   if (q.error) return <ErrorNote error={q.error} title="The contour bundle could not be read" />;
   if (q.data.video_source_id !== sourceId)
     return (
@@ -156,16 +169,22 @@ function ReleaseCard({ id }: { id: string }) {
   const panel = usePanel();
   const releases = useReleases();
   const r = releases.data?.find((x) => x.id === id);
-  if (releases.isPending) return <p className="muted small">Reading the model registry…</p>;
+  if (releases.isPending) return <p className="muted small view-wait">Reading the model registry…</p>;
   if (!r) return <p className="note note-gap small">Release {shortId(id, 22)} is not in this server's model registry.</p>;
   return (
-    <div className="toolbar">
-      <ReleaseState state={r.state} />
-      <b>{r.model_name}</b>
-      <span className="muted small">
-        {words(r.trained_on)} · {r.construction ? words(r.construction.construction_method) : "no build manifest"}
+    <div className="release-card">
+      <span className="release-glyph" aria-hidden="true">
+        <span className="glyph g-predicted" />
       </span>
-      <button className="btn btn-s" style={{ marginLeft: "auto" }} onClick={() => panel.open({ kind: "release", release: r })}>
+      <span className="release-t">
+        <b>{r.model_name}</b>
+        <span>
+          {words(r.trained_on)} · {r.construction ? words(r.construction.construction_method) : "no build manifest"}
+        </span>
+        <code title={r.id}>{shortId(r.id, 28)}</code>
+      </span>
+      <ReleaseState state={r.state} />
+      <button className="btn btn-s" onClick={() => panel.open({ kind: "release", release: r })}>
         Construction and checks
       </button>
     </div>
@@ -174,45 +193,35 @@ function ReleaseCard({ id }: { id: string }) {
 
 // ---------------------------------------------------------------- artifact_table
 
-const PAGE = 50;
-const cell = (v: unknown) => (v == null ? "—" : typeof v === "object" ? JSON.stringify(v) : String(v));
-
 function ArtifactTable({ id, pointer, client }: { id: string; pointer: string; client: ResearchClient }) {
   const q = useArtifact<unknown>(client, id);
-  const [shown, setShown] = useState(PAGE);
-  if (q.isPending) return <p className="muted small">Reading the artifact…</p>;
+  const t = useMemo(() => (q.data === undefined ? null : tableModel(resolvePointer(q.data, pointer))), [q.data, pointer]);
+  if (q.isPending) return <p className="muted small view-wait">Reading the artifact…</p>;
   if (q.error) return <ErrorNote error={q.error} title="The artifact could not be read" />;
-  const t = tableOf(resolvePointer(q.data, pointer));
   if (!t) return <p className="note note-refusal small">Not shown: {pointer || "the document"} is not a table.</p>;
+  return <DataTable columns={t.columns} rows={t.rows} />;
+}
+
+// ---------------------------------------------------------------- chart
+
+function ChartArtifact({ view, client }: { view: ChartView; client: ResearchClient }) {
+  const q = useArtifact<unknown>(client, view.artifact_id);
+  const d = useMemo(() => (q.data === undefined ? null : chartRows(q.data, view)), [q.data, view]);
+  if (q.isPending) return <p className="muted small view-wait">Reading the rows…</p>;
+  if (q.error) return <ErrorNote error={q.error} title="The chart's artifact could not be read" />;
+  if (typeof d === "string" || !d) return <p className="note note-refusal small">Not drawn: {d ?? "no rows"}.</p>;
+  if (!d.points.length) return <p className="note note-refusal small">Not drawn: none of the {d.total} rows has plottable values{d.skipped ? ` (${skippedNote(d)})` : ""}.</p>;
+  const note = skippedNote(d);
   return (
     <>
-      <div className="tbl-wrap">
-        <table className="tbl">
-          <thead>
-            <tr>
-              {t.columns.map((c) => (
-                <th key={c}>{c}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {t.rows.slice(0, shown).map((r, i) => (
-              <tr key={i}>
-                {r.map((v, j) => (
-                  <td key={j} className="num">
-                    {cell(v)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {t.rows.length > shown && (
-        <button className="btn btn-s" onClick={() => setShown((n) => n + PAGE)}>
-          Show {Math.min(PAGE, t.rows.length - shown)} more of {t.rows.length - shown}
-        </button>
-      )}
+      <AnswerChart view={view} data={d} />
+      <p className="view-foot">
+        <span>
+          {d.points.length} {d.points.length === 1 ? "row" : "rows"} from <code>{shortId(view.artifact_id)}</code>
+          {view.pointer && <code>{view.pointer}</code>}
+        </span>
+        {note && <span className="view-skip">{note}</span>}
+      </p>
     </>
   );
 }

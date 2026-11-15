@@ -292,6 +292,44 @@
         }
       ]
     },
+    "ChartAxis": {
+      "additionalProperties": false,
+      "description": "One chart axis: the row field it reads and how it is titled and scaled.",
+      "properties": {
+        "field": {
+          "description": "JSON Pointer relative to a row.",
+          "type": "string"
+        },
+        "log": {
+          "default": false,
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "unit": {
+          "description": "Unit shown after the title, e.g. `kPa`; the client converts nothing.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "field",
+        "title"
+      ],
+      "type": "object"
+    },
+    "ChartMark": {
+      "description": "How a chart draws its rows.",
+      "enum": [
+        "bar",
+        "line",
+        "scatter"
+      ],
+      "type": "string"
+    },
     "Claim": {
       "additionalProperties": false,
       "properties": {
@@ -1513,6 +1551,57 @@
             "kind",
             "artifact_id",
             "pointer"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A chart drawn by the client from rows inside a cited JSON artifact: `pointer` names an array\nof rows, `x`, `y` and `group` name fields of a row by JSON Pointer relative to the row\n(`/cells/0/value/value_si`, `/nearness/distance`). The agent chooses the mark and the fields;\nevery plotted number is read from the artifact, never typed into the view.",
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "group": {
+              "description": "Field that splits rows into series (colour and legend), e.g. `/investigation_id`.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "kind": {
+              "const": "chart",
+              "type": "string"
+            },
+            "label": {
+              "description": "Field shown as each point's or bar's label, e.g. `/run/run_id`.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mark": {
+              "$ref": "#/$defs/ChartMark"
+            },
+            "pointer": {
+              "type": "string"
+            },
+            "x": {
+              "$ref": "#/$defs/ChartAxis"
+            },
+            "y": {
+              "items": {
+                "$ref": "#/$defs/ChartAxis"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "artifact_id",
+            "pointer",
+            "mark",
+            "x",
+            "y"
           ],
           "type": "object"
         }

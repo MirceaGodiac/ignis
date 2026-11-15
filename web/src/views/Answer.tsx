@@ -2,7 +2,8 @@
 // where it comes from (source number in reading order and the place in it). Hovering a chip shows
 // the quoted passage, with 1/N across the claim's supports; "Open" shows the original at that place
 // in the side panel. Under the answer: its sources, its follow-ups, copy.
-import { RichText } from "../shell/RichText";
+import { Markdown } from "../components/Markdown";
+import "./answer.css";
 import { OpenOriginal } from "../shell/OpenOriginal";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -97,13 +98,15 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
         {answer.blocks.map((b, i) => {
           if (b.type === "text")
             return (
-              <p key={i} className="answer-text">
-                <RichText text={b.text} />{" "}
-                {(b.claim_ids ?? []).map((id) => {
-                  const c = claims.get(id);
-                  return c ? <Cite key={id} claim={c} evidence={evidence} srcNo={srcNo} onEnter={show} onLeave={hide} /> : null;
-                })}
-              </p>
+              <div key={i} className="answer-text">
+                <Markdown
+                  text={b.text}
+                  tail={(b.claim_ids ?? []).map((id) => {
+                    const c = claims.get(id);
+                    return c ? <Cite key={id} claim={c} evidence={evidence} srcNo={srcNo} onEnter={show} onLeave={hide} /> : null;
+                  })}
+                />
+              </div>
             );
           if (b.type === "view") return <ViewBlock key={i} view={b.view} caption={b.caption} answer={answer} client={client} claimKeys={(b.claim_ids ?? []).map(keyOf)} />;
           fig++;

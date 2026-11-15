@@ -75,6 +75,9 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
   "measurement uncertainty not reported". Round values to the digits the uncertainty supports
   (`significant_digits` in `values`).
 - Report only quantities the program defines in its output; do not invent a metric in the text.
+- Show computed rows: write them as a JSON array of row objects in the program's output and place
+  a `chart` view (`pointer` to that array, row-relative `x`/`y` fields) or an `artifact_table` view
+  over the output artifact; keep the numbers you state bound in `values`.
 - "Computed, nothing notable" (no difference, no trend within the uncertainty) is a valid `complete`
   answer bound to the computed values, not an abstention. Abstain only when the data needed is
   missing, conflicting or incoherent, and name what is missing.
