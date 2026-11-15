@@ -11,6 +11,7 @@ import { usePanel } from "../shell/inspector";
 import { FamilyMark, IconChevron } from "../shell/icons";
 import { go, href } from "../shell/router";
 import { Caution, Gap, RefusalNote, ReleaseState, shortId, words } from "../ui/common";
+import { LabModels } from "./LabModels";
 
 const display = (unit: string | null | undefined) => (unit === "m" ? { k: 1e3, unit: "mm" } : { k: 1, unit: unit ?? "" });
 type Result<T> = T | { error: Refusal | null };
@@ -349,11 +350,13 @@ export function Lab({ runId }: { runId: string | null }) {
           </div>
         </div>
       )}
+
+      <LabModels />
     </div>
   );
 }
 
-function Step({ n, title, done, tag, children }: { n: number; title: string; done?: boolean; tag?: ReactNode; children: ReactNode }) {
+export function Step({ n, title, done, tag, children }: { n: number; title: string; done?: boolean; tag?: ReactNode; children: ReactNode }) {
   return (
     <section className="stepcard" aria-label={`Step ${n}: ${title}`}>
       <h3>
@@ -384,7 +387,7 @@ const STATE_NOTE: Record<string, string> = {
 };
 
 /** The support gate and the release state, in one note whose tone follows the weaker of the two. */
-function SupportNote({ artifact }: { artifact: AnalysisArtifact }) {
+export function SupportNote({ artifact }: { artifact: AnalysisArtifact }) {
   const s = artifact.support;
   const tone = !s.admitted ? "note-refusal" : artifact.status === "fit_only" || !["forecast_qualified", "event_qualified", "measurement_qualified"].includes(artifact.status) ? "note-caution" : "note-ok";
   return (
@@ -406,7 +409,7 @@ function SupportNote({ artifact }: { artifact: AnalysisArtifact }) {
   );
 }
 
-function EventStack({ artifact }: { artifact: AnalysisArtifact }) {
+export function EventStack({ artifact }: { artifact: AnalysisArtifact }) {
   const cats = artifact.event_categories ?? [];
   const cdf = artifact.event_cdf ?? [];
   const t = artifact.times_s ?? [];
@@ -441,12 +444,14 @@ function EventStack({ artifact }: { artifact: AnalysisArtifact }) {
               <td className="r num">{(cdf[k][last] * 100).toFixed(1)} %</td>
             </tr>
           ))}
+          {!cats.some((c) => c.startsWith("active")) && (
           <tr>
             <th scope="row" style={{ fontWeight: 500 }}>
               still burning
             </th>
             <td className="r num">{((1 - cdf.reduce((s, r) => s + r[last], 0)) * 100).toFixed(1)} %</td>
           </tr>
+          )}
         </tbody>
       </table>
     </div>

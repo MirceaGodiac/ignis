@@ -1,0 +1,51 @@
+# Astra R1. DATA-INFORMED, not zero-shot. Main author typed every new value.
+# Exact old tensors come from wsp5/heptane/carry-d2; all prior exposure is retained.
+# N nature/property evidence; A apparatus; L closure; S structure; U judgment.
+# S: pure new member; joint patch separately types equal disagreement weight.
+thermal.on = 1
+thermal.member_weight = 1
+# S: no CO2/He binary diffusivities are invented. All such runs use predecessor.
+thermal.nitrogen_only = 1
+# S: preserve existing unlit-at-cutoff history and cool/diffusive evolution.
+thermal.cutoff_on = 0
+thermal.apply[0:3] = [1, 0, 0]
+# S: integration step in seconds, checked by numerical invariants rather than scores.
+thermal.dt_s = 0.01
+# N: SI R and NIST molecular mass (kg/mol).
+thermal.gas_constant_j_mol_k = 8.314462618
+thermal.molar_mass_kg_mol = 0.1002019
+# N: NIST saturated-liquid 300 K reference, frozen-property approximation.
+thermal.rho_kg_m3 = 678
+thermal.cp_liquid_j_kg_k = 2254
+# N/L: N2 gas-film Cp approximation at room temperature.
+thermal.cp_gas_j_kg_k = 1040
+# N/S: N2 conductivity; unused CO2/He slots deliberately copy N2, not pair estimates.
+thermal.k_gas_w_m_k[0:3] = [0.02597, 0.02597, 0.02597]
+# N/S: Tang 55 Torr cm2/s at 298 K, rounded SI conversion; unused slots inert.
+thermal.diffusivity_ref_m2_s[0:3] = [0.00000724, 0.00000724, 0.00000724]
+thermal.transport_ref_k = 298
+thermal.transport_ref_pa = 101325
+# L: empirical Fuller T exponent, a declared transport approximation.
+thermal.diffusivity_exponent = 1.75
+# N: NIST/Willingham et al. Antoine, log10(p/bar), source range.
+thermal.antoine[0:3] = [4.02832, 1268.636, -56.199]
+thermal.antoine_range_k[0:2] = [299.07, 372.43]
+# N: NIST/Majer-Svoboda latent correlation, A,alpha,beta,Tc; kJ/mol and K.
+thermal.latent[0:4] = [53.66, 0.2831, 0.2831, 540.2]
+thermal.latent_range_k[0:2] = [298, 363]
+# L: explicit cold extension rather than silent use across Antoine's source gap.
+thermal.vapor_extension = 1
+thermal.latent_extrapolation = 1
+# A/U: nominal room temperature, not a recovered measurement.
+thermal.ambient_k = 300
+# L: no dying-flame/cloud heat added to this radiative-ending law.
+thermal.cloud_excess_k[0:3] = [0, 0, 0]
+# S: unused finite clock for zero-amplitude cloud.
+thermal.cloud_tau_s[0:3] = [1, 1, 1]
+# U: rounded warm sub-boiling liquid scenario; no inversion from a train diameter.
+thermal.initial_k[0:3] = [360, 360, 360]
+# L: pure liquid surface and vapor-free far field, no cool-flame chemistry inferred.
+thermal.activity[0:3] = [1, 1, 1]
+thermal.x_infinity = 0
+# U: explicit nonsingular surface fraction cap, same rule across fuels.
+thermal.surface_fraction_max = 0.8

@@ -1,0 +1,17 @@
+# acme_normal.wsp8 — D1-EARLY, spec acme_normal-wsp-v8: the hinge law with the burner-heating law, early era
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both sources are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   hinge laws    acme_normal.wsp2 D4: self-extinction clock, weak class, programmed stops, background
+#   burner limit  acme_normal.wsp3 D3-EARLY: the heating law with the limit of the early era (about
+#                 500 C through 30 August 2021)
+#
+# Why this member exists. The hinge-law spec carries its own burner-limit clock, a log-logistic in
+# fuel flow alone. It gives a cool low-flow flame a limit trip it cannot have (21125A2 on train: a
+# trip forecast at 17 s with the burner at 61 C). Here that clock is replaced by the heating law the
+# growth member already uses, which knows the total flow and the flame radius. The hinge clock's own
+# numbers (ft.tau.*, ft.shape) are not part of this spec.
+#
+# No value below was typed again. They are the stored values of the two releases named in the
+# blocks, copied statement by statement by tools/wsp/flame4_edits.py; that script chooses and
+# computes nothing.

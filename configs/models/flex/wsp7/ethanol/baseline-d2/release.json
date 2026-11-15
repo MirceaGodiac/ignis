@@ -1,0 +1,1229 @@
+{
+  "id": "sha256:7f7049769d7515f746ab9dcf6ae918f4583059790ce6aed41c2e2c752deda6ea",
+  "family": "flex",
+  "model_name": "flex_ethanol.wsp7",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::droplet8::forecast",
+      "profile": "strict_no_fitting",
+      "version": "8"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 37,
+      "authored_total": 406,
+      "constant_total": 20,
+      "per_tensor": {
+        "ce.beta_atm": [
+          1,
+          0
+        ],
+        "ce.c_he": [
+          1,
+          0
+        ],
+        "ce.d0_exp": [
+          1,
+          1
+        ],
+        "ce.eps_atm": [
+          1,
+          1
+        ],
+        "ce.g0": [
+          1,
+          0
+        ],
+        "ce.on": [
+          1,
+          0
+        ],
+        "ce.p_ref_atm": [
+          1,
+          0
+        ],
+        "class.bias": [
+          1,
+          0
+        ],
+        "class.kappa": [
+          1,
+          1
+        ],
+        "crit.W1": [
+          32,
+          0
+        ],
+        "crit.b0": [
+          1,
+          1
+        ],
+        "crit.b1": [
+          8,
+          0
+        ],
+        "crit.skip": [
+          4,
+          0
+        ],
+        "crit.w2": [
+          8,
+          0
+        ],
+        "diff.W1": [
+          48,
+          0
+        ],
+        "diff.b0": [
+          1,
+          1
+        ],
+        "diff.b1": [
+          8,
+          0
+        ],
+        "diff.sharp": [
+          1,
+          1
+        ],
+        "diff.skip": [
+          6,
+          0
+        ],
+        "diff.w2": [
+          8,
+          0
+        ],
+        "dy.frac": [
+          1,
+          0
+        ],
+        "dy.tau_s": [
+          1,
+          1
+        ],
+        "enc.cool_gain": [
+          1,
+          0
+        ],
+        "enc.e_clip": [
+          2,
+          2
+        ],
+        "enc.end_frac": [
+          1,
+          1
+        ],
+        "enc.gain_b": [
+          1,
+          1
+        ],
+        "enc.gain_w": [
+          3,
+          3
+        ],
+        "enc.k_floor_m2_s": [
+          1,
+          1
+        ],
+        "enc.min_points": [
+          1,
+          1
+        ],
+        "enc.mix": [
+          2,
+          1
+        ],
+        "enc.w_ref": [
+          1,
+          1
+        ],
+        "enc.window_frac": [
+          1,
+          1
+        ],
+        "filt.gain_b": [
+          1,
+          1
+        ],
+        "filt.gain_w": [
+          3,
+          3
+        ],
+        "filt.l_floor": [
+          1,
+          1
+        ],
+        "filt.sd_evap": [
+          1,
+          1
+        ],
+        "filt.sd_hot": [
+          1,
+          1
+        ],
+        "fl.evap_mix": [
+          1,
+          1
+        ],
+        "fl.gap_s": [
+          1,
+          1
+        ],
+        "fl.min_points": [
+          1,
+          1
+        ],
+        "fl.t_min_s": [
+          1,
+          1
+        ],
+        "fl.trust": [
+          1,
+          0
+        ],
+        "gate.growth_tol": [
+          1,
+          1
+        ],
+        "gate.k_max_m2_s": [
+          1,
+          1
+        ],
+        "gate.min_later": [
+          1,
+          1
+        ],
+        "haz.log_disruption": [
+          1,
+          1
+        ],
+        "norm.d_ref_m": [
+          1,
+          1
+        ],
+        "norm.k_ref_m2_s": [
+          1,
+          1
+        ],
+        "norm.n_ref": [
+          1,
+          1
+        ],
+        "norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "num.bin_s": [
+          1,
+          1
+        ],
+        "num.ce_count": [
+          1,
+          1
+        ],
+        "num.ce_step": [
+          1,
+          1
+        ],
+        "num.d_min_m": [
+          1,
+          1
+        ],
+        "num.dt_s": [
+          1,
+          1
+        ],
+        "num.t_valid_s": [
+          1,
+          1
+        ],
+        "num.z_count": [
+          1,
+          1
+        ],
+        "num.z_step": [
+          1,
+          1
+        ],
+        "post.hot_exp": [
+          1,
+          0
+        ],
+        "post.k_hot": [
+          1,
+          0
+        ],
+        "post.k_inf": [
+          1,
+          0
+        ],
+        "post.size_exp": [
+          1,
+          1
+        ],
+        "post.tau0_s": [
+          1,
+          1
+        ],
+        "post.tau_exp": [
+          1,
+          1
+        ],
+        "rad.W1": [
+          48,
+          0
+        ],
+        "rad.b0": [
+          1,
+          0
+        ],
+        "rad.b1": [
+          8,
+          0
+        ],
+        "rad.sharp": [
+          1,
+          1
+        ],
+        "rad.skip": [
+          6,
+          0
+        ],
+        "rad.w2": [
+          8,
+          0
+        ],
+        "rate.W1": [
+          112,
+          0
+        ],
+        "rate.b0": [
+          1,
+          1
+        ],
+        "rate.b1": [
+          16,
+          0
+        ],
+        "rate.skip": [
+          7,
+          0
+        ],
+        "rate.w2": [
+          16,
+          0
+        ],
+        "rob.eps_r": [
+          1,
+          0
+        ],
+        "sc.cl_j_kg_k": [
+          1,
+          0
+        ],
+        "sc.diff_scale": [
+          1,
+          1
+        ],
+        "sc.gas": [
+          3,
+          0
+        ],
+        "sc.k0_cool_mm2_s": [
+          1,
+          0
+        ],
+        "sc.k0_hot_mm2_s": [
+          1,
+          0
+        ],
+        "sc.k_cold_mm2_s": [
+          1,
+          0
+        ],
+        "sc.k_warm_mm2_s": [
+          1,
+          0
+        ],
+        "sc.lat_j_kg": [
+          1,
+          0
+        ],
+        "sc.on": [
+          1,
+          0
+        ],
+        "sc.tau_warm_s": [
+          1,
+          1
+        ],
+        "sc.tstar_k": [
+          1,
+          0
+        ],
+        "unc.s_floor": [
+          1,
+          1
+        ],
+        "unc.s_pop": [
+          1,
+          1
+        ],
+        "unc.sigma_d": [
+          1,
+          1
+        ],
+        "unc.sigma_frame": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:8c171a17d44e2e5de44434d89487b74030ced4ccb3a3a8fc2c6c22adb76d517c",
+    "spec_id": "flex_ethanol-wsp-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "c_o2",
+    "c_co2",
+    "c_he",
+    "c_logp",
+    "c_logd0",
+    "x_exc",
+    "w",
+    "s",
+    "e_late",
+    "e_early",
+    "r_late",
+    "r_end",
+    "g_span",
+    "g_count",
+    "g_progress",
+    "flame_seen"
+  ],
+  "units": {
+    "c_co2": "1",
+    "c_he": "1",
+    "c_logd0": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "e_early": "1",
+    "e_late": "1",
+    "flame_seen": "1",
+    "g_count": "1",
+    "g_progress": "1",
+    "g_span": "1",
+    "r_end": "1",
+    "r_late": "1",
+    "s": "1",
+    "w": "1",
+    "x_exc": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "calibration": "published calibration assumed applied upstream by the data lane",
+    "noise": "independent Gaussian of sd unc.sigma_d on each measurement (assumed)",
+    "prefix": "liquid_diameter observations, valid, positive, 0 <= t <= cutoff, first of equal time stamps, after the validity gate (a value later frames exceed by more than gate.growth_tol is dropped)"
+  },
+  "numerics": {
+    "d_min_m": 0.00025,
+    "integrator": "RK4 of the hot phase on a uniform grid of num.dt_s from the cutoff; closed form after a transition",
+    "request_time_fitting": "none",
+    "scenarios": "num.z_count rate nodes spaced num.z_step and num.ce_count cool-extinction nodes spaced num.ce_step, normal weights",
+    "t_valid_s": 200.0
+  },
+  "tensors": [
+    {
+      "name": "ce.beta_atm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.c_he",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.d0_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "ce.eps_atm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f40a7c54b4a1366724e4a4d108951f3daf38409c9fccfed00e1f0bb268605fc3",
+      "trainable": false
+    },
+    {
+      "name": "ce.g0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.on",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "ce.p_ref_atm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "class.bias",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "class.kappa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0bf2706a926f584df16747da2564d349e02767bbf3ac135a88130ee1574254e8",
+      "trainable": false
+    },
+    {
+      "name": "crit.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "2a2edbbf100711cafb607d7bf507fbd1dfb087d43fbf3f34632b6ff4e18d3460",
+      "trainable": false
+    },
+    {
+      "name": "crit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "crit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "crit.skip",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "crit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "diff.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "7135955bfbffeb86efab3d01fa2041bdc781914eb37468761592934a8a02a7bb",
+      "trainable": false
+    },
+    {
+      "name": "diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "05e48ced7405805c3ac025acf7e58f82866766ca6a4ebee0b05388758d8cc284",
+      "trainable": false
+    },
+    {
+      "name": "diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "diff.sharp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89b32a77dc8237325df429b4573ca7fcf6714f1626bf016a7393ddfdd4f52682",
+      "trainable": false
+    },
+    {
+      "name": "diff.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "dy.frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "dy.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "enc.cool_gain",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "enc.e_clip",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "c043f7ef219e24ef76206bd95e8a53d6645c18ebbc270895df8354c6a58fb1a9",
+      "trainable": false
+    },
+    {
+      "name": "enc.end_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4071bcaa9e99506b4700b169f5aca7d38e4b6c249e3db3a5f617870fc5b45618",
+      "trainable": false
+    },
+    {
+      "name": "enc.gain_b",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "81d094cf888d834a70f6b20cef0a8b7ffa4ed4eba7b2a09d1e7a0272d50c1c5e",
+      "trainable": false
+    },
+    {
+      "name": "enc.gain_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "17e4461b5ac0a74c1813c13631206529569af13ed5dec0c892be442755412b83",
+      "trainable": false
+    },
+    {
+      "name": "enc.k_floor_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0ebe7df3068dfab5a022b58040a60af903aa932fe2f49bf2de55b737d2989df7",
+      "trainable": false
+    },
+    {
+      "name": "enc.min_points",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "enc.mix",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "cae704efe56758ac2b3c6e18700a5584560df6a1b1f90a53a13916080df010d1",
+      "trainable": false
+    },
+    {
+      "name": "enc.w_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "49981eeb9c6978f81da79bac7b9a910f3f1cf8291f72798daffe06c176e7a7be",
+      "trainable": false
+    },
+    {
+      "name": "enc.window_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "filt.gain_b",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "81d094cf888d834a70f6b20cef0a8b7ffa4ed4eba7b2a09d1e7a0272d50c1c5e",
+      "trainable": false
+    },
+    {
+      "name": "filt.gain_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "17e4461b5ac0a74c1813c13631206529569af13ed5dec0c892be442755412b83",
+      "trainable": false
+    },
+    {
+      "name": "filt.l_floor",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "filt.sd_evap",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "filt.sd_hot",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "fl.evap_mix",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "fl.gap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "fl.min_points",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "fl.t_min_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "fl.trust",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "gate.growth_tol",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "gate.k_max_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8b1c4041749e7d9529c63f5b82db79bc57305fe7292e065d7738ee1ff93283a4",
+      "trainable": false
+    },
+    {
+      "name": "gate.min_later",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "haz.log_disruption",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1871394a02b6c1733aa4af3babda1f2177879562c14836328ff79863504340b3",
+      "trainable": false
+    },
+    {
+      "name": "norm.d_ref_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8c3b46a80d99d14eda1ed1f267daf202e284542438f4b278bb8e8fba314f8818",
+      "trainable": false
+    },
+    {
+      "name": "norm.k_ref_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "norm.n_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f02d9c717f9625f279291665b0954ea23ca0c32365e38963ba820afeb64cdba8",
+      "trainable": false
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "num.bin_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "num.ce_count",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "num.ce_step",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "num.d_min_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b65706421956c2f2e8e1f50fe774062572e1e3fb7a379a6e01d64584e5ad53ab",
+      "trainable": false
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "num.t_valid_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "af975a41694228277cb69e4f7c7778e98865e1810e2ce4a3489dd8a10b8434ff",
+      "trainable": false
+    },
+    {
+      "name": "num.z_count",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "num.z_step",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "post.hot_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "post.k_hot",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "post.k_inf",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "post.size_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "post.tau0_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "post.tau_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "rad.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "7135955bfbffeb86efab3d01fa2041bdc781914eb37468761592934a8a02a7bb",
+      "trainable": false
+    },
+    {
+      "name": "rad.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "rad.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "rad.sharp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "rad.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "rad.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "rate.W1",
+      "shape": [
+        16,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "f8950e71263f60a3a5c242e4b224728ac9427e12866c8fcca48d877164249128",
+      "trainable": false
+    },
+    {
+      "name": "rate.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ce64b4a59b57c8b8dfd7920c026fedad767b7ebb742c87d3895e8fa9ba2e6680",
+      "trainable": false
+    },
+    {
+      "name": "rate.b1",
+      "shape": [
+        16
+      ],
+      "dtype": "float64",
+      "sha256": "2692173734f0504a272640af9d7b4d1a919f460b2f623bba16c73fdd65509b5e",
+      "trainable": false
+    },
+    {
+      "name": "rate.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "da5a5b60b0766c2ffe57242f83724dbda5179d46a8bc119e41510fa10e17d0d9",
+      "trainable": false
+    },
+    {
+      "name": "rate.w2",
+      "shape": [
+        16
+      ],
+      "dtype": "float64",
+      "sha256": "2692173734f0504a272640af9d7b4d1a919f460b2f623bba16c73fdd65509b5e",
+      "trainable": false
+    },
+    {
+      "name": "rob.eps_r",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.cl_j_kg_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.diff_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "sc.gas",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "sc.k0_cool_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.k0_hot_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.k_cold_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.k_warm_mm2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.lat_j_kg",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.on",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "sc.tau_warm_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "sc.tstar_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "unc.s_floor",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "49981eeb9c6978f81da79bac7b9a910f3f1cf8291f72798daffe06c176e7a7be",
+      "trainable": false
+    },
+    {
+      "name": "unc.s_pop",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_d",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ffc99f3adbf33a846f18af5186dbda8a1dff0cfb09c35fae07eebbceeb2b3634",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_frame",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1dddfdeb378f9de40427d95a4f732b45756c111b9ec41ef724e2cf3f78332c9d",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:9e31b1aa6b56b2086aac85776d27778bb1680a83fcdfc543dad62e0385da637e",
+  "split_id": "sha256:660b7d9ede629b3009b4b761ea9e5875560719566e3dea21112f607cddd49894",
+  "source_manifest_hash": "sha256:74dedf7ea617ed6da1c5555822137b8433cfbf59cf293ab9989fd5d3c31a6382",
+  "code_version": "ignis-wsp@0.1.0+fwd.0e078a058c032503",
+  "applicability": {
+    "configuration": "single free-floating droplet",
+    "domain": [
+      {
+        "feature": "c_o2",
+        "max": 4.8,
+        "min": -2.2
+      },
+      {
+        "feature": "c_co2",
+        "max": 4.0,
+        "min": 0.0
+      },
+      {
+        "feature": "c_he",
+        "max": 4.25,
+        "min": 0.0
+      },
+      {
+        "feature": "c_logp",
+        "max": 1.7,
+        "min": -1.0
+      },
+      {
+        "feature": "c_logd0",
+        "max": 1.26,
+        "min": -0.9
+      }
+    ],
+    "fuel": "ethanol",
+    "meaning": "declared physical domain of the handwritten law, not a training-support region",
+    "time_origin": "NASA DropletData processed time base (phase entry not adjudicated)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": null,
+  "lineage": "literal_authoring",
+  "lineage_note": "Reference baseline and lineage root, not a candidate: the statements of configs/models/flex/wsp5/methanol/baseline-d2 (flex_methanol.wsp5) copied without change under spec flex_ethanol-wsp-v1 on droplet8.rs (the law of droplet6.rs for eight",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_one_shot",
+    "spec_id": "flex_ethanol-wsp-v1",
+    "spec_hash": "sha256:8c171a17d44e2e5de44434d89487b74030ced4ccb3a3a8fc2c6c22adb76d517c",
+    "patch_id": "flex_ethanol-wsp-v1-baseline-d2",
+    "patch_hash": "sha256:3dfa583596964ff2cfc9a1adbdcca6ccc38aba400d058e218eb6e1d8580215de",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "repo:docs/wsp/research/exp_flex.md(published-median-methanol-burning-rate)",
+        "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)",
+        "repo:crates/ignis-wsp/src/droplet8.rs(forward-and-spec;the-law-of-droplet6.rs-for-eight-fuels)"
+      ],
+      "datasets": [],
+      "development_feedback": [],
+      "prior_candidates": []
+    },
+    "weights_hash": "sha256:624b365a402a33c7d10883315e328b155fed12aa9e7a42af50e578d038995260",
+    "forward": {
+      "entry_point": "ignis_wsp::droplet8::forecast",
+      "version": "8",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:0e078a058c0325036a26e185ed4705c1a55624e7aff8070599c132861e0c3ee2",
+    "code_version": "ignis-wsp@0.1.0+fwd.0e078a058c032503",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "406 authored elements (37 nonzero), 20 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

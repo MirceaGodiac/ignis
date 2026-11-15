@@ -1,0 +1,11 @@
+[
+  {"op":"set", "tensor":"pi", "index":[], "value":3.141592653589793},
+  {"op":"set", "tensor":"molar_gas_constant", "index":[], "value":8.31446261815324},
+  {"op":"set", "tensor":"step_seconds", "index":[], "value":0.001},
+  {"op":"set", "tensor":"max_fraction_mass_loss", "index":[], "value":0.02},
+  {"op":"set", "tensor":"max_fraction_temperature_change", "index":[], "value":0.01},
+  {"op":"set", "tensor":"relative_local_error", "index":[], "value":0.0001},
+  {"op":"set", "tensor":"absolute_mass_error_kg", "index":[], "value":0.0000000000000001},
+  {"op":"set", "tensor":"absolute_temperature_error_kelvin", "index":[], "value":0.0001},
+  {"op":"set", "tensor":"conservation_relative_error", "index":[], "value":0.0000000001}
+]

@@ -1,8 +1,9 @@
 // Hash routes: every view is addressable, reloadable and shareable without a server route.
 //   #/                          home (ask, recent work, shortcuts)
-//   #/research[/<episode>]      investigations; ?tab=thread|evidence|route
-//   #/map                       atmosphere map       #/runs   run index
-//   #/conditions                conditions matrix and habitat relevance (T9)
+//   #/research[/<episode>]      questions (research episodes); ?tab=thread|evidence|route
+//   #/runs                      run index
+//   #/conditions[?tab=…]        habitats | map | runs, one page over the conditions table (T9)
+//   #/map                       old link: opens #/conditions?tab=map
 //   #/compare                   comparison           #/lab[/<run>]  forecast lab
 //   #/sources[?q=…]             source search        #/models model releases
 //   #/original/<source id>[?page=&bbox=&row=&col=&t=&title=]  a NASA original at a locator (new tab)
@@ -50,9 +51,38 @@ export function useRoute(): Route {
   return route;
 }
 
+/** Which service a page reads. A page whose service is not configured says so in place. */
+export type Service = "agent_runtime" | "knowledge" | "datasets" | "models" | "registry";
+
+/**
+ * The information architecture, in one place: the rail, the breadcrumbs, the command menu and the
+ * window title all read it. Sections follow what a researcher does: ask; look at what NASA recorded
+ * (documents, runs, conditions); work with models on it.
+ */
+export const SECTIONS: { label: string | null; views: View[] }[] = [
+  { label: null, views: ["home"] },
+  { label: "NASA data", views: ["sources", "runs", "conditions"] },
+  { label: "Models", views: ["lab", "compare", "models"] },
+];
+
+export const VIEW_SECTION: Partial<Record<View, string>> = Object.fromEntries(SECTIONS.flatMap((s) => (s.label ? s.views.map((v) => [v, s.label]) : [])));
+
+export const VIEW_SERVICE: Record<View, Service | null> = {
+  home: null,
+  research: "agent_runtime",
+  map: "datasets",
+  conditions: "datasets",
+  runs: "registry",
+  compare: "registry",
+  lab: "registry",
+  sources: "knowledge",
+  models: "models",
+  original: "knowledge",
+};
+
 export const VIEW_TITLE: Record<View, string> = {
   home: "Home",
-  research: "Investigations",
+  research: "Questions",
   map: "Atmosphere map",
   conditions: "Conditions",
   runs: "Runs",

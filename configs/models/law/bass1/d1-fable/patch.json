@@ -1,0 +1,69 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bass1-v1-d1-fable",
+  "spec_hash": "sha256:48f54b70e2dcdaf0e11f659189167d2529e0e08b5253aaff26586f5b6da930d1",
+  "parent_release_id": "sha256:97c0daf9de84482ed7b125b3d41302521f5dd7281c0667241807d93387e239a2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass1_d1.md(sha256:0a9b15c73e1cf59a696ef37dac61cd7e3caa3cb1230f79e9a98bbddc3c336555;data-informed-D1-from-train-days)",
+      "repo:docs/wsp/feedback/bass1_train_anatomy.md(train-days-only)",
+      "coordinator-summary-of-the-13.2-blind-look(aggregates-only;no-validation-case)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass1-train-cases(transfer_bass1/cases_train.jsonl)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-validation-aggregates-of-the-W0-parent"
+    ],
+    "prior_candidates": [
+      "sha256:97c0daf9de84482ed7b125b3d41302521f5dd7281c0667241807d93387e239a2"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.median.W1",
+      "index": [
+        0,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.median.w2",
+      "index": [
+        0
+      ],
+      "value": 1.44
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.W1",
+      "index": [
+        0,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.w2",
+      "index": [
+        0
+      ],
+      "value": 0.43
+    }
+  ],
+  "rationale": "D1 of bass1.wsp (PROTOCOL 13.3): one damped step typed by the author from the train anatomy of the W0 law; the Edits block of docs/wsp/research/phys_bass1_d1.md (sha256 0a9b15c73e1cf59a696ef37dac61cd7e3caa3cb1230f79e9a98bbddc3c336555) verbatim as a revision of the W0 release. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

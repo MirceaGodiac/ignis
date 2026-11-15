@@ -1,0 +1,751 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-bre-v1",
+  "family": "other",
+  "model_name": "bre.wsp",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "W0 law of docs/wsp/research/phys_bre_w0.md, section 7.1: self-extinction of a flame over a porous burner by radiation as it grows by diffusion. Time origin: ignition. Derived case inputs (burner_mass_flux, is_methane, stated_time and the renamed conditions) are written by tools/wsp/ext/law_inputs.py. (PhaseEndTime is the first target with a shared quantity); targets: flame_end, lasts, height_at_end",
+    "excludes": [
+      "bre:lasts (binary): lane-local target, not a shared quantity",
+      "bre:height_at_end (positive, m): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "burner_diameter",
+      "unit": "m",
+      "source": "condition:burner_diameter",
+      "transform": "ln: ln(x / x.burner_diameter.centre) / x.burner_diameter.scale; refused unless x.burner_diameter.lo <= x <= x.burner_diameter.hi @1"
+    },
+    {
+      "name": "burner_mass_flux",
+      "unit": "kg/m2/s",
+      "source": "condition:burner_mass_flux",
+      "transform": "ln: ln(x / x.burner_mass_flux.centre) / x.burner_mass_flux.scale; refused unless x.burner_mass_flux.lo <= x <= x.burner_mass_flux.hi @1"
+    },
+    {
+      "name": "x_o2",
+      "unit": "1",
+      "source": "condition:x_o2",
+      "transform": "ln: ln(x / x.x_o2.centre) / x.x_o2.scale; refused unless x.x_o2.lo <= x <= x.x_o2.hi @1"
+    },
+    {
+      "name": "pressure",
+      "unit": "Pa",
+      "source": "condition:pressure",
+      "transform": "ln: ln(x / x.pressure.centre) / x.pressure.scale; refused unless x.pressure.lo <= x <= x.pressure.hi @1"
+    },
+    {
+      "name": "x_fuel",
+      "unit": "1",
+      "source": "condition:x_fuel",
+      "transform": "ln: ln(x / x.x_fuel.centre) / x.x_fuel.scale; refused unless x.x_fuel.lo <= x <= x.x_fuel.hi @1"
+    },
+    {
+      "name": "is_methane",
+      "unit": "1",
+      "source": "condition:is_methane",
+      "transform": "identity: (x - x.is_methane.centre) / x.is_methane.scale; refused unless x.is_methane.lo <= x <= x.is_methane.hi @1"
+    },
+    {
+      "name": "stated_time",
+      "unit": "s",
+      "source": "condition:stated_time",
+      "transform": "ln: ln(x / x.stated_time.centre) / x.stated_time.scale; refused unless x.stated_time.lo <= x <= x.stated_time.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.burner_diameter.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of burner_diameter."
+    },
+    {
+      "name": "x.burner_diameter.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of burner_diameter."
+    },
+    {
+      "name": "x.burner_diameter.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of burner_diameter (raw SI value)."
+    },
+    {
+      "name": "x.burner_diameter.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of burner_diameter (raw SI value)."
+    },
+    {
+      "name": "x.burner_mass_flux.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/m2/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of burner_mass_flux."
+    },
+    {
+      "name": "x.burner_mass_flux.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of burner_mass_flux."
+    },
+    {
+      "name": "x.burner_mass_flux.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/m2/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of burner_mass_flux (raw SI value)."
+    },
+    {
+      "name": "x.burner_mass_flux.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/m2/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of burner_mass_flux (raw SI value)."
+    },
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_o2."
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_o2."
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_o2 (raw SI value)."
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_o2 (raw SI value)."
+    },
+    {
+      "name": "x.pressure.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "Pa",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of pressure."
+    },
+    {
+      "name": "x.pressure.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of pressure."
+    },
+    {
+      "name": "x.pressure.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "Pa",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of pressure (raw SI value)."
+    },
+    {
+      "name": "x.pressure.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "Pa",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of pressure (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_fuel."
+    },
+    {
+      "name": "x.x_fuel.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_fuel."
+    },
+    {
+      "name": "x.x_fuel.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_fuel (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_fuel (raw SI value)."
+    },
+    {
+      "name": "x.is_methane.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_methane."
+    },
+    {
+      "name": "x.is_methane.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_methane."
+    },
+    {
+      "name": "x.is_methane.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_methane (raw SI value)."
+    },
+    {
+      "name": "x.is_methane.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_methane (raw SI value)."
+    },
+    {
+      "name": "x.stated_time.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of stated_time."
+    },
+    {
+      "name": "x.stated_time.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of stated_time."
+    },
+    {
+      "name": "x.stated_time.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of stated_time (raw SI value)."
+    },
+    {
+      "name": "x.stated_time.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of stated_time (raw SI value)."
+    },
+    {
+      "name": "flame_end.extinction.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 25.0
+      },
+      "description": "Value of ln(median time of cause extinction of flame_end alone / 1 s), since the time origin at z = 0 before hinge terms (ln(s))."
+    },
+    {
+      "name": "flame_end.extinction.median.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median time of cause extinction of flame_end alone / 1 s), since the time origin on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flame_end.extinction.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median time of cause extinction of flame_end alone / 1 s), since the time origin; row j reads z in feature order."
+    },
+    {
+      "name": "flame_end.extinction.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median time of cause extinction of flame_end alone / 1 s), since the time origin (hinge positions)."
+    },
+    {
+      "name": "flame_end.extinction.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median time of cause extinction of flame_end alone / 1 s), since the time origin."
+    },
+    {
+      "name": "flame_end.extinction.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.1,
+        "max": 50.0
+      },
+      "description": "Log-logistic shape of cause extinction of flame_end (sd of ln T = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "lasts.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(lasts) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "lasts.logit.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(lasts) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "lasts.logit.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(lasts); row j reads z in feature order."
+    },
+    {
+      "name": "lasts.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(lasts) (hinge positions)."
+    },
+    {
+      "name": "lasts.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(lasts)."
+    },
+    {
+      "name": "height_at_end.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median height_at_end / 1 m) at z = 0 before hinge terms (ln(m))."
+    },
+    {
+      "name": "height_at_end.median.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median height_at_end / 1 m) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "height_at_end.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median height_at_end / 1 m); row j reads z in feature order."
+    },
+    {
+      "name": "height_at_end.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median height_at_end / 1 m) (hinge positions)."
+    },
+    {
+      "name": "height_at_end.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median height_at_end / 1 m)."
+    },
+    {
+      "name": "height_at_end.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of height_at_end at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "height_at_end.spread.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of height_at_end on z, in feature order; every element is stated."
+    },
+    {
+      "name": "height_at_end.spread.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of height_at_end; row j reads z in feature order."
+    },
+    {
+      "name": "height_at_end.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of height_at_end (hinge positions)."
+    },
+    {
+      "name": "height_at_end.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of height_at_end."
+    },
+    {
+      "name": "height_at_end.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of height_at_end (0: one log-normal)."
+    },
+    {
+      "name": "height_at_end.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of height_at_end over that of the core (1: no wider component)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/bre/decl.json (status Declared): {\"slug\":\"bre\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-20, ACME Burning Rate Emulator (BRE): porous-disc burner of 25 or 50 mm in a quiescent microgravity chamber\",\"description\":\"W0 law of docs/wsp/research/phys_bre_w0.md, section 7.1: self-extinction of a flame over a porous burner by radiation as it grows by diffusion. Time origin: ignition. Derived case inputs (burner_mass_flux, is_methane, stated_time and the renamed conditions) are written by tools/wsp/ext/law_inputs.py.\",\"features\":[{\"name\":\"burner_diameter\",\"unit\":\"m\",\"transform\":\"ln\",\"description\":\"diameter of the porous face (0.025 or 0.050)\"},{\"name\":\"burner_mass_flux\",\"unit\":\"kg/m2/s\",\"transform\":\"ln\",\"description\":\"mass flow of the burner gas (fuel plus its nitrogen) at the first setpoint, per unit face area\"},{\"name\":\"x_o2\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"oxygen mole fraction of the chamber gas just before ignition\"},{\"name\":\"pressure\",\"unit\":\"Pa\",\"transform\":\"ln\",\"description\":\"chamber pressure just before ignition\"},{\"name\":\"x_fuel\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"fuel mole fraction of the burner gas (1 for a pure fuel, 0.5 for the 50 % bottle)\"},{\"name\":\"is_methane\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 for methane, 0 for ethylene\"},{\"name\":\"stated_time\",\"unit\":\"s\",\"transform\":\"ln\",\"description\":\"the time asked about by lasts; any admissible value for the other targets, which give it no weight\"}],\"targets\":[{\"name\":\"flame_end\",\"kind\":\"event\",\"unit\":null,\"shared_quantity\":null,\"causes\":[\"extinction\"],\"scheduled_stop\":null,\"description\":\"the flame goes out by itself while the fuel flow is still at its first setpoint, seconds since ignition; no scheduled_stop condition (a stop comes from known_controls when one is known)\"},{\"name\":\"lasts\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"the flame is still burning stated_time seconds after ignition, flow unchanged\"},{\"name\":\"height_at_end\",\"kind\":\"positive\",\"unit\":\"m\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"height of the flame above the burner centre in the last second before self-extinction (lane-local)\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

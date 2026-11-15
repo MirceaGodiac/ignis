@@ -1,0 +1,19 @@
+# acme_inverse.wsp2 — reference baseline and lineage root, NOT a candidate.
+# One clock per cause with no dependence on conditions and no programmed stop: an order-of-magnitude
+# statement that hot flames last tens of seconds and are stopped within a few minutes. Written
+# before the clock forward was run on anything. Data-informed candidates of this spec are literal
+# revisions of this release.
+se.tau.b0 = 3.4
+se.tau.skip[0:8] = 0.0
+se.flash.b0 = -40.0
+se.flash.skip[0:8] = 0.0
+ft.tau.b0 = 4.6
+ft.tau.skip[0:8] = 0.0
+se.floor_s = 0.0
+se.shape = 1.0
+se.flash_tau_s = 1.0
+se.flash_shape = 4.0
+ft.shape = 1.0
+ft.atom_t_s[0:8] = 0.0
+ft.atom_logit[0:8] = -40.0
+ft.log_base = -40.0

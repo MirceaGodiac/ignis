@@ -1,0 +1,64 @@
+# bass_front.wsp5 — carry of D1, literal revision of the baseline sha256:95a4d6ec…3e62, spec bass_front-wsp-v5
+# CARRY of the candidate D1 of bass_front.wsp (sha256:ac15e49f…855c) on the fifth front forward
+# (front5.rs); not a new candidate. Tip law: the stored values of D1, copied statement by statement by
+# tools/wsp/front5_edits.py (only those that differ from the baseline are written), without D1's quench
+# hazard (quench.*), which this spec does not have. Boundary law: the neutral setting of the baseline,
+# restated below. With it the tip forecast is that of front.rs with D1's numbers, case by case, and the
+# sample always ignites and stays lit. D1 is data-informed (its own header says how); so is this carry.
+#
+# =====================================================================================================
+# Boundary law of bass_front-wsp-v5: the NEUTRAL setting. It holds no physical claim.
+# =====================================================================================================
+# Chosen by the engineer who wired the forward (claude-opus-5-5), from the bounds of the spec, so that
+# the sample always ignites and a flame never goes out. These numbers say nothing about the fabric,
+# PMMA, pressure, flow or direction; they switch the boundary law off. With them, at every flow,
+# pressure, width, material and direction:
+#   X_lim = sus.x0 = 0.08 (cp = sb = ar = aw = 0), s = sd_x0 = 0.001
+#   lit_k = Phi((X - 0.06 - 0.001 e_k) / 0.001) Phi(ln(t_on / 0.1 s) / 0.1), which is 1.0 exactly in
+#           double precision for X >= 0.075 and an igniter on for 0.25 s or more (|e_k| <= 2.26)
+#   rate_k = Phi(-(X - 0.08 - 0.001 e_k) / 0.0005) / 300 s, below 1e-30 per second for X >= 0.09, so
+#           exp(-Lambda_k) = 1.0 exactly over the longest forecast
+# sus.us = 5 cm/s (the upper bound) keeps the effective speed U_e positive with the fan off (a zero
+# U_e is refused). Every sd is at its lower bound, every time to go out at its upper bound.
+sus.x0[0:2] = [0.08, 0.08]
+sus.cp[0:2] = [0.0, 0.0]
+sus.sb[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.ar[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.aw[0:2] = [0.0, 0.0]
+sus.us[0:2] = [5.0, 5.0]
+sus.sd_x0[0:2] = [0.001, 0.001]
+sus.sd_cp[0:2] = [0.0, 0.0]
+sus.sd_sb[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.sd_ar[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.sd_aw[0:2] = [0.0, 0.0]
+ign.dx[0:2] = [-0.02, -0.02]
+ign.sd_a = 0.001
+ign.t_req[0:2] = [0.1, 0.1]
+ign.sd_lnt = 0.1
+ext.tau[0:2, 0:2] = [[300.0, 300.0], [300.0, 300.0]]
+ext.width = 0.0005
+
+# ---- tip law: the stored values of sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c
+#      (22 statements that differ from the parent, sha256:95a4d6ec04e138d9f8787ecec1220abb3b173bea6d3dbfea7c91d3ef24fd3e62)
+speed.skip[0] = 0.032
+speed.b0 = 0.0535
+over.skip[0] = 0.325
+over.b0 = 0.325
+burn.b0 = 1.84
+speed.pow[0] = 1.5
+speed.pow[1] = -1.0
+over.pow[0] = 3.0
+over.pow[1] = -1.0
+enc.gain_w[0] = 2.5
+enc.gain_w[1] = 3.5
+enc.gain_b = -2.3
+enc.mix[0] = 0.8
+enc.mix[1] = 0.2
+enc.e_clip[0] = 0.7
+enc.e_clip[1] = 0.7
+unc.s_pop = 0.25
+unc.s_floor = 0.06
+unc.s_far[0] = 0.06
+unc.s_far[1] = 0.25
+unc.sigma_x0_w = 0.3
+unc.rel_over = 0.5

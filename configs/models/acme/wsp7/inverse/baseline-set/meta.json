@@ -1,0 +1,23 @@
+{
+  "patch_id": "acme_inverse-wsp-v7-baseline-set",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/committee2.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame3.rs(forward-and-spec)",
+      "repo:crates/ignis-wsp/src/flame4.rs(forward-and-spec)",
+      "repo:configs/models/acme/wsp5/inverse/baseline-set(root-of-the-first-committee-spec;its-stored-slot-values-are-slots-a0-to-b3;its-mix.w-and-mix.w_script-are-the-weights-of-both-eras)",
+      "repo:configs/models/acme/wsp8/inverse/baseline-clock-theory(reference-baseline;its-stored-values-are-slots-c0-to-c3)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-constants:rhoD-of-Kim-et-al-2023,critical-reactant-flux-of-Irace-et-al-2023;both-were-measured-on-ISS-flames-of-the-ACME-campaigns)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root of the spec of the second committee, not a candidate: the slots of the root of the first committee spec in slots a0 to b3 with its weights in both eras, the root of the hinge-law spec with the burner-heating law in slots c0 to c3 with weight zero, no era told apart, the planned stop not read. No number was taken from the PSI-159 tables. The slot values are copied from the stored releases by tools/wsp/committee2_edits.py, which chooses nothing. Data-informed candidates of acme_inverse-wsp-v7 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

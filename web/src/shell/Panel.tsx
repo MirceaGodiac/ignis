@@ -2,39 +2,46 @@
 // or release, with a back trail. Every link inside it pushes onto the trail; Escape closes it.
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnswerRefusal, ArtifactRef, EvidenceRef, InlinePayload } from "../contracts/generated";
+import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ResearchAnswer, SourceLocator } from "../contracts/generated";
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
-import { fmtGravity, fmtMeasured } from "../format";
-import { ArtifactValue, EvidenceSummary, locatorText } from "../views/Answer";
+import { fmtGravity } from "../format";
+import { ArtifactValue, EvidenceSummary, locatorText, placeShort } from "../views/Answer";
 import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, RefusalNote, ReleaseState, shortId, Synthetic, words } from "../ui/common";
 import { useCompare } from "./compare";
+import { INVESTIGATIONS } from "../data/investigations";
+import { conditionRows, gapText } from "../research/runConditions";
 import { useData } from "./data";
-import { usePanel, type PanelItem } from "./inspector";
+import { itemKey, usePanel, type PanelItem } from "./inspector";
 import { FamilyMark, FAMILY_LABEL, IconBack, IconClose } from "./icons";
 import { href } from "./router";
 import { TOOL_LABEL } from "../views/turns";
 import { isTypedArtifact } from "../research/artifactViews";
 import { RefusalProblems, ReleaseConstruction, TypedArtifactBody } from "./ArtifactViews";
-import { SourceOriginal } from "./SourceOriginal";
+import { SourceOriginal, httpUrl } from "./SourceOriginal";
+import { MODE_TEXT as ORIGINAL_MODE_TEXT, OriginalBody } from "../views/Original";
 import { OpenOriginal } from "./OpenOriginal";
 import { runSources } from "./runSources";
 
-const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Route step", release: "Model release" };
+const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation", original: "NASA original" };
 
 const ARTIFACT_TITLE: Record<string, string> = { AnalysisArtifact: "Figure", ExecutionRecord: "Analysis run", DatasetBundle: "Dataset", EvaluationResult: "Evaluation", ResearchAnswer: "Answer", AnswerRefusal: "Refused answer", VisualObservationBundle: "Video contours" };
 
 function itemTitle(i: PanelItem): string {
   switch (i.kind) {
     case "run":
-      return `Run ${i.id}`;
+      return `Run ${i.id.split(":").pop()}`;
     case "claim":
       return `Claim ${i.keyLabel}`;
     case "step":
       return `Step ${i.index}: ${TOOL_LABEL[i.call.tool] ?? words(i.call.tool)}`;
     case "release":
       return i.release.model_name;
+    case "investigation":
+      return INVESTIGATIONS.get(i.id)?.acronym ?? i.id;
+    case "original":
+      return i.title ?? "NASA original";
     case "artifact":
       return ARTIFACT_TITLE[i.artifact.contract ?? ""] ?? "Artifact";
     default:
@@ -81,12 +88,169 @@ export function Panel() {
         {current.kind === "artifact" && <ArtifactItem artifact={current.artifact} caption={current.caption} />}
         {current.kind === "step" && <StepItem item={current} />}
         {current.kind === "release" && <ReleaseItem item={current} />}
+        {current.kind === "sources" && <SourcesItem answers={current.answers} />}
+        {current.kind === "investigation" && <InvestigationItem id={current.id} />}
+        {current.kind === "original" && <OriginalItem key={itemKey(current)} sourceId={current.sourceId} loc={current.loc} title={current.title} />}
       </div>
     </aside>
   );
 }
 
+// ---------------------------------------------------------------- an investigation (atlas card)
+
+const NEED: Record<string, string> = { prevention: "Prevention", detection: "Detection", suppression: "Suppression" };
+const where = (s: { file?: string; page?: number } | null) => (s?.file ? `${s.file}${s.page ? `, p. ${s.page}` : ""}` : null);
+
+/** The atlas card of one investigation: NASA's objective and needs in NASA's words, then the narrative. */
+function InvestigationItem({ id }: { id: string }) {
+  const { push } = usePanel();
+  const inv = INVESTIGATIONS.get(id);
+  if (!inv) return <Gap title="No card for this investigation">{id}</Gap>;
+  return (
+    <>
+      <div className="panel-sec">
+        <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.4 }}>{inv.title}</p>
+        <p className="muted small">
+          {id}
+          {inv.sub_area ? ` · ${inv.sub_area}` : ""}
+          {inv.hardware ? ` · ${inv.hardware}` : ""}
+        </p>
+        <div className="toolbar">
+          <a className="btn btn-s" href={href("conditions", null, { tab: "map", inv: id })}>
+            On the map
+          </a>
+          <a className="btn btn-s" href={href("sources", null, { q: inv.acronym ?? id })}>
+            Documents
+          </a>
+        </div>
+      </div>
+      {inv.needs.length > 0 && (
+        <div className="panel-sec">
+          <h3>Fire safety</h3>
+          {inv.needs.map((n) => (
+            <div key={n.need} className="need-row">
+              <span className={`need${n.inference ? " inferred" : ""}`}>{NEED[n.need] ?? n.need}</span>
+              {n.basis && <blockquote className="quote">{n.basis}</blockquote>}
+              {n.inference && <p className="muted small">{n.inference}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+      {inv.relevance && (
+        <div className="panel-sec">
+          <h3>Why it matters</h3>
+          <p className="reading">{inv.relevance}</p>
+        </div>
+      )}
+      {inv.how_tests_differ && (
+        <div className="panel-sec">
+          <h3>How the tests differ</h3>
+          <p className="reading">{inv.how_tests_differ}</p>
+        </div>
+      )}
+      {inv.findings.length > 0 && (
+        <div className="panel-sec">
+          <h3>Findings</h3>
+          <ol className="findings">
+            {inv.findings.map((f, i) => (
+              <li key={i}>
+                <p>{f.statement}</p>
+                <span className="muted small">
+                  {f.kind}
+                  {where(f.source) ? ` · ${where(f.source)}` : ""}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {inv.sensors.length > 0 && (
+        <div className="panel-sec">
+          <h3>Instruments</h3>
+          <dl className="kv">
+            {inv.sensors.slice(0, 8).map((s, i) => (
+              <div key={i} style={{ display: "contents" }}>
+                <dt>{s.instrument}</dt>
+                <dd>{s.measures}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+      {inv.not_found.length > 0 && (
+        <div className="panel-sec">
+          <h3>Not in the documents</h3>
+          <ul className="plain-list">
+            {inv.not_found.map((t, i) => (
+              <li key={i}>{t}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {inv.related.length > 0 && (
+        <div className="panel-sec">
+          <h3>Related</h3>
+          <div className="toolbar">
+            {inv.related.map((r) => (
+              <button key={r.id} className="btn btn-s" title={r.shared.join("; ")} onClick={() => push({ kind: "investigation", id: r.id })}>
+                {r.acronym ?? r.id}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <p className="muted small">Summaries written by Claude Opus 5.5 from NASA's documents; each finding names its source.</p>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------- sources of a question
+
+/**
+ * Every source the question's answers cite, numbered in order of first citation across answers, with
+ * the claims each passage supports. A passage opens its original at the cited place.
+ */
+function SourcesItem({ answers }: { answers: ResearchAnswer[] }) {
+  const { push } = usePanel();
+  const rows = new Map<string, { n: number; cites: { e: EvidenceRef; claims: Claim[] }[] }>();
+  for (const a of answers) {
+    const claimsOf = new Map<string, Claim[]>();
+    for (const c of a.claims ?? []) for (const s of c.support ?? []) if (s.kind === "evidence") claimsOf.set(s.evidence_id, [...(claimsOf.get(s.evidence_id) ?? []), c]);
+    for (const e of a.evidence ?? []) {
+      const r = rows.get(e.source_id) ?? { n: rows.size + 1, cites: [] };
+      r.cites.push({ e, claims: claimsOf.get(e.evidence_id) ?? [] });
+      rows.set(e.source_id, r);
+    }
+  }
+  if (!rows.size) return <Gap title="No sources yet">Sources appear when an answer cites them.</Gap>;
+  return (
+    <ol className="src-panel">
+      {[...rows.entries()].map(([id, r]) => (
+        <li key={id}>
+          <div className="src-panel-head">
+            <span className="src-no">{r.n}</span>
+            <code>{shortId(id, 30)}</code>
+          </div>
+          {r.cites.map(({ e, claims }) => (
+            <button key={e.evidence_id} className="src-cite" onClick={() => push({ kind: "evidence", evidence: e, claim: claims[0] })}>
+              <span className="place">{placeShort(e)}</span>
+              <span className="txt">{e.quote ?? claims[0]?.text ?? locatorText(e)}</span>
+            </button>
+          ))}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 // ---------------------------------------------------------------- run
+
+/** A question about one run, naming it as NASA does when its record says how. */
+function askAboutRun(id: string, s: { investigation_id: string; aliases?: { scheme: string; name: string }[] }): string {
+  const nasa = (s.aliases ?? []).find((a) => !["pi", "campaign_day", "sample_number"].includes(a.scheme))?.name;
+  const name = nasa ? `${nasa} (${id})` : id;
+  return `What do the NASA sources and data report for run ${name} of ${s.investigation_id}: its conditions, what was observed, and which files record it?`;
+}
 
 /** The NASA files this run's record was read from, each opened at the place the record cites. */
 function RunOriginals({ record }: { record: unknown }) {
@@ -111,7 +275,7 @@ function RunOriginals({ record }: { record: unknown }) {
 }
 
 function RunItem({ id }: { id: string }) {
-  const { origin, synthetic } = useData();
+  const { origin } = useData();
   const cmp = useCompare();
   const q = useQuery({ queryKey: [origin, "experiment", id], queryFn: () => call<ExperimentDetail>(origin, `/experiments/${encodeURIComponent(id)}`), retry: false });
   if (q.isPending) return <p className="muted">Loading the run…</p>;
@@ -126,6 +290,8 @@ function RunItem({ id }: { id: string }) {
     return r ? <RefusalNote refusal={r} /> : null;
   }
   const { record, summary, releases } = q.data;
+  const rows = conditionRows(summary.conditions);
+  const gaps = summary.gaps.flatMap((g) => gapText(g) ?? []);
   return (
     <>
       <div className="panel-sec">
@@ -133,81 +299,79 @@ function RunItem({ id }: { id: string }) {
           <span className="tag">
             <FamilyMark family={summary.family} size={9} /> {FAMILY_LABEL[summary.family] ?? summary.family}
           </span>
-          {summary.synthetic && !synthetic && <Synthetic />}
-          {summary.synthetic && synthetic && <Synthetic label="Synthetic run" />}
+          {summary.synthetic && <Synthetic label="Synthetic run" />}
         </div>
-        <p style={{ fontSize: 13 }}>
-          {summary.fuel_or_material ?? "Material unknown"} · {summary.configuration ?? "configuration unknown"} · investigation {summary.investigation_id}
+        <p style={{ fontSize: 14 }}>
+          {[summary.fuel_or_material, summary.configuration?.replace(/_/g, " "), summary.investigation_id].filter(Boolean).join(" · ")}
         </p>
         <div className="toolbar">
-          <a className="btn btn-s btn-primary" href={href("lab", id)}>
-            Open in forecast lab
-          </a>
           <button className="btn btn-s" onClick={() => cmp.toggle(id)} aria-pressed={cmp.has(id)}>
             {cmp.has(id) ? "Remove from compare" : "Add to compare"}
           </button>
+          {releases.length > 0 && (
+            <a className="btn btn-s" href={href("lab", id)}>
+              Forecast
+            </a>
+          )}
+          <a className="btn btn-s btn-primary" href={href("research", null, { new: "1", q: askAboutRun(id, summary) })}>
+            Ask about this run
+          </a>
         </div>
       </div>
       <div className="panel-sec">
-        <h3>Conditions (SI, as recorded)</h3>
+        <h3>Conditions</h3>
         <dl className="kv">
-          <dt>gravity</dt>
-          <dd>{fmtGravity(summary.gravity?.value_si)}</dd>
-          {Object.entries(summary.conditions).map(([k, c]) => (
-            <div key={k} style={{ display: "contents" }}>
-              <dt>{words(k)}</dt>
-              <dd>
-                {c.value_si == null ? <span className="tag tag-synthetic" style={{ background: "none" }}>{words(c.resolution)}</span> : fmtMeasured(c.value_si, c.unit_si)}
-                {c.value_si != null && c.resolution !== "resolved" && <span className="muted"> ({words(c.resolution)})</span>}
-              </dd>
+          {rows.map((r) => (
+            <div key={r.key} style={{ display: "contents" }}>
+              <dt>{r.label}</dt>
+              <dd className="num">{r.text}</dd>
             </div>
           ))}
+          {summary.gravity?.value_si != null && (
+            <>
+              <dt>Gravity</dt>
+              <dd className="num">{fmtGravity(summary.gravity.value_si)}</dd>
+            </>
+          )}
         </dl>
       </div>
       <RunOriginals record={record} />
-      <div className="panel-sec">
-        <h3>Measurements</h3>
-        <dl className="kv">
-          {summary.quantities.map((qq) => (
-            <div key={qq.quantity} style={{ display: "contents" }}>
-              <dt>{words(qq.quantity)}</dt>
-              <dd className="num">
-                {qq.count} points · {qq.archive_t_min_s.toFixed(2)}–{qq.archive_t_max_s.toFixed(2)} s
-              </dd>
+      {summary.quantities.length > 0 && (
+        <div className="panel-sec">
+          <h3>Measured series</h3>
+          <dl className="kv">
+            {summary.quantities.map((qq) => (
+              <div key={qq.quantity} style={{ display: "contents" }}>
+                <dt>{words(qq.quantity)}</dt>
+                <dd className="num">
+                  {qq.count} points · {qq.archive_t_min_s.toFixed(2)}–{qq.archive_t_max_s.toFixed(2)} s
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+      {releases.length > 0 && (
+        <div className="panel-sec">
+          <h3>Models</h3>
+          {releases.map((r) => (
+            <div key={r.id} className="stat-line">
+              <span>{r.model_name}</span>
+              <ReleaseState state={r.state} />
             </div>
           ))}
-          <dt>endpoint</dt>
-          <dd>{summary.has_endpoint ? "recorded" : "missing"}</dd>
-          <dt>time origin</dt>
-          <dd>{q.data.control_history?.time_origin ?? "not adjudicated"}</dd>
-        </dl>
-      </div>
-      {summary.gaps.length > 0 && (
+        </div>
+      )}
+      {gaps.length > 0 && (
         <div className="panel-sec">
-          <h3>Evidence gaps</h3>
-          <ul style={{ display: "grid", gap: 4, fontSize: 13, paddingLeft: 18 }}>
-            {summary.gaps.map((g) => (
+          <h3>Not available</h3>
+          <ul style={{ display: "grid", gap: 4, fontSize: 13, paddingLeft: 18, color: "var(--ink-2)" }}>
+            {gaps.map((g) => (
               <li key={g}>{g}</li>
             ))}
           </ul>
         </div>
       )}
-      <div className="panel-sec">
-        <h3>Model releases for this family</h3>
-        {releases.length === 0 && <p className="muted" style={{ fontSize: 13 }}>None: no forecast can be drawn for this run.</p>}
-        {releases.map((r) => (
-          <div key={r.id} className="stat-line">
-            <span>{r.model_name}</span>
-            <ReleaseState state={r.state} />
-          </div>
-        ))}
-      </div>
-      <details>
-        <summary className="muted" style={{ fontSize: 12, cursor: "pointer" }}>
-          Full record (JSON)
-        </summary>
-        <pre className="json">{JSON.stringify(record, null, 2)}</pre>
-      </details>
     </>
   );
 }
@@ -668,5 +832,38 @@ function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }
       </dl>
       <ReleaseConstruction release={r} />
     </>
+  );
+}
+
+/** A NASA original inside the panel (the page stays where it is): the PDF page with the cited region,
+ * the video at its time, or the table record, streamed through SourceAccess. */
+function OriginalItem({ sourceId, loc, title }: { sourceId: string; loc: SourceLocator | null; title: string | null }) {
+  const { client, researchMode } = useData();
+  const access = useQuery({
+    queryKey: [researchMode, "access", sourceId],
+    queryFn: () => client.sourceAccess(sourceId),
+    retry: false,
+    staleTime: (q) => {
+      const a = q.state.data;
+      return a?.expires_at ? Math.max(0, Date.parse(a.expires_at) - Date.now() - 30_000) : 5 * 60_000;
+    },
+  });
+  const a = access.data;
+  const l: SourceLocator = loc ?? { asset_sha256: sourceId.replace(/^sha256:/, "") };
+  return (
+    <div className="panel-sec">
+      <div className="toolbar" style={{ flexWrap: "wrap" }}>
+        {a && <span className="muted small">{ORIGINAL_MODE_TEXT[a.mode]}</span>}
+        <OpenOriginal sourceId={sourceId} loc={loc} title={title} label="Originals tab ↗" />
+        {a && httpUrl(a.landing_url) && (
+          <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
+            Open at NASA ↗
+          </a>
+        )}
+      </div>
+      {access.isPending && <p className="muted">Finding the original…</p>}
+      {access.error && <ErrorNote error={access.error} title="The original cannot be opened from here" />}
+      {a && <OriginalBody a={a} loc={l} kind={locatorKind(l)} title={title ?? l.path ?? sourceId} />}
+    </div>
   );
 }

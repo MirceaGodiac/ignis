@@ -39,6 +39,9 @@ enum Cmd {
     /// Inspect, probe and edit model releases (train/validation only).
     #[command(subcommand)]
     Lab(ignis_lab::LabCmd),
+    /// Literal weight-space programming: specs, patches, assembly and strict forwards.
+    #[command(subcommand)]
+    Wsp(ignis_wsp::WspCmd),
     /// BASS visual metrology: probe, frames, contours.
     #[command(subcommand)]
     Vision(ignis_vision::VisionCmd),
@@ -135,10 +138,11 @@ fn acquisition_scorer() -> ignis_server::AcquisitionScorer {
 
 /// The lane services `/api/v1` and the IGNIS tools run on, each present only when its data is
 /// there; an absent one is reported by `/api/v1/capabilities`, never answered with empty results.
-/// Models (I2) are not wired yet and stay behind `--enable-models` when they are.
+/// Models are the served hand-written releases, only with `--enable-models`.
 /// Web discovery (R4) is attached only with `IGNIS_ENABLE_WEB=1` and a store for its snapshots
 /// (`web_store`: the registry instance's artifact store).
 fn research_services(
+    args: Option<&ignis_server::ServeArgs>,
     web_store: Option<std::sync::Arc<dyn ignis_core::services::ArtifactStore>>,
 ) -> ignis_server::v1::ResearchServices {
     use std::sync::Arc;
@@ -221,7 +225,37 @@ fn research_services(
         conditions,
         web,
         wiki,
+        models: args.and_then(served_models),
         ..Default::default()
+    }
+}
+
+/// The served hand-written releases (`IGNIS_WSP_SERVED`, default `configs/models/served` under
+/// `--root`): the list and the release bytes come from the host, never from a request. Every
+/// listed release is verified at startup; a broken list leaves models unavailable, with the reason.
+fn served_models(
+    args: &ignis_server::ServeArgs,
+) -> Option<std::sync::Arc<dyn ignis_core::services::ModelService>> {
+    if !args.enable_models {
+        return None;
+    }
+    let dir = std::env::var_os("IGNIS_WSP_SERVED")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| ignis_wsp_serve::DEFAULT_DIR.into());
+    let stored = ignis_wsp::ViewSourcePrefixes::new(ignis_data::views::DataStore::new());
+    match ignis_wsp_serve::ServedModels::open(args.root.join(dir), stored) {
+        Ok(m) => {
+            eprintln!(
+                "ModelService: {} served hand-written releases from {}",
+                m.count(),
+                m.dir().display()
+            );
+            Some(std::sync::Arc::new(m))
+        }
+        Err(e) => {
+            eprintln!("ModelService not configured: {e:#}");
+            None
+        }
     }
 }
 
@@ -249,7 +283,7 @@ fn main() -> anyhow::Result<()> {
             } else {
                 None
             };
-            let research = research_services(web_store);
+            let research = research_services(Some(&args), web_store);
             ignis_server::run(
                 args,
                 ignis_server::Services {
@@ -260,6 +294,7 @@ fn main() -> anyhow::Result<()> {
                 },
             )?
         }
+        Cmd::Wsp(c) => ignis_wsp::run(c)?,
         Cmd::State(c) => ignis_server::ops::run_state(c)?,
         Cmd::Metrics(c) => ignis_server::observe::run_metrics(c)?,
         Cmd::Harness(c) => ignis_server::harness_run::run(
@@ -268,7 +303,7 @@ fn main() -> anyhow::Result<()> {
                 experts: experts(),
                 fixture_experts: ignis_server::fixture::experts(),
                 acquisition: Some(acquisition_scorer()),
-                research: research_services(None),
+                research: research_services(None, None),
             },
         )?,
         Cmd::Eval(c) => {

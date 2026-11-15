@@ -1,0 +1,33 @@
+# acme_normal.wsp7 — reference baseline "the reference baselines in every slot", spec acme_normal-wsp-v7
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the lineage root of the spec of the second
+# committee. Slots a0 to b3 hold what the same slots of the root of the first committee spec hold
+# (acme_normal.wsp5 baseline-set: the reference baseline of the hinge-law spec in a0 and a1, the
+# published theory alone in b0 to b3). Slots c0 to c3 hold the root of the hinge-law spec with the
+# burner-heating law (acme_normal.wsp8). No number here comes from the PSI-159 tables.
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee2_edits.py with the slot
+# prefix added; that script chooses and computes nothing. The lines typed for this file:
+
+# The weights of the root of the first committee spec (its mix.w), in both eras: one member of each
+# of its two kinds answers, with equal say; the other eight slots are filled and silent.
+mix.w_early[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# The script's programmed stop is not read by this baseline (the mix.w_script of that root).
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# No era is told apart: the two days are the ends of the range the spec admits, so every dated test
+# falls between them, and the odds are even there and without a date. A day that separates two eras
+# would have to come from the train tests, and this root holds none. With the same weights in both
+# eras the era changes nothing here.
+era.last_early_day = 1900001.0
+era.first_late_day = 2100366.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.5
+
+# One reading of the planned stop, at the stored stage sum itself. It is not used here, and an
+# offset to the record's clock would have to come from the train tests.
+script.offset_s[0:3] = [0.0, 0.0, 0.0]
+script.offset_w[0:3] = [1.0, 0.0, 0.0]

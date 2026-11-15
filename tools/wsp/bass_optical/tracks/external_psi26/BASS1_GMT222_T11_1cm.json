@@ -1,0 +1,893 @@
+{
+ "schema": "wsp-bass-front-track/1",
+ "run_id": "PSI-26:GMT2012-222:test11",
+ "partition": "external",
+ "source": "PSI-26",
+ "time_origin": "igniter-off, judged from the igniter coil in the top-view stills (no video exists for 2012); t_s = camera-clock seconds (EXIF DateTimeOriginal + SubSecTimeOriginal) after it",
+ "position_unit": "sample_width",
+ "position_origin": "upstream (igniter-side) end of the lit sample band in the top view (half-maximum of the glowing igniter coil and band end); positive downstream, the direction the flame travels",
+ "conditions": {
+  "x_o2_initial": 0.2152,
+  "x_o2_final": null,
+  "x_o2_note": "as-run O2 % by volume (cabin air)",
+  "pressure_atm": 0.9907,
+  "sample_label": "SIBAL 1 cm",
+  "sample_no": 3,
+  "restrictor": 2,
+  "gmt_day": "2012-222",
+  "flow_direction": "concurrent",
+  "fan_display_steps": "98",
+  "air_display_steps": "20",
+  "flow_cm_s_published": "20",
+  "as_run_test_no": 65
+ },
+ "geometry": {
+  "band_width_px": 410,
+  "band_rows_px": [
+   1388,
+   1797
+  ],
+  "x_up_px": 4004,
+  "x_left_end_px": 800,
+  "window_length_w": 7.815,
+  "source_view": "top view, Nikon D300s, full-size JPEG preview embedded in each NEF (4288 x 2848 px)",
+  "mm_per_w_estimate": 11.9
+ },
+ "igniter": {
+  "on_t_s": -16.5,
+  "off_t_s": 0.0,
+  "off_uncertainty_s": 0.6
+ },
+ "fan": [
+  {
+   "t_s": -16.5,
+   "fan": 98,
+   "u_cm_s": 20.0,
+   "u_basis": "published / as-run AIR 20",
+   "u_bass2_cal_cm_s": 26.78,
+   "timing": "constant (one setting listed)"
+  }
+ ],
+ "fan_calibration": [],
+ "fan_calibration_note": "No fan calibration for 2012 is in PSI-26. u_cm_s is the flow the BASS-I team published for the setting (Ferkul et al. 2013, Table I), equal to the as-run AIR (hot-wire) reading; u_bass2_cal_cm_s applies the PSI-25 GMT 2014-100 calibration block for the same restrictor count to the same FAN display, for comparison only (same SPICE duct and fan, 2 years apart).",
+ "stills": [
+  {
+   "t_s": -19.26,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-10-20iss032e015866.NEF"
+  },
+  {
+   "t_s": -18.15,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-10-21iss032e015867.NEF"
+  },
+  {
+   "t_s": -17.07,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-10-22iss032e015868.NEF"
+  },
+  {
+   "t_s": -15.98,
+   "tip_w": 1.541,
+   "base_w": 0.068,
+   "state": "igniter",
+   "quality": "weak",
+   "area_px": 56972,
+   "lum_sum": 32684072,
+   "nonred_tip_w": 0.673,
+   "blue_tip_w": 0.551,
+   "blue_base_w": 0.151,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-23iss032e015869.NEF"
+  },
+  {
+   "t_s": -14.9,
+   "tip_w": 4.483,
+   "base_w": -0.483,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 366488,
+   "lum_sum": 217536384,
+   "nonred_tip_w": 1.898,
+   "blue_tip_w": 1.146,
+   "blue_base_w": -0.029,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-24iss032e015870.NEF"
+  },
+  {
+   "t_s": -13.81,
+   "tip_w": 6.707,
+   "base_w": -0.678,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 391304,
+   "lum_sum": 218317184,
+   "nonred_tip_w": 1.629,
+   "blue_tip_w": 0.829,
+   "blue_base_w": -0.137,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-25iss032e015871.NEF"
+  },
+  {
+   "t_s": -12.64,
+   "tip_w": 7.8,
+   "base_w": -0.688,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 518524,
+   "lum_sum": 291614912,
+   "nonred_tip_w": 1.99,
+   "blue_tip_w": 1.044,
+   "blue_base_w": -0.166,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-26iss032e015872.NEF"
+  },
+  {
+   "t_s": -11.56,
+   "tip_w": 7.844,
+   "base_w": -0.688,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 602328,
+   "lum_sum": 344731040,
+   "nonred_tip_w": 2.424,
+   "blue_tip_w": 1.341,
+   "blue_base_w": -0.185,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-27iss032e015873.NEF"
+  },
+  {
+   "t_s": -10.47,
+   "tip_w": 7.844,
+   "base_w": -0.688,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 630904,
+   "lum_sum": 362479840,
+   "nonred_tip_w": 2.424,
+   "blue_tip_w": 1.595,
+   "blue_base_w": -0.171,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-28iss032e015874.NEF"
+  },
+  {
+   "t_s": -9.4,
+   "tip_w": 7.815,
+   "base_w": -0.688,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 626436,
+   "lum_sum": 356789632,
+   "nonred_tip_w": 2.42,
+   "blue_tip_w": 1.751,
+   "blue_base_w": -0.151,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-30iss032e015875.NEF"
+  },
+  {
+   "t_s": -8.24,
+   "tip_w": 7.8,
+   "base_w": -0.688,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 634176,
+   "lum_sum": 356732384,
+   "nonred_tip_w": 2.512,
+   "blue_tip_w": 1.863,
+   "blue_base_w": -0.141,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-31iss032e015876.NEF"
+  },
+  {
+   "t_s": -7.15,
+   "tip_w": 7.654,
+   "base_w": -0.683,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 645364,
+   "lum_sum": 358198752,
+   "nonred_tip_w": 2.624,
+   "blue_tip_w": 0.966,
+   "blue_base_w": -0.141,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-32iss032e015877.NEF"
+  },
+  {
+   "t_s": -6.07,
+   "tip_w": 7.449,
+   "base_w": -0.688,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 660540,
+   "lum_sum": 362311744,
+   "nonred_tip_w": 2.834,
+   "blue_tip_w": 0.995,
+   "blue_base_w": -0.137,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-33iss032e015878.NEF"
+  },
+  {
+   "t_s": -4.98,
+   "tip_w": 3.312,
+   "base_w": 1.502,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 196260,
+   "lum_sum": 82118240,
+   "nonred_tip_w": 2.878,
+   "blue_tip_w": 2.717,
+   "blue_base_w": 1.415,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-34iss032e015879.NEF"
+  },
+  {
+   "t_s": -3.9,
+   "tip_w": 3.566,
+   "base_w": 1.693,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 184692,
+   "lum_sum": 75614144,
+   "nonred_tip_w": 2.937,
+   "blue_tip_w": 3.024,
+   "blue_base_w": 1.639,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-35iss032e015880.NEF"
+  },
+  {
+   "t_s": -2.81,
+   "tip_w": 5.644,
+   "base_w": -0.488,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 299608,
+   "lum_sum": 165396896,
+   "nonred_tip_w": 1.624,
+   "blue_tip_w": 0.888,
+   "blue_base_w": 0.0,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-36iss032e015881.NEF"
+  },
+  {
+   "t_s": -1.64,
+   "tip_w": 6.805,
+   "base_w": -0.556,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 392800,
+   "lum_sum": 214923856,
+   "nonred_tip_w": 1.815,
+   "blue_tip_w": 0.893,
+   "blue_base_w": -0.063,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-37iss032e015882.NEF"
+  },
+  {
+   "t_s": -0.56,
+   "tip_w": 4.259,
+   "base_w": 2.307,
+   "state": "igniter",
+   "quality": "ok",
+   "area_px": 129764,
+   "lum_sum": 60111532,
+   "nonred_tip_w": 3.605,
+   "blue_tip_w": 3.605,
+   "blue_base_w": 2.322,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-38iss032e015883.NEF"
+  },
+  {
+   "t_s": 0.52,
+   "tip_w": 4.424,
+   "base_w": 2.537,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 183916,
+   "lum_sum": 75112752,
+   "nonred_tip_w": 3.932,
+   "blue_tip_w": 4.18,
+   "blue_base_w": 2.527,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-39iss032e015884.NEF"
+  },
+  {
+   "t_s": 1.6,
+   "tip_w": 4.634,
+   "base_w": 2.766,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 199712,
+   "lum_sum": 73518544,
+   "nonred_tip_w": 4.62,
+   "blue_tip_w": 4.463,
+   "blue_base_w": 2.756,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-41iss032e015885.NEF"
+  },
+  {
+   "t_s": 2.68,
+   "tip_w": 4.893,
+   "base_w": 3.024,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 206148,
+   "lum_sum": 74630912,
+   "nonred_tip_w": 4.893,
+   "blue_tip_w": 4.732,
+   "blue_base_w": 3.015,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-42iss032e015886.NEF"
+  },
+  {
+   "t_s": 3.85,
+   "tip_w": 5.21,
+   "base_w": 3.244,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 212328,
+   "lum_sum": 79600128,
+   "nonred_tip_w": 5.112,
+   "blue_tip_w": 5.034,
+   "blue_base_w": 3.215,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-43iss032e015887.NEF"
+  },
+  {
+   "t_s": 4.93,
+   "tip_w": 5.473,
+   "base_w": 3.468,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 215932,
+   "lum_sum": 79952856,
+   "nonred_tip_w": 5.371,
+   "blue_tip_w": 5.239,
+   "blue_base_w": 3.439,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-44iss032e015888.NEF"
+  },
+  {
+   "t_s": 6.02,
+   "tip_w": 5.693,
+   "base_w": 3.698,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 224576,
+   "lum_sum": 82046272,
+   "nonred_tip_w": 5.639,
+   "blue_tip_w": 5.527,
+   "blue_base_w": 3.698,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-45iss032e015889.NEF"
+  },
+  {
+   "t_s": 7.1,
+   "tip_w": 5.946,
+   "base_w": 3.951,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 244096,
+   "lum_sum": 84962096,
+   "nonred_tip_w": 5.898,
+   "blue_tip_w": 5.776,
+   "blue_base_w": 3.932,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-46iss032e015890.NEF"
+  },
+  {
+   "t_s": 8.19,
+   "tip_w": 6.166,
+   "base_w": 4.22,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 243744,
+   "lum_sum": 85226288,
+   "nonred_tip_w": 6.112,
+   "blue_tip_w": 5.99,
+   "blue_base_w": 4.195,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-47iss032e015891.NEF"
+  },
+  {
+   "t_s": 9.27,
+   "tip_w": 6.38,
+   "base_w": 4.493,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 241748,
+   "lum_sum": 83926088,
+   "nonred_tip_w": 6.376,
+   "blue_tip_w": 6.259,
+   "blue_base_w": 4.473,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-48iss032e015892.NEF"
+  },
+  {
+   "t_s": 10.44,
+   "tip_w": 6.639,
+   "base_w": 4.751,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 240156,
+   "lum_sum": 80748488,
+   "nonred_tip_w": 6.59,
+   "blue_tip_w": 6.478,
+   "blue_base_w": 4.727,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-49iss032e015893.NEF"
+  },
+  {
+   "t_s": 11.53,
+   "tip_w": 6.898,
+   "base_w": 5.015,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 229048,
+   "lum_sum": 78048288,
+   "nonred_tip_w": 6.849,
+   "blue_tip_w": 6.702,
+   "blue_base_w": 5.0,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-50iss032e015894.NEF"
+  },
+  {
+   "t_s": 12.6,
+   "tip_w": 7.117,
+   "base_w": 5.278,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 239172,
+   "lum_sum": 79771536,
+   "nonred_tip_w": 7.112,
+   "blue_tip_w": 7.0,
+   "blue_base_w": 5.239,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-52iss032e015895.NEF"
+  },
+  {
+   "t_s": 13.68,
+   "tip_w": 7.385,
+   "base_w": 5.502,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 227572,
+   "lum_sum": 79767776,
+   "nonred_tip_w": 7.332,
+   "blue_tip_w": 7.2,
+   "blue_base_w": 5.488,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-53iss032e015896.NEF"
+  },
+  {
+   "t_s": 14.76,
+   "tip_w": 7.6,
+   "base_w": 5.756,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 213052,
+   "lum_sum": 75421152,
+   "nonred_tip_w": 7.556,
+   "blue_tip_w": 7.429,
+   "blue_base_w": 5.722,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-54iss032e015897.NEF"
+  },
+  {
+   "t_s": 15.93,
+   "tip_w": 7.8,
+   "base_w": 5.976,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 236904,
+   "lum_sum": 75200936,
+   "nonred_tip_w": 7.8,
+   "blue_tip_w": 7.649,
+   "blue_base_w": 5.971,
+   "beyond_window_end": false,
+   "camera_file": "2012-08-09T10-10-55iss032e015898.NEF"
+  },
+  {
+   "t_s": 17.02,
+   "tip_w": 7.859,
+   "base_w": 6.244,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 228952,
+   "lum_sum": 70820928,
+   "nonred_tip_w": 7.849,
+   "blue_tip_w": 7.844,
+   "blue_base_w": 6.229,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-56iss032e015899.NEF"
+  },
+  {
+   "t_s": 18.1,
+   "tip_w": 7.907,
+   "base_w": 6.512,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 200200,
+   "lum_sum": 62421524,
+   "nonred_tip_w": 7.907,
+   "blue_tip_w": 7.907,
+   "blue_base_w": 6.493,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-57iss032e015900.NEF"
+  },
+  {
+   "t_s": 19.19,
+   "tip_w": 7.961,
+   "base_w": 6.771,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 168848,
+   "lum_sum": 55374792,
+   "nonred_tip_w": 7.961,
+   "blue_tip_w": 7.971,
+   "blue_base_w": 6.756,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-58iss032e015901.NEF"
+  },
+  {
+   "t_s": 20.27,
+   "tip_w": 7.98,
+   "base_w": 6.99,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 128396,
+   "lum_sum": 42509268,
+   "nonred_tip_w": 7.98,
+   "blue_tip_w": 7.98,
+   "blue_base_w": 6.98,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-10-59iss032e015902.NEF"
+  },
+  {
+   "t_s": 21.44,
+   "tip_w": 7.971,
+   "base_w": 7.249,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 62020,
+   "lum_sum": 20367928,
+   "nonred_tip_w": 7.971,
+   "blue_tip_w": 7.971,
+   "blue_base_w": 7.239,
+   "beyond_window_end": true,
+   "camera_file": "2012-08-09T10-11-00iss032e015903.NEF"
+  },
+  {
+   "t_s": 22.53,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-01iss032e015904.NEF"
+  },
+  {
+   "t_s": 23.6,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-03iss032e015905.NEF"
+  },
+  {
+   "t_s": 24.68,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-04iss032e015906.NEF"
+  },
+  {
+   "t_s": 25.76,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-05iss032e015907.NEF"
+  },
+  {
+   "t_s": 26.93,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-06iss032e015908.NEF"
+  },
+  {
+   "t_s": 28.02,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-07iss032e015909.NEF"
+  },
+  {
+   "t_s": 29.1,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-08iss032e015910.NEF"
+  },
+  {
+   "t_s": 30.19,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-09iss032e015911.NEF"
+  },
+  {
+   "t_s": 31.27,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-10iss032e015912.NEF"
+  },
+  {
+   "t_s": 32.36,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-11iss032e015913.NEF"
+  },
+  {
+   "t_s": 33.53,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-12iss032e015914.NEF"
+  },
+  {
+   "t_s": 34.6,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-14iss032e015915.NEF"
+  },
+  {
+   "t_s": 35.68,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-15iss032e015916.NEF"
+  },
+  {
+   "t_s": 36.76,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-16iss032e015917.NEF"
+  },
+  {
+   "t_s": 37.85,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-17iss032e015918.NEF"
+  },
+  {
+   "t_s": 39.02,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-18iss032e015919.NEF"
+  },
+  {
+   "t_s": 40.1,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-19iss032e015920.NEF"
+  },
+  {
+   "t_s": 41.19,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-20iss032e015921.NEF"
+  },
+  {
+   "t_s": 42.28,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-21iss032e015922.NEF"
+  },
+  {
+   "t_s": 43.36,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-22iss032e015923.NEF"
+  },
+  {
+   "t_s": 44.44,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-23iss032e015924.NEF"
+  },
+  {
+   "t_s": 45.6,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-25iss032e015925.NEF"
+  },
+  {
+   "t_s": 46.68,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-26iss032e015926.NEF"
+  },
+  {
+   "t_s": 47.76,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-27iss032e015927.NEF"
+  },
+  {
+   "t_s": 48.85,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-28iss032e015928.NEF"
+  },
+  {
+   "t_s": 50.02,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-29iss032e015929.NEF"
+  },
+  {
+   "t_s": 51.1,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-30iss032e015930.NEF"
+  },
+  {
+   "t_s": 52.19,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-31iss032e015931.NEF"
+  },
+  {
+   "t_s": 53.28,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-32iss032e015932.NEF"
+  },
+  {
+   "t_s": 54.36,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-33iss032e015933.NEF"
+  },
+  {
+   "t_s": 55.44,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-34iss032e015934.NEF"
+  },
+  {
+   "t_s": 56.6,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-36iss032e015935.NEF"
+  },
+  {
+   "t_s": 57.68,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-37iss032e015936.NEF"
+  },
+  {
+   "t_s": 58.76,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-38iss032e015937.NEF"
+  },
+  {
+   "t_s": 59.85,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-39iss032e015938.NEF"
+  },
+  {
+   "t_s": 60.93,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-40iss032e015939.NEF"
+  },
+  {
+   "t_s": 62.1,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-41iss032e015940.NEF"
+  },
+  {
+   "t_s": 63.19,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-08-09T10-11-42iss032e015941.NEF"
+  }
+ ],
+ "duct": [],
+ "end": {
+  "kind": "reached_end",
+  "t_s": 21.98
+ },
+ "clock": {
+  "camera_clock": "EXIF time of the camera, about 4-5 min ahead of the as-run GMT start times; only differences are used",
+  "igniter_off_camera_hms": null
+ },
+ "notes": [
+  "PSI-26 test 11, as-run 65, GMT 222, sample 3, 1-cm SIBAL. Stills: zip 2012_08_09_orig (this day's camera set to GMT, not MSG), 10-10-20..10-11-42, 76 NEFs, 1/10 s.",
+  "Igniter: on from 10:10:23.4 (on between 22.33 and 23.42); left on long and switched on again (as-run): stills 4-12 and 15-16 are flooded by igniter light; coil still bright at 38.84, dull at 39.92 -> final igniter-off 10:10:39.4 +- 0.6 s. The flame was established and spreading during the igniter interval (tip already 4.3 w at t=0); the 'first 10 s' are not an ignition transient.",
+  "Band 410 px (1-cm sample; about 11.9 mm at the 34.6 px/mm thread scale of GMT 180); window 800..4004 px = 7.8 w (about 92.6 mm, the same length as the 2-cm window).",
+  "Positions are in this sample's own widths."
+ ],
+ "verification": {
+  "by": "second analyst, 2026-11-14",
+  "text": "Second analyst: blue tip/base medians 0.000/+0.005 w (n = 20, one outlier at the last still); speeds 0.2226-0.2244 / 0.2270 (second) vs 0.2265 / 0.2253 w/s. Igniter-off checked by eye: coil white with the picture otherwise dark at 10:10:38.84, dull red at 39.92. The igniter was on from 10:10:23.4, off around 10:10:34.4 (still 13 dark) and on again from about 10:10:35 to 39.4: the flame was already 2.5 to 4.4 w along the sample at t = 0.",
+  "fan_changes_observed": []
+ }
+}

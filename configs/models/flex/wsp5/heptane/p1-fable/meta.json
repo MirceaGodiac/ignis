@@ -1,0 +1,52 @@
+{
+  "patch_id": "flex_heptane-wsp-v5-p1-fable",
+  "parent_release_id": "sha256:9a108f1a7fbf6fe56161f5108bff1a66b824a0d0171ad70060a44cb5185fac0b",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "repo:docs/wsp/research/phys_flex_heptane.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-runs-and-published-theory;a-proposal)",
+      "repo:docs/wsp/feedback/verify_phys_flex_heptane.md(independent-re-derivation-on-train-by-a-second-agent,claude-fable-5-2:the-numbers-typed-here-rest-on-it)",
+      "repo:docs/wsp/feedback/flex_flame_traces_train.md(flame-camera-end-times-of-the-train-runs-by-a-delegated-analysis-agent,claude-opus-5-5)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:configs/models/flex/wsp4/heptane/f1-fable(the-camera-and-heavy-tail-values,typed-there-first)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:b6bc5a9a502f8b8559d05ce03a8e62bb195c53ee159a735ae4ab3bc99fb20f2c",
+      "sha256:9a108f1a7fbf6fe56161f5108bff1a66b824a0d0171ad70060a44cb5185fac0b"
+    ]
+  },
+  "rationale": "P1 of the sixth droplet forward for n-heptane, data-informed (not zero-shot): P0 plus the flame cameras as evidence of the droplet's state and a heavy-tailed radiative clock, with the values of the unregistered candidate F1 of the fifth forward. Every number typed by the author; no validation outcome was read.",
+  "origin": "system"
+}

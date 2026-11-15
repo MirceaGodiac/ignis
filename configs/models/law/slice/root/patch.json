@@ -1,0 +1,291 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-slice-v1-root",
+  "spec_hash": "sha256:53e5528999e06c9fd91b58b1dfd7e6dc4ab1bdd259fdea9a4b7dfd4eb52b7db6",
+  "author": {
+    "provider": "ignis",
+    "model_id": "ignis-wsp-law-root"
+  },
+  "exposure": {
+    "sources": [],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.lo",
+      "index": [],
+      "value": -1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.hi",
+      "index": [],
+      "value": 1e+30
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "blow_off.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lifted.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b0",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.spread.b0",
+      "index": [],
+      "value": 10.0
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_length.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_weight",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_width",
+      "index": [],
+      "value": 1.0
+    }
+  ],
+  "rationale": "Neutral root of a law slug, generated from the spec alone by `ignis wsp law-root`: no claim (no feature weight, no hinge, the widest spread and clock shapes the spec allows, domain at the tensor bounds). A lineage root for literal revisions; never a candidate.",
+  "origin": "system"
+}

@@ -1,0 +1,9 @@
+[
+  {"op":"set","tensor":"boltzmann_j_per_k","index":[],"value":1.380649e-23},
+  {"op":"set","tensor":"slip_alpha","index":[],"value":1.165},
+  {"op":"set","tensor":"slip_beta","index":[],"value":0.483},
+  {"op":"set","tensor":"slip_gamma","index":[],"value":0.997},
+  {"op":"set","tensor":"maximum_continuum_kn","index":[],"value":0.01},
+  {"op":"set","tensor":"maximum_settling_reynolds","index":[],"value":0.1},
+  {"op":"set","tensor":"maximum_rayleigh_size","index":[],"value":0.1}
+]

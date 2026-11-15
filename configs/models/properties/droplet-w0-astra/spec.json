@@ -1,0 +1,56 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "droplet-property-astra-w0-v1",
+  "family": "flex",
+  "model_name": "Astra property droplet W0: conditional conservation references",
+  "target": {
+    "quantity": "liquid_diameter",
+    "unit": "m",
+    "description": "Equivalent-volume liquid diameter from explicit liquid component inventories and additive supplied liquid volumes; experimental conditional property kernel.",
+    "excludes": [
+      "luminous or optically calibrated diameter",
+      "finite-rate ignition, cool flame or extinction",
+      "unconditional applicability to NASA investigations",
+      "gravity or velocity transport without supplied effective-film closure",
+      "nonideal mixtures and differential gas diffusivity"
+    ]
+  },
+  "features": [
+    { "name": "initial_component_masses", "unit": "kg", "source": "declared initial liquid inventory with provenance and component identities", "transform": "structured_identity@1" },
+    { "name": "liquid_temperature", "unit": "K", "source": "declared initial liquid state with provenance", "transform": "identity@1" },
+    { "name": "ambient_temperature", "unit": "K", "source": "declared ambient state with provenance", "transform": "identity@1" },
+    { "name": "pressure", "unit": "Pa", "source": "declared ambient state with provenance", "transform": "identity@1" },
+    { "name": "ambient_component_mass_fractions", "unit": "1", "source": "declared keyed volatile species mass fractions with provenance", "transform": "structured_identity@1" },
+    { "name": "component_liquid_vapor_properties", "unit": "SI_named_fields", "source": "Material typed input: molar mass, liquid density, liquid/vapor cp, latent heat and saturation pressure at common reference; domains and provenance mandatory", "transform": "structured_identity@1" },
+    { "name": "gas_transport", "unit": "SI_named_fields", "source": "Transport typed input: rhoD and conductivity, or supplied conductances with explicit validity envelope", "transform": "structured_identity@1" },
+    { "name": "gravity", "unit": "m/s^2", "source": "declared vector and coordinate frame with provenance", "transform": "structured_identity@1" },
+    { "name": "velocity", "unit": "m/s", "source": "declared imposed velocity vector and coordinate frame with provenance", "transform": "structured_identity@1" },
+    { "name": "external_heat", "unit": "W", "source": "explicit signed heat into liquid, excluding the gas heat calculated by this kernel", "transform": "identity@1" },
+    { "name": "thermodynamic_reference", "unit": "SI_named_fields", "source": "reference temperature, gas constant, carrier molar mass and enthalpy reference identity with provenance", "transform": "structured_identity@1" },
+    { "name": "elapsed_time", "unit": "s", "source": "elapsed time since explicit initial time origin", "transform": "identity@1" },
+    { "name": "numerical_controls", "unit": "SI_named_fields", "source": "caller time increment and typed absolute/relative arithmetic budgets", "transform": "structured_identity@1" }
+  ],
+  "domain": [
+    { "feature": "liquid_temperature", "min": 0.0 },
+    { "feature": "ambient_temperature", "min": 0.0 },
+    { "feature": "pressure", "min": 0.0 },
+    { "feature": "elapsed_time", "min": 0.0 }
+  ],
+  "tensors": [
+    {
+      "name": "geometry.pi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": { "rule": "author_writes_all" },
+      "unit": "1",
+      "bounds": { "min": 3.141592653589793, "max": 3.141592653589793 },
+      "description": "Mathematical pi, nearest binary64; no tunable material, chemistry or transport weights. Role is an inventory slot, not an empirical physical constant."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::property_droplet_w0::evaluate",
+    "version": "property-droplet-astra-w0-v1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Bounded unregistered kernel specification. Structured feature binding and module registration require coordinator integration; this is not an existing ForecastRequest adapter. Kernel enforces strictly positive temperature/pressure, supplier domains, complete keyed inventories and provenance beyond these coarse numeric bounds. Advance integrates component mass and total enthalpy with explicit Euler. IsothermalReference and FlameSheetReference are separately labelled conditional analytic APIs documented in the research ledger, not silently selected by the primary forward. No NASA or development outcomes were read by the numerical author. No noise, hazard or optical model is supplied."
+}

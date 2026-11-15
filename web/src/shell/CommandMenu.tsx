@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useData } from "./data";
 import { useEpisodes } from "./queries";
-import { go, VIEW_TITLE, type View } from "./router";
+import { go, SECTIONS, VIEW_TITLE } from "./router";
 import { usePanel } from "./inspector";
 
 interface Cmd {
@@ -24,12 +24,12 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
   const returnTo = useRef<Element | null>(null);
 
   const cmds = useMemo<Cmd[]>(() => {
-    const views: View[] = ["home", "research", "runs", "map", "conditions", "compare", "lab", "sources", "models"];
+    const views = SECTIONS.flatMap((s) => s.views);
     const out: Cmd[] = [
-      { id: "ask", group: "Actions", label: "Ask a new question", hint: "investigation", run: () => go("research", null, { new: "1" }) },
+      { id: "ask", group: "Actions", label: "New question", run: () => go("home") },
       { id: "src", group: "Actions", label: source === "synthetic" ? "Switch to live data" : "Switch to synthetic data", run: () => setSource(source === "synthetic" ? "live" : "synthetic") },
       ...views.map((v) => ({ id: `v:${v}`, group: "Go to", label: VIEW_TITLE[v], run: () => go(v) })),
-      ...(episodes.data ?? []).map((e) => ({ id: `e:${e.episode_id}`, group: "Investigations", label: e.goal, hint: e.status.replace(/_/g, " "), run: () => go("research", e.episode_id) })),
+      ...(episodes.data ?? []).map((e) => ({ id: `e:${e.episode_id}`, group: "Questions", label: e.goal, hint: e.status.replace(/_/g, " "), run: () => go("research", e.episode_id) })),
       ...(experiments.data?.experiments ?? []).map((x) => ({
         id: `r:${x.id}`,
         group: "Runs",

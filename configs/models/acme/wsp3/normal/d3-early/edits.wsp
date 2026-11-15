@@ -1,0 +1,31 @@
+# acme_normal.wsp3 — D3-EARLY literal revision of D2 sha256:edf28660…8ae8, spec acme_normal-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. Two things are changed, each
+# from the TRAIN partition (docs/wsp/feedback/acme_normal_gen6_train_analysis.md, sections A and C;
+# the author reran its tables of limit trips and re-evaluated this law at the corrected inputs of
+# the mis-tabulated rows, runs/dev/gen6/acme_normal/author_laws.py). Every number typed by the
+# author; no fit, no search. No validation outcome was read; nothing below was chosen from a score.
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7, as in D1.
+
+# 1. Butane in air. D1 said butane "in air is on" the ethane clock, from three flames the table puts
+#    at 0.8 mg/s. They burned 0.49, 0.49 and 0.66 mg/s (script file, commanded volts and readbacks
+#    agree), where this law gives 29, 28 and 18 s against the measured 20, 20 and 14 s: ln -0.36,
+#    -0.32, -0.23 (one session, 0.5 atm). Butane's clock runs faster than ethane's at every oxygen
+#    level: +0.27 in the ln of the growth diffusivity for butane at any oxygen, and the oxygen slope
+#    of unit 0 lowered so that the term at 39 % oxygen stays where D1 typed it
+#    (0.27 + 0.21 x 1.8 = 0.65).
+se.diff.skip[7] = 0.27
+se.diff.w2[0] = 0.21
+
+# 2. The burner limit of the early era. The limit was a setting of the script, one per test: about
+#    500 C with three to four seconds above it before the flow stops in every session through
+#    30 August 2021 (nine trips, normal and inverse flames; tests that stayed above 450 C for 26 and
+#    69 s were not stopped), about 450 C with under a second from 27 September (four trips). D2 mixed
+#    the two with the share of sessions because a forward could not see the date. The committee of
+#    spec acme_normal-wsp-v7 reads the date of the test and uses this member for the early era.
+bt.limit_w[0:3] = [0.0, 1.0, 0.0]
+
+# Seen and not typed: at the corrected inputs this law is 0.3 to 0.5 long in ln on 30 % butane in
+# 39 % oxygen at 1 atm in two sessions (21125K1, K2; 21291D1, G2). The butane term in enriched
+# oxygen was typed from nine comparisons in two sessions and is left where it is; retyping it from
+# these rows would be reading the same train sessions a second time for a better train score.

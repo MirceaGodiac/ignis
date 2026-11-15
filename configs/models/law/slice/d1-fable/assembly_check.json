@@ -1,0 +1,35 @@
+{
+ "slug": "slice",
+ "dossier": "docs\\wsp\\research\\phys_slice_d1.md",
+ "sha256": "adad2fbff877db6e6a5eaf6881ba34e1622d44446afb0d4721dfa57a619d648a",
+ "parent": "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e",
+ "release": "sha256:c40cd91b76476c153c7b677adf9adca3feb244ae582f4b361307212d23f6b0d8",
+ "edits_lines": 6,
+ "changed": {
+  "('lifted.logit.W1', (0, 3))": [
+   -1.3,
+   0.0
+  ],
+  "('lifted.logit.W1', (1, 3))": [
+   -1.3,
+   0.0
+  ],
+  "('lifted.logit.W1', (2, 3))": [
+   -1.3,
+   0.0
+  ],
+  "('blow_off.logit.W1', (0, 3))": [
+   -1.3,
+   0.0
+  ],
+  "('blow_off.logit.W1', (1, 3))": [
+   -1.3,
+   0.0
+  ],
+  "('blow_off.logit.W1', (2, 3))": [
+   -1.3,
+   0.0
+  ]
+ },
+ "mismatches": {}
+}

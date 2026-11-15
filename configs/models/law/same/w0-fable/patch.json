@@ -1,0 +1,689 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-same-v1-w0-fable",
+  "spec_hash": "sha256:abf8c3e3acb1444d2f01860e37f5319539df452c198087908bb3e6e0f6bfff3b",
+  "parent_release_id": "sha256:070a2a61038b73cd06698df7443760da7055d3376af65bca81595b5b24b62193",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_same_w0.md(zero-shot-W0-law;exposure-in-its-section-8)",
+      "repo:docs/wsp/research/phys_samer_w0.md(exposure-of-section-8.3-applies)",
+      "repo:docs/wsp/feedback/same_feasibility.md(sections-for-the-physicist,2,3;no-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.is_kapton.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_kapton.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_kapton.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_kapton.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_teflon.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_teflon.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_teflon.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_teflon.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_silicone.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_silicone.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_silicone.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_silicone.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_dbp.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_dbp.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_dbp.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_dbp.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.inlet_velocity.centre",
+      "index": [],
+      "value": 0.081
+    },
+    {
+      "op": "set",
+      "tensor": "x.inlet_velocity.scale",
+      "index": [],
+      "value": 0.01
+    },
+    {
+      "op": "set",
+      "tensor": "x.inlet_velocity.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.inlet_velocity.hi",
+      "index": [],
+      "value": 0.12
+    },
+    {
+      "op": "set",
+      "tensor": "x.net_aging_time.centre",
+      "index": [],
+      "value": 100.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.net_aging_time.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.net_aging_time.lo",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.net_aging_time.hi",
+      "index": [],
+      "value": 5000.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.b0",
+      "index": [],
+      "value": -15.614
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        -0.586,
+        -0.463,
+        0.215,
+        0.718,
+        -0.039,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.b1",
+      "index": [
+        0
+      ],
+      "value": -3.1
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0373
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.W1",
+      "index": [
+        1,
+        4
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.b1",
+      "index": [
+        1
+      ],
+      "value": -6.1
+    },
+    {
+      "op": "set",
+      "tensor": "d10.median.w2",
+      "index": [
+        1
+      ],
+      "value": -0.0763
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        4,
+        6
+      ],
+      "values": [
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0,
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0,
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0,
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.b1",
+      "start": [
+        2
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.197,
+        -1.403,
+        -3.203,
+        -4.803
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.median.w2",
+      "start": [
+        2
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.0826,
+        0.124,
+        0.124,
+        0.0826
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d10.spread.b0",
+      "index": [],
+      "value": 0.42
+    },
+    {
+      "op": "set_box",
+      "tensor": "d10.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.1,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d10.spread.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.spread.b1",
+      "index": [
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d10.spread.w2",
+      "index": [
+        0
+      ],
+      "value": 0.03
+    },
+    {
+      "op": "set",
+      "tensor": "d10.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "d10.tail_width",
+      "index": [],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.b0",
+      "index": [],
+      "value": -15.202
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        -0.777,
+        -0.654,
+        0.215,
+        0.47,
+        -0.039,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.b1",
+      "index": [
+        0
+      ],
+      "value": -3.1
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0373
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.W1",
+      "index": [
+        1,
+        4
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.b1",
+      "index": [
+        1
+      ],
+      "value": -6.1
+    },
+    {
+      "op": "set",
+      "tensor": "d30.median.w2",
+      "index": [
+        1
+      ],
+      "value": -0.0763
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        4,
+        6
+      ],
+      "values": [
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0,
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0,
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0,
+        0.917,
+        0.693,
+        -0.336,
+        -0.916,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.b1",
+      "start": [
+        2
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.197,
+        -1.403,
+        -3.203,
+        -4.803
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.median.w2",
+      "start": [
+        2
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.0667,
+        0.1,
+        0.1,
+        0.0667
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d30.spread.b0",
+      "index": [],
+      "value": 0.4
+    },
+    {
+      "op": "set_box",
+      "tensor": "d30.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.1,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "d30.spread.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d30.spread.b1",
+      "index": [
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "d30.spread.w2",
+      "index": [
+        0
+      ],
+      "value": 0.03
+    },
+    {
+      "op": "set",
+      "tensor": "d30.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "d30.tail_width",
+      "index": [],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.b0",
+      "index": [],
+      "value": 1.1
+    },
+    {
+      "op": "set_box",
+      "tensor": "iss_full_scale.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        -2.83,
+        -3.3,
+        -0.25,
+        1.1,
+        -0.1,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": -0.164
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.b1",
+      "index": [
+        0
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.w2",
+      "index": [
+        0
+      ],
+      "value": 0.9
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.W1",
+      "index": [
+        1,
+        5
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.b1",
+      "index": [
+        1
+      ],
+      "value": -3.0
+    },
+    {
+      "op": "set",
+      "tensor": "iss_full_scale.logit.w2",
+      "index": [
+        1
+      ],
+      "value": 0.3
+    }
+  ],
+  "rationale": "W0 of same.wsp: the zero-shot law of docs/wsp/research/phys_same_w0.md (the SAME-R network without temperature, no-flow and heating-time terms, with dibutyl phthalate), its section 7.2 typed verbatim as a revision of the neutral root. SAME is held whole. Not fitted. Source: docs/wsp/research/phys_same_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

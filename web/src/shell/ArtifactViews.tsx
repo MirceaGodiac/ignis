@@ -61,7 +61,6 @@ function ExecutionRecordView({ r }: { r: ExecutionRecord }) {
           <span className={`tag ${out.ok ? "" : "tag-bad"}`}>{out.text}</span>
           {dur != null && <span className="muted small num">{dur.toFixed(1)} s</span>}
         </div>
-        <p className="muted small">The program ran in the sandbox. This says nothing about whether its result is correct.</p>
         <dl className="kv">
           <dt>program</dt>
           <dd>

@@ -1,0 +1,433 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-daft-v1",
+  "family": "other",
+  "model_name": "daft.wsp",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "W0 law of docs/wsp/research/phys_daft_w0.md, section 7.1: what the counter reads, by kind of air, from the photometer reading. The indicators and dusttrak_mass_floored = max(dusttrak_mass_concentration, 1e-9 kg/m3) are derived by tools/wsp/ext/law_inputs.py. (no target is a shared quantity); targets: number_concentration",
+    "excludes": [
+      "phase_end_time is named here only because ModelSpec.target requires one shared quantity: every target of this model is lane-local and no artifact carries phase_end_time",
+      "daft:number_concentration (positive, 1/m3): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "is_cabin",
+      "unit": "1",
+      "source": "condition:is_cabin",
+      "transform": "identity: (x - x.is_cabin.centre) / x.is_cabin.scale; refused unless x.is_cabin.lo <= x <= x.is_cabin.hi @1"
+    },
+    {
+      "name": "is_velcro",
+      "unit": "1",
+      "source": "condition:is_velcro",
+      "transform": "identity: (x - x.is_velcro.centre) / x.is_velcro.scale; refused unless x.is_velcro.lo <= x <= x.is_velcro.hi @1"
+    },
+    {
+      "name": "is_bag",
+      "unit": "1",
+      "source": "condition:is_bag",
+      "transform": "identity: (x - x.is_bag.centre) / x.is_bag.scale; refused unless x.is_bag.lo <= x <= x.is_bag.hi @1"
+    },
+    {
+      "name": "dusttrak_mass_floored",
+      "unit": "kg/m3",
+      "source": "condition:dusttrak_mass_floored",
+      "transform": "ln: ln(x / x.dusttrak_mass_floored.centre) / x.dusttrak_mass_floored.scale; refused unless x.dusttrak_mass_floored.lo <= x <= x.dusttrak_mass_floored.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.is_cabin.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_cabin."
+    },
+    {
+      "name": "x.is_cabin.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_cabin."
+    },
+    {
+      "name": "x.is_cabin.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_cabin (raw SI value)."
+    },
+    {
+      "name": "x.is_cabin.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_cabin (raw SI value)."
+    },
+    {
+      "name": "x.is_velcro.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_velcro."
+    },
+    {
+      "name": "x.is_velcro.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_velcro."
+    },
+    {
+      "name": "x.is_velcro.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_velcro (raw SI value)."
+    },
+    {
+      "name": "x.is_velcro.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_velcro (raw SI value)."
+    },
+    {
+      "name": "x.is_bag.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_bag."
+    },
+    {
+      "name": "x.is_bag.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_bag."
+    },
+    {
+      "name": "x.is_bag.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_bag (raw SI value)."
+    },
+    {
+      "name": "x.is_bag.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_bag (raw SI value)."
+    },
+    {
+      "name": "x.dusttrak_mass_floored.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/m3",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of dusttrak_mass_floored."
+    },
+    {
+      "name": "x.dusttrak_mass_floored.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of dusttrak_mass_floored."
+    },
+    {
+      "name": "x.dusttrak_mass_floored.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/m3",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of dusttrak_mass_floored (raw SI value)."
+    },
+    {
+      "name": "x.dusttrak_mass_floored.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/m3",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of dusttrak_mass_floored (raw SI value)."
+    },
+    {
+      "name": "number_concentration.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1/m3)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median number_concentration / 1 1/m3) at z = 0 before hinge terms (ln(1/m3))."
+    },
+    {
+      "name": "number_concentration.median.skip",
+      "shape": [
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median number_concentration / 1 1/m3) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "number_concentration.median.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median number_concentration / 1 1/m3); row j reads z in feature order."
+    },
+    {
+      "name": "number_concentration.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median number_concentration / 1 1/m3) (hinge positions)."
+    },
+    {
+      "name": "number_concentration.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median number_concentration / 1 1/m3)."
+    },
+    {
+      "name": "number_concentration.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of number_concentration at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "number_concentration.spread.skip",
+      "shape": [
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of number_concentration on z, in feature order; every element is stated."
+    },
+    {
+      "name": "number_concentration.spread.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of number_concentration; row j reads z in feature order."
+    },
+    {
+      "name": "number_concentration.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of number_concentration (hinge positions)."
+    },
+    {
+      "name": "number_concentration.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of number_concentration."
+    },
+    {
+      "name": "number_concentration.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of number_concentration (0: one log-normal)."
+    },
+    {
+      "name": "number_concentration.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of number_concentration over that of the core (1: no wider component)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/daft/decl.json (status Declared): {\"slug\":\"daft\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-47, DAFT / DAFT-2: a modified P-Trak condensation counter against a DustTrak photometer on cabin air and on test dust in orbit\",\"description\":\"W0 law of docs/wsp/research/phys_daft_w0.md, section 7.1: what the counter reads, by kind of air, from the photometer reading. The indicators and dusttrak_mass_floored = max(dusttrak_mass_concentration, 1e-9 kg/m3) are derived by tools/wsp/ext/law_inputs.py.\",\"features\":[{\"name\":\"is_cabin\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"cabin air through the hose\"},{\"name\":\"is_velcro\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"cabin air while Velcro is separated\"},{\"name\":\"is_bag\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"road dust in a bag (filtered air is the reference)\"},{\"name\":\"dusttrak_mass_floored\",\"unit\":\"kg/m3\",\"transform\":\"ln\",\"description\":\"max(dusttrak_mass_concentration, 1e-9 kg/m3), the photometer reading floored at its resolution\"}],\"targets\":[{\"name\":\"number_concentration\",\"kind\":\"positive\",\"unit\":\"1/m3\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"what the modified P-Trak reads on the sample (lane-local)\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

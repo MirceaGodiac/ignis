@@ -1,0 +1,15 @@
+# D1 of samer.wsp: the Edits block of docs/wsp/research/phys_samer_d1.md (lines 81-93, sha256 8b610f1d584b01ed4cfb781fd4a372a40d6682e17bd2e05fbd6fa7cc22ac3786),
+# verbatim, as a revision of the registered W0 release sha256:05f77ae2…7fb0; every other number is the parent's.
+# samer D1: data-informed revision of W0 (docs/wsp/research/phys_samer_d1.md). Author claude-fable-5-2.
+# Pyrell reference temperature 570 K -> 515 K (the foam was run there): size, coagulation time, detector
+d10.median.skip[3] = 0.324
+d10.median.W1[3:7, 3] = 0.268
+d30.median.skip[3] = 0.257
+d30.median.W1[3:7, 3] = 0.268
+iss_full_scale.logit.skip[3] = 0.19
+# silicone smoke about 2.5 times denser than assumed: t_c 1400 s -> 570 s, D_ref 310 -> 343 nm, detector
+d10.median.W1[3:7, 2] = -0.536
+d10.median.skip[2] = -0.125
+d30.median.W1[3:7, 2] = -0.536
+d30.median.skip[2] = -0.125
+iss_full_scale.logit.skip[2] = -0.77

@@ -1,0 +1,12 @@
+# D1 of bass1.wsp: the Edits block of docs/wsp/research/phys_bass1_d1.md (lines 91-100, sha256 0a9b15c73e1cf59a696ef37dac61cd7e3caa3cb1230f79e9a98bbddc3c336555),
+# verbatim, as a revision of the registered W0 release sha256:97c0daf9…39a2; every other number is the parent's.
+# bass1 D1: revision of sha256:97c0daf9… (W0). Data-informed: train days only.
+# Input convention changed with it: flat PMMA thicker than 0.5 mm is supplied nose_radius = 0.02
+# (films stay at 0.01, where the two hinges below are zero).
+# A spreading edge on a thick slab meets cold fuel: conduction 110 / sqrt(t_res) on top of the
+# surface radiation raises the quench speed 3 to 4 times; typed 2.7 times (half of the train days).
+flat_quench_speed.median.W1[0, 2] = 1.0
+flat_quench_speed.median.w2[0] = 1.44
+# Resting on warm fuel or running on cold fuel: ln-sd 0.50 -> 0.80 for slabs.
+flat_quench_speed.spread.W1[0, 2] = 1.0
+flat_quench_speed.spread.w2[0] = 0.43

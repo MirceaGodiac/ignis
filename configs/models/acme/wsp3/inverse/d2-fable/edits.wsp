@@ -1,0 +1,45 @@
+# acme_inverse.wsp3 — D2 literal revision of D1 sha256:a43fdbcf…c1de, spec acme_inverse-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED: one law added to D1, typed from the TRAIN rows
+# of the PSI-159 inverse-flame table after an audit of D1's confident misses on train. Not zero-shot.
+# Every number typed by the author; no fit, no search. The author had seen the aggregate validation
+# tables of the earlier candidates and the CONDITIONS of the validation runs (inputs only: they show
+# that injected oxygen fractions of 40-50 % at the highest flow, which train holds once, are common in
+# an unseen session). No validation outcome was read, and nothing below was chosen from a score.
+#
+# This release is one SCENARIO, not the author's whole belief: it says that the law below holds. The
+# committee release that carries it gives it a weight next to D1, which says that it does not.
+#
+# What D1 gets wrong on train. 21228C2 (propane ambient at 8.9 %, 2.2 atm, 50 % oxygen injected at
+# 9.07 mg/s) burned to the script stop at 66 s. D1 gives it 0.97 of going out by then: its early
+# quench clock is set by the ambient fuel fraction and says 6 s, as for its neighbours at the same
+# oxygen and lower flow (5.44 mg/s: 8 s, 9 s, 6 s; 3.63 mg/s: 7 s, 8 s; 1.81 mg/s: 9 s, 12 s).
+#
+# What the table says when the rows are ordered by the TOTAL mass flow through the burner
+# (m_tot = oxygen flow / oxygen mass fraction of the injected stream):
+#   m_tot up to 10.5 mg/s (every 85 % test, every 50 % test but one): out in 3-18 s, 35 flames of 35
+#   m_tot 17.0 mg/s (50 % oxygen at 9.07 mg/s): held to the 66 s stop
+#   m_tot 23 mg/s (air at 5.4 mg/s): held to stops at 65 s, 66 s and alive at a 16 s stop, in the three
+#     tests where the flame survived ignition (the other two flashed at 1 s: the weak class)
+#   m_tot 15.6 mg/s (air at 3.63 mg/s, 1868 K): out at 3 s, which is the weak class as well
+# D1 explained the air-injected flames by a rule of their own ("small and cool"). One law covers them
+# and 21228C2: an established lean flame is not taken by the early quench when the burner flow is
+# large. A larger flow puts the flame further from the burner and the supply tube, where the reports
+# place the quench hole. The radius the flame settles at is proportional to m_tot and does not depend
+# on pressure, so the law is written in m_tot alone (at 1.1 atm, 10.2 mg/s went out; at 2.2 atm, 10.5
+# mg/s went out and 17.0 held: a threshold in velocity, m_tot / p, would have these the other way).
+#
+# c = (c_logp, c_logm, c_o2, c_xf, c_tad, c_zst, f_ethane, f_butane), columns 0..7:
+#   c_logm = ln(injected O2 mass flow / 5 mg/s)      c_o2 = (injected x_O2 - 0.50)/0.25
+# ln(m_tot / 5 mg/s) = c_logm - ln Y_O2, and -ln Y_O2 = 0.14, 0.32, 0.63, 0.73, 0.84, 1.11 at 85, 70,
+# 50, 45, 40, 30 % oxygen: 0.63 - 0.5 c_o2 within 0.1 from 30 to 70 % (low by 0.2 at 85 % and in air,
+# where it does not matter: no 85 % flow of the campaign reaches the threshold, and air is held by
+# unit 2 already).
+
+# Unit 3: above a total burner flow of 12 mg/s the early quench clock lengthens by 9 per e-fold:
+# 21228C2 at 17 mg/s gets a median of 145 s (0.08 of going out by 66 s) and the 10 mg/s tests are
+# untouched. The threshold lies between 10.5 and 17; 12 leaves the tests at 10.2-10.5 mg/s (seven
+# flames, all out in 4-18 s) clear of it.
+se.osc.W1[3, 1] = 1.0
+se.osc.W1[3, 2] = -0.5
+se.osc.b1[3] = -0.245
+se.osc.w2[3] = 9.0

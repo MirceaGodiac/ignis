@@ -15,6 +15,8 @@ pdf = ["ignis-evidence/pdf"]
 
 [dependencies]
 ignis-core = { path = "../ignis-core" }
+ignis-wsp = { path = "../ignis-wsp" }
+ignis-wsp-serve = { path = "../ignis-wsp-serve" }
 ignis-server = { path = "../ignis-server" }
 ignis-lab = { path = "../ignis-lab" }
 ignis-vision = { path = "../ignis-vision" }

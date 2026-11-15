@@ -24,6 +24,7 @@ mod metrics;
 mod runner;
 pub mod sandbox;
 pub mod sources;
+mod wsp;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -429,6 +430,7 @@ pub fn build(state: Arc<V1>) -> Router {
             }),
         )
         .merge(sources::routes())
+        .merge(wsp::routes())
         .merge(data::routes())
         .merge(metrics::routes())
         // Short commands only: research work runs as jobs, big results are artifacts.

@@ -1,0 +1,38 @@
+# bass_front.wsp5 — reference baseline "persistence" with the boundary law NEUTRAL, spec bass_front-wsp-v5
+# Not a candidate and not a physical claim: the lineage root of the fifth front forward (front5.rs).
+# Tip law: the stored values of the root of bass_front-wsp-v1 (configs/models/bass/front/
+# baseline-persistence: the tip keeps the speed the prefix shows, whatever the flow does), copied
+# statement by statement by tools/wsp/front5_edits.py, without its quench hazard (quench.*), which
+# this spec does not have. Boundary law: the neutral setting below.
+#
+# =====================================================================================================
+# Boundary law of bass_front-wsp-v5: the NEUTRAL setting. It holds no physical claim.
+# =====================================================================================================
+# Chosen by the engineer who wired the forward (claude-opus-5-5), from the bounds of the spec, so that
+# the sample always ignites and a flame never goes out. These numbers say nothing about the fabric,
+# PMMA, pressure, flow or direction; they switch the boundary law off. With them, at every flow,
+# pressure, width, material and direction:
+#   X_lim = sus.x0 = 0.08 (cp = sb = ar = aw = 0), s = sd_x0 = 0.001
+#   lit_k = Phi((X - 0.06 - 0.001 e_k) / 0.001) Phi(ln(t_on / 0.1 s) / 0.1), which is 1.0 exactly in
+#           double precision for X >= 0.075 and an igniter on for 0.25 s or more (|e_k| <= 2.26)
+#   rate_k = Phi(-(X - 0.08 - 0.001 e_k) / 0.0005) / 300 s, below 1e-30 per second for X >= 0.09, so
+#           exp(-Lambda_k) = 1.0 exactly over the longest forecast
+# sus.us = 5 cm/s (the upper bound) keeps the effective speed U_e positive with the fan off (a zero
+# U_e is refused). Every sd is at its lower bound, every time to go out at its upper bound.
+sus.x0[0:2] = [0.08, 0.08]
+sus.cp[0:2] = [0.0, 0.0]
+sus.sb[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.ar[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.aw[0:2] = [0.0, 0.0]
+sus.us[0:2] = [5.0, 5.0]
+sus.sd_x0[0:2] = [0.001, 0.001]
+sus.sd_cp[0:2] = [0.0, 0.0]
+sus.sd_sb[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.sd_ar[0:2, 0:2] = [[0.0, 0.0], [0.0, 0.0]]
+sus.sd_aw[0:2] = [0.0, 0.0]
+ign.dx[0:2] = [-0.02, -0.02]
+ign.sd_a = 0.001
+ign.t_req[0:2] = [0.1, 0.1]
+ign.sd_lnt = 0.1
+ext.tau[0:2, 0:2] = [[300.0, 300.0], [300.0, 300.0]]
+ext.width = 0.0005

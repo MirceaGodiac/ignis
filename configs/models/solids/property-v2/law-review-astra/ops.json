@@ -1,0 +1,5 @@
+[
+  {"op":"set","tensor":"gas_constant","index":[],"value":8.31446261815324},
+  {"op":"set","tensor":"stefan_boltzmann","index":[],"value":5.670374419e-8},
+  {"op":"set","tensor":"contraction_ceiling","index":[],"value":0.75}
+]

@@ -1,131 +1,131 @@
 ---
 name: IGNIS
-description: A quiet research harness for NASA microgravity-combustion data, where colour is spent only on evidence.
+description: A calm research harness for NASA microgravity-combustion data in graphite and ember, where colour is spent only on evidence.
 colors:
-  paper: "#ffffff"
-  rail: "#fafafa"
-  sheet: "#ffffff"
-  ink: "#111111"
-  ink-2: "#3a3a3a"
-  ink-3: "#6b6b6b"
-  rule: "#ededed"
-  rule-2: "#dedede"
-  wash: "#f4f4f4"
-  hover: "#f2f2f2"
-  flame: "#1a4be0"
-  flame-wash: "#eef2fd"
-  soot: "#c2410c"
-  ok: "#167a45"
-  bad: "#c62828"
-  bad-wash: "#fdf1f1"
-  grid: "#f1f1f1"
-  ev2: "#5b7fe9"
-  ev3: "#9db2f1"
-  ev4: "#d6e0fb"
-  paper-dark: "#0a0d14"
-  rail-dark: "#0d1119"
-  sheet-dark: "#131824"
-  ink-dark: "#e9edf3"
-  ink-2-dark: "#c3cad6"
-  ink-3-dark: "#8891a1"
-  rule-dark: "#1d2331"
-  rule-2-dark: "#2a3142"
-  wash-dark: "#171d2a"
-  hover-dark: "#1a2130"
-  flame-dark: "#5ab9fc"
-  flame-wash-dark: "#12263a"
-  soot-dark: "#fb923c"
-  ok-dark: "#4ade80"
-  bad-dark: "#f87171"
-  bad-wash-dark: "#2a1416"
-  grid-dark: "#1a2030"
-  ev2-dark: "#3b8fd0"
-  ev3-dark: "#2a6698"
-  ev4-dark: "#1d4466"
+  paper: "#f4f2ee"
+  rail: "#ebe8e2"
+  sheet: "#fbfaf8"
+  ink: "#1b1a18"
+  ink-2: "#48453f"
+  ink-3: "#68635c"
+  rule: "#e2ded7"
+  rule-2: "#d3cec6"
+  wash: "#ebe8e2"
+  hover: "#e8e5df"
+  flame: "#b14716"
+  flame-wash: "#f6e6dc"
+  soot: "#6a4bc0"
+  ok: "#2b7046"
+  bad: "#b3261e"
+  bad-wash: "#f8e5e2"
+  grid: "#e7e3dd"
+  ev2: "#d27848"
+  ev3: "#e6a984"
+  ev4: "#f3d5c2"
+  paper-dark: "#1a1918"
+  rail-dark: "#151413"
+  sheet-dark: "#211f1e"
+  ink-dark: "#eeebe6"
+  ink-2-dark: "#c8c4bd"
+  ink-3-dark: "#979189"
+  rule-dark: "#2b2927"
+  rule-2-dark: "#3a3835"
+  wash-dark: "#292725"
+  hover-dark: "#262422"
+  flame-dark: "#f0895a"
+  flame-wash-dark: "#3a2a21"
+  soot-dark: "#b7a2ef"
+  ok-dark: "#7fc492"
+  bad-dark: "#f08a80"
+  bad-wash-dark: "#3a2220"
+  grid-dark: "#262422"
+  ev2-dark: "#c06a43"
+  ev3-dark: "#8c4f33"
+  ev4-dark: "#5a3525"
 typography:
   display:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, -apple-system, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "26px"
-    fontWeight: 600
-    lineHeight: 1.2
-    letterSpacing: "-0.025em"
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, -apple-system, Roboto, Helvetica Neue, Arial, sans-serif"
+    fontSize: "42px"
+    fontWeight: 400
+    lineHeight: 1.12
+    letterSpacing: "-0.032em"
   headline:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
-    fontSize: "20px"
-    fontWeight: 600
-    lineHeight: 1.3
-    letterSpacing: "-0.02em"
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontSize: "24px"
+    fontWeight: 500
+    lineHeight: 1.28
+    letterSpacing: "-0.022em"
   title:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
-    fontSize: "17px"
-    fontWeight: 600
-    lineHeight: 1.35
-    letterSpacing: "-0.012em"
-  title-sm:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
     fontSize: "15px"
-    fontWeight: 600
-    lineHeight: 1.5
+    fontWeight: 500
+    lineHeight: 1.35
     letterSpacing: "-0.01em"
+  title-sm:
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontSize: "24px"
+    fontWeight: 500
+    lineHeight: 1.5
+    letterSpacing: "-0.022em"
   heading:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
-    fontSize: "13px"
-    fontWeight: 600
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
     lineHeight: 1.5
   reading:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontSize: "15.5px"
+    fontWeight: 400
+    lineHeight: 1.7
+  body:
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, -apple-system, Roboto, Helvetica Neue, Arial, sans-serif"
     fontSize: "14px"
     fontWeight: 400
-    lineHeight: 1.65
-  body:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, -apple-system, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "13px"
-    fontWeight: 400
-    lineHeight: 1.5
-    letterSpacing: "-0.003em"
+    lineHeight: 1.55
+    letterSpacing: "-0.006em"
     fontFeature: "tnum"
   body-sm:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
-    fontSize: "12.5px"
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.5
   label:
-    fontFamily: "Geist, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
-    fontSize: "11.5px"
-    fontWeight: 600
+    fontFamily: "Hanken Grotesk, Segoe UI Variable Text, Segoe UI, system-ui, sans-serif"
+    fontSize: "12.5px"
+    fontWeight: 500
     lineHeight: 1.5
   data:
     fontFamily: "Geist Mono, ui-monospace, Cascadia Mono, SF Mono, Menlo, Consolas, monospace"
-    fontSize: "12px"
+    fontSize: "12.5px"
     fontWeight: 400
     lineHeight: 1.5
 rounded:
-  tag: "5px"
-  control: "6px"
-  surface: "8px"
-  float: "10px"
+  tag: "6px"
+  control: "8px"
+  surface: "12px"
+  float: "13px"
   pill: "999px"
 components:
   button-primary:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.paper}"
     rounded: "{rounded.control}"
-    height: "28px"
-    padding: "0 10px"
+    height: "32px"
+    padding: "0 12px"
   button-secondary:
     backgroundColor: "{colors.sheet}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    height: "28px"
-    padding: "0 10px"
+    height: "32px"
+    padding: "0 12px"
   button-secondary-hover:
     backgroundColor: "{colors.hover}"
   button-quiet:
     backgroundColor: "transparent"
     textColor: "{colors.ink-2}"
     rounded: "{rounded.control}"
-    height: "28px"
-    padding: "0 10px"
+    height: "32px"
+    padding: "0 12px"
   button-quiet-hover:
     backgroundColor: "{colors.hover}"
     textColor: "{colors.ink}"
@@ -210,96 +210,109 @@ components:
 
 ## Overview
 
-**Creative North Star: "Sheet and Biro"**
+**Creative North Star: "Graphite and Ember"** (replaces "Sheet and Biro / Night and Sky Blue", 15 Nov 2026)
 
-IGNIS is a research harness, not a dashboard. The page is a white sheet with black type, one grey family and one biro-blue ink. In dark mode the same system becomes "Night and Sky Blue": a blue-black ground with a sky-blue accent. The agent does the work and the researcher reads, checks and decides, so the chrome stays quiet and the evidence gets the colour.
+IGNIS is a research harness, not a dashboard. Dark is a neutral graphite night with no blue in the
+ground; light is warm stone paper. Ink and one warm grey family carry the structure; a single ember
+accent marks what the model did and what is selected. The references are Corpus (graphite, roomy
+rail, a serif wordmark, a light display question), SubQ (stone paper, ruled cells, quiet numerals)
+and TypeSafe (plain, exact chart chrome).
 
-The density is compact. Body text is 13px, controls are 28px high, and hairlines (1px) divide the surfaces. The layout follows the Linear, Harvey, Legora and Hebbia mould: a left rail, a centre object with tabs, a properties column and a right side panel with a back trail. The system refuses tile dashboards, decorative colour and pages that the researcher must drive step by step.
+The density is calm, not cramped: 14px body, 32px controls, 38px rail items, 1px hairlines,
+12px surfaces. The layout keeps the Linear / Harvey / Legora mould: a left rail, a centre object with
+tabs, a properties column and a right side panel with a back trail.
 
-Colour has a meaning or it does not appear. Blue is model output, the current data selection and a running state, orange is revealed data, red is a refusal or a failure, and green is a complete or qualified status. Shape carries the evidence class, so colour is never the only signal.
+Colour has a meaning or it does not appear. Ember is model output, the current selection, a running
+state and a cited region; violet is revealed data; red is a refusal or a failure; green is a complete
+or qualified status. Shape carries the evidence class, so colour is never the only signal.
 
 **Key Characteristics:**
-- White sheet, black ink, one grey family, one blue accent (light); blue-black night and sky blue (dark).
-- One sans family (Geist) for all text; Geist Mono only for ids, hashes, paths, times and code.
-- Compact: 13px body, 28px controls, 1px hairlines, 8px surface radius.
-- Flat at rest; shadow only on layers that float above the content.
-- Evidence classes drawn as CSS shapes: disc, square, diamond, dashed band, hollow ring, dashed ring.
+- Graphite night (#1a1918 ground, #151413 rail, #211f1e sheet) and stone paper (#f4f2ee ground, #ebe8e2 rail, #fbfaf8 sheet). No blue anywhere in the chrome.
+- Hanken Grotesk for all text, including the "Ignis" lockup (flame in an ink square, 18px 600); Geist Mono only for ids, hashes, paths, times and code.
+- Display and titles at weight 400-500 (never bold), tight negative tracking; labels at 500 in ink-3, sentence case.
+- Flat at rest; shadow only on layers that float above the content and on the Home prompt.
+- Theme: System, Light or Dark from the rail footer; a pinned choice is `<html data-theme>`, read before `prefers-color-scheme`.
 - Synthetic origin is one neutral outlined pill, never a coloured banner.
 
 ## Colors
 
-The palette is achromatic ink on white, with four hues that each carry one meaning.
-
 ### Primary
-- **Biro Blue** (flame): model output, the current data selection (selected table row, active claim key, selected map run, selected route stop), a running state (the pulse dot and the run route node), the cited region box on a source page, the planned Moon base and rover region on the atmosphere map, the focus ring, text selection and inline action links. The light tint **Biro Blue Wash** (flame-wash) fills the selected row, the selected stop and the active claim key. The build has no solid blue fill.
-- **Evidence Blues** (flame, ev2, ev3, ev4): the four-step stack in the Forecast lab evidence bar. It is a ramp of the primary, not new hues.
+- **Ember** (flame): light #b14716, dark #f0895a. Model output, the current data selection (selected row, active claim key, selected map run, selected route stop), a running state, the cited region box, the planned Moon base and rover region on the atmosphere map, the focus ring, text selection, inline action links. **Ember Wash** (flame-wash: #f6e6dc / #3a2a21) fills the selected row, stop and claim key. No solid ember fill on chrome.
+- **Evidence ramp** (ev1-ev4): ember steps for the Forecast lab evidence bar.
+- **On video** (#ff9a62): the BASS contour drawn over video, the same in both themes.
 
 ### Secondary
-- **Reveal Orange** (soot): revealed (sealed, then opened) data only: the revealed line in the forecast chart and the hollow revealed ring.
+- **Reveal Violet** (soot): light #6a4bc0, dark #b7a2ef. Revealed (sealed, then opened) data only.
 
 ### Tertiary
-- **Refusal Red** (bad) with **Refusal Wash** (bad-wash): typed refusals, failed status tags, bad route stops, and the rail dot of an investigation that waits on the researcher.
-- **Qualified Green** (ok): complete and qualified status tags, ok route stops, live service dots. Its tag fill is the green at 10% on transparent.
+- **Refusal Red** (bad #b3261e / #f08a80) with **Refusal Wash**: typed refusals, failed status, bad route stops.
+- **Qualified Green** (ok #2b7046 / #7fc492): complete and qualified status, ok route stops, live service dots.
 
 ### Neutral
-- **Sheet White** (paper): the page ground. **Sheet** (sheet) is the surface of cards, tables, fields and the side panel; in light mode it is the same white, in dark mode it is one step lighter than the ground.
-- **Rail Grey** (rail): the left rail, the properties column and the source page frame.
-- **Biro Black** (ink): primary text, the primary button, the active tab underline, the cutoff line and the observed series.
-- **Graphite** (ink-2): secondary text, agent messages, tag text.
-- **Pencil Grey** (ink-3): labels, metadata, counts, axis text, icons at rest. It holds 5.3:1 on white.
-- **Hairline** (rule): every divider and surface border. **Control Hairline** (rule-2): borders on buttons, fields, the prompt and dashed empty states; also the scrollbar thumb.
-- **Wash** (wash): neutral note fill, tag fill, current nav item, user message bubble. **Hover Tint** (hover): the hover fill on rows and controls.
-- **Chart Grid** (grid): chart gridlines only.
-
-### Dark scheme
-The dark scheme comes from `prefers-color-scheme: dark`. Each `-dark` token replaces its light sibling with the same role. The chart aliases follow the same tokens: observed and cutoff use ink, model uses flame, revealed uses soot, the muted axis uses ink-3. Chart colours stay hex, because the chart appends an alpha suffix to them.
+- **Paper** (paper), **Rail** (rail), **Sheet** (sheet): ground, left rail and properties column, surfaces. In dark the rail is darker than the ground and the sheet lighter, as in Corpus.
+- **Ink** (ink #1b1a18 / #eeebe6): primary text, the primary button (solid ink, paper text), the active tab underline, the cutoff line, the observed series.
+- **Ink 2** (#48453f / #c8c4bd): secondary text, agent messages. **Ink 3** (#68635c / #979189): labels, metadata, axis text, icons at rest (>= 4.5:1 on paper in both themes).
+- **Rule** and **Rule 2**: hairlines; control borders and dashed empty states. **Wash**, **Hover**: neutral fills.
 
 ### Named Rules
-**The Colour Is Data Rule.** The chrome is ink and grey. Blue, orange, red and green appear only when they mean model output, selection, a running state, a cited region or the target atmosphere; revealed data; refusal, failure or a wait on the researcher; and complete or qualified status.
+**The Colour Is Data Rule.** Chrome is ink and warm grey. Ember, violet, red and green appear only with the meanings above.
 
-**The No Yellow Rule.** Caution has no hue. A caution note carries an ink dot, a warn route stop is a dashed ink ring, and a "not qualified" tag stays neutral grey.
+**The No Blue Rule.** No blue or blue-tinted grey in either theme: grounds, rails and accents stay neutral or warm.
 
-**The Ink Navigation Rule.** Navigation state is ink, not blue. The current nav item is a wash fill, the active tab is a 2px ink underline, and the primary button is solid ink.
+**The No Yellow Rule.** Caution has no hue: an ink dot, a dashed ink ring, a neutral tag.
+
+**The Ink Navigation Rule.** Navigation state is ink, not ember: the current nav item is a wash fill, the active tab a 2px ink underline, the primary button solid ink.
 
 ## Typography
 
-**Display Font:** Geist (with Segoe UI Variable Text, Segoe UI, system-ui)
-**Body Font:** Geist (same stack)
-**Label/Mono Font:** Geist Mono (with ui-monospace, Cascadia Mono, SF Mono, Menlo, Consolas)
-
-**Character:** One neutral grotesque does every job, from the Home question to the table labels. Hierarchy comes from size steps and weight 600 against 400, not from a second family. Geist Mono marks a value that a machine wrote.
+**Text font:** Hanken Grotesk 400/500/600 (Segoe UI Variable Text, system-ui stand in offline)
+**Lockup:** the flame mark in a 26px ink square and "Ignis" in Hanken Grotesk 600, 18px
+**Data font:** Geist Mono 400/500
 
 ### Hierarchy
-- **Display** (600, 26px, 1.2, -0.025em): the Home question only. A second line in ink-3 can continue it.
-- **Headline** (600, 20px, 1.3, -0.02em): the object page title (an investigation). Max 64ch. At 820px and below it is 17px and clamps to 3 lines.
-- **Title** (600, 17px, 1.35, -0.012em): the thread goal. Max 72ch.
-- **Title small** (600, 15px, -0.01em): the view heading on list views (Runs, Sources, Models).
-- **Heading** (600, 13px): card, sheet and panel headings.
-- **Reading** (400, 14px, 1.65): the answer text. Measure 66ch. Agent messages use 13.5px at 1.6, max 72ch.
-- **Body** (400, 13px, 1.5, -0.003em): the default for all UI text. Tabular numerals are on everywhere.
-- **Body small** (400, 12.5px): tables, key-value lists, notes, the side panel.
-- **Label** (600, 11.5px, ink-3, sentence case): section labels over lists, the properties heading, panel section headings. The source writes 550; Geist as loaded renders it at 600. Never uppercase.
-- **Table header** (500, 11.5px, ink-3): sticky table column headers.
-- **Caption** (400, 11.5px, ink-3): legends, table captions, counts and metadata.
-- **Data** (Geist Mono 400, 12px): run ids, hashes, file paths, times, JSON. Inline `code` is 0.9em in ink-2.
+- **Display** (400, 42px, 1.12, -0.032em, centred): the Home question only.
+- **Page title** (500, 24px, 1.28, -0.022em): an investigation, max 60ch, 3 lines; also list view headings.
+- **Card title** (500, 15px, -0.01em): cards, sheets, the side panel head.
+- **Reading** (400, 15.5px, 1.7): the answer text, 66ch. Agent messages 15px / 1.65, 70ch.
+- **Body** (400, 14px, 1.55, -0.006em): default UI text; rail items 14.5px. Tabular numerals everywhere.
+- **Body small** (400, 13px): tables, key-value lists, notes, the side panel.
+- **Label** (500, 12.5px, ink-3, sentence case): section labels, properties, panel sections. Never uppercase.
+- **Caption** (400, 12px, ink-3): legends, captions, counts. **Data** (Geist Mono, 12.5px): ids, hashes, paths, times.
 
 ### Named Rules
-**The One Family Rule.** Geist sets all text. Geist Mono sets only ids, hashes, paths, times and code, never a heading or a label for effect.
+**The One Family Rule.** Hanken Grotesk sets all text; the serif is the wordmark and nothing else; mono only for machine values.
 
-**The 20px Ceiling Rule.** Inside the workspace no heading is above 20px. The Home question (26px) is the only exception.
+**The Light Display Rule.** Large text is never bold: 400 for the Home question, 500 for titles. Weight 600 is for small headings and emphasis only.
 
 ## Layout
 
-The shell is a three-column grid: a 232px left rail, a flexible main column, and a 380px right side panel when an item is open. The main column has a sticky 44px topbar with breadcrumbs, the synthetic pill and the search button. The topbar is 88% paper with an 8px backdrop blur, so content stays legible under it.
+The shell is a grid: a 256px rail, a flexible main column, and a 400px side panel when an item is open. The main column has a sticky 60px topbar without a rule (crumbs, the synthetic pill, a 300px search field), 90% paper with a 10px blur. An object page has a main column and a 280px properties column on the rail tone. Home is one centred 820px column starting at 11vh.
 
-An object page (an investigation) has a main column and a 280px properties column on the rail tone. The thread is max 980px wide. The answer uses a 66ch text column and a claims margin column at its right. Home is one centred 760px column that starts at 9vh from the top.
+Information architecture (one registry, `web/src/shell/router.ts` SECTIONS / VIEW_SERVICE): the rail
+has the serif wordmark, "New question" (Home's prompt) and search, then Home; **NASA data**: Sources
+(knowledge), Runs (registry), Conditions (datasets: Habitats, Atmosphere map and Runs as tabs of one
+page); **Models**: Forecast lab, Compare (registry), Models (models); then Recent questions (agent
+runtime) and the theme switch. Breadcrumbs read "section › page". A page whose service the deployment
+does not serve stays reachable, is dimmed in the rail, and says so in place; there is no service
+footer and no global server banner. Every page opens with its title (24px), then tabs or a toolbar,
+then its content: no explanatory sentence under a title, no helper copy under a field. The data source
+is live; fixtures are a development choice (command menu or `?source=synthetic`).
 
-Spacing is literal, not a token scale. Use 4 to 8px inside a group, 10 to 16px between blocks (14px is the default view and panel gap), and 24 to 28px between sections. View padding is 16px 24px 40px. Control heights are 24px (small), 28px (default), 32px (table rows and menu options), 34px (tabs and list rows) and 44px (topbar and panel head).
+A question is a conversation, not an object page: the researcher's message (right, wash bubble), the
+agent's steps collapsed to one line ("3 steps · 0:12"), the answer, and a composer pinned at the
+bottom. The header holds the breadcrumb, "Sources" (every cited source of the question, in the side
+panel) and a "…" menu (pause, resume, cancel, copy link, details). No tabs, no properties column.
 
-Responsive behaviour:
-- At 1280px and below, the claims margin moves under the answer.
-- At 1100px and below, the side panel becomes an overlay at the right edge with the float shadow, the properties column moves under the page, and the map and lab grids become one column.
-- At 820px and below, the shell is one column. The rail becomes a header with a menu toggle and opens as a full-screen layer. View padding is 12px 14px 32px. Tables hide their low-priority columns (`.narrow-hide`).
+Citations: after each claim, a chip names its source by number (in order of first citation) and the
+place: "1 · p. 14", "2 · row 41", "+1" for more supports; "computed" for a value read from an artifact;
+a dashed "interpretation" chip for the agent's own reading. Hover shows the quoted passage with 1/N
+across supports and "Open", which shows the original at that place in the side panel. Under the
+answer: a "Sources" line (stacked numbers, counts) that expands to every passage, copy, and follow-ups.
+The evidence contract carries no source title yet, so sources are numbered, not named.
+
+Spacing: 6-10px inside a group, 16-22px between blocks (20px view gap), 32-36px between sections. View padding 12px 32px 56px. Control heights 26 (small), 32 (default), 38 (rail items), 40 (rail actions), 42 (table rows, tabs, list rows), 60 (topbar, panel head).
+
+Responsive behaviour is unchanged: at 1280px the claims margin moves under the answer; at 1100px the side panel overlays and the properties column moves under the page; at 820px the shell is one column with a menu toggle.
 
 ## Elevation & Depth
 
@@ -316,7 +329,7 @@ The system is flat at rest. A surface is a sheet with a 1px hairline (rule) on t
 
 ## Shapes
 
-Corners are small and consistent. Controls (buttons, fields, nav items, menu options) use 6px. Surfaces (cards, tables, sheets, notes, figure blocks) use 8px. The composer, menus, hovercard and tray use 10px. The command menu uses 12px and the Home prompt uses 14px. Tags use 5px. The pill (999px) is only for the small synthetic badge.
+Corners are small and consistent. Controls (buttons, fields, menu options) use 8px and rail items 9px. Surfaces (cards, tables, sheets, figure blocks) use 12px; notes 10px. Menus and the hovercard use 13px, the composer and command menu 16px, the Home prompt 20px. Tags use 6px. The pill (999px) is only for the small synthetic badge.
 
 Borders are 1px hairlines. A dashed 1px border marks an empty state. A dashed ring marks something that is not a fact: interpretation, synthetic origin, a warn stop. An outlined (inset 1px) note marks a gap.
 

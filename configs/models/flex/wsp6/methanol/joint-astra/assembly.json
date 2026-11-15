@@ -1,0 +1,526 @@
+{
+  "checks": [
+    {
+      "check": "spec_valid",
+      "detail": "ModelSpec::validate",
+      "status": "passed"
+    },
+    {
+      "check": "patch_valid",
+      "detail": "HandwrittenWeightPatch::validate_against",
+      "status": "passed"
+    },
+    {
+      "check": "tensors_complete",
+      "detail": "456 authored elements (120 nonzero), 20 constants",
+      "status": "passed"
+    },
+    {
+      "check": "strict_forward_audit",
+      "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)",
+      "status": "passed"
+    },
+    {
+      "check": "finite_forward_on_fixture",
+      "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact",
+      "status": "passed"
+    }
+  ],
+  "construction_method": "literal_revision",
+  "counts": {
+    "authored_nonzero": 120,
+    "authored_total": 456,
+    "constant_total": 20,
+    "per_tensor": {
+      "ce.beta_atm": [
+        1,
+        0
+      ],
+      "ce.c_he": [
+        1,
+        0
+      ],
+      "ce.d0_exp": [
+        1,
+        1
+      ],
+      "ce.eps_atm": [
+        1,
+        1
+      ],
+      "ce.g0": [
+        1,
+        0
+      ],
+      "ce.on": [
+        1,
+        0
+      ],
+      "ce.p_ref_atm": [
+        1,
+        0
+      ],
+      "class.bias": [
+        1,
+        1
+      ],
+      "class.kappa": [
+        1,
+        1
+      ],
+      "crit.W1": [
+        32,
+        0
+      ],
+      "crit.b0": [
+        1,
+        1
+      ],
+      "crit.b1": [
+        8,
+        0
+      ],
+      "crit.skip": [
+        4,
+        4
+      ],
+      "crit.w2": [
+        8,
+        0
+      ],
+      "diff.W1": [
+        48,
+        2
+      ],
+      "diff.b0": [
+        1,
+        1
+      ],
+      "diff.b1": [
+        8,
+        2
+      ],
+      "diff.sharp": [
+        1,
+        1
+      ],
+      "diff.skip": [
+        6,
+        2
+      ],
+      "diff.w2": [
+        8,
+        2
+      ],
+      "dy.frac": [
+        1,
+        0
+      ],
+      "dy.tau_s": [
+        1,
+        1
+      ],
+      "enc.cool_gain": [
+        1,
+        0
+      ],
+      "enc.e_clip": [
+        2,
+        2
+      ],
+      "enc.end_frac": [
+        1,
+        1
+      ],
+      "enc.gain_b": [
+        1,
+        1
+      ],
+      "enc.gain_w": [
+        3,
+        1
+      ],
+      "enc.k_floor_m2_s": [
+        1,
+        1
+      ],
+      "enc.min_points": [
+        1,
+        1
+      ],
+      "enc.mix": [
+        2,
+        2
+      ],
+      "enc.w_ref": [
+        1,
+        1
+      ],
+      "enc.window_frac": [
+        1,
+        1
+      ],
+      "filt.gain_b": [
+        1,
+        1
+      ],
+      "filt.gain_w": [
+        3,
+        3
+      ],
+      "filt.l_floor": [
+        1,
+        1
+      ],
+      "filt.sd_evap": [
+        1,
+        1
+      ],
+      "filt.sd_hot": [
+        1,
+        1
+      ],
+      "fl.evap_mix": [
+        1,
+        1
+      ],
+      "fl.gap_s": [
+        1,
+        1
+      ],
+      "fl.min_points": [
+        1,
+        1
+      ],
+      "fl.t_min_s": [
+        1,
+        1
+      ],
+      "fl.trust": [
+        1,
+        0
+      ],
+      "gate.growth_tol": [
+        1,
+        1
+      ],
+      "gate.k_max_m2_s": [
+        1,
+        1
+      ],
+      "gate.min_later": [
+        1,
+        1
+      ],
+      "haz.log_disruption": [
+        1,
+        1
+      ],
+      "norm.d_ref_m": [
+        1,
+        1
+      ],
+      "norm.k_ref_m2_s": [
+        1,
+        1
+      ],
+      "norm.n_ref": [
+        1,
+        1
+      ],
+      "norm.p_ref_pa": [
+        1,
+        1
+      ],
+      "num.bin_s": [
+        1,
+        1
+      ],
+      "num.ce_count": [
+        1,
+        1
+      ],
+      "num.ce_step": [
+        1,
+        1
+      ],
+      "num.d_min_m": [
+        1,
+        1
+      ],
+      "num.dt_s": [
+        1,
+        1
+      ],
+      "num.t_valid_s": [
+        1,
+        1
+      ],
+      "num.z_count": [
+        1,
+        1
+      ],
+      "num.z_step": [
+        1,
+        1
+      ],
+      "post.hot_exp": [
+        1,
+        1
+      ],
+      "post.k_hot": [
+        1,
+        1
+      ],
+      "post.k_inf": [
+        1,
+        1
+      ],
+      "post.size_exp": [
+        1,
+        1
+      ],
+      "post.tau0_s": [
+        1,
+        1
+      ],
+      "post.tau_exp": [
+        1,
+        1
+      ],
+      "rad.W1": [
+        48,
+        1
+      ],
+      "rad.b0": [
+        1,
+        0
+      ],
+      "rad.b1": [
+        8,
+        1
+      ],
+      "rad.sharp": [
+        1,
+        1
+      ],
+      "rad.skip": [
+        6,
+        1
+      ],
+      "rad.w2": [
+        8,
+        1
+      ],
+      "rate.W1": [
+        112,
+        7
+      ],
+      "rate.b0": [
+        1,
+        1
+      ],
+      "rate.b1": [
+        16,
+        4
+      ],
+      "rate.skip": [
+        7,
+        5
+      ],
+      "rate.w2": [
+        16,
+        5
+      ],
+      "rob.eps_r": [
+        1,
+        0
+      ],
+      "sc.cl_j_kg_k": [
+        1,
+        0
+      ],
+      "sc.diff_scale": [
+        1,
+        1
+      ],
+      "sc.gas": [
+        3,
+        0
+      ],
+      "sc.k0_cool_mm2_s": [
+        1,
+        0
+      ],
+      "sc.k0_hot_mm2_s": [
+        1,
+        0
+      ],
+      "sc.k_cold_mm2_s": [
+        1,
+        0
+      ],
+      "sc.k_warm_mm2_s": [
+        1,
+        0
+      ],
+      "sc.lat_j_kg": [
+        1,
+        0
+      ],
+      "sc.on": [
+        1,
+        0
+      ],
+      "sc.tau_warm_s": [
+        1,
+        1
+      ],
+      "sc.tstar_k": [
+        1,
+        0
+      ],
+      "thermal.activity": [
+        3,
+        3
+      ],
+      "thermal.ambient_k": [
+        1,
+        1
+      ],
+      "thermal.antoine": [
+        3,
+        3
+      ],
+      "thermal.antoine_range_k": [
+        2,
+        2
+      ],
+      "thermal.apply": [
+        3,
+        1
+      ],
+      "thermal.cloud_excess_k": [
+        3,
+        0
+      ],
+      "thermal.cloud_tau_s": [
+        3,
+        3
+      ],
+      "thermal.cp_gas_j_kg_k": [
+        1,
+        1
+      ],
+      "thermal.cp_liquid_j_kg_k": [
+        1,
+        1
+      ],
+      "thermal.cutoff_on": [
+        1,
+        0
+      ],
+      "thermal.diffusivity_exponent": [
+        1,
+        1
+      ],
+      "thermal.diffusivity_ref_m2_s": [
+        3,
+        3
+      ],
+      "thermal.dt_s": [
+        1,
+        1
+      ],
+      "thermal.gas_constant_j_mol_k": [
+        1,
+        1
+      ],
+      "thermal.initial_k": [
+        3,
+        3
+      ],
+      "thermal.k_gas_w_m_k": [
+        3,
+        3
+      ],
+      "thermal.latent": [
+        4,
+        4
+      ],
+      "thermal.latent_extrapolation": [
+        1,
+        1
+      ],
+      "thermal.latent_range_k": [
+        2,
+        2
+      ],
+      "thermal.member_weight": [
+        1,
+        1
+      ],
+      "thermal.molar_mass_kg_mol": [
+        1,
+        1
+      ],
+      "thermal.nitrogen_only": [
+        1,
+        1
+      ],
+      "thermal.on": [
+        1,
+        1
+      ],
+      "thermal.rho_kg_m3": [
+        1,
+        1
+      ],
+      "thermal.surface_fraction_max": [
+        1,
+        1
+      ],
+      "thermal.transport_ref_k": [
+        1,
+        1
+      ],
+      "thermal.transport_ref_pa": [
+        1,
+        1
+      ],
+      "thermal.vapor_extension": [
+        1,
+        1
+      ],
+      "thermal.x_infinity": [
+        1,
+        0
+      ],
+      "unc.s_floor": [
+        1,
+        1
+      ],
+      "unc.s_pop": [
+        1,
+        1
+      ],
+      "unc.sigma_d": [
+        1,
+        1
+      ],
+      "unc.sigma_frame": [
+        1,
+        1
+      ]
+    }
+  },
+  "directory": "artifacts\\models\\71070e8f29bfd5a347c75fc4372d561ae3820d9c4b7eacca1e36887d8096451b",
+  "forward_hash": "sha256:b90813e6ac432c597374516f17626dbba3fedf67c59641294f5a65fb560d6497",
+  "model_name": "flex_methanol.wsp6",
+  "patch_hash": "sha256:50034d8cd5a86780c87c2af145324415d0ec2e9ed32da9815b2d99bc24b1be45",
+  "release_id": "sha256:71070e8f29bfd5a347c75fc4372d561ae3820d9c4b7eacca1e36887d8096451b",
+  "spec_hash": "sha256:00ee951af791d100a0cb39c408cf717cc4d98decac8d2a506f07a387f438d37d",
+  "state": "experimental",
+  "trained_on": "not_trained",
+  "weights_hash": "sha256:5d620708157041622af44db0e76e89ec9b3ac402a0fd0b2fdbb926ab21e3ee2d"
+}

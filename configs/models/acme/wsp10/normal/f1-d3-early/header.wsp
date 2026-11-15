@@ -1,0 +1,33 @@
+# acme_normal.wsp10 — F1-D3-EARLY: wsp3/normal/d3-early with the fuel table F1
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like its source for ethane, propane and butane;
+# zero-shot for the fuels the table adds. No law value below was typed again: they are the stored
+# values of the source release, copied statement by statement by tools/wsp/fuel_member_edits.py.
+# The lines typed for this file are the fuel table:
+
+# The fuel table of normal burner flames, F1. Typed by claude-fable-5-2 (Anthropic) from
+# docs/wsp/research/phys_spherical_fuels.md, section 3.4 and 3.5, where every number has its source
+# and derivation. ZERO-SHOT for ethylene and methane with respect to Flame Design and s-Flame: no
+# per-test outcome of either was read. Not blind to the aggregate arms of the Flame Design transfer
+# test of 14 November (PROTOCOL 11.3), which the dossier's author knew. Ethane, propane and butane
+# keep unit coordinates and zero shifts: their forecasts are those of the source release, bit for bit.
+#
+# rows: 0 ethane, 1 propane, 2 butane, 3 ethylene, 4 methane, 5 hydrogen
+# Hydrogen is not answered: no CO2, no soot, Lewis number 0.29, 2.1 times the oxygen demand per gram.
+fuel.admit[0:6] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
+# Molar masses in g/mol (property). The first three are the constants the indicators chose until now.
+fuel.mw_g_mol[0:6] = [30.07, 44.1, 58.12, 28.054, 16.043, 2.016]
+# ln(sigma / 3.725), sigma in g O2 per g fuel (theory). Zero for the three fuels the laws were typed
+# on: their true values, 0, -0.026 and -0.040, are inside the typed numbers. Ethylene 3.422, methane 3.989.
+fuel.s[0:6] = [0.0, 0.0, 0.0, -0.085, 0.068, 0.757]
+# Self-extinction laws. Ethylene: half-way from ethane to butane (judgement): soot position 1.0 times
+# one half that the butane terms are soot. Methane: as ethane (judgement).
+fuel.se_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.5, 0.5], [1.0, 0.0], [0.0, 0.0]]
+# Burner laws. Ethylene: the molar mass of ethane to 7 % (theory). Methane: the heating law at 50 %
+# fuel puts it 1.0 later than ethane in ln time (theory); on the line through ethane and butane that
+# is (1.9, -0.9).
+fuel.ft_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.9, -0.9], [0.0, 0.0]]
+# The quench clock is off for normal flames.
+fuel.dosc[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# The weak-flame boundary (1740 to 1750 K) was typed on alkanes; a kinetic limit is a fuel property.
+# Below 1900 K an ethylene or methane flame is refused, not guessed.
+fuel.tad_min_k[0:6] = [0.0, 0.0, 0.0, 1900.0, 1900.0, 0.0]

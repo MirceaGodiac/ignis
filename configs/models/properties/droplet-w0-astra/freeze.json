@@ -1,0 +1,39 @@
+{
+  "freeze_kind": "fresh-author-before-feedback",
+  "frozen_at_utc": "2026-11-14T17:26:43Z",
+  "numerical_status": "zero-shot W0",
+  "empirical_feedback_exposed": false,
+  "qualification": "experimental, unqualified",
+  "literal_ops_are_manually_typed": true,
+  "checksum_kind": "SHA-256 of file bytes, distinct from ModelSpec canonical content hash",
+  "files": [
+    {
+      "path": "crates/ignis-wsp/src/property_droplet_w0.rs",
+      "sha256": "cdf059ac11078926b415c3f81b54dc3eeb54e98abc9e4e5196e1aa334b022d21"
+    },
+    {
+      "path": "configs/models/properties/droplet-w0-astra/spec.json",
+      "sha256": "9b8d491988b22f6e9672a82ae446368b17c2a86a74e802ee1ae9e49d1604b733"
+    },
+    {
+      "path": "configs/models/properties/droplet-w0-astra/literal-ops.json",
+      "sha256": "a996df7193386ecbd3105cc812bd0581135440202bbee86357779abea57fd28c"
+    },
+    {
+      "path": "configs/models/properties/droplet-w0-astra/author-envelope.json",
+      "sha256": "8203f32e12c9a82bca7c7bde0a43e73d607addfc6fa41d3ffcbe02f9b4ad6fc5"
+    },
+    {
+      "path": "configs/models/properties/droplet-w0-astra/README.md",
+      "sha256": "efe856af4e49d9af390734b20f2cf5ccd4183ba597999a1fe201456a26ccd7c8"
+    },
+    {
+      "path": "configs/models/properties/droplet-w0-astra/verification.json",
+      "sha256": "431eb758377ddd216842967ebba73ed5df63cc010eb89fe3cc35f02343c7150e"
+    },
+    {
+      "path": "docs/wsp/research/astra_property_droplet_w0.md",
+      "sha256": "cd5d22360adb23a4625b2bcdd50133a2b5fd4a916707718950bcb021849f71a0"
+    }
+  ]
+}

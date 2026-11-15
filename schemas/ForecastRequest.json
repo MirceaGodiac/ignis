@@ -86,6 +86,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "target": {
+          "description": "Which declared target to forecast, for releases that declare several (the generic law\nforward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash\nof every other request is unchanged.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "times_s": {
           "description": "Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one\ntime grid so that event metrics compare like with like.",
           "items": {

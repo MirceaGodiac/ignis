@@ -1,0 +1,7301 @@
+{
+  "id": "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7",
+  "family": "acme_inverse",
+  "model_name": "acme_inverse.wsp12",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::committee3::forecast",
+      "profile": "strict_no_fitting",
+      "version": "12"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 495,
+      "authored_total": 4564,
+      "constant_total": 168,
+      "per_tensor": {
+        "a0.ft.atom_logit": [
+          8,
+          8
+        ],
+        "a0.ft.atom_t_s": [
+          8,
+          0
+        ],
+        "a0.ft.atom_w": [
+          64,
+          0
+        ],
+        "a0.ft.log_base": [
+          1,
+          1
+        ],
+        "a0.ft.shape": [
+          1,
+          1
+        ],
+        "a0.ft.tau.W1": [
+          64,
+          0
+        ],
+        "a0.ft.tau.b0": [
+          1,
+          1
+        ],
+        "a0.ft.tau.b1": [
+          8,
+          0
+        ],
+        "a0.ft.tau.skip": [
+          8,
+          0
+        ],
+        "a0.ft.tau.w2": [
+          8,
+          0
+        ],
+        "a0.fuel.admit": [
+          6,
+          3
+        ],
+        "a0.fuel.dosc": [
+          6,
+          0
+        ],
+        "a0.fuel.ft_coord": [
+          12,
+          2
+        ],
+        "a0.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "a0.fuel.s": [
+          6,
+          0
+        ],
+        "a0.fuel.se_coord": [
+          12,
+          2
+        ],
+        "a0.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "a0.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "a0.norm.o2_ref": [
+          1,
+          1
+        ],
+        "a0.norm.o2_scale": [
+          1,
+          1
+        ],
+        "a0.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "a0.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "a0.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "a0.norm.xf_ref": [
+          1,
+          1
+        ],
+        "a0.norm.zst_ref": [
+          1,
+          1
+        ],
+        "a0.norm.zst_scale": [
+          1,
+          1
+        ],
+        "a0.num.atom_half_s": [
+          1,
+          1
+        ],
+        "a0.num.dt_s": [
+          1,
+          1
+        ],
+        "a0.num.horizon_s": [
+          1,
+          1
+        ],
+        "a0.se.flash.W1": [
+          64,
+          0
+        ],
+        "a0.se.flash.b0": [
+          1,
+          1
+        ],
+        "a0.se.flash.b1": [
+          8,
+          0
+        ],
+        "a0.se.flash.skip": [
+          8,
+          0
+        ],
+        "a0.se.flash.w2": [
+          8,
+          0
+        ],
+        "a0.se.flash_shape": [
+          1,
+          1
+        ],
+        "a0.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "a0.se.floor_s": [
+          1,
+          0
+        ],
+        "a0.se.shape": [
+          1,
+          1
+        ],
+        "a0.se.tau.W1": [
+          64,
+          0
+        ],
+        "a0.se.tau.b0": [
+          1,
+          1
+        ],
+        "a0.se.tau.b1": [
+          8,
+          0
+        ],
+        "a0.se.tau.skip": [
+          8,
+          0
+        ],
+        "a0.se.tau.w2": [
+          8,
+          0
+        ],
+        "a1.ft.atom_logit": [
+          8,
+          8
+        ],
+        "a1.ft.atom_t_s": [
+          8,
+          0
+        ],
+        "a1.ft.atom_w": [
+          64,
+          0
+        ],
+        "a1.ft.log_base": [
+          1,
+          1
+        ],
+        "a1.ft.shape": [
+          1,
+          1
+        ],
+        "a1.ft.tau.W1": [
+          64,
+          0
+        ],
+        "a1.ft.tau.b0": [
+          1,
+          1
+        ],
+        "a1.ft.tau.b1": [
+          8,
+          0
+        ],
+        "a1.ft.tau.skip": [
+          8,
+          0
+        ],
+        "a1.ft.tau.w2": [
+          8,
+          0
+        ],
+        "a1.fuel.admit": [
+          6,
+          3
+        ],
+        "a1.fuel.dosc": [
+          6,
+          0
+        ],
+        "a1.fuel.ft_coord": [
+          12,
+          2
+        ],
+        "a1.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "a1.fuel.s": [
+          6,
+          0
+        ],
+        "a1.fuel.se_coord": [
+          12,
+          2
+        ],
+        "a1.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "a1.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "a1.norm.o2_ref": [
+          1,
+          1
+        ],
+        "a1.norm.o2_scale": [
+          1,
+          1
+        ],
+        "a1.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "a1.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "a1.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "a1.norm.xf_ref": [
+          1,
+          1
+        ],
+        "a1.norm.zst_ref": [
+          1,
+          1
+        ],
+        "a1.norm.zst_scale": [
+          1,
+          1
+        ],
+        "a1.num.atom_half_s": [
+          1,
+          1
+        ],
+        "a1.num.dt_s": [
+          1,
+          1
+        ],
+        "a1.num.horizon_s": [
+          1,
+          1
+        ],
+        "a1.se.flash.W1": [
+          64,
+          0
+        ],
+        "a1.se.flash.b0": [
+          1,
+          1
+        ],
+        "a1.se.flash.b1": [
+          8,
+          0
+        ],
+        "a1.se.flash.skip": [
+          8,
+          0
+        ],
+        "a1.se.flash.w2": [
+          8,
+          0
+        ],
+        "a1.se.flash_shape": [
+          1,
+          1
+        ],
+        "a1.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "a1.se.floor_s": [
+          1,
+          0
+        ],
+        "a1.se.shape": [
+          1,
+          1
+        ],
+        "a1.se.tau.W1": [
+          64,
+          0
+        ],
+        "a1.se.tau.b0": [
+          1,
+          1
+        ],
+        "a1.se.tau.b1": [
+          8,
+          0
+        ],
+        "a1.se.tau.skip": [
+          8,
+          0
+        ],
+        "a1.se.tau.w2": [
+          8,
+          0
+        ],
+        "b0.bt.limit_c": [
+          3,
+          2
+        ],
+        "b0.bt.limit_w": [
+          3,
+          2
+        ],
+        "b0.bt.rise.W1": [
+          28,
+          0
+        ],
+        "b0.bt.rise.b0": [
+          1,
+          1
+        ],
+        "b0.bt.rise.b1": [
+          4,
+          0
+        ],
+        "b0.bt.rise.skip": [
+          7,
+          3
+        ],
+        "b0.bt.rise.w2": [
+          4,
+          0
+        ],
+        "b0.bt.shape": [
+          1,
+          1
+        ],
+        "b0.bt.sigma": [
+          1,
+          1
+        ],
+        "b0.bt.t0_c": [
+          1,
+          1
+        ],
+        "b0.bt.tau_s": [
+          1,
+          1
+        ],
+        "b0.ft.atom_logit": [
+          8,
+          8
+        ],
+        "b0.ft.atom_t_s": [
+          8,
+          6
+        ],
+        "b0.ft.atom_w": [
+          64,
+          0
+        ],
+        "b0.ft.log_base": [
+          1,
+          1
+        ],
+        "b0.fuel.admit": [
+          6,
+          4
+        ],
+        "b0.fuel.dosc": [
+          6,
+          1
+        ],
+        "b0.fuel.ft_coord": [
+          12,
+          3
+        ],
+        "b0.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "b0.fuel.s": [
+          6,
+          0
+        ],
+        "b0.fuel.se_coord": [
+          12,
+          3
+        ],
+        "b0.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "b0.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b0.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b0.norm.o2_ref": [
+          1,
+          1
+        ],
+        "b0.norm.o2_scale": [
+          1,
+          1
+        ],
+        "b0.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "b0.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "b0.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "b0.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "b0.norm.xf_ref": [
+          1,
+          1
+        ],
+        "b0.norm.zst_ref": [
+          1,
+          1
+        ],
+        "b0.norm.zst_scale": [
+          1,
+          1
+        ],
+        "b0.num.atom_half_s": [
+          1,
+          1
+        ],
+        "b0.num.bt_nodes": [
+          1,
+          1
+        ],
+        "b0.num.dt_s": [
+          1,
+          1
+        ],
+        "b0.num.horizon_s": [
+          1,
+          1
+        ],
+        "b0.num.phi_nodes": [
+          1,
+          1
+        ],
+        "b0.num.tau_cap_s": [
+          1,
+          1
+        ],
+        "b0.phys.mw_n2": [
+          1,
+          1
+        ],
+        "b0.phys.mw_o2": [
+          1,
+          1
+        ],
+        "b0.se.diff.W1": [
+          64,
+          0
+        ],
+        "b0.se.diff.b0": [
+          1,
+          1
+        ],
+        "b0.se.diff.b1": [
+          8,
+          0
+        ],
+        "b0.se.diff.skip": [
+          8,
+          0
+        ],
+        "b0.se.diff.w2": [
+          8,
+          0
+        ],
+        "b0.se.flash.W1": [
+          64,
+          1
+        ],
+        "b0.se.flash.b0": [
+          1,
+          1
+        ],
+        "b0.se.flash.b1": [
+          8,
+          1
+        ],
+        "b0.se.flash.skip": [
+          8,
+          1
+        ],
+        "b0.se.flash.w2": [
+          8,
+          1
+        ],
+        "b0.se.flash_shape": [
+          1,
+          1
+        ],
+        "b0.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "b0.se.floor_s": [
+          1,
+          1
+        ],
+        "b0.se.flux.W1": [
+          64,
+          0
+        ],
+        "b0.se.flux.b0": [
+          1,
+          1
+        ],
+        "b0.se.flux.b1": [
+          8,
+          0
+        ],
+        "b0.se.flux.skip": [
+          8,
+          0
+        ],
+        "b0.se.flux.w2": [
+          8,
+          0
+        ],
+        "b0.se.hold_log_rate": [
+          1,
+          1
+        ],
+        "b0.se.osc.W1": [
+          64,
+          3
+        ],
+        "b0.se.osc.b0": [
+          1,
+          1
+        ],
+        "b0.se.osc.b1": [
+          8,
+          3
+        ],
+        "b0.se.osc.skip": [
+          8,
+          2
+        ],
+        "b0.se.osc.w2": [
+          8,
+          3
+        ],
+        "b0.se.osc_shape": [
+          1,
+          1
+        ],
+        "b0.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "b0.se.shape": [
+          1,
+          1
+        ],
+        "b0.se.sigma_phi": [
+          1,
+          1
+        ],
+        "b1.bt.limit_c": [
+          3,
+          2
+        ],
+        "b1.bt.limit_w": [
+          3,
+          2
+        ],
+        "b1.bt.rise.W1": [
+          28,
+          0
+        ],
+        "b1.bt.rise.b0": [
+          1,
+          1
+        ],
+        "b1.bt.rise.b1": [
+          4,
+          0
+        ],
+        "b1.bt.rise.skip": [
+          7,
+          3
+        ],
+        "b1.bt.rise.w2": [
+          4,
+          0
+        ],
+        "b1.bt.shape": [
+          1,
+          1
+        ],
+        "b1.bt.sigma": [
+          1,
+          1
+        ],
+        "b1.bt.t0_c": [
+          1,
+          1
+        ],
+        "b1.bt.tau_s": [
+          1,
+          1
+        ],
+        "b1.ft.atom_logit": [
+          8,
+          8
+        ],
+        "b1.ft.atom_t_s": [
+          8,
+          6
+        ],
+        "b1.ft.atom_w": [
+          64,
+          0
+        ],
+        "b1.ft.log_base": [
+          1,
+          1
+        ],
+        "b1.fuel.admit": [
+          6,
+          4
+        ],
+        "b1.fuel.dosc": [
+          6,
+          1
+        ],
+        "b1.fuel.ft_coord": [
+          12,
+          3
+        ],
+        "b1.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "b1.fuel.s": [
+          6,
+          0
+        ],
+        "b1.fuel.se_coord": [
+          12,
+          3
+        ],
+        "b1.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "b1.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b1.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b1.norm.o2_ref": [
+          1,
+          1
+        ],
+        "b1.norm.o2_scale": [
+          1,
+          1
+        ],
+        "b1.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "b1.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "b1.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "b1.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "b1.norm.xf_ref": [
+          1,
+          1
+        ],
+        "b1.norm.zst_ref": [
+          1,
+          1
+        ],
+        "b1.norm.zst_scale": [
+          1,
+          1
+        ],
+        "b1.num.atom_half_s": [
+          1,
+          1
+        ],
+        "b1.num.bt_nodes": [
+          1,
+          1
+        ],
+        "b1.num.dt_s": [
+          1,
+          1
+        ],
+        "b1.num.horizon_s": [
+          1,
+          1
+        ],
+        "b1.num.phi_nodes": [
+          1,
+          1
+        ],
+        "b1.num.tau_cap_s": [
+          1,
+          1
+        ],
+        "b1.phys.mw_n2": [
+          1,
+          1
+        ],
+        "b1.phys.mw_o2": [
+          1,
+          1
+        ],
+        "b1.se.diff.W1": [
+          64,
+          0
+        ],
+        "b1.se.diff.b0": [
+          1,
+          1
+        ],
+        "b1.se.diff.b1": [
+          8,
+          0
+        ],
+        "b1.se.diff.skip": [
+          8,
+          0
+        ],
+        "b1.se.diff.w2": [
+          8,
+          0
+        ],
+        "b1.se.flash.W1": [
+          64,
+          1
+        ],
+        "b1.se.flash.b0": [
+          1,
+          1
+        ],
+        "b1.se.flash.b1": [
+          8,
+          1
+        ],
+        "b1.se.flash.skip": [
+          8,
+          1
+        ],
+        "b1.se.flash.w2": [
+          8,
+          1
+        ],
+        "b1.se.flash_shape": [
+          1,
+          1
+        ],
+        "b1.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "b1.se.floor_s": [
+          1,
+          1
+        ],
+        "b1.se.flux.W1": [
+          64,
+          0
+        ],
+        "b1.se.flux.b0": [
+          1,
+          1
+        ],
+        "b1.se.flux.b1": [
+          8,
+          0
+        ],
+        "b1.se.flux.skip": [
+          8,
+          0
+        ],
+        "b1.se.flux.w2": [
+          8,
+          0
+        ],
+        "b1.se.hold_log_rate": [
+          1,
+          1
+        ],
+        "b1.se.osc.W1": [
+          64,
+          5
+        ],
+        "b1.se.osc.b0": [
+          1,
+          1
+        ],
+        "b1.se.osc.b1": [
+          8,
+          4
+        ],
+        "b1.se.osc.skip": [
+          8,
+          2
+        ],
+        "b1.se.osc.w2": [
+          8,
+          4
+        ],
+        "b1.se.osc_shape": [
+          1,
+          1
+        ],
+        "b1.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "b1.se.shape": [
+          1,
+          1
+        ],
+        "b1.se.sigma_phi": [
+          1,
+          1
+        ],
+        "b2.bt.limit_c": [
+          3,
+          2
+        ],
+        "b2.bt.limit_w": [
+          3,
+          2
+        ],
+        "b2.bt.rise.W1": [
+          28,
+          0
+        ],
+        "b2.bt.rise.b0": [
+          1,
+          1
+        ],
+        "b2.bt.rise.b1": [
+          4,
+          0
+        ],
+        "b2.bt.rise.skip": [
+          7,
+          3
+        ],
+        "b2.bt.rise.w2": [
+          4,
+          0
+        ],
+        "b2.bt.shape": [
+          1,
+          1
+        ],
+        "b2.bt.sigma": [
+          1,
+          1
+        ],
+        "b2.bt.t0_c": [
+          1,
+          1
+        ],
+        "b2.bt.tau_s": [
+          1,
+          1
+        ],
+        "b2.ft.atom_logit": [
+          8,
+          8
+        ],
+        "b2.ft.atom_t_s": [
+          8,
+          6
+        ],
+        "b2.ft.atom_w": [
+          64,
+          0
+        ],
+        "b2.ft.log_base": [
+          1,
+          1
+        ],
+        "b2.fuel.admit": [
+          6,
+          4
+        ],
+        "b2.fuel.dosc": [
+          6,
+          1
+        ],
+        "b2.fuel.ft_coord": [
+          12,
+          3
+        ],
+        "b2.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "b2.fuel.s": [
+          6,
+          0
+        ],
+        "b2.fuel.se_coord": [
+          12,
+          3
+        ],
+        "b2.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "b2.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b2.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b2.norm.o2_ref": [
+          1,
+          1
+        ],
+        "b2.norm.o2_scale": [
+          1,
+          1
+        ],
+        "b2.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "b2.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "b2.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "b2.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "b2.norm.xf_ref": [
+          1,
+          1
+        ],
+        "b2.norm.zst_ref": [
+          1,
+          1
+        ],
+        "b2.norm.zst_scale": [
+          1,
+          1
+        ],
+        "b2.num.atom_half_s": [
+          1,
+          1
+        ],
+        "b2.num.bt_nodes": [
+          1,
+          1
+        ],
+        "b2.num.dt_s": [
+          1,
+          1
+        ],
+        "b2.num.horizon_s": [
+          1,
+          1
+        ],
+        "b2.num.phi_nodes": [
+          1,
+          1
+        ],
+        "b2.num.tau_cap_s": [
+          1,
+          1
+        ],
+        "b2.phys.mw_n2": [
+          1,
+          1
+        ],
+        "b2.phys.mw_o2": [
+          1,
+          1
+        ],
+        "b2.se.diff.W1": [
+          64,
+          0
+        ],
+        "b2.se.diff.b0": [
+          1,
+          1
+        ],
+        "b2.se.diff.b1": [
+          8,
+          0
+        ],
+        "b2.se.diff.skip": [
+          8,
+          0
+        ],
+        "b2.se.diff.w2": [
+          8,
+          0
+        ],
+        "b2.se.flash.W1": [
+          64,
+          1
+        ],
+        "b2.se.flash.b0": [
+          1,
+          1
+        ],
+        "b2.se.flash.b1": [
+          8,
+          1
+        ],
+        "b2.se.flash.skip": [
+          8,
+          1
+        ],
+        "b2.se.flash.w2": [
+          8,
+          1
+        ],
+        "b2.se.flash_shape": [
+          1,
+          1
+        ],
+        "b2.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "b2.se.floor_s": [
+          1,
+          1
+        ],
+        "b2.se.flux.W1": [
+          64,
+          0
+        ],
+        "b2.se.flux.b0": [
+          1,
+          1
+        ],
+        "b2.se.flux.b1": [
+          8,
+          0
+        ],
+        "b2.se.flux.skip": [
+          8,
+          0
+        ],
+        "b2.se.flux.w2": [
+          8,
+          0
+        ],
+        "b2.se.hold_log_rate": [
+          1,
+          1
+        ],
+        "b2.se.osc.W1": [
+          64,
+          3
+        ],
+        "b2.se.osc.b0": [
+          1,
+          1
+        ],
+        "b2.se.osc.b1": [
+          8,
+          3
+        ],
+        "b2.se.osc.skip": [
+          8,
+          2
+        ],
+        "b2.se.osc.w2": [
+          8,
+          3
+        ],
+        "b2.se.osc_shape": [
+          1,
+          1
+        ],
+        "b2.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "b2.se.shape": [
+          1,
+          1
+        ],
+        "b2.se.sigma_phi": [
+          1,
+          1
+        ],
+        "b3.bt.limit_c": [
+          3,
+          2
+        ],
+        "b3.bt.limit_w": [
+          3,
+          2
+        ],
+        "b3.bt.rise.W1": [
+          28,
+          0
+        ],
+        "b3.bt.rise.b0": [
+          1,
+          1
+        ],
+        "b3.bt.rise.b1": [
+          4,
+          0
+        ],
+        "b3.bt.rise.skip": [
+          7,
+          3
+        ],
+        "b3.bt.rise.w2": [
+          4,
+          0
+        ],
+        "b3.bt.shape": [
+          1,
+          1
+        ],
+        "b3.bt.sigma": [
+          1,
+          1
+        ],
+        "b3.bt.t0_c": [
+          1,
+          1
+        ],
+        "b3.bt.tau_s": [
+          1,
+          1
+        ],
+        "b3.ft.atom_logit": [
+          8,
+          8
+        ],
+        "b3.ft.atom_t_s": [
+          8,
+          6
+        ],
+        "b3.ft.atom_w": [
+          64,
+          0
+        ],
+        "b3.ft.log_base": [
+          1,
+          1
+        ],
+        "b3.fuel.admit": [
+          6,
+          4
+        ],
+        "b3.fuel.dosc": [
+          6,
+          1
+        ],
+        "b3.fuel.ft_coord": [
+          12,
+          3
+        ],
+        "b3.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "b3.fuel.s": [
+          6,
+          0
+        ],
+        "b3.fuel.se_coord": [
+          12,
+          3
+        ],
+        "b3.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "b3.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b3.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "b3.norm.o2_ref": [
+          1,
+          1
+        ],
+        "b3.norm.o2_scale": [
+          1,
+          1
+        ],
+        "b3.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "b3.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "b3.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "b3.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "b3.norm.xf_ref": [
+          1,
+          1
+        ],
+        "b3.norm.zst_ref": [
+          1,
+          1
+        ],
+        "b3.norm.zst_scale": [
+          1,
+          1
+        ],
+        "b3.num.atom_half_s": [
+          1,
+          1
+        ],
+        "b3.num.bt_nodes": [
+          1,
+          1
+        ],
+        "b3.num.dt_s": [
+          1,
+          1
+        ],
+        "b3.num.horizon_s": [
+          1,
+          1
+        ],
+        "b3.num.phi_nodes": [
+          1,
+          1
+        ],
+        "b3.num.tau_cap_s": [
+          1,
+          1
+        ],
+        "b3.phys.mw_n2": [
+          1,
+          1
+        ],
+        "b3.phys.mw_o2": [
+          1,
+          1
+        ],
+        "b3.se.diff.W1": [
+          64,
+          0
+        ],
+        "b3.se.diff.b0": [
+          1,
+          1
+        ],
+        "b3.se.diff.b1": [
+          8,
+          0
+        ],
+        "b3.se.diff.skip": [
+          8,
+          0
+        ],
+        "b3.se.diff.w2": [
+          8,
+          0
+        ],
+        "b3.se.flash.W1": [
+          64,
+          1
+        ],
+        "b3.se.flash.b0": [
+          1,
+          1
+        ],
+        "b3.se.flash.b1": [
+          8,
+          1
+        ],
+        "b3.se.flash.skip": [
+          8,
+          1
+        ],
+        "b3.se.flash.w2": [
+          8,
+          1
+        ],
+        "b3.se.flash_shape": [
+          1,
+          1
+        ],
+        "b3.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "b3.se.floor_s": [
+          1,
+          1
+        ],
+        "b3.se.flux.W1": [
+          64,
+          0
+        ],
+        "b3.se.flux.b0": [
+          1,
+          1
+        ],
+        "b3.se.flux.b1": [
+          8,
+          0
+        ],
+        "b3.se.flux.skip": [
+          8,
+          0
+        ],
+        "b3.se.flux.w2": [
+          8,
+          0
+        ],
+        "b3.se.hold_log_rate": [
+          1,
+          1
+        ],
+        "b3.se.osc.W1": [
+          64,
+          5
+        ],
+        "b3.se.osc.b0": [
+          1,
+          1
+        ],
+        "b3.se.osc.b1": [
+          8,
+          4
+        ],
+        "b3.se.osc.skip": [
+          8,
+          2
+        ],
+        "b3.se.osc.w2": [
+          8,
+          4
+        ],
+        "b3.se.osc_shape": [
+          1,
+          1
+        ],
+        "b3.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "b3.se.shape": [
+          1,
+          1
+        ],
+        "b3.se.sigma_phi": [
+          1,
+          1
+        ],
+        "c0.bt.limit_c": [
+          3,
+          0
+        ],
+        "c0.bt.limit_w": [
+          3,
+          0
+        ],
+        "c0.bt.rise.W1": [
+          28,
+          0
+        ],
+        "c0.bt.rise.b0": [
+          1,
+          1
+        ],
+        "c0.bt.rise.b1": [
+          4,
+          0
+        ],
+        "c0.bt.rise.skip": [
+          7,
+          0
+        ],
+        "c0.bt.rise.w2": [
+          4,
+          0
+        ],
+        "c0.bt.shape": [
+          1,
+          1
+        ],
+        "c0.bt.sigma": [
+          1,
+          0
+        ],
+        "c0.bt.t0_c": [
+          1,
+          1
+        ],
+        "c0.bt.tau_s": [
+          1,
+          1
+        ],
+        "c0.ft.atom_logit": [
+          8,
+          8
+        ],
+        "c0.ft.atom_t_s": [
+          8,
+          0
+        ],
+        "c0.ft.atom_w": [
+          64,
+          0
+        ],
+        "c0.ft.log_base": [
+          1,
+          1
+        ],
+        "c0.fuel.admit": [
+          6,
+          3
+        ],
+        "c0.fuel.dosc": [
+          6,
+          0
+        ],
+        "c0.fuel.ft_coord": [
+          12,
+          2
+        ],
+        "c0.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "c0.fuel.s": [
+          6,
+          0
+        ],
+        "c0.fuel.se_coord": [
+          12,
+          2
+        ],
+        "c0.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "c0.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c0.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c0.norm.o2_ref": [
+          1,
+          1
+        ],
+        "c0.norm.o2_scale": [
+          1,
+          1
+        ],
+        "c0.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "c0.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "c0.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "c0.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "c0.norm.xf_ref": [
+          1,
+          1
+        ],
+        "c0.norm.zst_ref": [
+          1,
+          1
+        ],
+        "c0.norm.zst_scale": [
+          1,
+          1
+        ],
+        "c0.num.atom_half_s": [
+          1,
+          1
+        ],
+        "c0.num.bt_nodes": [
+          1,
+          1
+        ],
+        "c0.num.dt_s": [
+          1,
+          1
+        ],
+        "c0.num.horizon_s": [
+          1,
+          1
+        ],
+        "c0.phys.mw_n2": [
+          1,
+          1
+        ],
+        "c0.phys.mw_o2": [
+          1,
+          1
+        ],
+        "c0.se.flash.W1": [
+          64,
+          0
+        ],
+        "c0.se.flash.b0": [
+          1,
+          1
+        ],
+        "c0.se.flash.b1": [
+          8,
+          0
+        ],
+        "c0.se.flash.skip": [
+          8,
+          0
+        ],
+        "c0.se.flash.w2": [
+          8,
+          0
+        ],
+        "c0.se.flash_shape": [
+          1,
+          1
+        ],
+        "c0.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "c0.se.floor_s": [
+          1,
+          0
+        ],
+        "c0.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "c0.se.shape": [
+          1,
+          1
+        ],
+        "c0.se.tau.W1": [
+          64,
+          0
+        ],
+        "c0.se.tau.b0": [
+          1,
+          1
+        ],
+        "c0.se.tau.b1": [
+          8,
+          0
+        ],
+        "c0.se.tau.skip": [
+          8,
+          0
+        ],
+        "c0.se.tau.w2": [
+          8,
+          0
+        ],
+        "c1.bt.limit_c": [
+          3,
+          0
+        ],
+        "c1.bt.limit_w": [
+          3,
+          0
+        ],
+        "c1.bt.rise.W1": [
+          28,
+          0
+        ],
+        "c1.bt.rise.b0": [
+          1,
+          1
+        ],
+        "c1.bt.rise.b1": [
+          4,
+          0
+        ],
+        "c1.bt.rise.skip": [
+          7,
+          0
+        ],
+        "c1.bt.rise.w2": [
+          4,
+          0
+        ],
+        "c1.bt.shape": [
+          1,
+          1
+        ],
+        "c1.bt.sigma": [
+          1,
+          0
+        ],
+        "c1.bt.t0_c": [
+          1,
+          1
+        ],
+        "c1.bt.tau_s": [
+          1,
+          1
+        ],
+        "c1.ft.atom_logit": [
+          8,
+          8
+        ],
+        "c1.ft.atom_t_s": [
+          8,
+          0
+        ],
+        "c1.ft.atom_w": [
+          64,
+          0
+        ],
+        "c1.ft.log_base": [
+          1,
+          1
+        ],
+        "c1.fuel.admit": [
+          6,
+          3
+        ],
+        "c1.fuel.dosc": [
+          6,
+          0
+        ],
+        "c1.fuel.ft_coord": [
+          12,
+          2
+        ],
+        "c1.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "c1.fuel.s": [
+          6,
+          0
+        ],
+        "c1.fuel.se_coord": [
+          12,
+          2
+        ],
+        "c1.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "c1.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c1.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c1.norm.o2_ref": [
+          1,
+          1
+        ],
+        "c1.norm.o2_scale": [
+          1,
+          1
+        ],
+        "c1.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "c1.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "c1.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "c1.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "c1.norm.xf_ref": [
+          1,
+          1
+        ],
+        "c1.norm.zst_ref": [
+          1,
+          1
+        ],
+        "c1.norm.zst_scale": [
+          1,
+          1
+        ],
+        "c1.num.atom_half_s": [
+          1,
+          1
+        ],
+        "c1.num.bt_nodes": [
+          1,
+          1
+        ],
+        "c1.num.dt_s": [
+          1,
+          1
+        ],
+        "c1.num.horizon_s": [
+          1,
+          1
+        ],
+        "c1.phys.mw_n2": [
+          1,
+          1
+        ],
+        "c1.phys.mw_o2": [
+          1,
+          1
+        ],
+        "c1.se.flash.W1": [
+          64,
+          0
+        ],
+        "c1.se.flash.b0": [
+          1,
+          1
+        ],
+        "c1.se.flash.b1": [
+          8,
+          0
+        ],
+        "c1.se.flash.skip": [
+          8,
+          0
+        ],
+        "c1.se.flash.w2": [
+          8,
+          0
+        ],
+        "c1.se.flash_shape": [
+          1,
+          1
+        ],
+        "c1.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "c1.se.floor_s": [
+          1,
+          0
+        ],
+        "c1.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "c1.se.shape": [
+          1,
+          1
+        ],
+        "c1.se.tau.W1": [
+          64,
+          0
+        ],
+        "c1.se.tau.b0": [
+          1,
+          1
+        ],
+        "c1.se.tau.b1": [
+          8,
+          0
+        ],
+        "c1.se.tau.skip": [
+          8,
+          0
+        ],
+        "c1.se.tau.w2": [
+          8,
+          0
+        ],
+        "c2.bt.limit_c": [
+          3,
+          0
+        ],
+        "c2.bt.limit_w": [
+          3,
+          0
+        ],
+        "c2.bt.rise.W1": [
+          28,
+          0
+        ],
+        "c2.bt.rise.b0": [
+          1,
+          1
+        ],
+        "c2.bt.rise.b1": [
+          4,
+          0
+        ],
+        "c2.bt.rise.skip": [
+          7,
+          0
+        ],
+        "c2.bt.rise.w2": [
+          4,
+          0
+        ],
+        "c2.bt.shape": [
+          1,
+          1
+        ],
+        "c2.bt.sigma": [
+          1,
+          0
+        ],
+        "c2.bt.t0_c": [
+          1,
+          1
+        ],
+        "c2.bt.tau_s": [
+          1,
+          1
+        ],
+        "c2.ft.atom_logit": [
+          8,
+          8
+        ],
+        "c2.ft.atom_t_s": [
+          8,
+          0
+        ],
+        "c2.ft.atom_w": [
+          64,
+          0
+        ],
+        "c2.ft.log_base": [
+          1,
+          1
+        ],
+        "c2.fuel.admit": [
+          6,
+          3
+        ],
+        "c2.fuel.dosc": [
+          6,
+          0
+        ],
+        "c2.fuel.ft_coord": [
+          12,
+          2
+        ],
+        "c2.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "c2.fuel.s": [
+          6,
+          0
+        ],
+        "c2.fuel.se_coord": [
+          12,
+          2
+        ],
+        "c2.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "c2.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c2.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c2.norm.o2_ref": [
+          1,
+          1
+        ],
+        "c2.norm.o2_scale": [
+          1,
+          1
+        ],
+        "c2.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "c2.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "c2.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "c2.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "c2.norm.xf_ref": [
+          1,
+          1
+        ],
+        "c2.norm.zst_ref": [
+          1,
+          1
+        ],
+        "c2.norm.zst_scale": [
+          1,
+          1
+        ],
+        "c2.num.atom_half_s": [
+          1,
+          1
+        ],
+        "c2.num.bt_nodes": [
+          1,
+          1
+        ],
+        "c2.num.dt_s": [
+          1,
+          1
+        ],
+        "c2.num.horizon_s": [
+          1,
+          1
+        ],
+        "c2.phys.mw_n2": [
+          1,
+          1
+        ],
+        "c2.phys.mw_o2": [
+          1,
+          1
+        ],
+        "c2.se.flash.W1": [
+          64,
+          0
+        ],
+        "c2.se.flash.b0": [
+          1,
+          1
+        ],
+        "c2.se.flash.b1": [
+          8,
+          0
+        ],
+        "c2.se.flash.skip": [
+          8,
+          0
+        ],
+        "c2.se.flash.w2": [
+          8,
+          0
+        ],
+        "c2.se.flash_shape": [
+          1,
+          1
+        ],
+        "c2.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "c2.se.floor_s": [
+          1,
+          0
+        ],
+        "c2.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "c2.se.shape": [
+          1,
+          1
+        ],
+        "c2.se.tau.W1": [
+          64,
+          0
+        ],
+        "c2.se.tau.b0": [
+          1,
+          1
+        ],
+        "c2.se.tau.b1": [
+          8,
+          0
+        ],
+        "c2.se.tau.skip": [
+          8,
+          0
+        ],
+        "c2.se.tau.w2": [
+          8,
+          0
+        ],
+        "c3.bt.limit_c": [
+          3,
+          0
+        ],
+        "c3.bt.limit_w": [
+          3,
+          0
+        ],
+        "c3.bt.rise.W1": [
+          28,
+          0
+        ],
+        "c3.bt.rise.b0": [
+          1,
+          1
+        ],
+        "c3.bt.rise.b1": [
+          4,
+          0
+        ],
+        "c3.bt.rise.skip": [
+          7,
+          0
+        ],
+        "c3.bt.rise.w2": [
+          4,
+          0
+        ],
+        "c3.bt.shape": [
+          1,
+          1
+        ],
+        "c3.bt.sigma": [
+          1,
+          0
+        ],
+        "c3.bt.t0_c": [
+          1,
+          1
+        ],
+        "c3.bt.tau_s": [
+          1,
+          1
+        ],
+        "c3.ft.atom_logit": [
+          8,
+          8
+        ],
+        "c3.ft.atom_t_s": [
+          8,
+          0
+        ],
+        "c3.ft.atom_w": [
+          64,
+          0
+        ],
+        "c3.ft.log_base": [
+          1,
+          1
+        ],
+        "c3.fuel.admit": [
+          6,
+          3
+        ],
+        "c3.fuel.dosc": [
+          6,
+          0
+        ],
+        "c3.fuel.ft_coord": [
+          12,
+          2
+        ],
+        "c3.fuel.mw_g_mol": [
+          6,
+          6
+        ],
+        "c3.fuel.s": [
+          6,
+          0
+        ],
+        "c3.fuel.se_coord": [
+          12,
+          2
+        ],
+        "c3.fuel.tad_min_k": [
+          6,
+          0
+        ],
+        "c3.norm.mdot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c3.norm.mtot_ref_kg_s": [
+          1,
+          1
+        ],
+        "c3.norm.o2_ref": [
+          1,
+          1
+        ],
+        "c3.norm.o2_scale": [
+          1,
+          1
+        ],
+        "c3.norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "c3.norm.r_ref_mm": [
+          1,
+          1
+        ],
+        "c3.norm.tad_ref_k": [
+          1,
+          1
+        ],
+        "c3.norm.tad_scale_k": [
+          1,
+          1
+        ],
+        "c3.norm.xf_ref": [
+          1,
+          1
+        ],
+        "c3.norm.zst_ref": [
+          1,
+          1
+        ],
+        "c3.norm.zst_scale": [
+          1,
+          1
+        ],
+        "c3.num.atom_half_s": [
+          1,
+          1
+        ],
+        "c3.num.bt_nodes": [
+          1,
+          1
+        ],
+        "c3.num.dt_s": [
+          1,
+          1
+        ],
+        "c3.num.horizon_s": [
+          1,
+          1
+        ],
+        "c3.phys.mw_n2": [
+          1,
+          1
+        ],
+        "c3.phys.mw_o2": [
+          1,
+          1
+        ],
+        "c3.se.flash.W1": [
+          64,
+          0
+        ],
+        "c3.se.flash.b0": [
+          1,
+          1
+        ],
+        "c3.se.flash.b1": [
+          8,
+          0
+        ],
+        "c3.se.flash.skip": [
+          8,
+          0
+        ],
+        "c3.se.flash.w2": [
+          8,
+          0
+        ],
+        "c3.se.flash_shape": [
+          1,
+          1
+        ],
+        "c3.se.flash_tau_s": [
+          1,
+          1
+        ],
+        "c3.se.floor_s": [
+          1,
+          0
+        ],
+        "c3.se.rho_d_g_m_s": [
+          1,
+          1
+        ],
+        "c3.se.shape": [
+          1,
+          1
+        ],
+        "c3.se.tau.W1": [
+          64,
+          0
+        ],
+        "c3.se.tau.b0": [
+          1,
+          1
+        ],
+        "c3.se.tau.b1": [
+          8,
+          0
+        ],
+        "c3.se.tau.skip": [
+          8,
+          0
+        ],
+        "c3.se.tau.w2": [
+          8,
+          0
+        ],
+        "era.first_late_day": [
+          1,
+          1
+        ],
+        "era.last_early_day": [
+          1,
+          1
+        ],
+        "era.p_late_between": [
+          1,
+          1
+        ],
+        "era.p_late_unknown": [
+          1,
+          1
+        ],
+        "mix.w_early": [
+          10,
+          2
+        ],
+        "mix.w_late": [
+          10,
+          2
+        ],
+        "mix.ws_early": [
+          10,
+          2
+        ],
+        "mix.ws_late": [
+          10,
+          2
+        ],
+        "script.offset_s": [
+          3,
+          2
+        ],
+        "script.offset_w": [
+          3,
+          3
+        ]
+      }
+    },
+    "spec_hash": "sha256:5aa7fde8e18c90e767d6fb7cf2cd8c32705aacbdad005ce0ee2808355e6dbc7b",
+    "spec_id": "acme_inverse-wsp-v12"
+  },
+  "config": {},
+  "feature_order": [
+    "c_logp",
+    "c_logm",
+    "c_o2",
+    "c_xf",
+    "c_tad",
+    "c_zst",
+    "f_ethane",
+    "f_butane",
+    "b_rss",
+    "b_mtot"
+  ],
+  "units": {
+    "b_mtot": "1",
+    "b_rss": "1",
+    "c_logm": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "c_tad": "1",
+    "c_xf": "1",
+    "c_zst": "1",
+    "f_butane": "1",
+    "f_ethane": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "censoring": "handled by the evaluator; the forward conditions on the flame burning at the cutoff",
+    "endpoint": "cause-specific event time; an operator or script stop is its own cause, never an extinction; self-extinction is the end of the hot flame",
+    "prefix": "prospective conditions and control stages known at the cutoff; no time series"
+  },
+  "numerics": {
+    "horizon_s": 600.0,
+    "integrator": "weighted mean of the members' event tables at the requested times, over up to ten members and, when the script's planned stop is read, up to three stop times (the rules of committee2.rs); flame5.rs, flame6.rs and flame7.rs members, each the law of flame.rs, flame3.rs or flame4.rs reading its own fuel table, with its own step and constants",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "a0.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0055f3ebcfa2f7408e7f363ec59bf25d6c3d415af89ac59b201be64e8ab14932",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.ft.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5ab295b06b6a49bf42d697f22003dbfdb1b32019c5d558b42914e3bfc7d86ae2",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "2d4fc56a3794d659d30f2959fd761098eb96acbfbb6de22aadac1bc8c4c5d6b2",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "a0.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "a0.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "a0.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "a0.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "a0.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ddddee9b9d99c24b9569b75efb3ec3de11ca75a1c13c76ae63c443aca7cedb55",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a0.se.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0055f3ebcfa2f7408e7f363ec59bf25d6c3d415af89ac59b201be64e8ab14932",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.ft.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5ab295b06b6a49bf42d697f22003dbfdb1b32019c5d558b42914e3bfc7d86ae2",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "2d4fc56a3794d659d30f2959fd761098eb96acbfbb6de22aadac1bc8c4c5d6b2",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "a1.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "a1.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "a1.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "a1.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "a1.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ddddee9b9d99c24b9569b75efb3ec3de11ca75a1c13c76ae63c443aca7cedb55",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "a1.se.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "eaddc66f7e36f75bc44090da478cff3f6d5682d2db1948a660d56d2afb2caa12",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "54a57829ba9c395feaa3b3ce02206faaccc347693fea4ccdf2790a48b333f128",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "23cd2a37f87c58b52765afa42da3fdcf584e5db638268e7a77910019a08c1eac",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "68a575f0e8a626c84a172ae46b9675fc35afa7f7cb6f9437cc67ee725d6a6065",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b0.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b0.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "732523082039a81a64728043cb17eaaa31a505aca9f403f1f29f9d413bb47905",
+      "trainable": false
+    },
+    {
+      "name": "b0.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "d653eca8b41054409b3a122df8f5f3d3559d1b9cacae95e68e093eb156ebd4f9",
+      "trainable": false
+    },
+    {
+      "name": "b0.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b0.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022d9c3bb1eccaba12d617b076d7520b530826fc6b26d854bdcdba67c6fdde17",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "e84d0be4ad5165ea065f9a1069716c791e771b7da66b3077bed53ac96703a01f",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "ce5812d5750301669d291eb868c37a0049bece74b5451946302da9848a75e4fb",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "0af7201e62ef224df63563a68e08e9d019c7b0db6264ea45d8d45058ced7be7b",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "08eca77ae4617e74787c52f11cfa066d7ea323d7e7a8a58006c89391831db328",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "10233b8f00da35c470e4813146e81b81e2e0d9b0284156ee3086d3014574ced3",
+      "trainable": false
+    },
+    {
+      "name": "b0.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "b0.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "b0.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b0.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "b0.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b0.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "b0.num.phi_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "b0.num.tau_cap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "b0.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "b0.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.diff.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "57a9a7d32be21612e9facb4c69ea20f3fd4968d7e3bb04460621bf2c799ea371",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.diff.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "245dff41bef55c28de0c8abda027dd61816108fa68c58cca319c9718c0a1567d",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0d4c7f21f4814786eb230cd7736473de8ef0e618dfbaffde993492c689ef0a1c",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "700c96ec21cab55922f2cfec44e5d553f4dc05866d9d996ef232772881a3e626",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ec116e0f4337c54d38dc78635fa26a27c24713d7d984b2119d534e7a10674c5f",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ed36f9ce52d1294c4166e4dbe580618b60b7f40804a5e881c47e196c054c90b7",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flux.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flux.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4fd4082ca8ded07ac80d35a17a662960d68ca2168b29ef2165fe29d66523688",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flux.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flux.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.flux.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.hold_log_rate",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "97b9ce980caa0ba9f2809bd02b3695f56ab5965a70221dc0be05089b0ac46831",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.osc.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "6f495c923ef42debc7835408aac4e89bf0f9e4c694df6dbfdaf57d933f174693",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.osc.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2063a52f439ab596e78c6accc5e32402912fd40c5b11f867ff264914eabbd5e",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.osc.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "221cd1cec994c5127a283f8f8fa2806af774501f0f5a4410c8b1d0ee38d79bda",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.osc.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "03512e670da84a10cacd45c95933d3b1b4004f083ae1320f8a8ec9d8a6185994",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.osc.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "1bc8612dc315060faaef12ac6e57bccfe30bd45967d7f80aaaae1ab1e66da89d",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.osc_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "b0.se.sigma_phi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "eaddc66f7e36f75bc44090da478cff3f6d5682d2db1948a660d56d2afb2caa12",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "54a57829ba9c395feaa3b3ce02206faaccc347693fea4ccdf2790a48b333f128",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "23cd2a37f87c58b52765afa42da3fdcf584e5db638268e7a77910019a08c1eac",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "68a575f0e8a626c84a172ae46b9675fc35afa7f7cb6f9437cc67ee725d6a6065",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b1.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b1.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "732523082039a81a64728043cb17eaaa31a505aca9f403f1f29f9d413bb47905",
+      "trainable": false
+    },
+    {
+      "name": "b1.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "d653eca8b41054409b3a122df8f5f3d3559d1b9cacae95e68e093eb156ebd4f9",
+      "trainable": false
+    },
+    {
+      "name": "b1.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b1.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022d9c3bb1eccaba12d617b076d7520b530826fc6b26d854bdcdba67c6fdde17",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "e84d0be4ad5165ea065f9a1069716c791e771b7da66b3077bed53ac96703a01f",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "ce5812d5750301669d291eb868c37a0049bece74b5451946302da9848a75e4fb",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "0af7201e62ef224df63563a68e08e9d019c7b0db6264ea45d8d45058ced7be7b",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "08eca77ae4617e74787c52f11cfa066d7ea323d7e7a8a58006c89391831db328",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "10233b8f00da35c470e4813146e81b81e2e0d9b0284156ee3086d3014574ced3",
+      "trainable": false
+    },
+    {
+      "name": "b1.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "b1.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "b1.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b1.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "b1.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b1.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "b1.num.phi_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "b1.num.tau_cap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "b1.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "b1.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.diff.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "57a9a7d32be21612e9facb4c69ea20f3fd4968d7e3bb04460621bf2c799ea371",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.diff.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "245dff41bef55c28de0c8abda027dd61816108fa68c58cca319c9718c0a1567d",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0d4c7f21f4814786eb230cd7736473de8ef0e618dfbaffde993492c689ef0a1c",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "700c96ec21cab55922f2cfec44e5d553f4dc05866d9d996ef232772881a3e626",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ec116e0f4337c54d38dc78635fa26a27c24713d7d984b2119d534e7a10674c5f",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ed36f9ce52d1294c4166e4dbe580618b60b7f40804a5e881c47e196c054c90b7",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flux.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flux.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4fd4082ca8ded07ac80d35a17a662960d68ca2168b29ef2165fe29d66523688",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flux.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flux.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.flux.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.hold_log_rate",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "97b9ce980caa0ba9f2809bd02b3695f56ab5965a70221dc0be05089b0ac46831",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.osc.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4c24cd56c2c4ba44b1a516abc99eefc05ebad5e368cb4ba5ec937ded70d3accb",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.osc.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2063a52f439ab596e78c6accc5e32402912fd40c5b11f867ff264914eabbd5e",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.osc.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "b7203ab7bc5b9f654c07be8c146bf48c62095953708054db8389551ebc70d9eb",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.osc.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "03512e670da84a10cacd45c95933d3b1b4004f083ae1320f8a8ec9d8a6185994",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.osc.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "25aa0457ed4ad9a940d187c775f043f867e258399d5543c30de43dde6e36ab94",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.osc_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "b1.se.sigma_phi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "eaddc66f7e36f75bc44090da478cff3f6d5682d2db1948a660d56d2afb2caa12",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "54a57829ba9c395feaa3b3ce02206faaccc347693fea4ccdf2790a48b333f128",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "23cd2a37f87c58b52765afa42da3fdcf584e5db638268e7a77910019a08c1eac",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "68a575f0e8a626c84a172ae46b9675fc35afa7f7cb6f9437cc67ee725d6a6065",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b2.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b2.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "b2.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "d653eca8b41054409b3a122df8f5f3d3559d1b9cacae95e68e093eb156ebd4f9",
+      "trainable": false
+    },
+    {
+      "name": "b2.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b2.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4b3a11cb3f0023ca0a039e58852c8c86ef2ba58fbb03e5fced9f9a13fbd5ea9a",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "e84d0be4ad5165ea065f9a1069716c791e771b7da66b3077bed53ac96703a01f",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "ce5812d5750301669d291eb868c37a0049bece74b5451946302da9848a75e4fb",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "0af7201e62ef224df63563a68e08e9d019c7b0db6264ea45d8d45058ced7be7b",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "08eca77ae4617e74787c52f11cfa066d7ea323d7e7a8a58006c89391831db328",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "10233b8f00da35c470e4813146e81b81e2e0d9b0284156ee3086d3014574ced3",
+      "trainable": false
+    },
+    {
+      "name": "b2.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "b2.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "b2.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b2.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "b2.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b2.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "b2.num.phi_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "b2.num.tau_cap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "b2.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "b2.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.diff.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "57a9a7d32be21612e9facb4c69ea20f3fd4968d7e3bb04460621bf2c799ea371",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.diff.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "245dff41bef55c28de0c8abda027dd61816108fa68c58cca319c9718c0a1567d",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0d4c7f21f4814786eb230cd7736473de8ef0e618dfbaffde993492c689ef0a1c",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "700c96ec21cab55922f2cfec44e5d553f4dc05866d9d996ef232772881a3e626",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ec116e0f4337c54d38dc78635fa26a27c24713d7d984b2119d534e7a10674c5f",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ed36f9ce52d1294c4166e4dbe580618b60b7f40804a5e881c47e196c054c90b7",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flux.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flux.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4fd4082ca8ded07ac80d35a17a662960d68ca2168b29ef2165fe29d66523688",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flux.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flux.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.flux.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.hold_log_rate",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "97b9ce980caa0ba9f2809bd02b3695f56ab5965a70221dc0be05089b0ac46831",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.osc.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "6f495c923ef42debc7835408aac4e89bf0f9e4c694df6dbfdaf57d933f174693",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.osc.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2063a52f439ab596e78c6accc5e32402912fd40c5b11f867ff264914eabbd5e",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.osc.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "221cd1cec994c5127a283f8f8fa2806af774501f0f5a4410c8b1d0ee38d79bda",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.osc.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "03512e670da84a10cacd45c95933d3b1b4004f083ae1320f8a8ec9d8a6185994",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.osc.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "1bc8612dc315060faaef12ac6e57bccfe30bd45967d7f80aaaae1ab1e66da89d",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.osc_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "b2.se.sigma_phi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "eaddc66f7e36f75bc44090da478cff3f6d5682d2db1948a660d56d2afb2caa12",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "54a57829ba9c395feaa3b3ce02206faaccc347693fea4ccdf2790a48b333f128",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "23cd2a37f87c58b52765afa42da3fdcf584e5db638268e7a77910019a08c1eac",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "68a575f0e8a626c84a172ae46b9675fc35afa7f7cb6f9437cc67ee725d6a6065",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b3.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "b3.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "b3.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "d653eca8b41054409b3a122df8f5f3d3559d1b9cacae95e68e093eb156ebd4f9",
+      "trainable": false
+    },
+    {
+      "name": "b3.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b3.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4b3a11cb3f0023ca0a039e58852c8c86ef2ba58fbb03e5fced9f9a13fbd5ea9a",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "e84d0be4ad5165ea065f9a1069716c791e771b7da66b3077bed53ac96703a01f",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "ce5812d5750301669d291eb868c37a0049bece74b5451946302da9848a75e4fb",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "0af7201e62ef224df63563a68e08e9d019c7b0db6264ea45d8d45058ced7be7b",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "08eca77ae4617e74787c52f11cfa066d7ea323d7e7a8a58006c89391831db328",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "10233b8f00da35c470e4813146e81b81e2e0d9b0284156ee3086d3014574ced3",
+      "trainable": false
+    },
+    {
+      "name": "b3.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "b3.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "b3.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "b3.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "b3.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "b3.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "b3.num.phi_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "b3.num.tau_cap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "b3.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "b3.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.diff.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "57a9a7d32be21612e9facb4c69ea20f3fd4968d7e3bb04460621bf2c799ea371",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.diff.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "245dff41bef55c28de0c8abda027dd61816108fa68c58cca319c9718c0a1567d",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0d4c7f21f4814786eb230cd7736473de8ef0e618dfbaffde993492c689ef0a1c",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "700c96ec21cab55922f2cfec44e5d553f4dc05866d9d996ef232772881a3e626",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ec116e0f4337c54d38dc78635fa26a27c24713d7d984b2119d534e7a10674c5f",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "ed36f9ce52d1294c4166e4dbe580618b60b7f40804a5e881c47e196c054c90b7",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "022f932aa883cdc9d58bfd08a2745cb07b117f34beca4c62b5e426a6487289bb",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flux.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flux.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a4fd4082ca8ded07ac80d35a17a662960d68ca2168b29ef2165fe29d66523688",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flux.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flux.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.flux.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.hold_log_rate",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "97b9ce980caa0ba9f2809bd02b3695f56ab5965a70221dc0be05089b0ac46831",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.osc.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4c24cd56c2c4ba44b1a516abc99eefc05ebad5e368cb4ba5ec937ded70d3accb",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.osc.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2063a52f439ab596e78c6accc5e32402912fd40c5b11f867ff264914eabbd5e",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.osc.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "b7203ab7bc5b9f654c07be8c146bf48c62095953708054db8389551ebc70d9eb",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.osc.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "03512e670da84a10cacd45c95933d3b1b4004f083ae1320f8a8ec9d8a6185994",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.osc.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "25aa0457ed4ad9a940d187c775f043f867e258399d5543c30de43dde6e36ab94",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.osc_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "b3.se.sigma_phi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "da5a5b60b0766c2ffe57242f83724dbda5179d46a8bc119e41510fa10e17d0d9",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c0.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c0.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "c0.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c0.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c0.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5ab295b06b6a49bf42d697f22003dbfdb1b32019c5d558b42914e3bfc7d86ae2",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "2d4fc56a3794d659d30f2959fd761098eb96acbfbb6de22aadac1bc8c4c5d6b2",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c0.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "c0.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "c0.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c0.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "c0.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c0.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "c0.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "c0.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ddddee9b9d99c24b9569b75efb3ec3de11ca75a1c13c76ae63c443aca7cedb55",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c0.se.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "da5a5b60b0766c2ffe57242f83724dbda5179d46a8bc119e41510fa10e17d0d9",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c1.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c1.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "c1.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c1.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5ab295b06b6a49bf42d697f22003dbfdb1b32019c5d558b42914e3bfc7d86ae2",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "2d4fc56a3794d659d30f2959fd761098eb96acbfbb6de22aadac1bc8c4c5d6b2",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c1.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "c1.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "c1.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c1.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "c1.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c1.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "c1.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "c1.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ddddee9b9d99c24b9569b75efb3ec3de11ca75a1c13c76ae63c443aca7cedb55",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c1.se.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "da5a5b60b0766c2ffe57242f83724dbda5179d46a8bc119e41510fa10e17d0d9",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c2.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c2.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "c2.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c2.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5ab295b06b6a49bf42d697f22003dbfdb1b32019c5d558b42914e3bfc7d86ae2",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "2d4fc56a3794d659d30f2959fd761098eb96acbfbb6de22aadac1bc8c4c5d6b2",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c2.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "c2.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "c2.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c2.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "c2.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c2.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "c2.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "c2.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ddddee9b9d99c24b9569b75efb3ec3de11ca75a1c13c76ae63c443aca7cedb55",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c2.se.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.limit_c",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.limit_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "db79758ed9ca16707f1f177c4662fa274ec1a207b6665cf1badccb37404a7542",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.rise.W1",
+      "shape": [
+        4,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "cc546a8506056e544d1ab260085b0f5e4bf272072bb9770540142c31e90881e4",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.rise.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.rise.b1",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.rise.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "da5a5b60b0766c2ffe57242f83724dbda5179d46a8bc119e41510fa10e17d0d9",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.rise.w2",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a2a0763beb337db99d1cbad885f7de870c3b4a5a7c5667eb458da784efdb8596",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.sigma",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.t0_c",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c3.bt.tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "89962ae2987a87fc7c6b4ca65a3fe61df0dd276b38a6a77772e6a54b2097653d",
+      "trainable": false
+    },
+    {
+      "name": "c3.ft.atom_logit",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "499680fd1231396af2d7e32ea1151e54b6b6babb512d49e45be3804049f7c755",
+      "trainable": false
+    },
+    {
+      "name": "c3.ft.atom_t_s",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.ft.atom_w",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c3.ft.log_base",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.admit",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "5ab295b06b6a49bf42d697f22003dbfdb1b32019c5d558b42914e3bfc7d86ae2",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.dosc",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.ft_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.mw_g_mol",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "2d4fc56a3794d659d30f2959fd761098eb96acbfbb6de22aadac1bc8c4c5d6b2",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.s",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.se_coord",
+      "shape": [
+        6,
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "1aea892dbcc3856f6adc837d50e0c7f5dbc7bde98cdf45376c456cda37f0f1a3",
+      "trainable": false
+    },
+    {
+      "name": "c3.fuel.tad_min_k",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "794e1fffd6b223545d93ffbbc3e621ed915fe1c19969ae71d6ffc1ec3bd626b4",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.mdot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1c9766277fbc389927367bfa06a4b4c51cb8d351551e4c4db3ef2889be5f2507",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.mtot_ref_kg_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bce5ca184917fbe701fa1f1d40e1475cdaf0d0fca14f3c1255c5c66c1e5b7bf4",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.o2_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.o2_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "e677049787786194e1e8e95798ca8771885627d80733683c4c177e921a498418",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.r_ref_mm",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8585656255d0f3d61a6e99cdcc4a1843b81c5f2994cb042daef682372da86a6",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.tad_ref_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "073c87251c40533952766f21168f15e1a625ea5acc01c5f101549308f1cfac8b",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.tad_scale_k",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a1a96ac9e7cfe130f907ad99fdf14613fb8191d229a81007f53b3f5b1afbb4de",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.xf_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.zst_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "c3.norm.zst_scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "c3.num.atom_half_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "c3.num.bt_nodes",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8304615451e6bdee8632908143f8ea89c4cc8fbae2cdd46c1893587f57f6c203",
+      "trainable": false
+    },
+    {
+      "name": "c3.num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "c3.num.horizon_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6912e3b32a098fde5ad38843b4272156f74f66c99b8869a0c70b9f586f816e35",
+      "trainable": false
+    },
+    {
+      "name": "c3.phys.mw_n2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a6aac1c6f3185a3f8623f5acd88471086c48a958bd2c51969122c9ea6354d63",
+      "trainable": false
+    },
+    {
+      "name": "c3.phys.mw_o2",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b341f4693d0c414f92692daa9ec9051d6a3f51e5b9e4cfe1a82e8db61b30c310",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7f711e1e372315a06773e22ebe7c57b3aa6086743b4ac5adbef5e5bcb496a2bf",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash_shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c200572446d715c232c75a2304d2a6e82c9247af414ff6b0817f5b222c96788b",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.flash_tau_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.floor_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.rho_d_g_m_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "bccfc18fd026bc3433ccc294465eba673cb18d87ec546d1bb2cfe6bddec6072d",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.shape",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.tau.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "cb0b0884f58155378e367a72c033889c542379d8b3a73b85a997847223e9f2cf",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.tau.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ddddee9b9d99c24b9569b75efb3ec3de11ca75a1c13c76ae63c443aca7cedb55",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.tau.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.tau.skip",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "c3.se.tau.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "era.first_late_day",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f4358beb4bf8d82557e1b524bd42bda547c25ce2f121624260ecbbd4c156e3d8",
+      "trainable": false
+    },
+    {
+      "name": "era.last_early_day",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "09229172fd4b99bacb525add4caada6709f75db3439005d88f915df01c505c3d",
+      "trainable": false
+    },
+    {
+      "name": "era.p_late_between",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "era.p_late_unknown",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "mix.w_early",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "94f717bd04b3a4ef0c1df5720f4ea4bb18a85015c4745e5a057e34f835ffa987",
+      "trainable": false
+    },
+    {
+      "name": "mix.w_late",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "94f717bd04b3a4ef0c1df5720f4ea4bb18a85015c4745e5a057e34f835ffa987",
+      "trainable": false
+    },
+    {
+      "name": "mix.ws_early",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "1b1b0d48b24b23a1a6c3f450654e3d6e52eba45340d5c7244b34d68a9016030c",
+      "trainable": false
+    },
+    {
+      "name": "mix.ws_late",
+      "shape": [
+        10
+      ],
+      "dtype": "float64",
+      "sha256": "1b1b0d48b24b23a1a6c3f450654e3d6e52eba45340d5c7244b34d68a9016030c",
+      "trainable": false
+    },
+    {
+      "name": "script.offset_s",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "096748ae85fbbfad06555a6497258eefe7cae1ddc805ea2ead99d00d383a7898",
+      "trainable": false
+    },
+    {
+      "name": "script.offset_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "0096ee3c5e036b0ce88e1d0a212637be295d600f81ccd9f3b7c92dd99897d823",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:ed3e9beb717728fc4d371bccfc7896a940d38deea28502728be977f9fb79e45f",
+  "split_id": "sha256:747032c921c8c8f2b976fceb6bda8c90e4c5e18c761fdbd8dafeb5bc44e2b598",
+  "source_manifest_hash": "sha256:11a1bdbd4bdbda6e3731309deeabe7e6996fa8fa8c43f84c9aae2e4bc793e126",
+  "code_version": "ignis-wsp@0.1.0+fwd.0f46fde758dbcd9b",
+  "applicability": {
+    "configuration": "inverse",
+    "domain": [
+      {
+        "feature": "c_logp",
+        "max": 1.25,
+        "min": -0.92
+      },
+      {
+        "feature": "c_logm",
+        "max": 0.88,
+        "min": -1.61
+      },
+      {
+        "feature": "c_o2",
+        "max": 1.6,
+        "min": -1.6
+      },
+      {
+        "feature": "c_xf",
+        "max": 1.61,
+        "min": -0.7
+      },
+      {
+        "feature": "c_tad",
+        "max": 3.0,
+        "min": -2.0
+      },
+      {
+        "feature": "c_zst",
+        "max": 1.5,
+        "min": -1.85
+      }
+    ],
+    "fuels": "the rows of the release's fuel table with fuel.admit = 1 (rows: ethane, propane, butane, ethylene, methane, hydrogen); the row of a prefix is its fuel_species, else its stored indicators",
+    "interpretation": "observational event prediction under the observed experimental policy; operator termination is not spontaneous extinction; extinction is the end of the hot flame",
+    "meaning": "declared physical domain of the handwritten clocks, not a training-support region",
+    "population": "established hot flame of a burner-stabilised gas flame (PSI-159)",
+    "time_origin": "hot ignition per table 'burn time (sec)' (not adjudicated against logs)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634",
+  "lineage": "weight_edit",
+  "lineage_note": "F2 of the third committee spec for inverse flames, data-informed: F1 with the planned stop computed from the script file, read at -1, 0 and +1 s. Members and fuel table unchanged.",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "acme_inverse-wsp-v12",
+    "spec_hash": "sha256:5aa7fde8e18c90e767d6fb7cf2cd8c32705aacbdad005ce0ee2808355e6dbc7b",
+    "patch_id": "acme_inverse-wsp-v12-f2-fable",
+    "patch_hash": "sha256:4eba4ee2388581c54ec5be432003457f928f973699e072935d2b19472deaedfa",
+    "parent_release_id": "sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+        "nasa:PSI-159-TP-control-timelines-of-train-tests",
+        "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+        "analysis:the-author's-own-audit-of-the-carried-model's-confident-misses-on-the-train-table(forecasts-of-train-runs-beside-train-outcomes)",
+        "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+        "analysis:forecasts-of-the-carried-models-on-the-conditions-of-the-validation-runs(inputs-and-model-outputs-only;no-outcome)",
+        "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;no-per-test-result-was-read)",
+        "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-weights-were-not-chosen-from-the-scores)",
+        "repo:configs/models/acme/wsp3/inverse/d1-fable(slot-b0)",
+        "repo:configs/models/acme/wsp3/inverse/d5-fable(slot-b1)",
+        "repo:configs/models/acme/wsp3/inverse/d1-nostops(slot-b2)",
+        "repo:configs/models/acme/wsp3/inverse/d5-nostops(slot-b3)",
+        "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-planned-stops-from-its-tables:99-of-99-early-ended-train-tests-have-a-planned-stop-later-than-their-burn-time;29-scripted-ends-fall-at-the-stage-sum-minus-0.4-s-after-flame-onset)",
+        "nasa:PSI-159-as-run-script-parameter-files(planned-stage-durations-set-before-ignition;read-into-a-private-copy-of-the-data-root-as-the-condition-programmed_stop-for-train-and-validation-runs-by-tools/wsp/ext/acme_script.py,which-prints-counts-only)",
+        "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+        "author:pretraining-knowledge(unverifiable)",
+        "repo:docs/wsp/research/phys_spherical_fuels.md(fuel-descriptors-and-coordinates-typed-from-property-tables-and-theory;its-author-read-CFI-G-train-rows-and-knew-the-aggregate-arms-of-the-Flame-Design-transfer-test;no-per-test-outcome-of-Flame-Design-or-s-Flame)",
+        "repo:docs/wsp/feedback/acme_planned_stop_v2.md(the-planned-stop-computed-from-the-script-parameter-file-alone;checked-on-TRAIN-tests-that-ran-to-the-scripted-end;burner-limit-setting-by-session-from-the-script-log,an-input)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+          "partitions": [
+            "train"
+          ]
+        },
+        {
+          "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+          "partitions": [
+            "validation"
+          ]
+        }
+      ],
+      "development_feedback": [],
+      "prior_candidates": [
+        "sha256:a43fdbcf5c73206a5d9d442a182d5e7e5c4a407d53e64b44231c014cbb00c1de",
+        "sha256:bf575e191a2d00dda73062a763b22e7b3af6ee9bf6a865b7a73e525e1e67d45f",
+        "sha256:c1c32e2309002b90b64f1021d3286e0ebd4ef9b58773e791dcd36ce002bd5386",
+        "sha256:ed3debeeec38ed16eb2fc4153a750bb5c194435381f0bb6992c55b9f526ec7f9",
+        "sha256:d0a1366034b9f10aa91633c670071bb8029bcf7d9c945608f2cd1d8f5a8b184b",
+        "sha256:d7260f5962954904503a756a8f529b40988697aeae2ea57d18c6b6bfa1e0ea5d",
+        "sha256:d33a625b66980212a91a42323d727973f5bd7a830c68de3216782de60ccd9634",
+        "sha256:47d30e46097f8eeb53c4b396ac3344c150ee29c3d7bb736457a46effd234c1d7",
+        "sha256:e62c47c707c84e4dce6ec4f15151fb33f5384be34c96418aa87c2c35b6ccb507",
+        "sha256:7ac4bdf477b150465bff1b9eace8ed34e24d86600bc9472d2ad53bac22e4b66d",
+        "sha256:0acd146d8ca5db380b1e2522d476c487b4b6918b47f0ffeb561fe35e340cb93f",
+        "sha256:e2fb1fccf8c688f4ac357db7ad0abdc283dfed894a6a3f66f23e2b75ca1b2b2f"
+      ]
+    },
+    "weights_hash": "sha256:8bcb457f769f577333b38f962b530f6c3746e2e49ee714af9168538eca17c8e8",
+    "forward": {
+      "entry_point": "ignis_wsp::committee3::forecast",
+      "version": "12",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:0f46fde758dbcd9b22990658c2b894f37194419e278706f821c77756fff8c8de",
+    "code_version": "ignis-wsp@0.1.0+fwd.0f46fde758dbcd9b",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "4564 authored elements (495 nonzero), 168 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

@@ -1,0 +1,39 @@
+# synthetic_demo.wsp: an invented law to show the syntax. Not physics, not NASA.
+# features z0 = ln(p / 101325 Pa) / 1, z1 = (x_o2 - 0.21) / 0.1, z2 = (1/mdot - 1/1e-6) / 1e6
+x.pressure.centre = 101325
+x.pressure.scale = 1.0
+x.pressure.lo = 20000
+x.pressure.hi = 200000
+x.x_o2.centre = 0.21
+x.x_o2.scale = 0.1
+x.x_o2.lo = 0.15
+x.x_o2.hi = 0.40
+x.fuel_flow.centre = 0.000001
+x.fuel_flow.scale = 1000000
+x.fuel_flow.lo = 0.0000002
+x.fuel_flow.hi = 0.000005
+
+# flame length: median 2 cm at the centre, longer at lower pressure, one hinge above x_o2 = 0.31
+flame_length.median.b0 = -3.9
+flame_length.median.skip[0:3] = [-0.5, 0.2, 0.0]
+flame_length.median.W1[0, 1] = 1.0
+flame_length.median.b1[0] = -1.0
+flame_length.median.w2[0] = 0.3
+flame_length.spread.b0 = 0.25
+flame_length.spread.skip[0:3] = [0.0, 0.0, 0.0]
+flame_length.tail_weight = 0.1
+flame_length.tail_width = 3.0
+
+# ignites: logit 1.5 at the centre, more likely with oxygen
+ignites.logit.b0 = 1.5
+ignites.logit.skip[0:3] = [0.0, 2.0, 0.0]
+
+# flame end: extinction clock median e^4.5 = 90 s, blow-off e^6 = 403 s
+flame_end.extinction.median.b0 = 4.5
+flame_end.extinction.median.skip[0:3] = [0.0, 0.8, 0.0]
+flame_end.extinction.shape = 3.0
+flame_end.blowoff.median.b0 = 6.0
+flame_end.blowoff.median.skip[0:3] = [0.0, 0.0, -0.4]
+flame_end.blowoff.shape = 2.0
+flame_end.stop.offset_s[0:3] = [0.0, 5.0, 0.0]
+flame_end.stop.offset_w[0:3] = [0.5, 0.5, 0.0]

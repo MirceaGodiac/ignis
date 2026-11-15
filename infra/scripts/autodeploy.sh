@@ -7,6 +7,7 @@
 #   ignis-autodeploy --drill-rollback    # deploy, then treat the release as failed: checks rollback
 #   ignis-autodeploy --rollback          # put the previous release back (image + checkout)
 #   ignis-autodeploy --no-drain          # do not wait for running turns/jobs (they are cut off)
+#   ignis-autodeploy --ui                # (re)deploy only the web UI, at the running server's commit
 #
 # Installed as /usr/local/sbin/ignis-autodeploy by infra/scripts/autodeploy-setup.sh and run by
 # ignis-autodeploy.service (timer: ignis-autodeploy.timer). Steps, each one fail-closed:
@@ -16,15 +17,20 @@
 #   wait until no turn or job is running → switch IGNIS_IMAGE and the checkout → restart → health
 #   checks → on failure, automatic rollback to the previous image and checkout (and, if the old
 #   image cannot open the store the new one migrated, a restore of the pre-release snapshot).
+# Then the web UI (Worker `ignis-edge`, web/dist as static assets) is built and deployed with
+# Wrangler at the same commit, so UI and API ship together. The UI step runs only when
+# /etc/ignis/edge.env exists (root 0600: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, UI_HOSTNAME,
+# ORIGIN_HOSTNAME); a UI that is behind the running server is caught up on the next timer run.
 #
-# Nothing here reads or writes credentials besides the deploy key path. A commit whose deploy
-# failed is not retried by the timer until the branch moves (or --force / --commit).
+# Credentials read here: the deploy key path, and edge.env (passed to the Wrangler container as an
+# env file, never put on a command line). A commit whose deploy failed is not retried by the timer
+# until the branch moves (or --force / --commit); the same holds for a failed UI deploy (or --ui).
 #
 # The whole body is in main() so bash has parsed it before the checkout under it changes.
 set -euo pipefail
 
 main() {
-  local force=0 drill=0 rollback_only=0 drain=1 commit=""
+  local force=0 drill=0 rollback_only=0 ui_only=0 drain=1 commit=""
   while [ $# -gt 0 ]; do
     case "$1" in
       --force) force=1 ;;
@@ -32,6 +38,7 @@ main() {
       --drill-rollback) drill=1; force=1 ;;
       --rollback) rollback_only=1 ;;
       --no-drain) drain=0 ;;
+      --ui) ui_only=1 ;;
       *) echo "unknown argument: $1" >&2; return 64 ;;
     esac
     shift
@@ -48,6 +55,8 @@ main() {
   RELEASE_ENV="/etc/ignis/release.env"
   IGNIS_ENV="/etc/ignis/ignis.env"
   HOLD_FILE="/etc/ignis/autodeploy.hold"
+  EDGE_ENV="/etc/ignis/edge.env"          # Cloudflare token + hostnames for the UI step (root 0600)
+  NODE_IMAGE="node:22-bookworm-slim"      # builds web/ and runs Wrangler
   DRAIN_TIMEOUT=1800      # seconds to wait for running turns/jobs before postponing
   HEALTH_TIMEOUT=240      # seconds for the restarted service to become healthy
   MIN_FREE_GB=8           # free space needed on the Docker disk before a build
@@ -65,6 +74,16 @@ main() {
 
   if [ "$rollback_only" = 1 ]; then
     manual_rollback
+    return
+  fi
+  if [ "$ui_only" = 1 ]; then
+    local running
+    running="$(image_commit "$(env_get IGNIS_IMAGE)")"
+    [ -n "$running" ] || { log "ui: cannot tell which commit the server runs"; return 1; }
+    T0=$(date +%s)
+    DEPLOY_ID="$(date -u +%Y%m%dT%H%M%SZ)-${running:0:12}-ui"
+    rm -f "$STATE/ui_failed"
+    deploy_ui "$running"
     return
   fi
   if [ -e "$HOLD_FILE" ] && [ "$force" = 0 ] && [ -z "$commit" ]; then
@@ -87,7 +106,10 @@ main() {
   cur_image="$(env_get IGNIS_IMAGE)"
   cur_commit="$(image_commit "$cur_image")"
   if [ "$force" = 0 ] && [ -z "$commit" ]; then
-    if [ "$target" = "$cur_commit" ]; then return 0; fi
+    if [ "$target" = "$cur_commit" ]; then
+      ui_catch_up "$target" || true
+      return 0
+    fi
     if [ "$(cat "$STATE/failed" 2>/dev/null)" = "$target" ]; then
       log "$target failed before; not retrying until $BRANCH moves (or --force)"
       return 0
@@ -98,12 +120,7 @@ main() {
 
   # 1. Build, in a worktree of its own: the serving checkout does not move until the switch.
   ensure_disk
-  if [ ! -d "$BUILD/.git" ] && [ ! -f "$BUILD/.git" ]; then
-    git -C "$REPO" worktree prune
-    git -C "$REPO" worktree add --quiet --force --detach "$BUILD" "$target"
-  fi
-  git -C "$BUILD" checkout --quiet --force --detach "$target"
-  git -C "$BUILD" clean -qfdx
+  build_tree "$target"
   local pin have=""
   pin="$(grep -ohE 'PINNED_CODEX_VERSION: &str = "[^"]+"' "$BUILD"/crates/ignis-research/src/runtime/*.rs | head -1 | sed -E 's/.*"([^"]+)"/\1/')"
   [ -x "$CLI_DIR/codex" ] && have="$("$CLI_DIR/codex" --version | awk 'NR==1 {print $NF}')"
@@ -162,6 +179,8 @@ main() {
     prune_images "$new_image" "$cur_image"
     record "$target" deployed
     log "deployed $target in $(( $(date +%s) - T0 ))s (build ${BUILD_S}s, restart-to-healthy ${DOWN_S}s)"
+    # The server is live either way: a failed UI deploy is recorded and retried with --ui.
+    deploy_ui "$target" || true
     return 0
   fi
 
@@ -193,6 +212,74 @@ main() {
 }
 
 log() { echo "ignis-autodeploy: $*"; }
+
+# The build worktree at a commit, clean (the serving checkout never moves for a build).
+build_tree() {
+  # Explicit status: callers in `|| true` context run with set -e suspended.
+  if [ ! -d "$BUILD/.git" ] && [ ! -f "$BUILD/.git" ]; then
+    git -C "$REPO" worktree prune || return 1
+    git -C "$REPO" worktree add --quiet --force --detach "$BUILD" "$1" || return 1
+  fi
+  git -C "$BUILD" checkout --quiet --force --detach "$1" && git -C "$BUILD" clean -qfdx
+}
+
+edge_get() { sed -n "s/^$1=//p" "$EDGE_ENV" | tail -n 1; }
+
+# Timer run with the server already at the branch tip: deploy the UI if it is behind (first run
+# after edge.env appears, or after a server deploy whose UI step failed is fixed with --ui).
+ui_catch_up() {
+  [ -r "$EDGE_ENV" ] || return 0
+  [ "$(cat "$STATE/ui_commit" 2>/dev/null)" = "$1" ] && return 0
+  [ "$(cat "$STATE/ui_failed" 2>/dev/null)" = "$1" ] && return 0
+  T0=$(date +%s)
+  DEPLOY_ID="$(date -u +%Y%m%dT%H%M%SZ)-${1:0:12}-ui"
+  deploy_ui "$1"
+}
+
+ui_fail() {
+  log "ui: FAILED $1: $2"
+  echo "$1" > "$STATE/ui_failed"
+  record "$1" ui_failed
+  return 1
+}
+
+# Build web/ and deploy the Worker `ignis-edge` at a commit. wrangler.jsonc keeps its <placeholders>
+# in the repo; the hostnames come from edge.env. Worker secrets (ORIGIN_CLIENT_*) stay as they are.
+deploy_ui() {
+  local target="$1" w ui origin
+  if [ ! -r "$EDGE_ENV" ]; then
+    log "ui: $EDGE_ENV missing: UI deploys are off (the UI is deployed by hand)"
+    return 0
+  fi
+  ui="$(edge_get UI_HOSTNAME)"
+  origin="$(edge_get ORIGIN_HOSTNAME)"
+  [ -n "$ui" ] && [ -n "$origin" ] || { ui_fail "$target" "UI_HOSTNAME or ORIGIN_HOSTNAME missing in $EDGE_ENV"; return 1; }
+  ensure_disk || { ui_fail "$target" "not enough disk"; return 1; }
+  build_tree "$target" || { ui_fail "$target" "cannot check out $target in $BUILD"; return 1; }
+  w="$BUILD/infra/worker"
+  [ -f "$w/wrangler.jsonc" ] || { ui_fail "$target" "no infra/worker/wrangler.jsonc at this commit"; return 1; }
+  sed -e "s|<ui-hostname>|$ui|g" -e "s|<origin-hostname>|$origin|g" "$w/wrangler.jsonc" > "$w/wrangler.deploy.jsonc"
+  if grep -qE '<[a-z-]+>' "$w/wrangler.deploy.jsonc"; then
+    ui_fail "$target" "unfilled placeholder in wrangler.jsonc: $(grep -oE '<[a-z-]+>' "$w/wrangler.deploy.jsonc" | sort -u | tr '\n' ' ')"
+    return 1
+  fi
+  log "ui: building web/ and deploying ignis-edge at $target"
+  local t
+  t=$(date +%s)
+  if docker run --rm --env-file "$EDGE_ENV" -e WRANGLER_SEND_METRICS=false -v "$BUILD:/src" -v ignis-npm-cache:/root/.npm -w /src "$NODE_IMAGE" \
+      sh -ec 'npm ci --prefix web --no-audit --no-fund --loglevel=error
+              npm --prefix web run build
+              npm ci --prefix infra/worker --no-audit --no-fund --loglevel=error
+              cd infra/worker && npx wrangler deploy -c wrangler.deploy.jsonc --message "$1"' \
+      sh "main ${target:0:12} (ignis-autodeploy)" 2>&1 | sed 's/^/  ui| /'; then
+    echo "$target" > "$STATE/ui_commit"
+    rm -f "$STATE/ui_failed"
+    record "$target" ui_deployed
+    log "ui: deployed $target in $(( $(date +%s) - t ))s"
+  else
+    ui_fail "$target" "web build or wrangler deploy failed (log above)"
+  fi
+}
 
 env_get() { sed -n "s/^$1=//p" "$RELEASE_ENV" | tail -n 1; }
 

@@ -103,6 +103,9 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<HandwrittenWeightPatch>("HandwrittenWeightPatch"),
         one::<ModelBuildManifest>("ModelBuildManifest"),
         one::<ForecastRequest>("ForecastRequest"),
+        one::<ModelCard>("ModelCard"),
+        one::<ScenarioRequest>("ScenarioRequest"),
+        one::<ScenarioAdmitted>("ScenarioAdmitted"),
         // C0: evaluation (evaluation.v1)
         one::<EvaluationRequest>("EvaluationRequest"),
         one::<EvaluationResult>("EvaluationResult"),

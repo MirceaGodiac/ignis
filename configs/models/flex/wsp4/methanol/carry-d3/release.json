@@ -1,0 +1,1033 @@
+{
+  "id": "sha256:a15c761b98aa1ae36a97eee2b326cac4d5b0a4ad09003b0bdbda94cd7815beb8",
+  "family": "flex",
+  "model_name": "flex_methanol.wsp4",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::droplet5::forecast",
+      "profile": "strict_no_fitting",
+      "version": "5"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 72,
+      "authored_total": 384,
+      "constant_total": 20,
+      "per_tensor": {
+        "class.bias": [
+          1,
+          1
+        ],
+        "class.kappa": [
+          1,
+          1
+        ],
+        "crit.W1": [
+          32,
+          0
+        ],
+        "crit.b0": [
+          1,
+          1
+        ],
+        "crit.b1": [
+          8,
+          0
+        ],
+        "crit.skip": [
+          4,
+          4
+        ],
+        "crit.w2": [
+          8,
+          0
+        ],
+        "diff.W1": [
+          48,
+          2
+        ],
+        "diff.b0": [
+          1,
+          1
+        ],
+        "diff.b1": [
+          8,
+          2
+        ],
+        "diff.sharp": [
+          1,
+          1
+        ],
+        "diff.skip": [
+          6,
+          2
+        ],
+        "diff.w2": [
+          8,
+          2
+        ],
+        "enc.cool_gain": [
+          1,
+          0
+        ],
+        "enc.e_clip": [
+          2,
+          2
+        ],
+        "enc.end_frac": [
+          1,
+          1
+        ],
+        "enc.gain_b": [
+          1,
+          1
+        ],
+        "enc.gain_w": [
+          3,
+          1
+        ],
+        "enc.k_floor_m2_s": [
+          1,
+          1
+        ],
+        "enc.min_points": [
+          1,
+          1
+        ],
+        "enc.mix": [
+          2,
+          2
+        ],
+        "enc.w_ref": [
+          1,
+          1
+        ],
+        "enc.window_frac": [
+          1,
+          1
+        ],
+        "filt.gain_b": [
+          1,
+          1
+        ],
+        "filt.gain_w": [
+          3,
+          3
+        ],
+        "filt.l_floor": [
+          1,
+          1
+        ],
+        "filt.sd_evap": [
+          1,
+          1
+        ],
+        "filt.sd_hot": [
+          1,
+          1
+        ],
+        "fl.evap_mix": [
+          1,
+          1
+        ],
+        "fl.gap_s": [
+          1,
+          1
+        ],
+        "fl.min_points": [
+          1,
+          1
+        ],
+        "fl.t_min_s": [
+          1,
+          1
+        ],
+        "fl.trust": [
+          1,
+          0
+        ],
+        "gate.growth_tol": [
+          1,
+          1
+        ],
+        "gate.k_max_m2_s": [
+          1,
+          1
+        ],
+        "gate.min_later": [
+          1,
+          1
+        ],
+        "haz.log_disruption": [
+          1,
+          1
+        ],
+        "norm.d_ref_m": [
+          1,
+          1
+        ],
+        "norm.k_ref_m2_s": [
+          1,
+          1
+        ],
+        "norm.n_ref": [
+          1,
+          1
+        ],
+        "norm.p_ref_pa": [
+          1,
+          1
+        ],
+        "num.bin_s": [
+          1,
+          1
+        ],
+        "num.ce_count": [
+          1,
+          1
+        ],
+        "num.ce_step": [
+          1,
+          1
+        ],
+        "num.d_min_m": [
+          1,
+          1
+        ],
+        "num.dt_s": [
+          1,
+          1
+        ],
+        "num.t_valid_s": [
+          1,
+          1
+        ],
+        "num.z_count": [
+          1,
+          1
+        ],
+        "num.z_step": [
+          1,
+          1
+        ],
+        "post.hot_exp": [
+          1,
+          1
+        ],
+        "post.k_hot": [
+          1,
+          1
+        ],
+        "post.k_inf": [
+          1,
+          1
+        ],
+        "post.size_exp": [
+          1,
+          1
+        ],
+        "post.tau0_s": [
+          1,
+          1
+        ],
+        "post.tau_exp": [
+          1,
+          1
+        ],
+        "rad.W1": [
+          48,
+          1
+        ],
+        "rad.b0": [
+          1,
+          0
+        ],
+        "rad.b1": [
+          8,
+          1
+        ],
+        "rad.sharp": [
+          1,
+          1
+        ],
+        "rad.skip": [
+          6,
+          1
+        ],
+        "rad.w2": [
+          8,
+          1
+        ],
+        "rate.W1": [
+          112,
+          7
+        ],
+        "rate.b0": [
+          1,
+          1
+        ],
+        "rate.b1": [
+          16,
+          4
+        ],
+        "rate.skip": [
+          7,
+          5
+        ],
+        "rate.w2": [
+          16,
+          5
+        ],
+        "rob.eps_r": [
+          1,
+          0
+        ],
+        "unc.s_floor": [
+          1,
+          1
+        ],
+        "unc.s_pop": [
+          1,
+          1
+        ],
+        "unc.sigma_d": [
+          1,
+          1
+        ],
+        "unc.sigma_frame": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:1f7f87e3b073da1849c9d603fa7a2940eb9649737943e2d396349e3e6506af03",
+    "spec_id": "flex_methanol-wsp-v5"
+  },
+  "config": {},
+  "feature_order": [
+    "c_o2",
+    "c_co2",
+    "c_he",
+    "c_logp",
+    "c_logd0",
+    "x_exc",
+    "w",
+    "s",
+    "e_late",
+    "e_early",
+    "r_late",
+    "r_end",
+    "g_span",
+    "g_count",
+    "g_progress",
+    "flame_seen"
+  ],
+  "units": {
+    "c_co2": "1",
+    "c_he": "1",
+    "c_logd0": "1",
+    "c_logp": "1",
+    "c_o2": "1",
+    "e_early": "1",
+    "e_late": "1",
+    "flame_seen": "1",
+    "g_count": "1",
+    "g_progress": "1",
+    "g_span": "1",
+    "r_end": "1",
+    "r_late": "1",
+    "s": "1",
+    "w": "1",
+    "x_exc": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "calibration": "published calibration assumed applied upstream by the data lane",
+    "noise": "independent Gaussian of sd unc.sigma_d on each measurement (assumed)",
+    "prefix": "liquid_diameter observations, valid, positive, 0 <= t <= cutoff, first of equal time stamps, after the validity gate (a value later frames exceed by more than gate.growth_tol is dropped)"
+  },
+  "numerics": {
+    "d_min_m": 0.00025,
+    "integrator": "RK4 of the hot phase on a uniform grid of num.dt_s from the cutoff; closed form after a transition",
+    "request_time_fitting": "none",
+    "scenarios": "num.z_count rate nodes spaced num.z_step and num.ce_count cool-extinction nodes spaced num.ce_step, normal weights",
+    "t_valid_s": 45.0
+  },
+  "tensors": [
+    {
+      "name": "class.bias",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1df62998f716b77fff045744291aac951cff6f032e618878d667e1cc8bc8477f",
+      "trainable": false
+    },
+    {
+      "name": "class.kappa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "crit.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "2a2edbbf100711cafb607d7bf507fbd1dfb087d43fbf3f34632b6ff4e18d3460",
+      "trainable": false
+    },
+    {
+      "name": "crit.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8555091a8da3a8f06a747fbf33233eaf7de706eb75abc9f14d5da811e9457160",
+      "trainable": false
+    },
+    {
+      "name": "crit.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "crit.skip",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "b166082ae3f3d321bf0a5ec3a4165932941ec52ac86eb46e9e85c3c4e8c60ae5",
+      "trainable": false
+    },
+    {
+      "name": "crit.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "diff.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "c20d144b08247e0052b7483b74c04666eeeb58ec341ac33c3b34485a053dbbc9",
+      "trainable": false
+    },
+    {
+      "name": "diff.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "29e1752a324efcf07a229ee6b1b66783da1841de121648ae65694f63c930c0c6",
+      "trainable": false
+    },
+    {
+      "name": "diff.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "46d026defc03be745f3750ff9e839e982b522b042d9a92847fbefce9b13fe47f",
+      "trainable": false
+    },
+    {
+      "name": "diff.sharp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "274295074fd46e2504f58c4096f9a783ae051f7b6d44e84c0c87bd6a007ffe07",
+      "trainable": false
+    },
+    {
+      "name": "diff.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "86faadd4c037d3932738acccf2c4119bd693f972d132c138ccffa194f26bd31e",
+      "trainable": false
+    },
+    {
+      "name": "diff.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "9d8feef25a169b970f0791253e89543d8c3cef82d4df796b9711f990dca0957d",
+      "trainable": false
+    },
+    {
+      "name": "enc.cool_gain",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "enc.e_clip",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "944afdee2ae4d96657147be45fc15f8082ebb3a5cfa509ff563b662b9d7b150b",
+      "trainable": false
+    },
+    {
+      "name": "enc.end_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4071bcaa9e99506b4700b169f5aca7d38e4b6c249e3db3a5f617870fc5b45618",
+      "trainable": false
+    },
+    {
+      "name": "enc.gain_b",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "3aee4091b6e804c247883886288aba50c6f1f9ca5ed096d76ba62c3c058ed822",
+      "trainable": false
+    },
+    {
+      "name": "enc.gain_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "c9f0ab015aa62b32b97ac00d174e724c15a60a6f62a5ad24a8d49fcc6a7d6d4a",
+      "trainable": false
+    },
+    {
+      "name": "enc.k_floor_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0ebe7df3068dfab5a022b58040a60af903aa932fe2f49bf2de55b737d2989df7",
+      "trainable": false
+    },
+    {
+      "name": "enc.min_points",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f5929b9722f1521724d35c0e42c0522b1409718bce72b6e97fe10c449e4037f8",
+      "trainable": false
+    },
+    {
+      "name": "enc.mix",
+      "shape": [
+        2
+      ],
+      "dtype": "float64",
+      "sha256": "aaf5036b0bca7147c51f4e43b4e40e81ae012190b32423cf1ecd4da0e70580c9",
+      "trainable": false
+    },
+    {
+      "name": "enc.w_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "49981eeb9c6978f81da79bac7b9a910f3f1cf8291f72798daffe06c176e7a7be",
+      "trainable": false
+    },
+    {
+      "name": "enc.window_frac",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "filt.gain_b",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "81d094cf888d834a70f6b20cef0a8b7ffa4ed4eba7b2a09d1e7a0272d50c1c5e",
+      "trainable": false
+    },
+    {
+      "name": "filt.gain_w",
+      "shape": [
+        3
+      ],
+      "dtype": "float64",
+      "sha256": "17e4461b5ac0a74c1813c13631206529569af13ed5dec0c892be442755412b83",
+      "trainable": false
+    },
+    {
+      "name": "filt.l_floor",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5b0b82b25e0be5640e40215072b3555e7ad6402dd8f17d34fb8bf65a66b13a53",
+      "trainable": false
+    },
+    {
+      "name": "filt.sd_evap",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "filt.sd_hot",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "29cac4be5bff5d5dd9e379bb3afaa5929fcac4c168a9ad67b7a066ec304e2afb",
+      "trainable": false
+    },
+    {
+      "name": "fl.evap_mix",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "fl.gap_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "99c437a9023aaa4545043b9b6e75294e7b12bb6fa855273a7d4c2428a92d546c",
+      "trainable": false
+    },
+    {
+      "name": "fl.min_points",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "fl.t_min_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4ad02c8581279eb6781e48686fd5db86e9b68fdaa0445a200ca8413c42b0d459",
+      "trainable": false
+    },
+    {
+      "name": "fl.trust",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "gate.growth_tol",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "gate.k_max_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8b1c4041749e7d9529c63f5b82db79bc57305fe7292e065d7738ee1ff93283a4",
+      "trainable": false
+    },
+    {
+      "name": "gate.min_later",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5a5d05532423b56d268fab33d835870c47e891d837b7fee0ea7b2b527aef6912",
+      "trainable": false
+    },
+    {
+      "name": "haz.log_disruption",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "4d99b042f200a50a34e16c9783e16551701a2092987f72227428fb13cab14399",
+      "trainable": false
+    },
+    {
+      "name": "norm.d_ref_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "8c3b46a80d99d14eda1ed1f267daf202e284542438f4b278bb8e8fba314f8818",
+      "trainable": false
+    },
+    {
+      "name": "norm.k_ref_m2_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1b80a199c67f35ab9d02d1328610b746fa0f087bfa6e95982b9b2ba3993cae68",
+      "trainable": false
+    },
+    {
+      "name": "norm.n_ref",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f02d9c717f9625f279291665b0954ea23ca0c32365e38963ba820afeb64cdba8",
+      "trainable": false
+    },
+    {
+      "name": "norm.p_ref_pa",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9f07ad8d3c324eec4ae7d0ac7fe6e5914035feba570916a711aadc9004a2f800",
+      "trainable": false
+    },
+    {
+      "name": "num.bin_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "num.ce_count",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "num.ce_step",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "num.d_min_m",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "b65706421956c2f2e8e1f50fe774062572e1e3fb7a379a6e01d64584e5ad53ab",
+      "trainable": false
+    },
+    {
+      "name": "num.dt_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "62cf99be3269f47a21e2f23e7b2a622be00921d0281d3ac34867952c65ddee80",
+      "trainable": false
+    },
+    {
+      "name": "num.t_valid_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9a3dab4800bf88ebf4c648c33e409b2c7f3f80e940a10f35cd3d284630f115f1",
+      "trainable": false
+    },
+    {
+      "name": "num.z_count",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0491860ecd608e5102f5363a24a2d30a4c62192ed20dd7c9bd6d06e64530a6cb",
+      "trainable": false
+    },
+    {
+      "name": "num.z_step",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c8a5d94e6077ecdb03f23e069de4bcb5dad9db2cccf88181fc3f1bf860f45b7e",
+      "trainable": false
+    },
+    {
+      "name": "post.hot_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "31d2a7499f9bdbeef647c4defbcb55cee76ec33a460cba0f852a533130ab9fe2",
+      "trainable": false
+    },
+    {
+      "name": "post.k_hot",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a815c344d9aa1fcde80dbdcf03a859814e6b58a2e098383d01c0506dffd40efe",
+      "trainable": false
+    },
+    {
+      "name": "post.k_inf",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "7c894287a686d4445d2857f2ca19f5d0762b99aadb193243665c38d758cfd515",
+      "trainable": false
+    },
+    {
+      "name": "post.size_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "a55ea6c07bc640b25dee7faacff1d808a50adb83f39539de10136b098861f677",
+      "trainable": false
+    },
+    {
+      "name": "post.tau0_s",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c4cd1b82d944a5c5e8d9e79649f931fb723dfcc88deeaca7048031a8f3a283d7",
+      "trainable": false
+    },
+    {
+      "name": "post.tau_exp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0a1e618eb43fe2b6048112c386ac43a94cff310a1e2a51763b70ece49c0acdfd",
+      "trainable": false
+    },
+    {
+      "name": "rad.W1",
+      "shape": [
+        8,
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "899fb00209034da99c70340c644b6e9728bb19fee754267f0aa339d26b458635",
+      "trainable": false
+    },
+    {
+      "name": "rad.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "rad.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "bb144f4219be80727a11a28b612bd304125fa55b5704737472446156f66dc9f1",
+      "trainable": false
+    },
+    {
+      "name": "rad.sharp",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "45b19bbaa5f7d231d1c28efec5172f7dff696fb32679ba9658963c75e4d956a1",
+      "trainable": false
+    },
+    {
+      "name": "rad.skip",
+      "shape": [
+        6
+      ],
+      "dtype": "float64",
+      "sha256": "3a62d71964caa89605b7357d6de873aae14ce0e7a99574d2354f2f102a866c24",
+      "trainable": false
+    },
+    {
+      "name": "rad.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "5e8d0f6c73df988c6cc4156f76636ab0342ecdf85f773270f22c33e24933171d",
+      "trainable": false
+    },
+    {
+      "name": "rate.W1",
+      "shape": [
+        16,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "f0eb7ae6273cf4ba326ae9c7201f74dc4d69ad75d2d83ec151d817fd3b404284",
+      "trainable": false
+    },
+    {
+      "name": "rate.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "2597c4595ac4feb127f6884d685835599801e8940d68e10ac9047c998eeb41ab",
+      "trainable": false
+    },
+    {
+      "name": "rate.b1",
+      "shape": [
+        16
+      ],
+      "dtype": "float64",
+      "sha256": "32fa08703612c2056975f0749ed974807eae3ed1383216c8840420f2c07f7537",
+      "trainable": false
+    },
+    {
+      "name": "rate.skip",
+      "shape": [
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9f60fe42ad541a4f15fe04c8e8d4198385bcfd27629bac0b82d1cdae47204985",
+      "trainable": false
+    },
+    {
+      "name": "rate.w2",
+      "shape": [
+        16
+      ],
+      "dtype": "float64",
+      "sha256": "862b6e18f0e78debb5032f2729ef08dfa2107dc9d47639f307dc885e9d4436b5",
+      "trainable": false
+    },
+    {
+      "name": "rob.eps_r",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "unc.s_floor",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "5d1bbb4565da7813c1cfd448043e5e9767aa0c6fed89785c0da4f0e4f9aafb13",
+      "trainable": false
+    },
+    {
+      "name": "unc.s_pop",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "c1e297961914aba865f910bfcc9db48ff3cf952897c302ccebd1d009b4c55cae",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_d",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "ffc99f3adbf33a846f18af5186dbda8a1dff0cfb09c35fae07eebbceeb2b3634",
+      "trainable": false
+    },
+    {
+      "name": "unc.sigma_frame",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "1dddfdeb378f9de40427d95a4f732b45756c111b9ec41ef724e2cf3f78332c9d",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "sha256:9e31b1aa6b56b2086aac85776d27778bb1680a83fcdfc543dad62e0385da637e",
+  "split_id": "sha256:660b7d9ede629b3009b4b761ea9e5875560719566e3dea21112f607cddd49894",
+  "source_manifest_hash": "sha256:74dedf7ea617ed6da1c5555822137b8433cfbf59cf293ab9989fd5d3c31a6382",
+  "code_version": "ignis-wsp@0.1.0+fwd.8f7dd42d06357211",
+  "applicability": {
+    "configuration": "single free-floating droplet",
+    "domain": [
+      {
+        "feature": "c_o2",
+        "max": 4.8,
+        "min": -2.2
+      },
+      {
+        "feature": "c_co2",
+        "max": 4.0,
+        "min": 0.0
+      },
+      {
+        "feature": "c_he",
+        "max": 3.0,
+        "min": 0.0
+      },
+      {
+        "feature": "c_logp",
+        "max": 1.5,
+        "min": -1.0
+      },
+      {
+        "feature": "c_logd0",
+        "max": 1.26,
+        "min": -0.9
+      }
+    ],
+    "fuel": "methanol",
+    "meaning": "declared physical domain of the handwritten law, not a training-support region",
+    "time_origin": "NASA DropletData processed time base (phase entry not adjudicated)"
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": "sha256:c1b1321c4da812a6f7774381882f169a24a5eca528e37814381bf5e72396a620",
+  "lineage": "weight_edit",
+  "lineage_note": "Neutral carry, not a candidate: the numbers of flex_methanol.wsp2 D3 (sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654) on droplet5.rs with the entries this spec adds switched off (rob.eps_r = 0, fl.trust = 0). It giv",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_revision",
+    "spec_id": "flex_methanol-wsp-v5",
+    "spec_hash": "sha256:1f7f87e3b073da1849c9d603fa7a2940eb9649737943e2d396349e3e6506af03",
+    "patch_id": "flex_methanol-wsp-v5-carry-d3",
+    "patch_hash": "sha256:a5a336e3317d755606d2fdb1cecf6c0f5faa4dbe82c2269c49eade3c8e675570",
+    "parent_release_id": "sha256:c1b1321c4da812a6f7774381882f169a24a5eca528e37814381bf5e72396a620",
+    "author": {
+      "provider": "anthropic",
+      "model_id": "claude-fable-5-2"
+    },
+    "exposure": {
+      "sources": [
+        "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+        "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+        "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+        "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+        "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+        "author:pretraining-knowledge(unverifiable)"
+      ],
+      "datasets": [
+        {
+          "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+          "partitions": [
+            "train"
+          ]
+        },
+        {
+          "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+          "partitions": [
+            "validation"
+          ]
+        },
+        {
+          "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+          "partitions": [
+            "train"
+          ]
+        }
+      ],
+      "development_feedback": [],
+      "prior_candidates": [
+        "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
+        "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b"
+      ]
+    },
+    "weights_hash": "sha256:fcd49a513df57ac4d53f48f505dd66e2053dfdb4729076ad375d313efda7dd1a",
+    "forward": {
+      "entry_point": "ignis_wsp::droplet5::forecast",
+      "version": "5",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:8f7dd42d06357211a38ca1cbf78b50884d94ea646fd10e43c60c0623629ced9f",
+    "code_version": "ignis-wsp@0.1.0+fwd.8f7dd42d06357211",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "384 authored elements (72 nonzero), 20 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 41 forecast times, valid finite artifact"
+      }
+    ],
+    "origin": "system"
+  }
+}

@@ -1,0 +1,801 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-slice-v1",
+  "family": "other",
+  "model_name": "slice.wsp",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "W0 law of docs/wsp/research/phys_slice_w0.md, section 7: lifting and blow-off of a jet flame base held by an edge that burns against the gas speed it feels. One case is one logged line (one setting of one flame); the per-line blow-off probability builds in a fixed step of 10 %. Derived case inputs (SI conversions, fuel indicators) are written by tools/wsp/ext/law_inputs.py. (no target is a shared quantity); targets: blow_off, lifted, flame_length",
+    "excludes": [
+      "phase_end_time is named here only because ModelSpec.target requires one shared quantity: every target of this model is lane-local and no artifact carries phase_end_time",
+      "slice:blow_off (binary): lane-local target, not a shared quantity",
+      "slice:lifted (binary): lane-local target, not a shared quantity",
+      "slice:flame_length (positive, m): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "u_coflow",
+      "unit": "m/s",
+      "source": "condition:u_coflow",
+      "transform": "ln: ln(x / x.u_coflow.centre) / x.u_coflow.scale; refused unless x.u_coflow.lo <= x <= x.u_coflow.hi @1"
+    },
+    {
+      "name": "u_jet",
+      "unit": "m/s",
+      "source": "condition:u_jet",
+      "transform": "ln: ln(x / x.u_jet.centre) / x.u_jet.scale; refused unless x.u_jet.lo <= x <= x.u_jet.hi @1"
+    },
+    {
+      "name": "burner_id",
+      "unit": "m",
+      "source": "condition:burner_id",
+      "transform": "ln: ln(x / x.burner_id.centre) / x.burner_id.scale; refused unless x.burner_id.lo <= x <= x.burner_id.hi @1"
+    },
+    {
+      "name": "x_fuel",
+      "unit": "1",
+      "source": "condition:x_fuel",
+      "transform": "ln: ln(x / x.x_fuel.centre) / x.x_fuel.scale; refused unless x.x_fuel.lo <= x <= x.x_fuel.hi @1"
+    },
+    {
+      "name": "x_o2",
+      "unit": "1",
+      "source": "condition:x_o2",
+      "transform": "ln: ln(x / x.x_o2.centre) / x.x_o2.scale; refused unless x.x_o2.lo <= x <= x.x_o2.hi @1"
+    },
+    {
+      "name": "is_ethane",
+      "unit": "1",
+      "source": "condition:is_ethane",
+      "transform": "identity: (x - x.is_ethane.centre) / x.is_ethane.scale; refused unless x.is_ethane.lo <= x <= x.is_ethane.hi @1"
+    },
+    {
+      "name": "is_propane",
+      "unit": "1",
+      "source": "condition:is_propane",
+      "transform": "identity: (x - x.is_propane.centre) / x.is_propane.scale; refused unless x.is_propane.lo <= x <= x.is_propane.hi @1"
+    },
+    {
+      "name": "mdot_jet",
+      "unit": "kg/s",
+      "source": "condition:mdot_jet",
+      "transform": "ln: ln(x / x.mdot_jet.centre) / x.mdot_jet.scale; refused unless x.mdot_jet.lo <= x <= x.mdot_jet.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.u_coflow.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of u_coflow."
+    },
+    {
+      "name": "x.u_coflow.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of u_coflow."
+    },
+    {
+      "name": "x.u_coflow.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of u_coflow (raw SI value)."
+    },
+    {
+      "name": "x.u_coflow.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of u_coflow (raw SI value)."
+    },
+    {
+      "name": "x.u_jet.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of u_jet."
+    },
+    {
+      "name": "x.u_jet.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of u_jet."
+    },
+    {
+      "name": "x.u_jet.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of u_jet (raw SI value)."
+    },
+    {
+      "name": "x.u_jet.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of u_jet (raw SI value)."
+    },
+    {
+      "name": "x.burner_id.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of burner_id."
+    },
+    {
+      "name": "x.burner_id.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of burner_id."
+    },
+    {
+      "name": "x.burner_id.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of burner_id (raw SI value)."
+    },
+    {
+      "name": "x.burner_id.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of burner_id (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_fuel."
+    },
+    {
+      "name": "x.x_fuel.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_fuel."
+    },
+    {
+      "name": "x.x_fuel.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_fuel (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_fuel (raw SI value)."
+    },
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_o2."
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_o2."
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_o2 (raw SI value)."
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_o2 (raw SI value)."
+    },
+    {
+      "name": "x.is_ethane.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_ethane."
+    },
+    {
+      "name": "x.is_ethane.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_ethane."
+    },
+    {
+      "name": "x.is_ethane.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_ethane (raw SI value)."
+    },
+    {
+      "name": "x.is_ethane.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_ethane (raw SI value)."
+    },
+    {
+      "name": "x.is_propane.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_propane."
+    },
+    {
+      "name": "x.is_propane.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_propane."
+    },
+    {
+      "name": "x.is_propane.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_propane (raw SI value)."
+    },
+    {
+      "name": "x.is_propane.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_propane (raw SI value)."
+    },
+    {
+      "name": "x.mdot_jet.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of mdot_jet."
+    },
+    {
+      "name": "x.mdot_jet.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of mdot_jet."
+    },
+    {
+      "name": "x.mdot_jet.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of mdot_jet (raw SI value)."
+    },
+    {
+      "name": "x.mdot_jet.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "kg/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of mdot_jet (raw SI value)."
+    },
+    {
+      "name": "blow_off.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(blow_off) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "blow_off.logit.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(blow_off) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "blow_off.logit.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(blow_off); row j reads z in feature order."
+    },
+    {
+      "name": "blow_off.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(blow_off) (hinge positions)."
+    },
+    {
+      "name": "blow_off.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(blow_off)."
+    },
+    {
+      "name": "lifted.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(lifted) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "lifted.logit.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(lifted) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "lifted.logit.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(lifted); row j reads z in feature order."
+    },
+    {
+      "name": "lifted.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(lifted) (hinge positions)."
+    },
+    {
+      "name": "lifted.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(lifted)."
+    },
+    {
+      "name": "flame_length.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median flame_length / 1 m) at z = 0 before hinge terms (ln(m))."
+    },
+    {
+      "name": "flame_length.median.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median flame_length / 1 m) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flame_length.median.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median flame_length / 1 m); row j reads z in feature order."
+    },
+    {
+      "name": "flame_length.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median flame_length / 1 m) (hinge positions)."
+    },
+    {
+      "name": "flame_length.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median flame_length / 1 m)."
+    },
+    {
+      "name": "flame_length.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of flame_length at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "flame_length.spread.skip",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of flame_length on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flame_length.spread.W1",
+      "shape": [
+        8,
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of flame_length; row j reads z in feature order."
+    },
+    {
+      "name": "flame_length.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of flame_length (hinge positions)."
+    },
+    {
+      "name": "flame_length.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of flame_length."
+    },
+    {
+      "name": "flame_length.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of flame_length (0: one log-normal)."
+    },
+    {
+      "name": "flame_length.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of flame_length over that of the core (1: no wider component)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/slice/decl.json (status Declared): {\"slug\":\"slice\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-106, SLICE: laminar coflow jet diffusion flames in the Microgravity Science Glovebox, stepped up line by line to blow-off\",\"description\":\"W0 law of docs/wsp/research/phys_slice_w0.md, section 7: lifting and blow-off of a jet flame base held by an edge that burns against the gas speed it feels. One case is one logged line (one setting of one flame); the per-line blow-off probability builds in a fixed step of 10 %. Derived case inputs (SI conversions, fuel indicators) are written by tools/wsp/ext/law_inputs.py.\",\"features\":[{\"name\":\"u_coflow\",\"unit\":\"m/s\",\"transform\":\"ln\",\"description\":\"duct air velocity (u_coflow_cm_s / 100)\"},{\"name\":\"u_jet\",\"unit\":\"m/s\",\"transform\":\"ln\",\"description\":\"mean jet exit velocity (u_jet_m_s)\"},{\"name\":\"burner_id\",\"unit\":\"m\",\"transform\":\"ln\",\"description\":\"burner tube inner diameter (burner_id_mm / 1000)\"},{\"name\":\"x_fuel\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"hydrocarbon mole fraction of the jet gas\"},{\"name\":\"x_o2\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"cabin oxygen mole fraction (x_o2_cabin)\"},{\"name\":\"is_ethane\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 for ethane\"},{\"name\":\"is_propane\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 for propane (methane is the reference)\"},{\"name\":\"mdot_jet\",\"unit\":\"kg/s\",\"transform\":\"ln\",\"description\":\"jet gas mass flow (mdot_jet_mg_s / 1e6); read by flame_length only\"}],\"targets\":[{\"name\":\"blow_off\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"the flame blows off at this logged setting, or during the adjustment noted on its line\"},{\"name\":\"lifted\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"the flame base has left the rim at this setting\"},{\"name\":\"flame_length\",\"kind\":\"positive\",\"unit\":\"m\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"luminous length (lane-local; not scorable from text)\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

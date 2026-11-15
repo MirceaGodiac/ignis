@@ -1,0 +1,21 @@
+{
+  "patch_id": "law-efield-v1-w0-fable",
+  "parent_release_id": "sha256:ba9789c680cd53bae9992763baa1e6af3ccbd0600a35153b0fab09c065593a32",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_efield_w0.md(zero-shot-W0-law;exposure-in-its-section-8.3)",
+      "repo:docs/wsp/feedback/efield_feasibility.md(paragraph-for-the-physicist,sections-1-2;two-train-facts-seen:25-flame-end-events-in-about-121-train-tests,the-9.3-uA-range;T2-not-blind-to-the-train-base-rate)",
+      "repo:docs/wsp/atlas/cards/PSI-22.json(card-findings)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0 of efield.wsp: the zero-shot law of docs/wsp/research/phys_efield_w0.md (ion current of a flame in a field; blow-off by the ion wind), its section 7.4 typed verbatim as a revision of the neutral root. The author saw the train base rate of flame ends (dossier 8.3). Not fitted. Source: docs/wsp/research/phys_efield_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

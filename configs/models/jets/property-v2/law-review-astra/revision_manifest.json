@@ -1,0 +1,29 @@
+{
+  "schema": "ignis.wsp.implementation-review-revision.v1",
+  "author_model": "gpt-6-astra",
+  "implementation_classification": "synthetic_physics_review_data_informed",
+  "numeric_authoring": "inherited_unchanged_from_frozen_w0",
+  "not_a_new_zero_shot_trial": true,
+  "not_a_registered_release": true,
+  "review_finding": "F4 sensible-enthalpy reference path outside supplied cp domain",
+  "review_report": "docs/wsp/research/astra_property_transport_check.md",
+  "review_report_sha256": "f7ac6ce59be161090932fb58da74ff81676881ab1590e973194dca6f760bc254",
+  "literal_ops_identical_to_w0": true,
+  "literal_ops_sha256": "7fa8b5e8f1fc066bbaca4ab674d8e136fa71fee4590a68bd319710a4146bf0e2",
+  "predecessor_dependencies_sha256": {
+    "crates/ignis-wsp/src/property_jets_w0.rs": "1fbde4e90c869dfe5b85278a2fd4254cfcd91c8844db0075fbe04f82ab8ba81b",
+    "crates/ignis-wsp/src/physical_core.rs": "c6d4ead14d4a85ccc20113fe94fc61529d5cacf7aad73e97b7569d48e0946644"
+  },
+  "w0_supplemental_verification": {
+    "reported_by": "coordinator",
+    "command": "cargo test --offline -p ignis-wsp --lib property_ --quiet",
+    "target_directory": "runs/tooling/astra-target",
+    "property_tests_passed": 46,
+    "jets_tests_included": 6,
+    "frozen_kernel_hash_stable_before_after": true,
+    "known_reference_domain_defect_remains": true
+  },
+  "v2_status": "frozen_after_coordinator_tests_and_independent_physics_review",
+  "verification_receipt": "configs/models/jets/property-v2/law-review-astra/verification_receipt.json",
+  "final_review_report_sha256": "eb41d97b46dd55842f92618a462e67b6b311b169600b489f5d134876aa58562c"
+}

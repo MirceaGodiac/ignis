@@ -46,6 +46,10 @@ pub const RUNTIME_DEFAULT_MODEL: &str = "runtime-default";
 const EMBEDDED_INVESTIGATOR: &str = include_str!("../../../../harness/investigator.md");
 const EMBEDDED_SKILLS: &[(&str, &str)] = &[
     (
+        "model-qualification",
+        include_str!("../../../../harness/skills/model-qualification/SKILL.md"),
+    ),
+    (
         "quantitative-analysis",
         include_str!("../../../../harness/skills/quantitative-analysis/SKILL.md"),
     ),

@@ -1889,6 +1889,8 @@ dependencies = [
  "ignis-server",
  "ignis-train",
  "ignis-vision",
+ "ignis-wsp",
+ "ignis-wsp-serve",
  "serde_json",
  "tokio",
  "tower",
@@ -2081,6 +2083,8 @@ dependencies = [
  "ignis-data",
  "ignis-mcp",
  "ignis-research",
+ "ignis-wsp",
+ "ignis-wsp-serve",
  "indexmap",
  "moka",
  "rayon",
@@ -2132,6 +2136,33 @@ dependencies = [
  "serde",
  "serde_json",
  "toml",
+]
+
+[[package]]
+name = "ignis-wsp"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "hex",
+ "ignis-core",
+ "libm",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+]
+
+[[package]]
+name = "ignis-wsp-serve"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ignis-core",
+ "ignis-wsp",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
