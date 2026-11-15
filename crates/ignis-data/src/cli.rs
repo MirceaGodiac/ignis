@@ -675,7 +675,9 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             }
         }
         SourcesCmd::Media(cmd) => {
-            let flights = storage::FLIGHTS.iter().map(|f| f.accession.to_string());
+            let flights = crate::sources::storage::FLIGHTS
+                .iter()
+                .map(|f| f.accession.to_string());
             crate::media::cli::run(cmd, flights.collect())?;
         }
         SourcesCmd::Ntrs {
