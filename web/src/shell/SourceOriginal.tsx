@@ -8,6 +8,7 @@ import type { EvidenceRef, SourceAccess } from "../contracts/generated";
 import { accessExpired, videoTimeS, viewerFor } from "../research/sourceAccess";
 import { ErrorNote } from "../ui/common";
 import { useData } from "./data";
+import { OpenOriginal } from "./OpenOriginal";
 
 const PdfPage = lazy(() => import("./PdfPage"));
 
@@ -48,6 +49,7 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
       <div className="toolbar">
         <h3 style={{ margin: 0 }}>Original</h3>
         <span className="muted small">{MODE_TEXT[a.mode]}</span>
+        <OpenOriginal sourceId={evidence.source_id} loc={loc} label="New tab ↗" className="btn btn-s" />
         {httpUrl(a.landing_url) && (
           <a className="btn btn-s" style={{ marginLeft: "auto" }} href={a.landing_url} target="_blank" rel="noopener noreferrer">
             Open at NASA ↗
@@ -75,7 +77,7 @@ export function SourceOriginal({ evidence }: { evidence: EvidenceRef }) {
 }
 
 /** Only http(s) links are rendered; a `javascript:` or `data:` landing URL from a manifest is never a link. */
-function httpUrl(u: string | null | undefined): boolean {
+export function httpUrl(u: string | null | undefined): boolean {
   try {
     const p = new URL(u ?? "").protocol;
     return p === "https:" || p === "http:";
@@ -84,7 +86,7 @@ function httpUrl(u: string | null | undefined): boolean {
   }
 }
 
-function VideoOriginal({ url, startS, title }: { url: string; startS: number | null; title: string }) {
+export function VideoOriginal({ url, startS, title }: { url: string; startS: number | null; title: string }) {
   const v = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [url]);
