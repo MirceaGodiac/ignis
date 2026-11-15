@@ -784,6 +784,15 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 .cmap-tools .btn-icon { font-size: 15px; }
 .cmap-out { position: absolute; left: 66px; top: 22px; height: 26px; padding: 0 10px; border: 1px solid var(--rule-2); border-radius: 999px; background: var(--sheet); color: var(--ink-2); font-size: 12px; cursor: pointer; }
 .cmap-out:hover { color: var(--ink); background: var(--hover); }
+/* inside an answer: the map follows the card, the tools sit above the plot and wrap, the page keeps
+   the wheel and touch scrolling (Ctrl/Cmd + wheel zooms; a hint says so) */
+.cmap-inline { width: 100%; min-width: 0; overflow: hidden; }
+.cmap-inline .cmap-svg { touch-action: pan-x pan-y; }
+.cmap-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 8px; margin-bottom: 6px; }
+.cmap-bar .cmap-tools { position: static; }
+.cmap-bar .cmap-out { position: static; order: -1; margin-right: auto; }
+.cmap-hint { position: absolute; left: 50%; bottom: 56px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--ink) 82%, transparent); color: var(--paper); font-size: 12px; pointer-events: none; opacity: 0; transform: translate(-50%, 2px); transition: opacity 160ms var(--ease), transform 160ms var(--ease); }
+.cmap-hint.on { opacity: 1; transform: translate(-50%, 0); }
 
 .mapv { display: grid; gap: 14px; }
 .mapv-layers { display: grid; gap: 8px; }

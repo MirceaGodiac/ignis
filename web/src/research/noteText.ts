@@ -96,6 +96,27 @@ export function splitListMessage(message: string): ListMessage | null {
   return null;
 }
 
+/**
+ * Claim keys as a reader scans them: numeric keys sorted and runs collapsed ("1–4, 7, 9–12");
+ * other keys kept in order after them. `short` is what the caption shows; when the ranges still
+ * run long it becomes a count ("18 claims") and `full` goes in a tooltip.
+ */
+export function compactKeys(keys: string[]): { short: string; full: string } {
+  const uniq = [...new Set(keys)];
+  const nums = uniq.filter((k) => /^\d+$/.test(k)).map(Number).sort((a, b) => a - b);
+  const other = uniq.filter((k) => !/^\d+$/.test(k));
+  const runs: string[] = [];
+  for (let i = 0; i < nums.length; ) {
+    let j = i;
+    while (j + 1 < nums.length && nums[j + 1] === nums[j] + 1) j++;
+    runs.push(j - i >= 2 ? `${nums[i]}–${nums[j]}` : j === i ? `${nums[i]}` : `${nums[i]}, ${nums[j]}`);
+    i = j + 1;
+  }
+  const list = [...runs, ...other].join(", ");
+  const full = `${uniq.length === 1 ? "Claim" : "Claims"} ${list}`;
+  return { short: list.length > 24 ? `${uniq.length} claims` : full, full };
+}
+
 // What a step's error means, in a reader's words; the tool's own message follows it.
 const NOUN: Record<string, string> = {
   datasets_inspect: "dataset",

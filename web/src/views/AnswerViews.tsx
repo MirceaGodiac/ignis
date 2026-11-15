@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { ConditionsTable, ResearchAnswer, ViewSpec, VisualObservationBundle } from "../contracts/generated";
 import { SeriesChart } from "../components/SeriesChart";
 import { readSeries, seriesProblems, viewProblems, type Series } from "../research/viewSpec";
-import { chartRows, skippedNote, tableModel, type ChartView } from "../research/chartRows";
+import { chartRows, rowCount, skippedNote, tableModel, type ChartView } from "../research/chartRows";
+import { compactKeys } from "../research/noteText";
 import { AnswerChart } from "../components/AnswerChart";
 import { DataTable } from "../components/DataTable";
 import "./answer.css";
@@ -36,14 +37,15 @@ const KIND_TITLE: Record<ViewSpec["kind"], string> = {
 
 export function ViewBlock({ view, caption, answer, client, claimKeys }: { view: ViewSpec; caption?: string | null; answer: ResearchAnswer; client: ResearchClient; claimKeys: string[] }) {
   const problems = viewProblems(view, answer);
+  const claims = claimKeys.length ? compactKeys(claimKeys) : null;
   return (
     <figure className={`view-block view-${view.kind}`} aria-label={caption ? `${KIND_TITLE[view.kind]}: ${caption}` : KIND_TITLE[view.kind]}>
       <figcaption className="view-cap">
         <span className="view-kind">{KIND_TITLE[view.kind]}</span>
         {caption && <span className="view-caption">{caption}</span>}
-        {claimKeys.length > 0 && (
-          <span className="view-claims">
-            {claimKeys.length === 1 ? "Claim" : "Claims"} {claimKeys.join(", ")}
+        {claims && (
+          <span className="view-claims" title={claims.short === claims.full ? undefined : claims.full}>
+            {claims.short}
           </span>
         )}
       </figcaption>
@@ -138,7 +140,7 @@ function AnswerMap({ t }: { t: ConditionsTable }) {
   const [domain, setDomain] = useState<Domain>(HOME);
   const [selected, setSelected] = useState<string | null>(null);
   const maxKpa = Math.max(150, ...v.points.map((p) => p.kpa));
-  return <ConditionsMap points={v.points} hidden={NONE} habitats={ALL_HABITATS} selected={selected} onSelect={setSelected} domain={domain} setDomain={setDomain} maxKpa={maxKpa} />;
+  return <ConditionsMap points={v.points} hidden={NONE} habitats={ALL_HABITATS} selected={selected} onSelect={setSelected} domain={domain} setDomain={setDomain} maxKpa={maxKpa} inline />;
 }
 const NONE = new Set<string>();
 const ALL_HABITATS = new Set<HabitatId>(["moon", "suit", "iss"]);
@@ -216,10 +218,7 @@ function ChartArtifact({ view, client }: { view: ChartView; client: ResearchClie
     <>
       <AnswerChart view={view} data={d} />
       <p className="view-foot">
-        <span>
-          {d.points.length} {d.points.length === 1 ? "row" : "rows"} from <code>{shortId(view.artifact_id)}</code>
-          {view.pointer && <code>{view.pointer}</code>}
-        </span>
+        <span title={`From ${view.artifact_id}${view.pointer ? ` ${view.pointer}` : ""}`}>{rowCount(d.points.length, d.noun)}</span>
         {note && <span className="view-skip">{note}</span>}
       </p>
     </>

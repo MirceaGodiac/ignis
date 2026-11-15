@@ -1,7 +1,17 @@
 // A declined step's message read as a head and a list; a limit read as its first sentence and the rest.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { leadSentence, refusalSummary, splitListMessage } from "../src/research/noteText.ts";
+import { compactKeys, leadSentence, refusalSummary, splitListMessage } from "../src/research/noteText.ts";
+
+test("claim keys sort numerically and collapse into ranges; a long list becomes a count", () => {
+  const keys = [...Array.from({ length: 17 }, (_, i) => String(i + 2)), "1"];
+  assert.deepEqual(compactKeys(keys), { short: "Claims 1–18", full: "Claims 1–18" });
+  assert.equal(compactKeys(["3", "1", "2", "7", "9", "10"]).short, "Claims 1–3, 7, 9, 10");
+  assert.equal(compactKeys(["4"]).short, "Claim 4");
+  const scattered = compactKeys(["1", "3", "5", "7", "9", "11", "13", "15", "17"]);
+  assert.equal(scattered.short, "9 claims");
+  assert.equal(scattered.full, "Claims 1, 3, 5, 7, 9, 11, 13, 15, 17");
+});
 
 test("a dataset not_found message becomes a head, the readable bundles and the tail", () => {
   const msg =
