@@ -29,6 +29,10 @@ use crate::store::{RuntimeChange, RuntimeRecord};
 /// Name of the IGNIS MCP server in the runtime configuration (M3); its tools return `ToolResult`.
 pub const IGNIS_MCP_SERVER: &str = "ignis";
 
+/// The IGNIS tool that binds a turn's answer (`answer.completed`); a runtime attached to it can end
+/// a turn without one, which the host then continues once.
+pub const ANSWER_TOOL: &str = "answer_submit";
+
 /// Why the host stopped a turn (decides the episode status an interrupted turn ends in).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StopReason {
@@ -366,13 +370,34 @@ pub fn map_item(turn: Option<&str>, item: &Value, completed: bool) -> Vec<Mapped
     }
 }
 
+/// What the episode log says after a turn the runtime could not finish: the conversation is not
+/// over, the next message continues it.
+pub const CONTINUES: &str = "the conversation continues with the next message";
+
+/// Statuses in which an episode waits for the runtime to pick up its messages (no turn is live).
+pub(crate) const IDLE: &[EpisodeStatus] = &[
+    EpisodeStatus::Ready,
+    EpisodeStatus::Completed,
+    EpisodeStatus::WaitingUser,
+];
+
+/// The reason recorded when the runtime could not start a turn for waiting messages.
+pub fn not_started(error: &str) -> String {
+    format!(
+        "the runtime could not start a turn ({error}); the waiting messages are sent with the next message, on resume or after a restart"
+    )
+}
+
 /// The episode status a finished turn leads to, and the turn outcome stored with it.
+///
+/// Only the host ends an episode for good (`failed`): when the runtime broke the profile's policy
+/// or the protocol's contract. Anything the runtime itself could not finish (a model or API error,
+/// a rate limit, an overloaded provider, a process that exited without a result, a turn past its
+/// budget) leaves the episode `waiting_user` with the reason, and the conversation goes on.
 pub fn turn_outcome(turn: &Value, stop: Option<StopReason>) -> (EpisodeStatus, String, String) {
     let status = s(turn, "status").unwrap_or("");
-    let error = turn
-        .pointer("/error/message")
-        .and_then(Value::as_str)
-        .unwrap_or("no error message");
+    let message = turn.pointer("/error/message").and_then(Value::as_str);
+    let error = message.unwrap_or("no error message");
     match (status, stop) {
         ("completed", _) => (
             EpisodeStatus::Completed,
@@ -392,18 +417,21 @@ pub fn turn_outcome(turn: &Value, stop: Option<StopReason>) -> (EpisodeStatus, S
         ("interrupted", Some(StopReason::Policy)) => (
             EpisodeStatus::Failed,
             "interrupted".into(),
-            "turn stopped: the runtime tried a shell command, which the public profile forbids"
-                .into(),
+            match message {
+                Some(m) => format!("turn stopped: {m}"),
+                None => "turn stopped: the runtime tried a shell command, which the public profile forbids"
+                    .into(),
+            },
         ),
         ("interrupted", None) => (
             EpisodeStatus::WaitingUser,
             "interrupted".into(),
-            "turn interrupted by the runtime; its messages are not re-sent".into(),
+            format!("turn interrupted by the runtime; its messages are not re-sent; {CONTINUES}"),
         ),
         ("failed", _) => (
-            EpisodeStatus::Failed,
+            EpisodeStatus::WaitingUser,
             "failed".into(),
-            format!("turn failed: {error}"),
+            format!("turn failed: {error}; {CONTINUES}"),
         ),
         (other, _) => (
             EpisodeStatus::Failed,
@@ -482,13 +510,20 @@ mod tests {
         }
     }
 
+    /// A runtime failure is never success and never ends the conversation; a policy stop does.
     #[test]
-    fn a_failed_turn_is_never_reported_as_success() {
+    fn a_failed_turn_waits_for_the_user_and_only_a_policy_stop_fails_the_episode() {
         let t = json!({"id": "u", "status": "failed", "error": {"message": "model refused"}, "items": []});
         let out = map_turn_completed(&t, None);
         let Mapped::Record(r) = &out[0] else { panic!() };
         assert!(
-            matches!(&r.change, RuntimeChange::Status { to: EpisodeStatus::Failed, reason: Some(m), .. } if m.contains("model refused"))
+            matches!(&r.change, RuntimeChange::Status { to: EpisodeStatus::WaitingUser, reason: Some(m), .. } if m.contains("model refused") && m.contains(CONTINUES))
+        );
+        let stopped = json!({"id": "u", "status": "interrupted", "error": {"message": "depth 1"}});
+        let (to, _, why) = turn_outcome(&stopped, Some(StopReason::Policy));
+        assert_eq!(
+            (to, why.as_str()),
+            (EpisodeStatus::Failed, "turn stopped: depth 1")
         );
     }
 

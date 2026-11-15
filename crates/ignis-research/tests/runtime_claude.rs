@@ -200,25 +200,185 @@ fn a_turn_with_a_tool_call_then_a_resumed_session() {
     );
 }
 
+/// The prompts the fake received, in order.
+fn prompts(dir: &Path) -> Vec<String> {
+    let ws = std::fs::read_dir(dir.join("claude"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    std::fs::read_to_string(ws.join("config").join("prompts.jsonl"))
+        .unwrap_or_default()
+        .lines()
+        .map(|l| {
+            let v: serde_json::Value = serde_json::from_str(l).unwrap();
+            v["prompt"].as_str().unwrap().to_string()
+        })
+        .collect()
+}
+
+fn transitions(evs: &[ResearchEvent]) -> Vec<(EpisodeStatus, EpisodeStatus)> {
+    evs.iter()
+        .filter_map(|e| match &e.body {
+            EventBody::StatusChanged { from, to, .. } => Some((*from, *to)),
+            _ => None,
+        })
+        .collect()
+}
+
+/// A plan limit, a bad credential or a process that dies without a result does not end the
+/// conversation: the episode waits for the user with the reason, and the next message resumes the
+/// session (or starts it, when the dead turn never created it).
 #[test]
-fn a_plan_limit_or_a_bad_credential_fails_the_turn_with_its_reason() {
+fn a_plan_limit_or_a_bad_credential_waits_for_the_user_and_the_session_goes_on() {
     let dir = tempfile::tempdir().unwrap();
     let h = harness(dir.path());
     let sc = scope("ws-f", false);
     let ep = h.episode(&sc, "limit");
     h.say(&sc, &ep, "hit the limit");
-    let evs = h.idle(&sc, &ep, EpisodeStatus::Failed, 1);
+    let evs = h.idle(&sc, &ep, EpisodeStatus::WaitingUser, 1);
     assert!(
         reason(&evs).contains("usage limit reached"),
         "{}",
         reason(&evs)
     );
+    h.say(&sc, &ep, "and now");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    check_event_log(&evs).unwrap();
+    assert_eq!(completed_texts(&evs), vec!["Answer: and now"]);
 
     let ep = h.episode(&sc, "crash");
     h.say(&sc, &ep, "crash now");
-    let evs = h.idle(&sc, &ep, EpisodeStatus::Failed, 1);
+    let evs = h.idle(&sc, &ep, EpisodeStatus::WaitingUser, 1);
     // Also proves the host secret never reached the child (the fake would fail differently).
     assert!(reason(&evs).contains("Invalid API key"), "{}", reason(&evs));
+
+    // Dead before any output: the session never existed, so the next turn starts it.
+    let ep = h.episode(&sc, "mute");
+    h.say(&sc, &ep, "mute now");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::WaitingUser, 1);
+    assert!(reason(&evs).contains("overloaded"), "{}", reason(&evs));
+    h.say(&sc, &ep, "try again");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    assert_eq!(completed_texts(&evs), vec!["Answer: try again"]);
+    let sid = h
+        .store
+        .episode(&sc, &ep)
+        .unwrap()
+        .runtime
+        .unwrap()
+        .thread_id;
+    let runs: Vec<_> = argv(dir.path())
+        .into_iter()
+        .filter(|a| a.contains(&sid))
+        .collect();
+    assert_eq!(runs.len(), 2);
+    assert!(runs.iter().all(|a| a.iter().any(|x| x == "--session-id")));
+}
+
+/// A turn past its budget is stopped and said so; the conversation goes on.
+#[test]
+fn a_turn_past_its_budget_waits_for_the_user() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness_with(dir.path(), |c| {
+        c.turn_timeout = std::time::Duration::from_millis(800)
+    });
+    let sc = scope("ws-b", false);
+    let ep = h.episode(&sc, "budget");
+    h.say(&sc, &ep, "slow work");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::WaitingUser, 1);
+    assert!(reason(&evs).contains("budget of 0.8 s"), "{}", reason(&evs));
+    h.say(&sc, &ep, "quick one");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    check_event_log(&evs).unwrap();
+    assert!(completed_texts(&evs).contains(&"Answer: quick one".to_string()));
+}
+
+/// Resume after a pause continues the interrupted question with one host turn quoting it.
+#[test]
+fn resume_continues_the_interrupted_question() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness(dir.path());
+    let sc = scope("ws-r", false);
+    let ep = h.episode(&sc, "resume");
+    h.say(&sc, &ep, "slow work");
+    h.wait(&sc, &ep, "first message", |e| {
+        count(e, "message.completed") >= 1
+    });
+    h.store.act(&sc, &ep, EpisodeAction::Pause).unwrap();
+    h.bridge.interrupt(&sc, &ep, StopReason::Pause).unwrap();
+    h.wait(&sc, &ep, "turn closed", |_| {
+        h.store.active_turn(&sc, &ep).unwrap().is_none()
+    });
+    h.store.act(&sc, &ep, EpisodeAction::Resume).unwrap();
+    h.bridge.resume(&sc, &ep).unwrap();
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    check_event_log(&evs).unwrap();
+    let sent = prompts(dir.path());
+    assert_eq!(sent.len(), 2, "{sent:?}");
+    assert!(sent[1].starts_with("IGNIS host:"), "{}", sent[1]);
+    assert!(sent[1].contains("> slow work"), "{}", sent[1]);
+    let args = &argv(dir.path())[1];
+    assert!(args.iter().any(|a| a == "--resume"), "{args:?}");
+}
+
+/// With `answer_submit` attached, a turn that ends without an accepted answer gets exactly one
+/// host continuation (the episode never looks completed in between); then it completes.
+#[test]
+fn a_turn_without_an_accepted_answer_is_continued_once() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness_with(dir.path(), |c| {
+        c.mcp = Some(McpAttachment {
+            url: "http://127.0.0.1:9/mcp".into(),
+            grants: McpGrants::new(),
+            enabled_tools: vec!["sources_search".into(), "answer_submit".into()],
+            approved_tools: vec!["sources_search".into(), "answer_submit".into()],
+        });
+    });
+    let sc = scope("ws-a", false);
+    let ep = h.episode(&sc, "answer");
+    h.say(&sc, &ep, "a question");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    check_event_log(&evs).unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    assert_eq!(events(&h.store, &sc, &ep).len(), evs.len());
+    use EpisodeStatus as S;
+    assert_eq!(
+        transitions(&evs),
+        vec![
+            (S::Ready, S::Running),
+            (S::Running, S::Running),
+            (S::Running, S::Completed)
+        ]
+    );
+    let sent = prompts(dir.path());
+    assert_eq!(sent.len(), 2, "{sent:?}");
+    assert!(
+        sent[1].contains("Submit your answer with answer_submit"),
+        "{}",
+        sent[1]
+    );
+}
+
+/// A message no turn received is sent by recovery.
+#[test]
+fn a_message_no_turn_received_is_sent_on_recovery() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness(dir.path());
+    let sc = scope("ws-s", false);
+    let ep = h.episode(&sc, "stranded");
+    h.store
+        .post_message(
+            &sc,
+            &ep,
+            "nobody sent me",
+            &ClientRequestId::new("s1").unwrap(),
+        )
+        .unwrap();
+    h.bridge.recover().unwrap();
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    assert_eq!(completed_texts(&evs), vec!["Answer: nobody sent me"]);
 }
 
 #[test]
@@ -290,7 +450,7 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     let sc = scope("ws-live", false);
     let ep = h.episode(&sc, "live");
     h.say(&sc, &ep, "Say hello.");
-    let evs = h.idle(&sc, &ep, EpisodeStatus::Failed, 1);
+    let evs = h.idle(&sc, &ep, EpisodeStatus::WaitingUser, 1);
     let why = reason(&evs);
     println!("reason: {why}");
     assert!(
