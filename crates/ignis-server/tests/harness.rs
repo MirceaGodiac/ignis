@@ -269,3 +269,43 @@ fn holdout_paths_test_task_sets_and_test_scopes_are_refused() {
     scope.role = ScopeRole::Evaluation;
     assert!(check_scope(&scope).is_err());
 }
+
+/// The evaluation harness never runs an agent without IGNIS tools: a run whose capabilities
+/// report no MCP endpoint or no available tool is refused, and the run's serve settings point at
+/// the same data roots as `ignis serve`, with the run's own state and the variant's runtime.
+#[test]
+fn a_harness_run_without_ignis_tools_is_refused_and_uses_the_serve_data_roots() {
+    use ignis_server::harness_run::{check_tools, serve_args};
+    use serde_json::json;
+    let no_mcp = json!({"mcp": {"available": false, "detail": "not served"},
+                        "tools": [{"name": "sources_search", "available": true}]});
+    assert!(check_tools(&no_mcp).is_err());
+    let no_tools = json!({"mcp": {"available": true, "detail": "ok"},
+                          "tools": [{"name": "sources_search", "available": false}]});
+    assert!(check_tools(&no_tools).is_err());
+    let ok = json!({"mcp": {"available": true, "detail": "ok"},
+                    "tools": [{"name": "sources_search", "available": true}]});
+    check_tools(&ok).unwrap();
+
+    let dir = tempfile::tempdir().unwrap();
+    let variant = repo().join("harness");
+    let tasks = repo().join("fixtures/harness/dev_tasks.json");
+    let a = parse(&[
+        "--variant",
+        variant.to_str().unwrap(),
+        "--tasks",
+        tasks.to_str().unwrap(),
+        "--out",
+        dir.path().to_str().unwrap(),
+        "--enable-models",
+    ]);
+    let s = serve_args(&a).unwrap();
+    assert!(s.enable_models);
+    assert!(!s.data.starts_with(dir.path()), "{}", s.data.display());
+    assert!(!s.artifacts.starts_with(dir.path()));
+    assert!(s
+        .state_dir
+        .starts_with(std::path::absolute(dir.path()).unwrap()));
+    assert!(s.codex.harness_dir.is_some());
+    assert_eq!(s.auth, ignis_server::v1::io::AuthMode::Local);
+}
