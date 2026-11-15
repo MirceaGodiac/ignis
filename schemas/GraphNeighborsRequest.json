@@ -406,7 +406,8 @@
       "type": "array"
     },
     "schema_version": {
-      "$ref": "#/$defs/EvidenceSchema"
+      "$ref": "#/$defs/EvidenceSchema",
+      "default": "evidence.v2"
     },
     "value_max_si": {
       "type": [
@@ -423,7 +424,6 @@
     }
   },
   "required": [
-    "schema_version",
     "node"
   ],
   "title": "GraphNeighborsRequest",

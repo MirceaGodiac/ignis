@@ -11,7 +11,7 @@ description: Answer analytical questions by computing from IGNIS datasets and ar
   partitions, and use the real `dataset_id` it returns. Experimental times are seconds since that
   origin; say which origin you use. For run conditions use `conditions_query`; it states gaps
   (a missing pressure cell stays missing), and with `near` it ranks runs by their distance to an
-  atmosphere (`moon_base`, `spacesuit`, `iss_earth` or explicit bounds), so a ranking needs no
+  atmosphere (`moon_base`, `spacesuit`, `iss_earth`, `exploration` or explicit bounds), so a ranking needs no
   program.
 - Note missing, conflicting and not-applicable values. They are explicit statuses, never zeros: drop
   or flag them in the program and report how many were excluded.

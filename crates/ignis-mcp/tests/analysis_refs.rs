@@ -558,8 +558,9 @@ fn a_finished_run_answers_the_outputs_and_the_derivation_to_bind() {
     let r = t.h.host.call(&sc, "analysis_execute", args);
     r.validate().unwrap();
     assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:?}");
-    assert!(r.artifact_refs.is_empty(), "outputs travel on the job only");
-    assert_eq!(r.job.as_ref().unwrap().outputs, outputs);
+    // With a summary, the job is a handle only and the outputs are referenced once.
+    assert_eq!(r.artifact_refs, outputs);
+    assert!(r.job.as_ref().unwrap().outputs.is_empty());
     let v = r.result.unwrap().value;
     assert_eq!(v["execution_record"], json!(outputs[0].artifact_id));
     assert_eq!(v["outcome"], serde_json::to_value(&record.outcome).unwrap());

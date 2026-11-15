@@ -40,8 +40,8 @@ are exhausted, never because you have made "enough" calls.
    conditions, which comparison). Each kind has a skill (see "Skills"); take it up before your
    first tool call of that kind: documentary → `source-grounding`, analytical (a computation) →
    `quantitative-analysis`, predictive (a forecast) → `model-qualification`.
-2. **Retrieve and compute** with the IGNIS tools (see "Which tool answers what"). Read the passage
-   behind every hit you will rely on. Issue independent calls together, in one step (several
+2. **Retrieve and compute** with the IGNIS tools (see "Which tool answers what"). Cite a hit
+   directly when its snippet holds the statement; read only a cut-off passage. Issue independent calls together, in one step (several
    phrasings of a search, the reads of different hits, a search beside a `conditions_query`): every
    step re-sends the whole conversation, and batched calls run at the same time. Keep a call that
    needs another's result for the next step, and do not re-read a range you already have.
@@ -50,9 +50,11 @@ are exhausted, never because you have made "enough" calls.
    refuse with an argument you can fix (wrong id, missing field, a run the model refuses)? Fix it and
    call again; the refusal message says what to change. Did an analysis fail? Read its stderr, fix
    the program, rerun. A result with `partial: true` (or a `stored_as_artifact` id) holds only a
-   preview of what the tool returned: read the rest with `artifacts_read` on that artifact (a JSON
-   Pointer reads one part) or narrow the call (filters, keys, a page_size) before searching
-   elsewhere.
+   preview of what the tool returned. Never page through a whole stored table or list with
+   `artifacts_read`: every call re-sends the conversation. To show rows, name the artifact in a view
+   by its id (the client draws every row); to find particular rows, narrow the call (keys, filters,
+   `near`, run or investigation ids, a page_size); read with `artifacts_read` only the few items you
+   will state.
 4. **Iterate** until every part is answered or genuinely unanswerable from what IGNIS holds. Before
    settling for `partial` or `insufficient_evidence`, try the avenues that fit: other phrasings and
    `expected_terms`, filters by investigation or source, `sources_outline` and `sources_read` on the
@@ -92,13 +94,32 @@ input it mounted).
      claim with support or values becomes a grounded claim (or two claims); one that names a
      validation or test run drops the run, or states only what the tools returned about it.
    - `unpinned_release`: list the release id in `model_releases` (accepted when it is pinned on the
-     episode or ran in one of your successful `models_forecast` calls here), or drop the prediction.
+     episode, ran in one of your successful `models_forecast` calls here, or, with no predicted claim
+     resting on it, was returned by `models_inspect` here), or drop it.
    - `ungrounded_number`, `ungrounded_derivation`, `stale_snapshot`, `unresolved_row`,
      `unknown_column`, `unit_mismatch`, `value_mismatch`: a number in `values` does not resolve as
      bound; the detail names the value. Re-read the artifact (current sha256, row keys, column, the
      ExecutionRecord and its inputs) and bind it again, or drop the number.
    - `view_contract_mismatch`: a view reads an artifact of the wrong contract.
    - `unknown_claim` / `invalid_structure`: fix the ids, or add the missing `limitations`.
+
+## Short flows by question type
+
+Most questions need only a few calls; batch independent ones.
+
+- **NASA record fact** (PSI number, DOI, size, hardware, PI): `sources_search` naming the
+  investigation and the field, then `answer_submit` citing the hit, with a `source_excerpt` view.
+- **Document question:** 2 or 3 batched `sources_search` phrasings; cite the hits whose snippet or
+  quote holds the statement (`sources_read` only when the passage is cut off); submit with a
+  `source_excerpt` view of the decisive hit.
+- **Atmosphere** (closest to Moon base, spacesuit, ISS, exploration): `conditions_query` with
+  `near`, then submit `observed` claims on `conditions_cell` values, an `atmosphere_map` and a
+  `chart` over the returned `artifact_id` (no `artifacts_read`).
+- **Chart of conditions:** `conditions_query` with filters, then a `chart` over `view_fields`
+  (no reads: the client draws every row).
+- **Forecast:** `models_forecast` with the run name (NASA names resolve) and a cutoff; submit with
+  `series_comparison` (the result's `series`) and `release_card`.
+- **Model question:** `models_inspect`, then `release_card` and claims on its card.
 
 ## Which tool answers what
 
@@ -108,7 +129,7 @@ input it mounted).
 | a NASA record fact of an investigation: PSI number, dataset DOI and version, licence, total size and file counts, ISS hardware, PI and investigators, dates | `sources_search` naming the investigation and the field (e.g. "FLEX-2 dataset size"): each flight investigation's PSI investigation record is a citable source |
 | the structure of a long report (which pages hold results, tables) | `sources_outline`, then `sources_read` on those pages, then a `sources_search` with `filters.source_ids` for the citable hit |
 | per-run conditions (O2, pressure, fuel, diluent, flow, gravity), or which runs were tested at X | `conditions_query` (filters in SI, `include_envelopes` for each investigation's tested range) |
-| which runs or tests match, or come closest to, an atmosphere (Moon base, spacesuit, ISS/Earth, or given O2 and pressure) | `conditions_query` with `near`: `{"atmosphere": "moon_base"}`, `spacesuit` or `iss_earth` (see "Reference atmospheres"), or explicit bounds; a small `page_size` and the keys you need; rows come nearest first with `nearness` |
+| which runs or tests match, or come closest to, an atmosphere (Moon base, spacesuit, ISS/Earth, exploration, or given O2 and pressure) | `conditions_query` with `near`: `{"atmosphere": "moon_base"}`, `spacesuit`, `iss_earth` or `exploration` (see "Reference atmospheres"), or explicit bounds; rows come nearest first with `nearness` (25 by default, with O2, pressure and fuel) |
 | hardware, fuels, diagnostics shared across investigations; the runs or sources linked to one investigation | `graph_neighbors` on a concept node, e.g. `{"concept": "investigation", "id": "PSI-47"}`, `{"concept": "hardware", "id": "hw:mdca"}`; links are pointers, not citable: cite what they point at |
 | measured time series or tables to compute on | `datasets_inspect` (a family name such as `flex` or `sensors-psi-10` resolves when exactly one bundle matches; an unknown id lists what this session can read), then `analysis_execute` |
 | a forecast | the `model-qualification` skill |
@@ -131,12 +152,14 @@ IGNIS habitat views use them). They define the question, not evidence: use them 
 to", "relevant to" or "tested at" questions, and bind every compared run value to a returned
 reference.
 
-| Atmosphere | O2 mole fraction | Pressure |
+| Atmosphere (`near.atmosphere`) | O2 mole fraction | Pressure |
 |---|---|---|
-| Moon base and rovers | ≥ 0.30 | ≤ 10.2 psi (70.3 kPa) in the brief; IGNIS bounds it below by the suit pressure, ≥ 4.3 psi (29.6 kPa), as its own reading |
-| Spacesuit | 1.00 | 4.3 psi (29.6 kPa) |
-| ISS and Earth cabin | 0.21 | 14.7 psi (101.3 kPa) nominal |
-| NASA proposed exploration atmosphere (reference, not final for Artemis) | 0.34 | 8.2 psia (56.5 kPa) |
+| Moon base and rovers (`moon_base`) | ≥ 0.30 | ≤ 10.2 psi (70.3 kPa) in the brief; IGNIS bounds it below by the suit pressure, ≥ 4.3 psi (29.6 kPa), as its own reading |
+| Spacesuit (`spacesuit`) | 1.00 (IGNIS: ≥ 0.99) | 4.3 psi (29.6 kPa); IGNIS: 4.1 to 4.5 psi (28.3 to 31.0 kPa) |
+| ISS and Earth cabin (`iss_earth`) | 0.21 nominal; IGNIS band 0.195 to 0.235 | 14.7 psi (101.3 kPa) nominal; IGNIS band 97.9 to 102.7 kPa (14.2 to 14.9 psi) |
+| NASA proposed exploration atmosphere (`exploration`; reference, not final for Artemis) | 0.34 (IGNIS: 0.33 to 0.35) | 8.2 psia (56.5 kPa); IGNIS: 55.2 to 57.9 kPa |
+
+The IGNIS bands are its reading of a nominal value as an operating range, not the brief's.
 
 Partial gravity is an IGNIS convention, not from the brief: 0.1 to 0.5 g (Moon 0.17 g, Mars
 0.38 g); PSI holds no partial-gravity combustion data. To rank runs against an atmosphere, call

@@ -138,6 +138,7 @@ pub struct SearchFilters {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct SearchRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub query: String,
     #[serde(default)]
@@ -360,6 +361,7 @@ pub enum ReadRange {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ReadRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub source_id: SourceId,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -421,6 +423,7 @@ impl ReadResult {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct OutlineRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub source_id: SourceId,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -980,6 +983,7 @@ pub enum DirectionFilter {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GraphNeighborsRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub node: GraphNode,
     /// Empty = every relation.
@@ -1346,6 +1350,7 @@ impl WikiOp {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct WikiPatch {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub page_id: WikiPageId,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1501,6 +1506,7 @@ impl WikiRevision {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct WikiReadRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub page_id: Option<WikiPageId>,
@@ -1680,6 +1686,7 @@ impl ExternalSourceCandidate {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct WebSearchRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub query: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1726,6 +1733,7 @@ impl WebSearchPage {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct WebFetchRequest {
+    #[serde(default)]
     pub schema_version: EvidenceSchema,
     pub url: String,
 }

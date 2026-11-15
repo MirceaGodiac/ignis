@@ -776,6 +776,10 @@ export type SupportCheckMethod = "host_rule" | "nli_model" | "llm_judge" | "huma
  */
 export type SupportVerdict = ("supported" | "partially_supported" | "not_supported") | "unverifiable";
 /**
+ * `id` is accepted as an alias.
+ */
+export type ClaimId1 = string;
+/**
  * What a claim asserts. The kind fixes what may support it, so a prediction cannot be reported as
  * a measurement and a computed value cannot be cited to prose.
  *
@@ -925,6 +929,15 @@ export type AnswerProblemKind =
   | "ungrounded_derivation"
   | "invalid_structure";
 /**
+ * How much a search or read returns per item: `concise` keeps ids, locators and short text for
+ * scanning, `detailed` adds scores, full quotes and context. Absent = the service default. It
+ * changes the size of each item, never which items match or their order.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResponseFormat".
+ */
+export type ResponseFormat = "concise" | "detailed";
+/**
  * Digest of the harness bundle the skill belongs to.
  */
 export type Digest6 = string;
@@ -939,14 +952,11 @@ export type PageCursor = string;
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "CrewAtmosphere".
  */
-export type CrewAtmosphere = "moon_base" | "spacesuit" | "iss_earth";
+export type CrewAtmosphere = "moon_base" | "spacesuit" | "iss_earth" | "exploration";
 /**
  * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
  * `dataset.v1` (C0) documents are still read, and keep their content digests because a
  * document is re-serialized with the tag it was read with. New document types require v2.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "DatasetSchema".
  */
 export type DatasetSchema = "dataset.v2" | "dataset.v1";
 /**
@@ -1133,21 +1143,9 @@ export type RuntimeProfile = "public";
 export type TermImportance = "high" | "medium" | "low";
 export type SearchMode = "hybrid" | "lexical" | "dense";
 /**
- * How much a search or read returns per item: `concise` keeps ids, locators and short text for
- * scanning, `detailed` adds scores, full quotes and context. Absent = the service default. It
- * changes the size of each item, never which items match or their order.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ResponseFormat".
- */
-export type ResponseFormat = "concise" | "detailed";
-/**
  * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
  * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
  * refused under the v1 tag, so a v1 reader never receives a document it would misread.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "EvidenceSchema".
  */
 export type EvidenceSchema = "evidence.v2" | "evidence.v1";
 /**
@@ -1173,6 +1171,15 @@ export type ScoreKind = "bm25" | "cosine" | "rrf" | "rerank";
  */
 export type SearchMode1 = "hybrid" | "lexical" | "dense";
 /**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "EvidenceSchema".
+ */
+export type EvidenceSchema1 = "evidence.v2" | "evidence.v1";
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ReadRange".
  */
@@ -1196,10 +1203,22 @@ export type ReadRange =
       table_id: string;
     };
 /**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema2 = "evidence.v2" | "evidence.v1";
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "OutlineNodeId".
  */
 export type OutlineNodeId = string;
+/**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema3 = "evidence.v2" | "evidence.v1";
 /**
  * How the UI reaches an original's bytes without IGNIS storing them (LANES_V2 §7).
  *
@@ -1278,6 +1297,12 @@ export type Relation =
   | "part_of";
 export type DirectionFilter = "outgoing" | "incoming" | "both";
 /**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema4 = "evidence.v2" | "evidence.v1";
+/**
  * Which side of the requested node an edge sits on.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -1341,6 +1366,12 @@ export type WikiItemKind =
   | "lesson"
   | "note";
 /**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema5 = "evidence.v2" | "evidence.v1";
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "AuthorKind".
  */
@@ -1349,6 +1380,12 @@ export type AuthorKind = "agent" | "human";
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
 export type Digest10 = string;
+/**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema6 = "evidence.v2" | "evidence.v1";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1364,10 +1401,22 @@ export type WikiReadBody =
       pages: WikiPageSummary[];
     };
 /**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema7 = "evidence.v2" | "evidence.v1";
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WebContent".
  */
 export type WebContent = "excerpt" | "full_snapshot";
+/**
+ * Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
+ * are still read. An addition of v2 (a field, a relation, a concept node, a new document type) is
+ * refused under the v1 tag, so a v1 reader never receives a document it would misread.
+ */
+export type EvidenceSchema8 = "evidence.v2" | "evidence.v1";
 /**
  * Who may receive a bundle. Builder bundles (models, lab, authoring) never contain test outcomes;
  * those live in a separate evaluator bundle that is not mounted in builder workspaces.
@@ -1376,6 +1425,16 @@ export type WebContent = "excerpt" | "full_snapshot";
  * via the `definition` "BundleAudience".
  */
 export type BundleAudience = "builder" | "evaluator";
+export type Timestamp1 = string;
+/**
+ * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
+ * `dataset.v1` (C0) documents are still read, and keep their content digests because a
+ * document is re-serialized with the tag it was read with. New document types require v2.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DatasetSchema".
+ */
+export type DatasetSchema1 = "dataset.v2" | "dataset.v1";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "VisualBundleId".
@@ -1526,6 +1585,10 @@ export type ForecastInput =
       input_hash: string;
       kind: "prefix";
     };
+/**
+ * Wire tag of model specs, patches, build manifests and forecast requests.
+ */
+export type WspSchema1 = "wsp.v1";
 /**
  * How the numbers of a served hand-written release were written.
  *
@@ -2941,7 +3004,7 @@ export interface Claim {
    * v2: how the support was checked, when it was.
    */
   checked_by?: SupportCheck | null;
-  claim_id: ClaimId;
+  claim_id: ClaimId1;
   kind: ClaimKind;
   support?: ClaimSupport[];
   text: string;
@@ -3126,6 +3189,11 @@ export interface DatasetRef {
  */
 export interface ReleaseRef {
   release_id: ReleaseId;
+  /**
+   * `concise` (default): the release's card (title, summary, qualification, inputs, scores,
+   * limits) and its applicability domain; `detailed`: the full `ModelRelease` record.
+   */
+  response_format?: ResponseFormat | null;
 }
 /**
  * Argument of `jobs_get`.
@@ -3246,7 +3314,7 @@ export interface ConditionsQuery {
   near?: AtmosphereTarget | null;
   page_size?: number | null;
   run_ids?: RunId[];
-  schema_version: DatasetSchema;
+  schema_version?: DatasetSchema;
 }
 /**
  * A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
@@ -3918,7 +3986,7 @@ export interface SearchRequest {
    * v2.
    */
   response_format?: ResponseFormat | null;
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema;
 }
 /**
  * One expected term of a [`SearchRequest`] and how important the caller thinks it is.
@@ -3947,7 +4015,7 @@ export interface SearchPage {
   mode: SearchMode1;
   next_cursor?: PageCursor | null;
   origin: Origin;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   /**
    * Exact total, or absent when the backend does not count exhaustively. An empty page does not
    * certify that the corpus lacks the information.
@@ -3999,7 +4067,7 @@ export interface ReadRequest {
    * v2.
    */
   response_format?: ResponseFormat | null;
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema2;
   source_id: SourceId;
 }
 /**
@@ -4013,7 +4081,7 @@ export interface ReadResult {
   next?: ReadRange | null;
   origin: Origin;
   parse_view_id: ParseViewId;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   segments: ReadSegment[];
   source_id: SourceId;
 }
@@ -4041,7 +4109,7 @@ export interface OutlineRequest {
    */
   node_id?: OutlineNodeId | null;
   parse_view_id?: ParseViewId | null;
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema3;
   source_id: SourceId;
 }
 /**
@@ -4052,7 +4120,7 @@ export interface SourceOutline {
   nodes: OutlineNode[];
   origin: Origin;
   parse_view_id: ParseViewId;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   source_id: SourceId;
 }
 /**
@@ -4109,7 +4177,7 @@ export interface SourceAccess {
    * The URL answers HTTP Range requests.
    */
   range: boolean;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   source_id: SourceId;
   url: string;
 }
@@ -4142,7 +4210,7 @@ export interface MediaKeyframeIndex {
   init_bytes: number;
   keyframes: KeyframeEntry[];
   origin: Origin;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   /**
    * Size of the indexed object; a source of another size makes the index stale.
    */
@@ -4190,7 +4258,7 @@ export interface ArchiveListing {
    */
   next_after?: number | null;
   origin: Origin;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   source_id: SourceId;
   /**
    * Entries in the archive (all pages).
@@ -4231,7 +4299,7 @@ export interface ProvenanceLink {
   origin: Origin;
   relation: Relation;
   resolution: Resolution4;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   to: GraphNode;
   /**
    * The original value the link was read from (a conditions cell, a metadata field): raw value,
@@ -4268,7 +4336,7 @@ export interface GraphNeighborsRequest {
    * Empty = every relation.
    */
   relations?: Relation[];
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema4;
   value_max_si?: number | null;
   /**
    * Keep only links whose `value` has an SI value at or above this (e.g. the O2 mole fraction
@@ -4287,7 +4355,7 @@ export interface GraphNeighborsPage {
   next_cursor?: PageCursor | null;
   node: GraphNode;
   origin: Origin;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   /**
    * Exact total, or absent when not counted.
    */
@@ -4337,7 +4405,7 @@ export interface SourceLabel {
    * Runs the document mentions (not resolved identities).
    */
   runs?: RunId[];
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   source_id: SourceId;
   status: Resolution5;
 }
@@ -4380,7 +4448,7 @@ export interface LabelSet {
   labeller: Labeller;
   labels: ArtifactRef;
   origin: Origin;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
 }
 /**
  * Accuracy of the labels on a hand-labelled gold set, measured before the labels are used.
@@ -4415,7 +4483,7 @@ export interface WikiPatch {
   base_revision?: number | null;
   ops?: WikiOp[];
   page_id: WikiPageId;
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema5;
   /**
    * Required to create a page; a rename otherwise.
    */
@@ -4462,7 +4530,7 @@ export interface WikiRevision {
   page_id: WikiPageId;
   parent_revision?: number | null;
   revision: number;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   /**
    * The execution scope that wrote this revision (host-derived).
    */
@@ -4516,7 +4584,7 @@ export interface WikiReadRequest {
    */
   page_size?: number | null;
   revision?: number | null;
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema6;
 }
 /**
  * Only what the scope may read: items whose `requires_partitions` the scope lacks are withheld
@@ -4528,7 +4596,7 @@ export interface WikiReadRequest {
 export interface WikiReadResult {
   body: WikiReadBody;
   origin: Origin;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   withheld_items?: number | null;
 }
 /**
@@ -4552,7 +4620,7 @@ export interface WebSearchRequest {
   cursor?: PageCursor | null;
   page_size?: number | null;
   query: string;
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema7;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -4564,7 +4632,7 @@ export interface WebSearchPage {
   origin: Origin;
   provider: WebProvider;
   query: string;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
 }
 /**
  * A source found on the web. It is not a corpus source until promoted (`promoted_source_id`); an
@@ -4586,7 +4654,7 @@ export interface ExternalSourceCandidate {
   promoted_source_id?: SourceId | null;
   provider: WebProvider;
   rights?: Rights1;
-  schema_version: EvidenceSchema;
+  schema_version: EvidenceSchema1;
   snapshot?: ArtifactRef | null;
   title?: string | null;
   /**
@@ -4619,7 +4687,7 @@ export interface Rights1 {
  * via the `definition` "WebFetchRequest".
  */
 export interface WebFetchRequest {
-  schema_version: EvidenceSchema;
+  schema_version?: EvidenceSchema8;
   url: string;
 }
 /**
@@ -4642,7 +4710,7 @@ export interface DatasetBundle {
   origin: Origin;
   partitions: Partition[];
   quality_report?: ArtifactRef | null;
-  schema_version: DatasetSchema;
+  schema_version: DatasetSchema1;
   source_manifest_hash: string;
   split_id: string;
   /**
@@ -4684,7 +4752,7 @@ export interface VisualObservationBundle {
   origin: Origin;
   quality_report?: ArtifactRef | null;
   run: RunIdentity;
-  schema_version: DatasetSchema;
+  schema_version: DatasetSchema1;
   time_origin: string;
   timestamp_basis: TimestampBasis;
   units_status: UnitsStatus;
@@ -4749,7 +4817,7 @@ export interface ConditionsTable {
   next_cursor?: PageCursor | null;
   origin: Origin;
   rows: ConditionsRow[];
-  schema_version: DatasetSchema;
+  schema_version: DatasetSchema1;
   total_count?: number | null;
 }
 /**
@@ -4917,7 +4985,7 @@ export interface ForecastRequest {
   client_request_id?: ClientRequestId | null;
   input: ForecastInput;
   release_id: ReleaseId;
-  schema_version: WspSchema;
+  schema_version?: WspSchema1;
   settings?: ForecastSettings;
 }
 /**

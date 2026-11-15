@@ -484,20 +484,44 @@ pub struct Nearness {
 pub enum CrewAtmosphere {
     /// Moon base and rovers: oxygen ≥ 30 % at 4.3–10.2 psi (29.6–70.3 kPa).
     MoonBase,
-    /// Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa).
+    /// Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa); IGNIS reads it as oxygen ≥ 0.99 at
+    /// 4.1–4.5 psi (28.3–31.0 kPa).
     Spacesuit,
-    /// ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa).
+    /// ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa) nominal; IGNIS reads it as the cabin's
+    /// nominal band, oxygen 0.195–0.235 at 97.9–102.7 kPa (14.2–14.9 psi).
     IssEarth,
+    /// NASA's proposed exploration atmosphere (a reference, not final for Artemis): 34 % oxygen
+    /// at 8.2 psia (56.5 kPa); IGNIS reads it as oxygen 0.33–0.35 at 55.2–57.9 kPa (8.0–8.4 psi).
+    Exploration,
 }
 
 impl CrewAtmosphere {
+    /// Every named atmosphere, in the order the tool descriptions and errors list them.
+    pub const ALL: [CrewAtmosphere; 4] = [
+        Self::MoonBase,
+        Self::Spacesuit,
+        Self::IssEarth,
+        Self::Exploration,
+    ];
+
+    /// The wire name (`moon_base`, …).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::MoonBase => "moon_base",
+            Self::Spacesuit => "spacesuit",
+            Self::IssEarth => "iss_earth",
+            Self::Exploration => "exploration",
+        }
+    }
+
     /// (oxygen min, oxygen max, pressure min Pa, pressure max Pa)
     pub fn bounds(self) -> (f64, f64, f64, f64) {
         const PSI: f64 = 6_894.757_293;
         match self {
             Self::MoonBase => (0.30, 1.0, 4.3 * PSI, 10.2 * PSI),
-            Self::Spacesuit => (1.0, 1.0, 4.3 * PSI, 4.3 * PSI),
-            Self::IssEarth => (0.21, 0.21, 14.7 * PSI, 14.7 * PSI),
+            Self::Spacesuit => (0.99, 1.0, 4.1 * PSI, 4.5 * PSI),
+            Self::IssEarth => (0.195, 0.235, 97_900.0, 102_700.0),
+            Self::Exploration => (0.33, 0.35, 55_200.0, 57_900.0),
         }
     }
 }
@@ -536,7 +560,10 @@ impl AtmosphereTarget {
             (Some(_), Some(_), Some(_), Some(_)) => {
                 Err("near: oxygen bounds within 0–1, pressure ≥ 0, each min ≤ max".into())
             }
-            _ => Err("near: name an atmosphere (moon_base, spacesuit, iss_earth) or give oxygen and pressure bounds".into()),
+            _ => Err(format!(
+                "near: name an atmosphere ({}) or give oxygen and pressure bounds (oxygen_min/oxygen_max 0 to 1, pressure_min_pa/pressure_max_pa)",
+                CrewAtmosphere::ALL.map(CrewAtmosphere::as_str).join(", ")
+            )),
         }
     }
 }
@@ -653,6 +680,7 @@ pub struct ConditionFilter {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ConditionsQuery {
+    #[serde(default)]
     pub schema_version: DatasetSchema,
     /// Empty = every investigation.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
