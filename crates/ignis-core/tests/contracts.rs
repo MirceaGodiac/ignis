@@ -704,6 +704,15 @@ fn claim_values_bind_numbers_to_cells_never_to_positions() {
     let mut quote = unstated.clone();
     quote["source"] = json!({"kind": "evidence_quote", "evidence_id": "e-1"});
     assert!(typed::<ClaimValue>(&quote).validate().is_err());
+    // A condition is read under a snapshot; a row without a run id is selected by locator.
+    let mut cond = bound.clone();
+    cond["source"] = json!({"kind": "conditions_cell", "snapshot": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "investigation_id": "inv-a", "run_id": "run-1", "key": "pressure"});
+    typed::<ClaimValue>(&cond).validate().unwrap();
+    cond["source"].as_object_mut().unwrap().remove("run_id");
+    assert!(typed::<ClaimValue>(&cond).validate().is_err());
+    cond["source"]["locator"] = json!({"asset_sha256": "2e", "path": "t.csv", "row": 5});
+    typed::<ClaimValue>(&cond).validate().unwrap();
     for (path, v) in [
         ("unit", json!("")),
         (

@@ -104,6 +104,21 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "CellReading": {
+      "description": "Which number of a measured cell a value reads.",
+      "oneOf": [
+        {
+          "const": "si",
+          "description": "`value_si` in `unit_si`.",
+          "type": "string"
+        },
+        {
+          "const": "raw",
+          "description": "`raw_value` in `raw_unit`, as the source wrote it.",
+          "type": "string"
+        }
+      ]
+    },
     "Claim": {
       "additionalProperties": false,
       "properties": {
@@ -291,6 +306,22 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ConditionKey": {
+      "description": "A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their\n[`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The\ncatalog is closed: a new key is a contract change.",
+      "enum": [
+        "oxygen_mole_fraction",
+        "pressure",
+        "flow_velocity",
+        "gravity_level",
+        "ambient_temperature",
+        "fuel",
+        "diluent",
+        "sample_geometry",
+        "hardware",
+        "diagnostics"
+      ],
+      "type": "string"
+    },
     "Digest": {
       "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
@@ -345,6 +376,15 @@
       ],
       "description": "A key value, compared for equality with the stored JSON value (numbers exactly)."
     },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
     "ReleaseId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -392,6 +432,11 @@
         "where"
       ],
       "type": "object"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
     },
     "SeriesBand": {
       "additionalProperties": false,
@@ -476,6 +521,121 @@
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
     },
     "SupportCheck": {
       "additionalProperties": false,
@@ -606,6 +766,60 @@
             "artifact_id",
             "sha256",
             "column"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "One cell of the experimental conditions (`conditions_query`, `/api/v1/conditions`), read\nunder a conditions snapshot. Cell-level grounding: the host queries the conditions service\nwith the episode's scope and reads the cell back.",
+          "properties": {
+            "investigation_id": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/$defs/ConditionKey"
+            },
+            "kind": {
+              "const": "conditions_cell",
+              "type": "string"
+            },
+            "locator": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceLocator"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to\npick one candidate of a conflicting cell and to select a row that has no run id."
+            },
+            "reading": {
+              "$ref": "#/$defs/CellReading",
+              "default": "si",
+              "description": "Which number of the cell: its SI value (default) or the raw value as the source wrote it."
+            },
+            "run_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RunId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The run. Absent for an investigation-level test point; `locator` then selects the row."
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Digest",
+              "description": "The `DatasetService::conditions_snapshot` the value was read under (the\n`x-ignis-snapshot` of the conditions routes). The host reads the current one from the\nservice; a different one is stale."
+            }
+          },
+          "required": [
+            "kind",
+            "snapshot",
+            "investigation_id",
+            "key"
           ],
           "type": "object"
         },

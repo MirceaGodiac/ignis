@@ -347,6 +347,7 @@ impl ToolHost {
                     artifacts: self.artifacts.as_ref(),
                     origin: self.origin,
                     grounding: self.grounding,
+                    datasets: self.services.datasets.as_deref(),
                 };
                 match host.submit(scope, ep, call_id, sub)? {
                     Submitted::Stored {

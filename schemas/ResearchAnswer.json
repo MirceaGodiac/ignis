@@ -277,6 +277,21 @@
       ],
       "type": "object"
     },
+    "CellReading": {
+      "description": "Which number of a measured cell a value reads.",
+      "oneOf": [
+        {
+          "const": "si",
+          "description": "`value_si` in `unit_si`.",
+          "type": "string"
+        },
+        {
+          "const": "raw",
+          "description": "`raw_value` in `raw_unit`, as the source wrote it.",
+          "type": "string"
+        }
+      ]
+    },
     "Claim": {
       "additionalProperties": false,
       "properties": {
@@ -458,6 +473,22 @@
         "source"
       ],
       "type": "object"
+    },
+    "ConditionKey": {
+      "description": "A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their\n[`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The\ncatalog is closed: a new key is a contract change.",
+      "enum": [
+        "oxygen_mole_fraction",
+        "pressure",
+        "flow_velocity",
+        "gravity_level",
+        "ambient_temperature",
+        "fuel",
+        "diluent",
+        "sample_geometry",
+        "hardware",
+        "diagnostics"
+      ],
+      "type": "string"
     },
     "DatasetId": {
       "minLength": 1,
@@ -1263,6 +1294,60 @@
             "artifact_id",
             "sha256",
             "column"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "One cell of the experimental conditions (`conditions_query`, `/api/v1/conditions`), read\nunder a conditions snapshot. Cell-level grounding: the host queries the conditions service\nwith the episode's scope and reads the cell back.",
+          "properties": {
+            "investigation_id": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/$defs/ConditionKey"
+            },
+            "kind": {
+              "const": "conditions_cell",
+              "type": "string"
+            },
+            "locator": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceLocator"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to\npick one candidate of a conflicting cell and to select a row that has no run id."
+            },
+            "reading": {
+              "$ref": "#/$defs/CellReading",
+              "default": "si",
+              "description": "Which number of the cell: its SI value (default) or the raw value as the source wrote it."
+            },
+            "run_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RunId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The run. Absent for an investigation-level test point; `locator` then selects the row."
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Digest",
+              "description": "The `DatasetService::conditions_snapshot` the value was read under (the\n`x-ignis-snapshot` of the conditions routes). The host reads the current one from the\nservice; a different one is stale."
+            }
+          },
+          "required": [
+            "kind",
+            "snapshot",
+            "investigation_id",
+            "key"
           ],
           "type": "object"
         },

@@ -783,6 +783,22 @@ export type ValueSource =
       sha256: Digest4;
     }
   | {
+      investigation_id: string;
+      key: ConditionKey;
+      kind: "conditions_cell";
+      /**
+       * The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to
+       * pick one candidate of a conflicting cell and to select a row that has no run id.
+       */
+      locator?: SourceLocator | null;
+      reading?: CellReading;
+      /**
+       * The run. Absent for an investigation-level test point; `locator` then selects the row.
+       */
+      run_id?: RunId | null;
+      snapshot: Digest5;
+    }
+  | {
       evidence_id: EvidenceId;
       kind: "evidence_quote";
     };
@@ -798,6 +814,35 @@ export type KeyValue = boolean | number | string;
  * (another version of the table) is stale.
  */
 export type Digest4 = string;
+/**
+ * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
+ * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
+ * catalog is closed: a new key is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionKey".
+ */
+export type ConditionKey =
+  | "oxygen_mole_fraction"
+  | "pressure"
+  | "flow_velocity"
+  | "gravity_level"
+  | "ambient_temperature"
+  | "fuel"
+  | "diluent"
+  | "sample_geometry"
+  | "hardware"
+  | "diagnostics";
+/**
+ * Which number of the cell: its SI value (default) or the raw value as the source wrote it.
+ */
+export type CellReading = "si" | "raw";
+/**
+ * The `DatasetService::conditions_snapshot` the value was read under (the
+ * `x-ignis-snapshot` of the conditions routes). The host reads the current one from the
+ * service; a different one is stale.
+ */
+export type Digest5 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ParseViewId".
@@ -843,7 +888,7 @@ export type AnalysisLanguage = "python";
 /**
  * Image id (`sha256:` of the image config), pinned by the host.
  */
-export type Digest5 = string;
+export type Digest6 = string;
 /**
  * Isolation the runner actually provided. Recorded on every execution and in capability status;
  * never inferred from configuration alone (the preflight probe proves it).
@@ -1125,7 +1170,7 @@ export type AuthorKind = "agent" | "human";
 /**
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
-export type Digest6 = string;
+export type Digest7 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1193,25 +1238,6 @@ export type UnitsStatus = "metric" | "pixel_only" | "normalized";
  * axis or a smarter model does not calibrate a camera).
  */
 export type UnitsStatus1 = "metric" | "pixel_only" | "normalized";
-/**
- * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
- * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
- * catalog is closed: a new key is a contract change.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionKey".
- */
-export type ConditionKey =
-  | "oxygen_mole_fraction"
-  | "pressure"
-  | "flow_velocity"
-  | "gravity_level"
-  | "ambient_temperature"
-  | "fuel"
-  | "diluent"
-  | "sample_geometry"
-  | "hardware"
-  | "diagnostics";
 /**
  * What an investigation tested for one key, over its runs.
  *
@@ -1341,7 +1367,7 @@ export type ForecastInput =
 /**
  * `DatasetBundle::content_digest` of the bundle evaluated.
  */
-export type Digest7 = string;
+export type Digest8 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
@@ -1405,6 +1431,13 @@ export type Lineage1 =
  * via the `definition` "TrainedOn".
  */
 export type TrainedOn1 = ("nasa" | "synthetic" | "pretrained") | "not_trained";
+/**
+ * Which number of a measured cell a value reads.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "CellReading".
+ */
+export type CellReading1 = "si" | "raw";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "DirectionFilter".
@@ -2751,7 +2784,7 @@ export interface ExecutionRecord {
  * via the `definition` "RunnerEnvironment".
  */
 export interface RunnerEnvironment {
-  image_id: Digest5;
+  image_id: Digest6;
   /**
    * Interpreter version reported by the image during preflight.
    */
@@ -3602,7 +3635,7 @@ export interface WikiItem {
  */
 export interface WikiRevision {
   author: Author;
-  content_digest: Digest6;
+  content_digest: Digest7;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
   items: WikiEntry[];
@@ -4122,7 +4155,7 @@ export interface EvaluationRequest {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest7;
+  dataset_hash: Digest8;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -4276,7 +4309,7 @@ export interface EvaluationRequest1 {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest7;
+  dataset_hash: Digest8;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
