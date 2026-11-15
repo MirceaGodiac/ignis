@@ -16,6 +16,8 @@
     {"path": "research/answer_v2.json", "contract": "ResearchAnswer", "shows": "answer with catalog views (source excerpt, observed vs predicted series with band, conditions matrix, release card) and support checks"},
     {"path": "research/answer_submission.json", "contract": "AnswerSubmission", "shows": "what the agent submits: ids only, no support checks; the host resolves evidence, artifacts and releases"},
     {"path": "research/answer_refusal.json", "contract": "AnswerRefusal", "shows": "answer_submit refusal listing every actionable problem (unknown evidence, kind/support mismatch, unpinned release)"},
+    {"path": "research/events_usage.json", "contract": "ResearchEvent[]", "shows": "research.v2 usage.reported: a Claude Code per-turn increment (cache reads/writes folded into input, provider-reported cost) and a Codex running thread total"},
+    {"path": "research/episode_metrics.json", "contract": "EpisodeMetrics", "shows": "M5 metrics: measured tool latency p50/p95, an unfinished call, per-turn and per-question tokens with cache hit, a priced turn and an unpriced model (never zero)"},
     {"path": "research/trace_bundle.json", "contract": "TraceBundle", "shows": "episode trace of one harness run: event range, tool I/O artifacts, measured usage, price-list cost, partitions touched"},
     {"path": "research/capabilities.json", "contract": "Capabilities", "shows": "/api/v1/capabilities: runtime build manifest, unconfigured services and tools with reasons"},
     {"path": "evidence/search_request.json", "contract": "SearchRequest", "shows": "hybrid search with filters; no scope in the body"},

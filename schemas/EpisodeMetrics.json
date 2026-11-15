@@ -1,0 +1,454 @@
+{
+  "$defs": {
+    "CostBasis": {
+      "description": "Where a cost figure comes from.",
+      "oneOf": [
+        {
+          "const": "provider_reported",
+          "description": "The provider or runtime reported the cost of these calls.",
+          "type": "string"
+        },
+        {
+          "const": "price_list",
+          "description": "Measured tokens multiplied by a dated price list (named in `price_list`).",
+          "type": "string"
+        }
+      ]
+    },
+    "CostFigure": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "basis": {
+          "$ref": "#/$defs/CostBasis"
+        },
+        "currency": {
+          "description": "ISO 4217 code, e.g. `USD`.",
+          "type": "string"
+        },
+        "price_list": {
+          "description": "Identity of the price list (provider page and date); present exactly for `price_list`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "amount",
+        "currency",
+        "basis"
+      ],
+      "type": "object"
+    },
+    "CostStatus": {
+      "description": "The money a range of usage cost. Fails closed: usage of a model the price list does not\nprice, or of a token class it has no price for, is `unpriced`, never zero.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "No usage was reported in the range: there is nothing to price (not \"free\").",
+          "properties": {
+            "status": {
+              "const": "no_usage",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Every reported token was priced by the price list (`basis = price_list`).",
+          "properties": {
+            "cost": {
+              "$ref": "#/$defs/CostFigure"
+            },
+            "status": {
+              "const": "priced",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "cost"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Some usage could not be priced; the amount is unknown.",
+          "properties": {
+            "models": {
+              "description": "The models (or `unreported`) whose usage could not be priced.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "reasons": {
+              "description": "Why, one line per problem.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "status": {
+              "const": "unpriced",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "models",
+            "reasons"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EventRange": {
+      "additionalProperties": false,
+      "description": "A contiguous range of one episode's log, both ends included.",
+      "properties": {
+        "first_seq": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "last_seq": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "first_seq",
+        "last_seq"
+      ],
+      "type": "object"
+    },
+    "HarnessRef": {
+      "additionalProperties": false,
+      "description": "The harness an episode runs with (K1.6): the instruction/skill bundle by digest plus the runtime\nbuild, model and effort it was injected into. Every benchmark number is reported with this.",
+      "properties": {
+        "digest": {
+          "$ref": "#/$defs/Digest",
+          "description": "Digest of the harness bundle (`harness/`: instructions, skills, agents) as injected."
+        },
+        "effort": {
+          "description": "Reasoning effort as the runtime names it, when it has one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "description": "Human label of the bundle or variant (`h1`, `h1-no-wiki`); not an identity.",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model id as the runtime reports it.",
+          "type": "string"
+        },
+        "runtime_build": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        }
+      },
+      "required": [
+        "digest",
+        "label",
+        "runtime_build",
+        "model"
+      ],
+      "type": "object"
+    },
+    "LatencyStats": {
+      "additionalProperties": false,
+      "description": "Latency of finished tool calls, measured from `tool.started` to `tool.finished` (the\n`occurred_at` of each, stamped by the host when it records them). Percentiles use the\nnearest-rank method over the measured samples; nothing is interpolated or estimated.",
+      "properties": {
+        "max_ms": {
+          "type": "number"
+        },
+        "p50_ms": {
+          "type": "number"
+        },
+        "p95_ms": {
+          "type": "number"
+        },
+        "samples": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "samples",
+        "p50_ms",
+        "p95_ms",
+        "max_ms"
+      ],
+      "type": "object"
+    },
+    "QuestionMetrics": {
+      "additionalProperties": false,
+      "description": "One user question: its `message.user` and the turns that started under it (before the next\nquestion).",
+      "properties": {
+        "cost": {
+          "$ref": "#/$defs/CostStatus"
+        },
+        "message_seq": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tokens": {
+          "$ref": "#/$defs/TokenTotals"
+        },
+        "tool_calls": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "turns": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "wall_time_s": {
+          "description": "From the `message.user` to the last event before the next question (host clock).",
+          "type": "number"
+        }
+      },
+      "required": [
+        "message_seq",
+        "turns",
+        "tool_calls",
+        "tokens",
+        "cost",
+        "wall_time_s"
+      ],
+      "type": "object"
+    },
+    "RuntimeBuildId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "TokenTotals": {
+      "additionalProperties": false,
+      "description": "Token totals of a turn, a question, an episode or a workspace (sums of reported usage).",
+      "properties": {
+        "cache_hit_pct": {
+          "description": "`100 * cached_input_tokens / input_tokens`; absent when the cached count is unknown or\nthere was no input.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "cache_write_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cached_input_tokens": {
+          "description": "Absent when no contributing report gave a cached count (unknown, not zero).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "input_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoning_tokens": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "reports": {
+          "description": "`usage.reported` events that contributed.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reports",
+        "input_tokens",
+        "output_tokens"
+      ],
+      "type": "object"
+    },
+    "ToolMetrics": {
+      "additionalProperties": false,
+      "description": "One tool's calls in the measured range.",
+      "properties": {
+        "calls": {
+          "description": "Calls started.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "latency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LatencyStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent when no call finished."
+        },
+        "tool": {
+          "type": "string"
+        },
+        "unfinished": {
+          "description": "Calls started whose `tool.finished` is not in the log (still running, or cut).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tool",
+        "calls",
+        "unfinished"
+      ],
+      "type": "object"
+    },
+    "TurnMetrics": {
+      "additionalProperties": false,
+      "description": "One runtime turn.",
+      "properties": {
+        "cost": {
+          "$ref": "#/$defs/CostStatus"
+        },
+        "events": {
+          "$ref": "#/$defs/EventRange"
+        },
+        "question_seq": {
+          "description": "`seq` of the `message.user` the turn answers, when the log has one before it.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "runtime_turn_id": {
+          "type": "string"
+        },
+        "tokens": {
+          "$ref": "#/$defs/TokenTotals"
+        },
+        "tool_calls": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "runtime_turn_id",
+        "events",
+        "tool_calls",
+        "tokens",
+        "cost"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "ignis/2.1.0/EpisodeMetrics",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Metrics of one episode.",
+  "properties": {
+    "cost": {
+      "$ref": "#/$defs/CostStatus"
+    },
+    "episode_id": {
+      "$ref": "#/$defs/EpisodeId"
+    },
+    "harness": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HarnessRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_seq": {
+      "description": "Highest `seq` the metrics read (the log is read from seq 1).",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "price_list": {
+      "description": "Identity of the price list costs were computed with (`<name>@<version>`).",
+      "type": "string"
+    },
+    "questions": {
+      "items": {
+        "$ref": "#/$defs/QuestionMetrics"
+      },
+      "type": "array"
+    },
+    "tokens": {
+      "$ref": "#/$defs/TokenTotals"
+    },
+    "tools": {
+      "items": {
+        "$ref": "#/$defs/ToolMetrics"
+      },
+      "type": "array"
+    },
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/TurnMetrics"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "episode_id",
+    "last_seq",
+    "price_list",
+    "tools",
+    "turns",
+    "questions",
+    "tokens",
+    "cost"
+  ],
+  "title": "EpisodeMetrics",
+  "type": "object"
+}

@@ -42,6 +42,7 @@ fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
         mcp_port: 0,
         runner: Default::default(),
         sources: Default::default(),
+        price_list: None,
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: Default::default(),
