@@ -19,7 +19,7 @@ const PINNED: [(&str, &str); 14] = [
     ),
     (
         "acme_normal.wsp13",
-        "sha256:d1660331c1f96091dad7f6f148c08f50db0cd03317b6c1dec458bd92696a45aa",
+        "sha256:4cc2fa60cc8c40b316594034ab8f299946117705736677e941c99f645fb89436",
     ),
     (
         "acme_inverse.wsp12",

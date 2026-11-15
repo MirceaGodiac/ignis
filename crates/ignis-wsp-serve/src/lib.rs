@@ -80,6 +80,10 @@ pub struct ServedEntry {
     /// Why the other declared targets are not served (returned with their refusal).
     #[serde(default)]
     pub targets_note: Option<String>,
+    /// Refuse a scenario whose fuel is a blend (`fuel_species` naming two species with `+`, or a
+    /// `fuel_blend_x` condition): the release carries no blend law.
+    #[serde(default)]
+    pub refuse_blends: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -255,6 +259,8 @@ pub struct ServedModels<S> {
     law: BTreeMap<String, Arc<registry::LoadedRelease>>,
     /// Served targets of law releases that restrict them (release id -> targets).
     targets: BTreeMap<String, (Vec<String>, Option<String>)>,
+    /// Releases that carry no blend law (blend scenarios are refused).
+    no_blends: std::collections::BTreeSet<String>,
     records: Vec<ModelRelease>,
     cards: Vec<ModelCard>,
     policies: BTreeMap<String, ProspectivePolicy>,
@@ -353,10 +359,17 @@ impl<S: PrefixSource> ServedModels<S> {
                 );
             }
         }
+        let no_blends = list
+            .releases
+            .iter()
+            .filter(|e| e.refuse_blends)
+            .map(|e| e.release_id.as_str().to_string())
+            .collect();
         Ok(ServedModels {
             inner,
             law,
             targets,
+            no_blends,
             records,
             cards,
             policies,
@@ -678,6 +691,22 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
         req.validate()?;
         scope.require(Capability::RunModels)?;
         let release = self.served(&req.release_id)?;
+        if self.no_blends.contains(&release.id) {
+            let blend = req.conditions.contains_key("fuel_blend_x")
+                || req.conditions.values().any(|v| {
+                    matches!(v, ScenarioValue::Text(t) if t.contains('+'))
+                        && req.conditions.get("fuel_species").is_some_and(|f| f == v)
+                });
+            if blend {
+                return Err(envelope(
+                    ErrorCode::InvalidRequest,
+                    format!(
+                        "{}: the fuel is a blend and there is no blend law in this release",
+                        release.model_name
+                    ),
+                ));
+            }
+        }
         let card = self
             .cards
             .iter()
