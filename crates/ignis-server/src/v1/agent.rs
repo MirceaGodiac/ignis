@@ -68,6 +68,11 @@ pub struct CodexArgs {
     /// when no token or API key is set. Must be writable.
     #[arg(long = "claude-login-home", env = "IGNIS_CLAUDE_LOGIN_HOME")]
     pub claude_login_home: Option<PathBuf>,
+    /// Let the Claude investigator hand one bounded subtask to Claude Code's native subagent
+    /// (depth 1, same IGNIS tools and scope, no `answer_submit`). Off by default; the runtime
+    /// build id records it.
+    #[arg(long = "claude-delegation", env = "IGNIS_CLAUDE_DELEGATION")]
+    pub claude_delegation: bool,
     /// A harness directory (`investigator.md`, `skills/<name>/SKILL.md`) to start episodes with
     /// instead of the bundle compiled from `harness/`; its directory name is the label. A malformed
     /// bundle leaves the runtime unavailable.
@@ -123,6 +128,7 @@ impl Preflighted {
                     let mut cfg = ClaudeConfig::new(bin, home.with_file_name("claude"));
                     cfg.model = args.claude_model.clone();
                     cfg.login_home = args.claude_login_home.clone();
+                    cfg.delegation = args.claude_delegation;
                     let outcome = claude_preflight(&cfg);
                     (Some(Prepared::Claude(cfg)), outcome)
                 }

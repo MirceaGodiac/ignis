@@ -113,7 +113,7 @@ impl Live {
         };
         let out = self
             .sandbox
-            .execute(sc, &req, &self.store, Producer::default(), cancel)?;
+            .execute(sc, &req, &self.store, None, Producer::default(), cancel)?;
         let rec: ExecutionRecord = serde_json::from_slice(&self.bytes(sc, &out[0])).unwrap();
         rec.validate().unwrap();
         Ok((rec, out))
@@ -176,7 +176,9 @@ print(json.dumps({"numpy": np.__version__}))
             src,
             vec![AnalysisInput {
                 name: "series.csv".into(),
-                artifact_id: csv.clone(),
+                artifact_id: Some(csv.clone()),
+                dataset_view: None,
+                conditions: None,
             }],
             &never,
         )
@@ -237,7 +239,9 @@ print(json.dumps(r))
             src,
             vec![AnalysisInput {
                 name: "data.txt".into(),
-                artifact_id: input.clone(),
+                artifact_id: Some(input.clone()),
+                dataset_view: None,
+                conditions: None,
             }],
             &never,
         )
@@ -375,7 +379,9 @@ fn cancel_stops_the_container_and_another_workspace_cannot_mount_my_artifacts() 
             "print(open('/in/x').read())",
             vec![AnalysisInput {
                 name: "x".into(),
-                artifact_id: secret,
+                artifact_id: Some(secret),
+                dataset_view: None,
+                conditions: None,
             }],
             &never,
         )
