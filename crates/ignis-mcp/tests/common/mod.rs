@@ -176,6 +176,7 @@ pub fn host_full(
             sandbox,
             models_disabled: false,
             conditions: true,
+            wiki: false,
         },
         store.clone(),
         artifacts.clone(),

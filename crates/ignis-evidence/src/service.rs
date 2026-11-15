@@ -29,12 +29,12 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::Context;
 use ignis_core::contracts::{
-    BackendReport, BackendStatus, Capability, CorpusSnapshotId, ErrorCode, ErrorEnvelope,
-    EvidenceClass, EvidenceId, EvidenceRef, EvidenceSchema, ExecutionScope, Family, Finite,
-    OffsetUnit, Origin, OutlineRequest, PageCursor, ParseViewId, Partition, ReadRange, ReadRequest,
-    ReadResult, ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind, SearchHit,
-    SearchMode, SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator, SourceOutline,
-    Split,
+    Author, BackendReport, BackendStatus, Capability, CorpusSnapshotId, EpisodeId, ErrorCode,
+    ErrorEnvelope, EvidenceClass, EvidenceId, EvidenceRef, EvidenceSchema, ExecutionScope, Family,
+    Finite, OffsetUnit, Origin, OutlineRequest, PageCursor, ParseViewId, Partition, ReadRange,
+    ReadRequest, ReadResult, ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind,
+    SearchHit, SearchMode, SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator,
+    SourceOutline, Split, WikiPatch, WikiReadRequest, WikiReadResult, WikiRevision,
 };
 use ignis_core::hashing::{canonical_json, sha256_hex};
 use ignis_core::services::{KnowledgeService, ServiceResult};
@@ -276,6 +276,8 @@ pub struct EvidenceService {
     orders: Mutex<VecDeque<(String, Arc<Ranked>)>>,
     /// record API spend in the cost ledger (`runs/`); off in tests
     pub ledger: bool,
+    /// The research wiki (R4), when the composition root attached one.
+    wiki: Option<crate::wiki::WikiStore>,
 }
 
 /// Decoded search cursor (`c1.<hex json>`).
@@ -322,6 +324,7 @@ impl EvidenceService {
             summaries: std::sync::OnceLock::new(),
             orders: Mutex::new(VecDeque::new()),
             ledger: true,
+            wiki: None,
         })
     }
 
@@ -338,6 +341,25 @@ impl EvidenceService {
             ignis_data::paths::splits().display()
         );
         EvidenceService::open(&catalog::default_db(), cfg, lockbox)
+    }
+
+    /// Serve `wiki_read`/`wiki_patch` from `store` (absent: the wiki tools are not registered).
+    pub fn with_wiki(mut self, store: crate::wiki::WikiStore) -> Self {
+        self.wiki = Some(store);
+        self
+    }
+
+    pub fn has_wiki(&self) -> bool {
+        self.wiki.is_some()
+    }
+
+    fn wiki(&self) -> ServiceResult<&crate::wiki::WikiStore> {
+        self.wiki.as_ref().ok_or_else(|| {
+            err(
+                ErrorCode::CapabilityUnavailable,
+                "no wiki store is attached to this KnowledgeService",
+            )
+        })
     }
 
     /// Run without network access to the embedding/rerank provider (declared as unavailable).
@@ -1204,6 +1226,27 @@ impl KnowledgeService for EvidenceService {
         };
         r.validate()?;
         Ok(r)
+    }
+
+    fn wiki_read(
+        &self,
+        scope: &ExecutionScope,
+        req: &WikiReadRequest,
+    ) -> ServiceResult<WikiReadResult> {
+        self.wiki()?.read(scope, req)
+    }
+
+    /// Evidence an item cites must resolve under the writing scope (lockbox included).
+    fn wiki_patch(
+        &self,
+        scope: &ExecutionScope,
+        author: &Author,
+        episode: Option<&EpisodeId>,
+        patch: &WikiPatch,
+    ) -> ServiceResult<WikiRevision> {
+        self.wiki()?.patch(scope, author, episode, patch, &|id| {
+            self.resolve_evidence(scope, id).map(drop)
+        })
     }
 
     fn resolve_evidence(

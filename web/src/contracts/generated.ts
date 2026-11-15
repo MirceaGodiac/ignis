@@ -4151,6 +4151,10 @@ export interface WikiRevision {
   parent_revision?: number | null;
   revision: number;
   schema_version: EvidenceSchema;
+  /**
+   * The execution scope that wrote this revision (host-derived).
+   */
+  scope_id?: ScopeId | null;
   title: string;
 }
 /**
@@ -4177,6 +4181,11 @@ export interface WikiEntry {
    */
   requires_partitions?: Partition[];
   text: string;
+  /**
+   * The page revision that last added or revised this item: its `author`, `episode_id` and
+   * `scope_id` are the item's provenance (host-derived, never from the patch).
+   */
+  written_in?: number | null;
 }
 /**
  * `wiki_read`: one page (head, or a given revision), or the page index when `page_id` is absent.

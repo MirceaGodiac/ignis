@@ -31,6 +31,7 @@ pub mod service;
 pub mod sira;
 #[cfg(feature = "pdf")]
 pub mod verify;
+pub mod wiki;
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
