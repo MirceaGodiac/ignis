@@ -43,6 +43,7 @@ fn args(dir: &Path, price_list: PathBuf) -> ServeArgs {
         mcp_port: 0,
         runner: Default::default(),
         sources: Default::default(),
+        answer_grounding: Default::default(),
         price_list: Some(price_list),
         artifact_backend: Default::default(),
         r2: Default::default(),
