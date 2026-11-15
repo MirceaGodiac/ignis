@@ -147,6 +147,10 @@ const OS_ENV: &[&str] = &[
 
 /// stderr kept for the failure reason of a turn.
 const STDERR_TAIL: usize = 4096;
+/// Token cap Claude Code applies to one MCP tool result. The IGNIS host inlines at most 64 KiB of
+/// JSON, carried twice (structured content and its text form), so even counted twice an inline
+/// result stays below this; the default (25,000) would cut a full `sources_read` page.
+const MAX_MCP_OUTPUT_TOKENS: &str = "80000";
 
 /// Configuration of the Claude Code runtime.
 #[derive(Clone)]
@@ -905,6 +909,12 @@ impl Inner {
                 cmd.env(k, v);
             }
         }
+        // Claude Code truncates an MCP tool result above MAX_MCP_OUTPUT_TOKENS (25,000 by
+        // default), and its built-in tools are off, so the agent could not read a truncated
+        // remainder any other way. Results up to the host's 64 KiB inline limit (sent as both
+        // structured content and text) fit well within this; larger ones arrive as an artifact
+        // reference. An operator may still override it through `pass_env`.
+        cmd.env("MAX_MCP_OUTPUT_TOKENS", MAX_MCP_OUTPUT_TOKENS);
         for k in &self.cfg.pass_env {
             if let Some(v) = std::env::var_os(k).filter(|v| !v.is_empty()) {
                 cmd.env(k, v);

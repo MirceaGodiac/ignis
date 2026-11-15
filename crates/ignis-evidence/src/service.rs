@@ -60,8 +60,36 @@ pub const LABELS_FILE: &str = "source_labels.jsonl";
 pub const DEFAULT_PAGE_SIZE: u32 = 10;
 /// `graph_neighbors` page size when the request names none.
 pub const GRAPH_PAGE_SIZE: u32 = 50;
-/// Characters of page text per read response (more pages follow with `next`).
-pub const READ_BUDGET_CHARS: usize = 60_000;
+/// Serialized bytes of segments per read response (`serde_json::to_vec(&segment).len()`, summed);
+/// the rest follows with `next`. It sits below the MCP host's 64 KiB inline limit with room for the
+/// result envelope, so a read travels inline instead of becoming an artifact the agent must open.
+pub const READ_BUDGET_BYTES: usize = 48 << 10;
+
+fn segment_bytes(s: &ReadSegment) -> usize {
+    serde_json::to_vec(s).map_or(usize::MAX, |b| b.len())
+}
+
+/// The number of leading chars of `chars` whose segment fits in `budget` bytes (at least one, so
+/// a read always advances), cut at whitespace in the last quarter when there is one.
+fn fitting_prefix(chars: &[char], budget: usize, segment: impl Fn(usize) -> ReadSegment) -> usize {
+    let (mut lo, mut hi) = (1usize, chars.len());
+    while lo < hi {
+        let mid = lo + (hi - lo).div_ceil(2);
+        if segment_bytes(&segment(mid)) <= budget {
+            lo = mid;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    let floor = lo - lo / 4;
+    match chars[floor.max(1)..lo]
+        .iter()
+        .rposition(|c| c.is_whitespace())
+    {
+        Some(i) if lo < chars.len() => floor.max(1) + i + 1,
+        _ => lo,
+    }
+}
 /// Searches whose ranked order is kept for paging (memory budget).
 const ORDER_CACHE: usize = 64;
 const SNIPPET_CHARS: usize = 280;
@@ -1323,20 +1351,25 @@ impl KnowledgeService for EvidenceService {
         };
         let sealed = self.lockbox.sealed(scope);
         let view_id = ParseViewId::new(view.clone())?;
-        let page_locator = |page: i64, len: usize| SourceLocator {
+        let page_locator = |page: i64, start: usize, end: usize| SourceLocator {
             asset_sha256: p.source_sha256.clone(),
             path: p.file_name.clone(),
             page: Some(page),
-            char_start: Some(0),
-            char_end: Some(len as i64),
+            char_start: Some(start as i64),
+            char_end: Some(end as i64),
             parse_view_id: Some(view.clone()),
             offset_unit: Some(OffsetUnit::UnicodeScalar),
             ..Default::default()
         };
         let mut segments = Vec::new();
         let (complete, next) = match &req.range {
-            ReadRange::Pages { first, last } => {
+            ReadRange::Pages {
+                first,
+                last,
+                char_start,
+            } => {
                 let (first, last) = (*first as i64, (*last as i64).min(p.n_pages));
+                let resume_at = char_start.unwrap_or(0) as usize;
                 if first > p.n_pages {
                     return Err(err(
                         ErrorCode::InvalidRequest,
@@ -1356,14 +1389,21 @@ impl KnowledgeService for EvidenceService {
                         ),
                     ));
                 }
+                // Bytes of segments so far, and where the next read starts (page, char offset).
                 let mut used = 0usize;
-                let mut next_page = None;
-                for (page, text) in pages {
-                    if used > 0 && used + text.chars().count() > READ_BUDGET_CHARS {
-                        next_page = Some(page);
-                        break;
+                let mut resume: Option<(i64, usize)> = None;
+                'pages: for (page, text) in pages {
+                    let from = if page == first { resume_at } else { 0 };
+                    let chars: Vec<char> = text.chars().collect();
+                    if from > chars.len() {
+                        return Err(err(
+                            ErrorCode::InvalidRequest,
+                            format!(
+                                "char_start {from} is past the end of page {page} ({} chars)",
+                                chars.len()
+                            ),
+                        ));
                     }
-                    used += text.chars().count();
                     let ids = {
                         let con = self.meta.lock().expect("meta");
                         catalog::chunk_ids_on_page(&con, &p.id, &view, page).map_err(internal)?
@@ -1379,24 +1419,56 @@ impl KnowledgeService for EvidenceService {
                     if chunks.iter().any(|c| self.withheld(&sealed, c)) {
                         // a page with withheld passages is returned passage by passage
                         for c in chunks.iter().filter(|c| !self.withheld(&sealed, c)) {
-                            segments.push(ReadSegment {
+                            let start = c.locator.char_start.unwrap_or(0).max(0) as usize;
+                            if start < from {
+                                continue;
+                            }
+                            let s = ReadSegment {
                                 locator: c.locator.clone(),
                                 text: c.text.clone(),
-                            });
+                            };
+                            let n = segment_bytes(&s);
+                            if used > 0 && used + n > READ_BUDGET_BYTES {
+                                resume = Some((page, start));
+                                break 'pages;
+                            }
+                            used += n;
+                            segments.push(s);
                         }
+                        continue;
+                    }
+                    let segment = |end: usize| ReadSegment {
+                        locator: page_locator(page, from, end),
+                        text: chars[from..end].iter().collect(),
+                    };
+                    let whole = segment(chars.len());
+                    let n = segment_bytes(&whole);
+                    if used + n <= READ_BUDGET_BYTES {
+                        used += n;
+                        segments.push(whole);
+                    } else if used > 0 {
+                        resume = Some((page, from));
+                        break;
                     } else {
-                        segments.push(ReadSegment {
-                            locator: page_locator(page, text.chars().count()),
-                            text,
-                        });
+                        // One page larger than a response: its head now, the rest from `next`.
+                        let cut = from
+                            + fitting_prefix(&chars[from..], READ_BUDGET_BYTES, |k| {
+                                segment(from + k)
+                            });
+                        segments.push(segment(cut));
+                        if cut < chars.len() {
+                            resume = Some((page, cut));
+                            break;
+                        }
                     }
                 }
-                match next_page {
-                    Some(np) => (
+                match resume {
+                    Some((np, at)) => (
                         false,
                         Some(ReadRange::Pages {
                             first: np as u32,
                             last: last as u32,
+                            char_start: (at > 0).then_some(at as u32),
                         }),
                     ),
                     None => (true, None),

@@ -310,6 +310,14 @@ fn cell_of(
             unit: u.into(),
         });
     }
+    // A field whose name states its unit (`pressure_gap_pa`) is read in that unit before any
+    // generic `unit` of an enclosing object, which describes that object's value, not this field.
+    if let Some(u) = field.and_then(unit_of_field_name) {
+        return Ok(Cell {
+            value: x,
+            unit: u.into(),
+        });
+    }
     let u = parent
         .into_iter()
         .chain(chain.iter().rev().copied())
@@ -319,6 +327,37 @@ fn cell_of(
         value: x,
         unit: u.into(),
     })
+}
+
+/// Fields that are ratios by their contract (`Nearness`: an oxygen mole-fraction gap, a distance
+/// in fractions of the target).
+const DIMENSIONLESS_FIELDS: &[&str] = &["oxygen_gap", "distance"];
+
+/// The unit a field name states with an SI-symbol suffix, as IGNIS artifacts name their columns
+/// (`pressure_gap_pa`, `burn_time_s`, `diameter_mm`, `temperature_k`), or `1` for a ratio
+/// (`*_fraction`, and the [`DIMENSIONLESS_FIELDS`]). `None`: the name states no unit.
+fn unit_of_field_name(field: &str) -> Option<&'static str> {
+    if DIMENSIONLESS_FIELDS.contains(&field) || field.ends_with("_fraction") {
+        return Some("1");
+    }
+    const SUFFIXES: &[(&str, &str)] = &[
+        ("_kpa", "kPa"),
+        ("_mpa", "MPa"),
+        ("_pa", "Pa"),
+        ("_ms", "ms"),
+        ("_s", "s"),
+        ("_mm", "mm"),
+        ("_cm", "cm"),
+        ("_m", "m"),
+        ("_k", "K"),
+        ("_pct", "%"),
+        ("_percent", "%"),
+    ];
+    let f = field.to_ascii_lowercase();
+    SUFFIXES
+        .iter()
+        .find(|(s, _)| f.ends_with(s) && f.len() > s.len())
+        .map(|(_, u)| *u)
 }
 
 /// Same cell of the same source: `asset_sha256`, `path` and `row` (the identity M11 publishes).
@@ -587,16 +626,191 @@ fn numbers_in(text: &str) -> Vec<(f64, &str, usize)> {
     out
 }
 
+/// `text` with the spellings of one number folded together: the Unicode minus `−` becomes `-`, and
+/// a thousands separator (`,`, thin or narrow no-break space) between a 1–3 digit group and an
+/// exact 3-digit group is dropped (`101,325` → `101325`). A list such as `10,20` is left alone.
+fn fold_number_spellings(text: &str) -> String {
+    let c: Vec<char> = text
+        .chars()
+        .map(|ch| if ch == '−' { '-' } else { ch })
+        .collect();
+    let mut out = String::with_capacity(text.len());
+    // Length of the digit run just written, and whether it continues a thousands-grouped number.
+    let (mut run, mut grouped) = (0usize, false);
+    for i in 0..c.len() {
+        let ch = c[i];
+        if ch.is_ascii_digit() {
+            run += 1;
+            out.push(ch);
+            continue;
+        }
+        let separator = matches!(ch, ',' | '\u{2009}' | '\u{202F}');
+        let lead_ok = (1..=3).contains(&run) || (grouped && run == 3);
+        // The leading group is an integer part, not the fraction of a decimal (`0.5,100`).
+        let starts_run = i == run || c[i - run - 1] != '.';
+        let group_follows = (1..=3).all(|k| c.get(i + k).is_some_and(char::is_ascii_digit))
+            && !c.get(i + 4).is_some_and(char::is_ascii_digit);
+        if separator && run > 0 && lead_ok && (grouped || starts_run) && group_follows {
+            grouped = true;
+            run = 0;
+            continue;
+        }
+        grouped = false;
+        run = 0;
+        out.push(ch);
+    }
+    out
+}
+
+/// Byte length of a number at the very start of `s` (optional sign, digits, fraction, exponent).
+fn number_prefix(s: &str) -> Option<usize> {
+    let b = s.as_bytes();
+    let mut i = usize::from(matches!(b.first(), Some(b'-' | b'+')));
+    let digits = i;
+    while b.get(i).is_some_and(u8::is_ascii_digit) {
+        i += 1;
+    }
+    if i == digits {
+        return None;
+    }
+    if b.get(i) == Some(&b'.') && b.get(i + 1).is_some_and(u8::is_ascii_digit) {
+        i += 1;
+        while b.get(i).is_some_and(u8::is_ascii_digit) {
+            i += 1;
+        }
+    }
+    Some(i)
+}
+
+/// What follows a number once the partner of a range or an uncertainty is passed over: in
+/// `4.3–10.2 psi`, `3.05±0.1 mm` or `(3.05 ± 0.10) mm` the unit after the partner is the unit of
+/// both numbers.
+fn after_partners(mut rest: &str) -> &str {
+    loop {
+        let t = rest.trim_start();
+        let joined = ["±", "+/-", "–", "—", "-", "~", "to "]
+            .iter()
+            .find_map(|sep| t.strip_prefix(sep));
+        let Some(after) = joined else {
+            let t = t.strip_prefix(')').unwrap_or(t);
+            return t.trim_start();
+        };
+        let after = after.trim_start();
+        match number_prefix(after) {
+            Some(n) => rest = &after[n..],
+            None => return rest.trim_start(),
+        }
+    }
+}
+
+/// The unit token at the start of `s`: up to whitespace or a closing punctuation mark, without a
+/// sentence-ending dot.
+fn unit_token(s: &str) -> &str {
+    let end = s
+        .find(|c: char| c.is_whitespace() || ",;:)]}|".contains(c))
+        .unwrap_or(s.len());
+    s[..end].trim_end_matches('.')
+}
+
+/// A spelling the unit registry knows, directly or through an alias.
+fn is_unit(token: &str) -> bool {
+    !token.is_empty()
+        && (units::lookup(token).is_some() || units::lookup(units::alias(token)).is_some())
+}
+
+/// `rest` (what follows a number, partners passed) begins with `unit`, as the same token or a
+/// spelling of the same unit (`psia` for `psi`).
+fn begins_with_unit(rest: &str, unit: &str) -> bool {
+    let token = unit_token(rest);
+    if !token.is_empty() && units::same_spelling(token, unit) {
+        return true;
+    }
+    rest.strip_prefix(unit)
+        .is_some_and(|after| !after.chars().next().is_some_and(|c| c.is_alphanumeric()))
+}
+
+/// The unit a header names: `(psi)`, `[mm]`, `, s` at the end of a cell, or a cell that is a unit.
+fn header_unit(cell: &str) -> Option<&str> {
+    let cell = cell.trim();
+    for (open, close) in [('(', ')'), ('[', ']')] {
+        if let (Some(a), Some(b)) = (cell.rfind(open), cell.rfind(close)) {
+            if a < b {
+                let inner = cell[a + open.len_utf8()..b].trim();
+                if is_unit(inner) {
+                    return Some(inner);
+                }
+            }
+        }
+    }
+    if let Some((_, tail)) = cell.rsplit_once(',') {
+        if is_unit(tail.trim()) {
+            return Some(tail.trim());
+        }
+    }
+    is_unit(cell).then_some(cell)
+}
+
+/// For a number at `start` that no unit follows: the unit a table states for it. On its own line,
+/// the nearest preceding bracketed unit (`Pressure (psi)  4.3  5.1`); in a `|`- or tab-separated
+/// table, the header cell of its column (the first row of the block of rows around it).
+fn table_unit(text: &str, start: usize) -> Option<&str> {
+    let line_start = text[..start].rfind('\n').map_or(0, |i| i + 1);
+    let line_end = text[start..].find('\n').map_or(text.len(), |i| start + i);
+    let before = &text[line_start..start];
+    for sep in ['|', '\t'] {
+        if !text[line_start..line_end].contains(sep) {
+            continue;
+        }
+        let column = before.matches(sep).count();
+        // The block of rows that share the separator, ending at this line; its first row is the header.
+        let mut header = line_start;
+        while header > 0 {
+            let prev_start = text[..header - 1].rfind('\n').map_or(0, |i| i + 1);
+            if !text[prev_start..header - 1].contains(sep) {
+                break;
+            }
+            header = prev_start;
+        }
+        if header == line_start {
+            break;
+        }
+        let header_line = text[header..].lines().next().unwrap_or("");
+        return header_line.split(sep).nth(column).and_then(header_unit);
+    }
+    // Nearest preceding bracketed unit on the same line.
+    let mut cut = before.len();
+    while let Some(close) = before[..cut].rfind([')', ']']) {
+        let open_ch = if before[close..].starts_with(')') {
+            '('
+        } else {
+            '['
+        };
+        let Some(open) = before[..close].rfind(open_ch) else {
+            break;
+        };
+        let inner = before[open + 1..close].trim();
+        if is_unit(inner) {
+            return Some(inner);
+        }
+        cut = open;
+    }
+    None
+}
+
 /// Text-level grounding: `value`, written as a number and followed by `unit` (spaces allowed, the
 /// unit not running into a longer word), occurs in the quote a retrieval tool returned. It shows
-/// the number is in the passage, not what it measures.
+/// the number is in the passage, not what it measures. The passage's own conventions count: a
+/// range or `±` partner before the unit (`4.3–10.2 psi`), thousands separators (`101,325 Pa`), the
+/// Unicode minus, unit spellings of one unit (`psia` for `psi`), and, for a number with no unit
+/// after it, the unit its table header states.
 pub(crate) fn find_in_quote(quote: &str, value: f64, unit: &str) -> Result<(), Problem> {
     let unit = unit.trim();
-    let found = numbers_in(quote);
-    let same: Vec<usize> = found
+    let text = fold_number_spellings(quote);
+    let found = numbers_in(&text);
+    let same: Vec<(usize, usize)> = found
         .iter()
         .filter(|(x, _, _)| *x == value)
-        .map(|(_, _, end)| *end)
+        .map(|(_, t, end)| (*end - t.len(), *end))
         .collect();
     if same.is_empty() {
         let written: Vec<&str> = found.iter().map(|(_, t, _)| *t).collect();
@@ -608,14 +822,23 @@ pub(crate) fn find_in_quote(quote: &str, value: f64, unit: &str) -> Result<(), P
             ),
         ));
     }
-    let followed = |end: usize| {
-        let rest = quote[end..].trim_start();
-        rest.strip_prefix(unit).is_some_and(|after| {
-            unit == "1" || !after.chars().next().is_some_and(|c| c.is_alphanumeric())
-        })
+    let grounded = |(start, end): (usize, usize)| {
+        let direct = text[end..].trim_start();
+        if begins_with_unit(direct, unit) {
+            return true;
+        }
+        let rest = after_partners(&text[end..]);
+        if begins_with_unit(rest, unit) {
+            return true;
+        }
+        // A number followed by a unit of its own is not re-labelled by a header.
+        if is_unit(unit_token(direct)) || is_unit(unit_token(rest)) {
+            return false;
+        }
+        table_unit(&text, start).is_some_and(|h| units::same_spelling(h, unit))
     };
     // A dimensionless number is often written without a unit.
-    if unit == "1" || same.iter().any(|&e| followed(e)) {
+    if unit == "1" || same.iter().any(|&s| grounded(s)) {
         Ok(())
     } else {
         Err((
@@ -675,5 +898,97 @@ mod tests {
             AnswerProblemKind::UnitMismatch,
             "a unit does not run into a word"
         );
+    }
+
+    /// The passage's own number conventions ground a number; a different number never does.
+    #[test]
+    fn a_quoted_number_follows_the_passage_conventions() {
+        // Range and uncertainty partners carry the unit for both numbers.
+        let q = "Chamber pressure was held at 4.3–10.2 psi; d0 = 3.05±0.1 mm, t = (12.4 ± 0.3) s.";
+        assert!(find_in_quote(q, 4.3, "psi").is_ok());
+        assert!(find_in_quote(q, 10.2, "psi").is_ok());
+        assert!(find_in_quote(q, 3.05, "mm").is_ok());
+        assert!(find_in_quote(q, 12.4, "s").is_ok());
+        assert!(find_in_quote("from 4.3 to 10.2 psi", 4.3, "psi").is_ok());
+        // Thousands separators.
+        assert!(find_in_quote("ambient 101,325 Pa", 101325.0, "Pa").is_ok());
+        assert!(find_in_quote("ambient 101\u{202F}325 Pa", 101325.0, "Pa").is_ok());
+        assert!(find_in_quote("1,013,250 Pa", 1013250.0, "Pa").is_ok());
+        let (k, _) = find_in_quote("tests 10,20 mm", 1020.0, "mm").unwrap_err();
+        assert_eq!(k, AnswerProblemKind::ValueMismatch, "a list is not grouped");
+        // Unicode minus.
+        assert!(find_in_quote("cooled to −40 °C", -40.0, "C").is_ok());
+        // Spellings of one unit.
+        assert!(find_in_quote("at 14.7 psia", 14.7, "psi").is_ok());
+        assert!(find_in_quote("at 2.0 psig", 2.0, "psi").is_ok());
+        // Table passages: the unit is in the column header or a header token on the line.
+        let table = "| Run | d0 (mm) | Burn time [s] |\n|---|---|---|\n| 7 | 3.05 | 12.4 |";
+        assert!(find_in_quote(table, 3.05, "mm").is_ok());
+        assert!(find_in_quote(table, 12.4, "s").is_ok());
+        let (k, _) = find_in_quote(table, 3.05, "s").unwrap_err();
+        assert_eq!(
+            k,
+            AnswerProblemKind::UnitMismatch,
+            "the column, not any header"
+        );
+        let tsv = "Run\tPressure, psi\n7\t4.3";
+        assert!(find_in_quote(tsv, 4.3, "psi").is_ok());
+        assert!(find_in_quote("Pressure (psi)  4.3  5.1  6.0", 5.1, "psi").is_ok());
+    }
+
+    /// A conditions row's `nearness` cells resolve their unit from the field name; a name that
+    /// states no unit still needs a stated one.
+    #[test]
+    fn nearness_cells_take_their_unit_from_the_field_name() {
+        let row = serde_json::json!({
+            "run_id": "FLEX-001",
+            "unit": "mm",
+            "nearness": {
+                "inside": false,
+                "oxygen_gap": 0.045,
+                "pressure_gap_pa": 46_000.0,
+                "distance": 0.5,
+            },
+            "o2_fraction": 0.21,
+            "burn_time_s": 12.4,
+            "count": 3,
+        });
+        let cell = |p: &str| read_cell(&row, &[], p);
+        let c = cell("/nearness/pressure_gap_pa").unwrap();
+        assert_eq!((c.value, c.unit.as_str()), (46_000.0, "Pa"));
+        assert!(compare(46.0, "kPa", None, &c).is_ok());
+        assert_eq!(cell("/nearness/oxygen_gap").unwrap().unit, "1");
+        assert_eq!(cell("/nearness/distance").unwrap().unit, "1");
+        assert_eq!(cell("/o2_fraction").unwrap().unit, "1");
+        assert_eq!(cell("/burn_time_s").unwrap().unit, "s");
+        // No unit in the name: the stated `unit` applies, as before.
+        assert_eq!(cell("/count").unwrap().unit, "mm");
+        let bare = serde_json::json!({"nearness": {"inside": true, "rank": 1}});
+        let (k, _) = read_cell(&bare, &[], "/nearness/rank").unwrap_err();
+        assert_eq!(k, AnswerProblemKind::UnitMismatch);
+    }
+
+    /// The relaxations do not ground a different number or re-label a number's own unit.
+    #[test]
+    fn conventions_do_not_ground_a_different_number() {
+        let q = "Pressure (psi) 4.3–10.2; burn time 12.4 s";
+        let (k, _) = find_in_quote(q, 7.0, "psi").unwrap_err();
+        assert_eq!(
+            k,
+            AnswerProblemKind::ValueMismatch,
+            "inside a range is not in it"
+        );
+        let (k, _) = find_in_quote(q, 4.4, "psi").unwrap_err();
+        assert_eq!(k, AnswerProblemKind::ValueMismatch);
+        let (k, _) = find_in_quote(q, 12.4, "psi").unwrap_err();
+        assert_eq!(
+            k,
+            AnswerProblemKind::UnitMismatch,
+            "a number's own unit beats the header"
+        );
+        let (k, _) = find_in_quote("at 14.7 psia", 14.7, "kPa").unwrap_err();
+        assert_eq!(k, AnswerProblemKind::UnitMismatch);
+        let (k, _) = find_in_quote("−40 °C", 40.0, "C").unwrap_err();
+        assert_eq!(k, AnswerProblemKind::ValueMismatch, "the sign is kept");
     }
 }

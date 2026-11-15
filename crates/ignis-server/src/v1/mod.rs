@@ -870,6 +870,7 @@ async fn read_page(
         range: ReadRange::Pages {
             first: p.page,
             last: p.page,
+            char_start: None,
         },
     };
     req.validate()

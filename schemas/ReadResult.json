@@ -49,6 +49,15 @@
           "additionalProperties": false,
           "description": "Physical pages, 1-based, inclusive.",
           "properties": {
+            "char_start": {
+              "description": "Where reading starts in page `first`, in Unicode scalars from the page start: set by a\n`next` that continues a page too large for one response. Absent means the page start.",
+              "format": "uint32",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
             "first": {
               "format": "uint32",
               "minimum": 0,
