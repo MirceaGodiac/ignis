@@ -1,52 +1,70 @@
-// Source search over the pinned corpus snapshot. A hit is a pointer with a snippet; the passage is
-// shown beside the list: the NASA original at the hit's page with the passage marked (streamed from
-// NASA through SourceAccess, nothing stored). A degraded search says which backend was missing.
-import { useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+// Source search over the pinned corpus snapshot. A hit is a pointer with a snippet; hits of one
+// document are gathered under one result. The NASA original opens beside the list only when a passage
+// is selected: results paint first, and PDF.js (chunk, worker, byte ranges) is never on that path. On
+// idle the first document's access and the viewer chunk are warmed, so the first click opens fast.
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "../research/client";
-import { useData } from "../shell/data";
-import { usePanel } from "../shell/inspector";
-import { go } from "../shell/router";
-import { Caution, ErrorNote, Gap, OriginMark, words } from "../ui/common";
-import { EvidenceSummary } from "./Answer";
-import { OpenOriginal } from "../shell/OpenOriginal";
-import { httpUrl } from "../shell/SourceOriginal";
+import { groupHits, hitSourceName, markTerms, queryTerms, type HitGroup, type SourceName } from "../research/sourceTitle";
 import { locatorKind } from "../research/units";
-import { MODE_TEXT, OriginalBody } from "./Original";
+import { useData } from "../shell/data";
+import { IconExternal } from "../shell/icons";
+import { usePanel } from "../shell/inspector";
+import { OpenOriginal } from "../shell/OpenOriginal";
+import { accessOptions, searchOptions, STARTERS, whenIdle } from "../shell/queries";
+import { go } from "../shell/router";
+import { httpUrl, loadPdfPage, MODE_TEXT, PdfSkeleton } from "../shell/SourceOriginal";
+import { ErrorNote, EvidenceClassTag, Gap, OriginMark, words } from "../ui/common";
 import type { SearchHit } from "../contracts/generated";
+import { locatorText } from "./Answer";
+import { OriginalBody } from "./Original";
 
-/** Passages per page of results. */
-const PAGE = 25;
-
-/**
- * Starter searches. Chosen on the staging corpus (15 Nov 2026) because their first hits are
- * passages of substance, not reference lists; the first one loads when the page opens empty.
- */
-const STARTERS = ["oxygen concentration flammability limit", "soot formation in microgravity flames", "flame size of gas jet flames in microgravity"];
+/** Passages a document shows before "more passages". */
+const FOLD = 3;
 
 export function Sources({ initial }: { initial: string | null }) {
   const { client, researchMode, replay, caps, synthetic } = useData();
+  const qc = useQueryClient();
   const panel = usePanel();
-  const [text, setText] = useState(initial ?? "");
-  // An empty page shows the first page of the first starter, so there is always something to open.
-  const submitted = initial?.trim() || STARTERS[0];
+  // An empty page shows the first starter, with its words in the field, so it reads as a search.
+  const submitted = initial?.trim() || STARTERS[0]!;
+  const [text, setText] = useState(submitted);
   const unavailable = caps.data?.knowledge.available === false;
-  // Every page of the result order, followed by its cursor ("Load more"); the first page is larger
-  // than the server default so a broad query shows more than a handful of passages at once.
-  const q = useInfiniteQuery({
-    queryKey: [researchMode, replay, "search", submitted],
-    initialPageParam: null as string | null,
-    queryFn: ({ pageParam }) => client.search({ schema_version: "evidence.v1", query: submitted!, mode: "hybrid", page_size: PAGE, ...(pageParam ? { cursor: pageParam } : {}) }),
-    getNextPageParam: (last) => last.next_cursor ?? undefined,
-    enabled: !!submitted && !unavailable,
-    retry: false,
-  });
+  const q = useInfiniteQuery({ ...searchOptions(client, researchMode, replay, submitted), enabled: !unavailable });
   const page = q.data?.pages[0];
-  const hits = q.data?.pages.flatMap((p) => p.hits) ?? [];
+  const hits = useMemo(() => q.data?.pages.flatMap((p) => p.hits) ?? [], [q.data]);
+  const groups = useMemo(() => groupHits(hits), [hits]);
+  const terms = useMemo(() => queryTerms(submitted), [submitted]);
   const [sel, setSel] = useState<string | null>(null);
-  const selected = hits.find((h) => h.evidence.evidence_id === sel) ?? hits[0];
+  const selected = sel ? hits.find((h) => h.evidence.evidence_id === sel) : undefined;
   const degraded = page?.backends.filter((b) => b.status !== "used" && b.status !== "not_requested") ?? [];
+  const aside = useRef<HTMLElement>(null);
 
+  useEffect(() => {
+    if (page) performance.mark?.("ignis:sources:results");
+  }, [page]);
+
+  // Warming costs one small JSON call and a cached chunk; the PDF bytes wait for the click.
+  const warm = useCallback(
+    (h: SearchHit) => {
+      void qc.prefetchQuery(accessOptions(client, researchMode, h.evidence.source_id));
+      if (h.evidence.locator && locatorKind(h.evidence.locator) === "page") void loadPdfPage().catch(() => undefined);
+    },
+    [qc, client, researchMode],
+  );
+  const first = hits[0];
+  useEffect(() => {
+    if (!first) return;
+    return whenIdle(() => warm(first), 4000);
+  }, [first, warm]);
+
+  const choose = (h: SearchHit) => {
+    setSel(h.evidence.evidence_id);
+    // In one column the original sits under the list: bring it into view.
+    if (window.matchMedia?.("(max-width: 900px)").matches) requestAnimationFrame(() => aside.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
+  const count = page?.total_count != null ? page.total_count : hits.length;
   return (
     <div className="view">
       <div className="view-head">
@@ -54,74 +72,61 @@ export function Sources({ initial }: { initial: string | null }) {
       </div>
       <form
         className="toolbar"
+        role="search"
         onSubmit={(e) => {
           e.preventDefault();
           if (text.trim()) go("sources", null, { q: text.trim() });
         }}
       >
         <label className="sr-only" htmlFor="src-q">
-          Search query
+          Search NASA documents
         </label>
-        <input id="src-q" className="field" style={{ flex: "1 1 320px", height: 34, fontSize: 14 }} value={text} onChange={(e) => setText(e.target.value)} placeholder="Search NASA documents" disabled={unavailable} />
+        <input id="src-q" className="field src-field" type="search" value={text} onChange={(e) => setText(e.target.value)} placeholder="Search NASA documents" disabled={unavailable} />
         <button className="btn btn-primary" type="submit" disabled={!text.trim() || unavailable}>
           Search
         </button>
       </form>
-      <div className="toolbar" style={{ flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-        <span className="muted small">Try:</span>
+      <div className="src-starters" aria-label="Example searches">
+        <span className="muted small">Try</span>
         {STARTERS.map((t) => (
-          <button key={t} className={`btn btn-s${t === submitted ? " btn-primary" : ""}`} onClick={() => go("sources", null, { q: t })}>
+          <button key={t} className={`btn btn-s${t === submitted ? " btn-on" : " btn-quiet"}`} aria-pressed={t === submitted} onClick={() => go("sources", null, { q: t })}>
             {t}
           </button>
         ))}
       </div>
       {unavailable && <Gap title="Search is not available on this server">{caps.data?.knowledge.detail}</Gap>}
-      {q.isFetching && !q.isFetchingNextPage && <p className="muted">Searching…</p>}
       {q.error && <ErrorNote error={q.error} title={q.error instanceof ApiError && q.error.envelope.code === "capability_unavailable" ? "Search is not configured" : "The search failed"} />}
+      {q.isPending && !unavailable && !q.error && <ResultsSkeleton />}
       {page && (
         <>
-          <p className="muted" style={{ fontSize: 12 }}>
-            {words(page.mode)} search · corpus <code>{page.corpus_snapshot}</code> · {page.total_count != null ? `${page.total_count} results` : "total not counted"}{" "}
+          <p className="src-count muted small">
+            {hits.length === 0 ? "No passages" : `${count.toLocaleString()}${page.total_count == null && q.hasNextPage ? "+" : ""} passage${count === 1 ? "" : "s"} in ${groups.length}${q.hasNextPage ? "+" : ""} document${groups.length === 1 ? "" : "s"}`}
+            {degraded.length > 0 && (
+              <span title={degraded.map((b) => `${words(b.backend)} ${words(b.status)}${b.detail ? `: ${b.detail}` : ""}`).join("\n")}> · partial ranking ({degraded.map((b) => words(b.backend)).join(", ")} {degraded.length === 1 ? "is" : "are"} off)</span>
+            )}{" "}
             <OriginMark origin={page.origin} pageSynthetic={synthetic} />
           </p>
-          {degraded.length > 0 && (
-            <Caution title="Degraded ranking">
-              {degraded.map((b) => `${words(b.backend)} ${words(b.status)}${b.detail ? `: ${b.detail}` : ""}`).join(" · ")}
-            </Caution>
-          )}
           <div className="src-split">
-            <ol className="src-hits" aria-label="Search results">
-              {hits.map((h) => {
-                const on = (sel ?? hits[0]?.evidence.evidence_id) === h.evidence.evidence_id;
-                return (
-                  <li key={h.evidence.evidence_id}>
-                    <button className={`src-hit${on ? " on" : ""}`} onClick={() => setSel(h.evidence.evidence_id)} aria-pressed={on}>
-                      <span className="src-hit-head">
-                        <span className="num dim">{h.rank}</span>
-                        <b>{h.title ?? h.evidence.source_id}</b>
-                      </span>
-                      <span className="src-hit-quote">{h.evidence.quote ?? h.snippet}</span>
-                      <span className="src-hit-where">
-                        <EvidenceSummary e={h.evidence} />
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-              {hits.length === 0 && <li className="dim">No hits. An empty page does not show that the corpus lacks the information.</li>}
+            <ol className="src-docs" aria-label="Search results">
+              {groups.map((g) => (
+                <DocResult key={g.sourceId} g={g} terms={terms} sel={sel} onSelect={choose} onWarm={warm} />
+              ))}
+              {hits.length === 0 && <li className="muted small">No passage matched. An empty result does not show that the corpus lacks the information; try other words.</li>}
               {q.hasNextPage && (
                 <li>
-                  <button className="btn btn-s" style={{ width: "100%" }} disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
-                    {q.isFetchingNextPage ? "Loading…" : `Load more (${hits.length} shown)`}
+                  <button className="btn btn-s" style={{ width: "100%", justifyContent: "center" }} disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+                    {q.isFetchingNextPage ? "Loading…" : "More results"}
                   </button>
                 </li>
               )}
             </ol>
-            {selected && (
-              <aside className="src-preview" aria-label="Selected source">
-                <SourcePreview key={selected.evidence.evidence_id} hit={selected} onPassage={() => panel.open({ kind: "evidence", evidence: selected.evidence })} />
-              </aside>
-            )}
+            <aside ref={aside} className="src-preview" aria-label="Selected source">
+              {selected ? (
+                <SourcePreview key={selected.evidence.evidence_id} hit={selected} name={hitSourceName(selected)} onPassage={() => panel.open({ kind: "evidence", evidence: selected.evidence })} />
+              ) : (
+                hits.length > 0 && <p className="src-empty">Select a passage to open its page in the NASA original, with the passage marked.</p>
+              )}
+            </aside>
           </div>
         </>
       )}
@@ -129,40 +134,122 @@ export function Sources({ initial }: { initial: string | null }) {
   );
 }
 
-/** The selected hit's original, at its page with the cited region marked. */
-function SourcePreview({ hit, onPassage }: { hit: SearchHit; onPassage: () => void }) {
+function ResultsSkeleton() {
+  return (
+    <ol className="src-docs src-skel" aria-busy="true" aria-label="Searching">
+      {[0, 1, 2, 3].map((i) => (
+        <li key={i} className="src-doc">
+          <span className="skel" style={{ width: `${62 - i * 7}%`, height: 14 }} />
+          <span className="skel" style={{ width: "92%" }} />
+          <span className="skel" style={{ width: "78%" }} />
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** The query's words in bold ink inside a snippet. */
+function Marked({ text, terms }: { text: string; terms: string[] }) {
+  return (
+    <>
+      {markTerms(text, terms).map((p, i) =>
+        p.match ? (
+          <mark key={i} className="src-mark">
+            {p.text}
+          </mark>
+        ) : (
+          p.text
+        ),
+      )}
+    </>
+  );
+}
+
+/** Where a passage sits, short: "p. 135" for a page, the locator's own words otherwise. */
+function place(h: SearchHit): string {
+  const l = h.evidence.locator;
+  if (l && locatorKind(l) === "page" && l.page != null) return `p. ${l.page_label ?? l.page}`;
+  return locatorText(h.evidence);
+}
+
+function DocResult({ g, terms, sel, onSelect, onWarm }: { g: HitGroup; terms: string[]; sel: string | null; onSelect: (h: SearchHit) => void; onWarm: (h: SearchHit) => void }) {
+  const holdsSel = g.hits.some((h) => h.evidence.evidence_id === sel);
+  const [open, setOpen] = useState(false);
+  const shown = open || g.hits.length <= FOLD ? g.hits : g.hits.slice(0, FOLD);
+  return (
+    <li className={`src-doc${holdsSel ? " has-sel" : ""}`}>
+      <div className="src-doc-head">
+        <span className="src-doc-title" title={g.hits[0]?.title ?? undefined}>
+          {g.name.title}
+        </span>
+        <span className="src-doc-meta">
+          {g.name.investigation && <span className="tag">{g.name.investigation}</span>}
+          {g.hits.length > 1 && <span className="muted">{g.hits.length} passages</span>}
+        </span>
+      </div>
+      <ul className="src-passages">
+        {shown.map((h) => {
+          const on = sel === h.evidence.evidence_id;
+          const cls = h.evidence.evidence_class;
+          return (
+            <li key={h.evidence.evidence_id}>
+              <button className={`src-pass${on ? " on" : ""}`} aria-pressed={on} onClick={() => onSelect(h)} onPointerEnter={() => onWarm(h)} onFocus={() => onWarm(h)}>
+                <span className="src-pass-where num">
+                  {place(h)}
+                  {/* Every search hit is source text; a class is named only when it says something else. */}
+                  {cls !== "source_derived" && <EvidenceClassTag cls={cls} />}
+                </span>
+                <span className="src-pass-quote">
+                  <Marked text={h.evidence.quote ?? h.snippet} terms={terms} />
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {g.hits.length > FOLD && (
+        <button className="btn btn-s btn-quiet src-more" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          {open ? "Fewer passages" : `${g.hits.length - FOLD} more passage${g.hits.length - FOLD === 1 ? "" : "s"}`}
+        </button>
+      )}
+    </li>
+  );
+}
+
+/** The selected passage's original, at its page with the cited region marked. */
+function SourcePreview({ hit, name, onPassage }: { hit: SearchHit; name: SourceName; onPassage: () => void }) {
   const { client, researchMode } = useData();
   const e = hit.evidence;
-  const title = hit.title ?? e.locator?.path ?? e.source_id;
-  const access = useQuery({
-    queryKey: [researchMode, "access", e.source_id],
-    queryFn: () => client.sourceAccess(e.source_id),
-    retry: false,
-    staleTime: (qq) => {
-      const a = qq.state.data;
-      return a?.expires_at ? Math.max(0, Date.parse(a.expires_at) - Date.now() - 30_000) : 5 * 60_000;
-    },
-  });
+  const raw = hit.title ?? e.locator?.path ?? e.source_id;
+  const access = useQuery(accessOptions(client, researchMode, e.source_id));
   const a = access.data;
+  const isPage = !!e.locator && locatorKind(e.locator) === "page";
   return (
-    <div className="card" style={{ padding: 12 }}>
-      <div className="toolbar" style={{ marginBottom: 8, flexWrap: "wrap" }}>
-        <b style={{ flex: "1 1 200px", overflowWrap: "anywhere" }}>{title}</b>
-        <button className="btn btn-s" onClick={onPassage}>
-          Passage
-        </button>
-        {e.locator && <OpenOriginal sourceId={e.source_id} loc={e.locator} title={title} label="Originals tab ↗" />}
-        {a && httpUrl(a.landing_url) && (
-          <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer">
-            Open at NASA ↗
-          </a>
-        )}
+    <div className="src-prev">
+      <div className="src-prev-head">
+        <div className="src-prev-name">
+          <h2 title={raw}>{name.title}</h2>
+          <span className="src-doc-meta">
+            {name.investigation && <span className="tag">{name.investigation}</span>}
+            <span className="muted">{locatorText(e)}</span>
+          </span>
+        </div>
+        <div className="src-prev-actions">
+          <button className="btn btn-s btn-quiet" onClick={onPassage} title="The passage as IGNIS read it, in the side panel">
+            Passage
+          </button>
+          {e.locator && <OpenOriginal sourceId={e.source_id} loc={e.locator} title={raw} label="New tab" className="btn btn-s btn-quiet" />}
+          {a && httpUrl(a.landing_url) && (
+            <a className="btn btn-s" href={a.landing_url} target="_blank" rel="noopener noreferrer" title={MODE_TEXT[a.mode]}>
+              Open at NASA <IconExternal width={13} height={13} />
+            </a>
+          )}
+        </div>
       </div>
-      {a && <p className="muted small">{MODE_TEXT[a.mode]}</p>}
-      {access.isPending && <p className="muted">Finding the original…</p>}
+      {access.isPending && (isPage ? <PdfSkeleton label="Finding the original…" /> : <p className="muted small">Finding the original…</p>)}
       {access.error && <ErrorNote error={access.error} title="The original cannot be opened from here; the passage is still readable" />}
-      {a && e.locator && <OriginalBody a={a} loc={e.locator} kind={locatorKind(e.locator)} title={title} />}
-      {a && !e.locator && <p className="muted small">This hit has no page to open.</p>}
+      {a && e.locator && <OriginalBody a={a} loc={e.locator} kind={locatorKind(e.locator)} title={raw} />}
+      {a && !e.locator && <p className="muted small">This passage has no page to open.</p>}
     </div>
   );
 }

@@ -82,7 +82,7 @@ html, body, #root { height: 100%; }
    researcher copies stays selectable: messages, answers, quotes, passages, PDF text, detail values, fields.
    The caret is hidden on chrome too: with Chrome's caret browsing (F7) a click or focus would draw one. */
 body { -webkit-user-select: none; user-select: none; caret-color: transparent; }
-:is(input, textarea, [contenteditable], pre, code, .msg-user, .msg-agent, .answer-text, .quote, .src-hit-quote, .kv dd, .spec dd, .run-id) { -webkit-user-select: text; user-select: text; caret-color: auto; }
+:is(input, textarea, [contenteditable], pre, code, .msg-user, .msg-agent, .answer-text, .quote, .src-pass-quote, .kv dd, .spec dd, .run-id) { -webkit-user-select: text; user-select: text; caret-color: auto; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 400 14px/1.55 var(--font-ui); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; letter-spacing: -0.006em; }
 ::selection { background: color-mix(in srgb, var(--flame) 22%, transparent); }
 :focus-visible { outline: 2px solid color-mix(in srgb, var(--flame) 70%, transparent); outline-offset: 2px; border-radius: 6px; }
@@ -898,17 +898,46 @@ html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-th
 @container (max-width: 900px) { .mapv-grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* Sources: results beside the selected original (PDF page with the passage marked). */
-.src-split { display: grid; grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr); gap: 16px; align-items: start; }
-.src-hits { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: calc(100vh - 220px); overflow-y: auto; }
-.src-hit { all: unset; box-sizing: border-box; display: grid; gap: 4px; width: 100%; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; }
-.src-hit:hover { border-color: var(--ink-3, var(--rule)); }
-.src-hit.on { border-color: var(--accent, #e8a33d); box-shadow: 0 0 0 1px var(--accent, #e8a33d) inset; }
-.src-hit-head { display: flex; gap: 8px; align-items: baseline; }
-.src-hit-head b { font-weight: 600; overflow-wrap: anywhere; }
-.src-hit-quote { font-family: var(--font-text); color: var(--ink-2); font-size: 13px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-.src-hit-where { font-size: 12px; }
-.src-preview { position: sticky; top: 12px; max-height: calc(100vh - 100px); overflow-y: auto; }
-@media (max-width: 900px) { .src-split { grid-template-columns: 1fr; } .src-hits { max-height: none; } .src-preview { position: static; max-height: none; } }
+.src-field { flex: 1 1 320px; height: 34px; font-size: 14px; }
+.src-starters { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: -8px; }
+.src-starters > .muted { margin-right: 2px; }
+.btn-on { background: var(--wash); border-color: transparent; color: var(--ink); }
+.btn-on:hover:not(:disabled) { background: var(--wash); }
+.src-count { margin: 0; }
+.src-split { display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr); gap: 20px; align-items: start; }
+.src-docs { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+.src-doc { display: grid; gap: 2px; padding: 10px 6px 6px; border: 1px solid var(--rule); border-radius: 12px; background: var(--sheet); min-width: 0; }
+.src-doc.has-sel { border-color: var(--rule-2); }
+.src-doc-head { display: grid; gap: 4px; padding: 0 8px 4px; }
+.src-doc-title { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.35; color: var(--ink); overflow-wrap: anywhere; }
+.src-doc-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12.5px; }
+.src-doc-meta .tag { height: 20px; padding: 0 7px; font-size: 11.5px; }
+.src-passages { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.src-pass { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; width: 100%; padding: 7px 8px; border-radius: var(--r-c, 8px); cursor: pointer; transition: background 140ms; }
+.src-pass:hover { background: var(--hover); }
+.src-pass:focus-visible { outline: 2px solid var(--flame); outline-offset: -2px; }
+.src-pass.on { background: var(--flame-wash); }
+.src-pass-where { display: grid; align-content: start; justify-items: start; gap: 4px; padding-top: 1px; font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.src-pass.on .src-pass-where { color: var(--flame); }
+.src-pass-where .tag { height: 18px; padding: 0 5px; font-size: 10.5px; }
+.src-pass-quote { color: var(--ink-2); font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.src-mark { background: none; color: var(--ink); font-weight: 600; }
+.src-more { justify-self: start; margin: 2px 0 0 62px; }
+.src-preview { position: sticky; top: 72px; max-height: calc(100vh - 84px); overflow-y: auto; min-width: 0; scrollbar-width: thin; }
+.src-empty { margin: 0; display: grid; place-items: center; min-height: 240px; padding: 24px; border: 1px dashed var(--rule-2); border-radius: 12px; color: var(--ink-3); font-size: 13px; text-align: center; text-wrap: balance; }
+.src-prev { display: grid; gap: 10px; }
+.src-prev-head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; }
+.src-prev-name { flex: 1 1 220px; display: grid; gap: 4px; min-width: 0; }
+.src-prev-name h2 { margin: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.35; overflow-wrap: anywhere; }
+.src-prev-actions { display: flex; align-items: center; gap: 4px; }
+.src-prev .pdf > .toolbar { min-height: 26px; }
+.skel { display: block; height: 11px; border-radius: 4px; background: var(--wash); animation: skel 1.4s ease-in-out infinite; }
+.src-skel .src-doc { gap: 9px; padding: 14px; }
+@keyframes skel { 50% { opacity: 0.55; } }
+.pdf-page[data-loading] { aspect-ratio: 8.5 / 11; background: var(--wash); border-color: transparent; animation: skel 1.4s ease-in-out infinite; }
+.pdf-page[data-loading] canvas { position: absolute; }
+@media (prefers-reduced-motion: reduce) { .skel, .pdf-page[data-loading] { animation: none; } }
+@media (max-width: 900px) { .src-split { grid-template-columns: 1fr; } .src-preview { position: static; max-height: none; scroll-margin-top: 72px; } .src-empty { display: none; } }
 
 /* Questions: the history, by day (search, status chips, one row per question with its date). */
 .qhist { max-width: 1100px; gap: 18px; }
