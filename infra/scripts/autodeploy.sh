@@ -233,6 +233,13 @@ ensure_disk() {
     docker builder prune -f --keep-storage "${BUILD_CACHE_KEEP_GB}GB" >/dev/null
     avail=$(( $(df --output=avail -k "$root" | tail -n 1) / 1048576 ))
   fi
+  if [ "$avail" -lt "$MIN_FREE_GB" ]; then
+    # Measured on the VM: with cache mounts held by the builder, --keep-storage left 31 GB of
+    # cache in place. Drop the whole build cache: the next build is cold (slower), never wrong.
+    log "${avail} GB free after shrinking the build cache: dropping all of it"
+    docker builder prune -af >/dev/null
+    avail=$(( $(df --output=avail -k "$root" | tail -n 1) / 1048576 ))
+  fi
   [ "$avail" -ge "$MIN_FREE_GB" ] || { log "only ${avail} GB free on $root (need $MIN_FREE_GB)"; return 1; }
 }
 
