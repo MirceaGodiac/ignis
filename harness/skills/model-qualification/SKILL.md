@@ -13,7 +13,12 @@ author model, nothing was fitted, the forward cannot fit at request time. Every 
 measurement. The exact list, ids and inputs are in the descriptions of `models_inspect` and
 `models_forecast` (the deployment's served list); use those ids, never one from memory.
 
-| Release | Investigation | Forecasts | Authorship | Inputs |
+The names in the tables below (`flex_methanol.wsp2`, ...) are model names, **not** release ids:
+every `release_id` argument is the `sha256:...` id the served list gives for that name. A
+`not_found` that names a model name tells you its id: call again with it; it never means the
+model is not served.
+
+| Model name | Investigation | Forecasts | Authorship | Inputs |
 |---|---|---|---|---|
 | `flex_methanol.wsp2` D3 | FLEX (PSI-69), methanol | droplet diameter after the cutoff (quantiles) through hot flame, cool flame, no flame | data-informed | conditions (fuel, pressure, x_o2, x_co2, x_he) and diameters before the cutoff; stored runs work |
 | `flex_heptane.wsp2` D2 | FLEX (PSI-69), n-heptane | same, for n-heptane | data-informed | same; stored runs of the heptane cohort work |
@@ -27,7 +32,7 @@ Typed conditions only (stored runs are refused). Pick a target with `settings.ta
 need `settings.times_s`. Scores below are the lane's test days of these investigations, scored once
 on a frozen list, lower is better, beside the baseline:
 
-| Release | Investigation | Use it for | Test-day score against baseline |
+| Model name | Investigation | Use it for | Test-day score against baseline |
 |---|---|---|---|
 | `bre.wsp` D3 | BRE (PSI-20) | target `lasts` only (`flame_end` is refused: it is not the model). Extinction by time h = 1 - lasts(h) / lasts(cutoff) | extinction 0.139 vs incidence 0.222 (95 cases) |
 | `cld.wsp` D1 | CLD Flame (PSI-21) | flame lost, radiometer level | 0.073 vs 0.102; 0.115 vs 0.144 (63 cases). D1 was chosen after the test run, where the newer law lost on timing |
@@ -59,7 +64,9 @@ position only, and `bass4.wsp` for kept burning.
    release's time origin). Use `input.kind = prefix` only with an `input_hash` a person admitted in
    the forecast lab; never assemble a prefix yourself.
 3. Poll `jobs_get`; read the `AnalysisArtifact` with `artifacts_read`.
-4. Pin the release in `model_releases` of `answer_submit`; claims from it are `predicted`.
+4. List the release id in `model_releases` of `answer_submit`; claims from it are `predicted`.
+   A release your own successful `models_forecast` of this episode ran is accepted; you cannot
+   pin one yourself, and a release you did not run here must be pinned by the person.
 
 ## 3. Refusals
 

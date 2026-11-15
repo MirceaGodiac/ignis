@@ -7,7 +7,7 @@
 //! - artifacts against this workspace's artifact store, and every JSON Pointer against the
 //!   artifact's bytes (a number must sit under an object that states its `unit`, so a value is never
 //!   cited without one);
-//! - releases against the episode's pins;
+//! - releases against the episode's pins and the releases its own forecasts ran;
 //! - every number a claim binds (task M7b) against its reference ([`crate::grounding`]): a table
 //!   cell (the artifact's digest must be the pinned one, the row keys must select exactly one row;
 //!   a number written by `analysis_execute` must also cite that run's `ExecutionRecord` and its
@@ -134,17 +134,31 @@ impl AnswerHost<'_> {
                 Err(e) => return Err(e),
             }
         }
+        // A release is citable when it is pinned on the episode or when a forecast of this episode
+        // ran it successfully (the agent cannot pin; the job record is the proof it was used).
+        let ran = if sub
+            .model_releases
+            .iter()
+            .any(|r| !ep.pins.model_releases.contains(r))
+        {
+            self.store
+                .episode_job_releases(scope, episode, crate::tools::FORECAST_JOB)?
+        } else {
+            Default::default()
+        };
         for r in sub
             .model_releases
             .iter()
-            .filter(|r| !ep.pins.model_releases.contains(r))
+            .filter(|r| !ep.pins.model_releases.contains(r) && !ran.contains(r.as_str()))
         {
             let pinned: Vec<&str> = ep.pins.model_releases.iter().map(|r| r.as_str()).collect();
+            let used: Vec<&str> = ran.iter().map(String::as_str).collect();
             problems.push(problem(
                 AnswerProblemKind::UnpinnedRelease,
                 format!(
-                    "release {r} is not pinned on episode {episode} (pinned: {}); cite only pinned releases",
-                    if pinned.is_empty() { "none".into() } else { pinned.join(", ") }
+                    "release {r} is neither pinned on episode {episode} (pinned: {}) nor used by a successful models_forecast of this episode (used: {}); cite only those releases",
+                    if pinned.is_empty() { "none".into() } else { pinned.join(", ") },
+                    if used.is_empty() { "none".into() } else { used.join(", ") }
                 ),
             ));
         }

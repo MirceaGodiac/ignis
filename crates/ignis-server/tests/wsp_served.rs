@@ -230,6 +230,15 @@ async fn served_releases_and_cards_are_listed_honestly() {
     )
     .await;
     assert_eq!(st, StatusCode::NOT_FOUND);
+    // A model name is not an id; the refusal names the id to use (agents read it and stop
+    // otherwise, concluding nothing is served).
+    let (st, body) = http(&h, "GET", "/models/flex_heptane.wsp2", None).await;
+    assert_eq!(st, StatusCode::NOT_FOUND);
+    let msg = body["message"].as_str().unwrap_or_default();
+    assert!(
+        msg.contains("model name") && msg.contains(FLEX_HEPTANE),
+        "{body}"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
