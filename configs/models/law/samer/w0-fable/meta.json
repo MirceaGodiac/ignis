@@ -1,0 +1,21 @@
+{
+  "patch_id": "law-samer-v1-w0-fable",
+  "parent_release_id": "sha256:f7ce355b9647e470525fc34b50186153450b197cc19d805ba3084540df78832f",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_samer_w0.md(zero-shot-W0-law;exposure-in-its-section-8.3)",
+      "repo:docs/wsp/feedback/samer_feasibility.md(read-after-the-constants-were-typed;train-facts-seen:full-scale-incidence-by-material,mass-concentrations-2-to-350-mg/m3;no-number-changed)",
+      "repo:docs/wsp/atlas/cards/PSI-101.json,PSI-102.json(card-findings,class-L)",
+      "author:pretraining-knowledge(may-include-published-SAME-tables;unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0 of samer.wsp: the zero-shot law of docs/wsp/research/phys_samer_w0.md (smoke size by condensation and Brownian coagulation; ISS scatter channel at full scale), its section 7.4 typed verbatim as a revision of the neutral root. The optional aged-row law of its section 7.5 (slug samer_aged) is not part of this release. Not fitted. Source: docs/wsp/research/phys_samer_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

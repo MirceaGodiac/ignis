@@ -1,0 +1,23 @@
+{
+  "slug": "same",
+  "status": "declared",
+  "family": "other",
+  "investigation": "PSI-102, SAME (first flight): smoke of overheated spacecraft materials and of dibutyl phthalate, aged and measured",
+  "description": "W0 law of docs/wsp/research/phys_same_w0.md, section 7.1: the SAME-R network without the temperature, no-flow and heating-time terms, with dibutyl phthalate. Material indicators are derived from material by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "is_kapton", "unit": "1", "transform": "identity", "description": "material indicator"},
+    {"name": "is_teflon", "unit": "1", "transform": "identity", "description": "material indicator"},
+    {"name": "is_silicone", "unit": "1", "transform": "identity", "description": "material indicator"},
+    {"name": "is_dbp", "unit": "1", "transform": "identity", "description": "dibutyl phthalate (lamp wick is the reference)"},
+    {"name": "inlet_velocity", "unit": "m/s", "transform": "identity", "description": "nominal duct air speed during heating"},
+    {"name": "net_aging_time", "unit": "s", "transform": "ln", "description": "the horizon: age of the smoke when the row was measured"}
+  ],
+  "targets": [
+    {"name": "d10", "kind": "positive", "unit": "m", "shared_quantity": null,
+     "description": "count mean diameter M1/M0 at net_aging_time (lane-local)"},
+    {"name": "d30", "kind": "positive", "unit": "m", "shared_quantity": null,
+     "description": "diameter of average mass at net_aging_time (lane-local)"},
+    {"name": "iss_full_scale", "kind": "binary",
+     "description": "ISS detector scatter channel at full scale, |V| >= 6.0 V"}
+  ]
+}

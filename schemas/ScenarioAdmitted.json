@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "EvidenceClass": {
+      "enum": [
+        "original_observation",
+        "source_derived",
+        "ignis_derived",
+        "model_output",
+        "synthetic"
+      ],
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ScenarioAdmitted",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "An admitted typed scenario: forecast it with `ForecastInput::Prefix { input_hash }`.",
+  "properties": {
+    "condition_keys": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "cutoff_s": {
+      "type": "number"
+    },
+    "evidence_class": {
+      "$ref": "#/$defs/EvidenceClass",
+      "description": "Always `synthetic`: a typed scenario is not a measurement."
+    },
+    "input_hash": {
+      "type": "string"
+    },
+    "observation_count": {
+      "format": "uint",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "release_id": {
+      "$ref": "#/$defs/ReleaseId"
+    }
+  },
+  "required": [
+    "release_id",
+    "input_hash",
+    "evidence_class",
+    "cutoff_s",
+    "condition_keys",
+    "observation_count"
+  ],
+  "title": "ScenarioAdmitted",
+  "type": "object"
+}

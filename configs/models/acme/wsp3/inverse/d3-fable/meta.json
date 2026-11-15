@@ -1,0 +1,42 @@
+{
+  "patch_id": "acme_inverse-wsp-v3-d3-fable",
+  "parent_release_id": "sha256:a43fdbcf5c73206a5d9d442a182d5e7e5c4a407d53e64b44231c014cbb00c1de",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-second-generation-D3-was-not-adopted-on-them)",
+      "repo:docs/wsp/cards/acme_clock.md(states-that-the-validation-sessions-hold-leaner-ambients-than-train;written-in-phase-2;not-used-here)",
+      "repo:docs/wsp/research/phys_acme_inverse.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;a-proposal;the-author-rechecked-what-he-typed)",
+      "analysis:the-author's-recount-of-which-input-separates-the-inverse-train-outcomes(tools/wsp/analysis/inverse_separation.py)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:a43fdbcf5c73206a5d9d442a182d5e7e5c4a407d53e64b44231c014cbb00c1de"
+    ]
+  },
+  "rationale": "D3 of the growth-clock spec for inverse flames, data-informed (not zero-shot): D1 with a pressure term in the early quench clock (+0.5 per e-fold, level re-centred so that 2.2 atm is unchanged). The diffusion of ambient fuel to the young flame makes the life lengthen with pressure; on train D1 is too long at 1.1 atm in two sessions and too short at 3.3 atm in one. Every number typed by the author; no fit, no search; no validation outcome was read, the validation conditions were.",
+  "origin": "system"
+}

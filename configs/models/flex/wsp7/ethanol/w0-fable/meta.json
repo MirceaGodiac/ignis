@@ -1,0 +1,56 @@
+{
+  "patch_id": "flex_ethanol-wsp-v1-w0-fable",
+  "parent_release_id": "sha256:7f7049769d7515f746ab9dcf6ae918f4583059790ce6aed41c2e2c752deda6ea",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_droplet_fuels.md(derivations-of-this-file:property-values-with-sources,ratios-worked-by-hand,registered-expectations)",
+      "repo:configs/models/flex/wsp5/methanol/{carry-d3,p0-fable,p1-fable}/edits.wsp(the-methanol-numbers-carried-here;typed-after-the-methanol-train-partition)",
+      "repo:configs/models/flex/wsp5/heptane/{carry-d2,p0-fable,p1-fable}/edits.wsp(read;typed-after-the-n-heptane-train-partition)",
+      "repo:docs/wsp/research/phys_flex_heptane.md;repo:docs/wsp/research/phys_flex_methanol.md(physics-dossiers:train-runs-and-published-theory)",
+      "repo:docs/wsp/research/lit_droplets.md(published-literature,including-aggregate-published-results-for-n-octane-and-n-decane-droplets-on-the-ISS)",
+      "repo:docs/wsp/research/properties/properties.csv(verified-property-values-of-n-heptane-and-methanol)",
+      "repo:docs/wsp/cards/flex_droplet6.md;repo:docs/wsp/cards/flex_droplet3.md;repo:docs/wsp/PROTOCOL.md(sections-1-5-and-10:aggregate-train-and-validation-tables-of-the-FLEX-candidates;no-per-run-validation-outcome)",
+      "repo:docs/wsp/atlas/cards/PSI-68.json;repo:docs/wsp/atlas/cards/PSI-39.json;repo:docs/wsp/atlas/INVESTIGATIONS.md(conditions-only:fuels,ranges-of-oxygen,pressure,size,diluent,support;the-names-and-cell-counts-of-the-CFI-outcome-columns-were-seen,no-value)",
+      "web:NIST-Chemistry-WebBook-SRD-69(phase-change-and-condensed-phase-pages-of-ethanol,read-15-Nov-2026-as-summaries-from-a-fetch-tool)",
+      "repo:crates/ignis-wsp/src/droplet6.rs(forward-and-spec)",
+      "author:pretraining-knowledge(unverifiable;may-include-published-results-on-ethanol-droplets-in-microgravity)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;numbers-typed-after-the-train-partition,read-through-the-edits-and-the-physics-dossier;no-series-opened-for-this-file)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;numbers-typed-after-the-train-partition,read-through-the-edits-and-the-physics-dossier)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:adac8c30e1907804928d876fc85ab0b84eec8d4fd786a063a8497e6cbabc5b33",
+      "sha256:b6bc5a9a502f8b8559d05ce03a8e62bb195c53ee159a735ae4ab3bc99fb20f2c",
+      "sha256:9a108f1a7fbf6fe56161f5108bff1a66b824a0d0171ad70060a44cb5185fac0b",
+      "sha256:57fa63b20d00e53c9e16186fec09845039b70659bd5d0ef7a3896907e02f78ce",
+      "sha256:575b0f63d5939811a2a7083eb302443d51eb486b394e67c3dd8d54d864e47a2d",
+      "sha256:a8e957efdb5df6c3cdb2732f31c02a6ee6de7d5711759e9202a35a8313aa91a5",
+      "sha256:4d873aa696d22cea9d8c6bba816d5702c261402669d5b523ab8b14174219df8a",
+      "sha256:eafcb57cb78250628cf44a9b3b41887a4202f013e0fe65366a49dd46ee5d58e9"
+    ]
+  },
+  "rationale": "W0 for ethanol (a fuel of FLEX-2, PSI-68), one shot for this fuel and not zero-shot: no ethanol outcome was opened, but the law is the methanol law of flex_methanol.wsp5, whose numbers were typed after the methanol train partition. Each fuel-specific number is the methanol number times a ratio worked by hand from property tables: the hot-flame level (ethanol burns as fast as methanol), its oxygen and pressure dependence and the stretch of the heat-up; the critical diameter of radiative extinction (4.0 mm in air: 0.73 of methanol's, taken at its literature value); self-cooling evaporation of the unlit droplet with ethanol's constants. Two numbers are judgement on a physical argument and have no check: the fall of the rate with burn progress (a third of methanol's, because ethanol holds a third of the water) and the diameter at which the flame goes out (0.26 of the initial one against 0.46). No cool flame. The prefix is trusted more and every spread is wider than for methanol. Literal revision of the fuel's lineage root (the D^2-law reference of methanol, copied without change), not a root, because the author has seen other candidates; it writes every authored element, so nothing of the root survives. The parent id is a placeholder until the fuel is registered in droplet6.rs and the root is built: tools/wsp/reassemble.py then writes it. See docs/wsp/research/phys_droplet_fuels.md.",
+  "origin": "system"
+}

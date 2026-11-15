@@ -1,0 +1,60 @@
+{
+  "author": "gpt-6-astra",
+  "experiment": "bre-property-w0-cleanroom-astra-v1",
+  "frozen_utc": "2026-11-14T20:24:13.5732020Z",
+  "spec_contract_hash": "ad5d6a0ad14e988ea25cd787ebc2ef5aad1f6c90da730f27dc113f7ea12c3cea",
+  "patch_contract_hash": "d91806821199bb1aedcfbe941ef02b82e6328bcb7b3420640f3d701c403121fa",
+  "verification": {
+    "executed_by": "coordinator",
+    "command": "cargo test --offline --manifest-path configs/models/bre/property-w0/cleanroom-astra/Cargo.toml bre_checks -- --nocapture",
+    "cargo_target_dir": "runs/tooling/astra-target",
+    "passed": 10,
+    "failed": 0,
+    "scope": "synthetic invariant and actual shared contract validation only",
+    "author_format_checks": "rustfmt --check passed for kernel and verification harness"
+  },
+  "qualification": "experimental; not_trained; conditional conservation model; no NASA qualification",
+  "review_state": "author freeze before independent outcome-blind thermal review",
+  "files": [
+    {
+      "source": "crates/ignis-wsp/src/property_bre_w0.rs",
+      "snapshot": "frozen/property_bre_w0.rs",
+      "sha256": "aac7572e3068961a80053c0299d81cea30ad504426cb64261cb8eaf5ffe3e3b7"
+    },
+    {
+      "source": "configs/models/bre/property-w0/cleanroom-astra/model_spec.json",
+      "snapshot": "frozen/model_spec.json",
+      "sha256": "4abdc30dc22fc92f04cb05b25177c5b5b915e11cf8bcc0b826cc553d1b519017"
+    },
+    {
+      "source": "configs/models/bre/property-w0/cleanroom-astra/literal_ops.json",
+      "snapshot": "frozen/literal_ops.json",
+      "sha256": "d2c7767dcb003e359559460a0db0ddfff24ea7a5c92ef3c288f05b0fe24c0a2b"
+    },
+    {
+      "source": "configs/models/bre/property-w0/cleanroom-astra/patch_meta.json",
+      "snapshot": "frozen/patch_meta.json",
+      "sha256": "c2d1b8a6c4181d351f24219830974e85937abfe372d9752fcfcc1f8a59c47d71"
+    },
+    {
+      "source": "configs/models/bre/property-w0/cleanroom-astra/verify.rs",
+      "snapshot": "frozen/verify.rs",
+      "sha256": "f632008ecdeed8be097e39e1823f6b9593a462a98ccd5e31e4ec3f206e3d1d68"
+    },
+    {
+      "source": "configs/models/bre/property-w0/cleanroom-astra/Cargo.toml",
+      "snapshot": "frozen/Cargo.toml",
+      "sha256": "cd65d6138551a247a1cc2234962753fc77a3ed4fc040891456aa1580a4371268"
+    },
+    {
+      "source": "docs/wsp/research/astra_bre_w0.md",
+      "snapshot": "frozen/astra_bre_w0.md",
+      "sha256": "941022150ea473f9fd87f1904ac2c133c169218c873df2e2077a9b6a9e8cb145"
+    },
+    {
+      "source": "configs/models/bre/property-w0/cleanroom-astra/Cargo.lock",
+      "snapshot": "frozen/Cargo.lock",
+      "sha256": "2955c4b4edd30c6432768cc7ed5c101a2efbafd679b225061eebecc0470dac8a"
+    }
+  ]
+}

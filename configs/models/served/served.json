@@ -1,0 +1,1328 @@
+{
+  "schema": "ignis.served-models/1",
+ "note": "The hand-written (literal WSP) releases this deployment serves: one entry per release, its bytes in models/<hex>/ beside this file. Adding a release is a new entry plus its registry directory (and a rebuild only when it needs a forward this build does not have). Every score is a development number as the authoring lane reported it, with its source; no test-partition score is listed. Text from docs/wsp/README.md, docs/wsp/RESULTS_GEN6.md and the model cards (feat/handwritten-science).",
+  "releases": [
+    {
+      "release_id": "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
+      "model_name": "flex_methanol.wsp2",
+      "family": "flex",
+      "investigation": "FLEX (PSI-69), methanol droplets",
+      "candidate": "D3",
+      "forecasts": "The diameter of a free-floating burning methanol droplet after the cutoff (quantiles), from its conditions and the diameters measured before the cutoff; the droplet may stay in a hot flame, go to a cool flame or lose its flame.",
+      "authorship": "data_informed",
+      "authorship_note": "Third generation: typed after reading the methanol train partition and a train-only audit of D2. Not replaced by the fourth or fifth generation.",
+      "inputs": [
+        {
+          "name": "fuel",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "text": true,
+          "note": "fuel species; this release answers methanol only",
+          "example": "Methanol"
+        },
+        {
+          "name": "pressure",
+          "kind": "condition",
+          "unit_si": "Pa",
+          "required": true,
+          "note": "chamber pressure",
+          "example": 101325.0
+        },
+        {
+          "name": "x_o2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction",
+          "example": 0.21
+        },
+        {
+          "name": "x_co2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "carbon dioxide mole fraction",
+          "example": 0.0
+        },
+        {
+          "name": "x_he",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "helium mole fraction",
+          "example": 0.0
+        },
+        {
+          "name": "phase_established_at_s",
+          "kind": "phase_start",
+          "unit_si": "s",
+          "required": true,
+          "note": "time the burning droplet was established (the release reads diameters from it)",
+          "example": 0.0
+        },
+        {
+          "name": "liquid_diameter",
+          "kind": "observation",
+          "unit_si": "m",
+          "required": true,
+          "note": "droplet diameters measured up to the cutoff (the early prefix the forward reads)",
+          "example": [
+            [
+              0.0,
+              0.003
+            ],
+            [
+              0.5,
+              0.002954
+            ],
+            [
+              1.0,
+              0.002907
+            ],
+            [
+              1.5,
+              0.002859
+            ],
+            [
+              2.0,
+              0.002811
+            ],
+            [
+              2.5,
+              0.002762
+            ],
+            [
+              3.0,
+              0.002711
+            ]
+          ]
+        }
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored FLEX run gives everything (conditions and the measured diameters up to the cutoff). A typed scenario must give the conditions and a few diameters before the cutoff; the time origin is the release's own (NASA DropletData processed time base).",
+      "scores": [
+        {
+          "metric": "CRPS of the droplet diameter, FLEX methanol validation partition",
+          "value": "40.0 µm",
+          "comparison": "best fitted model 77.7 µm; zero-shot flex.wsp W0 50.4 µm",
+          "source": "docs/wsp/README.md, table of the carried models"
+        }
+      ],
+      "limits": [
+        "Tracker artefacts (glare, soot, bubbles, dropouts, frozen values) are scored as data; no model forecasts them (about a third of the train error).",
+        "A flame that went out less than a second before the cutoff still reads as burning.",
+        "The helium term of the clock rests on three runs.",
+        "The radiative clock above the critical diameter rests on CO2-diluted pairs; if the critical diameter in CO2 is off, the slope is wrong between atmospheres."
+      ],
+      "cite": "flex_methanol.wsp2 D3, hand-written (literal WSP) release sha256:c8a90dab…b654, experimental, not trained; its output is model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/flex_droplet3.md"
+    },
+    {
+      "release_id": "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
+      "model_name": "flex_heptane.wsp2",
+      "family": "flex",
+      "investigation": "FLEX (PSI-69), n-heptane droplets",
+      "candidate": "D2",
+      "forecasts": "The diameter of a free-floating burning n-heptane droplet after the cutoff (quantiles), from its conditions and the diameters measured before the cutoff, through hot-flame, cool-flame and no-flame states.",
+      "authorship": "data_informed",
+      "authorship_note": "Third generation: typed after reading the n-heptane train partition. The zero-shot reference flex_heptane.wsp W0 (60.3 µm) stays in the tables; it is not served.",
+      "inputs": [
+        {
+          "name": "fuel",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "text": true,
+          "note": "fuel species; this release answers n-heptane only",
+          "example": "Heptane"
+        },
+        {
+          "name": "pressure",
+          "kind": "condition",
+          "unit_si": "Pa",
+          "required": true,
+          "note": "chamber pressure",
+          "example": 101325.0
+        },
+        {
+          "name": "x_o2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction",
+          "example": 0.21
+        },
+        {
+          "name": "x_co2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "carbon dioxide mole fraction",
+          "example": 0.0
+        },
+        {
+          "name": "x_he",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "helium mole fraction",
+          "example": 0.0
+        },
+        {
+          "name": "phase_established_at_s",
+          "kind": "phase_start",
+          "unit_si": "s",
+          "required": true,
+          "note": "time the burning droplet was established (the release reads diameters from it)",
+          "example": 0.0
+        },
+        {
+          "name": "liquid_diameter",
+          "kind": "observation",
+          "unit_si": "m",
+          "required": true,
+          "note": "droplet diameters measured up to the cutoff",
+          "example": [
+            [
+              0.0,
+              0.003
+            ],
+            [
+              0.5,
+              0.002954
+            ],
+            [
+              1.0,
+              0.002907
+            ],
+            [
+              1.5,
+              0.002859
+            ],
+            [
+              2.0,
+              0.002811
+            ],
+            [
+              2.5,
+              0.002762
+            ],
+            [
+              3.0,
+              0.002711
+            ]
+          ]
+        }
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored FLEX run of the n-heptane cohort gives everything. A typed scenario must give the conditions and a few diameters before the cutoff.",
+      "scores": [
+        {
+          "metric": "CRPS of the droplet diameter, FLEX n-heptane validation partition",
+          "value": "46.1 µm",
+          "comparison": "zero-shot W0 60.3 µm; D²-law 105 µm",
+          "source": "docs/wsp/README.md, table of the carried models"
+        }
+      ],
+      "limits": [
+        "Tracker artefacts are scored as data; about two fifths of the train error is glare, soot, bubbles and dropouts.",
+        "The stage after the visible flame in 30–35 % helium has no law (one train session); the clock is deliberately not corrected.",
+        "A flame that went out less than a second before the cutoff still reads as burning.",
+        "Also covers FLEX-2 (PSI-68) as a scored transfer, unchanged: 8 n-heptane tests on 2 train-split days, 20.9 µm against 32.6 for the d-squared law (docs/wsp/COVERAGE_19.md on the lane branch). Zero-shot candidates for n-decane, n-octane, iso-octane and an n-dodecane candidate for CFI (PSI-39) exist but are not served."
+      ],
+      "cite": "flex_heptane.wsp2 D2, hand-written (literal WSP) release sha256:edbad4d6…edef, experimental, not trained; its output is model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/flex_droplet3.md"
+    },
+    {
+      "release_id": "sha256:2ae770d8d159bca359e2125ef348ce13724abce49e91af4a3d62c5c66af6bc52",
+      "model_name": "acme_normal.wsp12",
+      "family": "acme_normal",
+      "investigation": "ACME CFI-G (PSI-159) and Flame Design, normal burner flames",
+      "candidate": "F2",
+      "forecasts": "For a normal (fuel into oxidizer) burner flame, the probability over time that it ends by extinction or by a flow stop (event probabilities), from the conditions of the test; optionally from the planned stop of the test script.",
+      "authorship": "data_informed",
+      "authorship_note": "Sixth generation (15 November): acme_normal.wsp7 P3 reading the fuel from a typed table so it answers for ethylene and methane; the ethylene row was zero-shot, then revised once after a blind run on Flame Design. Typed after reading CFI-G train data and the train days of Flame Design.",
+      "inputs": [
+        {
+          "name": "fuel_species",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "text": true,
+          "note": "fuel: ethane, propane, butane, ethylene or methane",
+          "example": "propane"
+        },
+        {
+          "name": "injected_mass_flow",
+          "kind": "condition",
+          "unit_si": "kg/s",
+          "required": true,
+          "note": "fuel (or fuel-side) mass flow",
+          "example": 1e-06
+        },
+        {
+          "name": "pressure",
+          "kind": "condition",
+          "unit_si": "Pa",
+          "required": true,
+          "note": "chamber pressure",
+          "example": 101325.0
+        },
+        {
+          "name": "tad",
+          "kind": "condition",
+          "unit_si": "K",
+          "required": true,
+          "note": "adiabatic flame temperature",
+          "example": 2300.0
+        },
+        {
+          "name": "x_fuel_role",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "fuel mole fraction of the fuel stream",
+          "example": 0.3
+        },
+        {
+          "name": "x_o2_role",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction of the oxidizer stream",
+          "example": 0.3
+        },
+        {
+          "name": "zst",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "stoichiometric mixture fraction",
+          "example": 0.25
+        },
+        {
+          "name": "phase_established_at_s",
+          "kind": "phase_start",
+          "unit_si": "s",
+          "required": true,
+          "note": "time the flame was established; the time origin is hot ignition, so 0 for a flame burning from ignition",
+          "example": 0.0
+        },
+        {
+          "name": "programmed_stop",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": false,
+          "note": "planned stop of the test from NASA's script file; without it the release answers as on the shared records"
+        },
+        {
+          "name": "session_id",
+          "kind": "test_date",
+          "unit_si": "1",
+          "required": false,
+          "note": "date of the test (selects the burner temperature limit by era); without it the era weight for an unknown date is used",
+          "example": "2023-03-01"
+        }
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored CFI-G run gives the conditions. The planned stop is not in the shared records, so stored runs answer without it. A typed scenario needs the conditions and the time the flame was established (no observations).",
+      "scores": [
+        {
+          "metric": "Integrated Brier score 6–120 s, CFI-G validation, ethane/propane/butane, without the planned stop: extinction / flow termination",
+          "value": "0.154 / 0.096",
+          "comparison": "acme_normal.wsp5 P1: 0.155 / 0.097",
+          "source": "docs/wsp/README.md and docs/wsp/RESULTS_GEN6.md"
+        },
+        {
+          "metric": "Same, with the planned stop",
+          "value": "0.147 / 0.080",
+          "source": "docs/wsp/README.md"
+        },
+        {
+          "metric": "Flame Design validation days, ethylene as itself: without / with the planned stop (extinction / flow termination)",
+          "value": "0.032 / 0.393 and 0.007 / 0.072",
+          "source": "docs/wsp/README.md and docs/wsp/RESULTS_GEN6.md (12.10)"
+        }
+      ],
+      "limits": [
+        "On CFI-G validation with the planned stop it is worse than the model before it (sum 0.2271 against 0.2191, two sessions).",
+        "On the Flame Design validation days every normal-flame case ended by a flow stop, so extinction there only measures false extinction; two or three validation days are few.",
+        "A nitrogen-diluted ethylene flame lives longer than the growth law says; ethylene below 1900 K is refused.",
+        "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp.",
+        "Also covers Flame Design (PSI-10, ethylene from the typed fuel table) and s-Flame (PSI-23) as a blind transfer: on s-Flame validation days the sum 0.262 against 0.279 for the incidence baseline is undecided; helium, hydrogen and blends are refused (docs/wsp/COVERAGE_19.md on the lane branch)."
+      ],
+      "cite": "acme_normal.wsp12 F2, hand-written (literal WSP) release sha256:2ae770d8…bc52, experimental, not trained; event probabilities are model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/acme_committee.md"
+    },
+    {
+      "release_id": "sha256:7404f3ad888f8c01d38ce4267588f5ea4532343dd23d491eb21097ae304aa7f7",
+      "model_name": "acme_inverse.wsp12",
+      "family": "acme_inverse",
+      "investigation": "ACME CFI-G (PSI-159) and Flame Design, inverse burner flames",
+      "candidate": "F2",
+      "forecasts": "For an inverse (oxidizer into fuel) burner flame, the probability over time that it ends by extinction or by a flow stop (event probabilities), from the conditions of the test; optionally from the planned stop of the test script.",
+      "authorship": "data_informed",
+      "authorship_note": "acme_inverse.wsp5 P1 (the carried law with a second scenario that holds a marginal flame) reading the fuel from a typed table; its ethylene row is zero-shot and was confirmed by a blind run. Typed after reading train data and published theory.",
+      "inputs": [
+        {
+          "name": "fuel_species",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "text": true,
+          "note": "fuel: ethane, propane, butane, ethylene or methane",
+          "example": "propane"
+        },
+        {
+          "name": "injected_mass_flow",
+          "kind": "condition",
+          "unit_si": "kg/s",
+          "required": true,
+          "note": "injected (oxidizer-side) mass flow",
+          "example": 5e-06
+        },
+        {
+          "name": "pressure",
+          "kind": "condition",
+          "unit_si": "Pa",
+          "required": true,
+          "note": "chamber pressure",
+          "example": 101325.0
+        },
+        {
+          "name": "tad",
+          "kind": "condition",
+          "unit_si": "K",
+          "required": true,
+          "note": "adiabatic flame temperature",
+          "example": 2400.0
+        },
+        {
+          "name": "x_fuel_role",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "fuel mole fraction of the fuel stream",
+          "example": 0.1
+        },
+        {
+          "name": "x_o2_role",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction of the oxidizer stream",
+          "example": 0.5
+        },
+        {
+          "name": "zst",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "stoichiometric mixture fraction",
+          "example": 0.45
+        },
+        {
+          "name": "phase_established_at_s",
+          "kind": "phase_start",
+          "unit_si": "s",
+          "required": true,
+          "note": "time the flame was established; the time origin is hot ignition, so 0 for a flame burning from ignition",
+          "example": 0.0
+        },
+        {
+          "name": "programmed_stop",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": false,
+          "note": "planned stop of the test from NASA's script file; without it the release answers as on the shared records"
+        },
+        {
+          "name": "session_id",
+          "kind": "test_date",
+          "unit_si": "1",
+          "required": false,
+          "note": "date of the test (selects era-dependent weights)",
+          "example": "2023-03-01"
+        }
+      ],
+      "stored_runs": true,
+      "inputs_note": "A stored CFI-G run gives the conditions; stored runs answer without the planned stop. A typed scenario needs the conditions and the time the flame was established.",
+      "scores": [
+        {
+          "metric": "Integrated Brier score 6–120 s, CFI-G shared records, ethane/propane/butane: extinction / flow termination",
+          "value": "0.129 / 0.088",
+          "source": "docs/wsp/README.md, table of the carried models"
+        },
+        {
+          "metric": "Same, with the planned stop",
+          "value": "0.135 / 0.048",
+          "source": "docs/wsp/README.md"
+        },
+        {
+          "metric": "Flame Design, extinction, ethylene as itself against ethylene borrowed as ethane (7 sessions)",
+          "value": "0.108 against 0.147",
+          "comparison": "interval of the difference excludes zero",
+          "source": "docs/wsp/README.md and docs/wsp/RESULTS_GEN6.md (12.8)"
+        },
+        {
+          "metric": "Flame Design validation days with the planned stop: extinction / flow termination",
+          "value": "0.092 / 0.002",
+          "source": "docs/wsp/README.md"
+        }
+      ],
+      "limits": [
+        "Two or three validation days per family on Flame Design are few.",
+        "Ethylene below 1900 K is refused.",
+        "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp.",
+        "Also covers Flame Design (PSI-10): on its validation days ethylene as itself 0.108 against 0.147 as ethane (docs/wsp/COVERAGE_19.md on the lane branch)."
+      ],
+      "cite": "acme_inverse.wsp12 F2, hand-written (literal WSP) release sha256:7404f3ad…a7f7, experimental, not trained; event probabilities are model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/acme_committee.md"
+    },
+    {
+      "release_id": "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
+      "model_name": "bass_front.wsp",
+      "family": "bass",
+      "investigation": "BASS (PSI-25), thin fabric in concurrent flow",
+      "candidate": "D1",
+      "forecasts": "The position of the flame tip over a thin fabric sample in concurrent flow after the cutoff (quantiles), with the flow history as a known control, and a quench hazard.",
+      "authorship": "data_informed",
+      "authorship_note": "Typed after reading four train burns (measured from the public videos) and published theory; the validation burns were measured blind.",
+      "inputs": [
+        {
+          "name": "x_o2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction",
+          "example": 0.19
+        },
+        {
+          "name": "width",
+          "kind": "condition",
+          "unit_si": "m",
+          "required": true,
+          "note": "sample width (converts the law from sample widths to metres)",
+          "example": 0.022
+        },
+        {
+          "name": "length",
+          "kind": "condition",
+          "unit_si": "m",
+          "required": false,
+          "note": "sample length",
+          "example": 0.1
+        },
+        {
+          "name": "flow_velocity",
+          "kind": "control",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "fan (flow) history as control stages: start s, end s (empty = open), value",
+          "example": [
+            [
+              0.0,
+              22.0,
+              0.1
+            ],
+            [
+              22.0,
+              null,
+              0.03
+            ]
+          ]
+        },
+        {
+          "name": "igniter",
+          "kind": "control",
+          "unit_si": "1",
+          "required": false,
+          "note": "igniter stage: start s, end s",
+          "example": [
+            [
+              4.0,
+              10.0,
+              null
+            ]
+          ]
+        },
+        {
+          "name": "phase_established_at_s",
+          "kind": "phase_start",
+          "unit_si": "s",
+          "required": true,
+          "note": "time the flame was established over the sample (end of the igniter stage)",
+          "example": 10.0
+        },
+        {
+          "name": "front_position",
+          "kind": "observation",
+          "unit_si": "m",
+          "required": true,
+          "note": "flame tip positions up to the cutoff",
+          "example": [
+            [
+              11.0,
+              0.002
+            ],
+            [
+              13.0,
+              0.006
+            ],
+            [
+              15.0,
+              0.01
+            ],
+            [
+              17.0,
+              0.014
+            ],
+            [
+              19.0,
+              0.018
+            ],
+            [
+              20.0,
+              0.02
+            ]
+          ]
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "No stored BASS run carries x_o2, a width in metres and the fan history, so on stored runs this release refuses. Forecast it on a typed scenario: conditions, flow stages and a few tip positions before the cutoff. Its development score is in sample widths, from the lane's track files.",
+      "scores": [
+        {
+          "metric": "CRPS of the flame tip, 12 BASS burns measured blind from the videos",
+          "value": "0.117 sample widths",
+          "comparison": "persistence 0.234; paired difference +0.117 [+0.051, +0.182] over 12 burns",
+          "source": "docs/wsp/README.md, table of the carried models"
+        },
+        {
+          "metric": "Quench boundary",
+          "value": "0.170",
+          "comparison": "a constant scores 0.125: the quench boundary fails",
+          "source": "docs/wsp/README.md"
+        }
+      ],
+      "limits": [
+        "No run has a length calibration: its scores are in sample widths; the metric route needs a width in metres and is tested on a synthetic fixture only.",
+        "Twelve burns of three sessions of one campaign.",
+        "Flows above 11 cm/s, 21 % oxygen and the narrow sample are outside train.",
+        "The quench law is wrong on spread-or-not: read no ignition forecast from it.",
+        "Not predicted: temperature, flame brightness, the flame base.",
+        "Also covers Saffire I to III (PSI-98 to PSI-100) as blind transfers, unchanged: Saffire I and III 0.058 against 0.250 for persistence on two sheets; Saffire II 0.654 against 0.852, reported, decides nothing (docs/wsp/COVERAGE_19.md on the lane branch)."
+      ],
+      "cite": "bass_front.wsp D1, hand-written (literal WSP) release sha256:ac15e49f…855c, experimental, not trained; its output is model output, not a measurement.",
+      "card_doc": "docs/wsp/cards/bass_front.md"
+    },
+    {
+      "release_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+      "model_name": "bre.wsp",
+      "family": "other",
+      "investigation": "BRE (PSI-20), porous-disc burner",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. flame_end (event): the flame goes out by itself while the fuel flow is still at its first setpoint, seconds since ignition; no scheduled_stop condition (a stop comes from known_controls when one is known); lasts (binary): the flame is still burning stated_time seconds after ignition, flow unchanged; height_at_end (positive, m): height of the flame above the burner centre in the last second before self-extinction (lane-local)",
+      "authorship": "zero_shot",
+      "authorship_note": "Zero-shot: typed before any BRE outcome was seen. One revision from train days was tried and did not replace it (PROTOCOL 13.3).",
+      "inputs": [
+        {
+          "name": "burner_diameter",
+          "kind": "condition",
+          "unit_si": "m",
+          "required": true,
+          "note": "diameter of the porous face (0.025 or 0.050)"
+        },
+        {
+          "name": "burner_mass_flux",
+          "kind": "condition",
+          "unit_si": "kg/m2/s",
+          "required": true,
+          "note": "mass flow of the burner gas (fuel plus its nitrogen) at the first setpoint, per unit face area"
+        },
+        {
+          "name": "x_o2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction of the chamber gas just before ignition"
+        },
+        {
+          "name": "pressure",
+          "kind": "condition",
+          "unit_si": "Pa",
+          "required": true,
+          "note": "chamber pressure just before ignition"
+        },
+        {
+          "name": "x_fuel",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "fuel mole fraction of the burner gas (1 for a pure fuel, 0.5 for the 50 % bottle)"
+        },
+        {
+          "name": "is_methane",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 for methane, 0 for ethylene"
+        },
+        {
+          "name": "stated_time",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "the time asked about by lasts; any admissible value for the other targets, which give it no weight"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Integrated Brier score, extinction, BRE validation (87 cases answered, 3 refused, 4 days)",
+          "value": "0.2755",
+          "comparison": "incidence baseline 0.2274: loses to the baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Integrated Brier score, operator termination, same set",
+          "value": "0.1383",
+          "comparison": "incidence 0.1799 (beats it); the planned-stop baseline scores 0.0924",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Extinction loses to a constant incidence baseline; the authors name a missing held-flame class as the cause.",
+        "Targets: flame_end, lasts, height_at_end; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "bre.wsp W0, hand-written (literal WSP) release sha256:aa0eef5b…2b4d, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8",
+      "model_name": "spice.wsp",
+      "family": "other",
+      "investigation": "SPICE (PSI-107), smoke points of laminar jet flames",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. smoke_point_length (positive, m): luminous length, nozzle to tip on the axis, at incipient soot emission (lane-local); smoke_point_fuel_flow (positive, kg/s): nozzle gas mass flow at the smoke point; flame_length (positive, m): luminous length of the flame at a setting (lane-local); emits_soot (binary): at this setting soot leaves the tip (at or past the smoke point)",
+      "authorship": "zero_shot",
+      "authorship_note": "Zero-shot. A second candidate built on the investigators' published fit (2.91 mm) is reported beside it; it is not blind and not served.",
+      "inputs": [
+        {
+          "name": "nozzle_diameter",
+          "kind": "condition",
+          "unit_si": "m",
+          "required": true,
+          "note": "inner diameter of the fuel nozzle"
+        },
+        {
+          "name": "coflow_speed",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "duct air speed (anemometer)"
+        },
+        {
+          "name": "fuel_mass_flow",
+          "kind": "condition",
+          "unit_si": "kg/s",
+          "required": true,
+          "note": "mass flow of all gas through the nozzle; the two smoke-point targets give it weight zero"
+        },
+        {
+          "name": "x_fuel",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "fuel mole fraction of the nozzle gas (balance nitrogen)"
+        },
+        {
+          "name": "is_propane",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "indicator"
+        },
+        {
+          "name": "is_propylene",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "indicator"
+        },
+        {
+          "name": "is_methane",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "indicator (ethylene is the reference fuel)"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Smoke-point length error, SPICE validation (7 smoke points, 2 days)",
+          "value": "5.86 mm",
+          "comparison": "constant 6.10 mm; per-fuel baseline 5.04 mm (loses to the per-fuel baseline)",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Thin evidence: 7 smoke points on 2 days.",
+        "Targets: smoke_point_length, smoke_point_fuel_flow, flame_length, emits_soot; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "spice.wsp W0, hand-written (literal WSP) release sha256:93e75024…f2a8, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+      "model_name": "efield.wsp",
+      "family": "other",
+      "investigation": "E-FIELD Flames (PSI-22)",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. ion_current (positive, A): flame current at a planned voltage level, positive in the direction the field drives it, given that the flame still burns (lane-local); flame_end (event): the flame goes out under the field, seconds since the field is switched on; no scheduled stop declared; peak_ion_current (positive, A): largest current of the sweep (lane-local); peak_voltage (positive, V): voltage at which the largest current is reached (lane-local)",
+      "authorship": "data_informed",
+      "authorship_note": "Typed with train aggregates seen (not zero-shot, not revised from per-run errors).",
+      "inputs": [
+        {
+          "name": "carbon_flow",
+          "kind": "condition",
+          "unit_si": "1/s",
+          "required": true,
+          "note": "fuel carbon atoms per second (case input carbon_flow_atoms_s)"
+        },
+        {
+          "name": "x_fuel",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "fuel mole fraction of the fuel stream"
+        },
+        {
+          "name": "is_ethylene",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 when fuel = ethylene"
+        },
+        {
+          "name": "mesh_positive",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 when polarity = positive"
+        },
+        {
+          "name": "voltage",
+          "kind": "condition",
+          "unit_si": "V",
+          "required": true,
+          "note": "magnitude of the level's v_cmd; for the targets without a level, the highest magnitude of the sweep"
+        },
+        {
+          "name": "sweep_v_max",
+          "kind": "condition",
+          "unit_si": "V",
+          "required": true,
+          "note": "largest magnitude of v_cmd over the programme"
+        },
+        {
+          "name": "window",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "window_s of the field programme"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Ion current error, E-FIELD validation (36 tests, 1,289 voltage levels, 4 days)",
+          "value": "0.546 µA",
+          "comparison": "constant 0.620 µA; the space-charge baseline scores 0.374 µA (loses to it)",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Flame out under the field, same set",
+          "value": "0.0753",
+          "comparison": "0.0884: beats every baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "The ion-current target loses to the space-charge baseline.",
+        "Targets: ion_current, flame_end, peak_ion_current, peak_voltage; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "efield.wsp W0, hand-written (literal WSP) release sha256:73f91b55…86a9, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+      "model_name": "samer.wsp",
+      "family": "other",
+      "investigation": "SAME-R (PSI-101), smoke aerosol",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. d10 (positive, m): count mean diameter M1/M0 at net_aging_time (lane-local); d30 (positive, m): diameter of average mass at net_aging_time (lane-local); iss_full_scale (binary): ISS detector scatter channel at full scale, |V| >= 6.0 V",
+      "authorship": "zero_shot",
+      "authorship_note": "Zero-shot. One revision from train days was tried and did not replace it (PROTOCOL 13.3).",
+      "inputs": [
+        {
+          "name": "is_kapton",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator"
+        },
+        {
+          "name": "is_teflon",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator"
+        },
+        {
+          "name": "is_silicone",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator"
+        },
+        {
+          "name": "is_pyrell",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator (lamp wick is the reference)"
+        },
+        {
+          "name": "sample_temperature",
+          "kind": "condition",
+          "unit_si": "K",
+          "required": true,
+          "note": "sample temperature during heating"
+        },
+        {
+          "name": "inlet_velocity",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "nominal duct air speed during heating"
+        },
+        {
+          "name": "no_flow",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 when the inlet velocity is 0"
+        },
+        {
+          "name": "net_aging_time",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "the horizon: age of the smoke when the row was measured"
+        },
+        {
+          "name": "heating_duration",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "heating time of the sample"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Particle diameter, SAME-R validation (23 rows answered, 1 refused, 3 days)",
+          "value": "0.167",
+          "comparison": "baselines 0.393 and 0.339: beats every baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Detector at full scale, same set",
+          "value": "0.228",
+          "comparison": "baselines 0.411 and 0.247: beats every baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Three validation days.",
+        "Targets: d10, d30, iss_full_scale; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "samer.wsp W0, hand-written (literal WSP) release sha256:05f77ae2…7fb0, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:e1362b55270238360ec6744cfea6225db42d0fe019f6ff1c77dd96cede5f2062",
+      "model_name": "same.wsp",
+      "family": "other",
+      "investigation": "SAME (PSI-102), smoke aerosol",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. d10 (positive, m): count mean diameter M1/M0 at net_aging_time (lane-local); d30 (positive, m): diameter of average mass at net_aging_time (lane-local); iss_full_scale (binary): ISS detector scatter channel at full scale, |V| >= 6.0 V",
+      "authorship": "zero_shot",
+      "authorship_note": "Zero-shot; scored on the whole investigation held, so no data is left to judge a revision.",
+      "inputs": [
+        {
+          "name": "is_kapton",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator"
+        },
+        {
+          "name": "is_teflon",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator"
+        },
+        {
+          "name": "is_silicone",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "material indicator"
+        },
+        {
+          "name": "is_dbp",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "dibutyl phthalate (lamp wick is the reference)"
+        },
+        {
+          "name": "inlet_velocity",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "nominal duct air speed during heating"
+        },
+        {
+          "name": "net_aging_time",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "the horizon: age of the smoke when the row was measured"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Particle diameter, SAME whole investigation held (45 rows)",
+          "value": "0.184",
+          "comparison": "baselines 0.220 and 0.192: beats every baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Detector at full scale, same rows",
+          "value": "0.059",
+          "comparison": "constant 0.205; per-material baseline 0.055 (loses to it)",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Scored whole: no held data remains to judge a revision.",
+        "Targets: d10, d30, iss_full_scale; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "same.wsp W0, hand-written (literal WSP) release sha256:e1362b55…2062, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:061f93de68e66b27606d99cae054c5bd03ddb136c03decc81489cad8b66f5e5d",
+      "model_name": "daft.wsp",
+      "family": "other",
+      "investigation": "DAFT (PSI-47), dust and aerosol",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. number_concentration (positive, 1/m3): what the modified P-Trak reads on the sample (lane-local)",
+      "authorship": "zero_shot",
+      "authorship_note": "Zero-shot; scored on the whole investigation held.",
+      "inputs": [
+        {
+          "name": "is_cabin",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "cabin air through the hose"
+        },
+        {
+          "name": "is_velcro",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "cabin air while Velcro is separated"
+        },
+        {
+          "name": "is_bag",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "road dust in a bag (filtered air is the reference)"
+        },
+        {
+          "name": "dusttrak_mass_floored",
+          "kind": "condition",
+          "unit_si": "kg/m3",
+          "required": true,
+          "note": "max(dusttrak_mass_concentration, 1e-9 kg/m3), the photometer reading floored at its resolution"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Number concentration, DAFT whole investigation held (53 readings, 2 groups)",
+          "value": "0.777",
+          "comparison": "the one baseline (smoke number per mass from SAME-R) 2.678",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Scored whole on 2 groups: no held data remains to judge a revision.",
+        "Targets: number_concentration; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "daft.wsp W0, hand-written (literal WSP) release sha256:061f93de…5e5d, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
+      "model_name": "bass1.wsp",
+      "family": "other",
+      "investigation": "BASS and BASS-II plastics (PSI-26, PSI-25)",
+      "candidate": "D1",
+      "forecasts": "Generic law forward (law.rs) over the declared features. holds_low_flow (binary): rod tip or sphere: flame not quenched by heat loss at the end of the step; holds_high_flow (binary): rod tip or sphere: stagnation flame not blown off; oxygen_limit (positive, 1): rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time; quench_speed (positive, m/s): rod tip or sphere: duct speed below which the flame goes out; blowoff_speed (positive, m/s): rod tip or sphere: duct speed at which the stagnation flame blows off; flat_holds_low_flow (binary): film or slab: flame not quenched; flat_holds_high_flow (binary): film or slab: flame not blown off; flat_quench_speed (positive, m/s): film or slab: duct speed below which the flame goes out",
+      "authorship": "data_informed",
+      "authorship_note": "Zero-shot law (four published papers on these burns read), then one step from train days (thick slabs conduct heat inward).",
+      "inputs": [
+        {
+          "name": "x_o2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "oxygen mole fraction of the gas entering the duct during the step"
+        },
+        {
+          "name": "flow_speed",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "duct speed of the step"
+        },
+        {
+          "name": "nose_radius",
+          "kind": "condition",
+          "unit_si": "m",
+          "required": true,
+          "note": "radius of the rod, sphere or spherical section as installed; 0.01 for a flat sample (weight zero in the flat targets)"
+        },
+        {
+          "name": "heat_time",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "time from ignition of this burn to the end of the step (for quench and blow-off speeds: to the event); 200 where it is not recorded"
+        },
+        {
+          "name": "is_concurrent",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "flat samples: 1 if the flame spreads with the flow, 0 against it; 0 for rods and spheres"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Quench speed, plastics validation (41 burns on 12 days; 28 answered)",
+          "value": "0.507 cm/s",
+          "comparison": "constant quantiles 0.230 cm/s: still loses (zero-shot parent 0.517)",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Kept burning after the igniter, given a flame was established (22 answered)",
+          "value": "0.086",
+          "comparison": "0.120: beats every baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "The quench speed loses to a constant baseline; the authors name a missing thickness input as the cause.",
+        "Targets: holds_low_flow, holds_high_flow, oxygen_limit, quench_speed, blowoff_speed, flat_holds_low_flow, flat_holds_high_flow, flat_quench_speed; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "bass1.wsp D1, hand-written (literal WSP) release sha256:b3bb1869…6ca0, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e",
+      "model_name": "slice.wsp",
+      "family": "other",
+      "investigation": "SLICE (PSI-106), lifted and blown-off jet flames",
+      "candidate": "W0",
+      "forecasts": "Generic law forward (law.rs) over the declared features. blow_off (binary): the flame blows off at this logged setting, or during the adjustment noted on its line; lifted (binary): the flame base has left the rim at this setting; flame_length (positive, m): luminous length (lane-local; not scorable from text)",
+      "authorship": "zero_shot",
+      "authorship_note": "Zero-shot. One revision from train days was tried and did not replace it (PROTOCOL 13.3).",
+      "inputs": [
+        {
+          "name": "u_coflow",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "duct air velocity (u_coflow_cm_s / 100)"
+        },
+        {
+          "name": "u_jet",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "mean jet exit velocity (u_jet_m_s)"
+        },
+        {
+          "name": "burner_id",
+          "kind": "condition",
+          "unit_si": "m",
+          "required": true,
+          "note": "burner tube inner diameter (burner_id_mm / 1000)"
+        },
+        {
+          "name": "x_fuel",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "hydrocarbon mole fraction of the jet gas"
+        },
+        {
+          "name": "x_o2",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "cabin oxygen mole fraction (x_o2_cabin)"
+        },
+        {
+          "name": "is_ethane",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 for ethane"
+        },
+        {
+          "name": "is_propane",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 for propane (methane is the reference)"
+        },
+        {
+          "name": "mdot_jet",
+          "kind": "condition",
+          "unit_si": "kg/s",
+          "required": true,
+          "note": "jet gas mass flow (mdot_jet_mg_s / 1e6); read by flame_length only"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Blow-off, SLICE validation (one methane day, 34 lines)",
+          "value": "0.155",
+          "comparison": "incidence 0.161; by-tube baseline 0.149 (loses to it)",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Lifting, same set",
+          "value": "0.089",
+          "comparison": "baseline 0.056: loses",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Judged on one day; the 41 lines of the ethylene day are refused.",
+        "Lifting loses to its baseline; the authors name a missing window between lifting and blow-off.",
+        "Targets: blow_off, lifted, flame_length; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "slice.wsp W0, hand-written (literal WSP) release sha256:d10c94bc…006e, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    },
+    {
+      "release_id": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+      "model_name": "cld.wsp",
+      "family": "other",
+      "investigation": "CLD Flame (PSI-21)",
+      "candidate": "D1",
+      "forecasts": "Generic law forward (law.rs) over the declared features. loss (event): the flame goes out while the fuel still flows, seconds since flame onset; radiometer (positive, V): excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)",
+      "authorship": "data_informed",
+      "authorship_note": "Typed with train aggregates seen, then one step from train days (methane has no stable lifted flame).",
+      "inputs": [
+        {
+          "name": "x_fuel_final",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "lowest fuel fraction the script reaches (section 7.1)"
+        },
+        {
+          "name": "v_coflow_final",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "highest coflow speed the script reaches (section 7.1)"
+        },
+        {
+          "name": "window",
+          "kind": "condition",
+          "unit_si": "s",
+          "required": true,
+          "note": "planned fuel-off, seconds since flame onset (at_cutoff.planned_fuel_off_from_onset_s)"
+        },
+        {
+          "name": "is_ethylene",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "1 when fuel = ethylene"
+        },
+        {
+          "name": "x_fuel_stage",
+          "kind": "condition",
+          "unit_si": "1",
+          "required": true,
+          "note": "x_fuel of the first constant-flow segment of the schedule"
+        },
+        {
+          "name": "v_fuel_stage",
+          "kind": "condition",
+          "unit_si": "m/s",
+          "required": true,
+          "note": "v_fuel_m_s of the first constant-flow segment of the schedule"
+        }
+      ],
+      "stored_runs": false,
+      "inputs_note": "Typed conditions only: no stored run of this investigation carries the declared features (the lane derives them with tools/wsp/ext/law_inputs.py). Every feature is required; a value outside the release's domain is refused with its name.",
+      "scores": [
+        {
+          "metric": "Flame lost, CLD validation (61 test points answered, 11 refused, 6 days)",
+          "value": "0.514",
+          "comparison": "incidence 0.478: still loses (zero-shot parent 0.593)",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        },
+        {
+          "metric": "Radiometer level, same set",
+          "value": "0.100",
+          "comparison": "baselines 0.263 and 0.174: beats every baseline",
+ "source": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+        }
+      ],
+      "limits": [
+        "Flame loss loses to the incidence baseline; the authors name a missing feature for tests that dilute until the flame is lost.",
+        "Targets: loss, radiometer; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
+      ],
+      "cite": "cld.wsp D1, hand-written (literal WSP) release sha256:a03ec603…2d4f, experimental, not trained; its output is model output, not a measurement.",
+ "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science)"
+    }
+  ]
+}

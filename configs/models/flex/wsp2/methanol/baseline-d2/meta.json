@@ -1,0 +1,17 @@
+{
+  "patch_id": "flex_methanol-wsp-v3-baseline-d2",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/exp_flex.md(published-median-methanol-burning-rate)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: the classical D^2-law with the published median rate, replaced by the prefix's own finite-difference rate as the prefix grows; no extinction and no evaporation. Same numbers as the baseline of flex_methanol-wsp-v2, with the tensors added by flex_methanol-wsp-v3 set to their neutral values. Data-informed candidates of flex_methanol-wsp-v3 are literal revisions of this release, so that the registry records them as revisions with development exposure rather than as one-shot releases.",
+  "origin": "system"
+}

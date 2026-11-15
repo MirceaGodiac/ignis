@@ -1,0 +1,488 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_normal-wsp-v8-d1-late",
+  "spec_hash": "sha256:9818f1df9d3c1ee52519f554972557db2e0ce686b0fe8b67f3bba579161f4873",
+  "parent_release_id": "sha256:a01a92ed1aee07cfa3129760a6aa5fc72cdca74f6f57dbea6edfa72942e9bd63",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-session-transfer-audit-of-D1-and-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-run-by-run)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D1-and-D2:integrated-Brier-scores-only)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-D2)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-limit-levels-and-the-planned-stops-from-its-tables)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:docs/wsp/research/phys_acme_normal.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2:train-raw-channels-and-published-theory;section-5-names-the-conditions-and-dates-of-the-two-validation-sessions)",
+      "repo:docs/wsp/RESULTS_GEN5.md(aggregate-validation-tables-of-the-fifth-generation:integrated-Brier-scores-only)",
+      "repo:docs/wsp/feedback/acme_normal_gen6_train_analysis.md(train-only-analysis-by-a-delegated-analysis-agent,claude-fable-5-2,high-effort;no-fitting;the-author-reran-its-limit-and-stop-tables-and-re-evaluated-the-member-laws-at-the-corrected-inputs)",
+      "repo:docs/wsp/measure/DISCREPANCIES.md(document-lane-cross-check-of-NASA-condition-tables-against-setpoints,readbacks-and-scripts;conditions-only;train-and-validation-rows;no-outcome;the-author-read-that-the-table-errors-of-injection-fields-are-all-on-train-rows)",
+      "repo:docs/wsp/feedback/astra-r2-20261115/results/acme_normal.json(per-case-TRAIN-scores-of-acme_normal.wsp5-P1)",
+      "repo:runs/dev/gen6/acme_normal/author_candidate.py(train-diagnostic-of-the-candidate-through-a-Python-transcription-of-the-forwards;run-once-after-these-numbers-were-typed;no-number-changed-after-it)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments,raw-channels-and-script-files)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-earlier-candidates-and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:1336c6307fc9023f2434994f49e56cada9ff844000b3ebda29e23bc6bb9a77f4",
+      "sha256:cc0a32705ad977683cf5a9936a7a080a83dec4fa44065d17ebab0c80f2f600ce",
+      "sha256:90e4b4f91e8f969c365344dfc877840ad9dfcd9ef9557e8e652da3f4987de6ef"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -0.24
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        0,
+        2
+      ],
+      "value": 0.65
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -0.24
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        1,
+        2
+      ],
+      "value": 0.65
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        2,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        2,
+        7
+      ],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        3,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        3,
+        7
+      ],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        4,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        4,
+        7
+      ],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        5,
+        2
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        5,
+        6
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.W1",
+      "index": [
+        5,
+        7
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        0
+      ],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        1
+      ],
+      "value": -0.22
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        2
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        3
+      ],
+      "value": -5.9
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        4
+      ],
+      "value": -4.1
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b1",
+      "index": [
+        5
+      ],
+      "value": 0.9
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        0
+      ],
+      "value": 1.4
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        1
+      ],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        2
+      ],
+      "value": -0.35
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        4
+      ],
+      "value": -0.14
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.w2",
+      "index": [
+        5
+      ],
+      "value": -0.12
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.skip",
+      "index": [
+        0
+      ],
+      "value": -0.28
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.skip",
+      "index": [
+        2
+      ],
+      "value": 0.84
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.skip",
+      "index": [
+        7
+      ],
+      "value": -0.2
+    },
+    {
+      "op": "set",
+      "tensor": "se.tau.b0",
+      "index": [],
+      "value": 2.43
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.skip",
+      "index": [
+        4
+      ],
+      "value": -12.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -18.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.floor_s",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        0
+      ],
+      "value": 61.5
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        1
+      ],
+      "value": 98.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        2
+      ],
+      "value": 126.5
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_t_s",
+      "index": [
+        3
+      ],
+      "value": 275.5
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_logit",
+      "index": [
+        0
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_logit",
+      "index": [
+        1
+      ],
+      "value": -2.9
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_logit",
+      "index": [
+        2
+      ],
+      "value": -2.2
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_logit",
+      "index": [
+        3
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.atom_w",
+      "index": [
+        0,
+        1
+      ],
+      "value": -2.0
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -7.6
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.W1",
+      "index": [
+        0,
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.b1",
+      "index": [
+        0
+      ],
+      "value": -0.5
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.w2",
+      "index": [
+        0
+      ],
+      "value": -0.15
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.skip",
+      "index": [
+        0
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.skip",
+      "index": [
+        1
+      ],
+      "value": -0.4
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.b0",
+      "index": [],
+      "value": 5.88
+    },
+    {
+      "op": "set",
+      "tensor": "bt.sigma",
+      "index": [],
+      "value": 0.12
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_c",
+      "index": [
+        0
+      ],
+      "value": 455.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_c",
+      "index": [
+        1
+      ],
+      "value": 510.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.limit_w",
+      "index": [
+        0
+      ],
+      "value": 1.0
+    }
+  ],
+  "rationale": "A member for the second committee spec, data-informed like its two sources: the hinge law of D4 with the burner-heating law of D3-LATE (limit of the late era). No number is typed in this file; every value is copied from the two stored releases.",
+  "origin": "system"
+}

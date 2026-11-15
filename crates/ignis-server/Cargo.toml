@@ -51,6 +51,9 @@ ureq = "3"
 aide = { version = "=0.16.0-alpha.4", features = ["axum", "axum-json", "axum-query"] }
 
 [dev-dependencies]
+# The served hand-written releases, exercised end to end in tests/wsp_served.rs.
+ignis-wsp = { path = "../ignis-wsp" }
+ignis-wsp-serve = { path = "../ignis-wsp-serve" }
 tempfile = "3"
 http-body-util = "0.1"
 # The S3 stand-in shared with ignis-research's tests.

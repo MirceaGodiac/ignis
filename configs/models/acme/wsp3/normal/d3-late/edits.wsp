@@ -1,0 +1,8 @@
+# acme_normal.wsp3 — D3-LATE: D3-EARLY with the burner limit of the late era
+# Literal revision of D3-EARLY sha256:c59118f6…99fe, spec acme_normal-wsp-v3.
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like its parent; no other number is changed.
+#
+# From 27 September 2021 the script stopped a test about 450 C (trips at 450 to 455 C, under a
+# second above the limit; four trips on train, normal and inverse flames). The committee of spec
+# acme_normal-wsp-v7 reads the date of the test and uses this member for the late era.
+bt.limit_w[0:3] = [1.0, 0.0, 0.0]

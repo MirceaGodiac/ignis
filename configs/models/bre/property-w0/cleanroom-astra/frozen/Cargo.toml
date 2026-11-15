@@ -1,0 +1,16 @@
+[package]
+name = "ignis-bre-cleanroom-w0-verification"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+ignis-core = { path = "../../../../../crates/ignis-core" }
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+
+[lib]
+path = "verify.rs"

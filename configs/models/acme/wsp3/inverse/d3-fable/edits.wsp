@@ -1,0 +1,33 @@
+# acme_inverse.wsp3 — D3 literal revision of D1 sha256:a43fdbcf…c1de, spec acme_inverse-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: one term added to D1's early
+# quench clock, typed from the TRAIN rows of the PSI-159 inverse-flame table after a physics dossier
+# on these flames (docs/wsp/research/phys_acme_inverse.md) said which way pressure must act. Every
+# number typed by the author; no fit, no search. The author had seen the aggregate validation tables
+# of the earlier candidates and the CONDITIONS of the validation runs (inputs only). No validation
+# outcome was read and nothing below was chosen from a score.
+#
+# What is added: pressure. A lean inverse flame goes out when the supply of ambient fuel to the young
+# flame has decayed to a critical flux; fuel reaches it by transient diffusion, and the time to a
+# given flux goes as (density)^2 x (diffusivity), which is proportional to pressure. The critical
+# flux itself rises a little with pressure. So the life lengthens with pressure, by a power between
+# 0 and 1. D1 had no pressure term, and its level was typed mostly from the sessions at 2.2 atm.
+#
+# Train, same oxygen fraction (85 %), lives after the 2 s floor against D1:
+#   1.1 atm, propane 8.7 %:  5.3-7.2 s   D1 10.8 s (too long)
+#   1.1 atm, butane 14 %:    44-50 s     D1 65 s   (too long)
+#   2.2 atm, 7-9 % fuel:     5-10 s      D1 5.6-11.6 s
+#   3.3 atm, propane 8.0 %:  8-15 s      D1 8.4 s  (too short)
+# Between 1.1 and 2.2 atm the lives go about as p^0.4, between 2.2 and 3.3 atm faster (one session).
+# Typed: +0.5 per e-fold of pressure, with the level lowered by 0.39 so that the clock at 2.2 atm is
+# D1's (0.5 x ln 2.2 = 0.39). That gives 7.7 s, 46 s and 10.3 s for the first, second and fourth rows.
+# Three sessions support the sign; the size is between what one pair of sessions says and what the
+# diffusion argument allows.
+#
+# TRAIN RESULT, added the same day: with this term the extinction score on the 73 train flames is
+# 0.041 against 0.036 for D1 and the flow-termination score 0.066 against 0.064 (evaluator's times,
+# 6 to 120 s). The lives quoted above are those of the flames that went out; at 14 % ambient fuel
+# and 1.1 atm three of five flames were still burning when the flow stopped, and for them D1's
+# longer clock is the better statement. The term is NOT taken: this candidate is kept as a record
+# and is no member of any committee.
+se.osc.b0 = 1.78
+se.osc.skip[0:8] = [0.5, 0.0, 0.45, 3.0, 0.0, 0.0, 0.0, 0.0]

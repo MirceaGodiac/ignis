@@ -1,0 +1,49 @@
+{
+  "patch_id": "flex_methanol-wsp-v4-d4-fable",
+  "parent_release_id": "sha256:38d9059ceea276daa8547b8d177d123ceb2fe1af83deaecbf55b612242dbcee1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)",
+      "analysis:train-only-error-anatomy-of-D3-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/flex_methanol_d3_train_anatomy.md",
+      "repo:docs/wsp/research/lit_droplets.md(published-theory-and-studies-of-droplet-combustion;mechanisms-and-correlations,no-per-test-results)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D3:CRPS-and-coverage-only)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+      "sha256:38d9059ceea276daa8547b8d177d123ceb2fe1af83deaecbf55b612242dbcee1",
+      "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654"
+    ]
+  },
+  "rationale": "D4, data-informed revision on the fourth-generation droplet forward. The laws of D3 stand: a train-only error anatomy found the rate plateau and both extinction clocks unbiased, 39 % of the train error in tracker artefacts, and the bands too wide at short leads. Changed: the radiative class is sharper around the critical diameter (five train droplets near it all went out radiatively and were given 0.5-0.75); heat-up is slower at 1 atm; the measurement band is 8 um instead of 20 um and the rate spread 0.08/0.05 instead of 0.10/0.06; and a broad component is mixed in when the prefix itself shows an unstable tracker (frames dropped by the validity gate, a prefix D0 far from the sheet's, D^2 growing). Every number typed by the author; no fit, no search; nothing chosen from validation.",
+  "origin": "system"
+}

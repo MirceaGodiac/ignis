@@ -1,0 +1,563 @@
+{
+ "schema": "wsp-bass-front-track/1",
+ "run_id": "PSI-26:GMT2012-181:test5b",
+ "partition": "external",
+ "source": "PSI-26",
+ "time_origin": "igniter-off, judged from the igniter coil in the top-view stills (no video exists for 2012); t_s = camera-clock seconds (EXIF DateTimeOriginal + SubSecTimeOriginal) after it",
+ "position_unit": "sample_width",
+ "position_origin": "upstream (igniter-side) end of the lit sample band in the top view (half-maximum of the glowing igniter coil and band end); positive downstream, the direction the flame travels",
+ "conditions": {
+  "x_o2_initial": 0.2189,
+  "x_o2_final": null,
+  "x_o2_note": "as-run O2 % by volume (cabin air, not vitiated)",
+  "pressure_atm": 0.987,
+  "sample_label": "SIBAL 2 cm (remnant of sample 9, burned in test 5 the day before)",
+  "sample_no": 9,
+  "restrictor": 2,
+  "gmt_day": "2012-181",
+  "flow_direction": "opposed",
+  "fan_display_steps": "62",
+  "air_display_steps": "10",
+  "flow_cm_s_published": "not in Table I",
+  "as_run_test_no": 44
+ },
+ "geometry": {
+  "band_width_px": 746,
+  "band_rows_px": [
+   1234,
+   1980
+  ],
+  "x_up_px": 1237,
+  "x_left_end_px": 420,
+  "window_length_w": 1.095,
+  "source_view": "top view, Nikon D300s, full-size JPEG preview embedded in each NEF (4288 x 2848 px)",
+  "mm_per_w_estimate": null
+ },
+ "igniter": {
+  "on_t_s": -11.3,
+  "off_t_s": 0.0,
+  "off_uncertainty_s": 0.65
+ },
+ "fan": [
+  {
+   "t_s": -11.3,
+   "fan": 62,
+   "u_cm_s": 10.0,
+   "u_basis": "as-run AIR 10",
+   "u_bass2_cal_cm_s": 11.25,
+   "timing": "constant (one setting listed)"
+  }
+ ],
+ "fan_calibration": [],
+ "fan_calibration_note": "No fan calibration for 2012 is in PSI-26. u_cm_s is the as-run AIR (hot-wire) reading of the setting, equal to the flow the BASS-I team published (Ferkul et al. 2013, Table I); u_bass2_cal_cm_s applies the PSI-25 GMT 2014-100 calibration block for the same restrictor count to the same FAN display, for comparison only.",
+ "stills": [
+  {
+   "t_s": -21.94,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-29iss031e163342.nef"
+  },
+  {
+   "t_s": -20.65,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-30iss031e163343.nef"
+  },
+  {
+   "t_s": -19.42,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-32iss031e163344.nef"
+  },
+  {
+   "t_s": -18.17,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-33iss031e163345.nef"
+  },
+  {
+   "t_s": -16.92,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-34iss031e163346.nef"
+  },
+  {
+   "t_s": -15.68,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-35iss031e163347.nef"
+  },
+  {
+   "t_s": -14.42,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-37iss031e163348.nef"
+  },
+  {
+   "t_s": -13.17,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-38iss031e163349.nef"
+  },
+  {
+   "t_s": -11.91,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-39iss031e163350.nef"
+  },
+  {
+   "t_s": -10.6,
+   "tip_w": null,
+   "base_w": null,
+   "state": "igniter",
+   "quality": null,
+   "camera_file": "2012-06-30T10-53-40iss031e163351.nef"
+  },
+  {
+   "t_s": -9.34,
+   "tip_w": 1.135,
+   "base_w": -0.822,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 775444,
+   "lum_sum": 426401536,
+   "nonred_tip_w": 1.084,
+   "blue_tip_w": 0.621,
+   "blue_base_w": -0.32,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-42iss031e163352.nef"
+  },
+  {
+   "t_s": -8.08,
+   "tip_w": 1.658,
+   "base_w": -1.146,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1234820,
+   "lum_sum": 728383232,
+   "nonred_tip_w": 1.095,
+   "blue_tip_w": 1.028,
+   "blue_base_w": -0.527,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-43iss031e163353.nef"
+  },
+  {
+   "t_s": -6.83,
+   "tip_w": 1.658,
+   "base_w": -1.382,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1498088,
+   "lum_sum": 877822336,
+   "nonred_tip_w": 1.095,
+   "blue_tip_w": 1.036,
+   "blue_base_w": -0.583,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-44iss031e163354.nef"
+  },
+  {
+   "t_s": -5.59,
+   "tip_w": 1.658,
+   "base_w": -1.221,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1424696,
+   "lum_sum": 836080384,
+   "nonred_tip_w": 1.095,
+   "blue_tip_w": 1.031,
+   "blue_base_w": -0.554,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-45iss031e163355.nef"
+  },
+  {
+   "t_s": -4.34,
+   "tip_w": 1.658,
+   "base_w": -1.143,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1236680,
+   "lum_sum": 731974080,
+   "nonred_tip_w": 1.092,
+   "blue_tip_w": 0.849,
+   "blue_base_w": -0.511,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-47iss031e163356.nef"
+  },
+  {
+   "t_s": -3.08,
+   "tip_w": 1.658,
+   "base_w": -1.082,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1131584,
+   "lum_sum": 666639872,
+   "nonred_tip_w": 1.09,
+   "blue_tip_w": 0.8,
+   "blue_base_w": -0.484,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-48iss031e163357.nef"
+  },
+  {
+   "t_s": -1.83,
+   "tip_w": 1.658,
+   "base_w": -1.154,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1158488,
+   "lum_sum": 678504832,
+   "nonred_tip_w": 1.092,
+   "blue_tip_w": 0.8,
+   "blue_base_w": -0.484,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-49iss031e163358.nef"
+  },
+  {
+   "t_s": -0.59,
+   "tip_w": 1.658,
+   "base_w": -1.184,
+   "state": "igniter",
+   "quality": "edge",
+   "area_px": 1154308,
+   "lum_sum": 670924800,
+   "nonred_tip_w": 1.092,
+   "blue_tip_w": 0.8,
+   "blue_base_w": -0.454,
+   "beyond_window_end": true,
+   "camera_file": "2012-06-30T10-53-50iss031e163359.nef"
+  },
+  {
+   "t_s": 0.66,
+   "tip_w": 1.079,
+   "base_w": -0.406,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 225144,
+   "lum_sum": 96511600,
+   "nonred_tip_w": 0.495,
+   "blue_tip_w": 0.5,
+   "blue_base_w": -0.403,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-52iss031e163360.nef"
+  },
+  {
+   "t_s": 1.92,
+   "tip_w": 0.618,
+   "base_w": -0.366,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 285264,
+   "lum_sum": 104626752,
+   "nonred_tip_w": 0.618,
+   "blue_tip_w": 0.618,
+   "blue_base_w": -0.371,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-53iss031e163361.nef"
+  },
+  {
+   "t_s": 3.17,
+   "tip_w": 0.647,
+   "base_w": -0.304,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 234700,
+   "lum_sum": 87358832,
+   "nonred_tip_w": 0.647,
+   "blue_tip_w": 0.639,
+   "blue_base_w": -0.304,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-54iss031e163362.nef"
+  },
+  {
+   "t_s": 4.4,
+   "tip_w": 0.653,
+   "base_w": -0.012,
+   "state": "flame",
+   "quality": "edge",
+   "area_px": 168304,
+   "lum_sum": 66914468,
+   "nonred_tip_w": 0.653,
+   "blue_tip_w": 0.65,
+   "blue_base_w": -0.023,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-55iss031e163363.nef"
+  },
+  {
+   "t_s": 5.66,
+   "tip_w": 0.706,
+   "base_w": 0.173,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 133312,
+   "lum_sum": 56172188,
+   "nonred_tip_w": 0.706,
+   "blue_tip_w": 0.68,
+   "blue_base_w": 0.165,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-57iss031e163364.nef"
+  },
+  {
+   "t_s": 6.83,
+   "tip_w": 0.733,
+   "base_w": 0.283,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 114884,
+   "lum_sum": 49072260,
+   "nonred_tip_w": 0.733,
+   "blue_tip_w": 0.706,
+   "blue_base_w": 0.253,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-58iss031e163365.nef"
+  },
+  {
+   "t_s": 8.17,
+   "tip_w": 0.733,
+   "base_w": 0.361,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 90128,
+   "lum_sum": 39251348,
+   "nonred_tip_w": 0.733,
+   "blue_tip_w": 0.712,
+   "blue_base_w": 0.326,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-53-59iss031e163366.nef"
+  },
+  {
+   "t_s": 9.45,
+   "tip_w": 0.763,
+   "base_w": 0.382,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 75428,
+   "lum_sum": 34842640,
+   "nonred_tip_w": 0.757,
+   "blue_tip_w": 0.741,
+   "blue_base_w": 0.403,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-54-00iss031e163367.nef"
+  },
+  {
+   "t_s": 10.66,
+   "tip_w": 0.79,
+   "base_w": 0.304,
+   "state": "flame",
+   "quality": "ok",
+   "area_px": 66672,
+   "lum_sum": 32184152,
+   "nonred_tip_w": 0.773,
+   "blue_tip_w": 0.768,
+   "blue_base_w": 0.462,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-54-02iss031e163368.nef"
+  },
+  {
+   "t_s": 11.92,
+   "tip_w": 0.798,
+   "base_w": 0.369,
+   "state": "flame",
+   "quality": "weak",
+   "area_px": 57120,
+   "lum_sum": 27474708,
+   "nonred_tip_w": 0.798,
+   "blue_tip_w": 0.792,
+   "blue_base_w": 0.516,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-54-03iss031e163369.nef"
+  },
+  {
+   "t_s": 13.17,
+   "tip_w": 0.816,
+   "base_w": 0.449,
+   "state": "flame",
+   "quality": "weak",
+   "area_px": 34944,
+   "lum_sum": 17280132,
+   "nonred_tip_w": 0.798,
+   "blue_tip_w": 0.8,
+   "blue_base_w": 0.588,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-54-04iss031e163370.nef"
+  },
+  {
+   "t_s": 14.37,
+   "tip_w": 0.725,
+   "base_w": 0.452,
+   "state": "flame",
+   "quality": "weak",
+   "area_px": 23600,
+   "lum_sum": 12885320,
+   "nonred_tip_w": 0.696,
+   "blue_tip_w": 0.685,
+   "blue_base_w": 0.602,
+   "beyond_window_end": false,
+   "camera_file": "2012-06-30T10-54-05iss031e163371.nef"
+  },
+  {
+   "t_s": 15.66,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-07iss031e163372.nef"
+  },
+  {
+   "t_s": 16.92,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-08iss031e163373.nef"
+  },
+  {
+   "t_s": 18.25,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-09iss031e163374.nef"
+  },
+  {
+   "t_s": 19.5,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-11iss031e163375.nef"
+  },
+  {
+   "t_s": 20.75,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-12iss031e163376.nef"
+  },
+  {
+   "t_s": 21.98,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-13iss031e163377.nef"
+  },
+  {
+   "t_s": 23.25,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-14iss031e163378.nef"
+  },
+  {
+   "t_s": 24.5,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-16iss031e163379.nef"
+  },
+  {
+   "t_s": 25.75,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-17iss031e163380.nef"
+  },
+  {
+   "t_s": 26.98,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-18iss031e163381.nef"
+  },
+  {
+   "t_s": 28.25,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-19iss031e163382.nef"
+  },
+  {
+   "t_s": 29.5,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-21iss031e163383.nef"
+  },
+  {
+   "t_s": 30.75,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-22iss031e163384.nef"
+  },
+  {
+   "t_s": 31.99,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-23iss031e163385.nef"
+  },
+  {
+   "t_s": 33.25,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-24iss031e163386.nef"
+  },
+  {
+   "t_s": 34.5,
+   "tip_w": null,
+   "base_w": null,
+   "state": "none",
+   "quality": null,
+   "camera_file": "2012-06-30T10-54-26iss031e163387.nef"
+  }
+ ],
+ "duct": [],
+ "end": {
+  "kind": "quenched",
+  "t_s": 15.02
+ },
+ "clock": {
+  "camera_clock": "EXIF time of the camera, about 4-5 min ahead of the as-run GMT start times; only differences are used",
+  "igniter_off_camera_hms": null
+ },
+ "notes": [
+  "ADDED BY THE SECOND ANALYST (the interrupted agent had downloaded the stills but not tracked this burn).",
+  "OPPOSED FLOW ON A REMNANT. PSI-26 test 5b, as-run 44, GMT 181, sample 9: the about 2.5 cm of fabric left when test 5 quenched, holder flipped ('2 upstream'), lit with a separate igniter ('3-5') held at the remnant's downstream edge. Images mirrored; positions in widths from the point where the igniter first glows (x = 3050 px unmirrored, 1237 mirrored), positive upstream. Negative base_w: the flame also covers the already-burned side.",
+  "Stills: zip 2012_06_30_orig, 10-53-29..10-54-26, 46 NEFs, 1/4 s. Igniter: first glow 10:53:40.90; stills 42.16..50.91 flooded; 52.16 lit dull orange with the flame visible -> igniter-off 10:53:51.5 +- 0.65 s.",
+  "Geometry: band rows 1234..1980 (746 px); closed window end at 420 px mirrored (3867 unmirrored) = 1.10 w from the origin."
+ ],
+ "verification": {
+  "by": "second analyst, 2026-11-14",
+  "text": "Tracked by the second analyst only (measure.py), cross-checked with remeasure.py (blue leading edge 0.618 -> 0.798 w over 1.9 to 13.2 s). Origin chosen by the second analyst at the first igniter glow. end.t_s follows the first agent's rule; by the blue criterion the flame is gone between 13.2 and 14.4 s.",
+  "fan_changes_observed": []
+ }
+}

@@ -1,0 +1,4 @@
+# DATA-INFORMED equal Fable/Astra distribution committee. Revision of R1.
+# U: Fable nominal + Astra's five equal nodes: normalized masses .6,.1,.1,.1,.1.
+# These integer masses express exact halves; no score selected them.
+condition.w[0:5] = [6, 1, 1, 1, 1]

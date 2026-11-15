@@ -1,0 +1,12 @@
+# acme_inverse.wsp3 — D1-NOSTOPS: D1 with its guessed stops switched off
+# Literal revision of D1 sha256:a43fdbcf…c1de, spec acme_inverse-wsp-v3.
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED like its parent; no other number is changed.
+#
+# For use as a committee slot when the prefix carries the script's planned stop: the committee then
+# hands this member the stop as a known control, and the campaign's stop times that the parent guesses
+# (63 to 67 s, 90 s) must not act as well. NASA's script timelines of the TRAIN tests show no stop
+# that was neither the script's end, a detected extinction nor a burner-limit trip (the delegated
+# reading in docs/wsp/feedback/acme_raw_signals_train.md), so the background of unexplained stops is
+# lowered to one in 8000 flame-seconds.
+ft.atom_logit[0:8] = [-40.0, -40.0, -40.0, -40.0, -40.0, -40.0, -40.0, -40.0]
+ft.log_base = -9.0

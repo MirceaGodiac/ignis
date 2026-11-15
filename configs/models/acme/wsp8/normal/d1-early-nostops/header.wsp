@@ -1,0 +1,14 @@
+# acme_normal.wsp8 — D1-EARLY-NOSTOPS, spec acme_normal-wsp-v8: D1-EARLY without guessed stops
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both sources are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   hinge laws    acme_normal.wsp2 D4-NOSTOPS: D4 with its programmed-stop atoms off and its
+#                 background stop rate lowered
+#   burner limit  acme_normal.wsp3 D3-EARLY: the heating law with the limit of the early era
+#
+# A committee slot for prefixes that carry the planned stop of the script: the committee hands this
+# member the stop as a known control, so the stop times the parent guesses must not act as well.
+#
+# No value below was typed again. They are the stored values of the two releases named in the
+# blocks, copied statement by statement by tools/wsp/flame4_edits.py; that script chooses and
+# computes nothing.

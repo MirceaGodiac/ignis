@@ -1,0 +1,23 @@
+{
+ "slug": "cld",
+ "dossier": "docs\\wsp\\research\\phys_cld_d1.md",
+ "sha256": "6144d2fb3bf0734c99655acae5705191fd690467ea19ab99ba9ca5e01114c86e",
+ "parent": "sha256:0995df666bdabfa546607fcba565da166a28839ed984f2f1226bc62274eefe4e",
+ "release": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
+ "edits_lines": 3,
+ "changed": {
+  "('loss.blowoff.median.b0', ())": [
+   6.403,
+   6.03
+  ],
+  "('loss.blowoff.median.skip', (3,))": [
+   0.84,
+   1.21
+  ],
+  "('radiometer.median.b0', ())": [
+   -0.404,
+   -0.66
+  ]
+ },
+ "mismatches": {}
+}

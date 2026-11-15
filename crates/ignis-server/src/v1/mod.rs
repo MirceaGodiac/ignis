@@ -24,6 +24,7 @@ mod metrics;
 mod runner;
 pub mod sandbox;
 pub mod sources;
+mod wsp;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -42,17 +43,14 @@ use axum::response::{IntoResponse, Response};
 use axum::{Json, Router};
 use ignis_core::contracts::{
     ApprovalAccepted, ApprovalDecision, ApprovalId, ArtifactId, ArtifactRef, Capabilities,
-    Capability, ClientRequestId, ConditionsQuery, ConditionsTable, CreateEpisode, Digest,
-    EpisodeAction, EpisodeId, EpisodePins, ErrorCode, ErrorEnvelope, ExecutionScope,
-    ExecutionStatus, ForecastRequest, HostDecision, JobId, JobRef, MessageAccepted, ModelRelease,
-    Origin as PayloadOrigin, ParseViewId, PostMessage, ReadRange, ReadRequest, ReadResult,
-    ReleaseId, ResearchEpisode, ResolveApproval, RetryPolicy, ScientificStatus, SearchPage,
-    SearchRequest, ServiceStatus, SourceId, Timestamp, ToolCallId, ToolResult, ToolStatus,
-    ToolsSchema,
+    Capability, ClientRequestId, CreateEpisode, Digest, EpisodeAction, EpisodeId, EpisodePins,
+    ErrorCode, ErrorEnvelope, ExecutionScope, ExecutionStatus, ForecastRequest, HostDecision,
+    JobId, JobRef, MessageAccepted, ModelRelease, Origin as PayloadOrigin, ParseViewId,
+    PostMessage, ReadRange, ReadRequest, ReadResult, ReleaseId, ResearchEpisode, ResolveApproval,
+    RetryPolicy, ScientificStatus, SearchPage, SearchRequest, ServiceStatus, SourceId, Timestamp,
+    ToolCallId, ToolResult, ToolStatus, ToolsSchema,
 };
-use ignis_core::services::{
-    ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
-};
+use ignis_core::services::{ArtifactStore, KnowledgeService, ModelService, ServiceResult};
 use ignis_research::runtime::{AgentRuntime, StopReason};
 use ignis_research::store::{Replay, UploadRecord, UploadSpec, UploadStatus};
 use ignis_research::ResearchStore;
@@ -400,12 +398,6 @@ pub fn build(state: Arc<V1>) -> Router {
             }),
         )
         .api_route(
-            "/conditions",
-            post_with(conditions, |o| {
-                o.summary("Per-run conditions (inputs, never outcomes) and tested envelopes")
-            }),
-        )
-        .api_route(
             "/models",
             get_with(list_models, |o| o.summary("Model releases")),
         )
@@ -437,6 +429,7 @@ pub fn build(state: Arc<V1>) -> Router {
             }),
         )
         .merge(sources::routes())
+        .merge(wsp::routes())
         .merge(data::routes())
         .merge(metrics::routes())
         // Short commands only: research work runs as jobs, big results are artifacts.
@@ -856,29 +849,6 @@ async fn search(
         .require(Capability::ReadSources)
         .map_err(|e| ApiError::from(ErrorEnvelope::from(e)))?;
     Ok(Json(blocking(move || k.search(&c.scope, &req)).await?))
-}
-
-fn datasets(v: &V1) -> ApiResult<Arc<dyn DatasetService>> {
-    v.services
-        .datasets
-        .clone()
-        .ok_or_else(|| ApiError::unavailable("DatasetService"))
-}
-
-/// The conditions table of the flight investigations (K1.13), filtered and paged by the dataset
-/// service, which also withholds runs of partitions the caller's scope does not hold.
-async fn conditions(
-    State(v): St,
-    c: Caller,
-    Body(req): Body<ConditionsQuery>,
-) -> ApiResult<Json<ConditionsTable>> {
-    let d = datasets(&v)?;
-    c.scope
-        .require(Capability::ReadData)
-        .map_err(|e| ApiError::from(ErrorEnvelope::from(e)))?;
-    req.validate()
-        .map_err(|e| ApiError::from(ErrorEnvelope::from(e)))?;
-    Ok(Json(blocking(move || d.conditions(&c.scope, &req)).await?))
 }
 
 async fn read_page(

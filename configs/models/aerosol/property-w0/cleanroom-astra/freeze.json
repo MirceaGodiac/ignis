@@ -1,0 +1,16 @@
+{
+  "schema": "ignis.private-science-freeze.v1",
+  "author": "gpt-6-astra",
+  "experiment": "W0",
+  "registered_release": false,
+  "hash_algorithm": "sha256",
+  "files": {
+    "crates/ignis-wsp/src/property_aerosol_w0.rs": "aaaf4a97cb92a4d278f77246391768bbaaa3afa638e23e6711ccdd9108a7f0b5",
+    "configs/models/aerosol/property-w0/cleanroom-astra/constants.ops": "6255cdf9c3e5a39da9db3e96a37ebd74a69f5b70c5f34b53f8dd20f9974b00dc",
+    "configs/models/aerosol/property-w0/cleanroom-astra/literal-ops.json": "4bbc2a2cefb72367422c951b519cca1970412e80df4fd57e1a1fc4fc92abf403",
+    "configs/models/aerosol/property-w0/cleanroom-astra/author.json": "639126a25b75f1fe26edcc1fd5d471d49dc0dbea732fde1f0127d58080db9076",
+    "configs/models/aerosol/property-w0/cleanroom-astra/parameter-ledger.md": "97e3aff86a10a8cfa0f28bdfb4392d7c24038d32c4f0c1f7e8068fa1a39fe692",
+    "configs/models/aerosol/property-w0/cleanroom-astra/verification.json": "82b0294eecac484e6d32eced5730c70befcad20223a885ffdd297d46d6821f14",
+    "docs/wsp/research/astra_aerosol_w0.md": "b83232471184e42443fcdb5494c31d66473ef2cbaa04bc2db02a524e6414789b"
+  }
+}

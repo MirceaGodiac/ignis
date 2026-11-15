@@ -1,0 +1,16 @@
+[package]
+name = "ignis-wsp-serve"
+description = "Serves the adopted hand-written (literal WSP) releases listed in configs/models/served.json through ignis_core::services::ModelService"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+ignis-wsp = { path = "../ignis-wsp" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

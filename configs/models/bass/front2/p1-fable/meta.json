@@ -1,0 +1,44 @@
+{
+  "patch_id": "bass_front-wsp-v2-p1-fable",
+  "parent_release_id": "sha256:c50c7144e433799b116829cc0f5ff21dbc1e412c9ec38524e2bea6c8c7cba4bc",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "repo:tools/wsp/bass_optical/tracks/external_psi26(ten-front-tracks-of-the-earlier-BASS-campaign,PSI-26,which-belongs-to-no-evaluation-partition;measured-and-verified-by-delegated-agents)",
+      "repo:docs/wsp/feedback/bass1_psi26_tracks.md(the-measurement-report-of-those-tracks)",
+      "repo:docs/wsp/research/phys_bass.md(physics-dossier-by-a-delegated-analysis-agent,claude-fable-5-2;a-proposal;it-read-section-F2-of-exp_bass.md-before-it-was-cautioned)",
+      "repo:docs/wsp/feedback/verify_phys_bass.md(independent-re-derivation-on-the-train-tracks-and-the-PSI-26-tracks-by-a-second-agent,claude-fable-5-2:the-numbers-typed-here-rest-on-it)",
+      "repo:runs/dev/gen5/front_train.json;repo:runs/dev/gen5/front_psi26.json(train-feedback-and-feedback-on-three-PSI-26-burns-of-D1-and-of-two-earlier-versions-of-this-candidate)",
+      "repo:docs/wsp/research/exp_bass.md(read-by-the-author-on-13-November;its-section-F2-quotes-published-results-of-the-BASS-II-fabric-tests:exposure-X-01-of-the-review-dossier;nothing-typed-here-comes-from-it)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-D1-and-D2,inputs-of-the-validation-tracks)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:c50c7144e433799b116829cc0f5ff21dbc1e412c9ec38524e2bea6c8c7cba4bc"
+    ]
+  },
+  "rationale": "P1 of the second front forward, data-informed and not blind (written after the aggregate validation tables of D1 and D2): the carried D1 numbers with the narrow sample corrected from two burns of the earlier BASS campaign, which belongs to no partition (speed power -0.5 and overhang power +1.0 in place of the assumed -1 for both). For the wide sample it is D1 exactly. A slower growth of the flame, a weaker oxygen dependence and flow paths were typed as well, made the train burns worse and were not taken. Every number typed by the author; no fit, no search; the sealed validation tracks were not opened.",
+  "origin": "system"
+}

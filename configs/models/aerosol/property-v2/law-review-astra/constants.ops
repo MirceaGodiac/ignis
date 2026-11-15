@@ -1,0 +1,7 @@
+set boltzmann_j_per_k [] 1.380649e-23
+set slip_alpha [] 1.165
+set slip_beta [] 0.483
+set slip_gamma [] 0.997
+set maximum_continuum_kn [] 0.01
+set maximum_settling_reynolds [] 0.1
+set maximum_rayleigh_size [] 0.1

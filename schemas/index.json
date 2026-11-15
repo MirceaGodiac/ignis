@@ -81,6 +81,9 @@
     "HandwrittenWeightPatch",
     "ModelBuildManifest",
     "ForecastRequest",
+    "ModelCard",
+    "ScenarioRequest",
+    "ScenarioAdmitted",
     "EvaluationRequest",
     "EvaluationResult"
   ]

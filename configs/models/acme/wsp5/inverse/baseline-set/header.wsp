@@ -1,0 +1,17 @@
+# acme_inverse.wsp5 — reference baseline "the reference baselines in every slot", spec acme_inverse-wsp-v5
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the lineage root of the committee spec.
+# Slots a0 and a1 hold the reference baseline of the hinge-law spec (one condition-free clock per
+# cause), slots b0 to b3 the published theory alone. No number here comes from the PSI-159 tables.
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee_edits.py with the slot prefix
+# added; that script chooses and computes nothing. The lines typed for this file:
+
+# One member of each kind answers, with equal say; the other four slots are filled and silent.
+mix.w[0:6] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+
+# The script's programmed stop is not read by this baseline.
+mix.w_script[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+# Its offset to the record's clock is therefore not used here and is left at zero: a number for it
+# would have to come from the train tests, and this root holds none.
+script.onset_s = 0.0

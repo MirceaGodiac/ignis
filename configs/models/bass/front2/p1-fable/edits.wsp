@@ -1,0 +1,47 @@
+# bass_front.wsp2 — P1 literal revision of the carry of D1 sha256:c50c7144…a4bc, spec bass_front-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot, and NOT BLIND: written after the
+# aggregate validation tables of D1 and D2 were read (tip score, track-ended score, spread-or-not
+# score; no per-burn result). The numbers below come from none of them. They come from two burns of
+# the earlier BASS campaign (PSI-26: the same fabric, duct and fan, cabin air; outside every
+# evaluation partition), measured from the public stills and verified by a second reader
+# (docs/wsp/feedback/bass1_psi26_tracks.md, verify_phys_bass.md). Every number typed by the author;
+# no fit, no search. The sealed validation tracks were not opened.
+#
+# For the 2 cm sample this candidate is D1, number for number.
+
+# =====================================================================================================
+# The narrow sample
+# =====================================================================================================
+# D1 took a 1 cm sample to spread at the same speed in millimetres per second as the 2 cm sample and
+# to carry the same flame in millimetres: 1.83 times the wide values in its own widths, for speed and
+# for overhang. No train burn is narrow; that was an assumption. The earlier campaign burned two
+# narrow samples in air:
+#   speed in own widths   1.54 times the wide law at 11 cm/s, 1.26 times at 20 cm/s
+#   flame length          0.86 and 0.62 of the wide law (D1's rule: 1.83)
+# The flame of a narrow sample is all edge: its standoff is half its width, and it is short. Typed:
+# speed power -0.5 (1.35 times in own widths), overhang power +1.0 (0.55 times in own widths, which
+# with the faster front gives lengths of 1.5 and 2.6 widths where 1.5 and 1.9 were measured, and
+# where D1's rule gave 3.2 and 5.5). Two burns, one oxygen level; the spread on the narrow sample
+# (unc.s_far) stays as wide as it was.
+# On the three burns of the earlier campaign that the scorer can read (the two narrow ones and one
+# wide at 22 cm/s; six cases) the tip score goes from 0.22 to 0.16 sample widths and the error of
+# the median from 0.36 to 0.21, all of it on the two narrow burns. They are the burns the powers
+# were typed from: this checks the arithmetic, it is not evidence from unseen data.
+speed.pow[0:2] = [1.5, -0.5]
+over.pow[0:2] = [3.0, 1.0]
+
+# =====================================================================================================
+# Typed, tried on the train burns, and NOT taken
+# =====================================================================================================
+# 1. A slower growth of the flame than its shrinking (over.tau_up_s = 5 s against 2 s). The flame
+#    length does take 2 to 7 s to cover 63 % of its way after the igniter, but that is mostly the
+#    base setting off one burn-through time after the front, which the model has; with a slow
+#    overhang as well the tip score on the three train burns (2 to 11 cm/s) goes from 0.076 to
+#    0.082, worse in all three. On the earlier campaign's burns at 11 to 22 cm/s it helped in the
+#    first five seconds and hurt later. Not taken; a growth time that depends on flow is left open.
+# 2. An oxygen power of the speed of 1.0 in place of 1.5 (one burn of the earlier campaign at 22 %
+#    oxygen spreads at 0.9 of the law) and three flow paths at 1 cm/s plus a tenth either side (the
+#    day-to-day spread of the fan calibration): together 0.085 on train, and worse than the line
+#    above on the earlier campaign's burns as well.
+# The forward's entries for them stay switched off. The quench law stays D1's: neither the train
+# burns nor the earlier campaign (cabin air only) hold new evidence about low oxygen.

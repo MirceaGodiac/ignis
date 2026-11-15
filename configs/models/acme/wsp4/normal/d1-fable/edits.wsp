@@ -1,0 +1,118 @@
+# acme_normal.wsp4 — D1 literal revision of the baseline sha256:d7bd7e2c…796a, spec acme_normal-wsp-v4
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both members are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   member a   acme_normal.wsp2 D3, the hinge law in the reduced flow (second generation, carried)
+#   member b   acme_normal.wsp3 D1, the growth clock with the burner-heating law (fourth generation)
+#
+# Why the two together. They were typed from the same train table and are different kinds of
+# statement: a is an interpolation of the lives the table shows, b a mechanism with a handful of
+# constants. On train a is ahead on extinction (0.052 against 0.063) and b on flow termination (0.024
+# against 0.041). The mean of two forecasts is never scored worse than the mean of their scores, and
+# is scored better by a quarter of their mean squared disagreement.
+#
+# What the author had seen when this was written: the aggregate validation tables of both members
+# (extinction 0.159 and 0.163, flow termination 0.100 and 0.100: a tie). The weights were not chosen
+# from them: equal weights are what one types knowing nothing, and no other pair was tried.
+#
+# The member values below were not typed again. They are the stored values of the two releases named
+# in the two member blocks, copied statement by statement by tools/wsp/blend_edits.py with the prefix
+# a. or b. added; only the statements that differ from the baseline's members are written. That
+# script chooses and computes nothing. mix.w stays [1.0, 1.0], as in the baseline.
+
+#
+a.se.tau.W1[0, 0] = -0.24
+a.se.tau.W1[0, 1] = -1.0
+a.se.tau.W1[0, 2] = 0.65
+a.se.tau.W1[1, 0] = -0.24
+a.se.tau.W1[1, 1] = -1.0
+a.se.tau.W1[1, 2] = 0.65
+a.se.tau.W1[2, 3] = -1.0
+a.se.tau.W1[2, 7] = 5.0
+a.se.tau.W1[3, 3] = -1.0
+a.se.tau.W1[3, 7] = 5.0
+a.se.tau.W1[4, 2] = 1.0
+a.se.tau.W1[4, 7] = 5.0
+a.se.tau.W1[5, 2] = 1.0
+a.se.tau.W1[5, 6] = -5.0
+a.se.tau.W1[5, 7] = -5.0
+a.se.tau.b1[0] = 0.5
+a.se.tau.b1[1] = -0.22
+a.se.tau.b1[2] = -5.0
+a.se.tau.b1[3] = -5.9
+a.se.tau.b1[4] = -4.1
+a.se.tau.b1[5] = 0.9
+a.se.tau.w2[0] = 1.4
+a.se.tau.w2[1] = 2.0
+a.se.tau.w2[2] = -0.35
+a.se.tau.w2[3] = 0.35
+a.se.tau.w2[4] = -0.25
+a.se.tau.w2[5] = -0.12
+a.se.tau.skip[0] = -0.28
+a.se.tau.skip[2] = 0.84
+a.se.tau.b0 = 2.43
+a.se.flash.skip[4] = -12.0
+a.se.flash.b0 = -18.0
+a.ft.tau.skip[1] = 4.5
+a.ft.tau.skip[6] = 0.54
+a.ft.tau.skip[7] = -0.56
+a.ft.tau.b0 = 6.5
+a.se.floor_s = 4.0
+a.se.shape = 3.0
+a.ft.shape = 2.5
+a.ft.atom_t_s[0] = 61.5
+a.ft.atom_t_s[1] = 98.0
+a.ft.atom_t_s[2] = 126.5
+a.ft.atom_t_s[3] = 275.5
+a.ft.atom_logit[0] = -2.0
+a.ft.atom_logit[1] = -2.9
+a.ft.atom_logit[2] = -2.2
+a.ft.atom_logit[3] = 0.0
+a.ft.atom_w[0, 1] = -2.0
+a.ft.log_base = -7.6
+
+# ---- member b: the stored values of sha256:af1d3f4a83bc7469aed313b3a5f7cfe2b9be2d9dc5f91a5102b520af3fde094e
+#      (43 statements that differ from sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad)
+b.se.flux.W1[0, 0] = 1.0
+b.se.flux.W1[0, 2] = -1.0
+b.se.flux.b1[0] = -0.9
+b.se.flux.w2[0] = 0.5
+b.se.flux.b0 = -1.715
+b.se.diff.W1[0, 2] = 1.0
+b.se.diff.W1[0, 7] = 5.0
+b.se.diff.W1[1, 2] = 1.0
+b.se.diff.W1[1, 6] = -5.0
+b.se.diff.W1[1, 7] = -5.0
+b.se.diff.b1[0] = -4.1
+b.se.diff.b1[1] = 0.9
+b.se.diff.w2[0] = 0.36
+b.se.diff.w2[1] = 0.18
+b.se.diff.skip[0] = 0.45
+b.se.diff.skip[2] = -0.385
+b.se.diff.skip[3] = 0.2
+b.se.diff.b0 = 3.92
+b.se.flash.skip[4] = -6.7
+b.se.flash.b0 = -10.2
+b.bt.rise.W1[0, 3] = 1.0
+b.bt.rise.b1[0] = -0.5
+b.bt.rise.w2[0] = -0.15
+b.bt.rise.skip[0] = -0.4
+b.bt.rise.skip[1] = -0.4
+b.bt.rise.b0 = 5.88
+b.se.sigma_phi = 0.25
+b.se.hold_log_rate = -8.0
+b.se.floor_s = 4.0
+b.bt.sigma = 0.12
+b.bt.limit_c[0] = 455.0
+b.bt.limit_c[1] = 510.0
+b.bt.limit_w[0] = 0.4
+b.bt.limit_w[1] = 0.6
+b.ft.atom_t_s[0] = 61.5
+b.ft.atom_t_s[1] = 98.0
+b.ft.atom_t_s[2] = 126.5
+b.ft.atom_t_s[3] = 275.5
+b.ft.atom_logit[0] = -2.0
+b.ft.atom_logit[1] = -2.9
+b.ft.atom_logit[2] = -2.2
+b.ft.atom_logit[3] = 0.0
+b.ft.log_base = -7.4

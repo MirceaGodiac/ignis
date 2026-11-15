@@ -1,0 +1,46 @@
+{
+  "schema_version":"wsp.v1",
+  "spec_id":"spherical-property-inverse-astra-w0-v1",
+  "family":"acme_inverse",
+  "model_name":"property_spherical_w0_inverse",
+  "target":{
+    "quantity":"temperature","unit":"K",
+    "description":"Conditional radial gas temperature field for established fast-chemistry burning with supplied thermochemistry and apparatus properties.",
+    "excludes":["visible flame diameter","UV flame diameter","ignition","extinction time or probability","nonzero gravity","qualified NASA forecast"]
+  },
+  "features":[
+    {"name":"burner_radius","unit":"m","source":"Conditions.burner_radius raw/SI/provenance","transform":"identity@1"},
+    {"name":"injected_mass_flow","unit":"kg/s","source":"Conditions.injected_mass_flow raw/SI/provenance","transform":"identity@1"},
+    {"name":"mass_diffusivity","unit":"kg/(m s)","source":"Conditions.mass_diffusivity = rho*D with domain","transform":"identity@1"},
+    {"name":"stream_compositions","unit":"1","source":"fuel/oxidizer/products GasMixture elemental inventories and fractions","transform":"physical_core_composition@1"},
+    {"name":"species_molar_masses","unit":"kg/mol","source":"supplied species properties with source/domain/reference","transform":"identity@1"},
+    {"name":"species_heat_capacities","unit":"J/(kg K)","source":"supplied species constant cp over explicit temperature path","transform":"physical_core_cp_mass@1"},
+    {"name":"formation_enthalpies","unit":"J/kg","source":"three supplied mixture formation enthalpies in common reference","transform":"identity@1"},
+    {"name":"inlet_temperatures","unit":"K","source":"fuel and oxidizer thermodynamic states","transform":"identity@1"},
+    {"name":"pressure","unit":"Pa","source":"common gas/reference pressure","transform":"identity@1"},
+    {"name":"gravity","unit":"m/s2","source":"supplied gravity vector/frame/provenance; exactly zero admitted","transform":"identity@1"},
+    {"name":"ambient_velocity","unit":"m/s","source":"supplied ambient vector/frame/provenance; zero crossflow admitted","transform":"identity@1"},
+    {"name":"face_radii","unit":"m","source":"RadialApparatus.face_radii_m with geometry provenance","transform":"identity@1"},
+    {"name":"frozen_density","unit":"kg/m3","source":"RadialApparatus.frozen_density raw/SI/provenance","transform":"identity@1"},
+    {"name":"planck_mean_absorption","unit":"1/m","source":"RadialApparatus.planck_mean_absorption raw/SI/provenance","transform":"identity@1"},
+    {"name":"radiation_bath_temperature","unit":"K","source":"RadialApparatus.radiation_bath_temperature","transform":"identity@1"},
+    {"name":"wall_temperature","unit":"K","source":"RadialApparatus.wall_temperature","transform":"identity@1"},
+    {"name":"wall_conductance","unit":"W/K","source":"RadialApparatus.wall_conductance","transform":"identity@1"},
+    {"name":"initial_fuel_origin_fraction","unit":"1","source":"RadialInitialState with provenance and time origin","transform":"identity@1"},
+    {"name":"initial_total_enthalpy","unit":"J/kg","source":"RadialInitialState including formation enthalpy","transform":"identity@1"}
+  ],
+  "domain":[
+    {"feature":"burner_radius","min":0.0},
+    {"feature":"injected_mass_flow","min":0.0},
+    {"feature":"mass_diffusivity","min":0.0},
+    {"feature":"planck_mean_absorption","min":0.0},
+    {"feature":"wall_conductance","min":0.0}
+  ],
+  "tensors":[
+    {"name":"solid_angle_sr","shape":[],"role":"physical_parameter","fill":{"rule":"author_writes_all"},"unit":"sr","bounds":{"min":12.0,"max":13.0},"description":"4*pi manually written; exact sphere geometry required by forward."},
+    {"name":"lewis_number","shape":[],"role":"physical_parameter","fill":{"rule":"author_writes_all"},"unit":"1","bounds":{"min":0.0,"max":2.0},"description":"Unity Lewis closure; forward rejects any value other than one."},
+    {"name":"stefan_boltzmann_w_m2_k4","shape":[],"role":"physical_parameter","fill":{"rule":"author_writes_all"},"unit":"W/(m2 K4)","bounds":{"min":0.00000005,"max":0.00000006},"description":"NIST CODATA 2022 displayed decimal value, manually transcribed; decimal truncation is numerical, not physical uncertainty."}
+  ],
+  "forward":{"entry_point":"ignis_wsp::property_spherical_w0::evolve_radial","version":"1","profile":"strict_no_fitting"},
+  "notes":"Inverse oxidizer injection. Internal kernel only; no cross-lane contract or live forecast adapter added. Read tensors in order solid_angle_sr, lewis_number, stefan_boltzmann_w_m2_k4 into Parameters::from_literals. forward supplies independent analytic steady benchmark; evolve_radial advances prescribed initial fields. Numerical controls are explicit non-predictive inputs. Bounds with zero endpoints do not supersede strict positivity in kernel. Properties require admitted sources and valid domains. No trained parent; experimental/not_trained only. Static fields, geometry SI vectors and component metadata are preserved; SI-only inputs have identical raw and SI units. No uncertainty interval or NASA qualification."
+}

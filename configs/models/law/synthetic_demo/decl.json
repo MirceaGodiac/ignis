@@ -1,0 +1,24 @@
+{
+  "slug": "synthetic_demo",
+  "status": "synthetic",
+  "family": "other",
+  "investigation": "none: a synthetic declaration for the tests and the example of docs/wsp/research/law_forward.md",
+  "description": "Synthetic. Three features, one target of each kind. Never NASA data; no release of it qualifies anything.",
+  "features": [
+    {"name": "pressure", "unit": "Pa", "transform": "ln", "description": "chamber pressure"},
+    {"name": "x_o2", "unit": "1", "transform": "identity", "description": "ambient O2 mole fraction"},
+    {"name": "fuel_flow", "unit": "kg/s", "transform": "reciprocal", "description": "fuel mass flow"}
+  ],
+  "targets": [
+    {"name": "flame_length", "kind": "positive", "unit": "m", "shared_quantity": null,
+     "description": "visible flame length at steady state (lane-local)"},
+    {"name": "spread", "kind": "positive", "unit": "m/s", "shared_quantity": "spread_rate",
+     "description": "flame spread rate (the shared quantity spread_rate)"},
+    {"name": "ignites", "kind": "binary", "description": "the flame ignites and is sustained"},
+    {"name": "flame_end", "kind": "event", "causes": ["extinction", "blowoff"],
+     "scheduled_stop": {"condition": "programmed_stop"},
+     "description": "end of the flame, seconds since the time origin"},
+    {"name": "burnout", "kind": "event", "causes": ["burnout"],
+     "description": "a single-cause clock (tests: competing risks reduce to one clock)"}
+  ]
+}

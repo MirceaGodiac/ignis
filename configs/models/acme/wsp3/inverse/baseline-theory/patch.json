@@ -1,0 +1,299 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "acme_inverse-wsp-v3-baseline-theory",
+  "spec_hash": "sha256:0112848b2b7aa8a7c1c67972eaca9a192a1531039cc9af91d6a78bf0f0a1cb69",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/flame3.rs(forward-and-spec)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-constants:rhoD-of-Kim-et-al-2023,critical-reactant-flux-of-Irace-et-al-2023;both-were-measured-on-ISS-flames-of-the-ACME-campaigns)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "se.rho_d_g_m_s",
+      "index": [],
+      "value": 0.0334
+    },
+    {
+      "op": "set",
+      "tensor": "se.flux.b0",
+      "index": [],
+      "value": -0.386
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.flux.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.diff.b0",
+      "index": [],
+      "value": 3.332
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.diff.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.sigma_phi",
+      "index": [],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "se.hold_log_rate",
+      "index": [],
+      "value": -40.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.floor_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc.b0",
+      "index": [],
+      "value": 13.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.osc.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.osc_shape",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash.b0",
+      "index": [],
+      "value": -40.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "se.flash.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_tau_s",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "se.flash_shape",
+      "index": [],
+      "value": 4.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.rise.b0",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "bt.rise.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "bt.tau_s",
+      "index": [],
+      "value": 30.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.t0_c",
+      "index": [],
+      "value": 30.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.sigma",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "bt.shape",
+      "index": [],
+      "value": 8.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "bt.limit_c",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "bt.limit_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_t_s",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "ft.atom_logit",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0,
+        -40.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ft.log_base",
+      "index": [],
+      "value": -40.0
+    }
+  ],
+  "rationale": "Reference baseline and lineage root, not a candidate: the published growth law of a burner-supported spherical diffusion flame with its published constants for inverse flames (rhoD 0.0334 g/m/s, critical oxygen flux 0.68 g/m2/s, D 28 mm2/s at 1 atm and inversely proportional to pressure) and nothing else: no establishment time, no weak class, no second clock, no burner limit, no programmed stop. No number was taken from the PSI-159 tables. Data-informed candidates of acme_inverse-wsp-v3 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

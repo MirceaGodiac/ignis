@@ -1,0 +1,14 @@
+# acme_normal.wsp8 — D1-LATE, spec acme_normal-wsp-v8: the hinge law with the burner-heating law, late era
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both sources are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   hinge laws    acme_normal.wsp2 D4: self-extinction clock, weak class, programmed stops, background
+#   burner limit  acme_normal.wsp3 D3-LATE: the heating law with the limit of the late era (about
+#                 450 C from 27 September 2021)
+#
+# The same member as D1-EARLY with the other era's limit. The committee of spec acme_normal-wsp-v7
+# reads the date of the test and chooses between the two.
+#
+# No value below was typed again. They are the stored values of the two releases named in the
+# blocks, copied statement by statement by tools/wsp/flame4_edits.py; that script chooses and
+# computes nothing.

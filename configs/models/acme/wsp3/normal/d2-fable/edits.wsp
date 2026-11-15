@@ -1,0 +1,19 @@
+# acme_normal.wsp3 — D2 literal revision of D1 sha256:af1d3f4a…094e, spec acme_normal-wsp-v3
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. One statement of D1 is
+# corrected, from the burner temperatures of the TRAIN tests when the flow stopped on a limit trip
+# (docs/wsp/feedback/acme_raw_signals_train.md; re-read by the author from its tables) and a physics
+# dossier (docs/wsp/research/phys_acme_normal.md). Every number typed by the author; no fit, no
+# search. No validation outcome was read; nothing below was chosen from a score.
+#
+# The burner limit was not two settings mixed within a campaign of normal flames: it was about 500 C
+# (trips at 502-522 C) in every normal-flame session from March to June and about 450 C (451-455 C)
+# in the one session of October. D1 gave the lower limit 0.4, from pooling the inverse-flame sessions
+# of late September with the normal ones. A forward cannot see the date of a test, so the weights are
+# the share of normal-flame train sessions under each setting: one of seven, six of seven.
+bt.limit_w[0:3] = [0.15, 0.85, 0.0]
+#
+# What the physics dossier proposed and is NOT typed here: moving the pressure effect from the
+# diffusivity to the critical flux with the diffusivity falling as 1/p. Physics requires it, but with
+# it the lives at a high flow lengthen with pressure, and the train flames at 2.36 mg/s shorten (59,
+# 43, 34 s at 0.5, 1 and 2 atm). Until that is understood D1's placement stays, as a description of
+# train and not as a mechanism.

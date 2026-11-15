@@ -1,0 +1,74 @@
+# acme_normal.wsp8 — reference baseline "the two reference baselines, each on its side", spec acme_normal-wsp-v8
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the lineage root of the spec.
+# The hinge laws (the self-extinction clock, the weak class, the programmed stops, the background)
+# are those of the reference baseline of the hinge-law spec: one condition-free clock for
+# self-extinction and no programmed stop. The burner limit is that of the published theory alone,
+# which has none: every limit weight is zero. No number here comes from the PSI-159 tables.
+#
+# No value below was typed again. They are the stored values of the two releases named in the
+# blocks, copied statement by statement by tools/wsp/flame4_edits.py; that script chooses and
+# computes nothing. The burner-limit clock of the hinge-law baseline (ft.tau.*, ft.shape) is not a
+# part of this spec and is not copied.
+
+#      (39 statements)
+se.tau.skip[0] = 0.0
+se.tau.skip[1] = 0.0
+se.tau.skip[2] = 0.0
+se.tau.skip[3] = 0.0
+se.tau.skip[4] = 0.0
+se.tau.skip[5] = 0.0
+se.tau.skip[6] = 0.0
+se.tau.skip[7] = 0.0
+se.tau.b0 = 3.4
+se.flash.skip[0] = 0.0
+se.flash.skip[1] = 0.0
+se.flash.skip[2] = 0.0
+se.flash.skip[3] = 0.0
+se.flash.skip[4] = 0.0
+se.flash.skip[5] = 0.0
+se.flash.skip[6] = 0.0
+se.flash.skip[7] = 0.0
+se.flash.b0 = -40.0
+se.floor_s = 0.0
+se.shape = 1.0
+se.flash_tau_s = 1.0
+se.flash_shape = 4.0
+ft.atom_t_s[0] = 0.0
+ft.atom_t_s[1] = 0.0
+ft.atom_t_s[2] = 0.0
+ft.atom_t_s[3] = 0.0
+ft.atom_t_s[4] = 0.0
+ft.atom_t_s[5] = 0.0
+ft.atom_t_s[6] = 0.0
+ft.atom_t_s[7] = 0.0
+ft.atom_logit[0] = -40.0
+ft.atom_logit[1] = -40.0
+ft.atom_logit[2] = -40.0
+ft.atom_logit[3] = -40.0
+ft.atom_logit[4] = -40.0
+ft.atom_logit[5] = -40.0
+ft.atom_logit[6] = -40.0
+ft.atom_logit[7] = -40.0
+ft.log_base = -40.0
+
+# ---- burner limit: the stored values of sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad
+#      (19 statements)
+bt.rise.skip[0] = 0.0
+bt.rise.skip[1] = 0.0
+bt.rise.skip[2] = 0.0
+bt.rise.skip[3] = 0.0
+bt.rise.skip[4] = 0.0
+bt.rise.skip[5] = 0.0
+bt.rise.skip[6] = 0.0
+bt.rise.b0 = 5.0
+se.rho_d_g_m_s = 0.0334
+bt.tau_s = 30.0
+bt.t0_c = 30.0
+bt.sigma = 0.0
+bt.shape = 8.0
+bt.limit_c[0] = 0.0
+bt.limit_c[1] = 0.0
+bt.limit_c[2] = 0.0
+bt.limit_w[0] = 0.0
+bt.limit_w[1] = 0.0
+bt.limit_w[2] = 0.0

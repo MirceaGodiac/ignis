@@ -1,0 +1,9 @@
+# Astra R2. DATA-INFORMED, not zero-shot. One authored scalar; no search or scoring.
+# Parent: configs/models/flex/wsp6/heptane/r1-astra/release.json
+# Parent id: sha256:45e753e02ac19bd613fa8c31c169eb5c2439c19a90adaa7d8a9770349bdc2475
+# N/L: Stefan-flow enthalpy transport uses fuel-vapor Cp, not carrier-N2 Cp.
+# NIST WebBook heptane gas: 165.98 J/mol/K at 300 K, M=0.1002019 kg/mol.
+# Author-rounded SI transcription, held constant at the inherited 300 K reference.
+# Source: https://webbook.nist.gov/cgi/cbook.cgi?ID=C142825&Mask=1
+# Derivation, limits and preregistration: docs/wsp/research/astra_r2_droplet_loss_analysis.md
+thermal.cp_gas_j_kg_k = 1660

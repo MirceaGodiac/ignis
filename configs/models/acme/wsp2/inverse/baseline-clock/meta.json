@@ -1,0 +1,17 @@
+{
+  "patch_id": "acme_inverse-wsp-v2-baseline-clock",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:crates/ignis-wsp/src/flame.rs(forward-and-spec)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Reference baseline and lineage root, not a candidate: one condition-free clock per cause (self-extinction median 30 s, flow termination median 100 s, shape 1), no weak class, no programmed stop. Data-informed candidates of acme_inverse-wsp-v2 are literal revisions of this release, so that the registry records them as revisions with development exposure.",
+  "origin": "system"
+}

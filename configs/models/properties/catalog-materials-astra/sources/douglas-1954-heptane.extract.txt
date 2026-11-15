@@ -1,0 +1,2015 @@
+Journal of Research of the National Bureau of Standards Vol. 53, No.3, September 1954 Research Paper 2526 
+Calorimetric Properties of Normal iHeptane 
+From 0° to 520 0 K 
+Thomas B. Douglas t George T. Furukawa t Robert E. McCoskeYt and Anne F. Ball 
+Precise mca surem ents of the heat capacity of solid and liquid n-heptane from 200 to 
+523 0 K arc described. An adiabatic calorimeter, with which were determined also the triple 
+point and the heat of fusion, was used from 200 to 370 0 I\:, whereas a drop method was used 
+with a Bun sen icc calorimeter from 273 0 to 523 0 K. Thes e two ser ies of heat-capacity 
+measurements and three other series of independ ent values show a maximum difference of 
+approximately 0.25 percent in the range 500 to 370 0 K. Besides the heat capacity, tIl(' 
+enthalpy, entropy, and Gibbs free enerp:y of the solid and liquid at saturation pressures 
+from 00 to 520 0 K are derived and tabulated. Th e same properties of the ideal gas from 
+2980 to 470 0 K also arc derived by making use of publishcd precise measurements of gaseous 
+heat capacity, heat of vaporization , and the normal boiling point. Interconsistency in the 
+values of t he various thermal properties is shown by the fact that the vapor pressures 
+calculated from these values ap:rce with those precisely measured by other investigators 
+bet\\ "een 200 0 and 372 0 K to \\'ithin ± 0.1 percent. 
+1. Introduction 
+Normal heptane' is one of the naturall.\" abundant 
+hydrocarbons, and in fact is one of the mosL abundanL 
+components of SOIDe' fuels for intel"flal-eombustion 
+engines . Its thermal properLies are, therefore, of 
+corresponding pn1<'tieal importan ce. 
+This substance was recommended )'ecenLl.\-, at the 
+FourLh Conference on Low Temperature Calo ­
+rimet r.\- 1 [1] 2 as one of several mil t('rials suiLahle as 
+standnrcls for the intercom parison of precision heaL­
+cnpacit.\" calorim('t('rs. The['(' nrc nL present man.v 
+la boraLories condue ting high-precision hea t-capaci ty 
+measurernents on various su bstances. In view of Lhe 
+laborious naLme of this work i L seems desira ble tha t 
+all work be compati ble. AL the Lime of the April 
+1947 meeting of the American Chemical Societ.\" in 
+AtlanLic City, N. J., a group of representatives from 
+different laboratories engaged in heat -capaeiLy calo­
+rimetrv met infol'malh - Lo d iscllss ways of comparing 
+heaL-capacity measur'emellLs mad e In diITeren t lab­
+oratories and of improving cnlorimeLric techniques. 
+At. the time of this meeting the group agreed upon a 
+plan to distribute to parLicipating labol'ntOJ'ies iden ­
+tical sam ples of several substances for comparaLive 
+measurements. Such substnnC'('s were to have suf­
+ficient purit~- so that the impurities present would 
+:? have insignificant dYed upon the heat-capacity 
+yalue. At the Fourth Conference on Low-Temper­
+ature Calorimetry n-h eptane, along with benzoic acid 
+and s.nlthetic sapphire (a-alu minum oxide) was 
+selected as a standard for the intercomparison of heat­
+capacity calorim eters. The Bureau underLook and 
+su bsequently completed the task of preparing and 
+packaging these materials in suitable quanLities for 
+~ disLribution. The results of m eas llremenLs \\'ith the 
+low-temperature adiabatic calorim eter, given in this 
+paper, were obtained on this Calorimetr~" Confe rence 
+n-heptane samp le, whereas the resulLs of the Bunsen 
+ice ealorimetel' are based on the heat-capacity m eas-
+1 The Conference ~on 'Low rrempCrailll'C Oalorimetry was ~I' enamcd the Cal-
+l orimctrr Conference' ai the meeting held on September 5,1950, in order to include other fields of calorimetrv. 
+r" , Figures in brackets illdic[Lte the literature references at the end of this paper. 
+312754 - 54- -2 
+uremel1 is wi lh a high-puri ty n-heptane sample from a 
+diO'erent so urce . Both samples, howO\-er, were of 
+sufficien tly high pmity that Lhe eiTeeL of the il~ll~llri ­
+Lie:o on Lhe results is believed to have been neghglble. 
+It is hoped that oLher laboratories will also make 
+hen t-capacit~- measurements on the Calorim~Lry \on­
+ference n-heptulle, so that cnlmimeters of vanous 
+design and the resulLs obtainecl with them may be 
+compared and n, more general agreement may be 
+reached on Lhe hent-capacit.v values of this substance. 
+AdvanLages of u::;ing n-heptnne as It standarcl 1Il­
+elude the followinO'; lL can be L'eadih~ purified (espe­
+eiall.\- wiLh reO'pec"'i, Lo nonhydro('tlrbon impurities), 
+it is chemicully stab le up Lo its nitical temperature 
+(5400 K), and it can b(' easily distilled into or Ollt of 
+a calorime ter. A discussion of its use as it heat­
+capacity standard was recentl .\C published and values 
+at even temperaLu['('s were' given [2).3 The present 
+paper describes the basi,' experimenL,ll measurements 
+in considerably more detr.il. Although the Calo­
+rimetry Conference recommended lI-hepLane as a 
+heat- eapucity standard from 100 to :300° K,. the re­
+sults of the measLlremenLs presenLed her e HlclIc:ate 
+that wiLh proper care the substance can be used for 
+this purpos e to 4000 Ie. 
+The heat capaeity of n"hepLane was measured be­
+tween 20° and 52:3° Ie, using two calorimet ers widely 
+different in design. An adiabatic meLhod was used 
+from 20° to :370° Ie, and a "drop" method was used 
+from 2730 to 523° Ie with an accuratciy thermo­
+stated furnac e and a Bunsen ice calorimeter. The 
+two methods overlap in the tempel'atme range 2730 
+to 370° Ie, where they serve to check each othe.r. 
+The trip le point and heat of fusion were measured m 
+the adiaba tic calorimeter. Vapor ization corrections, 
+whi ch become very important in the re~ion of t.he 
+critica l temperature, were derived, usmg precise 
+mea surements of vapor pressure and liquid density 
+made elsewhere. 
+Several series of precise measurements already 
+pu blished have been combined wi th the data reported 
+3 Some of the values were later corrected [2a]. 
+139 
+L 
+here to give crit ically adjusted values of the therma l 
+properties of the saturated solid and liquid and of 
+the ideal gas. Heat -of-vaporization and vapor­
+pressure data from 2980 to 3710 Ie were used to cal­
+culate the second virial coefficient, as well as the 
+entropy, of the real gas at one temperature. Data 
+on gaseous heat capacity and its variation with pres­
+sure, at temperat ures from 3570 to 4660 Ie, were 
+used to eval uat e the variation of the second viria l 
+coefficient with temperature and the derivation , up 
+to 4700 Ie, of thermal properties of the ideal gas 
+consistent with the best vapor -pressure measure­
+ments up to the normal boiling point (3720 Ie) . 
+2 . Low-Temperature Calorimetry 
+2 .1. Apparatu s and Method 
+The low-temperature series of heat -capacity meas­
+urements was made from about 200 to 3700 Ie, using 
+an adiabatic calorimeter simi lar to that described by 
+R. B. Scott, et al. [3]. The readers are referred to 
+this reference for details of the design and operation 
+of the calorimeter. The calorim eter used in this 
+investigation differed only in one respect from that 
+described , in that it did not have a filling tube. 
+The container was suspended within the shie ld sys ­
+tem by means of a linen string. Briefly , the appa­
+ratus and the proc edure were as follows: The normal ­
+heptane sample, about which details will be given 
+in the next section, was sealed in a copper container 
+and suspended within the adiabatic shield system. 
+The copper container had a volume of about 100 ml 
+and was provided with a central well for a thermom­
+eter and heater assembly. Van es, spaced about 4 
+mm apart, radiated out from the well to the con­
+tainer wall. A thin layer of pure tin was applied 
+to the inner surfa ce of the container to provide an 
+inert surface to the sample and to sold er the vanes 
+in plac e. The outer surface of the container and 
+t he adjacent shield surfa ce were gold plated and 
+polished to min imize the heat transfer by radiation. 
+The space surrounding the con taine r was pumped to 
+a pressure of 10- 5 mm Eg' or less . During the heat­
+capacity experi ments the shield temperature was 
+controlled manually to be the same as that of the 
+conta in er surfac e by means of shield heaters and 
+constantan - chromel-P differential thermocouples. 
+The e lectric power input was mea sured by means 
+of a Wenner potentiom eter in conjunction with a 
+standard cell, volt box, and sta ndard resistor. A 
+precision interval timer, operated on 60-cycle stand­
+ard, was used to m easure the time. The timer was 
+periodically compared with standard second signals 
+and was found to vary not mor e than 0.02 sec for 
+a heating period, whi .;h was nev er less than 2 min. 
+The temperatures were measured by means of a 
+platinum-resistance thermometer and a high-pre ci­
+sion Mueller bridge. The platinum -resistance ther­
+mometer was calibrated above 900 Ie in accordance 
+with the 1948 Int ernationa l Temp erature Scale [4], 
+and between 10" and 900 K with a provisional s.;ale 
+[5], whi ch consists of a set of platinum resistance 
+thermom eters calibrated against a helium- gas ther-
+mometer. The provisional scale is based upon the 
+value 273.16 0 Ie for th e temperature of the ice 
+point and 90.19 0 Ie for th e temperature of th e oxy­
+gen point. All electric instruments and accessor y 
+equipment were calibr ated at the Bureau. 
+2.2. Sample, Purity, and Triple-Point Temperatur e 
+The normal -heptane samp le was a part of the 
+high-purity material prepared for the Calorimetry 
+Conference. The material was synthesized and 
+purified by distillation under the direction of F . L . 
+Boward of the Engine Fuels Section of the Bureau 
+[5a]. The distilled product had a purity of 99.98 
+mole percent. R. T. Leslie of the Pure Substance s 
+Section purified this material further by fractional 
+crysta llization. The process involved slow crystal­
+lization in a vacuum-walled flask immersed in liquid 
+nitrogen. A single-walled flask was attached mouth­
+to-mouth to the V9,cuum flask by means of a ground 
+joint. During the freezing process, this assembly was 
+rotated around the aA-lS joining the two flasks with 
+periodic reversal of the direction of rotation to 
+agitate the mixture. When 50 to 75 percent of the 
+liquid was frozen, the assembly was inverted to 
+drain unfrozen liquid into the single -walled flask . 
+This procedure was repeated until the material was 
+found to be sufficiently purified , as determined 
+calorimetrically from its melting curve. The ma­
+terial was passed later through purified silica gel to 
+remove water. In order to obtain the highest pos­
+sible degree of id enti ty in all samples, the n-heptane 
+was subdividod in the liquid state without dis tilla­
+tion. The material was siphoned into 800-ml 
+flasks, which in turn WC1'e subdivided into 100-ml 
+ampoules. The conte nts of one (sample O-E ) of 
+these ampoules were used in the low-temperatur e 
+heat-capacity measurements. 
+All of the sample contained in the break-seal 
+ampoule was transferred under vacuum by distilla­
+tion into the sample container and scaled. The 
+purity of this material was dete rmin ed calorimetric­
+ally from t he equilibrium melting temperatures at 
+various liquid-solid ratios as determined from the 
+energy input, heat of fusion, and he at capacity of 
+the system. The system was assumed to follow 
+RaoulV s law of solution and to form no solid solu­
+tion . The simpli fied equa tion, N 2= At:,.T, was used 
+to represent the relation between the mole-fraction 
+impurity , N2, and the depression, t:,.T, of the triple­
+point temperature of pure n-hepta ne. The cryo­
+scopic constant, A, was calculat ed from A = L,IRTl , 
+where L, is the heat of fusion, R the gas constant, 
+and T t the triple-point temperature. The ob­
+served equilibrium temperatures ,vere plotted as 
+the function of 1 IF, the recripocal of the fraction 
+of material melted . The product of the slop e of 
+this curve and the cryscopic constant was taken to 
+be the mole-fraction impurity. As N2 is propor­
+tional to 1 IF, t he curve extra polated to I /F= O was 
+taken to give the triple-point temperature of pur e 
+n-heptane. 
+The results of the measurements are given in 
+table 1 and arc plotted in figure l. The purity 
+140 
+I 
+~ 
+( 
+I 
+I .y 
+182.56 3 0 
+:­
+..; 
+182. 56 2. 
+o~ 
+~ 182 . 5610 
+.. 
+'" w .. 
+~ 182..560 0 
+o w 
+> 
+:3 182.5590 
+m .. o 
+182.55 8 0 
+0 
+f---
+18 2.5 5 7°0 
+~~ 
+'-1-0--. I----
+------~ r---
+------
+SLOPE , - 0.0001 9 FOK 
+TEMP ERAT URE I NTERCEPT , 182.5619 oK 
+0 
+I I I 
+10 12 14 16 
+FRACTIO N ~E LTED 
+FI GU R E 1. Eq uilibrium melting lempeml w'es of n-heplan e. 
+18 
+comput ed from the curve is 99.999 mol e percent 
+with an uncertainty of abo ut 0.002 in this fi gure. 
+The temperatur e intercept is 182.5 6190 Ie on the 
+basis of the valu e 273.16 0 Ie for the temp erature of 
+t he ice point ; and the tripl e-poin t temperat ure, con­
+siderin g calibral ion uncertaintie s of the bridg e and 
+platinum resista n ce t hel'ITI.omete r a nd the uncer­
+tainty of the temp erat ure scale, is tak en to be 
+182.56 ± 0.010 K . 
+TABLE J . Bq uili brium melti ng lempemlures of n-heplane 
+.:\', = 0.0.500 t1 T 
+Jr.. 97 
+1. 15 
+3. (H 
+I. 80 
+J. 32 
+J. 05 
+1. 00 
+182.5575 
+182. MOO 
+182.5H15 
+182.5617 
+182.5614 
+182.5617 
+182. !i587 
+182.5603 
+182.5012 
+182.5(\16 
+182.5617 
+182.56 17 
+182.5017 
+Temperature intercept, ]82 .. 56190 K . 
+Puri ty, 99.999±0.002 mole pcrcent. 
+a 'r bcse Lc mperat ul'es were obtained from the relatio n 0.K =00+273 .16000 and 
+are accurate to ±0.0 1 dog K. The last two decimal places are s igni ficant only 
+in the measurement of sma ll temperature differenccs. 
+Column 3 of table 1 give s temper atures calcula ted 
+from. the relation Tt - Teale. = N 2 /A F, in wh ich N2 is 
+the mole -fraction impuri ty as obtain ed from the 
+experime n tal data . The compari son of calculated 
+and observed equi librium temp eratur es sh ows that 
+the material follow ed closely RaoulV s law of solution 
+and form ed no solid solu tions. In all calcu lations 
+the value used for the cryosco pic constant , A , was 
+0.0506 cleg- 1. 
+2.3 . Heat of Fusion 
+Th e h eat of fusion of n-hep tan e wa s det ermined 
+in tbe usual manner , in whi ch eleclri c energy was 
+added continuou sly from a temp erature slightly 
+below t he triple point to a temp erature above it. 
+The total added en ergy was correcte d for th e h eat 
+capacity of th e con tain er and sample b elow and 
+above the triple point , and for the prem eltin g of th e 
+sample due to the impuritie s. In tabl e 2 arc given 
+h eat -of-fu sion measurement s made with sample O-E 
+and with anoth er samp le, 7-F . ampl e 7-F is from 
+anot h er ampoule of n-hepLan c prepar ed foJ' Lll e 
+Calorimetry Confer ence. Th e purity of this sampl e 
+was found to be 99.997 ± 0.002 mol e percen t. Th e 
+h eat -of-fu sion result s wiLll sampl e 7-F ar c gen cra lly 
+lower, and the differen ce is considered to ari se la rgely 
+from th e uncertai nty in the h eat-capacity COlTec­
+tion s and no t from th e slight difference in purity. 
+Th e h eat of fusion obt.ain ed i s probahly accurat e to 
+about 0.1 perce nt, and thi s quan tity is taken to h e 
+14,022 ± 14 abs j mole -I. 
+TABL E 2. Ileal of fusion of n-h eptan e 
+Correction s 
+'!"'empcrature Total t111I, 
+interval encrgy H eat Pre- Lolal MIl inp ut capac- melt-
+ill' ing 
+----
+oJ( alJs j al)s j alJsj abs j abs j mole-1 
+178.7994 to 185.1898 a __ • 9291.1 844.3 0.8 8447. (i 14014. 2 
+177.4223 to 184.2878 a __ _ 9315.9 867.8 .6 8448.7 1401(i.0 
+180.4110 to 185.9838 " __ . 9034.6 586.7 1.5 8449.4 14017.1 
+179.0455 to 187.5309 b __ _ 9300.8 1,155.3 0.5 8146.0 14034.6 
+180.8642 to 185.1144 b __ _ 8759.6 616.8 .9 8143. 7 14030.7 
+-----
+~rearl. .. _ . . _ .. _ - - - - - - - - -- - - -- -- ----- 14022.5 Sta ndar d devi a Lio;, ~: : : ::: : :::. : :- ._- -- - - - - --- - - -.-- - -- ±9.4 c 
+""a mpl e 7-F, mass 60.3984 g. 
+b Sa mpl e O-E. mass 58.1570 g. 
+c Sta nd a rd devi al iOI1 as used h err is definl'<1 as [:!:d' /(n-l)];. where d is the 
+d ifference betwee n a single observatio n and lhe mt'an, and n is the Humber of 
+ohs('l'vatio ns. 
+2.4 . Heat CapClcity 
+Th e h eat capa city of th e n-heptan e sam ple \\"Us 
+measured from about 20° to 3700 Ie. Both high ­
+and low-fillin g run s were made und er calorime tri c 
+conclitions as nearly identical as possible. Th e 
+high-flllin g experiments conLail1.ed 58.1570 g a nd Lh e 
+low-fillin g, 2.0196 g. In ord ~r to minimize the 
+curvature corre ctio n in the temperature range wher e 
+th e h eat capacity has a lar ge Clll'Vature , th e temp era­
+Lure chang e per h ea tin g interval was generally 
+smaller than 2 d eg belolY 35° Ie and from 2 to 5 deg 
+betwe en 35° and 80° Ie. Abov e 80 ° Ie, th e tem­
+perature ch ange was mad e from about 5 to 10 deg. 
+Curvature correction s wore applied to those meas ure­
+ments wherev er significa nt, according to the relation 
+given in a different notation by Osborn e, et a1. [6]: 
+(1) 
+in which ZTm is the correct ed h eat capacity of t he 
+sampl e container plus its contents (solid or liquid 
+and vapor ) at the mean temp erature , Tm , of the 
+h eating interval, D..T; Q is th e electrica l energy added; 
+and CD2Z)/(oT2)r is the second d !3rivativ e of the 
+h eat capac ity with resp ect t.o temperature at Tm. 
+The principal dat.a from the hi gh- and low-fillin g 
+h eat-ca pacity expe riment s are given in tab le 3. 
+Th e h eat -capacity data given are "raw" and do no t 
+141 
+'1'.-1 BLE 3. Data from the low-temperatllre heat-capacity experiments with n-heptane' 
+'1'm 
+I z I !11' II Tm I 7 I ';1' Tm I 7 I !1T II Ton I 7 I ';1' 
+High-filling experiments; mass of samplc-58.1570 g lTigh-filling C'xperiments; mass of s:1mplp-.5S.1f)70 g-C~ntinu('d 
+- ---
+Run 1 Run 7 I Hun 13 
+I 
+Run 15 
+I oK alJS j deg-I oK oK abs j deq-I oK oK ails j deo-I O]{ oK al)s j lieq-l 0]( 
+301. 0218 178. J97 fi.3;,)35 285.1581 174.440 10.5287 1111. (;208 108.4G3 9.310·0 18.0 888 (i.(I2:l O. G.\23 
+308.3749 180.173 8.3528 2%.11051 1 ii. on 10.3545 1M. 880! 112. n(l 0.1958 18.8562 7.319 0.882 .1 
+316.5290 182. :344 7.9553 306.8846 179.766 10.1914 165.4900 11 7.309 10.0225 19.8214 8.200 1.0,138 
+325.7352 184.860 10.4572 315.3553 181. 976 6.7498 172.31H 120.916 3.6262 21.044.', 9.313 1. 381}-1 
+336.1098 187.768 10.2921 322.4615 183.913 i.462() 175.9090 123.087 3.5629 22.5367 10.805 1. "OSO 
+316.3218 190.679 10.1318 331. 1016 186.316 9.8176 178.5677 124.886 L 7546 21. 2216 ]2.497 l.1111 
+356.373.\ 193.598 9.971G 310.0457 189.072 9.8706 25.71100 J.l. 125 1.06,\() 
+365.6588 196.393 8.5989 3.\0.7407 191.895 9.7194 27.8056 IR.329 2.12 ,07 360.2910 191. 718 9.3812 Run 14 30.1142 ]8.900 2.4913 
+369.6042 197.525 9.2452 32.5786 21.723 2.4375 
+Run2 25.6591 13.999 1.3118 Run 16 27.4238 J5.928 2.2171 Rtu18 29.5008 18.2 15 t.9358 
+I I 
+83.5392 73.017 6.0067 31. ,\901 20. 593 2.2597 173.1908 121. 431 4.839.0 
+90.6921 78.311 8.2992 I 33.6490 22.973 1.8103 Iii. 9562 12-1. 568 4. G911 
+99.1662 83.769 8.6489 5-1.7396 46.780 3.8509 35.5l68 25.1.\5 1.8953 180.5719 ]26.997 0.5401 107.5666 88.800 8.1bl9 59.7938 52.0:11 6.2575 116.5773 93.807 9.86% 6.\.7339 57.899 r,.6228 126.3223 98.841 9.6204 71. 1395 62.739 5.1881 LO"'-filling experiments; mass of sample -2.0196 g; 0.2427 g more solder 135.60flO 103.349 8.0471 76.16\6 67.025 4.8559 (Sn/Pb = 63/37) 144.2.)74 107.297 9.3867 81. 4408 71. 459 5.7024 1,,3.4819 ll1. 590 9.0fWH 86.9744 75.767 ;;.3618 
+I 
+I 
+102.9522 ll6.152 9.8653 92.7154 79.6-10 5. ll92 Hun 1 Run 5 172. 722G 121. 259 9.5743 
+192.3938 159.372 4.9105 
+I 
+198.5635 159.579 7.3986 55.8719 16.514 3.9\14 95.0-190 31. 090 9.3334 
+Run 9 59.1i1 5 18.020 2.6878 10!.0518 33.344 8.6 722 61. 8135 19.212 2.6562 113.2 810 35.381 9.7863 
+Run 3 fil. 3616 20.344 2.3801 122.8148 37.221 9.2813 
+67.7752 21. 7n 4.4471 132.7276 38.882 10. ,\441 
+58.1493 50.351 G.4TiS 72.0080 23.44() 4.0185 
+I 
+143 2lO-I 40.403 10.421.\ 
+202.1632 159.785 8.6710 ti4.2722 56.519 ,\.7681 75.3628 25.098 
+I 
+4.6911 15:l.3330 41.6% 9.82:38 
+211. 5120 160.589 10.0266 (;9.1590 Gl.OaO 4.0051 8l. ,\137 26.978 .1.6706 163.8138 42 . 857 11. 1379 
+221. 4940 161. 756 9.9373 73. G702 (ll. 913 5.0170 87. :l6lill 2S.923 5.0752 I 175.7633 44. 17.0 12.7G10 231. 390G j()3.196 9.8160 78.7274 69.213 5.09 74 93.17(;8 30.605 5.6151 18G. 910 1 46.100 5. 7739 
+241.1818 164.848 9.746,\ 81.0442 73.53S ;'.5363 195.5106 4(j.I\1:3 11. 42Gl 
+25l. 5582 166.763 11. 0063 89.4:368 77. ,\26 5.2188 RUIl 2 206.8182 47. 308 11. 21S9 2112.4892 169.028 10.8557 9.\.0662 81. 2:37 6.0100 21S.0234 47.909 11. 1014 
+273.2(l77 171. 461 10.7012 100.9718 84.928 5.8013 I 228.5998 48.451 10.0513 \. 
+283.8898 173.9-18 10.5429 50.2731 14.000 :3.2161 239.0131 48.963 10.83.\3 
+291. 3512 176.523 10.3 801 ;'4. G951 1.1.990 5. 627fi 218.0366 49.402 7. 1517 
+304.6524 179.231 10.2221 60. ;;700 18. (lGO (i. 1223 25.\.1614 49.739 7.09 80 
+Run 10 G6.3260 21. 177 ,1.3896 263.9816 50.1I18 10. 54~4 
+70. 8S01i 2l.008 ;l.7197 274.8152 50. ;47 11. 172; 
+Run 4 75.07,16 24.613 4. G703 285.9502 51. 313 11. 0373 
+34.3802 23. S03 I. 6797 79.59[;3 21i.282 4.3710 296.9179 51. 962 10.8982 81.3290 27.939 5.0915 307.745-1 52. flOG 10. 751ii 
+87.0867 75.764 5. 856~ 
+36.7212 26.561 3. 0083 89.7550 29.642 5.7573 318.4349 .\3.217 10.6224 I 
+94.1360 80.562 8.2332 39.9707 30.309 3.4848 328. 986e. .\3.932 10.4809 I 
+102.54;2 85.823 8. 5902 44.2145 35.180 5.0028 I 339.3904 .\1. 684 10.3267 I 48.8906 40.468 4.3493 Hun 3 llO.8928 90.682 8.1010 349. G380 ,1.1.504 10.1686 
+119.9577 95.578 10.0287 ,\3.3912 45.3Gl 4.6080 
+I 
+359.7301 56.370 10.0082 57.8328 50.031 4.2192 90.0921 29.716 9.7260 I 129.7362 100.507 9.5283 61.8902 51. 177 3.8955 139.0584 104.952 9.1162 99.4554 32.225 9.0007 
+148.4451 109.311 9.6571 108.14 82 31. 289 8.3818 
+II 
+Run6 
+157.9138 113.671 9.2804 117.1072 3G.15G 9.5333 
+170.2760 119.924 1O.2()37 Run 11 126.4234 37.860 9.0990 
+177.5267 124. 204 4.2376 13(i. ]844 39.411 10.4229 283.4277 .'1.201 10.7312 145.5637 40.84.\ 10.3 ;358 291. 0922 51. 812 10.5978 
+- 157.6835 42.187 11. 9038 301. (i358 ,\2.448 10.4893 
+Run 5 32.1502 21. 235 I. 7807 lIl9.4136 43.48-1 11. 5465 315.0504 53.078 10.3401 33.6580 22.973 1. 2317 190.0446 46.311 10.8261 325.4872 53.752 10.5333 
+I I 
+35.7605 25.442 2.9701 200.7921 46.9G3 10.6696 335.7313 51. 452 10.3912 
+I 176.0338 123. ]28 2.2418 38.085-1 28.12G I. 6793 211. 3914 47.566 10.5283 31C>.045-1 55.248 
+I 
+10.2370 
+178.2631 121.701 2.21li8 41. IGH 31. 682 4.4729 222.01,18 48. 126 10.7205 35G.2049 56.08; 10.0820 45.7926 36.972 4. 7894 232.5238 48.6 55 10.2957 366.3132 56.995 10.1945 180.1178 126.343 1. 4927 242.7605 49.150 10.1776 ,\0.5906 42.448 5.0065 
+I 
+5.1.4890 47.578 4.5905 
+59.8212 52.080 4.0799 RUIl4 Run 7 Run 6 I ~" 
+I 
+237.8577 48.901 10.2812 22. 17.\2 2.298 1.661; 
+190.2379 159.417 I. 6256 Rnn 12b 248.0648 49.400 10.1330 23.9686 2.772 1. 92.52 192.5612 159.381 3.2512 258.7514 49. 9J 7 11. 240\ 25.8162 3.331 
+I 
+1.8300 
+197.6878 159.512 6.9961 269.9162 50.494 11. 08>17 27.6380 3. 90S 1. 7535 
+204.4226 159.954 6.4735 1>' ~ 280.9424 51. 054 ]0.9626 29.5144 4. ,)(-).1 1. ~995 
+21l. 9126 1110.626 8.5664 184. 2973 159.470 I. 7476 291. 8347 51. 682 ]0.8220 31. 7;62 5.420 2.5240 
+221. 299-1 161. 727 10. 1472 186.5683 159.376 2.7914 302.5792 52.328 10. (H93 3!.4389 6.509 2.8014 
+231. 2810 ]63.182 9.8161 189.3CJ32 159.356 2.795-1 313.7097 52.989 10.8012 38.5327 8.3 13 5.3863 
+241. 1030 154.822 9.8277 192.1586 159.367 2.7955 321. 2942 53.681 10.3679 43.5981 10.fl81 4.7446 
+218.7745 166.251 5.5154 194.953-1 159.438 2.7941 334.7312 54.429 10.50110 48.0516 ]2.897 4.1623 
+2,\(i.3091 1G7. 738 9.5538 197.2231 159.531 1. 7452 345.1590 55.213 10.3497 52. 1398 14. 855 4.0142 
+2G6.4640 169.908 10.7561 200.0135 159.656 3. 8351l 355.2912 56.039 9.9145 56.2879 16.706 4.2820 
+277.1451 172.348 1O.60GO 207.7304 1110.185 11. 5981 365.12 53 55.920 9.7538 60.3557 18. 565 3.8536 
+• The data given have not been corrected for premeHing near the triple·point temperature or ror curvature. 
+b 'l'ho heat-capacity results from the ITIC'3surcmcnts of this run, spaced at close temperature intervals. lie either on or very close to the hl.sC line of figure 2. '10 
+avoid confusion they have not been plotted in the figure, \' 
+142 
+,--
+) 
+contain cOJ'rections for promclLing noar the tl'iplc­
+point temperature or for curvature. 
+In hoth series of measurement tho observed results 
+(c01"l"rctecl for curvature) were plotted on a large 
+scalr as deviations from approx imate empirical equa­
+tion s, and smooth curves were drawn through tho 
+doyiation points. The deviation curv es ancl tho 
+emp irical eq ua tions were used to obtain smoothed 
+heat capacities at equally spacod integral tempera­
+tures. The deviations of the oxperimental values 
+from the smoothed heat capacities are shown in 
+figures 2 and 3. The point s in the high-fillin g 
+exper iment s are in general well withill ± 0.1 percent 
+of the llet heat oapacity below 1820 Ie and within 
+±0. 05 percent in the range 1820 to 370 0 K, whereas 
+those of the low-filling experi ment s arc within ± 0.03 
+:to.1 % of net heat capaci ty 
+.08 
+T 
+"" ., 
+-0 
+.04 <n 
+..c 
+0 
+., :c 0 
+~ 
+I 
+<n 
+..c 
+~ -.04 
+0 
+'" U 
+<:l 
+-.OB 
+0 50 150 
+percel~t. These giv e the lllC'tlSllrr of the respective 
+preClSlO1l errors introcluc pd inLo the final heat­
+capaciLy values. 
+TIle Ileat capacity of II-hcptallr along [1}(' satura­
+tion CLlrYC, Csa t ., was compu trd hy thr reln [iollsllip 
+(2) 
+2hl and 2)0 are the smooll lecl heat capacitirs at' [he 
+corresponding temperature, T, for the high and low 
+fillings, respectively, corresponding to ].([111 and 1\([10 
+grams of n-heptane. In the term T(d /dT)[v (dP/dJ')] 
+v is the specific volume of the condensed phase, ancl 
+P is the vapor pressure. Below 235 0 K, tllC last. 
+i Triple pOint 
+:--------------- -------------- --.. _--
+to.o5% of nel heat capacity 
+200 250 300 350 
+Temperature I OK 
+FIG U RE 2. D eviation s oj ex peTim ental heat capacil ie8 (coTTec/ed .101· CUTvatuTe) 
+JTom smooth ed val ues for the contain er plu s n-heptan e (high jilting ). 
+Th e (' ~pcril1l (' nt s in a sin(,'lc srrics of 1llN!SUfcments are conn ected by lin es. 
+.04 
+r---
+T 
+'" '" " '" .02 
+to.03% of net heat capacitY\ __ .J 
+~----~-------r---~-T-~-~----~I--~------t-------+--+---~--4 
+.D 
+0 
+.; 
+:D 
+V .-E , 0 
+'" g '. .D 
+.2 
+~ u -.02 <l 
+Low Filling 
+i--r ,---.--... J 
+-'04t-- -----t--------j--------j- -,- .1......\. 
+± 0.03 % of net heat capacity 
+o 50 100 150 200 250 300 
+Temperature, OK 
+FIGURE 3. Deviations of exp erimental heat capacities (corrected for curvature) 
+from srnoothed values for the container plu s n-h eptane (low filling). 
+'J'hc experiments in a single series of l11casurCIllcnts arc cotUlccted by lines. 
+143 
+term amounts to less than 0.001 percent; conse­
+quently, it was not applied below this temperature. 
+In arriving at the final heat -capacity values (ta ble 
+5) those obtained in the manner outlined above 
+w~re compared in the range from 270° to 370° K 
+with the results from the high- temperature calorim ­
+eter and with previously published values [7]. 
+The discussion concerning the comparison and the 
+final values in this range will be given in section 
+4.1 of this paper. The heat -capacity values up to 
+270° K however, were based entirely upon the 
+results ~btained with the low-temperature adiabatic 
+calorimeter. These values are given in table 5 along 
+with tho se in the range 270° to 370° K and higher. 
+For a considerable range above the trip le-point 
+temperature the heat-capacity curve shows a negative 
+slope. The heat -capacity curves of many other 
+substances also exhibit this behavior. 
+The heat-capacity values below 20° K in the final 
+table (ta ble 5) were obtained by extrapolating the 
+lowest experimental result s by means of a Debye 
+function. The equation used was 
+(3) 
+which was obtained by fitting to the experimenta l 
+values at 20° and 30° K. D symbolizes the Debye 
+function and 138 .15/ T its argument. 
+2.5 . Relia bility of the Heat-Capa city Results Ob­
+tained With the Low-Temperatur e Calorim eter 
+The precision of the heat-capacity measurements 
+is shown in the deviation plots of figures 2 and 3. 
+The two series of meas urements, high and low 
+filling were made under conditions as nearly identica l 
+as po~sible so that certain systematic additi ve errors 
+would cancel out. The rate of temperature rise and 
+the positioning of the sample container, of the leads, 
+and of the thermocouples in the two series of experi ­
+ment s were made as nearly identical as possib le. 
+The mass of the samp le container was slightly 
+different for the two experiments because of a small 
+difference in the masses of solder used in sealing the 
+container . A correction was applied for this differ­
+ence from known hea t ca paci ties of lead and tin. The 
+heat -capacity correction for the lead-tin solder was 
+made on the assumption of additivity of the heat 
+capacities of lead and tin, and the maximum tota l 
+correction for the differences in the mass of the 
+container was 0.15 percent of the net heat capacity, 
+which occUlTed at the lowest temperature of the 
+measurements . 
+In the test of a similar calorimeter used in the 
+heat -capacity measurements of benzoic acid [8], the 
+heat capacity of water was determined from 274° 
+to 332° K and the resu lts in general were within 0.02 
+percent ~f the very accurate values previous ly 
+pub lished [9]. 
+Upon consideration of the various sources of error, 
+it is believed that the heat capacities of these meas-
+urements h ave from 50° to 370° K a probable 
+error 4 of 0.1 percent. Below 50° K the probable 
+error is believed to increa se to 1 percent largely due 
+to the decrease in the sensitivity of the thermometer, 
+the smaller temperature int erval s of the measure­
+ments, and sma ller energy input . 
+3 . High-Te mperature Calorimetry 
+3.1. Method and Apparatus 
+The e nthalpy measurement s at higher tempera­
+tures, which supplement the heat-capacity measure­
+ment s made from 20° to 370° K , covered the range 
+273° to 523° K (0° to 250° C), extending to 17 deg 
+below the critical temperature. The se were carried 
+out by essentially the same method and with the 
+same apparatus used in recent years for mea sure­
+ments on numerous oth er substances. The met hod 
+and revi sed apparatus have been described in con­
+siderable detai l [10]. In brief, the method was as 
+follows: The sample, sealed in its container, was 
+suspended in a furnace until it came to the chosen 
+constant temperature, as measured by a platinum 
+resistance thermometer. It was then dropped into 
+a Bunsen ice calorimeter, which measured the heat 
+evolved by th e sample plus container in cooling to 
+0° C. Between 150° and 250° C such measurements 
+were repeated on a much small er sample in the same 
+container, so as to check the vaporization corrections 
+that are especially importan t at these high er tempera­
+tures. As the same container was used earlier with 
+diphenyl ether [11], no repetition of measurement s 
+on the empty container were made. The change in 
+entha lpy of the sample between 0° C and the tempera­
+ture in the furnace was computed from the difference 
+between the value of heat with the sample present 
+and the earlier value of heat for the empty container. 
+The heat capacity was derived from enthalpy values 
+of the sample so determin ed for a series of furnace 
+temperatures. 
+The sample of n-heptane used for these high­
+temperature measurements (NBS Standard Sample 
+216a), unlike the samp le used in the adiabatic calorim­
+eter, had neit her been synthesized nor recrystal­
+lized, but had been obtained by fractional distillation 
+from natural petroleum. Its content of impurity, as 
+determined at th e Bureau by cryoscopic measure­
+ments, WRS 0.01 ±0.01 mole percent . IVhen the 
+sample was cooled to the temperature of dry ice, 
+there was observed no cloudiness, such as would occur 
+by crystallization of wat er. This n-beptane was 
+boiled to remove all air from the container while the 
+latter WitS being sealed for the enthalpy measure­
+ments. A detai led description of the monel con­
+tainer and of the method of filling and sealing the 
+samp le in it were published in connection with the 
+work on diphenyl ether [11]. 
+• For these measuremeuts a true probable error caunot be computed statisti­
+cally. ':rhe values given are estimates arrived at by examining various sources 
+of error and they are to be considered (unless stated otherwise ) as the author s' 
+best estima te o(the error, which is just as likely to be exceeded as not . 
+144 
+\ 
+I 
+3.2. Results 
+Th e result s of th e incliviclual m eas urements arc 
+o'iven in column s 1, 2, and 3 of table 4. Th e m eas­
+~r e d heaLs listed were obtain ed from th e masses of 
+mercury drawn into the ice calor imeter, using thc 
+calorim eter calibra tion factor of 270.48 abs jig of 
+mercury.5 The values in column 4 were obt ained 
+by smoothing the me an valu es of m eas ured heat for 
+the same empty con tain cr d etermi n ed and r eport ed 
+earlier [lll. Th e valu e at 2300 C was obtain ed by an 
+int erpolation of the hea t divid ed by th e furnac e 
+temp erat ure (in d eg C). Thi s quotient varie s 
+almo st linear ly with temperatur e. 
+In add ition'to the usu al ve lT small co rre ctions for 
+calo rim ete r h eat leak, two addi tiona l corr ect ion s 
+were ne cessa ry in the case of the lar gest sa mple 
+(3.7679 g) b('cau se of small clla nges in the mass of 
+m a te ri al cnte rin g th e calo rim ete r. Th e co n tainer 
+proved to be n ot ab solute l.,' tigh t when this sampl e 
+was run., ancl at th(' high ('l' tempe ra tu res the la rge 
+va por preSS1.Il'es of th l: n-h eptanc gave rise to sn;all 
+acc umulatlv e lo ss('s of m ass, agg regat Ing to a :few 
+hundredth s of 1 p ercent o[ th e tot al mass durin g the 
+, This factor diff erin g s li ~h lly from t he prev iously publi shed r 10) "ollle of 270.46' 
+was a rri ved at by a correctio n of the circuit constants a pplic able in all the nu , 
+merous calibration cxpc rjmcnt s. 
+mea s urem ents . At th e s ame time it was ass umed 
+that th e lon g tim es of standin g aL room temp eraLure 
+permitt ed the origin ally e acuatc'd gas space of the 
+contain er to f111 with ail', and co rrect ions for the 
+cont ribu tion of this, amo untin g to b et ween 0.1 a nd 
+0.15 percen t of the tota l Il eat of eac il expe rim ent. 
+wer e appli ed . 
+After convcr sion to a molH I bltsis, til(' cI i[erence 
+bet ween the mean meas ured he at for til(' empty 
+container and tha t for til(' containe r witll sampl e is 
+r eco rd ed in column 5, taking J 00. 20 as the mol ecular 
+weight of n-hep ta ne. Tili s difl'er ence \I'o uld be tb e 
+enthalpy chan ge if the vapor pre ss ure w('re negligible. 
+Actuall.\ ', to ge t the tru e enLbalp.\T ch a nge of the 
+liq uid alon e, t b is cl iifc rence wa s co rr cc ted by an 
+eq uat ion g iven b.\T Os born e [12], modified by sub­
+stitution from the exact Clape:\Ton ('quat ion for the 
+h eat of vaporizat ion . Thi s c quation may be wri tten 
+I1~ = [ Ql~-[ q l~ + M' [ PV/ ml~ - M[ { (\1/m)-v } TdP/dTJ~, 
+(4) 
+where H~ is the enth alpy increase from 0° to to C 
+pCI' mol e of th e "sat ur ated" liquid (1. e., m ain tained 
+at its correspondin g vapo r pre ss ur c P at each tem­
+peratur e); [olb is the h eat evo lved , per molc of 
+T A BU} 4. R :rperi melltal l·es1llts with th e JU1'1wce and ice calorimet el' 
+1-
+--- ------ ------ ---------- ----- ------ - ---- - -- ---- ----- ---- ------
+°C g abs j abs j abs j mole-I ([/)8 j ?nole-l abs j mole- l abs j 71Iole-1 abs j mole-I abs j mole- I abs j mole-I abs j mole-I 
+1 
+689. 7 
+\ 
+686.7 
+11,26 1 11,250 + 11 50.00 3.7679 692.6 264.2 1l ,289 +5 -30 -3 11, 261 687.6 
+686.9 
+{ 
+1, 424.2 
+} +30 - 139 - 17 23, .)35 23,535 23,522 + 13 100.00 3.7679 1, 424.9 534.4 23,56 1 1, 423. 3 
+{ 
+2,2 14. 9 
+} 
+1 
+3. 7679 2,2 12.4 809. 7 37,330 + 107 -368 - 62 37,007 
+\ 
+2,213.3 
+2,2 13.3 37,001 36,989 + 12 150.00 
+{ 
+1, 266. 1 
+} 1. 1721 1,269.3 809.7 39. 214 +343 - 2,530 -62 36,965 1,270.0 1, 268.3 
+{ 
+3,059.9 
+} 1, 089.3 + 281 -678 - 178 51,827 
+} { 
+3.7679 3,059.7 52, 402 
+200.00 3,059.9 51,830 51,844 - 14 
+{ 
+1, 754.3 
+} 1,089.3 1.1721 1, 757. 1 56,954 + 903 - 5,735 - 178 5 1, 944 
+1,755. 2 
+{ 
+3,36 1. 0 
+} 1,259. 1 230.00 3.3623 3,360.8 62,5R6 +5 14 - 1,206 -309 61,585 61,585 61,588 -3 3,355.3 
+3,359. 7 
+1 
+3,980.8 
+\ 1,372.8 
+3,975.9 
+69,251 +620 -576 -442 68,853 3.76 79 3, 975.0 
+3,9 75.8 
+3, 977. 3 
+{ 
+3, 712. 1 
+} 1 ,372.8 250.00 3.3623 3, 708.8 69,658 + 695 - 1, 146 - 442 68, 765 68,801 68,796 +5 3, 712.8 
+3,707.6 
+{ 
+2, 288.6 
+} 1,372. 8 1. 1721 2,285.8 78,2 10 + 1,99 4 - 1l, 041 - 442 68,72 1 2, 289. 0 
+2, 287.5 
+145 
+l~ 
+liquid and vapor, in cooling from to to 0° the closed 
+container filled with the liquid and vapor maintained 
+in equilibrium; [q] ~ is the contribution to [Q]G made 
+by the empty container, shields, and suspension wire 
+(pel' mole of liqu id and va,por); 1\11 is the molecular 
+weight of the liquid; F is the vol ume of the conta in er; 
+m is the total mass of liquid and vapor; v is the 
+specific volume of the sat ura ted liquid; T is the 
+absolute temperature; and the superscript t and the 
+subscript 0 denote the value at to minus th at at 0° 0, 
+The entha lpy of the liquid at each furnace tempera­
+ture relative to that at 0° C was fmther converted to 
+the heat ch ange of the saturated liquid alon e, be­
+tween the same two temperatures, by usc of the 
+thermo dynam ic relation 
+{ Csat,dt= H~-M{ v(dP jdT)dt, (5) 
+where ('sat, is the heat capacity of the sat ur ated 
+liquid . The res ultin g value s arc re corded in column 
+9, and their mean s in column 10, of tab lr 4. In 
+arri ving at the se from th e valu es of net Ilea t de­
+liv ered b~- the whole sampl e andrecordecl in column 
+5, the employed value s of the three separate cor ­
+rection terms indicated b~T eq (4) and (5) arc tho se 
+list ed in column s 6, 7, and 8, The se various quan­
+tit ies are all given pel' mole of sampl e in oreler that 
+the magnitude s of the corrections relativ e to the 
+final heat valu es may be not ed, especia lly to permit 
+an est imate of the relative seriou sness of unc ertain­
+ties in them. It will be noticed that the second 
+correction, - M[ {( 1 'j m)-v} TelP j dT]~, who se nu­
+merical magnitud e equa ls the heat evolved in the 
+cond ensation of vapor as the temperature change s 
+from to to 0° 0, is enormo usly larger for a given 
+furnace temp erature in the case of the small est mass 
+of sampl e. Thi s is so, partl y because the total 
+number of mole s of sample is small er and partly 
+because the fraction of the total contain er volume 
+no t occupied b~T liquid and henc e ava ilabl e to hold 
+vapor is many times greater. 
+The int erna l volume, V, of the container at loom 
+tempe rature was det ermined by weighing it filled 
+with water, and , from consideration of the thermal 
+expansion and modulus of elasticity of monel, this 
+volum e was assume d to vary almost linearly with 
+temperature from a value of 10.74 cm3 at 0° to 
+10.87 cm3 at 250° O. The spccific volumes v of 
+liquid n-heptane were obta ined by extrapolat ion of 
+the pl ecise values of Smith , Beattie , and Kay [13], 
+measured at severa l temperatures between 30° and 
+250° 0 and at a numb er of pressures, to the corre ­
+sponding vapor pressures. The valu es of vapor 
+pressure and its temperature derivative used in the 
+correction s were comp uted from th e equation 
+loglo P(mm Hg) = -22. 06549-1696 .682jT 
++ 14.72529 10glO T-0.02811435T 
++l.53130(1O-5)T2, (6) 
+whose coefficients were determined from the ,-a pOl' 
+pressures given at the five temperatures 22.352°, 
+98.427 °, 123.41 ° [14], 267.01°, and 250° 0 [15]. 
+Equation (6) undoubtedly docs not represent the 
+vapor pressures below the normal boiling point 
+(98.427° 0) as well as precisely measured values 
+cited later in th is paper. However, the present cor­
+rect ions are sufficiently small at these lower tern· 
+peratures to make these errors of neglig ibl e conse­
+quence. At 150°, 200°, and 250° 0 the present 
+calorimetr ic measur ements cover at least two mass es 
+of sample (so-called "high" and "low" fillings) at 
+each temperature, and separate correct ions were 
+made for each filling. As an alternative procedure , 
+the the rmal data for the two samp le masses at a 
+given temperature may be substitu ted separa tely 
+into eq (4), with elimination of elP jdT as the least 
+accurately known auxiliary datum. This was tried, 
+and simultan eous solution of these two equations 
+yielded values of elP/elT, which agre ed within 1 or 2 
+per cent with those calculated from eq (6) . How­
+ever, this alternative pro cedure of treating the data 
+was not adop ted. As tho values of dP jelT calculated 
+from eq (6) were believed to be at least as accurate 
+as tho se calcula ted from the thermal data alon e, the 
+former were used. This permitt ed the calculation 
+and compar ison of separate corr ected thermal values 
+from the data on the different samp le mas ses. The 
+mean for each temperature listed in column 10 of 
+tab le 4 was obtained by app lyin g to the values of 
+colum n 9 a weighting factor proportional to the 
+samp le ma ss and the number of determina tions 
+mad e on it, and inver sely proportional to the average 
+deviation of single mea sure ment s from the mean for 
+the set. 
+3.3. Formulated Heat Capacity Based on High­
+Temperature Results 
+Undoubt edly t he mo st accurate measurements 
+available of the heat capac ity of liquid n-heptane 
+between 280° and 3580 K are those made at the 
+Bureau by Osborne and Ginnings in 1941, and 
+Osborne , Stimson, and Ginni ngs in 1939 [7]. The 
+1939 values wer e determ ined in the same larg e 
+adia batie calorim eter tha t had been used in precise 
+measurements on water [9]. The 1941 resuJLs, on a 
+different samp le, were obtained using a d ifferent 
+smaller ad iabatic calorimeter. Osborne and Gin­
+nin gs [7] g9ve a quadratic function of tempera ture to 
+represent the 1939 values of the heat capacity 
+(Csat .) from 280° to 3580 K , The average deviation 
+of the 1939 observ ed values from that equation is 
+0.028 percent, whereas the average deviation of the 
+1941 observed values from the same equation is 
+0.037 percent. 
+Because the present authors wish to give ,,·hat 
+they believe to be the best valn es available, they 
+express the heat capacity of the liquid above 273° 
+146 
+- - -- ----
+I 
+I 
+< 
+K by an equation based from 273° to 358° K on only 
+the foregoing adiabatic -calorim eter values of the 
+BUJ'eau, and based above 358° K on only the ice­
+calorimeter values. This equa Lion, in integra ted 
+form and in terms of a bs i mole- 1 at T° K. is 
+{ 1' Csat.dt=- 50907+ 173.73291'-0.0157291'2 
+J 273.16 
+The first four terms are equivalent to the equation 
+of Osborne and Ginnings; the last term, whi ch con­
+tributes no mo]'e than 0.01 percent below 358° Ie, 
+was deriv ed by least sq Ual'es to fit the ice-calorim­
+ete r observed va lues at 423° K (150° C) and above. 
+Values given by this equati on arc liste d in column 
+11 of table 4. The discrepa ncies in the res ul ts 
+observed with the ice-ca lorimeter, which arc lisLed in 
+column 12, arc within the precision of these measure­
+m ents. 
+Postponing until see Lion 4.1 an inclu sion of the 
+mea surem ents reported in sect ion 2, the hea t capac­
+ity from 273° to 523° K can be obtained by differ­
+entiation of eq (7) (abs :i mol e-1 deg Ie-I): 
+C,at.= 173.733- 0.0314581'+ 6.8055(10- 4)1'2 
++3, 790(540.17 - 1')-: (1 0- 03 "540 17-1} (8) 
+As the constant 540.17° K in eq (7) anel (8) is the 
+crili cal temperature of n-hepla ne [15], this formul a­
+tio n gives at that temp erat u1'e a finite value of the 
+ent halp y, but Lhe he at capacity ('sat . and dIIsat./dT 
+become infinite. As lhe properties of Lhis form of 
+term are believed to hold for all ordinary liq 1I ids, 
+the form of the exponentia l term \\'as in fact selected 
+to possess th ese trend s; although as the temperature 
+exceeds that of the range of the thermal mea sure­
+ments and approaches the criLical, Lhe actual valur s 
+given by eq (7) anel (8) rapi dly become of little 
+reliability. 
+3.4 , Reliab ility of High-Temperature Results 
+Evidence as to the probable accuracy of the heat­
+capacity values given by eq (8) can be obtained 
+from three sources: (a) the reproducibility or precision 
+of the measurements, (b) an examination of the 
+likely systematic erro rs, and (c) the agreement 
+among the various values of the more precise 
+observers in the temperature regions of overlap. 
+Considering the precision of the mean heat capaci­
+ties as determined by heat measuremenLs at inter­
+vals of 50 deg, the probable errol' of the unsmoothed 
+values, determined by measurement with the ice 
+calorimeter of the empty container and of the con­
+tainer with sample, average d ± 0.2 pereent below 
+100° C and ±0. 15 pere ent above 100° C. The 
+subsequent smoothing of these results with respect 
+to temp('ratm 'p, whidl l11ay be consid('l'('d to han' 
+alLered the individual unSJllooLhed heat capacit ips 
+by amounts averaging 0.2 pPt'('ent, would J1ol'1lwlly 
+be expected to increa se somew ha t til(' rdiahility of 
+as smooth a f unction with tempera (lIl'P as the hpa (, 
+('apaci ty of a liq lIid. 
+Var ious sources of sys tematic erro r wiill the icp 
+calorimeter were examined. Errors mav h ave oc­
+curred in tempe ra Lu ['(' mea surement , in 'mass of 1/­
+hep tane, and in the ealibraLion facLor of tile calorim­
+eter . Also, the h eat lost during tiw drop hom Lll(' 
+furnace may have been slight l~~ differenL between 
+runs with the emp ty eonLainer and those with the 
+contain er plu s sampl e. However , no one of tl]('se 
+factors is believcd to h ave contr ibuled to th e heat 
+ca pacity and error of more than ± 0.02 or ± 0.0:3 
+percent. As 1'01' the corr ect ion of 0.1 to 0.15 percent 
+neec ssita ted by the assumed presence of ail' inside 
+Lhe contain er in one se ries, this is somewh at une er tain 
+only because the specific heal s of ail' and n-hep tane 
+are considerab ly dif['erc n t, for the sum of the masses 
+of the two substa n ces was accurately known. 
+Over -all checks on Lhe aceuracy of the icc calorim eter 
+h ave been describ ed previou sly [11]. These ch eck 
+run s 1'0 1' th e avera ,ge h eat capaeiLy of wa te r bet ween 
+0° and 25° C, a nd between 0° ancl250 ° C, gave values 
+lower b\~ only 0.05 ± 0.14 perc ent and 0.02 ± 0.02 
+pel'cent , respectively , Lhan ea rlier precise results 
+\\'ith an adiabatie calorim ete r [9]. 
+Th e corre ction s give n by eq (4) and (5) become 
+lar ger, and, no doubt eaused a grcate r sour ce of 
+errol', lhe high er the temperature . The mosL 
+uncertain quantiL~ ' in Lhese correcLJons is probably 
+rlP/dT. One approach is to inv('stigate th e e!Tects 
+of m aking such chan ges in Lllis faeLor in order that 
+the observed mean eo rrecte d h eat ch a nges of liq uid 
+l1-hepLane become id enti cal at each fUl'l1ace tempera­
+tur e for the series with la rge an el sma ll samp le masses. 
+It can be found ],eadily hom table 4 that th e hea t 
+ca p aciL ~ ' above 400° K would in th is way be ch anged 
+b.\' amo un Ls up to O.:~ percent. 
+In addition to th e foregoing considerations, it 
+can be seen from figure 4 that the heat-capa city 
+values of Osborne and Ginnings, who claimed an 
+accuracy of ± 0.1 percent and on who se values eq 
+(8) depends almo st entirely up to 370° K, do not 
+diIIer from those of the other investigations by more 
+than 0.2 percent. Some consideration mu st be 
+given to the deviations below :370° K of the iee­
+calorimeter values from those of the olher investi­
+gations, as eq (8) depends almost en tirely on the 
+former above 370° K. 
+Considering these various data 011 reliability, 
+the estimated accurac)' of eq (8) may 1)(' considered 
+io correspond to a probable error of ±0.1 percent be­
+tween 280° and 360° K and inereasing to ± 0.5 percen t 
+at 500° K. Above the last temperature the uncer­
+Lainty must be considered still greater in view of 
+th e added uncertainty of the cou rse of the heat­
+capacity curve near th'e end of the region of nwa sul'e­
+ment, 
+147 
+1, 0 e 
+W 
+..J 
+<Xl 
+<! 
+I-
+:!' 
+o 
+0::: 
+1.L 
+z <2 
+~ 
+> w o 
+w 
+'" <! >­
+Z 
+0 .5 
+o 
+w - 0 .5 u 
+0::: 
+w a. 
+-1 , 0 
+o 
+e 
+• 
+• e e~ 
+e e 
+50 
+e 
+o 
+e 
+100 150 
+e 
+e o 
+e o 
+o OJ 
+o 0 <D 
+20 0 25 0 300 350 40 0 450 5 00 
+TEMPER ATURE . oK 
+Fr e UR E 4. Compa ris on of the heat capa cities by various obseTvers with th e final values in table 4 . 
+.. _ Osborne and G inn ings Ii] 
+. _ T ee calorim eter 
+• H . L. Fink e, 1\1. E. Gross, a nd J . F . Messer ly 120J 
+8 K. S. Pit zer [18J __ _ Adi abatic calorimete r o G. S. Parks, H. 1\1. Hu lTman , and S. B . Thom as 117J 
+CD w. T . Hichards a nd J . H . Wallace [19J 
+4. Derived Therma l Propertie s of Crystalline 
+and Liquid n-Heptane 
+4 .1. Ta bulated Hea t Capa cities 
+In t he temp erature r ange 2800 to 3600 K, three 
+series of hea L-cap acity values of liqu id n-hep tane 
+meas ured at the Bureau are ava ilable: those obtained 
+with the a diabatic calorimete r that was emplo yed 
+do wn to 200 K (sect ion 2), tho se obt ained w ith the 
+ice calorim eter (sect ion 3), a nd those with two other 
+adia batic calorimete rs ( Osborne a nd Ginnin gs [7]). 
+Of these three sets of values, the first are consiste ntly 
+the lowest and th e second are consiste n tlv t he 
+h ighest , the differences being s maller than th ~ esti­
+mates of absolu te error claimed w ith the t wo 
+method s. The "final" tabulate d values from these 
+three series of d ata are g iven in table 5. These 
+values were arri ved a t with the followin g consider­
+ations. The values of Osborne and G innin gs (in­
+cludin g t hose of O sborn e, Stimson, and Ginnin gs) 
+are c onsidered the most accurate . The ice-calorim ­
+eter method gives less accurate hea t cap acities as 
+the temp erature a pproa ches 2730 K , the e nd of its 
+working range, where the deriv ative with temp erature 
+becomes indeter mina te. The s hield con trol in the 
+adiab atic c laori meter becomes a little unwieldly at 
+higher temperat ures , and at the same t ime heat 
+transfer by radiat ion can b e significant if a ny 
+unknown thermal gr adients exist in the calorim ete r. 
+From 2800 to 3600 K the values of Osborn e and 
+Ginnin gs were given greatest weigh t, with the re­
+sults of the a diabatic calorim ete r u sed in the present 
+invest igation being gi ven increasing weigh t with 
+decreasing temperat ure vary ing from none at 3600 K 
+to abou t h alf as mu ch as those of Osbor ne and Gin­
+nin gs at temp erat ures just above 2800 , to full 
+weigh t at and below 2700 K . The ice-calorim eter 
+values were given n o weigh t below" 3500 K bu t 
+increasing weigh t a bove this temperat ure a nd full 
+weigh t where e xtra polation of the e quation of 
+Osborne and Ginnings is no longer reliable, as 
+discussed earlier in connect ion with the der ivat ion 
+of eq (8). 
+Several addi tional invest igators have measured 
+the heat cap acity of solid and liquid n-hep tane . 
+Wi th the excep tion of t h e results of the P etrol eum 
+E xperiment Stat ion, U . S. Bureau of M ines, there 
+are t he following other less prec ise deter min ations. 
+Williams a nd D aniels [16] used an adiabatic calorim­
+eter from 3100 to 350° K . Parks, Huffm an, a nd 
+Thom as [17], using an aneroid calor imeter , covere d 
+the temperat ure range from 90° to 2990 K . Pitzer 's 
+[18] h eat capacities were measured at approximately 
+150 to 3180 K ; and Richards a nd Wallace [19] 
+deter min ed the heat capacity from 2930 to 3130 K 
+from the a diabatic tem perat ure-pressure c oefficien t. 
+No hea t-capacity measurements on the liquid above 
+358° K , other than those repor ted in this pap er, 
+were found . 
+A compa ris on of the results of the var ious invest i­
+gatio ns with the a dju sted "final" values of table 5 
+is g iven in figure 4. Includ ed also in the figure are 
+recent precise values deter min ed on a Calorim etry 
+. Conferen ce sampl e o f n -heptane i n an adiaba tic 
+calorimete r b y t h e Petroleum Exp erim en t Station, 
+U. S. Bureau of Mines, Bartlesville, Okla . [20] 
+These values show excellent agreement with those of 
+the presen t a u thors. 
+148 
+TABLE 5. Ileat capacity, enthalpy , entr opy, and free enel'gy of 
+crystallin e and liquid n-h eptan e at saturation pressw'es 
+o I( 
+o 
+5 
+10 
+15 
+20 
+25 
+30 
+35 
+40 
+45 
+50 
+55 
+60 
+65 
+70 
+75 
+80 
+I 85 
+I 
+I 
+r 
+90 
+95 
+100 
+105 
+110 
+Jl 5 
+120 
+125 
+130 
+135 
+140 
+145 
+150 
+155 
+160 
+165 
+170 
+175 
+180 
+182.562 
+182.562 
+185 
+190 
+195 
+200 
+205 
+210 
+215 
+220 
+225 
+230 
+235 
+240 
+245 
+250 
+255 
+260 
+2f15 
+270 
+275 
+280 
+285 
+290 
+295 
+298.16 
+300 
+310 
+320 
+330 
+340 
+l
+abs j deg- l 
+mole-1 
+o 
+0.222 
+I. 770 
+5. ilS 
+11.80 
+18.30 
+25. OS 
+31.S2 
+3S.1 7 
+44. J7 
+,]9.84 
+55.2 7 
+60.48 
+65.37 
+69.83 
+74.09 
+7S.28 
+S2.2t 
+86.0:3 
+89. 44 
+92. ii 
+95. !)8 
+99. 12 
+lO2.1 9 
+105.20 
+108.17 
+III. 10 
+113. 99 
+I IG.83 
+119. 7:3 
+t22.72 
+125. 78 
+129.0 3 
+132. 46 
+136.03 
+]:)9. R2 
+145. 13 
+" 148.58 
+a 203. 15 
+202.58 
+201.86 
+20t.45 
+201. 31 
+201. 39 
+201.68 
+202.13 
+202.74 
+203.1 7 
+204. 36 
+205.37 
+206. 47 
+207.64 
+208. 93 
+210.30 
+211. 73 
+213.23 
+2H .81 
+216.51 
+218. 23 
+2 19. 97 
+221. 75 
+223.57 
+224.74 
+225. 44 
+229.27 
+233.25 
+237.38 
+241.67 
+absj mole- l 
+o 
+0.277 
+'l. 431 
+22.06 
+6,,).25 
+l40 .4 
+248.8 
+39 t. 1 
+5()!), 2 
+772.2 
+1. 007.3 
+1. 270.2 
+1,559. 7 
+I, SN. 4 
+2, 2t2 . 6 
+2,572.4 
+2, 953.4 
+3. 3M. 7 
+3.775.4 
+4.2 14. 2 
+4, fl69. 7 
+5, 1<lt. 6 
+5,620. -I 
+6,132.7 
+6. fl5 t. 2 
+7, 184.6 
+7.732. 8 
+8,295.5 
+8,872.6 
+9,464. 0 
+10,070 
+10. (jOt 
+II. :J2R 
+11 .982 
+12.653 
+13. :142 
+14.05 1 
+14, 430 
+LIQum 
+2R,452 
+28,9 46 
+29,957 
+30,965 
+31,972 
+32,979 
+33,986 
+34,996 
+36,008 
+37, 024 
+38,043 
+39,067 
+40, 097 
+41,1 32 
+42,174 
+43,222 
+44, 277 
+45,339 
+46,409 
+47,487 
+48,574 
+49,670 
+50,7 74 
+5t,888 
+52,596 
+53, OlO 
+55,285 
+57, 598 
+59,952 
+62,349 
+abs j deg- l 
+mole-1 
+o 
+0.074 
+0.59t 
+1. 967 
+4. '110 
+7.737 
+II. 67 
+16.05 
+20.71 
+25.56 
+30. ,ot 
+:J5.52 
+40.55 
+45.59 
+50.6 0 
+!i5.56 
+60.48 
+65.3 4 
+70. 15 
+74. S9 
+79.56 
+84. 17 
+88. it 
+93. IS 
+97.59 
+101. 95 
+J06.25 
+110.50 
+]]4 . 69 
+liS. 84 
+122.95 
+127.02 
+131. 07 
+135.09 
+139.10 
+143.09 
+147. 10 
+149. 18 
+225.98 
+228.67 
+234.06 
+239.30 
+244.40 
+249.37 
+254. 23 
+258.98 
+263.63 
+268. 20 
+272. r,s 
+277. 08 
+281. 42 
+285.69 
+289.90 
+294.05 
+298. 15 
+302. J9 
+306. 19 
+310.15 
+314.07 
+317.94 
+321. 78 
+325.59 
+327.98 
+329.37 
+336.82 
+344.16 
+35t. 41 
+358.56 
+abs j 'ffwle- 1 
+o 
+0. 092 
+1. 478 
+7.445 
+22.95 
+53.01 
+lOt. 3 
+170. 4 
+262.3 
+3,7.9 
+518. 0 
+683. 1 
+873.2 
+1. 088. 6 
+1,329. J 
+1,594.5 
+1. 884. 6 
+2. 199.1 
+2.537.9 
+2.900 . 5 
+3,286.7 
+3.696.0 
+4,128.3 
+4, li83. 0 
+5.06 0.0 
+5, 55S. 8 
+n, 079. 4 
+6,62 1. 2 
+7. 184.2 
+7,768. 1 
+8,372. (j 
+8.997 .. J 
+9.642.8 
+10,308 
+10,994 
+1 1.699 
+12.42 .5 
+12,8U4 
+12. 804 
+1:3,308 
+14.51ii 
+15,6 99 
+16,908 
+18,142 
+19,402 
+20,685 
+21. 991 
+23,32 1 
+24, 673 
+26,0 18 
+27,444 
+28,862 
+30.30 1 
+31, 760 
+33, 241 
+34,7 42 
+36.263 
+37,804 
+39.364 
+40, 944 
+42, 543 
+44.161 
+45, 195 
+45, 801 
+49,129 
+52,533 
+56,013 
+59,561 
+T ABLE 5. H eat callacity, enthalpy , entrolJY, and j'1'ee enel'qy of 
+cryst alline and liquid n-h eptane at saturation pressures - Con. 
+T 
+II ur .. ,.- I';') I (8 .. ,.-.<; ') 1-(1-' .. ,.- ]0.") o 0 0 
+----'-
+U QU l]) - OOlllillu cc! 
+----
+o ] { fibs j <ieq-l ab. j mo/e- l 1Twle-1 abs j dey- l abo j mol e l 7ILole-1 
+350 246.09 64,790 
+3GO 250. n3 67, 276 
+370 255. 30 69.810 
+3H5.63 63,180 
+372.62 66,86 7 
+379.55 70.02 4 
+380 200.10 72, :192 386.42 74,448 
+390 265.04 75,024 393.2t 78,340 
+400 270. 13 77,708 400.02 82,300 
+410 275. 36 80,44 5 
+420 280. 75 83,238 
+l06.75 86,323 
+4 13.4.0 90,4 11 
+430 286.3 0 86,088 
+440 292.02 88,998 
+420.12 94,564 
+426.77 98,78t 
+450 297.95 91,9f19 
+460 304.14 95,005 
+470 310.67 98,109 
+480 3 t7.73 101,286 
+490 325. 74 104,544 
+433.40 [ lO3, 061. 440.01 107,400 
+446.62 lit. 802 
+453.24 116,269 
+459.87 120,792 
+500 335. 65 107,898 
+I 
+510 3.10.24 lit. 379 
+520 379. 36 11.1,073 
+466.51 
+1 125,372 473.32 130. 0t4 
+480.3(j 134.714 
+11 Extrapolated. 
+4.2 . Enthalpy, Entropy, and Gibbs Free Energy 
+In table 5, column s 3, 4, and 5, the values of rela­
+tive enth alpy, entrop y, and relative Gibb s free energy 
+of crysta lline and liquid n-heptane are tabulated at 
+sat ura tion pressures and at round temp erat ures from 
+0° to 520° re. For most purpo ses intermediate value s 
+can be obtained by lineal' interpolation or mor e 
+acc ura tely by quadrati c interpolation. These prop­
+ert ies were obtained by evalua ting t he thermo­
+dynami c relation s 
+Hsat.- E~= .C'Osal. dT+ L!+ lTV,.,. (dP/dT) dT; (9) 
+( Ssat.- S ~)= l7' (Os3t./T) dT+ L,/T t ; (10) 
+-(Fsat. -E~) = TSs at .-(Hs at.-Eo). (11) 
+Eo is t he interna l energy of crystalline n- heptan e at 
+0° re, and Tt is the absolute temperature of the triple­
+point . The entropy of crysta lline n -hepta ne is 
+assumed to be zero at 0° re. The terms containing 
+L" the heat of fusion, are obviously to be omitted 
+below the triple point . 
+Below 20° K the above three equation s were eval­
+uat ed analytically, using the D ebye heat-ca pacity 
+fun ction. Betw een 200 and 2700 Ie the eva luation 
+was by tabular integration , using Lagrangian four­
+point integration coefficients r2 1]. No attempt was 
+mad e to fit th e tabulated values of these properties 
+between 200 and 2700 K to equations. Between 270° 
+and 520° K the evaluations were carried out analyti­
+cally by using for the heat capacity eq (8), making in 
+149 
+the enthalpy, entrop ~T, and free energy the proper 
+small adjustments graphically arrived at by usc of the 
+difl'erencc s between the tabulated heat capacities and 
+those represented by eq (S) in the temperature range 
+from 270 0 to 370 0 K. 
+Because of its small magnitude the term 
+i TVsat. (dP/dT)dT was not applied up to 255° K. 
+Above 213.16° K the following empirical equation 
+(in terms of ans j pel' mole) was used: 
+loglQj::~16V (clP/clT)clT= 0.0074729T-1.2633 
+-7.049 (10- 8) (540.17-T)3, (12) 
+in eac h case, of course, a,dding the valu e of the 
+integral from 0° to 273.16° K. Thi s equation repro­
+duces the values directly calcula ted from the data 
+within 2 j per mole . In tbe subst itu tion of eq (S) 
+into eq (10) to eva lua te the greater part of each 
+entroP? value above 270 ° K, the expon en tial term 
+was replaced according to the following id en tity: 
+jc3 ,790/T) (540.17-T)-~ (l0 -0.3"540.17-T)dT 
+= 21.102 (10- 0. 3" 540.17-7) + J 3,790 (I /T - 1/520) 
+X(5 40.17 - T) -} (10- 0. 3 "540 .17 -1 dT. (13) 
+In this way the part requiring graphical integration 
+was reduced to the last term of eq (13), which is ver.\' 
+small at all the temperatures in volved. 
+5. Derived Thermal Properties of Gaseous 
+n-Heptane 
+5.1. Equation of State 
+A number of observers 6 have measured the heat 
+of vaporization of n-heptane at various temperatures. 
+For the comparison of these values, an equation of 
+state of the real gas is needed. At low pressures 
+the form involving so-called virial coefficients no 
+higher than the second (B) mll)' be used, 
+(14) 
+where R, which is assumed to be approximately 
+independent of pressure, may be taken to have a 
+temperature dependence of the form [22] 
+B=b-ce afT, (15) 
+a, b, and c being empir ical constants. 
+Waddington, Todd, and Huffman [23] have made 
+precise measurements, in a flow calorimeter, of the 
+heat capacity of n-Ile ptane vapor at different pres­
+sures below 1 atm and at temperatures from 357 0 to 
+466° K. On the basis of eq (14) and (15), the vllri-
+'See table 7. 
+ahon of heat capacity with pressurE' is given by the 
+relation 
+The best approximation al'l'ived at to a fit of their 
+data to eq (16) [241 gave a=I,400° K and c=IS.71 
+cm3 mole -1. The agreement is shown in table 6. 
+Equation (15) now becomes (in cm3 mole-I) 
+B= b-1S.71e 1, 400fT. (17) 
+TABU] 6. Fari(ftion of hrat capacity of n-heptane gas with 
+pressllre 
+TempcraLure 
+OJ{ 
+357.10 
+373.15 
+400.40 
+434. a5 
+406.10 
+Observed 
+abs j de(!-I airn- 1 
+mole- 1 
+0.07 
+4.81 
+2.97 
+1. 88 
+1.13 
+Calculoted (eq 15, 
+16, Ii) 
+a')8 j deq-l alm- 1 
+mol r- 1 
+6.21 
+4.67 
+3.00 
+1. 84. 
+1. 23 
+The constant b in eq (17) was evaluated by cal­
+culating values of B from the exact equation 
+R= [Lv/T(dP/dT)]- RT/P+ rl , (IS) 
+obtained b)T subst itut ing eq (14) into the Clapeyron 
+equation. The molal volume of tbe liquid TTL, at the 
+vapor pressure P, was interpolated from the values 
+of Smith, Bea.ttie , and Kay [13]. The neces sary 
+values of vapor pres sure and its temperature dCl'iva­
+tive were computed from the equation (wit h P in 
+atmospheres and t in degrees C) [14] 
+10glQP=4. 02159-1 ,26S.115/(t+216.900), (19) 
+which appears to be based on precise measurements 
+from 299° to 372° K at the Burellu [25]. Tabl e 7 
+lists the employed observed val ues of Lv, the heat of I 
+vaporization, as well as the resulting values of b 
+obta ined by use of eq (17), (18), and (19). I 
+TABLE 7. Obse1'ved heats of vaporization, and values of the 
+second vi1'ial coefficient of n-heptane calculated from heat-of­
+vaporization and vapor-pressure data 
+Temperature 
+°1< 
+288.16 
+?98.16 
+308.16 
+331.22 
+350.49 
+363.64 
+370.39 
+371.51 
+Heat of vaporization 
+b (from eq 17, 
+:.\ J' ean 
+obsen'ed 
+value 
+Number of 18, and 19) 
+ab. j 7noie-1 
+37,164 
+36,547±2 
+35,941 
+34,493±8 
+33,213±21 
+32,280±8 
+32,009±17 
+32,050±85 
+mcasurc- Reference 
+ments 
+1 
+8 
+1 
+4 
+3 
+3 
+8 
+2 
+[7] 
+[71 
+[7l [23 
+[231 [23 
+[261 
+[18J 
+cm3 1nole- 1 
+- 3,138 
+-1,511 
+-904 
+-776 
+-834 
+-855 
+-648 
+-537 
+~ 
+150 
+At small Ynpor prpssures this method of determi n­
+ing the second vir ial coeiFtcient be comes mueh less 
+aecurate o\\'ing to the large magnitudes of the first 
+two terms in the second member of eq (18) and the 
+ordinarij:\· smaller percentage nccurac~' of low vapor 
+P1'0SSlll'es. Assigning to each valu0 of the last eol­
+llmll of table 7 a weight inversel~- proportional to 
+the stnnclard deviation 7 as detel'minrcL statistica lly 
+from the factors in eq (18), and clire('Ll~- proportiomi.l 
+to the square root of the number of deL0rrninations 
+of the heat of vaporization at thn t t0mperaLurr, a 
+mean value of -776 em3 mole-I \\'as found for b. 
+The final equation for the second ,-iria l coefflcient 
+(hus becomes (in cm3 mole-I) 
+B= - 776 -18.71e " 400/T. (20) 
+Smith, Beattie, and Ka~' [13] mensul'ecl the densi­
+(ies of n-hepLane gas aL LemperaLures of 548°, 57:3°, 
+,598°. and 62:3° K and at densiLies of from 1 to 5 
+moles per liter (press llr es abo ye 25 atm). Hil'sch­
+fdcler, }\'IcClure, fI ncl \Veeks [22] exLrapolated these 
+·dntn to zero pl'rSS1Il'e and gave the equat ion of state 
+(in cm3 mole-I) 
+J]= 749-418.6ge 629 / 7'. (21) 
+A comparison of the \'alurs of thr second "il'inl coe ffi­
+cient at seyerfll t empe l'nll1l'es HS l'alculn ted b.\' eq 
+(20) and (21) is flfl'orcled h.\' tablC' 8. Considering 
+the widcl~' difIel'l'llL tC'mperntul'es Hnd preSSllrC's 
+under which the data d('(C'rminlllg Lhe two equa t ions 
+\I'ere measlU'ed, the Hgl'eelllC'nl nt the lower tempC'rfl­
+(ures is good. At the higher trrnpC'rfltul'es eq (21) 
+undoubLedly giYef' m uch beUrl' vallirs. Ho\\'eyC'l', 
+the constants of eq (21) in eq (l G) giye ver.\' pOOl' 
+agreement with the OhSelyed yaria tion of lWH t 
+cnpHci ty wi th pl'essl1l'C hriow 400° K, the disaglw' ­
+menl being decidedl,\- outsidc the expcrimenLal error. 
+It seerns likel.\' that nL the lower tempcrHtures eq (20) 
+is cons iderably more reliablc, not only be('nuse the 
+lise of eq (21) would involve exLrapola.tion over wide 
+(pmpemtuI'c and pressurc ranges from those in which 
+thc s upport ing prT data w('re mensurecl, but also 
+TA ELl, R. Second viria/ coe:Dicienl of n-hc)JI'lnc gas crt/cliialed 
+,from eq \20) and (21) 
+Temperature --- ---~ -­
+Calculated I Calrul<1ted 
+from eq (20) frolll cq (21) 
+----- 1----oK cm3 mole-1 cm3 mo/e- 1 
+300 -2,765 -2 .1;59 
+3.50 -], ,97 -I,i77 
+400 -I. 395 - J .268 
+450 -J, 196 -945 
+500 -1,083 -774 
+5.50 -1,014 -565 
+600 -969 -445 
+650 -937 -053 
+7 It was subseq uently pointed out to tile authors that the square of the stand­
+anI deviation should haYf been used in arriving at the weighting factors. 'rhe 
+resulting value of I, would then have been -789 cm' mole-I, with which the value 
+actually used agrees well within its un certainty . 
+bccausC' of Lhe jikC'l\' Hppreciahle yariation with 
+LempernLul'e of the "constants" of eq (15), as pointed 
+oul b.\- llir s('hfel cler, )'fcClul'e, and 'Yerks [22]. 
+5.2.~Heat Capacity 
+\Vaddinglon, Todd, nlld Huffman [2:{] C'xtl'apolatC'd 
+tll0il' valu('s of the hea L ('apa('i t \' of the gas (:3.')7° Lo 
+466° K) to 2l'ro pn'ssurt'. Thpir eqllnlioll , \\'hl'n 
+('onYel'tr(l to abs.i de~c' m01p-l (taking 1 cal = 4.1840 
+abs j) Hncl ('xpressed ns n function of !l1e abso lllt C' 
+temperature, i.s 
+All thcir exper imC'nLally derived points nrc fiLled hy 
+this equa tion Lo ± 0.05 pl'l'cent, the precision of the 
+measurements tllC'l11sclves being given as ± 0.1 per­
+cent. 
+] n or<ler to compal'e Lhe vahlC's of hra t of vaporiza­
+tion in table 7 at, soml' olle (.Plllprl'atUl'e, iL is ciC'sirable 
+to have heaL capacitiC's of Lhl' gas I>l't\\'epn 288° an(l 
+:3,)7° K as \\'d1. The usc of eq (22) extrapolated 
+oy('[' this temprraturp regioll was fonnd lo lead lo 
+va pOI'-preSSlll'C'-tempera Lllre cocfflrlC'n ts he t\\'('e11 298° 
+nnd :370° K that arc raLl)('l' consistcntly about 0.4 
+pel'Cl'll L less (.lutn indica ted hy eq (19). As the 
+la(Lpr equation is thought to be considl'rably more 
+accuratC' than this, much l>eUl'l' agn'('Il1C'nl with it 
+WH S s('cllred by assull1ing sligh Llv higlll'l' hC'aL­
+('apn('i ly valuC's bdo\\' :370° 1{ Lhan givrll b.v ('q (22). 
+TIll' l'quation adoptl'd lwtWl'ell 288° and :370° K (in 
+n,hs j dpg - ' mole-I) is 
+(1; = 197.28-1-0.4498(T - :370). (2:3) 
+This giws the samC' vnlur at 370° K as eq (22), but 
+diminates lite small cUl'yn,LllI'e of LhaL rqllation by 
+assuming as a constanL LempC'ra ture coefIicil'll t that 
+of eq (22) a L :370° K. 
+5.3. Standard Enthalpy and Entropy at 298.16° K 
+In prpparation for calculating the thermal proper­
+ties of gaseous n-heptane aL yarioLls ll'mperatures in 
+its hypothetical standard stn(p (tltr ideal gas aL a 
+preSSUl'e of 1 atm), the vDluC's of enthalpy and 
+entropy aL some one temperaLurC', l'C'latiye to tll0 
+crystalline solid at 0° K, may no\\' 1)(' calcula ted 
+from the values for thc liq uid at this same Lempera­
+tUl'C', the heat of vaporizaL ion , and the equation of 
+slaLe. 
+From considerations of boLh the accuracv and the 
+precision of lhe values of heats of yaporlzation in 
+table 7, the most reliable value is probably that of 
+Osborne and Ginnings measured at 298.16° K, 
+They claimed an accuracy of ± 0.1 percent. A 
+direct compa rison of the other seven values in the 
+table with Lhis valuc wa s made after calcula ting 
+from each of them the h0at of vaporization at 
+298.16° K by means of the following steps : 
+(a) Saturated liquid at 298.16° K--o>saturnted 
+liq uid at T . 
+/ 151 I 
+I 
+j 
+(b) Saturated liquid at T~saturated gas at T. 
+(c) Saturated gas at T~ga s at T, zero pre ssure . 
+(d) Gas at T, zero press ure ~gas at 298.16 ° K , 
+zero pressure. 
+(e) Gas at 298.16° K , zero pres s ur e~satura te d 
+gas at 298.16 ° K. 
+The e nthalpy change of ste p (a) wa s obtain ed from 
+tab le 5. Tha t of ste p (b) is the heat of vaporization 
+measur ed at T, and that of step (d) was calculated 
+from eq (23). The enthalpy changes of steps (c) and 
+(e) wer e found after substitution of eq (19) and (20) 
+into the thermodynamic relation 
+r P dI-l=(B - TdB /dT )P . • 0 (24) 
+The resulting values are given in table 9. The 
+deviations, also listed , arc within the uncerta inties 
+claimed by th e variou s inv estiga tors. 
+T ABLE 9. Comparison of experiment al values of heats of 
+vaporization of n-heptane extra polated to 298 .16° ]( 
+Experimental 
+Temperature heat of Deviation 
+of vaporization from valllc 
+measurement from tahle 7 measured at corrected to 2\)8.16° K 
+298.16° K 
+- ----
+oK abs j mole· 1 % 
+288.16 36,541 -0.02 
+2\)8.16 36,547 .00 
+308. 16 30,562 +.04 
+331. 22 36.555 +. 02 
+350.49 36,504 -. 12 
+363.64 36,432 - . 32 
+37G.39 36,6 12 +. 18 
+371. 51 36, 728 +. 50 
+The ent halpy of t,he satUl'ate d liquid at 298.16° K 
+(relative to the crysta lline form at 0° K ), from tab le 
+5, is 52,596 abs j mole-I . Th e value 36,547 abs j 
+mole - l was adopt ed as the heat of va pori zation, and 
+the increase in the ent halpy in converting the satu­
+rated vapor to zero pressure was calcula ted from eq 
+(19), (20), and (24) to be 76 abs j mole-I. Hence, 
+the entha lpy of the ideal gas at 298.16° K, relative 
+to the crystalline form at 0° K, is 89,219 abs j mole -I . 
+The absolu te entropy of the sat.urated liquid at 
+298.16 ° K , from table 5, is 327.98 abs j deg- I mole -I. 
+From the adopted val ue for the heat of vaporiza ­
+tion the entropy of vaporizatio n is 122.57 abs j 
+deg- I mole-I. The entropv of the ideal gas at 1-atm 
+pressure is less than thaL "of the sat ura ted vapor at 
+t he same temperatUl'e by -R In P - PdB /dT, where 
+R is the gas constant, and P is the vapor pressure in 
+atmospheres. dB/dT was evaluated from eq (20), 
+and for the vapor pressure a value 0.15 percent higher 
+than given by eq (19) was used, in ord er to secure 
+better agreement between that equation and vapor 
+pressur es calculated from the t hermal functions near 
+t he normal boiling point (372° K), where eq (19) is 
+probably more accurate. The last correction to the 
+standard state thus becomes -23. 16 abs j deg- I 
+mole-I , giving for the standard entropy of the gas at 
+298.16 ° K the value 427.39 abs j deg- I mole-I. 
+5.4. Enthalp y, Entr opy, and Gibbs Free Energ y 
+In column 2 of table 10 are ta,bulat ed the values 
+of heat capacity of n-heptan e in the ideal-gas stat e 
+calculated over the range 298.16° to 370° K from 
+eq (23) and above 370° from eq (22) . In column s 3, 
+4, and 5 app ear the values of rela tive e nth alpy, 
+entropy, and relative Gibbs free energy, respectiv ely, 
+calculated from the equation s 
+(25) 
+(26) 
+For the heat capacity, eq (22) and (23) were subs ti­
+tuted over the temperature rang es of applicability 
+indicat ed above , with determinat ion of the inte ­
+gmt,ion constants of eq (25) and (26) from the value 
+at 298.16° K of enthalpy and entropy , respectively, 
+derived in the precedin g section. The values of 
+entropy and free energy are those at the stand ard 
+pressure , one atmosphere. 
+5 .5 . Comp a rison With O bser ved V apor Press ures 
+By equa ting the Gibbs free energies of sat urated 
+liquid and vn.pOl', the t herm al functions for the two 
+states may be used to derive values of vapor pres­
+sure, which may be compa red with the direct ly de­
+termined values. ,Vith vapor pressure P in atmos ­
+pheres, the resulting equat ion is 
+BT In P =[Fsat. (liq)- H o]- [F° (gas)-H'o]-PB. (28) 
+SubsLitu ting values of relati ve free energy from 
+tables 5 and 10 and values of B from eq (20), eq (28) 
+was solve d b etween 300° and 370° K , approximately 
+the temperature rang e of the direct measurements . 
+T ABLE 10. Standard heat capacity, enthalpy , entropy, and IreI'" 
+ener gy of n -heptane 'in the ideal-gas state at J-atm pressure 
+T c ~ (HO-E ,) (S O-S,) -(FO-E ,) I 
+OK abs j deg- I ",ole-I (lbs j mole- I abs j deg- I mole-I abs j ",o/ e-I 
+298.16 164.97 89,219 427.39 38,2 13 
+300 165.80 89,523 428.41 39,000 
+310 170.29 91,204 433.92 43,312 
+320 174.79 92,929 439.40 47, 679 
+330 179.29 94,699 444.85 52,100 
+340 183.79 96,5 15 450.27 56,576 
+350 188.29 98,375 455.66 61,105 
+360 192.78 100,280 461. 03 65,689 I 370 197.28 102, 231 466.37 70,326 
+380 201. 76 104,226 ,171. 69 75,016 
+I 390 206.19 106,266 476.99 79, 759 
+400 210.57 108,350 482.26 84,556 I 
+410 214.90 110,477 487.52 89,404 
+420 219. 19 112,648 492.75 94,306 
+430 223.43 114,861 497.95 99,259 
+440 227.63 117,116 503.14 104,265 
+450 23 1. 78 119,413 508.30 109,322 
+400 235.88 121, 752 513.44 114,431 
+470 239.94 124.131 518.56 119. 591 , , 
+152 
+, 
+l 
+I 
+I 
+Th e deviation s from eq (19), which are within 0.1 
+percent and near 3700 K become mu ch smaller , are 
+probabl y within the accuracy of the dir ect ly m easured 
+values. 
+In the der ivat ion of the thermod ynamic propertie s 
+of the gas relative to those of the solid and the 
+liqu id, the obse r ved precise vapor press ures were 
+actua lly used . However , greatest weigh t was given 
+to the high est observed vapor pressures, those neal' 
+th e normal boilin g point. Thu s the result s are 
+practi cally th e same as if only the normal boiling 
+point h ad been u sed, it being necess ary to ass ume 
+at least one vapor pressure valu e. Conseq uentl y, 
+th e close agreement between eq (19) and (28), 
+noted above, is essen tia lly a test of the compatibility 
+between the obse rved th ermal prop er ties and the 
+variat ion with tempera ture of the observed vapor 
+pressures. 
+Thou gh eq (28) may be used to calculat e from 
+the tabul ated t hermal prop erties of thi s pape r 
+reaso nabl y acc urat e values of vapor pressu re from 
+3700 to 470 0 K as well, these are no t listed h ere. 
+Th e increasing mag nitude o f the vapo r pre ssure as 
+the temperature rises ra pidly increases the contr ibu­
+tion of the last term in. eq (28 ), with lllC result th aL 
+the uncertaintie s in. the valu es of the second viria l 
+coe ffi cien t rapid ly become mor e imp ort ant. 
+Th e a uth ors ex press th eir in.dehte(ln.e ss Lo seve ral 
+m emb ers of Lh e B ureau : to D . C. G inn ings for help 
+and adv ice in. m akin g Lhe meas urement s with 111 e 
+ice calorimeter; to F. L. H owar d a ne! his collcng ues 
+for synth esizin g the CaJo rimetry Confere nce sample ; 
+and to R . T . Le slie for its puri fi cllt ioll . 
+6 . References 
+[1] Fourth Conferencc on Low-T emperaLur e Calorimetry, 
+Chem. Eng . Ncws 27, 2772 ( 19<19). 
+[2] D. C. Ginning s and G. T. Furukaw!1, J. Am . Chem. Soc. 
+75, 522 (1953l. 
+[2a] D. C. Ginning s and G. T. FlIrllkawa , J. Am ChClll. Soc. 
+75, 6359 (J 9.53). 
+153 
+[3] R . B. Scott, C. H . Meye rs, H. D . Rand s, Jr. , F. G. 
+Briekwcdd e, and N. Bekkedahl , J . Hesca rch N BS 35. 
+39 (1945) RPl66l. 
+[4] H . F. Stimso n, J . He ~ea rch 1'\ BS 42, 209 (1949) RP1962 . 
+[5] H . J. H ogc a nd F . G. Bri ckwedcle, .J. Hesea rch N BS 22, 
+351 (1939) RP1l 88. 
+[5a] P . Pomera ntz, .J . Resea rch I\ BS 48, 76 (1952) HP2 287. 
+[6] N. S. Of< bor nc, H . F . Sti mso n, T. S. Sligh, an d C. S. 
+Cragoc, BS Sci. P ap. 20, 65 (1925) S50 I. 
+[7] 1'\. S. Osborn e a nd D. C. Ginning s, J . R csea rch N BS 3!). 
+<153 (1947) RP1841. 
+[8] G . T . Fu rukawa , R. E. McCo skey, and G. J . Kin g, J . 
+Resea rch N BS 47, 256 (1951) RP2251. 
+[9] N. S. Osborn e, H . F. St im so n, and D. C. Ginni ngs, J . 
+Resea rch N BS 23, 197 (1939) RP1228. 
+[10] D. C. Gi nnin gs, T. B. D ouglas , and Anne F . Ball , J . 
+Resea rch NBS 45, 23 (1950) RP21l0 . 
+[11] G. T . Furukaw a, D . C. Ginn ings, R E. McCo ske.v, anel 
+R . A. Nelso n, .T. Research I\BS 46, 195 (1951) RP2191. 
+[l2] N. S. Osborne, BS J . Research 4, 609 (1930) RP168. 
+[13] L. B. Smit h, J . A. Beatti e, a nd W. C. K ay, J. Am . 
+Che m . Soc. 59, 1587 (1937). 
+[14] Selecte d values of prop er ties of hydrocarbon ~, NBS 
+Circula r 46 1, p. 123 (1947 ) U. S. Government Printing 
+Office, ' Vashington 25, D. C.; Selectcd valucs of 
+p h~'sica l a nd t he rm odyna mic prope rti es of hydro­
+ca rbons and relat ed compound s, tab le 2k (Ca rn egie 
+Prees, Pi tt.sb urgh, Pa. , 1953). 
+[l5] J. A . Beatti e s,nd W. C. ](ay, .J. Am . Chem. Soc. 59, 1586 
+(1937). 
+[16] J . W. W illiams and F. Daniel s, .J. Am . Chc lll. Soc. 46,. 
+903 (l92~). 
+[17J G . S. Park s, H . M. Hu rrman , and S. B . Th omas, J . Am . 
+Che m. Soc . 52, 1032 (1930). 
+[18] K S. Pi tzer, J. AIll. Chem. Soc. 62, 122+ (1940). 
+[19] IV. T . Richa rds and J. H . Wallac e, J . Am. Chem. Soc . 
+54, 2705 ( 1932). 
+[20] 1Jnpub lished data , H. L. Finke, M . E. Gro ss, a nd J. F. 
+Messerly , Thenn od.v nam ics Lab orator}6' Bureau of 
+Mine s ISxper iment Statio n, Bar tlesvi lle, kla. 
+[2 J] Tahl cs of Lagrangian in te rpolation coefficients (Columb ia 
+l :niversity Press, Nell' York, N. Y., 194·1). 
+[221 J. O. Hir sch[ elder, F. T. McClure, and L F. Weeks, J .. 
+Che m . Ph .vs. 10, 20 1 (19-1-2). 
+[23] G. Wadd ington, S. S. Todd , and H . M. Huffm an, .J. 
+All!. Cheill. Soc. 69 ,22 (19+7). 
+[24] D. W. SeolL, G. W!1dclington, J. C. Smith, and H. M 
+li llfl'luan, J. Chem. Ph .vs. 15, 565 (l9H ). 
+[25] C. B. Willingh a m , " -. J. T ay lor, .J. M . Pignocco, a nd 
+Ie. D. Hossini, .1. I"{cseareh X I3S 35, 219 (1945) H P1670 
+[26] J. H. Ma t he\l's, J . Am . Chem. Soc. 48, 562 (1926). 
+I VMnrrNG 'I'ON, November 10, 1953. 

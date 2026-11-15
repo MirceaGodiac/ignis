@@ -1,0 +1,7 @@
+{
+  "patch_id":"bre-property-w0-cleanroom-astra-v1",
+  "author":{"provider":"openai","model_id":"gpt-6-astra"},
+  "exposure":{"sources":["nist-sp250-65-2004-methods-and-incidental-calibration-excerpt","astrom-murray-feedback-systems2-chapter2-20200724","nist-codata2022-stefan-boltzmann-primary-search-snippet"],"datasets":[],"development_feedback":[],"prior_candidates":[]},
+  "rationale":"One manually transcribed universal radiation coefficient. All material/apparatus/kinetic/controller properties remain explicit supplied physical inputs. Generic sources and incidental non-NASA source snippets are recorded in docs/wsp/research/astra_bre_w0.md; no NASA outcome, development feedback or prior candidate was read.",
+  "origin":"system"
+}

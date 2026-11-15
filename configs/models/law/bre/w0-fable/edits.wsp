@@ -1,0 +1,75 @@
+# Transcribed verbatim from docs/wsp/research/phys_bre_w0.md, section 7.4, lines 467-539 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/bre/root).
+# bre W0, zero-shot. z = (z_d, z_m, z_o, z_p, z_f, z_c, z_t), all ln except z_c.
+x.burner_diameter.centre = 0.025
+x.burner_diameter.scale = 1.0
+x.burner_diameter.lo = 0.020
+x.burner_diameter.hi = 0.060
+x.burner_mass_flux.centre = 0.004
+x.burner_mass_flux.scale = 1.0
+x.burner_mass_flux.lo = 0.0008
+x.burner_mass_flux.hi = 0.015
+x.x_o2.centre = 0.265
+x.x_o2.scale = 1.0
+x.x_o2.lo = 0.18
+x.x_o2.hi = 0.45
+x.pressure.centre = 101325
+x.pressure.scale = 1.0
+x.pressure.lo = 50000
+x.pressure.hi = 105000
+x.x_fuel.centre = 1.0
+x.x_fuel.scale = 1.0
+x.x_fuel.lo = 0.3
+x.x_fuel.hi = 1.0
+x.is_methane.centre = 0.0
+x.is_methane.scale = 1.0
+x.is_methane.lo = 0.0
+x.is_methane.hi = 1.0
+x.stated_time.centre = 30.0
+x.stated_time.scale = 1.0
+x.stated_time.lo = 1.0
+x.stated_time.hi = 3000.0
+
+# flame_end: ln tau = base + G_s(b) + small flames. 2.82 = 3.214 - 0.03 - 0.65 * 0.568.
+flame_end.extinction.median.b0 = 2.82
+flame_end.extinction.median.skip[0:7] = [1.61, 1.05, 0.48, 0.28, 0.99, 0.01, 0.0]
+# rows 0-4: relu(knot - b), knots 1.8, 1.3, 1.0, 0.77, 0.57; row weights are -b's coefficients
+flame_end.extinction.median.W1[0:5, 0:7] = [[-0.921, -0.380, 0.899, -0.27, -0.369, -0.11, 0.0],
+                                            [-0.921, -0.380, 0.899, -0.27, -0.369, -0.11, 0.0],
+                                            [-0.921, -0.380, 0.899, -0.27, -0.369, -0.11, 0.0],
+                                            [-0.921, -0.380, 0.899, -0.27, -0.369, -0.11, 0.0],
+                                            [-0.921, -0.380, 0.899, -0.27, -0.369, -0.11, 0.0]]
+flame_end.extinction.median.b1[0:5] = [1.232, 0.732, 0.432, 0.202, 0.002]
+flame_end.extinction.median.w2[0:5] = [0.29, 0.36, 0.49, 0.70, 1.09]
+# rows 5-6: small flames, relu(-1.7 - h) and relu(-2.8 - h)
+flame_end.extinction.median.W1[5:7, 0:7] = [[-1.17, -2.17, 0.65, 0.5, -1.97, -0.18, 0.0],
+                                            [-1.17, -2.17, 0.65, 0.5, -1.97, -0.18, 0.0]]
+flame_end.extinction.median.b1[5:7] = [-1.7, -2.8]
+flame_end.extinction.median.w2[5:7] = [-1.8, -6.0]
+flame_end.extinction.shape = 2.2
+
+# lasts: logit = 4.0 * (H(v) - b), v = 0.187 + z_t - base(z); 0.187 = ln 30 - 3.214
+lasts.logit.b0 = -2.27
+lasts.logit.skip[0:7] = [-3.68, -1.52, 3.60, -1.08, -1.48, -0.44, 0.0]
+# rows 0-5: relu(knot - v), knots 3.46, 1.21, 0.60, 0.09, -0.35, -0.77; b1 = knot - 0.187
+lasts.logit.W1[0:6, 0:7] = [[2.21, 1.29, -0.10, 0.46, 1.23, 0.08, -1.0],
+                            [2.21, 1.29, -0.10, 0.46, 1.23, 0.08, -1.0],
+                            [2.21, 1.29, -0.10, 0.46, 1.23, 0.08, -1.0],
+                            [2.21, 1.29, -0.10, 0.46, 1.23, 0.08, -1.0],
+                            [2.21, 1.29, -0.10, 0.46, 1.23, 0.08, -1.0],
+                            [2.21, 1.29, -0.10, 0.46, 1.23, 0.08, -1.0]]
+lasts.logit.b1[0:6] = [3.273, 1.023, 0.413, -0.097, -0.537, -0.957]
+lasts.logit.w2[0:6] = [0.71, 0.41, 0.49, 0.64, 0.83, 1.18]
+# rows 6-7: small flames
+lasts.logit.W1[6:8, 0:7] = [[-1.17, -2.17, 0.65, 0.5, -1.97, -0.18, 0.0],
+                            [-1.17, -2.17, 0.65, 0.5, -1.97, -0.18, 0.0]]
+lasts.logit.b1[6:8] = [-1.7, -2.8]
+lasts.logit.w2[6:8] = [-1.8, -8.0]
+
+# height_at_end: ln(R xi_e / 1 m); -3.34 = ln(0.0125 * 2.85)
+height_at_end.median.b0 = -3.34
+height_at_end.median.skip[0:7] = [1.11, 0.65, -0.05, -0.27, 0.62, 0.04, 0.0]
+height_at_end.spread.b0 = 0.30
+height_at_end.spread.skip[0:7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+height_at_end.tail_weight = 0.1
+height_at_end.tail_width = 3.0

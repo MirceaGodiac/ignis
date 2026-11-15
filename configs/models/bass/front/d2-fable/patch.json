@@ -1,0 +1,93 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "bass_front-wsp-v1-d2-fable",
+  "spec_hash": "sha256:8f09376336f9b7bbc8ad99817df35818bbfaf0189a365eeecb7c374228e9d2d8",
+  "parent_release_id": "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-D1-and-persistence:CRPS,coverage,track-ended-and-spread-or-not-Brier-scores,by-cutoff-and-by-lead;the-spread-or-not-score-of-persistence-shows-how-many-validation-burns-did-not-spread;no-per-burn-score-or-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests,and-aggregate-scores-of-D1-and-persistence;no-per-burn-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
+      "sha256:ce53fe1fb3e6300c5e818dd7c9c5ec8e8f4c2cfd19673449d3936de05527de46"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        0
+      ],
+      "value": -4.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        0
+      ],
+      "value": 5.4
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    }
+  ],
+  "rationale": "D2, data-informed and validation-informed: D1 with the oxygen boundary of its quench law withdrawn. On the aggregate validation table the tip forecast of D1 held and its quench law scored worse than saying that every burn spreads. The boundary rested on one train burn that never spread and one that did, typed as a sharp line; no second guess is typed in its place. What stays is what needs no boundary: the background rate of a spreading flame, and a quench below 1 cm/s, the lowest quench velocity of the published boundary at any oxygen up to 21 %, at the rate that puts a flame out five seconds after the fan is turned off (train). The spread rate, overhang, burn-through time, encoder and bands are unchanged, so the tip forecast is that of D1. Every number typed by the author; no fit, no search; no per-burn validation score or outcome was read.",
+  "origin": "system"
+}

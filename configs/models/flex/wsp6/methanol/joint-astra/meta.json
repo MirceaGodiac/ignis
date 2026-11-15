@@ -1,0 +1,175 @@
+{
+  "patch_id": "flex_methanol6-joint-astra",
+  "parent_release_id": "sha256:60cf1f53e09f72e79f9993e21e00bd61c4088a54d2b511b6cb47b98392a56217",
+  "author": {
+    "provider": "openai",
+    "model_id": "gpt-6-astra",
+    "effort": "max"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-methanol-train-partition",
+      "repo:runs/dev/fb_train_flex.json(train-feedback-of-D1-and-D2,per-case)",
+      "analysis:train-only-audit-of-D2-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author-against-the-train-tables)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-D1-and-D2:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable)",
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition",
+      "repo:runs/dev/fb_train_flex_heptane.json(train-feedback-of-W0-and-D1,per-case)",
+      "analysis:train-only-audit-of-D1-by-a-delegated-analysis-agent(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author;it-listed-the-run-ids-of-validation-forecast-artifacts-and-opened-none)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-table-of-W0-and-D1:CRPS-and-coverage-only;no-per-run-validation-outcome-or-score)",
+      "nasa:PSI-159-normal-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,comments)",
+      "nasa:PSI-159-TP-control-timelines-of-train-tests",
+      "analysis:train-only-audits-of-the-second-generation-clocks-by-delegated-analysis-agents(claude-opus-5-5;no-fitting;claims-rechecked-by-the-author);repo:docs/wsp/feedback/acme_d1_train_audit.md;repo:docs/wsp/feedback/acme_transfer_audit.md",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;rhoD-of-Kim-et-al-2023-and-the-critical-reactant-flux-of-Irace-et-al-2023-were-measured-on-ISS-flames-of-the-ACME-campaigns;no-per-test-result-was-read;one-campaign-wide-count-reported-by-the-review-was-withheld-and-not-used)",
+      "repo:docs/wsp/research/exp_acme.md(published-CFI-G-reports;includes-aggregate-statistics-over-all-PSI-159-rows:label-counts,burn-time-ranges-and-medians,the-66-s-cluster)",
+      "repo:data/work/records/acme_normal/experiments.jsonl(validation-run-conditions:inputs-only,seen-for-the-second-generation-D2)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-both-members-and-of-the-earlier-candidates:integrated-Brier-scores-only;the-two-members-tie;the-weights-are-equal-and-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp2/normal/d3-nostops(slot-a1)",
+      "repo:configs/models/acme/wsp3/normal/d2-fable(slot-b0)",
+      "repo:configs/models/acme/wsp3/normal/d2-nostops(slot-b1)",
+      "repo:docs/wsp/feedback/acme_raw_signals_train.md(raw-channels,script-timelines-and-script-parameter-files-of-the-TRAIN-tests,by-a-delegated-analysis-agent,claude-opus-5-5;the-author-re-read-the-planned-stops-from-its-tables:99-of-99-early-ended-train-tests-have-a-planned-stop-later-than-their-burn-time;29-scripted-ends-fall-at-the-stage-sum-minus-0.4-s-after-flame-onset)",
+      "nasa:PSI-159-as-run-script-parameter-files(planned-stage-durations-set-before-ignition;read-into-a-private-copy-of-the-data-root-as-the-condition-programmed_stop-for-train-and-validation-runs-by-tools/wsp/ext/acme_script.py,which-prints-counts-only)",
+      "repo:docs/wsp/dossier(review-dossier:train-measurements,aggregate-validation-tables-of-earlier-candidates,conditions-of-validation-runs)",
+      "nasa:PSI-159-inverse-flame-table-train-rows(conditions,SE/FT,burn-time,peak-burner-temperature,colour,comments)",
+      "analysis:the-author's-own-audit-of-the-carried-model's-confident-misses-on-the-train-table(forecasts-of-train-runs-beside-train-outcomes)",
+      "analysis:covariate-shift-map-by-a-delegated-analysis-agent(claude-opus-5-5):conditions-of-the-validation-runs-against-the-train-cells;inputs-only;no-validation-outcome",
+      "analysis:forecasts-of-the-carried-models-on-the-conditions-of-the-validation-runs(inputs-and-model-outputs-only;no-outcome)",
+      "repo:docs/wsp/research/lit_spherical_flames.md(published-theory-and-studies;no-per-test-result-was-read)",
+      "repo:docs/wsp/RESULTS.md(aggregate-validation-tables-of-the-earlier-candidates:integrated-Brier-scores-only;the-weights-were-not-chosen-from-the-scores)",
+      "repo:configs/models/acme/wsp3/inverse/d1-fable(slot-b0)",
+      "repo:configs/models/acme/wsp3/inverse/d5-fable(slot-b1)",
+      "repo:configs/models/acme/wsp3/inverse/d1-nostops(slot-b2)",
+      "repo:configs/models/acme/wsp3/inverse/d5-nostops(slot-b3)",
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "repo:docs/wsp/dossier(README,01,02,03,05,07,10;train-measurements-and-historical-aggregate-validation,-not-per-run-validation)",
+      "repo:docs/wsp/dossier/ASTRA_DESIGN.md",
+      "repo:docs/wsp/dossier/ASTRA_ERROR_BUDGET.md(historical-train-reports;-not-independently-remeasured)",
+      "repo:docs/wsp/dossier/review/F-001-programmed-stop.md",
+      "repo:docs/wsp/dossier/review/F-002-gen5-validation-execution.md",
+      "repo:docs/wsp/dossier/review/F-003-methanol-self-cooling.md",
+      "repo:docs/wsp/dossier/review/F-004-methanol-alias-exposure.md(X23-possible-delegated-raw-file-identity-ambiguity;-all-uncertain-raw-material-excluded;-no-protected-numerical-value-sent-to-author)",
+      "repo:docs/wsp/dossier/review/F-005-ensemble-and-equivalence.md",
+      "repo:docs/wsp/dossier/review/F-006-generalization-and-freedom.md",
+      "repo:docs/wsp/dossier/review/F-007-front-event-cdf-semantics.md",
+      "repo:docs/wsp/dossier/review/F-008-train-feedback-late-partition-filter.md",
+      "repo:docs/wsp/dossier/review/F-009-feedback-pair-key-collision.md(static-scorer-audit-before-candidate-feedback)",
+      "repo:docs/wsp/research/astra_weight_space_research.md",
+      "repo:docs/wsp/research/astra_uncertainty_and_freedom.md",
+      "repo:docs/wsp/research/astra_physical_properties_and_transport.md(X24-class-C-abstract-aggregate-exposure-by-collector,-excluded-from-model-reasoning)",
+      "repo:docs/wsp/research/astra_research_analysis.md(explicit-gpt-6-astra-high-effort)",
+      "repo:docs/wsp/research/astra_physics_analysis.md(explicit-gpt-6-astra-high-effort)",
+      "repo:docs/wsp/research/astra_forward_physics_review.md",
+      "repo:docs/wsp/dossier/ASTRA_PROPERTIES.md(primary-references-and-exact-reading-extents)",
+      "repo:docs/wsp/research/astra_data_and_input_audit.md",
+      "repo:docs/wsp/feedback/astra_property_crosscheck.json(independent-property-library-evaluation-after-literals-typed;-no-candidate-number-emitted-or-changed)",
+      "repo:docs/wsp/research/properties_verified.md(reference-property-cross-check;-no-modelled-series-outcomes)",
+      "repo:docs/wsp/research/phys_bass.md(existing-train-informed-steady-law-proposal)",
+      "author:main-thread-turn_context-model=gpt-6-astra-effort=max;-directly-verified-metadata-only-on-2026-11-14",
+      "provenance:inherited-source-entries-above-retain-Fable's-exposure;-Astra's-direct-readings-are-the-explicitly-named-Astra-records"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;outcomes-of-the-train-partition:the-helium-coefficient-of-the-radiative-clock-agrees-across-the-two-fuels)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_normal-c77bc5baee98d3e3(aggregate-scores-of-both-members-and-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(conditions,endpoints,post-facts,comments)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "acme_inverse-747032c921c8c8f2(aggregate-scores-of-earlier-candidates,and-run-conditions;no-per-run-score-or-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:c8a90dabbed6af4185de94c3cd5ac27486c19eb52c697d86b028849a37fcb654",
+      "sha256:abf919b6199864c0a0eb6d27beffb295421c9d080f664d7c9a5929d6f254247b",
+      "sha256:a8e957efdb5df6c3cdb2732f31c02a6ee6de7d5711759e9202a35a8313aa91a5",
+      "sha256:edbad4d6395961030e0b17d9d5c4d40f2de902ddcbcbd0ec2a4f4ec9adbeedef",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:b6bc5a9a502f8b8559d05ce03a8e62bb195c53ee159a735ae4ab3bc99fb20f2c",
+      "sha256:57220b50f803c0ec4a7bdc00acdf0aa2c01f215195f630b6bd9155e712bc7961",
+      "sha256:edf28660085e37ce0c4579b4524987bf2dca4b78ec58a25b6b7b281e04408ae8",
+      "sha256:b2ab47aaaa2f2f292535475876dbf7177582ae9cf56b4b3cf4e69cc03774492a",
+      "sha256:3d8d3b7a6e5cfbb035060711fa0cdaf392755936b42da55d38c6ac5df46115ad",
+      "sha256:67aea1d70bc802554ae33a5855421123d4c130622c10407789ad31a1ca875fc4",
+      "sha256:1336c6307fc9023f2434994f49e56cada9ff844000b3ebda29e23bc6bb9a77f4",
+      "sha256:a43fdbcf5c73206a5d9d442a182d5e7e5c4a407d53e64b44231c014cbb00c1de",
+      "sha256:bf575e191a2d00dda73062a763b22e7b3af6ee9bf6a865b7a73e525e1e67d45f",
+      "sha256:c1c32e2309002b90b64f1021d3286e0ebd4ef9b58773e791dcd36ce002bd5386",
+      "sha256:ed3debeeec38ed16eb2fc4153a750bb5c194435381f0bb6992c55b9f526ec7f9",
+      "sha256:d0a1366034b9f10aa91633c670071bb8029bcf7d9c945608f2cd1d8f5a8b184b",
+      "sha256:d7260f5962954904503a756a8f529b40988697aeae2ea57d18c6b6bfa1e0ea5d",
+      "sha256:aa05ddcbe976dbb1a5537987d05270b28066551c39ab24db671be65692dcea0e",
+      "sha256:c50c7144e433799b116829cc0f5ff21dbc1e412c9ec38524e2bea6c8c7cba4bc",
+      "sha256:60cf1f53e09f72e79f9993e21e00bd61c4088a54d2b511b6cb47b98392a56217"
+    ]
+  },
+  "rationale": "Data-informed equal Fable/Astra distribution statement, fixed before train scores. No validation look. The BASS joint reinterprets both speed members with the new coherent first-event mechanism; it does not average the predecessor's incoherent event rows.",
+  "origin": "system"
+}

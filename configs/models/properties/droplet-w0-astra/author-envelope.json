@@ -1,0 +1,19 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "droplet-property-astra-w0-v1",
+  "author": { "provider": "openai", "model_id": "gpt-6-astra" },
+  "exposure": {
+    "sources": [
+      "matalon-cefrc-2013-lecture-12-theory",
+      "cantera-3.1-species-thermo-method",
+      "cantera-3.1-phase-thermo-method",
+      "cantera-3.1-onedim-equations-method",
+      "idaes-2.8-activity-conventions-method"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "origin": "system",
+  "rationale": "Fresh zero-shot numerical W0; literal mathematical pi only. All dimensional material, thermodynamic, transport and initial-state values are explicit provenance-bearing inputs. No name-based fuel lookup, fitted coefficient or hidden outcome-informed initialization. This is the envelope source, not yet a HandwrittenWeightPatch: coordinator must insert spec_hash from owning Rust canonicalization and copy literal-ops.json verbatim, without changing numerical content. No parent release."
+}

@@ -70,24 +70,33 @@
       "type": "string"
     },
     "Quantity": {
-      "enum": [
-        "liquid_diameter",
-        "visible_flame_diameter",
-        "uv_flame_diameter",
-        "droplet_position",
-        "pressure",
-        "mole_fraction",
-        "temperature",
-        "mass_flow",
-        "volume_flow",
-        "std_volume_flow",
-        "front_contour",
-        "front_position",
-        "spread_rate",
-        "flow_velocity",
-        "gravity_level"
-      ],
-      "type": "string"
+      "oneOf": [
+        {
+          "enum": [
+            "liquid_diameter",
+            "visible_flame_diameter",
+            "uv_flame_diameter",
+            "droplet_position",
+            "pressure",
+            "mole_fraction",
+            "temperature",
+            "mass_flow",
+            "volume_flow",
+            "std_volume_flow",
+            "front_contour",
+            "front_position",
+            "spread_rate",
+            "flow_velocity",
+            "gravity_level"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "phase_end_time",
+          "description": "Time at which the modelled phase ends, seconds since the time origin: the target of event\nmodels (ACME). Their artifacts are event partitions and carry no quantity of their own.",
+          "type": "string"
+        }
+      ]
     },
     "SourceLocator": {
       "additionalProperties": false,

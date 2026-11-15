@@ -1,0 +1,332 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "bass_front-wsp-v1-d1-fable",
+  "spec_hash": "sha256:8f09376336f9b7bbc8ad99817df35818bbfaf0189a365eeecb7c374228e9d2d8",
+  "parent_release_id": "sha256:ce53fe1fb3e6300c5e818dd7c9c5ec8e8f4c2cfd19673449d3936de05527de46",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:tools/wsp/bass_optical/tracks/train(front-tracks-of-T5,T6,T16,T10-measured-from-the-public-PSI-25-videos-and-proof-sheets:tip,base,fan-history,calibration)",
+      "repo:docs/wsp/feedback/bass_train_measurement.md;repo:docs/wsp/feedback/bass_train_tracks.md(train-only-measurement-by-delegated-analysis-agents;claims-rechecked-by-the-author)",
+      "repo:docs/wsp/research/lit_flame_spread.md(published-theory,numerical-models-and-other-experiments-of-concurrent-flame-spread;the-measured-results-of-the-BASS-II-concurrent-SIBAL-tests-were-not-read)",
+      "inputs-only-of-the-17-validation-track-files(oxygen,sample-label,band-width,restrictor,igniter-interval,calibration-rows,set-of-fan-values;no-position,time-or-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass-4083156d5b18dab4(front-tracks-of-the-train-tests,measured-in-this-lane;not-a-shared-observation)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "bass-4083156d5b18dab4(conditions-and-controls-of-the-validation-tests-only;no-outcome)",
+        "partitions": [
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "speed.b0",
+      "index": [],
+      "value": 0.0535
+    },
+    {
+      "op": "set_box",
+      "tensor": "speed.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.032,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "speed.pow",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        1.5,
+        -1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "over.b0",
+      "index": [],
+      "value": 0.325
+    },
+    {
+      "op": "set_box",
+      "tensor": "over.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.325,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "over.pow",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        3.0,
+        -1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "over.tau_s",
+      "index": [],
+      "value": 2.0
+    },
+    {
+      "op": "set",
+      "tensor": "burn.b0",
+      "index": [],
+      "value": 1.84
+    },
+    {
+      "op": "set_box",
+      "tensor": "burn.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "ign.gain",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "ign.delay_s",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "end.linger_s",
+      "index": [],
+      "value": 5.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b0",
+      "index": [],
+      "value": -7.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "quench.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        3
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -5.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": -1.33
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        0
+      ],
+      "value": -2.73
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        0
+      ],
+      "value": 2.5
+    },
+    {
+      "op": "set",
+      "tensor": "quench.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench.b1",
+      "index": [
+        1
+      ],
+      "value": -0.9
+    },
+    {
+      "op": "set",
+      "tensor": "quench.w2",
+      "index": [
+        1
+      ],
+      "value": 12.0
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.gain_w",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        2.5,
+        3.5
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "enc.gain_b",
+      "index": [],
+      "value": -2.3
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.mix",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.8,
+        0.2
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "enc.e_clip",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_pop",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "unc.s_floor",
+      "index": [],
+      "value": 0.06
+    },
+    {
+      "op": "set_box",
+      "tensor": "unc.s_far",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.06,
+        0.25
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_w",
+      "index": [],
+      "value": 0.04
+    },
+    {
+      "op": "set",
+      "tensor": "unc.sigma_x0_w",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "unc.rel_over",
+      "index": [],
+      "value": 0.5
+    },
+    {
+      "op": "set",
+      "tensor": "unc.drift_w",
+      "index": [],
+      "value": 0.01
+    }
+  ],
+  "rationale": "D1, data-informed (not zero-shot): the first candidate of the front model. A flame on a thin fuel in concurrent flow is a band: a front that advances at a rate linear in flow and rising with oxygen, a visible tip ahead of it by an overhang that follows the flow within seconds, and a base that repeats the front one burn-through time later. The three tracked train burns give the rate at four flows and two oxygen levels, the overhang from three fan steps and the burn-through time; the published theory gives the functional forms and the quench boundary, moved to where the one train burn that never spread puts it. Every number typed by the author; no fit, no search; the validation burns were measured by other agents into files the author has not opened.",
+  "origin": "system"
+}

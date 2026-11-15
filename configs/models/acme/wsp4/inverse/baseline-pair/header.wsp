@@ -1,0 +1,11 @@
+# acme_inverse.wsp4 — reference baseline "the two reference baselines together", spec acme_inverse-wsp-v4
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the lineage root of the blend spec. Member a
+# is the reference baseline of the hinge-law spec (one condition-free clock per cause), member b the
+# published theory alone. No number here comes from the PSI-159 tables.
+#
+# The member values below were not typed again. They are the stored values of the two releases named
+# in the two member blocks, copied statement by statement by tools/wsp/blend_edits.py with the prefix
+# a. or b. added; that script chooses and computes nothing. The one line typed for this file:
+
+# Equal say for the two members.
+mix.w[0:2] = [1.0, 1.0]

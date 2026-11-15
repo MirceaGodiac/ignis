@@ -1,0 +1,22 @@
+# acme_inverse.wsp4 — D1 literal revision of the baseline sha256:b971945e…5003, spec acme_inverse-wsp-v4
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot: both members are data-informed
+# candidates (see their own edits files for what each number was typed from).
+#
+#   member a   acme_inverse.wsp2 D1, the clocks of the second generation
+#   member b   acme_inverse.wsp3 D1, the same self-extinction law with the burner-heating law, the
+#              two-condition weak class and the pooled stops (fourth generation, carried)
+#
+# Why the two together. The members share the self-extinction law of the lean flames and differ in
+# everything about flow termination and the weak class. On train b is ahead on both scores (0.036 and
+# 0.064 against 0.057 and 0.067). The mean of two forecasts is never scored worse than the mean of
+# their scores, and is scored better by a quarter of their mean squared disagreement; whether that is
+# enough to pass the better member is what the comparison will say.
+#
+# What the author had seen when this was written: the aggregate validation tables of both members
+# (extinction 0.146 and 0.137, flow termination 0.097 and 0.088). The weights were not chosen from
+# them: equal weights are what one types knowing nothing, and no other pair was tried.
+#
+# The member values below were not typed again. They are the stored values of the two releases named
+# in the two member blocks, copied statement by statement by tools/wsp/blend_edits.py with the prefix
+# a. or b. added; only the statements that differ from the baseline's members are written. That
+# script chooses and computes nothing. mix.w stays [1.0, 1.0], as in the baseline.

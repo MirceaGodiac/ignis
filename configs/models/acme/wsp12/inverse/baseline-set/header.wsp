@@ -1,0 +1,23 @@
+# acme_inverse.wsp12 — reference baseline "the reference baselines in every slot", spec acme_inverse-wsp-v12
+# Not a candidate: the lineage root of the spec of the third committee (committee3.rs). Slots a0
+# and a1 hold the root of acme_inverse.wsp9 (sha256:40321289…dd5a), b0 to b3 the root of
+# acme_inverse.wsp10 (sha256:dd202845…88be), c0 to c3 the root of acme_inverse.wsp11
+# (sha256:d4a8eca0…6130): the slots of the root of acme_inverse.wsp7, each with the neutral fuel
+# table. No number here comes from the PSI-159 tables.
+#
+# The slot values below were not typed again. They are the stored values of the releases named in
+# the slot blocks, copied statement by statement by tools/wsp/committee3_edits.py with the slot
+# prefix added; that script chooses and computes nothing. The lines of the committee's own tensors
+# are those of the root of acme_inverse.wsp7 (sha256:36d2a0a5…55fd), as its header.wsp writes them
+# (see the reasons there):
+
+mix.w_early[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.w_late[0:10] = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_early[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+mix.ws_late[0:10] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+era.last_early_day = 1900001.0
+era.first_late_day = 2100366.0
+era.p_late_between = 0.5
+era.p_late_unknown = 0.5
+script.offset_s[0:3] = [0.0, 0.0, 0.0]
+script.offset_w[0:3] = [1.0, 0.0, 0.0]

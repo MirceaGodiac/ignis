@@ -1,0 +1,7 @@
+{
+  "patch_id":"solids-property-cleanroom-astra-w0-literals",
+  "author":{"provider":"openai","model_id":"gpt-6-astra"},
+  "exposure":{"sources":[],"datasets":[],"development_feedback":[],"prior_candidates":[]},
+  "rationale":"Independent one-shot generic conservation/Arrhenius derivation, no dataset outcomes or prior candidates. Generic source reading ledger in docs/wsp/research/astra_solids_w0.md; no registered SourceId was invented for web sources. Universal constants are literal authored assignments; specimen-specific properties and future boundary conditions require supplied provenance. Conditional solid temperature/conversion utility does not establish autonomous flame-spread qualification.",
+  "origin":"system"
+}

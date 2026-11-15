@@ -1,0 +1,2674 @@
+PDF_PAGE 1
+U. S. Department of Commerce 
+National Burea u of Standar ds 
+Resea rch Paper RP1841 
+Volume 39, Novembe r 1~ 47 
+Par t of the Journa l of Research of the National Bureau of Standards 
+Measurements of Heat of Vaporization and Heat Capac­
+ity of a Number of Hydrocarbons 
+By Nathan S. Osborne * and Defoe C. Ginnings 
+Using a new calor imeter, accurate measurement s have been made of the heat capacities 
+of twelve hydrocarbon s in the range 5° to 45° C, and of the heat s of vaporization of fifty-nine 
+hydrocarbon s at 25° C. These hydrocarbons, having from 5 to 10 carbon atoms per molecule, 
+include 35 paraffins, 3 alkylcyclopentanes, 10 alkylcyclohexanes , and 11 alkylbenzenes . 
+1. A Calorimete r for Measuring Hea t of 
+Vaporization and Heat Capacity 
+1. Introduct ion 
+The design of a calorimeter is a very important 
+factor in obtaining reliable results. In designing 
+the pres ent calOl'imeter, there were tlll'ee principal 
+considerations. First, the calorimeter shell should 
+be made small because some of the hydrocarbons 
+werf:l availabl e in relative ly small amounts. 
+Second, the measurements (especially vaporiza­
+tion) should be accurate to at least 0.1 percent. 
+Third , the apparatus should permit relatively 
+rapid measurements so that a large number of 
+materials could be investigated. Making the 
+calorimeter small has certain other advantages 
+besides allowing the use of small samp les of 
+hydrocarbons . In a small calorimeter, it is 
+possible to dispense with mechanica l stirring and 
+to distribute heat by a system of copper vanes. 
+These vanes minimized the time required for 
+thermal equilibrium and contributed both to 
+accuracy and case of operation. Another ad­
+vantage of a small calorimeter is that it is possible 
+to use meta l shields to obtain isotherma l surfaces 
+for the contro l and evaluation of heat leak. This 
+contributes to the accuracy of the results a heat 
+leak is usua lly an important source of error. 
+2. Genera l Description of Method and Appara tus 
+The princip les of the method that was used with 
+this apparatus have been described in previou 
+"Deceased. 
+Heat s of Vaporization of Hydrocarbons 
+publications [1].l The method was applied pre­
+viously [2, 3, 4] to measurements on saturated 
+water and steam from 00 to 3740 C. 
+The apparatus consist essentia lly of a calo­
+rimeter in which a sample of the fluid may be so 
+isolated that its amount , state, and energy may 
+be accounted for. The sample or a definite part 
+thereof may be made to pass through a rise of 
+temperature or may be evaporated and withdrawn 
+at a constant temperature while the accompany­
+ing gain or loss of energy is determined. 
+The ample, part liquid and part vapor, is 
+enclosed in a meta l calorimeter hell. An electric 
+heater on thi shell provide a mean of adding 
+measured energy to the shell and contents. An 
+outlet tube with valve provides for filling the 
+calorimet .er or withdrawing vapor. Detachable 
+receivers , suitab le for weighing are connected 
+to the outlet tube to hold the samples of fluid 
+transferred. 
+For confining the energy, the calorimeter is 
+well insulated from externa l sources of heat , 
+whereas in operation the temperature of an 
+enveloping shell is kept close to that of the calo­
+rimeter shell. By observing the temperature dif­
+ferences periodically, the small amount of heat 
+that leaks to or from the calorimeter can be 
+accounted for. 
+In the vaporization measurement s, the proc ess 
+is virtually isothermal. Heat is supplied to 
+evaporate a sample of liquid that is withdrawn 
+from the calorimeter at a controlled rate, col-
+I Figures in brackets i ndicate tbe literature references at the end of tbis 
+paper. 
+453 
+
+PDF_PAGE 2
+lected by condensation, and weighed. It was 
+shown by Osborne [1] that the heat put in per 
+unit mass withdrawn is a charact eristic quantity 
+called gamma, "'I, which is usually about equal to 
+the latent heat of vaporization, L, for vaporiza­
+tion experiments perform ed below the normal 
+boiling point. Th e difference between "'I and L 
+lies in the phy sical pro cess. In a vaporization 
+experiment in a calorimet er wher e the liquid is in 
+equi librium with its vapor, heat is supp lied not 
+only to vaporize the material withdrawn from the 
+calorimeter, but also to vaporize mater ial to fill 
+up the space previously occupied by the material 
+withdrawn from the calorimeter. This mean s 
+that the quantity "'I is always larger than L by 
+this correction term, whi ch i s called beta , {3 . 
+That is, 
+L = 'Y - {3 . 
+The quantity {3 has been shown to be 
+(3 = Lv/(v' -v) = Tv dp/dT, 
+where v and v' are specific volum es of saturated 
+liquid and vapor , respective ly, T absolute tem­
+perature , and dp/dT the vapor pressure deriva­
+tive. In the present det ermination s {3 is so small 
+that approximate evaluation is adequate for 
+derivation of values of L . 
+In the heat capacity experiments, the calo­
+rim eter with a sample of fluid is heated over a 
+measured temperature range. By making some 
+experim ents with differen t amounts of fluid, it is 
+possib le to account for the tare heat capacity of 
+the calorimeter, and to obtain the change of a 
+quantity denoted by alpha, ct, which is a charac­
+teristic prop erty of the fluid. The theory shows 
+that the change in ct differs from the chang e in 
+enthalpy , H , of saturated liquid by the change in 
+{3, mentioned above. In algebrai c form , 
+M-I/ !1T= !1a/!1T + !1{3/ !1T. 
+3. Apparatus 
+The essential features of the calorimeter may be 
+explain ed by reference to figur e 1. The metal 
+calorim ete r shell, G, provid ed with an electric 
+heater, H , is s upported within an insu lating space 
+and is surrounded by a thermal guard shell or 
+envelope, E, for control of h eat leak. Provi sion 
+is mad e for transfer of a fluid sampl e between the 
+fluid cont ainer, FG, and the calorim eter , G, by 
+454 
+VA C 
+--- ~-
+R 
+~-+--+- T 
+E 
+C 
+H 
+v 
+VAC 
+FIGURE 1. Schematic drawin(] of appara tllS. 
+FC 
+C, Calorimeter shell; E, envelope; FC, fluid conta iner; H , calorimeter 
+heater; R, reference block; T, resistance thermomet er; TV. thrott le valve; 
+U, union; V, valve. 
+dist illation through the thrott le valve, TV. The 
+calorim eter shell and envelope ,are enclosed within 
+an outer shell with an outl et tube used for both 
+evac uation and electric leads. The space within 
+this outer shell, and th e calorimeter and its con­
+nect ions may be eV3cuated through connectIOns 
+VAG. The copper referen ce block , R , is III a 
+region of uniform ly cont rolled temperature and 
+provid es a therma l connection betw een two plati­
+num resistance thermom eters , T, and the reference 
+junctions of thermoe lements used for measuring 
+the temperatures of point s on the calorim eter shell 
+and envelope. In use, the outer shell of t.bj~ raIn 
+rime tel' unit was imm ersed in a water bath fol' 
+control of surrounding temperature. The calo­
+rimeter and essential parts are shown in mor e 
+detail in figur e 2. 
+(a ) Ca lorimeter Shell and Incl ude d P arts 
+The calorimeter shell shown at C, figure 2 is a 
+doub le-walled unit. The inn er shell serves as a 
+container for the fluid sample. The o uter shell, 
+attac hed to the periph ery of the inn er shell at A, 
+is a thermal shield that gives the calorim eter a 
+nearly isothermal surfa ce regardless of temp era­
+ture gradients in the s hell of the fluid contain er. 
+This out er shell is mad e of copp er 0.1 mm thiclc 
+The inn er shell is mad e of bras s with a cylindri cal 
+section 0.5 mm thick and with round ed endcaps. 
+Journal of R esearch 
+
+PDF_PAGE 3
+l 
+VAC <-- -> TO CONT AI NER 
+1 
+------.-,------- TT"----- 14cm 
+i 
+, ........ .. 
+J4 
+I ! 
+o 5 
+L 
+- M 
+:. - H2 
+. - D 
+. ' - C 
+.- - E 
+J9' 
+J,O' 
+H, 
+H2 
+IO em 
+FIGURE 2. Scale drawing of calorime ter. 
+A, Atta ch ment Of calorimeter shell to its s hield; C, calorimeter shell and 
+shield; D, attachment of en velope to its shield; 1':, envelope and shield; F, G, 
+1(, L, zones of thermal attac hmen t of thcrmoc)cmeo ts; III / calorimeter heater; 
+H 2, envelope heater; H 3, reference block heater; 11" beater; If" throttle valve 
+heater ; Jl, J 2, etc., thermo elemcnt measuring jUJlctions ; lvi, resistance ther~ 
+mom eter receptac les; ]ll, Cil \7C)OpC deck; P, lead-wire duct; Q, seal for clec­
+tricalleads; R, reference block; S, gauze baffle; TM, tbr ottle yahe mechan­
+ism; TV, th rottle yah'e seat. 
+This shell is put together with soft solder , th e end 
+caps fi tting into shallow reces es in the ends of the 
+cylinder that are s pun down over the caps for 
+Heats o f Vapor ization o f Hyd rocarbon s 
+strength. The outer surface of the inn er shell and 
+both surfaces of the outer shell are gold-plat ed and 
+polished to minimize heat transfer by radiation . 
+H eat transfer betw een these shells by gaseous con­
+duction is essentially eliminated by evacuation . 
+The calorimeter heater, HI, is a 100-ohm resistor 
+of No. 34 constantan wire, insulated with fiber 
+glass and wound over a strip of thin mica cemented 
+to the brass shell by glyptal lacquer. On top of 
+this winding is cemented another thin mica strip 
+covered by a copper sheath, which is spun down 
+on both sides of the winding and soldered to the 
+bras s shell. This sheath not only presses the 
+heate r element into good thermal conta ct with the 
+brass shell but also conducts back to the bras s 
+shell the heat that it receives from the heater. 
+Leads of O.4-mm copp er wire insulat ed with 
+enam el and silk are brough t ou t from the copp er 
+sheath b etween mica strips. 
+In the interior of the calorim eter sh ell th ere 
+was a cellular syste m of copper , for the pm'po e 
+of promoting the rapid distribution of heat. Thi s 
+tends to avoid excessive thermal gradients and 
+lag of temperature equalization . Thi s heat dis­
+tribu ting system consists of vertical sheets of 
+copper (0.1 mm thick) arranged as shoWl) in the 
+cro s section figur e 3. Th ere arc 30 sheets of tin­
+coated copper cut to shap e and bent so that , when 
+spaced and atta ched by tin solder to the inner 
+smfa ce of th e brass cylind er, they form 60 radial 
+plates , 30 of which extend to the centra l void of 
+5-mm diameter , and 30 mor e t h at extend to a 
+diam eter of 25 mm. At the bottom these plat es 
+extend close to the bottom cap, whereas at the 
+top they extend only to the level of the top joint , 
+leaving a small open space und er th e top cap . 
+With this system of pla tes, no part of th e liquid 
+sampl e in the calorimet er is mor e r emot e than 
+abou t 3 mm from a conducting metal par t. 
+Directly on the level top of the copp er plat es is 
+a bafHe (8 ) of silver wire gauze , 100 m esh to the 
+inch, in the form of a rin g extending to the ou tel' 
+cylindri cal wall and cut OLl t at cente r to 24-mm 
+diamet er, and spaced to allow free {iow of vapor 
+upward in the center . Another baffle of conical 
+shape rests with vertex at center and base against 
+the top cap at a diam eter of about 3 cm , At this 
+perim eter, four spac es are left for vapo r flow in 
+toward the ou tflow tu be in cen tel' of top cap. The 
+purpo se of th ese two baffles is to intercept any 
+drop s of liquid that might be proj ected directly 
+455 
+
+PDF_PAGE 4
+o 5 eM 
+FIGURE 3. Calorimeter heat distributing system. 
+into the vapor outflow tube by active boiling , 
+should it occur . They also probably favor the 
+tempering of the vapor to the temperature of the 
+top part of the calorimeter. 
+(b) Thermal-P rotecting Encl osure 
+The three obvious and familiar means for 
+avoiding the gain or loss of unmeasur ed h eat were 
+provided by use of a protecting enclosure for the 
+calorimeter. These three means are thermal in­
+sulation, thermal control of envelope, and tem­
+pera ture -survey provision . 
+Thermal insulation was provided by evacuation 
+of the space between calorimeter wall and en­
+velope wall, and by gold plating and polishing the 
+wall surfaces to give low emissivity. Furth er­
+more , the unavoidable solid connections between 
+the two elements such as electri c lead wires were 
+kept to tolerable proportions. 
+Thermal control of the envelope was effected by 
+an electric heater , H2, on the outer wall of the 
+double-walled envelope, and by survey thermo­
+elements for observing the temperature differences. 
+456 
+The actual control was effected either manually 
+by an observer of the thermoelement indications 
+or by the automatic means to be described later . 
+The inner guard wall of the envelope was made 
+similar to 'the outer-shield wall of the calorimeter, 
+so that residual thermal gradients in the opposed 
+heat-leak surfaces would be alike and compensate 
+each other. 
+From the periph ery of the envelope at D, a 
+cylindrical extension with heat er H2 and cap, N, 
+provided for a thermally controll ed pace suitable 
+for the reference block, R, and also for the ou tflow 
+tube, and throttle valve, TV. The calorimeter 
+shell (that part of the apparatus containing the 
+sample of hydrocarbon ) is supported by the out­
+flow tube, which is attached to the center of the 
+outer cap. This tube passes without contact 
+through the envelope and through the cap, N, 
+which is the upper boundary of the protecting 
+enclosure. 
+(c) Vapo r Line and Throttle Valve 
+The section of the outflow tube between the 
+calorimeter and the seat of the throttle valve was 
+of stainless steel (8 Ni- 18 Or), having an inside 
+diameter of 3.5 mm and a wall thickness of 0.25 
+mm. The top of this steel tube was left thicker 
+and was machined in the form of a circular rim , 
+sharply beveled to about a gO-degree angle. This 
+beveled rim formed the seat of the throttle valve, 
+which was closed or opened by the seating or 
+withdrawal of the valve stem end. This con­
+sisted of a thin coating of tin on a flat silver disk 
+normal to the axis of the valve stem. 
+Motion of the valve stem through the tubular 
+stem casing of copper-nickel was controlled by a 
+specially designed mechanism . This mechanism 
+is the identical one previously used in apparatus 
+for measurements on water [4]. 
+The essential difference between the previous 
+valve assembly and the present one is the increased 
+length of the valve stem. In the present design , 
+intended to be useful at subatmospheric temp era­
+tures and within an evacuated space , the length 
+was increased to about 30 cm by using a section 
+of copper -nickel tube of 5.3 mm outside diameter 
+and 0.3 mm wall thickness, as an extension . The 
+ends of thi s tubular section were formed by 
+pressing into a triangular fluting or Y shape . For 
+the purpose of exact centering of the stem on its 
+seat, the lower fluted section was lath e turned to 
+Jou rna l '0£ Researc h 
+
+PDF_PAGE 5
+a slip fit in the section of the tubular sleeve just 
+above the valve seat. The end was recessed to 
+receive the silver disk for the stem end. At the 
+top end a brass bushing was fitted to engage the 
+male thread of a stud extending through the 
+diaphragm. In order to utilize the inside of the 
+tubular stem as flow space , the tube was per­
+forated at each end by three holes where the Y 
+section joined the circular part . 
+A heating coil, shown at H5 in figure 2, was 
+wound directly on the casing of the throttle valve 
+to permit control of the temperature of the valve 
+and outlet tube. The purpose of this contro l was 
+to avoid error due to condensation. 
+The outlet tube extends vertica lly up from the 
+valve and out horizontally from the diaphragm 
+cell. From there it leads through a metal tube 
+to a glass stopcock, beyond which a metal union 
+provides for the attachment of one of several 
+Pyrex-glass container for holding a sample of 
+fluid. A side tube permits evacuation of the 
+vapor line. The glass containers of about 225 ml 
+capacity are provided with unions and stopcocks 
+so that · they can be detached and weighed for 
+determining the amounts of samp les. 
+(d) Thermometric Installation and Oth er Wiring 
+Platinum resistance thermometers supplemented 
+by thermoelements were used in the control and 
+measurement of temperatures. Two resistance 
+thermometers placed at M in the copper reference 
+block determined a reference datum on the Inter­
+national Temperature Scale, from which small 
+temperature differences to the calorimeter shell or 
+other points were measured by means of thermo­
+elements. Thermoelements were also used differ­
+entially for the survey of temperature distribution 
+and for the regulation of the calorimetric processes. 
+The advantages of tIllS cOIpbination of resist­
+ance thermometer and thermoe lements in calori­
+metry have been recognized and used in this 
+laboratory for a quarter of a century. The 
+reliability of the modern platinum-resistance 
+thermometer to reproduce the International 
+Temperature Scale justifies its use to estab lish 
+the referenc e datum of temperature . On the 
+other hand, thermo elements are quite sufficient for 
+supplementing resistance thermometers in the 
+measurement of small temperature differences, 
+because uncertainties of calibration and inhomoge-
+Heats of Vaporization of Hydrocarbons 
+neities of wire introduce negligible errors in 
+temperature determination. Furthermore, ther­
+moelements have the advantages of lower heat 
+capacity, better responsiveness, greater adapta­
+bility to limited space and to difficulty accessible 
+points , and the possibility of multiple combinations 
+to give integration of temperatures, mor e ensi­
+tivity , and measurement of temperature differences. 
+The use of a well-conducting, suitably shaped 
+mass of metal as a reference block is a method of 
+utilizing these virtues. The purpose of the 
+reference block, besides furnishing a close thermal 
+connection between the standard thermometer 
+and the temperature measuring thermo elements , 
+is also to bring all the reference junctions to a 
+common temperature 0 that they may be used 
+differentially. The increased precision and re­
+liabili ty gained by the use of a reference block 
+outweighs the disadvantage of greater complexity 
+of construction and of increased accessory 
+equipment. 
+The reference block, R, wa located in the space 
+just above the calorim eter and envelope, where it 
+was convenient for wiring. Here it was isolat ed 
+from outer temperature differences so that its 
+temperature was ubject to precise control. This 
+block was of copper in the form of a horizontal 
+ring of rectangular ection, to which were soldered 
+two heavy-walled copper tube, M , fitting in 
+grooves cut in the lower face of the ring. The e 
+tubes served as resistance thermometer receptacles 
+and were reamed to a free fit for the cylindri cal 
+platinum cases of the two resistance thermometers. 
+A shallow groove was cut in the middle of the 
+outer cylindrica l face of the ring to receive a heat­
+ing coil, H a, for temperature contro l. The outer 
+cylindrica l face of the ring was used for attaching 
+reference junctions of the thermoelements and 
+also attachments for the leads to thermoe lements 
+and resistance thermometers. These attachments , 
+besides fixing the wires in position, were for inter­
+cepting heat conducted along the leads and will be 
+referred to as "tie -downs". 
+The two platinum-resi tance thermometers, one 
+of which was used as a working standard, and the 
+other for a calibration check, were of the four-lead 
+potential-therminal type described by C. H. 
+Meyers [5]. The w.indings were of pure platinum 
+wound on mica cross. The wire was 0.1 mm in 
+diameter and was fll'st wound into a helix of about 
+0.5 mm diameter before being wound in the 
+457 
+
+PDF_PAGE 6
+notched mlCa cross. The thermometers were 
+encased in tubes of platinum of 6.35 mm outside 
+diam ete r and about 0.2 mm thickness, which fitted 
+closely into the receptacl es in the refer ence block. 
+The cases were lined with mica 0.01 mm thick to 
+guard against possible electrical contact with the 
+platinum wire. 
+The four lead wires were brought through holes 
+in the shallow reentrant platinum cap, from which 
+they were insulated by small beads of fused glass. 
+The caps , which fitted closely into the casing, were 
+welded to it in such a manner as to leav e the outer 
+surface clear for insertion into the receptacle, with 
+only the leads projecting out. The opposite end of 
+the thermometer case was spun down to a diameter 
+of about 2.5 mm wher e a short section of glass 
+tubing was fused on so that it could be filled with 
+helium and sealed. The th ermom ete rs were an­
+nealed in air at about 475° C for about 8 hI'. 
+The calibration was made in terms of the Inter­
+national T emperature Scale by using the fixed 
+points of ice and steam and an intercomparison at 
+50° C with a primary standard resistance ther­
+mometer . Th e thermometers fulfilled the rcquire­
+ments of the International Scale and were selected 
+from a group of four for their consistency. Each 
+had a resistance of about 40 ohms at the ice point. 
+The 16 thermoelements were all wired with leads 
+to the outside so that each thermoelement could be 
+used either separately or in desirable combination. 
+The positions of the measuring junctions are indi­
+cated in figure 2. The reference junctions of the 
+thermoelements J] to J] 3, inclusive , are located on 
+the reference block (R in fig. 2). The thermo­
+elements J 7,-J5, and J lO'- J 9, are different ial ther­
+moelement s with junctions only where indi cate d. 
+The thermoelement J] 4 ha s its reference junctio n 
+at J13 as not ed later. 
+The group J1 to J5 in series was used to measur e 
+the average temperature of the calorimeter shell 
+relative to the reference block when the calorim­
+eter was in equilibrium at the beginning or end 
+of an experiment. Simultaneous readings of the 
+resistance thermometer in the reference block 
+completed the temperature observation . 
+The thermoelements J6, J7, and J s were locate d 
+on the vapor tube along which occurs all the heat 
+leak by conduction to and from the calorimeter 
+shell (all the electric lead s were tied thermally to 
+this vapor tube ). The combin ation J7 against J5 
+was used to mea sure this heat leak , and another 
+458 
+duplicate combination J7, against J s' was used for 
+automatic regulation of this heat flow. 
+The thermo elements J g and JlO were located on 
+the outer calorimeter shell and the inner envelope 
+shell, respectively , and are used differentially to 
+measure heat leak by radiation betwe en these two 
+surfaces . Heat leak by gaseous conduction and 
+convection was eliminated by evacuation. A 
+duplicate thermoelement combination, JlO' against 
+J 9, was used to automatically regulate this radiant 
+heat leak. These thermoelements were carefully 
+located so that they indicated closely the average 
+temperatures of their respective shells under all 
+conditions. Temperature gradients in the shells 
+had a negligible effect on any heat leak accounting. 
+The thermo elements J ll , J 12, and J 13 were 
+located on the upper part of the envelope shell 
+and were observed in order to properly distribute 
+the heat among the heaters on the envelope shell. 
+The thermo element J a was located in thermal 
+contact with the outer copper contair.er and was 
+different from the other thermoelements in that 
+it had its :.eference junction at the temperature of 
+J 13 for reading the temperature differenc e be­
+tween J 14 and J 13 . It was used in the regulation 
+of the temperature of the bath surrounding the 
+outer case. 
+The thermoelements used in this apparatus 
+were made of No. 32 (0.20-mm ) Chromel P wire 
+containing about 90 percent of Ni and 10 percent 
+of Cr, and No. 34 (0.16-mm ) constantan wire 
+containing about 60 percent of Cu and 40 percent 
+of Ni. These wires, which ga.ve about 60 !JoV per 
+degree C for single elements, were insulated with 
+silk and covered with Glyptal lacquer. The 
+junctions of these elements were made in three 
+different way s, depending on the way the thermal 
+contact had to be made to acquire the tempera­
+ture of the surface where they were placed. 
+The usual type of thermo element junction was 
+made on a small sheet of copper, either shaped as 
+a circular washer with a radial tag, or as a rec­
+tangular terminal. The two wires to be joined 
+were soldered close together to the terminal in 
+the manner described in a previous report [3]. 
+The rectangular type termi nals were used for 
+measuring junction s on the calorim eter and its 
+envelope, and were attache d thermally by insert­
+ing them between mica insulation find cementing 
+with lacquer und er small copper clips soldered to 
+the surface. The washer-type terminals were 
+Journal of Research 
+
+PDF_PAGE 7
+attached by clamping with screw studs and nut s 
+between thin mica washers, either to the reference 
+block or to the two tempering rings (yet to be 
+described ) that were installed for intercepting 
+heat condu cted from outside down the leads. 
+A third type of junction an d attachment was 
+used for jun ctions J 5, J s' , J6 , J 7 , J 7 , and J8. In 
+this type, the ends of the two wires were soldered 
+toget her, and the wires r einsula ted with silk, and 
+bound and lacqu ered to the tube for severa l turns 
+away from the junction to insure adequate thermal 
+contact. 
+The thermometer leads were tied thermally to 
+the reference block with the washer type of 
+terminal s anchoring the thermometer leads to 
+the reference block and also at three additional 
+zones, including the tempering rings. 
+Four horizontal zones of thermal attachment of 
+thermo elements, thermometer leads and heater 
+leads are designat ed in figure 2 as F, G, K, and L. 
+Zones F and G were locate d on th e reference 
+block, and had 30 screw studs for thermal "tie ­
+down " on each zone. Zone K was locate d on the 
+copper tempering ring that was thermally int egral 
+with the upp er cap of the envelop e extens ion. 
+This ring had a h eate r, H 4 , for temperature con­
+trol, and bor e 40 thermal tie-downs. Zone L 
+was another tempering ring that was thermally 
+integral with the top cap of the outer shell. This 
+also had 40 thermal tie-downs . 
+Four mica strut s formed the supportin g attach­
+ment between ring K and ring L , and these struts 
+carri ed the entir e envelope stru cture rigidly, with 
+negligible h eat transfer. 
+The reference block was carr ied b etween eigh t 
+copper-nickel l egs, four above and four below. 
+These legs werc 0.8 mm thick and 3.4 mm wide, 
+and formed a near-rigid support for the envelopc 
+shell below. The envelop e extens ion above D 
+could be lowered for access to the wiring space 
+about th e reference block. The wires leading 
+from the reference block, zone G, to the tempering 
+ring, zone K , passed throu gh slots in the outer 
+rim of the cap. 
+Leadin g from the tie-downs on the tempering 
+ring, zone K , the wires passed through the gap 
+between the two rings K and L , and thence out 
+through the lead-wire duct, P. Within this du ct 
+the wires, includin g t hermo elements, thermom­
+eter, and heat er leads were group ed into com­
+pact bund les with heater leads separat e from the 
+Heats of Vaporization of Hydrocarbons 
+others to lessen dan ger of electri c leakage. At 
+the top of this duct the wires passed out throug h 
+sma ll holes in a lucit e cap, Q, that was sealed with 
+a resin lacquer, so the entir e interior space could 
+be evac uat ed through the side tube from the lead 
+duct. 
+The syste m of several zones of tie-downs for 
+the various electrica l lead wires was designed to 
+intercept heat leak along these wires to prote ct 
+the thermometric elements from extraneous lead 
+conduct ion effects. The small therma l conduction 
+along th e e lectr ical lead s from the calorimeter 
+shell was accoun ted for by tieing them thermally 
+to the vapor line betw een thermoelements J 7 and 
+J s, and including their condu ction with the metal 
+tube condu ction as measured b y J 7 against J 5• 
+Outside the calorimeter the leads were brought 
+over to the obs~rving stat ion where s pecially 
+built all-copper selector switches provid ed for 
+various combination s of thermoelements for the 
+severa l functions mentioned above . By manipu­
+lation of these swit ches, the observer could qui ckly 
+shift from one combination to another with delay 
+only for galvanometer response. 
+The emf 's of the thermoelements were meas ured 
+on a Wenner potentiom eter. The e rror s of both 
+the potentiom ete r and the th ermo element s were 
+inconseque ntial for this purpose. 
+The five thermoelements, J ! to J s, used to 
+measure t he te mperatur e of the calorim ete r shell, 
+were calibrat ed in place by comparison ,vith the 
+resistance thermometer in the reference block. 
+This pro cedur e was first to observe the thermom­
+eter and thermoelements, when the reference 
+block tem peratur e was very close to that of the 
+calorim ete r. The refer ence block was then heated 
+for a few seconds , while the calorimet er tempera­
+ture remained virtually constant , and the 0 bserva­
+tions were repeat ed . The change in emf of the 
+thermoelements was thus given in terms of the 
+temperature scale. No eviden ce was found that 
+the calibration factor of any of the other similar 
+thermo elements differed from this one, but even 
+had they differed, the mann er of use avoided any 
+significant error due to thi cause as the heat 
+leak facto rs were experim entally deter min ed, and 
+the thermo element readings were calibrat ed di­
+rectly in terms of power. 
+The resistances of the two platinum thermom­
+eters were measured with a Mueller bridg e [6] 
+and were calibrat ed previou s to their installation 
+459 
+
+PDF_PAGE 8
+- - -- -------
+in the reference block. Intercomparison s of the 
+two thermometers made at severa l times during 
+the progress of the measurements showed that no 
+significant relative change had occurred . Small 
+chang es in the thermometers would have caused 
+only insignificant effects on the calorimetri c 
+results . 
+Use of a commutator with normal (N) and 
+reverse (R) positions adapts the bridge for 
+measuring the resistance thermometer. A bridge 
+current of 0.005 amp was used , half of which 
+passed thro ugh the thermometer . A reversing 
+snap switch for the bridge current served both to 
+account for galvanometer zero drift and also to 
+double the sensit ivity . 
+(e) Auxiliary Contro l Feature s 
+One very important control feature has already 
+been described, i. e. the vapor throttle valve. 
+This is adjusted manually by the operator to 
+open or shut the vapor line and to regulate the 
+evaporation temperature. 
+Other contro l devices are used in the various 
+heating circuits some of which are manual, some 
+automat ic, and some partly each. One of the 
+latter type is the main switch in the calorim eter 
+heater circuit. This is a doubl e-pole double­
+throw switch, which is thrown either way by a 
+spring ' tensed by a hand lever. The switch is 
+released for quick throw by a trigger pulled by 
+the electric seconds signal from the standard 
+clock. A key in the clock circuit allows the oper­
+ator to choose the particular second signal to 
+start or stop the calorim eter heating current . 
+The heating periods are normally integral numbers 
+of minutes. 
+The heating circuits for contro l of the tempera ­
+tures of the envelope and envelope extension were 
+divided into two entire ly separate parts. One of 
+these circuits served to supp ly the additional hea t 
+required during a heat capacity experiment. This 
+heater circuit was arranged to distribute the heat 
+according to the heat capacity of the envelope and 
+envelope extension and was used only during a 
+heat capacity experiment. No adjustment of the 
+current in this heater circuit was necessary due to 
+the use of the second heater circuit. The second 
+heater circuit served to supply the heat lost to the 
+surroundings from the envelope and envelope 
+extens ion and was arranged to distribute heat to 
+account for different heat transfer coefficients in 
+460 
+different regions. This second heater circuit was 
+operated by an automatic contro l at all times. 
+By using these two heater circuits it was possible 
+to avoid large grad ients on the envelope and 
+envelope extension during a heat capacity experi­
+ment, and still utilize automatic control. 
+The automatic contro l was actuated by the emf 
+of thermo elements J IO' - J 9', previously indicated. 
+This emf in a simple potentiometer circuit, 
+actua ted a galvanometer, photoelectric. cell and 
+amplifier, which continuous ly regulated the heat­
+ing current to contro l the temperature difference. 
+The temperature gradient along the vapor tube 
+was automatica lly regulated to a desired value 
+by a similar circuit actuated by the emf of thermo­
+elements J 7, - J 5' . Each heater is connected di­
+rectly in the plate circuit of two type -25L6 electron 
+tubes in parallel , which were in turn dliven by 
+type-38 electron tubes that were controlled by t he 
+photoelectric cell-galvanometer combination. The 
+advantage of this system was that thf' contro l of 
+the current in the heaters was continuous instead 
+of on-and-off. The automatic contro ls regulated 
+the temperat ure of the envelope and thrott le at 
+any desired temperature difference from the 
+calorim eter even when changes occurred in the 
+temperature of the calorimeter , such as during 
+heat capacity experiments . 
+The heating coil on the reference block and the 
+one used in the water bath are both manually 
+contro lled. 
+(£) Measurement of Mass and Electric Energy 
+A sensitive balance of a capacity of 2 kg with 
+closed cabinet below in which containers , dum­
+mies, and counterpoises were suspended, was used 
+for weighing the samp les. Calibra,ted platinum­
+plated brass weights were used. 
+A Wolff-Diesselhorst potentiometer was used for 
+measurements of current and potential drop in the 
+calorim eter heater. These data with time inter­
+vals furnished by a Riemer standard clock de­
+termined the electric energy. A O.I-ohm four­
+termina l resistor in series with the heater was used 
+for the current measurement and a 1,000 to 1 ratio 
+volt box was used for the potential drop. The 
+potential drop was measured by two leads that 
+join the current leads at the zone K (fig. 2). The 
+heat developed in the current leads between the 
+calorim eter shell and the potential leads was 
+accounted for by calculation , knowing the resist-
+Journal of Research 
+
+PDF_PAGE 9
+ance ,of the leads and a suming an arbitrary calo­
+rimeter boundar y near thermo element J 6• This 
+correction was es timat ed a 0.027 percent and was 
+believed to introdu ce no significant uncertainty 
+in the results. If the c alorim eter bounda ry had 
+been tak en at J7 or J5, instead of at J6, the maxi­
+mum difference in the correction would hav e been 
+only 0.006 percen t. 
+All the importan t e lectrical-measurin g instru ­
+ment s were carefully calibrat ed. 
+4. General Evaluation of the Calorimeter 
+The calorim et er was de igned mainl y for 
+measuring heats of vaporization of small amount s 
+of hydro carbon s, and incidentally for measming 
+liquid heat capaci ties. It was found possible to 
+mak e accmat e measurements of the heat of 
+vaporization with only a few grams of mat erial. 
+In oth er word , t he v aporization experim ents 
+could proceed until the calorim eter was practically 
+dry . Thi was mad e possible by the effecti ve heat 
+distributin g syst em in the c alorim eter and the 
+isothermal shield on the calorim eter and envelop e 
+that mad e heat leak evalua tion essentiall y ind e­
+pendent of any temp eratur e gradi en ts on the 
+calorim eter shell or on the e nvelop e. The elec­
+troni c automati c c ontrol s on the e nvelope and 
+throttl e temp eratm es, effective in all type of 
+experim ent , wer e a great help in th e manipula­
+tion of the app aratu s. The fact that vaporization 
+experim ents were made with a larg e numb er of 
+hydro carbon s is e vidence of th e ease of operation 
+of th e apparatu s. Aft er a lit tle e xperience, it 
+was found possibl e to dry a sampl e of hydrocar­
+bon , free it from air, di till it into the calorim eter, 
+mak e several vaporization experim ents, and 
+empty the c alorimeter, a ll in a normal workin g 
+day . 
+II. Heat of Vaporization of 59 Hydro ­
+carbons 
+1. Introduction 
+M easm ements of heats of combu stion of 
+hydro carbon s are used in the determina tion of 
+heats of formation of the hydrocarbon s which, 
+in turn , are used to calculat e heats of reaction 
+and equilibrium con tan ts in vol ving hydrocarbon s. 
+Combu stion experim ent usually t art with th e 
+hydro carbon in the liquid stat e 0 that knowl edge 
+Heats of-Vaporization of Hydrocarbons 
+of the heat of vaporiza tion is necessary to obtain 
+heats of formation . The c alorim etri c appar atus 
+describ ed in section I was c onstru cted for the 
+purpos e of accmat ely measming heats of vapori­
+zation of a numb er of sampl es of pme hydro­
+carbon s that had become availabl e. 
+2. Method 
+In the vaporization experim ents, the measm ed 
+heat was s uppli ed electri cally to evaporat e liquid , 
+while vapor was withdrawn at a rat e that was con­
+troll ed manually to keep a constant t emp eratur e 
+of evaporation . According to the theory of fluid 
+calorim etry (1], the e nergy add ed p er unit mass 
+remov ed a vapor, designated a s g amma , 'Y, 
+exceeds the lat ent heat of vaporiz ation , L, by t he 
+quantit y beta, {3. 
+L = 'Y - {3, 
+where 
+(3 = Lv/(v' -v) = Tv dp/dT 
+where T is absolut e temp eratm e, p is the v apor 
+pressure, and v and v' ar e t he specific v olum e o f 
+liquid and vapor , respecti vely. 
+3. Preparation of Samples 
+All of the hydrocarbon s u ed in the presen t 
+inv estigation were obtain ed in 1941 and 1942 from 
+the BS Section on Thermo chemistry a nd H ydro­
+carbon s t hrou gh Frederick D . Ro sini. The 
+variou s s ampl es are identifi ed as follows: n-Pen­
+tane, n-hexan e, 2-methylpentan e, 3-me thylp en­
+tane, 2,2-dimethylbu tane, n-heptan e, 2,2-dim ethyl­
+pentan e, 3,3-dim ethylp entan e, 2,2-dimethylhex­
+ane, 2,3-dim ethylhexan e, 3,3-dim ethylhexan e, 2-
+methyl-3- ethylpentan e, 3-methyl- 3-ethylpentan e, 
+2,2,3-trim ethylp entan e, 2,2,4-trim ethylpentan e, 
+2,3,3-trim ethylp entane , n-nonan e, n-decane, meth­
+ylcyclopentane, methyleycloh exan e, n-prop ylcy­
+clohexan e, cis-l ,2-dimethylcyclohe xan e, trans-1 ,2-
+dim ethylcycloh exane, cis-l,3-dim ethyl cyclohe '­
+ane, trans-l ,3-dimethyl cyclohexan e, cis-l,4-dimeth­
+y Icy e 1 0 h ex ane, trans-l ,4-dim ethylcyclohexane, 
+benzene, tolu ene, cthylbcnzene (first ampl e), 
+tn-xylene, n-prop ylbenzene, and isoprop ylbenzene, 
+were sampl es from the a rne lot the purifi cation 
+and prop erti es of i' hieh were late r r eport ed b y 
+Forzia ti, Glasgow, Willin gham, and Ros ini (7]. 
+n-Octan e, 2-methylh eptan e, 3-methylheptan e, 
+4-methylh eptan e, 3-ethylh exan e, 2,4-dimethylh ex-
+
+PDF_PAGE 10
+ane , 2,5-dimethylhexane, 3,4-dim ethy lhexane, 2,3, 
+4-trimet hylp entane, n-propylcyclo-pentane isopro­
+pylcyclopentane, cyclohexane, ethylcyclohexane, 
+o-xylene, and p-xylene were samp les prepared 
+by C. E . Boord and collaborators on the American 
+Petroleum Institut e Hydrocarbon Research Proj­
+ect (now the American Petroleum Institute 
+Res earch Project 45) at the Ohio State University. 
+2,3-Dimethylpentane (bot h samp les), 2,4-
+dimethylpentane , 3-ethy lpentane, 2,2,5-trimethyl­
+hexane , and 2,3,5-trimethylhexane were samp les 
+from the same lots, the purification and properties 
+of which were later reported by Howard, Mears, 
+Fookson, Pomerantz, and Brook s [8]. 
+2,3-Dim ethy lbutan e was from the material 
+prepared by Cramer and Mulligan [9]. The 
+second lot of ethylbenzene was from J. Timmer­
+mans [10]. 1,2,3-Trim ethylbenzene , 1,2,4-tri­
+methylbenzene, and 1,3,5-trimethylbenzene were 
+samples from the materials whose properties 
+were described by Mail' and Schicktanz [11]. 
+2,2,3-Trimethylbutane and hexamet hyl-
+ethane were samp les purified by the American 
+Petroleum Institute Research Project 6 at the 
+National Bureau of Standards from material 
+supplied by George Calingaert, Ethyl Corpora­
+tion, Detroit, Michigan [12]. 
+In connection with the amounts of impurity 
+(not including water) in the samp les, and the 
+effect of such impurities on the heat of vaporiza­
+tion, the following points may be noted: The 
+manner of preparation and purification of the 
+compounds was such as to leave as impurity 
+only those substances having boiling points and 
+other prop erties near those of the given substance. 
+The amount of such impurity was less than 0.01 
+mole fraction for many of the compounds, be­
+tween 0.01 and 0.03 mole fraction for some, and 
+near 0.04 mole fraction for several. It is highly 
+improbable, however , that any of the values of 
+the heat of vaporization will be in error by mor e 
+than 1 in 1,000 because of the small differences 
+in the values of the heat of vaporization for those 
+close-boiling isomers that might be expected to 
+be present in one another as impurities. For 
+most of the compounds, it appears that the error 
+from these impurities will not exceed 1 in 2,000 
+and for some the error from this source will not 
+exceed 1 in 10,000. 
+It was necessary to remove both air and. a trace 
+of water from the hydrocarbons before making 
+462 
+calorimetric measurements on them. The air 
+was effectively remov ed by distillation into a 
+cold trap from which the air was continually 
+removed by pumping. The trap was immersed 
+in a solid carbon dioxide-ethanol bath so that 
+there was negligible loss of the sample. A second 
+distillation from the trap to the detachable con­
+tainer indicated that essentia lly all of the air 
+had been removed. 
+The water was usually removed from the hydro­
+carbons by running the liquid hydrocarbons 
+slowly through a tube packed with silica gel, and 
+into the evacuated container from which the fiTst 
+distillation was made. Tetraethylene citrate was 
+used as a stopcock lubri cant because it was not 
+affected by the hydrocarbon. 
+As traces of water were visible as ice in the 
+cold hydrocarbon even after this drying pro­
+cedure, it was necessary to measure the effective ­
+ness of the drying. The sample of toluene sample 
+was prepared in the usual manner and used in 
+the calorimeter in the vaporization experiments. 
+Upon completion of these experiments, the toluene 
+was distilled to a bulb where the water content 
+was measured by a method similar to that used 
+by Aldrich [13] at this Bureau in the determina­
+tion of water in gasolines. A liquid alloy of 
+sodium-potassium was added to the hydrocarbon 
+and agitated until all of the water had reacted. 
+The pressure of the hydrogen evolved was meas­
+ured after the hydrocarbon had been frozen with 
+liquid air. From this pressure, and the volume 
+and temperature of the system, the water cont ent 
+was calculated to be less than one part in 25,000 
+in the samp le. This would affect the measured 
+heat of vaporization of the toluene by less than 
+1 part in 5,000. It is believed that the error du e 
+to water present was n ever more thao this amount 
+in any of the hydrocarbons, and was usually 
+much less. 
+Other experiments were performed to obtain 
+additional evidence on the adequacy of the dry­
+ing. In addition to the drying with silica gel, 
+some experiments were mad e in which the water 
+was removed by cooling the sample to solid car­
+bon dioxide temperatures and filtering out the 
+traces of ice with fiber glass. Other experiments 
+were made in which the samples were dried with 
+P20 6 • All of these experiments indicated that 
+the drying of the hydrocarbons with silica gel 
+was sufficient ly effective. 
+Journal of Research 
+
+PDF_PAGE 11
+........ -
+4. Experimental Procedure 
+(a) Accounting for Mass, Energy, and Change in State 01 
+the Sample 
+The mass of fluid withdrawn as vapor enters as 
+a direct factor in the redu ction of the data, and 
+therefor e the results can be no more reliable than 
+the det erminatiol1S of these masses. Special care 
+was taken ther efore to avoid both systematic or 
+accidental error in the weigbings. For each 
+filling, an account was kept of the amount in th e 
+calorimeter at any time and a final mass check 
+made by compl etely exhausting and wrighing 
+the residual after a series of experim ents. 
+The amount of fluid evaporat ed and collected 
+by cond ensation ,vas seldom less than 10 g in a 
+single experimrn t, alth ough occasionally when tho 
+supply wa s limited, small er portion s were taken. 
+In order that the weighing s be mad e with 
+sui table precision, the glass contain ers holding thc 
+cond ensed sampl es were given a routin e treatm ent 
+of preliminar y conditioning. The contain er, hold­
+ing a sampl e t hat had been collected by conden­
+sation in a cold bath of dry icc and alcohol, was 
+warmed to the temperature of the room. The 
+container was then wiped dry with a towel, dried 
+further in fron t of a fan , and then hun g in the 
+balan ce case for at least 30 minut es to assume a 
+stea dy temperature . vVeighing s were then mad e 
+by substitution , estima ting to 0.1 mg by reading 
+swings. A dumm y glass contain er was kept in the 
+balance case and was weighed either just before 
+or after the sample, to elimin ate errors of weighing 
+due to accidenta l changes in the balan ce or the 
+count erpoise. The weight s were c orr ected for 
+buoyancy in ail'. 
+Measured energy was s uppli ed electrically to 
+the calorim eter and its c ontent s by means of the 
+heating ' coil install ed on the sample c ontain er 
+as described in section 1. Power was s uppli ed b y 
+a separate storage batt ery of large curr ent capa c­
+ity . Potentiome ter readings were mad e periodi­
+cally for obtainin g the energy added electrically , 
+as described later. 
+In order to avoid a lar ge initial chan ge when the 
+current was s wit ched to the calorimeter heater 
+at the start of an experimcnt, a substitut e resistor, 
+equal to the calorimeter heater resistance , was 
+used to adjust and teady the batt ery output. 
+Between experiments, the curren t in the s ubsti­
+tute was adjusted to the value selected to gIve 
+Heats of Vaporization of Hydrocarbons 
+7626 13-4 7- - 6 
+the desired evaporation rat e in the next experi­
+ment . 
+The means provided for the control and evalu­
+ation of heat leak have been describ ed in sect ion 1. 
+In operation , there were usually small devia tions 
+from the ideal contro l that would have annull ed 
+heat leak. The small correct ions for this remain­
+ing heat leak were evaluat ed with the aid of the 
+differentia l thermoelements. .The indicated differ­
+ences were observed every minute and added 
+algebraica lly to give sums in temperature-tim e 
+unit s called "heat-leak factors." These factors , 
+when multiplied by "heat-leak coefficients, " gave 
+the heat-leak corr ections for the energy in the in­
+dividual experiments. The calorim eter was de­
+signed to mak e the c oefficients s mall both by 
+constrnction and by evacua tion of the insulatin g 
+space, and the manipu lation of the envelope con­
+trol was s uch as to mak e the fa ctors small. 
+The heat-leak coefficients were determin ed ex­
+perim entally durin g the early part of the program 
+and were checked later. Thi was don e by sepa­
+rate blank experim ents with no electrical heat­
+input to the calorim eter and with no vapo r with­
+drawal. The temperat ure difference between the 
+calorim eter and envelope was held at a large 
+measured value for a cho en time, yielding an 
+exaggerated h eat- leak factor . The envelope heat­
+leak coefficient was calculat ed from the energy 
+chang e of the calorim eter and its con tents, where 
+this energy chang e was comput ed f rom initial 
+and final calorim eter temperatures and the heat 
+capacity of the calorim eter. Similarly , the tube 
+heat- leak coefficient was determined in an experi­
+ment with an exaggerat ed tube heat-l eak factor. 
+Th e c orr ection for heat leak u sually consisted 
+of three parts , designat ed as "envelop e," " tub e," 
+and "residual" heat leaks . The envelope h eat 
+leak was usually small because of the adj ustmen t 
+of the automatic contro l. The tub e heat leak 
+was purpos ely allowed to be larger in order to 
+permit the temperature of the thro ttle and upp er 
+part of the vapor tube to run high enough to avoid 
+cond ensation in the outflow tube. Durin g the 
+actual withdrawal of vapor, the tub e heat leak 
+was s hown to be negligible, as the vapor flow con­
+trolled the temperature of thp, tube wher e it 
+joined the calorim eter shell. 
+The r esidual heat leak was that which was not 
+account ed for by the rou tine envelope and tube 
+heat-leak dete rmination s, becaus0 of possible devi·· 
+463 
+
+PDF_PAGE 12
+ations of the heat -leak coefficients from the values 
+measur e. This residual heat leak was accounted 
+for by making frequ ent blank experim ents whill'l 
+the calorim eter was :in equilibrium betw een 
+evaporation experimen ts. In these, both envelope 
+and tube heat leaks were kept normal and ac­
+count ed for, leaving the deviation of the energy 
+accounting to give a rate of leak per uni t of time, 
+which if of significant amount, could be appli ed 
+to the preceding experiment as a supercorrection. 
+Th e tem perat ure of the calorimet er and con­
+tents, when in equilibrium, was measured by a 
+resistance thermom eter in conjunction with ther­
+moelements, as previously describ ed. The tem­
+peratur e c hang e of the calorimeter and content s 
+was thus alway s accurately observe d in all experi­
+ments. All temperatures were finally expressed 
+on the Int ernational Temp eratur e Scale. 
+For determining eith er the ll1itial or final 
+temperature, each temperature observation con-' 
+sis ted of simultan eous readings of the resistance 
+thermometer and thermo elements. The five 
+thermoelements J 1- J 5, in seri es, indicated the 
+mean temperature of the calorimeter with respect 
+to the reference block. Four successive tempera­
+ture readings were mad e at half-minut e int ervals, 
+from which the mean temperature was computed. 
+The temperature at which evaporation pro­
+ceeded is of some importan ce, as the heat of 
+vaporization varies with temperature. Thi s was 
+controll ed by the opera tor to keep i t as near as 
+possible to the initial temperature. Thermo­
+element Js was taken as the guide for this control. 
+Previous experien ce [4] together with surveys of 
+the temperature distribution on the calorim eter 
+shell during evaporation indicat ed that this point 
+represented the best approximation to th e tem­
+perature of the vapor as it left the calorimet er . 
+(b) Descripti on o f Vaporization Exp erim ents 
+In preparation for a series of experim en ts on a 
+sampl e, the calorim eter and vapor lin e were cleared 
+of air by evacuation. The sampl e, prepar ed as 
+previously describ ed, was transferred from the 
+glass con tainer to the calorim eter by distillation. 
+To do this, ice was packed around the calorim eter, 
+and necessary heat was suppli ed to the con tainer 
+to evaporate the liquid . In this preliminary 
+chargin g, the insula ting s pace was filled with 
+helium to increase the rate of heat flow from the 
+464 
+calorimeter. For some of the samples of high er 
+boiling point s, the available pressure differential 
+was s o small that it required a long time for the 
+tran sfer. 
+After the sam ple was transferred, the contain er 
+was reweighed and the calorim eter was heated to 
+the temp eratur e of measure ment, usually 250 C, 
+keeping the valve and tub e at a temp eratur e above 
+tha t of the calorim eter to avoid condensatio n in 
+the tub e. Before starting the experiment, the 
+insulating spac e outside the calorim eter was 
+evacuated to provide the insulation . A weigh ed 
+glass container was attach ed and the line evacuat ed 
+to the thTottle valve . The container was opened 
+to the' lin e and the apparatus was then ready to 
+start the experiment. 
+The initial equilibrium temperature of t he 
+calorimeter and contents was observed first. At 
+the beginnin g of a chosen minut e the curr ent was 
+swit ched from the substitut e resistor to the 
+calorim eter h eate r by the automatic time-tripped 
+switch. The thTottle valve was then opened by 
+the operat or who was also observing the thermo­
+elements. The va.lve was adjusted continuou sly 
+so as to keep J s at zero. The referen ce block was 
+kept at a constant temperature as shown by the 
+resistance thermometer. The upp er part of the 
+calorim eter, which followed closely the evapora­
+tion temperature, was maintained at the initial 
+reference block temperature by regulatm g t he 
+vapor flow till'ough the valve to just balance the 
+energy added to the calorim eter. During the 
+evap9ration period the lower part of the calorim­
+eter in contact with the liquid became warmer by 
+the amount of sup erh eat ing necessary to condu ct 
+the heat to the surface for evaporation. 
+To evaluat e the heat-leak factor s, the differ­
+ential thermoelements, J 9- JIO, and J7- J5, were 
+observed at I-minu te interva ls. Th e constancy of 
+the r eference-block temperature was frequently 
+checked to furnish a steady zero for thermo­
+element J5, used to guide the regulation of the 
+evaporation temperatW'e. Occasional sur veys of 
+all thermo elements were mad e to indicate any 
+irregularities in behavior. The cmTen t and po­
+tential drop in the calorim eter h eate r were 
+observed on alternate minute s, star ting one half 
+minut e after the power was switched on. 
+At the e nd of the chosen numb er of minutes, the 
+curr ent was s witch ed back from the calorim eter 
+heater to the substitute resistor, making the time 
+Journa l of Researc h 
+
+PDF_PAGE 13
+factor of the energy an integral number of minutes 
+as determined by the standard clock. The throttle 
+val ve was kept open long enough aft er the power 
+was switched off to bring the calorim eter and 
+contents to final equilibrium t emperatUTe near the 
+initial temperatUTe, usually within 0.010 C. After 
+a pause of 10 minutes for attaining equilibrium , the 
+final temperatUTe was observed. Following that 
+observation, and while changing container and 
+weighing a previous samp le, a b lank experim ent 
+was conduct ed to obtain the residual heat-leak 
+factor, previou sly described . 
+On most of the samp les, experim ents were made 
+at several rates of evaporation , usually between 
+}~ and 1 g per minut e. Smaller rat es than }~ g a 
+minut e were also u sed when necessary eith er 
+because of limitation s on account of the fluid 
+charact eristics, or else because of the limit ed 
+amount of sampl e. The practi ce of using different 
+rat es of evaporation wa a precaution to test for 
+some conceivabl e SOUTce of error . 
+This practice has been followed for the past 30 
+years as a check on the various ~r eventi ve mea.s­
+UTes for avoiding liquid mixed WIth the vapor III 
+evaporation experim ents. DUTing the exp erim e~ts 
+on wat er, these measm'es had been so effectIve 
+that no case \vas ever found where thi change of 
+rat e gave a positiv e test for wet stea m, even over 
+the ranO'e from the ice point to within 1 d egree of 
+the critica l temperatUTe. In spit e of this experi­
+ence, the test has been continu ed as a routine 
+safeguard against erron eous e valuation of the 
+stat e of the vapor. 
+In the present case, if spray proj ected upward 
+from the e vapor ating sUTface had escap ed captUTe 
+by the baffles and had been withdrawn with the 
+vapor , the measUTed energy per unit mass would 
+have been too small. FUTthermor e, if the t emp er­
+atur e of the vapor indi cate d by the observation of 
+J 5 thermoe lement had been in error, the effect of 
+the error might depend on the rat e of flow. Ab­
+sence of any evidence of the rat e e ffect on the 
+resulting value of the heat of vaporization, may be 
+tak en as contributin g to the reliability of the 
+results as far as the tate of the fluid is concerned. 
+I-Iere again, it must be confessed the test showed 
+no evidence of liqu id mixed with the vapor. The 
+baffles evidently ha \Te done their bit. FUTther 
+evidence of reliability, a distinguished from con­
+sist ency, was furni shed by the experiment s on 
+water with this calorim eter. 
+Heats of Vaporization of Hydrocarbons 
+5. Results of Vaporization Experiments 
+The results of the vaporization experim ent are 
+gi ven in chrono logical order in tabl e 1. The value 
+of net energy , given in column 6, includ e not o~y 
+the electrical energy input, but also the energles 
+due to the various heat leaks (envelope, tub e, and 
+residua l) the correct ion for the change in tem­
+peratur e 'of the calorimeter between the beginn~g 
+and the end of the experiment, and the correctIOn 
+for any deviation of the evaporation temperatur e 
+from the desir ed even temperatur e (usually 250 C). 
+These components of the net energy are not listed 
+separat ely, becau se the correction are s o small. 
+In an av erag e experiment, the arithmetical sum 
+of all the heat leak corrections amounts only to 
+about 1 joule, wherea the oth er corrections are 
+even less. Thi i the result of care ful control of 
+the temperatm'e of the c alorim eter and its sur­
+rounding s at all times dUTing an experim ent. 
+T ABLE 1. R esults oj vaporization experiments 
+W A1'ER 
+, 
+Tern· Evap· ora~ Net Meany" {J" L" Date pera· Mass tion energy l' ture rate 
+--- ----- ----- --- --- - ---
+g/min· into 
+°0 I! ute int.j int.jJg into JIg jig int.J/1! 
+11-8-41.. 25. 0 9.8792 0.49 24113.5 2440.83 
+Do .. _. 25.0 9.8929 .49 24 144. 1 2440.55 
+11- 10-41. 25.0 20.2042 .51 49326.3 2441. 39 
+Do .... 25.0 10.1150 .51 24689.6 2440.89 2441. 14 0.06 2441. 08 
+Do .... 25.0 10.1164 .51 24694. 0 2441. 32 
+Do .... 25.0 10. 1181 .51 24699.3 2441. 10 
+11-12-41. 25.0 9.8179 .49 23974.6 2441. 93 
+n·HEPTA NE 
+11- 21-41. 25.0 9.7943 0.49 3573.83 364.89 
+Do .... 25.0 9.8035 .49 3575.86 364.75 
+Do .... 25.0 9.8061 .49 3577. 23 364.80 
+Do .... 25.0 9.8 114 .49 3578.55 364.73 364.81 0.13 364. 68 Do .... 25.0 14. 7147 . 49 5367.19 364.75 
+11-26- 41. 25.0 9.8281 .49 3586.31 364.90 
+Do .... 25.0 4.9249 .25 1796.56 364.79 
+Do .... 25.0 19. 8554 .99 7244.12 364.84 
+Do .... 15.0 9. 6531 .48 3580.46 370.91 -------- - - --- - ------.-. 
+Do .... 35.0 9.9843 .50 3582.81 358.84 --------- -.-.- ---------
+2,2,4·T RIllIETllYL PENT ANE 
+12-8-4 1. . 25.0 11.6222 0.58 3575. 8 307.68 
+I ~'" 
+Do .... 25.0 11.4883 .57 353'1. 26 307.64 0. 14 307.48 Do .... 25.0 17.0507 .57 5244.24 307.57 
+Do .... 25.0 13.5587 . 57 4170.72 307.60 
+465 
+
+PDF_PAGE 14
+TABLE 1. Results of vaporization experimen ts-Continue d 
+n-OCTANE 
+'rem- Evap-
+Date pera- M ass ora- Net 'Y Mean'Y" Ii" tion energy tnre rate 
+--- ----- --- --- ----- --
+glmin- into 
+°c y 'Ute. in/. j int.j ly into Jig jlo 
+12- 16-4L 25.0 9.9070 O. EO 3597. 96 363.17 
+l'~ " 
+Do ____ 25.0 9.8989 . to 3594.77 363.15 0.05 Do ____ 25. 0 II. 8834 . to 4315.26 363.13 
+Do ____ 25. 0 9.9041 .50 3596.89 363.17 
+2-M .ETHYLHEPTANE 
+1-2--42 ___ 25. 0 10.4334 0.52 3624.17 347. 36 
+1 "'" 
+Do ____ 25. 0 10.0047 .50 3474.39 347.28 0.07 Do ____ 25.0 9.9425 . 50 3454. 33 347. 43 
+Do ____ 25.0 15.3498 .50 5332.69 347.41 
+3-i\IET HYLH EPTANE 
+1-8--42 ___ 25.0 9.9 119 0.50 3455.64 348.64 
+1 ,,"n 
+Do ____ 25.0 10.1243 .51 3530.14 348.68 0.06 Do __ __ 25.0 10.5008 .52 3662.60 348.79 
+Do ____ 25. 0 15.4967 .50 0405.06 348.79 
+4-ME'1 ' HYLHEPTANE 
+1-14--42 __ 25.0 10.1086 0.50 3511. 86 347.41 
+1 "'" 
+Do ____ 25.0 10.0087 .50 3475.75 347.27 
+Do ____ 25. 0 10. 0098 . 50 3476.55 347.31 0.06 
+Do ____ 25.0 16.0145 .50 5563.06 347.38 
+2,5-DIMEHTYLHEXA NE 
+1-26--42 __ 25.0 20.9621 0.52 6948.34 
+Do ____ 25.0 22.1241 .50 7333. 70 
+331. 47 
+331. 48 331. 48 0.09 
+n-NONANE 
+2--4--42 ___ 25.0 19. 1859 0.48 6946.08 362.04 
+} 362.04 Do ____ 25. 0 20.0269 .50 7249.45 361. 99 0. 02 Do ____ 25.0 16.8176 .47 6089.36 36:0. 08 
+n-DECANE 
+2-11--42 __ 25.0 4.6 160 0. 15 1665.79 360.87 
+} 360.97 Do ____ 25.0 8.3058 . 15 2999.02 361. 08 0.01 Do ____ 25.0 7.0784 .15 2555.08 360. 97 
+2,3,4-TRIMETHYLPENTANE 
+2-16--42 __ 25. 0 9.7186 0.49 3268.08 330. 10 } 330. 14 Do ____ 25.0 19.9360 . .50 6582.39 330. 18 0. 08 
+466 
+L" 
+---
+into jfg 
+363. 11 
+347.30 
+348. f>6 
+347.28 
+331. 39 
+362. 02 
+360. 96 
+330.06 
+M 
+TABL E 1. Results of vaporization experiments- Contin ued 
+2,3,3-TR IM ETHYLPENTANE 
+'rem- Evap-
+Date pera- Mass ora- Net :rvlean'Y25 Ii" L 2,~ t ion energy 'Y ture rate 
+--- - - --- ----- --- --- -----
+glmin into 
+°c g ute int.j int.j ly int. flo jig int.J /g 
+2- 20--42 __ 25.0 9.8043 0.49 3192.19 325.59 
+) ,,,. 
+Do __ __ 25.0 15. 8101 1.58 5158.44 325.96 
+Do ____ 25. 0 10.0081 0.50 3262.69 326.00 0.07 325. 76 
+Do ____ 25.0 6.9949 .25 2278.50 325.74 
+Do ____ 25. 0 9.7430 . 49 3174.88 325.86 
+WATER 
+2-25--42 __ 45. 0 6.3300 0.16 15156. 6 2394.40 ---- --- -- -- --- --------. 
+2-26-42 __ 25. 0 10.2526 .5 1 25031. 2 2441. 45 
+f2441. 47 
+Do ____ 25.0 6.2581 . 16 15278.6 2441. 41 0.06 2441.41 Do ____ 25.0 7.7441 . 29 18906.6 2441. 42 
+Do ____ 25.0 7.9806 . 50 19485.4 2441. 59 
+3,3-D IM ETH YLHEXA NE 
+3- 13--42 __ 25.0 10. 2026 0.51 3352.59 328.60 
+f 328.63 
+Do ____ 25.0 25.0234 I. 00 8223. 19 328.62 0.08 328. 55 Do ____ 2.>.0 8.0078 0.56 2631. 99 328.68 
+Do __ __ 25.0 10.0 140 .50 3290. 75 1 328.61 
+2,3-DIMETHY L HEXA NE 
+3- 20--42 __ 25.0 9.363 1 0.47 3180.34 339.67 
+f 339.61 
+Do ____ 25.0 18. 5009 .97 6282.68 339.59 0.07 339.54 Do ____ 25.0 7.8080 . 24 2650.99 339.52 
+Do ____ 25.0 11.1902 .49 3800.96 339.67 
+2,2,3-T RIMETH YLPENT ANE 
+3-23--42 __ 25.0 8.06 12 0.50 2606.23 323.30 
+f 323. 20 
+Do ____ 25.0 8. 1525 1. 02 2635.12 323.23 0.08 D o ____ 25.0 8.15 16 0. 26 2633. 63 323.08 323.12 
+D o ____ 25.0 7.5864 . 05 2435.74 323. 20 
+n-HEXA NE 
+3-24--42 __ 25.0 8.9398 0.45 3276.73 366.53 
+I'M" 
+Do __ __ 25.0 14.5929 .91 5847.23 366. 43 0.39 Do ____ 25.0 7.9004 . 25 2894.89 366.42 366.05 
+Do ____ 25.0 10.8156 . 49 3962.52 366.37 
+2-MET H YL -3-ET H YLPENTANE 
+3- 26-42 __ 25.0 9.7119 0.49 3275.51 337.27 
+f 337. 25 
+Do ____ 25.0 J5.5975 .98 5259.28 337. 19 
+Do ____ 25.0 7.6845 . 24 2591. 52 337.24 0.07 33'1.18 
+Do ____ 25.0 II. 6749 .48 3938. 02 337.31 
+Journal of Research 
+
+PDF_PAGE 15
+* 
+TABLE 1. Results of vaporization expel'iments-Co ntinued 
+3-METHYL-3-ETHLYPENTANE 
+Tern- E vap· 
+Date pera- Mass ora- Tet l' MeanY25 p" L" tion energy t ure rate 
+--- ----- ----- --- --- -----
+u/min- into 
+°C g ute int.j into j/g int.j/g i/g int·J/o 
+3-27-42 .. 25.0 9.9786 0.50 3319.54 332.67 
+)~,w Do .... 25.0 15.9652 1.00 5309.69 332.58 0.06 332.53 Do .... 25.0 7. 9748 0.25 2652.30 332.58 
+Do .... 25. 0 11. 9768 .50 3982.73 332.54 
+, 
+2,2·DIMETHYLHEXANE 
+3-30-42 .. 25.0 9.0189 0.50 2945.01 326.54 
+) ,ro<o 
+Do .... 25.0 9.9 168 .99 3237.56 326.48 0.09 326.40 1)0 ... _ 25.0 7. 9673 .25 2601. 09 326.47 
+Do .... 25. 0 9. 0576 .50 2957.02 326.47 
+3-ETHYLHEXANE 
+3- 31- 42 .. 25. 0 9.4628 0. 47 32 4.57 347.11 
+} 347.07 Do .... 25.0 19.9 J38 .95 6911. 25 347.06 0.06 347.01 
+Do .... 25.0 7.5362 .24 2615.46 347.05 
+METHY L CYCLOHEXANE 
+4--7- 42 ... 25.0 9.1250 0.46 3287.94 360.32 
+) 360. 1.9 
+I Do .. _. 25.0 11. 9260 1. 00 4295. 67 360.19 
+Do .... 25.0 19.9239 1. 00 7175. J5 360. 13 O. 13 1 360. 06 
+Do .... 25.0 9.9962 .50 3599. 86 360.12 
+CYC L OHEXANE 
+4-9-42 ... 25. 0 9.2557 0.46 1 3634.88 392.72 I} Do _ ... 25.0 29. 6289 .99
+1
+11 634.9 1 392. 69 392. 72 0. 24 392.48 
+Do .... 25.0 11. 9967 .50 4711.6 1 392. 74 I 
+ETHYLCYCLOHEXANE 
+4-10-42 .. 25. 0 10. 1008 0.50 3643.67 360. 73 
+} 360.68 D o .... 25. 0 27.5431 . 93 9933.49 360. 65 0.05 360. 63 
+D o .... 25. 0 13.0929 . 50 4722.00 360.65 
+.PROPYLCYCLOHEXANE 
+4- 17-42 .. 1 25. 0 [ 37.8146 [ 0.5 1 113504.76 [ 357.13 1 357.13 10. 02 1 357.11 
+ciS·I,2·D I METHYLCYCLOIIEXANE 
+4-20-42 .. 25.0 14. 4052 0.51 5098. 87 353.96 
+} 353.92 Do .... 25.0 18.2952 .91 6475.32 353.94 0.06 353.86 
+Do._ .. 25.0 15.5325 .51 5496.40 353.86 
+Heats of Vaporization of Hydrocarbons 
+T AB L E 1. Resu lts of vaporization experiments - Cont inued 
+Irans·l,2·DIME T HYLCYC L OHEXANE 
+'-rem- Evap · 
+Date pera- Mass ora .. Net l' McanY25 {j'l5 L" tion energy ture rate 
+---- ----- ----- --- --- -----
+U/1II.in· inl. 
+°C g ute int.j int.i/g into jig jig int.j /g 
+4-21-42 .. 25.0 10.3778 0. 52 3547.68 341. 85 
+} 341. 84 Do._ .. 25.0 30.0590 1. 00 10274.6'il 341. 82 0.07 341. 77 
+Do .... 25.0 10. 0039 .50 3419. 8& 341.85 
+trans·I,3-D I MET H Y L CYCLOHEXANE· 
+9. 7593 / O. 49 / 3409. 64 I 349. 37 I] \/ 
+10. 029~ ~ . 00 3503. ;3 / 34Q. ~~ I, 349. 34 0.07 
+30.001L I _.00 110 179.-6 349. v _ I 
+349.27 
+1--22-42. . 25. 0 
+Do .... 25. 0 
+Do .... 25.0 
+Cis-1,3-DIMETHYLCYCLOHEXANE b 
+4-24-42 .. 25.0 10.0416 0.50 3421. 84 3'10. 77 
+} 340. 70 Do .... 25.0 30.9169 1. 03 10531. 87 340.65 0.08 340. 62 
+Do ___ . 25.0 10.0596 .50 3427. 22 340.69 
+ciS-l,4-DIMETHYLCYCLOHEXANE 
+9. 8297 I O. 49 / 3419. 41 I 347. 86 1l I 
+29.44'10 I .US IIU"4 l.,O 1 ci7 Q~ 347. 84 0.07 
+9.8533 . 49 3427.38 347. 84 1J I 
+4-27-42. . 25.0 
+Do .... 25.0 
+Do ... _ 25.0 
+347.77 
+2,3-DIMET H YLPENTANE (IMPURE ) 
+4-28-42 .. 25.0 11. 7759 0.56 4027.50 342.01 
+} 342. JO Do .... 25.0 10.0438 1.00 3436.17 342. 12 0.13 (341.97)' 
+Do .... 25. 0 9.9292 .50 3397.54 342.18 
+2,3-D I ME'1'H YLPEN'l'ANE (PURE ) 
+4-29-42 ._ 25.0 10. 1601 0.5 1 3472.74 341. 80 
+} 341. 77 Do .... 25.0 10. 1885 1. 02 3482.06 341. 76 0. 13 341. 61 
+Do .... 25.0 10.0369 0.50 3430. 10 341. 75 
+3,3-DIME'l' H YLP ENTANE 
+4- 29-42 .. 25. 0 7.7358 0. 52 2550.61 329.72 } 329.70 0.20 329.50 Do .... 25.0 6. 1893 .52 2040.40 329.67 
+2,2-DIMET li YLP EN 'r ANE 
+4-30-42 .. 25.0 10.5002 0. 52 3400.38 323.84 } 323.82 0.27 323.55 Do .... 25. 0 10. 4958 .52 3398.44 323. 79 
+a T his isomer, forrncrly labeled "cis", has the followin g properties: boiJillg 
+point at 1. atm., ]24.45° C; refracti ve index, flDS at 25° OJ 1.4284; density, at 
+25° C , 0.7806 gjm l. 
+b T his isomer, formerly labcl(ld Iltrans", has the rollowio g properties: 
+boili ng pOintat 1 atm ., 120.09° C; rcira ctiv e ind ex, noS at 25° C, 1.4206; den sity 
+at 25° C, 0.7620 gj m I. 
+, Samp le of lower purity. 
+467 
+
+PDF_PAGE 16
+TABLE 1. Results of vaporization experiments - Continued TABLE 1. Results of vaporization experiments - Continued 
+2,2·DIMETHYLB UTANE (SILICA GEL DRYING ) METHYLCYCLOPENTANE 
+Tern · Evap-
+D ate pera· M ass ora· Net 'l' M ea n'l''' {J" L" t ion energy ture rate Tern· Evap-ora- N et Date pera· Mass tion energy 'l' Meany " {I" L" ture rate 
+--- ----- -------- --- --- - - --- ----- ----- --- --- --
+glmin· into 
+°0 0 ute int .j int.jlg int .Jio jlo int · jlo 
+5-1-42 ... 25. 0 10.5637 0.53 3401.41 321.99 
+} 321. 94 Do .... 25.0 20. 4006 1. 02 6567. 58 321. 93 0. 69 321. 25 
+D o .... 25. 0 10. 1914 0.51 3280.59 321.90 
+olmin· into 
+°0 9 ute int.j int jlo in/.j lo jlo int· i/o 
+5-28-42 .. 25. 0 9. 4348 0. 47 3549. 01 376.16 
+} 376. 12 Do .... 25. 0 18.9391 . 95 7123. 43 376.12 0. 34 375. 7 
+Do .... 25. 0 9. 4495 .47 3553. 84 376. 09 
+8 
+2,2·DlMETHYLB UTANE (FREEZE OUT WATER ) n·PROPYLCYCLOPENTANE 
+5-8-42 ... 25. 0 10.5422 0. 53 3391. 52 321. 71 
+} 321. 93 Do .... 25. 0 15. 3726 1. 02 4949. 10 321. 94 0. 69 321. 24 
+Do ..•. 25. 0 10. 2099 0. 51 3288. 96 322. 14 
+5-29-42 .. 25.0 9.9500 0. 50 3643.93 366. 22 } 366. 17 0. 05 366. 12 Do ..• . 25. 0 13. 7873 1.00 5047. 64 366.11 
+ISOPROPYLCYCLOPENTANE 
+P,O, DRYING 
+5-20-42 .. 25. 0 10. 0734 0.50 3243.28 321.96 
+} 321. 96 Do .... 25.0 20. 4435 1.02 6580.97 321. 91 0. 69 321. 2 
+Do .... 25. 0 10. 0818 0. 50 3246. 24 321.99 
+5-1-42 ... 25.0 8. 3058 0. 52 2920.95 351.68 
+} 351. 61 Do . ... 25.0 8. 2092 1.02 2886.39 351.60 0.06 351. 55 
+Do .... 25. 0 8. 3280 0.52 2927.75 351.56 
+2,4-DIMETHYLHEXANE 
+N·PENTANE 
+5-14-42 .. 25. 0 9. 8235 0. 45 3610.02 367. 49 
+} 367. 44 Do .... 25. 0 14.3765 • 90 5282. 25 367. 42 1.22 366 . 
+Do .... 25. 0 9. 8489 . 45 3618. 69 367. 42 
+22 
+5-2-42 ... 25.0 11. 0514 0. 55 3654. 85 330. 71 
+} 330. 66 Do .... 25. 0 21. 7718 1.09 7198. 65 330.64 0.09 330. 57 
+Do .... 25. 0 11. 0743 0. 55 3661. 46 330. 63 
+3,4·DIMETHYLHEXANE 
+2,2,3·TRIMETHYLB UTANE 
+5-15-42 .. 25.0 10. 1184 0. 50 ' 3236. 38 319. 85 
+} 319. 94 Do .... 25.0 14. 3947 1.03 4606. 24 320.00 0.24 319. 7 
+Do .... 25. 0 10. 1393 0. 51 3244.22 319.96 
+o 
+5-3-42 ... 25.0 .10. 6941 0. 54 3649. 51 341.26 
+} 341. 23 Do .... 25. 0 23.0734 1.05 7873. 32 341. 23 0. 07 341.16 
+Do ... . 25. 0 10. 7099 0. 54 3654. 29 341. 21 
+BENZENE 
+Irans·l,4·DIMETHYLCYCLOHEXANE (SILICA GEL DRYING) 
+li-l8-42 .. 25. 0 9. 6050 0. 48 3242. 61 337. 60 } 337. 56 0. 08 337. 48 Do ..•• 25. 0 23. 5953 . 48 7963.61 337.51 
+5-4-42 ... 25. 0 10.4328 0. 52 4522. 37 433.48 
+} 433. 47 Do .... 25. 0 29. 7534 . 90 12897.76 433.49 0. 20 433. 2 
+Do .... 25. 0 10. 4071 .52 4510. 91 433.45 
+TOLUENE 
+5-21-42 .. 25. 0 9. 6064 0. 48 3244. 39 337.73 
+} 337.58 Do .... 25.0 19. 4755 . 97 6573. 17 337. 51 0. 08 337. 
+Do .... 25.0 9. 6463 . 48 3256. 04 337. 54 
+50 
+5-25-42 .. 25. 0 10.9906 0. 55 4532. 32 412.38 
+} 412. 41 Do .... 25. 0 39. 9437 1.00 16473.38 412. 42 0. 15 412. 26 
+Do .... 25. 0 9. 9466 0.50 4102.42 412. 44 
+2·METHYLPENTANE m·XYLENE 
+5-26-42 .. 25. 0 9.3458 0. 47 3243.65 347. 07 
+} 347. 10 Do ..•. 25. 0 18.9891 . 95 6589. 01 346. 99 0. 57 346.53 
+Do .... 25. 0 9.3494 . 47 3246. 47 347. 24 
+7- 2-42 ... 25. 0 15. 3494 0.51 6165. 02 401. 65 
+} 401. 77 Do .... 25.0 24. 4975 . 82 9842. 57 401. 78 0. 02 401. 75 
+Do .... 25. 0 15. 3858 .51 6183. 12 401. 87 
+3·METHYLPENT ANE o·XYLENE 
+5-27-42 .. 25. 0 9. 6878 0. 48 3406. 42 351. 62 
+} 351. 68 Do .... 25.0 19. 2642 .96 6775.16 3 51. 70 0.45 351. 23 
+Do •... 25. 0 10.0978 . 50 3551. 57 361. 72 
+7-3-42 ... 25. 0 7.0353 0. 50 2878.98 409. 22 
+} 409. 10 Do .... 25. 0 7. 2579 . 81 2968. 59 409.02 0. 03 409.07 
+Do .... 25. 0 .7.0666 . 51 2890.60 409. 05 
+468 Journal of Research 
+
+PDF_PAGE 17
+----------------~ 
+TABLE 1. Results of vaporization experime nts-Continued 
+p-XYLENE 
+Tem- Evap-
+Date pera- Mass ora- Net Mea n-y" th, L" tio n energy -y ture rate 
+--- ----- ----- --- --- -----
+glmin- int_ 
+°C U ute in!.j int _jlu int.jlll jlu int.j/II 7-6-42 ___ 25. 0 7. 07SO 0. 51 2825. 44 399. 19 
+} 399. 14 Do ____ 25. 0 7. 1573 -SO 2856.82 399. 15 0.03 399. 11 
+Do ____ 25. 0 6.9596 _50 2777.38 399_ 07 
+ETHYLBENZENE (IMP U RE ) 
+7-7-42 ___ 25.0 14. 8916 1.00 5922. 79 397.73 } 397. 72 0.05 (c397_67) Do ____ 25.0 10.0133 0. 50 3982.32 397_ 70 
+ETHYLBENZENE (P U RE) 
+7-15-42 __ 25_0 9.9914 0.50 3976.36 397_ 98 } 397.94 0. 05 397.89 Do ____ 25_0 9.9927 _50 3976.08 397.90 
+n-PROPY LBE N ZENE 
+7-8-42 ___ 25.0 9.2470 0.46 3556.71 384.63 } 384.59 O.OJ 384.58 Do ____ 25.0 9.2387 . 46 3552. 74 384.55 
+I SOPROPY LBE NZENE 
+7-14-42 __ 25. 0 11. 1185 0.46 4J75.61 375.56 
+} 375.55 Do ____ 25.0 13.5376 _68 5083.95 375.54 0. 02 375.53 
+Do ____ 25.0 9. 4714 _ 95 3557. 09 375. 56 
+1,3,5-'l.'RIMETHYLBE ZENE 
+7- 17-42 __ 25. 0 12.5212 0. 25 4942.98 394. 77 } 394. 92 0. 01 394.91 Do ____ 25.0 12.5059 . 25 4940_82 395. 08 
+1,2,4-TRIMETHYLBENZENE 
+7-20-42 __ 25. 0 9.9248 0.50 3958.02 398.80 } 398.78 0.01 398.77 Do ____ 25.0 9.9241 .50 3957.40 398.77 
+1,2,3. TRIMETHYLBENZENE 
+7-23-42 __ 25.0 5.6214 0.11 2294.45 408. 16 } 408. 12 0_01 408.11 Do ____ 25.0 6.0106 . 12 2452.78 408.08 
+2,3,5-TRIMETHYLHEXANE 
+7-24-42 __ 25.0 10.1306 0.51 3271. 76 322.96 
+} 322.95 Do ____ 25. 0 10. 1552 1.02 3279. 28 322.92 0. 04 322.91 
+Do ____ 25.0 10.0867 0.51 3257.71 322.97 
+• Samp le of lower I)urity . 
+Heats of Vaporization of Hydrocarbons 
+TABT,E 1. Results of vaporization experiments-Cont inued 
+2,2,5-TRIMETHYLHEXANE 
+Tem- Evap -
+Date pern- Mas s ora- Net Meau-y" {J" L 1~ tion energy -y ture rate 
+--- ----- ----- --- --- -----
+u/min- into 
+°C 9 ute int.j in!.J/g into j/g i/g int.j/u 
+7- 27-42 __ 25.0 10.4036 0.52 3259. 14 313.27 
+} 313.22 Do ____ 25.0 10.0603 1. 01 3150.79 313_19 0.04 313_ 18 Do ____ 25.0 10. 0192 0.52 3137. 91 313. 19 
+3-ETHYLPENTANE 
+7-28-42 __ 25.0 8.9272 0.45 3139_ 44 351. 67 } 351. 65 0. 16 35!. 49 Do ____ 25.0 9.8968 . 99 3480.02 35!. 63 
+2,4-DIME THYLPENTANE 
+7-30-42 __ 25.0 10.3614 0.50 3403.05 328.44 
+} 328.44 Do ____ 25. 0 9.9658 1.00 3273.15 328.44 0_ 25 328. J7 Do ___ _ 25. 0 9.0134 0. 50 2960.38 328.44 
+2,3-DIMETHYLBUTANE 
+7-31-42 __ 25. 0 3.8323 0. 48 1297.46 338.56 } 338.50 0.61 337.89 Do ____ 25.0 4.3122 . 48 1459.45 338. 45 
+HEXAME 'rHYLETHANE (S OLID ) 
+)"" 
+8-5-42.._ 25.0 2. 4090 0. 08 908. 03 376.93 } 375.67 ±2% Do __ __ 25.0 1.6069 . 08 601.64 374. 41 ----- (beat oC su bl i -
+mation ) 
+WATER 
+8-11-42 __ 25_0 6.3607 0.21 15536. 4 2442.56 
+}2442.05 Do ____ 25_0 6.3691 . 21 15550.6 2441. 57 0.06 2441. 99 Do ____ -.---- 6.3694 . 21 15554. 2 2442. 02 
+The value of gamma, ,,/, given in column 6, i 
+obtain ed b y division of the value of net energy 
+(col. 5) by the mass (col. 3). This quantity , 
+gamma, ,,/, is greater than the lat ent heat of vapor i­
+zation by the quantity beta, (3, as describ ed previ­
+ously [1] in the method . In algebraic form , 
+L= 'Y - (3. 
+The quantity (3, which is, very small in mo t of the 
+experim ents, is calcula ted from the relation 
+(3-:-Tv dp/dT 
+where T is absolu te temperat ure, v is specific 
+volum e of the liquid , and dp/dT is the vapor pres­
+sure s lope. Values of vapor pressure slope and 
+469 
+
+PDF_PAGE 18
+liquid specific volume were calculated from data 
+given in various sources [14, 15]. As the quantity 
+f3 is small, high acc uracy was not required in the 
+source data. Calculated values of f3 are listed in 
+column 8, and the derived values of heat of vapor­
+izat ion are listed in column 9. 
+Inspection of tab le 1 shows some dup lication of 
+experiments with a few materials. This was due 
+either to an investigation of the effect of various 
+dry ing methods, or to the availabi lity of a purer 
+samp le at a later date. Ethy lbenzene and 2,3-
+dimet hylpentane ar:e examp les of th e latter, and 
+values of heats of vaporization on both samples of 
+different purity are given to show the small effect 
+on the resu lt. T he differences are less than 0.1 
+percent . The hydrocarbons 2,2-dimet hylbutane 
+and trans -1,4-dimethy lcyclohexane were chosen to 
+investigate the different drying methods. The 
+results using different drying methods agreed to 
+better than 0.01 percent. 
+Meas urements on th e heat of vaporization of 
+water were mll-de before, during, and after the 
+series of hydrocarbon experiments . This proce ­
+dure served as an additiona l check on the accuracy 
+of the results. The average of the 15 water experi­
+ments gave a value of heat of vaporization at 25° 
+C of 2441.37 into jig as compared to 2441.40 
+obtained with an earlier calorimeter [4]. The 
+average deviation from this earlier value was 
+0.015 percent. 
+6 . Accuracy of Results on Heat of Vaporization 
+In view of the purity of the hydrocarbons , 
+smallness of heat leaks, and the excellent agree ­
+ment of the resu lting heats of vapor ization of 
+water with those with a different calorimeter , it 
+is believed unlikely that the error in the heats of 
+vapor ization of the hydrocarbons listed in table 1 
+is more than 0.1 percent . In the case of hexam­
+ethy letbane, experimenta l difficulties due to the 
+fact that the materia l was a solid at 25° C lead 
+to an estimated probable error of about 2 percent 
+in the observed heat of sublimation. 
+III. Heat Capacity of Twelve 
+Hydrocarbons 
+1. Introduction 
+In addition to the measurements of heat of 
+vaporization , measurements of liquid heat ca-
+470 
+-
+pacity were unde rtaken, first in t he temperature 
+range 10° to 35° C, and later 5° to 45° C. After 
+the first 12 hydrocar'bons, however, the heat 
+capacity measurements were disconti nued to 
+expedite the measurements on heat of vapori ­
+zation. 
+The samp les of hydrocarbons used in these 
+measurements were the same as those used in the 
+measurements of heat of vaporization. The 
+apparatus was also the same, although the 
+experimental procedure was quite different . 
+2 . Method 
+As described in prev ious pub lications [2,3,4] 
+the method consists of heating the calorimeter 
+with a samp le of saturated fluid over a measured 
+temperature range . By making two types of 
+experiments , one with a sma ll amount of liquid 
+in the calorimeter (low filling) and the other 
+wit h a large amount of liquid in the calorimeter 
+(high filling), it is possible to account for the tare 
+heat capacity of the calorimeter and to obtain 
+the change of a quantity dClloted by alpha, ex, 
+which is a characteristic property of the fl uid. 
+If QH and QL denote the measured quantities 
+of heat iJ,dded in the high and low filling experi ­
+meots having masses of fluid MH and ML respec­
+tively, to heat the ealorimeter from temperature 
+T\ to T2 , then it has been shown [1] that 
+QH= [Zn+ MH[ex]i, 
+QL= [Zli+ ML[ex]i, 
+where Z denotes a quantity that includes all 
+energies that are independe n t of the amount of 
+fluid in the calorimeter. Then , 
+or 
+6ex= 6QIMvl, 
+or 
+In other words, the change in the characteristic 
+quantity, ex, in a given temperature interval is 
+merely the difference in the heat required in the 
+high and low filling experiments, divided by the 
+difference in the mass of fluid in the calorimeter 
+in the two experimen ts. 
+Journal of Research 
+..., 
+
+PDF_PAGE 19
+~~----------~~~-------------
+It has also been shown [1] that the quantity a is 
+related to the well Imown enthalpy , H , by the 
+relation 
+wher e 
+H = a+ f3. 
+f3 = L v/ (v' -v) = Tn dp/dT 
+where v' and v are the specific volumes of the 
+saturated vapor and liquid , respective ly, L the 
+heat of vaporization, T the absolute temperature, 
+and dp/dT the vapor pressur e s lope. At the 
+temperatures of the present experiments, the 
+term f3 is quite small compar ed to a so that the 
+value of a is with in a few part s in a thousand of 
+the value of H. The value of t:>.H/t:>.T for a given 
+temperat ure interva l is 
+and the value of dlI /dT along the saturation path 
+is deriv ed by applying a correction for curvature 
+of the en thalp y function. 
+The calcula tion of Csat ., the heat capacity of the 
+liquid along the saturation path, from the value 
+of (dH/dT) ,at . is performed by using the funda­
+men tal definitions of Hand Coat . 
+(dH/dT) ,at. = dE/dT+ p dv/dT+v dp/dT, 
+Csat. = (dQ/dT ) ,at. = dE/dT+ p dv/dT. 
+H ence 
+C oat. = (dH /dT) sat. - v dp/dT = (dH/dT)sat. - {3/T. 
+In the temperature and pressure range of thes e 
+experimen ts, the values of Coat. arc very close to 
+the values of Cp = 1 atm, probabl y within 0.2 
+percent. If desired, the value of Cp may be cal­
+culat ed from the relation 
+where p is expressed in atmospheres. Accurate 
+knowledge of specific volum e is necessary in order 
+to evaluat e the fac tor d2v/dT2. 
+3 . Experimental Procedure 
+The experimenta l procedure in the heat capacity 
+experiments was very similar to that with the 
+vaporization experi ments. Th e ample ill the 
+calorim eter was brou gh t to equilibrium at the 
+Heat of Vaporization of Hydrocarbons 
+desired starting temperature, and its temp erat ure 
+observ ed as noted in sect ions I and IT. Mea ured 
+electrical power was put into the calorim eter 
+heate r to heat the calorim eter at a rat e of very 
+close to H deg per minut e. At the same time, 
+the power inpu ts to the envelope heat ers, tl e 
+tlu'ottle heater , and the reference block heater 
+were carefully regulated . The referenc e block 
+heate r curr ent was regulat ed manually , s o that 
+the reference block temperature was always very 
+close to the calorim eter temperature. The throttl e 
+heater was regulated automatically, as in section 
+I , so that the temperature of the thrott le was 
+high enough to prevent any part of the tube from 
+becoming colder than the temperature of the 
+vapor in the calorimeter. Thi s precaution was 
+necessary to avoid cond ensatio n in the tube. Th e 
+envelope heaters were regulated as previously 
+described , partl y automatic and partly manu al. 
+After the calorim eter had heate d the desired 
+amount (eith er 5 or 10 degree ), the calorim eter 
+power was turned off and the calorimeter allowed 
+to come to equilibrium , as indicated by thermo­
+elemen t located on the calorim eter. Because of 
+the efi'ectiveness of the heat distributing syste m in 
+the calorim eter, the t ime to come to equilibrium 
+was only a few minu tes. Usually about 10 
+minu tes was allowed , which was considerably 
+longer than nece ary, jud ging from the thermo­
+element readings. The temp erature of the cal­
+orimeter was then observed as before, and a new 
+heati ng period starte d. Measurements of heat 
+leak coefficients (env elope, throttle, and residual ) 
+were mad e as in sect ion II, except that the r esidual 
+heat leak was ch ecked only at the beginnin g and 
+end of a series of heat capacity measurements. 
+4 . Results of Heat -Capacit y Experiments 
+The results of the heat-capacity experim ents 
+are given in table 2. Column 2 gives the mass of 
+fluid in the calorim eter in the experim ents for the 
+data list ed. The corr espondin g heat of vaporiza­
+tion experiments in tab le 1 were made after the 
+high-fillin g experiments and before tbe low-filling 
+experiments. Column 3 indicates the type of 
+heat fun ction for which corr esponding values are 
+liste d in column s 4 to for the vario us temperature 
+int erva ls covered by t he experim ents. For exam­
+ple, the low-filling experim en ts with n-heptan e on 
+Nov. 22, 1941 gave for the temp erature interval 
+20° to 25° C, a value of Q/t:>.T of 81.21 into j/deg. 
+471 
+
+PDF_PAGE 20
+Date 
+11-7-4 1 ________________________ ____ _ 
+11-8-41 ____________________________ _ 
+11-12-41 __ ___ _____________ _________ _ 
+11- 19-41. __________________________ _ 
+Do ______________________ - ___ ---
+11-22-41. __ ________________ ________ _ 
+11-24-41. ____________________ ---- ---
+12-4-41. ________ _________________ - __ 
+12-5-41. _____________ ___ __ ___ -_ -- ---
+12-5-41 ________________ ____ -- ---- ---
+12-9-41. _______________________ -- - --
+Do _____________ ___________ __ - __ 
+12-13-41 ___ ____ ___ __ _____ ___ - --- -- --
+12-15-41. ________ _________________ --
+12-17-41. __ __ __ __________ __ _ ----- ---
+12-18-41 __________________________ --
+12-23-41 ________________________ - ---
+Do __________________ -_ - -- --- ---
+1-3- 42 ________________________ -- ----
+472 
+TABLE 2. Results of heat-cap acity experimen ts' 
+(Int . jig or int o i/g-OC 
+M ass Hea t (unction 
+WATER 
+q 
+91. 6182 Q/!l.T____________________ _________ __________ 451. 65 451.42 
+91. 6182 Q/!l.T____ __________ _________________________ ____________ 451.46 
+11. 4744 Q/!l. T ______________ __ __ _ ____ __ __ _ ___ _ ___ _ _ __ _ 116.02 116. 38 
+[
+Aa/t:.T (observed) ________________ . _______ _ 
+!l.a/AT (1939-ca lcul ated) _____ ___ . _________ _ 
+Obse rved - calcul ated ___ ___________________ _ 
+n-HEPTANE 
+59.4754 Q/!l. T _______________________________________ 
+59. 4754 Q/!l. T _______________________________________ 
+5.5453 Q/!l.T __________ • _________ ___________ ________ 
+5. 5453 Q/!l. T _______________________________________ 
+[~/' T ..................................... !J.fJ/!l. T __________________ _________ ___ ________ 
+AH/AT ____ ____________ ____ _________ ________ 
+C •• ,. (observed ) ____________________________ 
+C •• ,. (1939-ca lcul ated) ___________ __________ 
+Observed- calculatcd __ . _________ . ____ ______ 
+2,2,4-'rRIMETHYLPENTANE 
+61. 1512 Q/!l. T _____________________ __________________ 
+61.1512 Q/!l. T _____ __________________________________ 
+61.1512 Q/!l. T _______________ ________________________ 
+7.4313 Q/AT _______________________________________ 
+7. 4313 Q/A T ____________________________________ • __ 
+[,.T ..................................... !J.fJ/!l. T __ ____________________________________ 
+!l.H/!l. T _____________________________________ 
+C •• ,. (observed) ____ . ____________ . __________ 
+C •• ,. (calculated ). _______ . __________________ 
+o bserved- calculated __________ _____________ 
+n-OCTANE 
+49.4233 Q/AT __ _____________________________________ 
+49.4233 Q/tl T ___________ ___ __ ________________ _______ 
+5. 1301 Q/tl T ___ ____________________________________ 
+5, 1301 Q/tl T ___________________ ___________________ _ 
+['., ..... ............................... !J.fJ/A T __ ____________________________________ 
+tlH/tl T ___ ___ _______________________________ 
+C •• ,. (obs erved) _______________________ ___ __ 
+C •••. (calculated ). ___ _______________________ 
+o bserved - calculat ed _______________________ 
+I 
+2-METHYLHEP'rANE 
+48. 4561 O/AT _______________________________________ 
+48. 4561 Q/AT ____________________ ___________________ 
+2. i255 Q/AT _______________________________________ 
+[,.T !J.fJ/A T ____ _________ ___ ___ ___________ ________ 
+tlH /tl T _________________ ____________________ 
+C,.t. (observed) __ __________________________ 
+Cut . (calculated ) _____________________ __ ____ 
+Observed-ca lculated ________________________ 
+4. 1878 
+4.1868 
++ 0.0010 
+198.70 
+198.66 
+80. 38 
+80.32 
+2. 1941 
+0. 0037 
+2.1978 
+2.1975 
+2. 1980 
+-0.0005 
+192. 27 
+192.24 
+192.25 
+83.13 
+83. 21 
+2.0307 
+0.0038 
+2.0345 
+2.0342 
+2. 0341 
++0.0001 
+175.57 
+175.57 
+79.06 
+79.08 
+2. 1787 
+0. 0013 
+2.1800 
+2. 1799 
+2. 1804 
+-0.0005 
+171. 97 
+172.00 
+73.58 
+2.1518 
+0. 0018 
+2. 1536 
+2.1535 
+2. 1536 
+- 0. 0001 
+4.1807 
+4. 1812 
+-0.0005 
+200.03 
+200.03 
+SO. 78 
+SO. 74 
+2.2116 
+0.0046 
+2.2162 
+2.2159 
+2.2160 
+-0. 0001 
+193.81 
+193.77 
+193.7 9 
+83.61 
+83.64 
+2.0507 
+0.0046 
+2. 0553 
+2.0550 
+2. 0553 
+- 0.0003 
+176.65 
+176.65 
+79.38 
+79.44 
+2. 1954 
+0.0017 
+2.1971 
+2.1970 
+2.1964 
++ 0.0006 
+173.15 
+173. 19 
+73. 90 
+2. 1708 
+0.0023 
+2. 1731 
+2. 1730 
+2.1729 
++ 0.0001 
+451. 36 
+451. 68 
+116.68 
+4.li80 
+4. 1775 
++0.0005 
+201. 38 
+201. 33 
+81. 21 
+81.16 
+2.2283 
+0. 0058 
+2.2341 
+2.2337 
+2.2344 
+-0.0007 
+195.41 
+195.37 
+195.41 
+84.05 
+84. 12 
+2.0721 
+0.0055 
+2.0776 
+2. 0772 
+2. 0770 
++0.0002 
+177.74 
+177.77 
+79. 76 
+79.76 
+2. 2124 
+0. 0021 
+2.2145 
+2.2144 
+2.2 134 
++0. 0010 
+174.38 
+174.38 
+74.23 
+2.1900 
+0.0029 
+2.1929 
+2. 1927 
+2. 1923 
++ 0. 0004 
+Journal 
+451. 45 451. 59 
+451. 54 451. 64 
+H7.03 117. 20 
+4. 1732 4. 1727] 
+4. 1751 4.1735 
+-0.00 19 -0.0008 
+202.72 204. 10 
+202.69 204.05 
+81. 61 82.05 
+81. 61 82. 02 
+2.2454 
+'~] 
+0.0068 0.0081 
+2.2522 2.2712 
+2.25 17 2. 2706 
+2.2531 2.2721 
+- 0. 0014 - 0.0015 
+196.97 198.58 
+196.95 198.58 
+197. 00 198.65 
+84.5 1 85.00 
+84.57 85.03 
+2. 0929 
+,n"] 0.0067 0. 0079 
+2.0996 2. 1223 
+2.0991 2.1217 
+2.0991 2.1217 
+0.0000 0.0000 
+178.66 180. 05 
+178.87 180. OJ 
+80.12 80. 47 
+80.11 80.46 
+2. 2272 
+"W] 
+0.0025 0. 0034 
+2.2297 2.2513 
+2. 2295 2.2511 
+2.23 14 2.2503 
+-0.0019 +0.0008 
+175.51 176.74 
+175. 61 176. 82 
+74. 60 74. 92 
+2.2077 
+,m] 0. 0036 0. 0043 
+2.2 113 2. 2317 
+2. 2111 2. 2314 
+2. 2117 2. 2312 
+-0.0006 + 0.0002 
+of Research 
+
+PDF_PAGE 21
+TAB L E 2. Results of heat-capacity experimen ts-Continued 
+(Int . jfg or into jig-CO 
+Date 
+1-7-42. ___________________ .. _________ 
+Do ________________________ _____ 
+1- 9-42 ____ __ ____ _______________ ___ __ 
+J- 13-42 _______________ .. _____ . ______ _ 
+Do ______________ oo oo __ . _ oooo __ oo 
+1- 15-42 _____ __ __ oo ___ oo _____________ _ 
+1- 21-42 ____________ oo ______ oo _______ _ 
+Do _____________________________ _ 
+1- 22-42 __ ___________________________ _ 
+1- 27--42 ______________ _______________ _ 
+Do _____________________________ _ 
+2-3--42 _____________ oo _______________ _ 
+Do _________________ oo _________ __ 
+2-~42 _oo ___________________________ _ 
+Do _______________ oo __ oo _______ oo 
+Ma ss Heat function 
+3-MET HYLHEPTANE 
+4 .8831 O/ll']' _______________________________________ 172.04 
+48. 8831 O/llT _______________________________________ 172. 16 
+2.8493 Q/ll'] ' __ __ ___________________________________ 73. 80 
+["AT --___ -_____ -__ __ _ ______ _______ 2. 1354 
+",AT 0. 9017 llI-I/ll T __ ___________________________________ 2. 1371 
+C •• t . (observed) ____________________________ 2.1370 
+C .. t . (calculated) ____ ___________________ __ __ 2. 1372 
+o bserved-calculated ________________________ - 0.0002 
+4- METHYLHEPTANE 
+49. 0380 O/ll T _______________ oo _____ oo _. __ . __ oo ______ . ___________ 
+49.0380 Q/ll T _____ oooo oo ____ oo oooo oo ________ oo ____________ oooo __ 
+2. 9001 Q/ll?' ______ oo ________ oo _________ oooo ________ oooooo ______ 
+CAT ff:~~iliL ~~~·~ ~.~~ ••••••••••••• ~~ ••••••••••• 
+~~DIMETHYLHEXA l E 
+45.9489 Q/ll'l ' _______________ oo ________ oo ____ oo oo oooo oooo_oooo_oo 
+45. 9489 O/ll T oo _ oo __ oooo __ oo oo oo __ oooo ___ oo __ oo _______ oo _ oo __ oo_ 
+45. 9489 O/ll T oo _ oo oo ____ oo _____________________________________ _ 
+2.8539 O/ll T ________________________ oo _______________ oo ______ __ 
+2. 8539 fI/ll T oo ________ oo_oo ______ oooooo oo ____ oo oooo oo _____ oo ___ 
+[
+lla /ll T _________ oo ____________ oo ___ oo _________________ __ 
+llfJ/ll T _____ ______________________________ oo ________ oo_oo 
+llH/llT ____ oo __ _____________________________ oo _________ . 
+C •• t • (observed ) ________ oo ______ oo _____________________ _ 
+Cut. (calculatcd ) _______ oo_oo __ _________ oooo _______ oo __ _ 
+Observed-calcu latcd _________________________ . _________ . 
+n- NONANE 
+J73. 25 
+173. 34 
+74. 13 
+2.1542 
+0. 0022 
+2. 1564 
+2.1563 
+2. 1560 
++0.0003 
+172. 02 
+172.26 
+73. 90 
+2. 1293 
+0. 0033 
+2. 1326 
+2. 1325 
+2. 1326 
+- 0.0001 
+164. 79 
+164.90 
+164. 72 
+73.72 
+73. 82 
+2. 1124 
+0.0046 
+2. 1170 
+2. 1169 
+2. 1167 
++ 0.0002 
+58.8662 Q/ll T ___________________________________________ oo ______ __ oo _______ _ 
+58. 662 Q/ll T oo _____ oo_oo __________ oo ______ oo_______ ________ ____ 194. 99 
+2. 269 Q/llT ______________________ oo_ _____ ___ _ _ _ _______ __ _ ___ __ 73. 68 
+2. 269 Q/llT _________________________________ oo __________ oo____ 73.70 
+[
+lla / T __________________________________________________ _ 
+llfJ/ll'l' _____ ___________________________________________ __ 
+llH/llT ________________________________________________ _ 
+Coat. (obscrved ) ______________________________________ __ 
+C .. t. (calculated) ______________________________________ _ 
+Observed-calculated __________________________________ __ 
+2. 1646 
+0. 0008 
+2. 1654 
+2. 1654 
+2.1654 
+0. 0000 
+Heat of Vaporization of Hydrocarbons 
+174.45 175. 64 
+174. 52 175.74 
+74.45 74.81 
+2.1731 2.1914 
+0. 0027 0.003 4 
+2. 1758 2. 1948 
+2.1756 2. 1946 
+2. 1754 2. 1952 
++0.0002 - 0. 0006 
+174.72 177. 27 
+174. 77 177. 30 
+74.57 75. 24 
+2. 1712 2.2117 
+0. 0051 0.0078 
+2.1763 2.2195 
+2.1761 2.2 192 
+2.1758 2.2195 
++0.0003 -0.0003 
+167.22 169. 78 
+167. 30 169. 70 
+167. 18 169. 64 
+74.46 75. 12 
+74.53 75.22 
+2.15 19 2.1937 
+0. 0071 0. 0106 
+2. 1590 2.2043 
+2. 1588 2.2039 
+2. 1594 2.2033 
+- 0.0006 +0.0006 
+197.36 199.84 
+197. 45 199. 92 
+74. 34 74. 92 
+74.39 74.98 
+2.1956 2. 2293 
+0. 0014 0. 0023 
+2.1970 2. 2316 
+2. 1970 2.23 16 
+2.1970 2.23 16 
+0. 0000 0.0000 
+176.90 
+176. 94 
+75. 10 
+2~"] 
+0.004 1 
+2.2160 
+2.2157 
+2. 2155 
++ 0.0002 
+179.8 4 
+179.84 
+75.90 
+2_] 0.0114 
+2. 2642 
+2. 2638 
+2.2637 
++0. 0001 
+172. 15 
+172. 16 
+172. 16. 
+75.94 
+75. 89 
+2=] 
+0.0152 
+2. 2485 
+2. 2479 
+2. 2481 
+- 0. 0002 
+202.4 5 
+202. 49 
+75.49 
+75.53 
+2W$] 0. 0037 
+2. 2693 
+2. 2693 
+2. 2693 
+0.0000 
+473 
+
+PDF_PAGE 22
+Date 
+2- 8-42 __________________ --- --- --- - ---
+2-12-42 ______________________ ---- - ---
+2- 14- 42 _________________ --- - --- -- -- --
+2-17-42 ____ _______________ __ --- -- ----
+2- 19-42 _____________________ -- --- -- --
+2- 21-42 _____________________________ _ 
+2- 24-42 _____________________________ _ 
+2- 25-42 _________________ ____________ _ 
+2- 27-42 __ ___________________________ _ 
+Do ____________________ _________ _ 
+3-6-4 2 ___________________________ ___ _ 
+3- ll-42 _____________________________ _ 
+Do _____________________________ _ 
+3- 14-42 ___________________________ - __ 
+3-16-42 _____________________________ _ 
+3-16-42 _____________________________ _ 
+474 
+TABJ.E 2. Results of heat-capacity experim ents-Cont inued 
+(Int . jig or int o j/g_ OC 
+Mas s Heat fun ction 
+10° to 15° / 150 to 20° / 20° to 25° I 25° to 30° / 30° to 35° 
+n- D E CANE 
+~ :~~~ I ~; ~~ : : : :::::::::::::::::::::::::::::::::::::::::::::::: 
+[f.E~t:~;, m ::::::::::: 
+I 
+2,3,4-TRIMETRYLPENT ANE 
+45.6731 O/tJ. T ___ ________________________________________________ 
+2.8326 O/tJ.'l' ___________________________________________________ 
+['."T ................................................. tJ.fl/tJ.T ___________________ _______________________________ 
+tJ. H/tJ.T ___ ______________________________________________ 
+C •• ,. (observed ) ________________________________________ 
+C •• t. (calculated) ___________________________________ __ __ 
+Observed -calcul a ted ____________________________________ 
+I . 
+2,3,3-'J'RIM ETHYLPENTANE 
+55.2225 O/tJ. T ___________________________________________________ 
+2.8401 O/tJ. 'l' ___________________________________________________ 
+[~}~;~j;~ :: : :::: : :: : 
+W ATER 
+51.5 136 O/t..T ___________________________________________________ 
+51. 5136 Q/tJ.T ______________________________________________ _____ 
+4. 4432 O/t..T ___________________________________________________ 
+4. 4432 Q/tJ.T ________ __ ______________________________ ___ ________ 
+[ tJ.a/tJ. T (observe d ) ______________________________________ 
+tJ.a/t.. T (1939-ealeulated ) ________________________________ 
+Observed-calcula ted _________________________ . __________ 
+3,3-DIMETHYL H EXA NE 
+57. 3524 O/tJ. T ___________________________________________________ _ 
+57.3524 O/tJ. 7' ~ _________________________________________________ _ 
+57.3524 O/tJ. T ___ _______________________________________________ _ 
+3.8482 O/tJ. T __ : _______________________________________________ _ 
+3.8482 O/tJ. T __________________________________________________ _ 
+3.8 482 Q/tJ. T __________________________________________________ _ 
+[
+tJ.a /tJ.T ___ _____________________________________________ " 
+iD~¥s;,," ::::::::.: •• :.· ••• :::::::::::.::. 
+119.08 
+73.65 
+2. 1601 
+0.0003 
+2. 1604 
+2. 1604 
+2. 1604 
+0.0000 
+163.47 
+73.61 
+2.0975 
+0.0039 
+2. 1014 
+2. 1012 
+2. lOll 
++ 0.0001 
+182. 95 
+73.50 
+2.0894 
+0. 0038 
+2.0932 
+2.0929 
+2.0926 
++ 0.0003 
+2.83.96 
+284.00 
+86. 62 
+86. 47 
+4. 1888 
+4.1 910 
+-0.0022 
+187. 75 
+187.45 
+187.40 
+75.99 
+75.95 
+75.83 
+2.0860 
+0. 0042 
+2.0902 
+2. 0901 
+20903 
+- 0. 0002 
+120. 34 121. 58 122.83 
+74. 29 74.8'1 75.32 
+2.1896 2. 2224 
+'-] 
+0.0005 0. 0009 0.00 14 
+2.1901 2. 2233 2.2604 
+2. 1901 2. 2233 2.2604 
+2. 1900 2. 2234 2. 2604 
++ 0. 0001 - 0. 0001 O.ooor 
+165.85 168. ~ 2 170.97 
+74.3 2 75. 04 75.67 
+2.1365 2.1797 
+'~'l 
+0. 0061 0. 0090 0. 0129 
+2. 1426 2. 1887 2.23 74 
+2.1423 2. 1883 2.2.368 
+2. 1427 2. 1879 2.2369 
+- 0.0004 + 0.0004 + 0.0001...1 
+185. 41 188.25 191. 20 
+74. 22 74. 91 75.60 
+2. 1227 2. 1637 
+'~.] 
+0.6058 0.0086 0. 0122 
+2.1285 2.1723 2.2190 
+2. 1281 2.1718 2. 2183 
+2. 1290 2.1709 2.2186 
+- 0.0009 +0.0009 -0.0003 
+284. 04 284.37 284.84 
+284.04 284.36 284.86 
+87.18 87.76 88. 32 
+86. 98 87.49 88.26 
+4. 1788 4.1741 4. 1703J 
+4. 1794 4. 1744 4. 1722 
+- 0. 0006 - 0. 0003 - 0.0019 
+190. 79 193.77 196. 77 
+190.56 193.53 196. 66 
+190.44 193.45 
+76.64 77. 37 78.03 
+76.65 77. 36 78. 10 
+------------ ------------ ----------
+2.1298 2. 1721 
+""] 
+0. 0064 0.0095 0.0136 
+2. 1362 2. 1816 2.2312 
+2. 1360 2. 1813 2.2307 
+2.1353 2. 1820 2. 2305 
++ 0. 0007 - 0.0007 + 0.0002 
+Jou rnal of Research 
+
+PDF_PAGE 23
+The valu es of Q/D.T thus liste d in tab le 2 are 
+calculat ed from the electrical energy inpu t durin g 
+the experiment, correde d for the three heat leaks 
+described in section II and for the departur es of 
+the beginnin g and end temp eratm es of the experi­
+ment from the desired even t emp erature. As in 
+the v aporization experim ents, the a rithmetical 
+sum of the hcat lcaks for an a verage experim ent 
+was about 1 or 2 joules, most of which was caused 
+by r egulating the temp erature of th e upp er tub e 
+above the temp erature of the calorim eter to avoid 
+cond ensation. The heat leak on most experim en ts 
+contribu ted only abou t 0.2 percent t o the energy 
+input , and even this small amoun t was effectively 
+eliminated differentially by the experim ental pro­
+cedme that g ave the same heat leak condi tions in 
+the high-filling experim ents as in t he low-filling 
+experim ents. 
+Th e beginnin g a nd end temp eratures of t he 
+calorim eter in the heat cap acity e xperiments were 
+usually regulate d to within a few hun dredths of a 
+degree of the desired even temp eratures so that 
+t he result an t corrections appli ed to the measured 
+Q/D.T amoun ted to less than 1 p ercent. As t he 
+heat capacity o f the calorim eter and contents is 
+known from the experim ents, these corr ections 
+should in troduce no significant error in the result s. 
+Th e values of D.a/D. T liste d in table 2 are ob­
+tained b y dividing t he difference betwee n the 
+average valu es of Q/D.T for the high-filling experi­
+men t and corr esponding average valu es of Q/D.T 
+for the low-filling experimen t, by D.M, the difference 
+in the masses of fluid in the calorim eter in the 
+high and low-filling experim en ts. Values of 
+MljD.T are calcula ted from D.a/D.T by a ddin g 
+D.{3/D.T calculate d from specific v olum e a nd vapor 
+pressure da ta a s described und er :Method . Valu es 
+of Csat . at the mid temp eratur es of the i n tervals 
+are c alculat ed from D.H/D.T by first applying a 
+cm vatme corr ection to get dH/dT at t he mid 
+temp erature of the int erval s, and then sub tract ing 
+values of {3/T. All these corr ections are small, so 
+tha t the resulting values of Csa t. do not differ from 
+the D.a/D.T by mor e than a few part s per thou sand . 
+In ord er to "smooth " the data, an equation of 
+the form Csat .= A + BT+CT2 was fitted to the 
+data for each mat erial by the method of least 
+squares. T able 3 gives the constants of the equa ­
+t ion for the 12 hydrocarbon s as well as valu es at 
+5-degree intervals in the experim ental ran ge as 
+calculate d from these equations. The values of 
+Csat . (calculate d) listc d in table 2 are also compu ted 
+from these equations in ord er to jud ge the acciden­
+tal varia tions i n the e xperim enta l values of h cat 
+capacities. It was found that the a verage devia­
+tion o f a det,erruination of heat capac ity from the 
+value calculated from the equation was 0.01 1 
+percent for the 10-degree inLcrvals and 0.022 
+percent for the 5-degree intervals. 
+Similar to the vapori zation experim en ts, heat 
+cap acity experimen ts with wate r were mad e at the 
+beginnin g of this e ries of measuremen ts and ncar 
+the end, as a check on the accuracy of the resul ts. 
+It was found that the 30 experim en t with w ater 
+gave an average difference of D.a/D.T of abou t 
+0.025 percen t from the values repor tcd with 
+ano ther calorim eter [4]. 
+In addi tion to the c heck on the values of h eat 
+capacity of water, it was possible t o also check on 
+values of the heat capa city of n-heptane as de­
+termin ed in the s ame lar ge calorim eter [4] as was 
+used for wa ter. Th ese unpubli shed d etermin a-
+T ABLE 3. Va lues of smoothed heat capacities 
+Eq uation constants C ••• (int. j/g_O C) 
+Mate rial -------,------,-------;----
+_________ 1._~_1 _ ~~ __ 5 0_ ~_1_5 0_ ~~~1 ~-4-0 0--4-5 .-
+2·met b ylhep tan c __ . ..... . . .... 2.10547 3.840 0.853 2. 1440 2. 1632 2. 1826 2.2020 2.2214 2.2409 ---- ---- - - ----------
+3·mcthy lhcpta ne ............. 2.09208 3.490 9.425 2. 1279 2. 1466 2. 1657 2. 1852 2.2053 2.2258 ---------- .---------
+4·met hylllcptane . _ ........... 2.0 990 4. 245 2.500 2.1112 2. 1326 2. 1541 2. 1758 2.1 976 2.2195 2.2415 2.2637 2. 28flO 
+2,5·D imet hylhexaoc ..... . .... 2.07498 4. lJ 9 5.248 2.0957 2. 1167 2. 1379 2. 1594 2. 1812 2.2033 2.2256 2.2481 2.2710 
+3, 3·Dimet hy lhexane .......... 2.04712 4.23'1 8.750 2.0685 2.09o:! 2.1126 2. 1353 2. ]584 2.1820 2.2060 2.2305 2. 2554 
+2,2, 4·Tr imetbyl pent a ne ...... 1. 98314 3.958 9.4 19 2. 0237 2.0425 2.0661 2.0880 2. ll0 4 2. 1332 -.------ - - ----_ . ----
+2,3, 4·Trimct h ylpen tane ...... 2.06320 3.6();l 18. 500 2. 0817 2. lO ti 2.12 14 2. 1427 2. 1648 2. 187Y 2.2120 2.2369 2 2628 
+2,3, 3·T l'imct bylpentane . ..... 2.06 192 2.786 28.250 2.0766 2.0926 2.1101 2. 1290 2.1492 2.1709 2. 1041 2.2 186 2.2445 
+n· Heptane ..... _ ........ .. .... 2.15453 3.3 96 6.791 2.1717 2. 1892 2.2070 2.2252 2.2437 2.2625 2.28 17 2.3012 2.3211 
+n·Oela ne .... .........• _ ....... 2. 14441 2.637 19. 140 2. 1727 2. 1883 2. 2048 2. 2223 2.2407 2.2602 ----- -- --- -----.----
+7l-Nonane. __________ ___ __ ____ _ 2.13688 2. 700 15.250 2. 1508 2.1654 2. 1808 2. 1970 2.21".39 2.2316 2.2501 2.2693 2.2893 
+71·Decane ..................... 2. 13450 2.407 18. 500 2. 1470 2. 1604 2.1748 2. 1900 2.2062 2.2234 2.2414 2.2604 2.2803 
+I 
+Heat of Vaporization of Hydrocarbons 475 
+
+PDF_PAGE 24
+L 
+----_ .. _ --
+tions were made in 1939 by Osborn e, Stimson, and 
+Ginnings with a sample of n-heptane furnished by 
+D . B. Brooks of this Bureau . Thr ee series of 
+low-filling experim ents were mad e over the tem­
+peratUTe range 5° to 100° C, but only one series 
+of high-filling experim ents was completed in the 
+rang e 5° to 90° C on account of int erruption of the 
+experiments by a mechani cal breakdown . 
+The results of the 1939 measurements on'l1-hep­
+tane are given in table 4. Columns 2 and 3 give 
+the net energy input s for the low- and high-filling 
+experim ents , having 85.859 and 743.123 g of 
+heptan e, respectively. Thes e values of net energy 
+includ e heat leak correction and corr ections for end 
+temperatures. The values of t:J.cx/t:J.T in column 4 
+were obtained by dividing the . differen ce in net 
+energies for the high and low fillings by the product 
+of the difference in mass of heptan e (657.264) times 
+the numb er of degrees in the temperature interval. 
+The values of {3/ T in column 8 and t:J.{3/t:J.T in 
+column 5 were calculat ed from liquid specific 
+volume data in the International Critical Tabl e 
+[13] and vapor pressure data from the tables of the 
+American P etroleum In stitut e Proj ect 44 [14], 
+and from Willingham et a1. [16]. 
+The values of Gsat. were calculated from t:J.cx/t:J.T 
+T AB L E 4. R esu lts of 1939 n-heptan e heat capacity ex p~rim e nt s 
+Net energy ( Q) 
+Temp erature interval t;.a/t;.T t;.{l/t;.T MJ/t;.T dJl/dT {l/ T 
+Ob· 
+Cu t. (ob- ClOt. (cal- scrvcd­
+served ) cula ted ) calculated Low fill· High fill· 
+ing ing 
+°0 into into into into into into into into j into j j /g_ OC j/g_O C j/g_ OC i/o_ oC j/g_ OC j/g_ OC jlg- OC Percent 
+5 to 10 ....... . ........... ...... ....... ....... . ...... 1787. 8 8939. 7 
+10 to 20 ............................................. 3612.8 18, 102. 1 
+20 to 30 ............................................. 3665. 2 18,381. 2 
+30 to 40 ........................ . .................... 3724.2 ]8,662.8 
+40 to 50 ............................................. 3789.0 18,972. 1 
+50 to 50 ............................................. 3857. 3 19,276.3 
+60 to 70 ...... .. .... . .................. . ............. 3930.7 19, 588.9 
+70 to 80 ............................................. 4008. 4 19,924.3 
+80 to 90 . ...................................... .. .... 4094.4 20,259.2 
+by the method us ed in table 2. An equation of 
+the type Gsat.= A + BT+ Ga was fitt ed to the ob­
+served values of Gsat. liste d in table 4, giving 
+values of the constants as A = 2.15453, 
+B = .0033961, and G= 6.7909 X 10- 6, when T is 
+in degrees C and Gsat. is in into j/g-deg C. The 
+average deviation of the 1939 observed values 
+from the values calculat ed from this equation is 
+0.028 percent, whereas the average deviation of 
+the 1941 observed values from this equation 
+(based on the 1939 results) is 0.037 percent. A 
+compari son of the observed values is given in 
+figure 4. 
+5 . Disc ussion of Accuracy of Hea t Capa city 
+Res ults 
+When the calorimeter was designed, it was not 
+expected that it would give as accurate results in 
+the heat capacity measurements as in the vapori­
+zation experiment s. This was due to the small 
+size of the calorim eter, which· was a mor e impor­
+tant factor in the heat capacity experiments t han 
+476 
+2. 1763 
+2.2045 
+2. 2390 
+2. 2728 
+2. 3100 
+2.3459 
+2. 3838 
+2. 4215 
+2. 4594 
+0. 0030 
++2 
+o o • 
+o 
+I 
+:-:: 0 
+<J) 
+I-
+0:: 
+<{ -Q. I 
+-2 
+. 00'12 
+.0062 
+. 0089 
+.0124 
+. 0167 
+. 0222 
+. 0288 
+. 0365 
+° 
+• 
+2. 1793 2.li93 
+2.2087 2.2086 
+2.2452 2.2451 
+2.2817 2.2816 
+2.3224 2. 3223 
+2.3626 2. 3625 
+2.4060 2.4059 
+2.4503 2.4502 
+2. 4959 2.4958 
+° ° 
+• ° • • 
+0.0002 2. 179] 2.1804 -0.06 
+.0003 2.208.3 2.20 70 . 06 
+.0004 2.2447 2.2437 . 04 
+. 0007 2.2809 2.2817 -.'04 
+.00 10 2.3213 2.3211 . 01 
+. 0014 2.36 11 2.3619 -.03 
+.0019 2.4040 2.4040 . 00 
+.0026 2.4476 2.4474 . 01 
+. 0034 2.4924 2. 4923 .00 
+I 
+o I I ° 
+I ° 
+I 
+I 
+I 
+o 10 20 30 40 50 60 70 80 90 100 
+TEMPERA T URE or. 
+FIG URE 4. Deviation s of observed heptan e heat capacities 
+from formulation . 
+0 , 1939 observe d; e, 1941 observ ed . 
+in the vaporization experiments. How ever, in 
+view of the excellent agreement of the values of 
+heat capacity of water and heptane with values 
+obtained with a larger calorim eter at an earlier 
+date, it is believed that the calorim eter is capa ble 
+of better than 0.1 percent in heat capaciti es in 
+spite of its small size. As some of the heat capac­
+ity results arc based on scanty data, and some 
+Journal of Researc h 
+
+PDF_PAGE 25
+(such as n-decane) involve smaller amount~ of 
+hydrocarbon in the calorimcter than others, it is 
+believed that the error in the heat capacity results 
+is about 0.1 percent with most hydrocarbons such 
+as n-heptane, but that it may be as large as 0.3 
+percent with a few hydrocarbons such as n-decane. 
+The authors acknow ledge the participation of 
+H. F. Stimson of this Bureau in the design of the 
+calorimeter described in this paper. To him 
+should go a larg e part of the credit for the design 
+of a number of the important features of the 
+calorim eter. 
+IV. References 
+[1] N. S. Osborne, BS J. Research 4,609 (1930). 
+[2] N. S. Osborn e, 1-1. F. Stim son, and E. F. Fiock , BS J . 
+Research 5, 411 (1930). 
+[3] N. S. Osborn e, H. F. Stim son, and D. C. Ginning s, J. 
+Resea rch NBS 18,389 (1937). 
+[4] N . S. Osborne, H . F. Stim son, and D. C. Ginnings, J . 
+Research NBS 23, 197 (1939). 
+Heat of Vaporization of Hydrocarbons 
+o 
+[5] C. H . Meyers, BS J. Research 9, 807 (1932). 
+[6] E. F. Mueller, Bul. BS 13, 547 (1916) S288. 
+[7] A. F. Forziati, A. R. Glasgow, Jr., C. B. Willingham, 
+and F. D. Rossini, J. Research NBS 36, 129 (1946) 
+RP1695. 
+[8] F. L. Howard, T. W. Mear s, A. Fookson, P. Pomerantz, 
+and D. B. Brook s, J . Researc h NBS 38, 365 (1947). 
+[9] P. L. Cramer and M . J. :'viulligan, J. Am. Chem. Soc. 
+58, 373 (1936). 
+[10] J. Timmerman s and F. :\Iar tin, J. Chem. Phy s. 23, 
+733 (1926). 
+[11] B. J . Mair and S. T. Schicktanz, J. Research NBS 11, 
+665 (1933). 
+[12] A. R. Glasgow, Jr. , C. B. vVilIingham, and F. D. 
+Rossini, National Bureau of Standards . Unpub­
+lished. 
+[13] Elizabeth W. Aldrich, Ind. and Eng. Chem. 3, 348 
+(1931). 
+[14] Tables of phy sical constant s of selected hydrocarbons 
+issued by the American Petroleum In stitute Re­
+search Proj ect 44. 
+[15] Interna tional Crit ical Tabl es 3 (McGraw-Hill Book 
+Co., Inc., New York, X. Y., 1928) . 
+[16] C. B. Willingham, W. J. Taylor, Joan M. Pignocco , 
+and F. D. Rossini, J . Research NBS 35, 219 (1945). 
+WASHING 'l'ON, May 14,1947. 
+477 
+J 

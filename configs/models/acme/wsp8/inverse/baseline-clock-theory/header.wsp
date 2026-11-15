@@ -1,0 +1,11 @@
+# acme_inverse.wsp8 — reference baseline "the two reference baselines, each on its side", spec acme_inverse-wsp-v8
+# Author: claude-fable-5-2 (Anthropic). Not a candidate: the lineage root of the spec.
+# The hinge laws (the self-extinction clock, the weak class, the programmed stops, the background)
+# are those of the reference baseline of the hinge-law spec: one condition-free clock for
+# self-extinction and no programmed stop. The burner limit is that of the published theory alone,
+# which has none: every limit weight is zero. No number here comes from the PSI-159 tables.
+#
+# No value below was typed again. They are the stored values of the two releases named in the
+# blocks, copied statement by statement by tools/wsp/flame4_edits.py; that script chooses and
+# computes nothing. The burner-limit clock of the hinge-law baseline (ft.tau.*, ft.shape) is not a
+# part of this spec and is not copied.

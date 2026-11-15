@@ -1,0 +1,12 @@
+{
+  "scope": "private aerosol W0 kernel; offline synthetic mechanical invariants only",
+  "rustfmt_check": "passed: rustfmt --edition 2021 --check crates/ignis-wsp/src/property_aerosol_w0.rs",
+  "compile": "passed: rustc --edition 2021 --test crates/ignis-wsp/src/property_aerosol_w0.rs -o runs/tooling/astra-aerosol-target/aerosol-invariants.exe",
+  "test_result": {"passed": 11, "failed": 0, "ignored": 0},
+  "literal_formats": "7 scalar assignments match exactly between constants.ops and literal-ops.json",
+  "scientific_coefficients_changed_after_tests": false,
+  "project_or_nasa_data_used": false,
+  "cargo_workspace_checks": "not run by author; coordinator owns integration checks",
+  "qualification": "none; fixtures establish code invariants, not aerosol/smoke accuracy or gravity validity",
+  "release": "none: correct aerosol/detector shared contracts are missing"
+}

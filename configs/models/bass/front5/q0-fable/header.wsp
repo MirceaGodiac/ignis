@@ -1,0 +1,57 @@
+# bass_front.wsp5 — Q0, literal revision of the baseline sha256:95a4d6ec…3e62, spec bass_front-wsp-v5
+# Author: claude-fable-5-2 (Anthropic).
+#
+# Two parts of different standing, and both are said every time this release is quoted:
+#   TIP LAW: the stored values of bass_front.wsp D1 (sha256:ac15e49f…855c), DATA-INFORMED (four BASS-II
+#     train burns and published theory; its own header says how). Copied statement by statement by
+#     tools/wsp/front5_edits.py; not typed again. Without D1's quench hazard, which this spec does not have.
+#   BOUNDARY LAW (does the sample ignite, does the flame stay lit): ZERO-SHOT. Typed from
+#     docs/wsp/research/phys_quench_w0.md, section 6.4, written from published theory and published
+#     experiments with no file of this project's burn data opened. Not blind to the literature on the
+#     same burns: the 2015 BASS-II fabric paper was read by the dossier's author, who reports that no
+#     constant was set from its table of test outcomes (section 7.3 there).
+#
+# The law. A flame survives when the oxygen enthalpy the stream brings covers what chemistry needs at
+# that flow time plus what the hot surface radiates and loses sideways. In oxygen mole fraction:
+#   X_lim(U) = x0 + cp ln(1/p) + sb[dir] U_e + (ar[dir] + aw / W) / (p U_e)
+#   U_e = U + us (opposed flow), sqrt(U^2 + us^2) (concurrent flow)
+#   P(sustained) = Phi((X - X_lim) / s), s = the propagated uncertainty of the five coefficients.
+# The boundary error is one unknown per burn, the same at every time of the burn (41 equal-probability
+# nodes), so that a flame seen to survive a slow flow is evidence about where the boundary is.
+#
+# Index 0 is SIBAL fabric, 1 the PMMA sheet of 1 mm; direction 0 concurrent, 1 opposed; branch 0
+# radiative quench, 1 blow-off. Origin of each line: the D-numbers of the dossier.
+
+# floor of the oxygen limit: D4 (SIBAL), a published film minimum plus a thickness judgement (PMMA)
+sus.x0[0:2] = [0.148, 0.136]
+# pressure shift of the floor per e-fold of 1/p: judgement, D7
+sus.cp[0:2] = [0.020, 0.020]
+# blow-off slope per cm/s, rows material, columns [concurrent, opposed]: D5
+sus.sb[0:2, 0:2] = [[0.00080, 0.0016], [0.00080, 0.0015]]
+# radiative-loss coefficient: 0.055 (SIBAL) and 0.054 (PMMA) for a geometry factor of 1, times 1.36 and 0.73: D3
+sus.ar[0:2, 0:2] = [[0.075, 0.040], [0.074, 0.039]]
+# lateral coefficient: section 1.6 of the dossier
+sus.aw[0:2] = [0.030, 0.030]
+# self-spread speed, the thin-fuel limit of de Ris: D6
+sus.us[0:2] = [0.15, 0.020]
+# standard deviations of the five coefficients
+sus.sd_x0[0:2] = [0.010, 0.015]
+sus.sd_cp[0:2] = [0.020, 0.020]
+sus.sd_sb[0:2, 0:2] = [[0.00030, 0.00070], [0.00040, 0.00070]]
+sus.sd_ar[0:2, 0:2] = [[0.026, 0.014], [0.030, 0.016]]
+sus.sd_aw[0:2] = [0.030, 0.030]
+# ignition by a hot wire at the sample edge: D8
+ign.dx[0:2] = [0.0040, 0.0060]
+ign.sd_a = 0.0050
+ign.t_req[0:2] = [2.0, 10.0]
+ign.sd_lnt = 0.50
+# time to go out, rows material, columns [radiative quench, blow-off]: D9
+ext.tau[0:2, 0:2] = [[12.0, 1.5], [100.0, 3.0]]
+# The one number that differs from the dossier, which typed 0.0020. Changed by the lead author before
+# any burn was scored, for a numerical reason and not from data: the switch between inside and outside
+# the boundary is smoothed over this width, and a flame inside the boundary by less than about three
+# widths still goes out given time, so with 0.0020 the long-time survival falls below the closed-form
+# probability the law itself states (the engineer's test: at 18 % oxygen and 10 cm/s still falling at
+# 600 s). At the lower bound of the spec the long-time value is within 0.013 of the exact joint
+# probability at ten grid points.
+ext.width = 0.0005

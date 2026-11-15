@@ -1,0 +1,17 @@
+[package]
+name = "ignis-wsp"
+description = "Literal weight-space programming: restricted edit language, assembler, strict no-fitting forwards and releases for FLEX, ACME and BASS"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ignis-core = { path = "../ignis-core" }
+anyhow.workspace = true
+chrono.workspace = true
+clap.workspace = true
+hex.workspace = true
+libm.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
