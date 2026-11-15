@@ -15,24 +15,21 @@ import { locatorKind } from "../research/units";
 import { MODE_TEXT, OriginalBody } from "./Original";
 import type { SearchHit } from "../contracts/generated";
 
-/** Starter searches over the stored NASA documents (the first loads when the page opens empty). */
 /** Passages per page of results. */
 const PAGE = 25;
 
-const STARTERS = [
-  "flame spread rate low flow microgravity",
-  "droplet radiative extinction cool flame",
-  "oxygen concentration flammability limit",
-  "soot and flame temperature measurements",
-  "spacecraft fire safety test results",
-];
+/**
+ * Starter searches, offered only (nothing runs until one is picked). Chosen on the staging corpus
+ * (15 Nov 2026) because their first hits are passages of substance, not reference lists.
+ */
+const STARTERS = ["oxygen concentration flammability limit", "soot formation in microgravity flames", "flame size of gas jet flames in microgravity"];
 
 export function Sources({ initial }: { initial: string | null }) {
   const { client, researchMode, replay, caps, synthetic } = useData();
   const panel = usePanel();
   const [text, setText] = useState(initial ?? "");
-  // An empty page loads a starter search, so there is always something to open.
-  const submitted = initial ?? STARTERS[0];
+  // Nothing is searched until the user asks: an empty page offers the starters.
+  const submitted = initial?.trim() || null;
   const unavailable = caps.data?.knowledge.available === false;
   // Every page of the result order, followed by its cursor ("Load more"); the first page is larger
   // than the server default so a broad query shows more than a handful of passages at once.
@@ -78,6 +75,7 @@ export function Sources({ initial }: { initial: string | null }) {
           </button>
         ))}
       </div>
+      {!submitted && !unavailable && <p className="muted src-empty">Search the NASA reports, papers and test documents IGNIS holds. Each hit opens at its page in the original.</p>}
       {unavailable && <Gap title="Search is not available on this server">{caps.data?.knowledge.detail}</Gap>}
       {q.isFetching && !q.isFetchingNextPage && <p className="muted">Searching…</p>}
       {q.error && <ErrorNote error={q.error} title={q.error instanceof ApiError && q.error.envelope.code === "capability_unavailable" ? "Search is not configured" : "The search failed"} />}
