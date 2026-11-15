@@ -2,14 +2,15 @@
 // with what it is (hand-written, experimental, zero-shot or data-informed), what it reads and what
 // its authors reported. A forecast runs the release's strict forward on a stored run of the train
 // partition or on conditions typed here; a typed scenario is a synthetic input, never a NASA run.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { AnalysisArtifact, JobRef, ModelCard, ModelInput, ScenarioAdmitted, ToolResult } from "../contracts/generated";
-import { call, type ExperimentList, type ObservationsAtCutoff } from "../api";
+import { call, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
 import { ForecastChart, type Bands, type ChartPoint } from "../components/ForecastChart";
 import { useData } from "../shell/data";
 import { Caution, Gap, words } from "../ui/common";
 import { EventStack, Step, SupportNote } from "./Lab";
+import { familyLabel, hasSeries, runLabel } from "./RunPicker";
 
 interface Envelope {
   code: string;
@@ -65,55 +66,137 @@ function rows(text: string): (number | null)[][] {
 
 type Mode = "stored" | "typed";
 
-export function LabModels() {
-  const { researchMode, origin } = useData();
+const norm = (x: string) => x.toLowerCase().replace(/^n-/, "").replace(/[^a-z0-9]+/g, " ").trim();
+
+/** How well a served release fits a run: family first, then the fuel/material it was written for. */
+export function fit(card: ModelCard, run: ExperimentSummary): { score: number; why: string[] } {
+  const why: string[] = [];
+  let score = 0;
+  const inv = card.investigation.toLowerCase();
+  if (card.family === run.family) {
+    score += 4;
+    why.push(`same family (${familyLabel(run.family)})`);
+  } else if (card.family === "other" && run.investigation_id && inv.includes(run.investigation_id.toLowerCase())) {
+    score += 3;
+    why.push(`written for ${run.investigation_id}`);
+  } else return { score: -1, why: [] };
+  const fuel = run.fuel_or_material ? norm(run.fuel_or_material) : "";
+  if (fuel && norm(card.investigation + " " + card.model_name).includes(fuel.split(" ")[0])) {
+    score += 2;
+    why.push(`written for ${words(run.fuel_or_material!)}`);
+  } else if (fuel && /droplets|fabric|plastics/.test(inv)) score -= 1;
+  if (card.stored_runs) {
+    score += 1;
+    why.push("reads the stored run directly");
+  }
+  return { score, why };
+}
+
+export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | null; pickRun: (id: string) => void; runs: ExperimentSummary[] }) {
+  const { researchMode, origin, caps } = useData();
   const base = researchMode === "live" ? "/api/v1" : researchMode === "fixtures" ? "/api/fixtures/v1" : null;
-  const cards = useQuery({ queryKey: [researchMode, "model-cards"], queryFn: () => v1<ModelCard[]>(base!, "/model-cards"), enabled: !!base, retry: false });
-  const [pick, setPick] = useState("");
-  const card = cards.data?.find((c) => c.release_id === pick) ?? cards.data?.[0] ?? null;
+  // Only the live server says whether the model families are switched on; fixtures always serve theirs.
+  const modelsCap = researchMode === "live" ? caps.data?.models : undefined;
+  const cards = useQuery({ queryKey: [researchMode, "model-cards"], queryFn: () => v1<ModelCard[]>(base!, "/model-cards"), enabled: !!base && modelsCap?.available !== false, retry: false });
+  const [pickByRun, setPickByRun] = useState<Record<string, string>>({});
+  const ranked = useMemo(() => {
+    const all = cards.data ?? [];
+    if (!run) return all.map((c) => ({ c, score: 0, why: [] as string[] }));
+    return all.map((c) => ({ c, ...fit(c, run) })).sort((x, y) => y.score - x.score);
+  }, [cards.data, run]);
+  const fitting = ranked.filter((x) => x.score >= 0 && run);
+  const auto = run ? fitting[0] ?? null : ranked[0] ?? null;
+  const key = run?.id ?? "";
+  const manual = pickByRun[key];
+  const chosen = ranked.find((x) => x.c.release_id === manual) ?? auto;
+  const card = chosen?.c ?? null;
 
   if (!base) return null;
   return (
     <section className="sheet" aria-labelledby="hw-h" style={{ marginTop: 16 }}>
       <div className="sheet-head">
-        <h2 id="hw-h">Hand-written models</h2>
-        {cards.data && cards.data.length > 0 && (
+        <h2 id="hw-h">
+          Model and forecast
+        </h2>
+        {ranked.length > 0 && (
           <>
             <label className="sr-only" htmlFor="hw-model">
-              Hand-written model
+              Model
             </label>
-            <select id="hw-model" className="field" value={card?.release_id ?? ""} onChange={(e) => setPick(e.target.value)}>
-              {cards.data.map((c) => (
-                <option key={c.release_id} value={c.release_id}>
-                  {c.model_name} {c.candidate} · {c.investigation}
-                </option>
-              ))}
+            <select id="hw-model" className="field" value={manual && ranked.some((x) => x.c.release_id === manual) ? manual : ""} onChange={(e) => setPickByRun((m) => ({ ...m, [key]: e.target.value }))}>
+              <option value="">{auto ? `Automatic: ${auto.c.model_name} ${auto.c.candidate}` : "Choose a model"}</option>
+              {run && fitting.length > 0 && (
+                <optgroup label="Fits this run">
+                  {fitting.map(({ c }) => (
+                    <option key={c.release_id} value={c.release_id}>
+                      {c.model_name} {c.candidate} · {c.investigation}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              <optgroup label={run && fitting.length ? "Other models (typed conditions)" : "All served models"}>
+                {ranked
+                  .filter((x) => !(run && x.score >= 0))
+                  .map(({ c }) => (
+                    <option key={c.release_id} value={c.release_id}>
+                      {c.model_name} {c.candidate} · {c.investigation}
+                    </option>
+                  ))}
+              </optgroup>
             </select>
           </>
         )}
       </div>
-      {cards.error && (
-        <Gap title="Hand-written models are not served here">{cards.error instanceof V1Error ? cards.error.envelope.message : String(cards.error)}</Gap>
+      {modelsCap && !modelsCap.available && (
+        <Gap title="The prediction models are switched off on this server">
+          {modelsCap.detail}. The hand-written releases exist; the deployment has to start with <code>IGNIS_ENABLE_MODELS=true</code> to serve them.
+        </Gap>
       )}
+      {cards.error && <Gap title="Hand-written models are not served here">{cards.error instanceof V1Error ? cards.error.envelope.message : String(cards.error)}</Gap>}
       {cards.isLoading && <p className="muted">Loading the served models…</p>}
-      {card && <ModelPanel key={card.release_id} card={card} base={base} legacy={origin} />}
+      {cards.data && cards.data.length === 0 && <Gap title="No model is served">This deployment lists no hand-written release.</Gap>}
+      {!run && ranked.length > 0 && (
+        <p className="muted lab-why">Pick a run above and the model that fits it is chosen for you, or choose any model in the menu and type its conditions.</p>
+      )}
+      {chosen && (
+        <p className="muted lab-why">
+          {!manual && run ? (
+            <>
+              <b>Chosen automatically</b>: {chosen.why.join(", ")}.
+              {fitting.length > 1 && ` ${fitting.length - 1} other model${fitting.length > 2 ? "s" : ""} also fit${fitting.length > 2 ? "" : "s"}; switch in the menu.`}
+            </>
+          ) : run && chosen.score < 0 ? (
+            <>This model was not written for {familyLabel(run.family)} runs; it takes typed conditions only.</>
+          ) : null}
+        </p>
+      )}
+      {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (
+        <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the menu and type its conditions.</Gap>
+      )}
+      {card && (!run || chosen!.score >= 0 || manual) && (
+        <ModelPanel key={`${card.release_id}|${run?.id ?? ""}`} card={card} base={base} legacy={origin} run={run && chosen!.score >= 0 ? run : null} pickRun={pickRun} allRuns={runs} />
+      )}
     </section>
   );
 }
 
-function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; legacy: "registry" | "fixtures" }) {
+function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card: ModelCard; base: string; legacy: "registry" | "fixtures"; run: ExperimentSummary | null; pickRun: (id: string) => void; allRuns: ExperimentSummary[] }) {
   const obsInput = card.inputs.find((i) => i.kind === "observation");
   const unit = obsInput?.unit_si ?? "";
   const d = display(unit);
   const [mode, setMode] = useState<Mode>(card.stored_runs ? "stored" : "typed");
   const [values, setValues] = useState<Record<string, string>>({});
   const set = (k: string, v: string) => setValues((m) => ({ ...m, [k]: v }));
-  const [cutoff, setCutoff] = useState("");
-  const [run, setRun] = useState("");
+  // A run picked above fixes the input; the cutoff starts at 40 % of its recorded series.
+  const series = fixed?.quantities.find((q) => q.quantity === obsInput?.name);
+  const extent = series ? series.archive_t_max_s : null;
+  const [cutoff, setCutoff] = useState(() => (extent != null && extent > 0 ? String(+(extent * 0.4).toPrecision(3)) : fixed ? "3" : ""));
+  const [run, setRun] = useState(fixed?.id ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [art, setArt] = useState<AnalysisArtifact | null>(null);
   const [observed, setObserved] = useState<ChartPoint[]>([]);
+  const seq = useRef(0);
 
   // Stored runs offered: the train partition of the release's split (the research scope reads train only).
   const split = useQuery({
@@ -138,9 +221,10 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
   };
 
   const forecast = async () => {
+    const me = ++seq.current;
+    const live = () => me === seq.current;
     setBusy(true);
     setError(null);
-    setArt(null);
     try {
       const c = Number(cutoff);
       if (!(cutoff.trim() !== "" && Number.isFinite(c) && c >= 0)) throw new Error("give a cutoff in seconds (≥ 0)");
@@ -213,14 +297,33 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
       if (job.status !== "succeeded") throw new V1Error({ code: job.error?.code ?? job.status, message: job.error?.message ?? "the forecast did not run" });
       const out = job.outputs?.[0];
       if (!out) throw new Error("the forecast job stored no artifact");
-      setArt(await v1<AnalysisArtifact>(base, `/artifacts/${encodeURIComponent(out.artifact_id)}`));
+      const a = await v1<AnalysisArtifact>(base, `/artifacts/${encodeURIComponent(out.artifact_id)}`);
+      if (!live()) return;
+      setArt(a);
       setObserved(points);
     } catch (e) {
+      if (!live()) return;
+      setArt(null);
       setError(e instanceof V1Error ? `${words(e.envelope.code)}: ${e.envelope.message}` : String((e as Error).message ?? e));
     } finally {
-      setBusy(false);
+      if (live()) setBusy(false);
     }
   };
+
+  // With a run fixed above, the forecast runs by itself and follows the cutoff (debounced).
+  const inTrain = !!fixed && runs.some((r) => r.id === fixed.id);
+  const auto = !!fixed && mode === "stored" && inTrain;
+  useEffect(() => {
+    if (!auto) return;
+    const t = setTimeout(() => void forecast(), 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auto, cutoff]);
+  const slide = auto && extent != null && extent > 0;
+  const trainWithData = useMemo(() => {
+    const ids = new Set(runs.map((r) => r.id));
+    return allRuns.filter((r) => ids.has(r.id) && (!obsInput || hasSeries(r))).slice(0, 6);
+  }, [runs, allRuns, obsInput]);
 
   const bands: Bands | null = useMemo(
     () => (art && art.support.admitted && (art.quantiles?.length ?? 0) > 0 ? { times: art.times_s ?? [], levels: art.quantile_levels ?? [], q: (art.quantiles ?? []).map((r) => r.map((v) => v * d.k)) } : null),
@@ -230,7 +333,36 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
   const xMax = Math.max(c, ...(bands?.times ?? [0]), ...observed.map((p) => p.t), 1e-6);
 
   return (
-    <div className="lab">
+    <div className={obsInput ? "lab" : "lab lab-one"}>
+      {obsInput && (
+        <section className="sheet" aria-label="Forecast chart">
+          {bands || observed.length > 0 ? (
+            <>
+          <ul className="legend legend-inline" aria-label="Chart legend">
+            <li>
+              <span className="glyph g-observed" style={{ color: "var(--observed)" }} /> {mode === "typed" ? "Typed before the cutoff (synthetic)" : "Observed before the cutoff"}
+            </li>
+            <li>
+              <span className="glyph g-predicted" /> Model output: quantile bands, dashed median
+            </li>
+            <li>
+              <span className="glyph g-cutoff" /> Cutoff
+            </li>
+          </ul>
+          <ForecastChart observed={observed} revealed={null} bands={bands} cutoff={c} xMax={xMax} yLabel={`${obsInput ? words(obsInput.name) : ""} [${d.unit}]`} />
+            </>
+          ) : (
+            <p className="muted lab-chart-empty">{busy ? "Running the forecast…" : error ? "No forecast to draw." : "The forecast is drawn here once it has run."}</p>
+          )}
+          {slide && (
+            <div className="cutoff-row">
+              <label htmlFor="hw-cutoff">Cutoff, s</label>
+              <input id="hw-cutoff" type="range" min={0} max={extent!} step={+(extent! / 200).toPrecision(2)} value={Number(cutoff) || 0} onChange={(e) => setCutoff(e.target.value)} aria-valuetext={`${cutoff} seconds of ${extent!.toPrecision(3)}`} />
+              <input className="field num" type="number" aria-label="Cutoff in seconds" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} />
+            </div>
+          )}
+        </section>
+      )}
       <div className="steps">
         <Step n={1} done title={`${card.model_name} ${card.candidate}`} tag={<span className="tag tag-warn">experimental</span>}>
           <p>
@@ -277,6 +409,37 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
             </button>
           </div>
           {mode === "stored" ? (
+            fixed ? (
+              <>
+                <p>
+                  <b>{runLabel(fixed)}</b> <code>{fixed.id}</code>
+                </p>
+                {split.isLoading && <p className="muted">Checking the model's train partition…</p>}
+                {split.error && <Gap title="The model's runs could not be listed">{String((split.error as Error).message ?? split.error)}</Gap>}
+                {split.data && !inTrain && (
+                  <Caution title="This run is outside the model's train partition">
+                    This deployment builds a stored prefix only from train runs, so this run's own data is not fed to this model here (validation and test runs stay sealed for evaluation).
+                    {trainWithData.length > 0
+                      ? " Runs this model can read:"
+                      : " No run of its train partition has a recorded series in IGNIS yet; switch to Typed conditions to forecast from values you enter."}
+                  </Caution>
+                )}
+                {split.data && !inTrain && trainWithData.length > 0 && (
+                  <div className="toolbar">
+                    {trainWithData.map((r) => (
+                      <button key={r.id} className="btn btn-s" onClick={() => pickRun(r.id)}>
+                        {runLabel(r)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {inTrain && card.authorship === "data_informed" && (
+                  <p className="muted" style={{ fontSize: 12 }}>
+                    The authors read this train run while writing the model, so this is inspection, not a test.
+                  </p>
+                )}
+              </>
+            ) : (
             <>
               <p className="muted" style={{ fontSize: 12 }}>
                 Runs of the release's train partition only; the authors of a data-informed release read these runs, so this is inspection, not a test.
@@ -290,6 +453,7 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
                 ))}
               </select>
             </>
+            )
           ) : (
             <>
               <Caution title="A typed scenario is not a NASA run">
@@ -305,13 +469,20 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
               </dl>
             </>
           )}
-          <div className="cutoff-row">
-            <label htmlFor="hw-cutoff">Cutoff, s</label>
-            <input id="hw-cutoff" className="field num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} />
-            <button className="btn btn-s btn-primary" disabled={busy} onClick={forecast}>
-              {busy ? "Running the forward…" : "Forecast"}
-            </button>
-          </div>
+          {slide ? null : (
+            <div className="cutoff-row">
+              <label htmlFor="hw-cutoff">Cutoff, s</label>
+              <input id="hw-cutoff" className="field num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void forecast()} />
+              <button className="btn btn-s btn-primary" disabled={busy || (mode === "stored" && !!fixed && !inTrain)} onClick={forecast}>
+                {busy ? "Running the forward…" : "Forecast"}
+              </button>
+            </div>
+          )}
+          {auto && (
+            <p className="muted" style={{ fontSize: 12 }} aria-live="polite">
+              {busy ? "Updating the forecast…" : "The forecast follows the cutoff."}
+            </p>
+          )}
         </Step>
 
         <Step n={3} done={!!art} title="Model output">
@@ -326,22 +497,6 @@ function ModelPanel({ card, base, legacy }: { card: ModelCard; base: string; leg
           )}
         </Step>
       </div>
-      {(bands || observed.length > 0) && (
-        <section className="sheet" aria-label="Forecast chart">
-          <ul className="legend legend-inline" aria-label="Chart legend">
-            <li>
-              <span className="glyph g-observed" style={{ color: "var(--observed)" }} /> {mode === "typed" ? "Typed before the cutoff (synthetic)" : "Observed before the cutoff"}
-            </li>
-            <li>
-              <span className="glyph g-predicted" /> Model output: quantile bands, dashed median
-            </li>
-            <li>
-              <span className="glyph g-cutoff" /> Cutoff
-            </li>
-          </ul>
-          <ForecastChart observed={observed} revealed={null} bands={bands} cutoff={c} xMax={xMax} yLabel={`${obsInput ? words(obsInput.name) : ""} [${d.unit}]`} />
-        </section>
-      )}
     </div>
   );
 }
