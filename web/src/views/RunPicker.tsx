@@ -1,10 +1,11 @@
 // Run picker for the forecast lab: search by NASA test name, fuel or id, narrow by family, and see
-// at a glance which runs carry a recorded time series (a forecast from a cutoff needs one; a model
-// that reads conditions only does not). Runs with data are listed first.
+// at a glance what a served model can do with each run. By default only runs a model can forecast
+// are listed; the rest (sealed for evaluation, or no model for the family) are one click away.
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ExperimentSummary } from "../api";
 import { FamilyMark } from "../shell/icons";
 import { words } from "../ui/common";
+import type { Reach } from "./LabModels";
 
 const FAMILY_LABEL: Record<string, string> = { flex: "FLEX", acme_normal: "ACME normal", acme_inverse: "ACME inverse", bass: "BASS" };
 export const familyLabel = (f: string) => FAMILY_LABEL[f] ?? words(f);
@@ -29,12 +30,18 @@ interface Props {
   onPick: (id: string) => void;
   loading?: boolean;
   autoFocus?: boolean;
+  /** What a served model can do with each run; null while it is being worked out or when no model is served. */
+  reach: Map<string, Reach> | null;
 }
 
-export function RunPicker({ runs, value, onPick, loading, autoFocus }: Props) {
+const REACH_ORDER: Record<Reach, number> = { ready: 0, conditions: 1, typed: 2, sealed: 3, none: 4 };
+
+export function RunPicker({ runs, value, onPick, loading, autoFocus, reach }: Props) {
   const [q, setQ] = useState("");
   const [family, setFamily] = useState<string>("all");
-  const [onlyData, setOnlyData] = useState(false);
+  const [onlyReady, setOnlyData] = useState(true);
+  const can = (r: ExperimentSummary) => !reach || (reach.get(r.id) ?? "none") === "ready" || reach.get(r.id) === "conditions";
+  const onlyData = onlyReady && !!reach;
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (autoFocus) input.current?.focus();
@@ -42,18 +49,20 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus }: Props) {
 
   const families = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of runs) if (!onlyData || hasSeries(r)) m.set(r.family, (m.get(r.family) ?? 0) + 1);
+    for (const r of runs) if (!onlyData || can(r)) m.set(r.family, (m.get(r.family) ?? 0) + 1);
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
-  }, [runs, onlyData]);
-  const nData = useMemo(() => runs.filter(hasSeries).length, [runs]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runs, onlyData, reach]);
+  const nData = useMemo(() => runs.filter(can).length, [runs, reach]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return runs
-      .filter((r) => (family === "all" || r.family === family) && (!onlyData || hasSeries(r)))
+      .filter((r) => (family === "all" || r.family === family) && (!onlyData || can(r)))
       .filter((r) => !needle || [r.id, r.fuel_or_material ?? "", r.family, ...(r.aliases ?? []).map((a) => a.name)].some((s) => s.toLowerCase().includes(needle)))
-      .sort((a, b) => Number(hasSeries(b)) - Number(hasSeries(a)) || (b.n_observations ?? 0) - (a.n_observations ?? 0) || a.id.localeCompare(b.id));
-  }, [runs, q, family, onlyData]);
+      .sort((a, b) => (reach ? REACH_ORDER[reach.get(a.id) ?? "none"] - REACH_ORDER[reach.get(b.id) ?? "none"] : 0) || Number(hasSeries(b)) - Number(hasSeries(a)) || (b.n_observations ?? 0) - (a.n_observations ?? 0) || a.id.localeCompare(b.id));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runs, q, family, onlyData, reach]);
 
   return (
     <div className="runpick">
@@ -70,10 +79,12 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus }: Props) {
             if (e.key === "Enter" && shown[0]) onPick(shown[0].id);
           }}
         />
-        <label className="runpick-toggle">
-          <input type="checkbox" checked={onlyData} onChange={(e) => setOnlyData(e.target.checked)} />
-          Only runs with a recorded time series <span className="muted num">({nData})</span>
-        </label>
+        {reach && (
+          <label className="runpick-toggle">
+            <input type="checkbox" checked={onlyData} onChange={(e) => setOnlyData(e.target.checked)} />
+            Only runs a model can forecast <span className="muted num">({nData} of {runs.length})</span>
+          </label>
+        )}
       </div>
       <div className="seg" role="group" aria-label="Family">
         <button aria-pressed={family === "all"} onClick={() => setFamily("all")}>
@@ -92,7 +103,7 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus }: Props) {
             No run matches.{onlyData && " "}
             {onlyData && (
               <button className="linkish" onClick={() => setOnlyData(false)}>
-                Include runs without recorded data
+                Show the runs no model can forecast here
               </button>
             )}
           </li>
@@ -105,19 +116,56 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus }: Props) {
                 <b>{runLabel(r)}</b>
                 <code>{r.id}</code>
               </span>
-              {hasSeries(r) ? (
-                <span className="tag tag-ok num" title={(r.quantities ?? []).map((x) => `${words(x.quantity)}: ${x.count}`).join("\n")}>
-                  {r.n_observations} points
-                </span>
-              ) : (
-                <span className="tag" title="The registry holds this run's conditions but no measured time series yet">
-                  conditions only
-                </span>
-              )}
+              <ReachTag r={r} reach={reach?.get(r.id) ?? null} />
             </button>
           </li>
         ))}
       </ul>
     </div>
+  );
+}
+
+const NL = String.fromCharCode(10);
+
+function ReachTag({ r, reach }: { r: ExperimentSummary; reach: Reach | null }) {
+  const points = (r.quantities ?? []).map((x) => `${words(x.quantity)}: ${x.count}`).join(NL);
+  if (reach === "ready")
+    return (
+      <span className="tag tag-ok num" title={hasSeries(r) ? `A model reads this run directly.${NL}${points}` : "A model reads this run's conditions directly"}>
+        {hasSeries(r) ? `forecast · ${r.n_observations} points` : "forecast"}
+      </span>
+    );
+  if (reach === "conditions")
+    return (
+      <span className="tag tag-ok" title="A model forecasts from this run's conditions, filled in for you">
+        forecast from conditions
+      </span>
+    );
+  if (reach === "typed")
+    return (
+      <span className="tag tag-line" title="A model is written for this family, but it needs values the NASA record does not hold: you type them">
+        you type its data
+      </span>
+    );
+  if (reach === "sealed")
+    return (
+      <span className="tag tag-line" title="Validation or test run: kept from the models for evaluation">
+        sealed for evaluation
+      </span>
+    );
+  if (reach === "none")
+    return (
+      <span className="tag tag-line" title="No served model is written for this family">
+        no model
+      </span>
+    );
+  return hasSeries(r) ? (
+    <span className="tag num" title={points}>
+      {r.n_observations} points
+    </span>
+  ) : (
+    <span className="tag" title="The registry holds this run's conditions but no measured time series yet">
+      conditions only
+    </span>
   );
 }

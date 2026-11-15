@@ -13,7 +13,7 @@ import { go, href } from "../shell/router";
 import { RunPicker, familyLabel, hasSeries, runLabel } from "./RunPicker";
 import "./lab.css";
 import { Caution, Gap, RefusalNote, ReleaseState, shortId, words } from "../ui/common";
-import { LabModels } from "./LabModels";
+import { LabModels, useReach } from "./LabModels";
 
 const display = (unit: string | null | undefined) => (unit === "m" ? { k: 1e3, unit: "mm" } : { k: 1, unit: unit ?? "" });
 type Result<T> = T | { error: Refusal | null };
@@ -97,6 +97,7 @@ export function Lab({ runId }: { runId: string | null }) {
   const [table, setTable] = useState(false);
 
   const runs = experiments.data?.experiments ?? [];
+  const reach = useReach(runs);
 
   const summary = runs.find((x) => x.id === runId) ?? detail.data?.summary ?? null;
   const [picking, setPicking] = useState(false);
@@ -158,16 +159,7 @@ export function Lab({ runId }: { runId: string | null }) {
             </div>
           </div>
         )}
-        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} />}
-        {!runId && (
-          <p className="muted" style={{ fontSize: 12.5 }}>
-            No NASA run fits your question?{" "}
-            <a href="#hw-h" onClick={(e) => (e.preventDefault(), document.getElementById("hw-h")?.scrollIntoView({ behavior: "smooth" }))}>
-              Forecast from conditions you type
-            </a>{" "}
-            with one of the hand-written models below.
-          </p>
-        )}
+        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} reach={reach} />}
       </section>
 
       {runId && detail.error && <RefusalNote refusal={asRefusal(detail.error)!} next="Choose another run, or switch the data source in the sidebar." />}
