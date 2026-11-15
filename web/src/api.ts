@@ -135,6 +135,8 @@ export interface ExperimentDetail {
   record: ExperimentRecord;
   summary: ExperimentSummary;
   control_history: { time_origin: string } | null;
+  /** How the run ended: served only for runs whose outcomes the scope reads (train); absent from older servers. */
+  endpoint?: EndpointRecord | null;
   releases: ReleaseSummary[];
 }
 
