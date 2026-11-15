@@ -1067,6 +1067,26 @@ impl DatasetService for DatasetStore {
     /// Digest over the conditions table the service answers from (the bytes its cached copy was
     /// parsed from) and every frozen split file (name and bytes): the inputs that decide both the
     /// cells and which runs a scope sees.
+    /// The partition of `run` in every frozen split that assigns one (the same splits that decide
+    /// which runs `conditions` withholds).
+    fn run_partitions(
+        &self,
+        scope: &ExecutionScope,
+        run: &RunId,
+    ) -> ServiceResult<BTreeSet<Partition>> {
+        scope
+            .validate()
+            .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
+        scope.require(Capability::ReadData)?;
+        let mut out = BTreeSet::new();
+        for f in crate::cohort::split_files() {
+            let (s, _) = crate::cohort::load_split_with_cohort(&f.display().to_string())
+                .map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?;
+            out.extend(s.partition_of(run.as_str()));
+        }
+        Ok(out)
+    }
+
     fn conditions_snapshot(&self, scope: &ExecutionScope) -> ServiceResult<Digest> {
         scope
             .validate()
