@@ -20,6 +20,7 @@ pub mod deepinfra;
 pub mod dense;
 pub mod docling_view;
 pub mod firewall;
+pub mod graph;
 pub mod labels;
 pub mod llm_pass;
 pub mod outline;
@@ -82,10 +83,40 @@ pub enum CorpusCmd {
     },
 }
 
+/// `ignis evidence graph ...` (R9b).
+#[derive(Debug, Subcommand)]
+pub enum GraphCmd {
+    /// Build the combustion graph next to the catalog (`graph.sqlite`) from the PSI manifests, the
+    /// conditions table (`ignis data conditions`), the catalog's active parse views and the R8
+    /// labels when present; prints the build report (links per relation, gaps that are not links).
+    Build {
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// Default: `data/manifests`.
+        #[arg(long)]
+        manifests: Option<PathBuf>,
+        /// Default: the table `ignis data conditions` wrote.
+        #[arg(long)]
+        conditions: Option<PathBuf>,
+        /// Default: `<catalog dir>/graph.sqlite`.
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
+    /// One `graph_neighbors` page (a `GraphNeighborsRequest` as JSON) under the local research
+    /// scope, through the same service as the HTTP API and the MCP tool.
+    Neighbors {
+        request: String,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+}
+
 #[derive(Debug, Subcommand)]
 pub enum EvidenceCmd {
     #[command(subcommand)]
     Corpus(CorpusCmd),
+    #[command(subcommand)]
+    Graph(GraphCmd),
     /// Parse PDFs (page texts, char spans, bboxes, captions) and upsert their parse views into the catalog.
     Ingest {
         /// a PDF or a directory of PDFs (NTRS `<stem>.json` sidecars are read)
@@ -443,6 +474,33 @@ fn ingest_one(
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
         EvidenceCmd::Corpus(c) => run_corpus(c),
+        EvidenceCmd::Graph(GraphCmd::Build { db, manifests, conditions, out }) => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let manifests = manifests.unwrap_or_else(ignis_data::paths::manifests);
+            let cpath = conditions.unwrap_or_else(ignis_data::conditions::table_path);
+            let table: Option<ignis_core::contracts::ConditionsTable> = if cpath.exists() {
+                Some(serde_json::from_str(&std::fs::read_to_string(&cpath)?).with_context(|| cpath.display().to_string())?)
+            } else {
+                None
+            };
+            let labels = labels::read_labels(&db.with_file_name(service::LABELS_FILE))?;
+            let lockbox = service::Lockbox::load()?;
+            let out = out.unwrap_or_else(|| graph::path_for(&db));
+            let report = graph::build(&out, &graph::Inputs {
+                catalog: &con,
+                manifests: Some(&manifests),
+                conditions: table.as_ref(),
+                labels: &labels,
+                aliases: lockbox.aliases(),
+                origin: ignis_core::contracts::Origin::System,
+            })?;
+            print(&report)
+        }
+        EvidenceCmd::Graph(GraphCmd::Neighbors { request, db }) => {
+            let req: ignis_core::contracts::GraphNeighborsRequest = serde_json::from_str(&request).context("request")?;
+            emit(open_service(db, true)?.graph_neighbors(&local_research_scope(), &req))
+        }
         EvidenceCmd::ImportView {
             view,
             pdf,
