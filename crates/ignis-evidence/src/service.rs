@@ -58,6 +58,15 @@ fn err(code: ErrorCode, msg: impl Into<String>) -> ErrorEnvelope {
     ErrorEnvelope::new(code, msg, RetryPolicy::Never)
 }
 
+/// The parse view of a chunk: its id is `<view>:p<page>:<ordinal>`.
+fn chunk_view(chunk_id: &str) -> String {
+    chunk_id
+        .rsplitn(3, ':')
+        .nth(2)
+        .unwrap_or(chunk_id)
+        .to_string()
+}
+
 fn internal(e: anyhow::Error) -> ErrorEnvelope {
     err(ErrorCode::Internal, format!("{e:#}"))
 }
@@ -848,15 +857,27 @@ impl KnowledgeService for EvidenceService {
         self.check_scope(scope)?;
         req.validate()?;
         let p = self.publication_of(&req.source_id)?;
-        let view = parse_view_id(&p.id, &p.parser_version);
-        if let Some(v) = &req.parse_view_id {
-            if v.as_str() != view {
-                return Err(err(
-                    ErrorCode::NotFound,
-                    format!("parse view {v} is not served (current view of this source: {view})"),
-                ));
+        let active = parse_view_id(&p.id, &p.parser_version);
+        // An older view stays readable, so a citation made against it still opens.
+        let view = match &req.parse_view_id {
+            None => active.clone(),
+            Some(v) if v.as_str() == active => active.clone(),
+            Some(v) => {
+                let stored = {
+                    let con = self.meta.lock().expect("meta");
+                    catalog::views(&con, &p.id).map_err(internal)?
+                };
+                if !stored.iter().any(|s| s == v.as_str()) {
+                    return Err(err(
+                        ErrorCode::NotFound,
+                        format!(
+                            "parse view {v} is not stored (active view of this source: {active})"
+                        ),
+                    ));
+                }
+                v.as_str().to_string()
             }
-        }
+        };
         let sealed = self.lockbox.sealed(scope);
         let view_id = ParseViewId::new(view.clone())?;
         let page_locator = |page: i64, len: usize| SourceLocator {
@@ -881,7 +902,7 @@ impl KnowledgeService for EvidenceService {
                 }
                 let pages = {
                     let con = self.meta.lock().expect("meta");
-                    catalog::page_texts(&con, &p.id, first, last).map_err(internal)?
+                    catalog::page_texts(&con, &p.id, &view, first, last).map_err(internal)?
                 };
                 if pages.len() as i64 != last - first + 1 {
                     return Err(err(
@@ -902,7 +923,7 @@ impl KnowledgeService for EvidenceService {
                     used += text.chars().count();
                     let ids = {
                         let con = self.meta.lock().expect("meta");
-                        catalog::chunk_ids_on_page(&con, &p.id, page).map_err(internal)?
+                        catalog::chunk_ids_on_page(&con, &p.id, &view, page).map_err(internal)?
                     };
                     let chunks = ids
                         .iter()
@@ -959,7 +980,8 @@ impl KnowledgeService for EvidenceService {
                 }
                 let ids = {
                     let con = self.meta.lock().expect("meta");
-                    catalog::chunk_ids_on_page(&con, &p.id, c.page).map_err(internal)?
+                    catalog::chunk_ids_on_page(&con, &p.id, &chunk_view(&c.id), c.page)
+                        .map_err(internal)?
                 };
                 let pos = ids.iter().position(|i| *i == c.id).unwrap_or(0);
                 for i in pos.saturating_sub(1)..(pos + 2).min(ids.len()) {

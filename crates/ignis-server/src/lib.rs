@@ -15,6 +15,8 @@
 mod api;
 mod evidence;
 pub mod fixture;
+pub mod harness_run;
+pub mod observe;
 pub mod ops;
 mod refusal;
 mod state;
@@ -168,6 +170,10 @@ pub struct ServeArgs {
     /// Source access without copies (`/api/v1/sources/{id}/content`, M12).
     #[command(flatten)]
     pub sources: v1::sources::SourceArgs,
+    /// Versioned LLM price list of the cost metrics (M5); unset = the list built into the binary
+    /// (`configs/pricing/llm_prices.toml`). A model it does not list is reported unpriced.
+    #[arg(long, env = "IGNIS_PRICE_LIST")]
+    pub price_list: Option<PathBuf>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -259,6 +265,16 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     args.root = std::fs::canonicalize(&args.root)
         .map(strip_verbatim)
         .unwrap_or(args.root.clone());
+    if let Some(path) = &args.price_list {
+        // A bad price list stops the server at start, like a bad state directory.
+        let list = ignis_research::metrics::PriceList::load(&args.root.join(path))
+            .and_then(|l| {
+                let id = l.id();
+                ignis_research::metrics::install_prices(l).map(|()| id)
+            })
+            .unwrap_or_else(|e| panic!("price list: {e}"));
+        tracing::info!(price_list = %list, "cost metrics price list");
+    }
     let pool = Arc::new(ignis_core::batch::bounded_pool(args.compute_threads));
     let access = access_verifier(&args);
     let artifacts = args.root.join(&args.artifacts);

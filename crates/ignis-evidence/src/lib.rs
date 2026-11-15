@@ -12,10 +12,12 @@
 //! and `resolve` print the contract documents (`SearchPage`, `ReadResult`, `EvidenceRef`) of the same
 //! service the HTTP API and MCP tools use. The API key is read only from `DEEPINFRA_API_KEY`.
 
+pub mod attribution;
 pub mod catalog;
 pub mod corpus;
 pub mod deepinfra;
 pub mod dense;
+pub mod docling_view;
 pub mod firewall;
 #[cfg(feature = "pdf")]
 pub mod pdf;
@@ -89,6 +91,38 @@ pub enum EvidenceCmd {
         /// investigation ids to attach, e.g. PSI-25
         #[arg(long)]
         investigation: Vec<String>,
+    },
+    /// Import a Docling parse view (`sidecar/docling/ignis_docling.py` output) of a PDF as its active
+    /// view; other views of the PDF stay stored, so their citations still resolve. Refused if the PDF
+    /// bytes differ from the view's source hash or the view has failed pages.
+    ImportView {
+        /// the view JSON (Docling or PDFium)
+        view: PathBuf,
+        /// the PDF the view was made from (its bytes are hashed against the view)
+        #[arg(long)]
+        pdf: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// investigation ids to attach (the storage location adds its own)
+        #[arg(long)]
+        investigation: Vec<String>,
+    },
+    /// Import every view under a directory (`<root>/**/<inv>/<stem>.{pdfium,docling}.json`) whose
+    /// PDF is found under `--pdf-root` as `<inv>/<file_name>`. PDFium views go first, so a Docling
+    /// view of the same PDF ends active. A view already stored is skipped (incremental); a refused
+    /// view is reported and the others still import.
+    ImportViews {
+        /// directories of views (repeatable), e.g. data/views/pdfium-5.15.2 data/views/docling-2.150.1
+        #[arg(required = true)]
+        roots: Vec<PathBuf>,
+        /// where the PDFs are, as `<inv>/<file name>`
+        #[arg(long)]
+        pdf_root: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// re-import views already stored
+        #[arg(long)]
+        force: bool,
     },
     /// Re-derive every stored parse view from the original bytes (hash, page texts, chunk spans, locators).
     Verify {
@@ -278,6 +312,35 @@ fn ingest_one(
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
         EvidenceCmd::Corpus(c) => run_corpus(c),
+        EvidenceCmd::ImportView {
+            view,
+            pdf,
+            db,
+            investigation,
+        } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let v: docling_view::DoclingView = serde_json::from_str(&std::fs::read_to_string(&view)?)?;
+            let bytes = std::fs::read(&pdf)?;
+            let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
+            let iv = docling_view::import(&v, &pdf, &bytes, &rp, &investigation)?;
+            let mut con = catalog::connect(&db, false)?;
+            let n = docling_view::store(&mut con, &iv)?;
+            catalog::record_location(&con, &iv.publication.source_sha256, &pdf.display().to_string())?;
+            print(&json!({"db": db.display().to_string(), "publication_id": iv.publication.id,
+                "parse_view_id": records::parse_view_id(&iv.publication.id, &iv.publication.parser_version),
+                "active": catalog::active_parser(&con, &iv.publication.id)?,
+                "chunks": n, "views": catalog::views(&con, &iv.publication.id)?}))
+        }
+        EvidenceCmd::ImportViews {
+            roots,
+            pdf_root,
+            db,
+            force,
+        } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
+            print(&import_views(&roots, &pdf_root, &db, &rp, force)?)
+        }
         #[cfg(not(feature = "pdf"))]
         EvidenceCmd::Ingest { .. } | EvidenceCmd::Verify { .. } => anyhow::bail!(
             "PDF ingest/verify needs the `pdf` feature (MuPDF): cargo build -p ignis-cli --features pdf \
@@ -316,6 +379,18 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                     continue;
                 };
                 let bytes = std::fs::read(&rel).with_context(|| format!("read {rel}"))?;
+                if p.parser_version.starts_with("docling-") || p.parser_version.starts_with("pdfium-") {
+                    // Sidecar views: spans, line boxes and page bounds are checked at import
+                    // (`docling_view::import`); here the stored bytes must still be the view's source.
+                    let ok = ignis_core::hashing::sha256_hex(&bytes) == p.source_sha256;
+                    if !ok {
+                        failed += 1;
+                    }
+                    out.push(json!({"publication_id": p.id, "source_id": format!("sha256:{}", p.source_sha256),
+                        "parse_view_id": records::parse_view_id(&p.id, &p.parser_version),
+                        "bytes_match": ok, "check": "source hash; spans and boxes checked at import", "passed": ok}));
+                    continue;
+                }
                 let r = verify::verify_view(&con, &p, &bytes)?;
                 if !r.passed() {
                     failed += 1;
@@ -558,6 +633,89 @@ fn run_corpus(cmd: CorpusCmd) -> Result<()> {
                 "members": snap.members.len(), "embedding_set": snap.embedding_set}))
         }
     }
+}
+
+/// Batch form of `import-view` (see [`EvidenceCmd::ImportViews`]).
+pub fn import_views(
+    roots: &[PathBuf],
+    pdf_root: &std::path::Path,
+    db: &std::path::Path,
+    rp: &attribution::RunPatterns,
+    force: bool,
+) -> Result<Value> {
+    fn walk(dir: &std::path::Path, ext: &str, out: &mut Vec<PathBuf>) -> Result<()> {
+        for e in std::fs::read_dir(dir).with_context(|| format!("read {}", dir.display()))? {
+            let p = e?.path();
+            if p.is_dir() {
+                walk(&p, ext, out)?;
+            } else if p.to_string_lossy().ends_with(ext) {
+                out.push(p);
+            }
+        }
+        Ok(())
+    }
+    let mut views = Vec::new();
+    for ext in [".pdfium.json", ".docling.json"] {
+        let mut v = Vec::new();
+        for r in roots {
+            walk(r, ext, &mut v)?;
+        }
+        v.sort();
+        views.extend(v);
+    }
+    let mut con = catalog::connect(db, false)?;
+    let t = std::time::Instant::now();
+    let (mut imported, mut skipped, mut chunks) = (0usize, 0usize, 0usize);
+    let mut refused = Vec::new();
+    for (i, path) in views.iter().enumerate() {
+        let mut one = || -> Result<Option<usize>> {
+            let v: docling_view::DoclingView =
+                serde_json::from_str(&std::fs::read_to_string(path)?)?;
+            let pub_id = format!("pub-{}", &v.source.sha256[..16.min(v.source.sha256.len())]);
+            let view_id = records::parse_view_id(&pub_id, &docling_view::parser_version(&v));
+            if !force && catalog::views(&con, &pub_id)?.contains(&view_id) {
+                return Ok(None);
+            }
+            let inv = path
+                .parent()
+                .and_then(|p| p.file_name())
+                .context("a view sits in its investigation's directory")?;
+            let pdf = pdf_root.join(inv).join(&v.source.file_name);
+            let bytes = std::fs::read(&pdf).with_context(|| format!("read {}", pdf.display()))?;
+            let iv = docling_view::import(&v, &pdf, &bytes, rp, &[])?;
+            let n = docling_view::store(&mut con, &iv)?;
+            catalog::record_location(
+                &con,
+                &iv.publication.source_sha256,
+                &pdf.display().to_string(),
+            )?;
+            Ok(Some(n))
+        };
+        match one() {
+            Ok(Some(n)) => {
+                imported += 1;
+                chunks += n;
+            }
+            Ok(None) => skipped += 1,
+            Err(e) => {
+                refused.push(json!({"view": path.display().to_string(), "error": format!("{e:#}")}))
+            }
+        }
+        if (i + 1) % 100 == 0 {
+            eprintln!(
+                "import-views: {}/{} ({imported} imported, {skipped} already stored, {} refused) {:.0} s",
+                i + 1,
+                views.len(),
+                refused.len(),
+                t.elapsed().as_secs_f64()
+            );
+        }
+    }
+    Ok(
+        json!({"db": db.display().to_string(), "views": views.len(), "imported": imported,
+        "already_stored": skipped, "chunks": chunks, "refused": refused,
+        "seconds": t.elapsed().as_secs_f64()}),
+    )
 }
 
 #[cfg(feature = "pdf")]

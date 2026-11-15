@@ -24,6 +24,12 @@ enum Cmd {
     /// Server state snapshots: backup (optionally to R2), verify, restore onto an empty volume.
     #[command(subcommand)]
     State(ignis_server::ops::StateCmd),
+    /// Measured episode metrics (tool latency, tokens, cache hit, cost) from a state directory.
+    #[command(subcommand)]
+    Metrics(ignis_server::observe::MetricsCmd),
+    /// Benchmark runs: a dev task set under a harness variant → TraceBundles + summary (--execute).
+    #[command(subcommand)]
+    Harness(ignis_server::harness_run::HarnessCmd),
     /// Sealed evaluation: deposit, seal, reveal, score, compare, report.
     #[command(subcommand)]
     Eval(ignis_lab::EvalCmd),
@@ -183,6 +189,16 @@ fn main() -> anyhow::Result<()> {
             },
         )?,
         Cmd::State(c) => ignis_server::ops::run_state(c)?,
+        Cmd::Metrics(c) => ignis_server::observe::run_metrics(c)?,
+        Cmd::Harness(c) => ignis_server::harness_run::run(
+            c,
+            ignis_server::Services {
+                experts: experts(),
+                fixture_experts: ignis_server::fixture::experts(),
+                acquisition: Some(acquisition_scorer()),
+                research: research_services(),
+            },
+        )?,
         Cmd::Eval(c) => {
             let source = eval_source(&c)?;
             std::process::exit(ignis_lab::eval::run(c, &experts(), source.as_ref()))
