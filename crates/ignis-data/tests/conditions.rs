@@ -332,3 +332,49 @@ fn queries_filter_project_page_and_keep_the_lockbox() {
         "the envelope counts only visible rows"
     );
 }
+
+/// A run asked for by NASA's name (seen live: "FLEX-093", no row) resolves through the record
+/// aliases to its run id; ids that are rows pass unchanged; an unknown name still matches nothing.
+#[test]
+fn a_run_named_as_nasa_names_it_resolves_to_its_row() {
+    let _g = LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    std::env::set_var("IGNIS_DATA", data_root());
+    let specs: Vec<_> = SPECS
+        .iter()
+        .copied()
+        .filter(|s| ["PSI-20", "PSI-23", "PSI-68", "PSI-98"].contains(&s.investigation))
+        .collect();
+    let full = build_from(&[], &specs).unwrap();
+    let id = full
+        .rows
+        .iter()
+        .find_map(|r| r.run.run_id.clone())
+        .expect("a run with an id");
+    let mut names = std::collections::BTreeMap::new();
+    names.insert(
+        ignis_data::conditions::run_name_key("FLEX-093"),
+        BTreeSet::from([id.clone()]),
+    );
+    let ask = |ids: &[&str]| ConditionsQuery {
+        schema_version: DatasetSchema::V2,
+        investigation_ids: vec![],
+        run_ids: ids.iter().map(|s| RunId::new(*s).unwrap()).collect(),
+        keys: vec![],
+        filters: vec![],
+        include_unknown: false,
+        include_envelopes: false,
+        page_size: None,
+        cursor: None,
+    };
+    let all = |_: &RunId| true;
+    for spelled in ["FLEX-093", "flex093", "FLEX_093"] {
+        let q = ignis_data::conditions::resolve_run_names(&full, &ask(&[spelled]), &names);
+        let t = query(&full, &q, all).unwrap();
+        assert_eq!(t.rows.len(), 1, "{spelled}");
+        assert_eq!(t.rows[0].run.run_id.as_ref(), Some(&id));
+    }
+    let q = ignis_data::conditions::resolve_run_names(&full, &ask(&[id.as_str()]), &names);
+    assert_eq!(q.run_ids, vec![id.clone()]);
+    let q = ignis_data::conditions::resolve_run_names(&full, &ask(&["FLEX-9999"]), &names);
+    assert!(query(&full, &q, all).unwrap().rows.is_empty());
+}
