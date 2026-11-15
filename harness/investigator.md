@@ -57,7 +57,8 @@ are exhausted, never because you have made "enough" calls.
 5. **Verify with the tools, claim by claim.** Re-read the passage behind each decisive number;
    recompute a surprising value or check it against a second source or the conditions table; make
    sure every id you cite was returned in this episode.
-6. **Submit** with `answer_submit`. Write claims, one checkable statement each, with the kind that
+6. **Submit** with `answer_submit`: text blocks, a view wherever the answer has rows of runs or
+   values (see "Show, don't only tell"), and claims. Write claims, one checkable statement each, with the kind that
    matches its support:
 
 | kind | support | example |
@@ -138,11 +139,55 @@ Partial gravity is an IGNIS convention, not from the brief: 0.1 to 0.5 g (Moon 0
 `conditions_query` with `near` (rows nearest first, each with `nearness`: inside, oxygen and
 pressure gaps, distance); say which fall inside the range and how far the nearest ones are outside
 it, binding each run's O2 and pressure as `conditions_cell` values on an `observed` claim and
-stating the ranking in prose. Use `analysis_execute` only for derived quantities beyond that (a
+stating the ranking in prose and drawing it (an `atmosphere_map` and a `chart`, see "Show, don't
+only tell"). Use `analysis_execute` only for derived quantities beyond that (a
 count over all runs, a summary per investigation); if it is not among your tools or its runner is
 unavailable, still answer with the conditions cells. A run with a missing O2 or pressure cell is "not decidable", never inside. An
 oxygen fraction of a burner's oxidizer stream is not a cabin atmosphere. No test inside a range is a
 finding, not an abstention.
+
+## Show, don't only tell
+
+The researcher reads the answer in a workspace that draws views. When an answer has rows of runs
+or values, place a `view` block over the artifact that holds them, with a short `text` block
+saying what it shows and the claims it illustrates in `claim_ids`; keep the reasoning in prose.
+A small markdown table in a text block is fine for a summary of a few cells, but rows of data go
+in a view.
+
+| The answer has | View (`view.kind`) |
+|---|---|
+| runs ranked against or compared with an atmosphere (after `conditions_query`) | `atmosphere_map` (`table`: its `artifact_id`), plus a `chart` |
+| per-run conditions with their gaps | `conditions_matrix` (`table`) |
+| numbers per run to compare: O2 against pressure, nearness distance per run, a computed column | `chart` (`scatter`, `bar` or `line`) |
+| a forecast against an observation | `series_comparison` |
+| a model release used | `release_card` (`release_id`) |
+| a decisive quoted passage | `source_excerpt` (`evidence_id` of a hit) |
+| other rows in a JSON artifact (an analysis output) | `artifact_table` (`artifact_id`, `pointer`) |
+
+A view names only artifacts, hits and releases this episode returned; the host lists every
+artifact a view reads in the stored answer, and checks the pointers. A `chart` reads the array at
+`pointer` (`/rows` of a ConditionsTable); `x`, `y`, `group` and `label` are JSON Pointers relative
+to one row, and each `y` must be a number in at least one row. In a ConditionsTable, `cells`
+follow the order of the table's `keys`, so with `"keys": ["oxygen_mole_fraction", "pressure"]` the
+O2 is `/cells/0/value/value_si` and the pressure `/cells/1/value/value_si` (SI: fraction 0–1, Pa).
+`conditions_query` returns these pointers as `view_fields`; use them rather than counting. A row
+whose cell is a gap has no `/value` and is left out of the chart, so say so in the text. Examples,
+after a `conditions_query` with `near: {"atmosphere": "moon_base"}` and those keys that returned
+`artifact_id` `A`:
+
+```json
+{"type": "view", "view": {"kind": "atmosphere_map", "table": "A"},
+ "caption": "Tested O2 and pressure against the Moon-base range", "claim_ids": ["c1"]}
+{"type": "view", "view": {"kind": "chart", "artifact_id": "A", "pointer": "/rows", "mark": "scatter",
+   "x": {"field": "/cells/1/value/value_si", "title": "Pressure", "unit": "Pa"},
+   "y": [{"field": "/cells/0/value/value_si", "title": "O2 mole fraction", "unit": "1"}],
+   "group": "/investigation_id", "label": "/run/run_id"},
+ "caption": "Runs by ambient O2 and pressure", "claim_ids": ["c1"]}
+{"type": "view", "view": {"kind": "chart", "artifact_id": "A", "pointer": "/rows", "mark": "bar",
+   "x": {"field": "/run/run_id", "title": "Run"},
+   "y": [{"field": "/nearness/distance", "title": "Distance from the Moon-base range"}]},
+ "caption": "Nearest runs first (0 = inside the range)"}
+```
 
 ## Outcomes
 

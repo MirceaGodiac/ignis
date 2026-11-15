@@ -61,6 +61,7 @@ impl ToolHost {
         let mut value = json!({
             "artifact_id": artifact.artifact_id,
             "sha256": artifact.sha256,
+            "view_fields": view_fields(&table),
         });
         match snapshot {
             Ok(s) => {
@@ -95,4 +96,33 @@ impl ToolHost {
             full: Some(artifact),
         })
     }
+}
+
+/// Row fields of this table for an answer view (`chart` x/y/group/label over `/rows`): a cell's
+/// position in `cells` is its key's position in `keys`, so each numeric key's SI value is
+/// `/cells/<i>/value/value_si` (absent in a row whose cell is a gap, which a chart leaves out).
+fn view_fields(table: &ConditionsTable) -> Value {
+    let mut f = serde_json::Map::new();
+    f.insert("rows".into(), json!("/rows"));
+    f.insert("run_id".into(), json!("/run/run_id"));
+    f.insert("investigation_id".into(), json!("/investigation_id"));
+    for (i, k) in table.keys.iter().enumerate() {
+        let Some(name) = serde_json::to_value(k)
+            .ok()
+            .and_then(|v| v.as_str().map(str::to_string))
+        else {
+            continue;
+        };
+        let field = match k.quantity() {
+            Some(q) => json!({"field": format!("/cells/{i}/value/value_si"), "unit": q.unit_si()}),
+            None => json!({"field": format!("/cells/{i}/value/raw_value")}),
+        };
+        f.insert(name, field);
+    }
+    if table.rows.iter().any(|r| r.nearness.is_some()) {
+        f.insert("nearness_distance".into(), json!("/nearness/distance"));
+        f.insert("oxygen_gap".into(), json!("/nearness/oxygen_gap"));
+        f.insert("pressure_gap_pa".into(), json!("/nearness/pressure_gap_pa"));
+    }
+    Value::Object(f)
 }

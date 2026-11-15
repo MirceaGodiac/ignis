@@ -91,6 +91,9 @@ flame-tip position only, and `bass5.wsp` for kept burning.
 4. List the release id in `model_releases` of `answer_submit`; claims from it are `predicted`.
    A release your own successful `models_forecast` of this episode ran is accepted; you cannot
    pin one yourself, and a release you did not run here must be pinned by the person.
+5. Show it: a `release_card` view of the release, and a `series_comparison` view of the forecast
+   (its `AnalysisArtifact` as a series with `role` predicted, pointers such as `/times_s`, `/mean`,
+   `/unit`, `/time_origin`) against the observed series when you have one.
 
 ## 3. Refusals
 

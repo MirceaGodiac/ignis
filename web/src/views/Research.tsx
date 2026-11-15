@@ -2,7 +2,7 @@
 // (collapsed), its answers with citation chips, and a composer at the bottom. Sources, a source's
 // original and a step's detail open in the side panel. State comes only from the ordered event log
 // (research/eventLog + stream, tested).
-import { RichText } from "../shell/RichText";
+import { Markdown } from "../components/Markdown";
 import { useEffect, useMemo, useRef, useState, type ComponentType, type FormEvent, type ReactNode, type SVGProps } from "react";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { EpisodeStatus, ResearchAnswer, ResearchEpisode } from "../contracts/generated";
@@ -472,7 +472,7 @@ function TurnView({ turn, working }: { turn: Turn; working: boolean }) {
       {showTrail && <RouteSummary stops={trail} turn={turn} working={working} />}
       {body && (
         <div className="msg-agent">
-          <RichText text={body.text} />
+          <Markdown text={body.text} />
           {!body.complete && <span className="muted"> …</span>}
         </div>
       )}
@@ -515,7 +515,7 @@ function AnswerLoader({ a, pageSynthetic, fallback = null }: { a: AnswerState; p
   const said = fallback ? (
     <div className="msg-agent">
       <p className="muted small">The agent's last message, unchecked:</p>
-      <RichText text={fallback} />
+      <Markdown text={fallback} />
     </div>
   ) : null;
   if (a.artifact.contract !== "ResearchAnswer")
@@ -682,7 +682,7 @@ function Aside({ stop }: { stop: Extract<Stop, { kind: "note" | "said" }> }) {
       <div className="trail-aside-body">
         <span className="sr-only">{stop.kind === "note" ? "The agent's note: " : "The agent said: "}</span>
         <div className="trail-aside-text">
-          <RichText text={text} />
+          <Markdown text={text} />
         </div>
         {long && (
           <button className="trail-more" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
