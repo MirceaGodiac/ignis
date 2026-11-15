@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { SourceAccess } from "../src/contracts/generated";
-import { accessExpired, contentRangeLength, rangeHeader, viewerFor, videoTimeS } from "../src/research/sourceAccess.ts";
+import { accessExpired, contentLength, contentRangeLength, rangeHeader, viewerFor, videoTimeS } from "../src/research/sourceAccess.ts";
 
 const fixture = <T>(p: string): T => JSON.parse(readFileSync(fileURLToPath(new URL(`../../fixtures/contracts/${p}`, import.meta.url)), "utf8")) as T;
 const direct = fixture<SourceAccess>("evidence/source_access_direct.json");
@@ -33,6 +33,10 @@ test("range arithmetic: half-open spans and Content-Range lengths", () => {
   assert.equal(contentRangeLength("bytes */1234"), 1234);
   assert.equal(contentRangeLength("bytes 0-0/*"), null, "unknown length");
   assert.equal(contentRangeLength(null), null, "header not exposed by CORS");
+  assert.equal(contentLength("49152000"), 49152000);
+  assert.equal(contentLength("0"), null, "empty body");
+  assert.equal(contentLength("12, 12"), null, "malformed");
+  assert.equal(contentLength(null), null);
   assert.equal(videoTimeS({ ...loc, pts_s: 2.5 }), 2.5);
   assert.equal(videoTimeS({ ...loc, frame: 75 }), null, "a frame index needs a known rate");
 });
