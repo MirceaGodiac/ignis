@@ -2,7 +2,7 @@
 // shown beside the list: the NASA original at the hit's page with the passage marked (streamed from
 // NASA through SourceAccess, nothing stored). A degraded search says which backend was missing.
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { ApiError } from "../research/client";
 import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
@@ -16,6 +16,9 @@ import { MODE_TEXT, OriginalBody } from "./Original";
 import type { SearchHit } from "../contracts/generated";
 
 /** Starter searches over the stored NASA documents (the first loads when the page opens empty). */
+/** Passages per page of results. */
+const PAGE = 25;
+
 const STARTERS = [
   "flame spread rate low flow microgravity",
   "droplet radiative extinction cool flame",
@@ -31,15 +34,20 @@ export function Sources({ initial }: { initial: string | null }) {
   // An empty page loads a starter search, so there is always something to open.
   const submitted = initial ?? STARTERS[0];
   const unavailable = caps.data?.knowledge.available === false;
-  const q = useQuery({
+  // Every page of the result order, followed by its cursor ("Load more"); the first page is larger
+  // than the server default so a broad query shows more than a handful of passages at once.
+  const q = useInfiniteQuery({
     queryKey: [researchMode, replay, "search", submitted],
-    queryFn: () => client.search({ schema_version: "evidence.v1", query: submitted!, mode: "hybrid" }),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) => client.search({ schema_version: "evidence.v1", query: submitted!, mode: "hybrid", page_size: PAGE, ...(pageParam ? { cursor: pageParam } : {}) }),
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
     enabled: !!submitted && !unavailable,
     retry: false,
   });
-  const page = q.data;
+  const page = q.data?.pages[0];
+  const hits = q.data?.pages.flatMap((p) => p.hits) ?? [];
   const [sel, setSel] = useState<string | null>(null);
-  const selected = page?.hits.find((h) => h.evidence.evidence_id === sel) ?? page?.hits[0];
+  const selected = hits.find((h) => h.evidence.evidence_id === sel) ?? hits[0];
   const degraded = page?.backends.filter((b) => b.status !== "used" && b.status !== "not_requested") ?? [];
 
   return (
@@ -71,7 +79,7 @@ export function Sources({ initial }: { initial: string | null }) {
         ))}
       </div>
       {unavailable && <Gap title="Search is not available on this server">{caps.data?.knowledge.detail}</Gap>}
-      {q.isFetching && <p className="muted">Searching…</p>}
+      {q.isFetching && !q.isFetchingNextPage && <p className="muted">Searching…</p>}
       {q.error && <ErrorNote error={q.error} title={q.error instanceof ApiError && q.error.envelope.code === "capability_unavailable" ? "Search is not configured" : "The search failed"} />}
       {page && (
         <>
@@ -86,8 +94,8 @@ export function Sources({ initial }: { initial: string | null }) {
           )}
           <div className="src-split">
             <ol className="src-hits" aria-label="Search results">
-              {page.hits.map((h) => {
-                const on = (sel ?? page.hits[0]?.evidence.evidence_id) === h.evidence.evidence_id;
+              {hits.map((h) => {
+                const on = (sel ?? hits[0]?.evidence.evidence_id) === h.evidence.evidence_id;
                 return (
                   <li key={h.evidence.evidence_id}>
                     <button className={`src-hit${on ? " on" : ""}`} onClick={() => setSel(h.evidence.evidence_id)} aria-pressed={on}>
@@ -103,7 +111,14 @@ export function Sources({ initial }: { initial: string | null }) {
                   </li>
                 );
               })}
-              {page.hits.length === 0 && <li className="dim">No hits. An empty page does not show that the corpus lacks the information.</li>}
+              {hits.length === 0 && <li className="dim">No hits. An empty page does not show that the corpus lacks the information.</li>}
+              {q.hasNextPage && (
+                <li>
+                  <button className="btn btn-s" style={{ width: "100%" }} disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+                    {q.isFetchingNextPage ? "Loading…" : `Load more (${hits.length} shown)`}
+                  </button>
+                </li>
+              )}
             </ol>
             {selected && (
               <aside className="src-preview" aria-label="Selected source">
@@ -111,7 +126,6 @@ export function Sources({ initial }: { initial: string | null }) {
               </aside>
             )}
           </div>
-          {page.next_cursor && <p className="muted" style={{ fontSize: 12 }}>More results exist beyond this page.</p>}
         </>
       )}
     </div>
