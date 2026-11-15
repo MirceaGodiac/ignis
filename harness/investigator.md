@@ -102,6 +102,7 @@ input it mounted).
 | The question needs | Start with |
 |---|---|
 | what a paper or report says | `sources_search` (with `expected_terms`), then `sources_read` at the hit |
+| a NASA record fact of an investigation: PSI number, dataset DOI and version, licence, total size and file counts, ISS hardware, PI and investigators, dates | `sources_search` naming the investigation and the field (e.g. "FLEX-2 dataset size"): each flight investigation's PSI investigation record is a citable source |
 | the structure of a long report (which pages hold results, tables) | `sources_outline`, then `sources_read` on those pages, then a `sources_search` with `filters.source_ids` for the citable hit |
 | per-run conditions (O2, pressure, fuel, diluent, flow, gravity), or which runs were tested at X | `conditions_query` (filters in SI, `include_envelopes` for each investigation's tested range) |
 | which runs or tests match, or come closest to, an atmosphere (Moon base, spacesuit, ISS/Earth, or given O2 and pressure) | `conditions_query` with `near`: `{"atmosphere": "moon_base"}` (≥ 30 % O2 at 4.3–10.2 psi), `spacesuit` (100 % O2 at 4.3 psi), `iss_earth` (21 % at 14.7 psi), or explicit bounds; a small `page_size` and the keys you need; rows come nearest first with `nearness` |

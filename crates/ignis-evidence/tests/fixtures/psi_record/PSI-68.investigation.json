@@ -1,0 +1,15 @@
+{
+  "investigation": "PSI-68",
+  "title": "Flame Extinguishment Experiment - 2",
+  "acronym": "FLEX-2",
+  "investigation_version": "6",
+  "version_reason": "Metadata update",
+  "modified": "25-Nov-2025",
+  "doi": "10.60555/byp8-h018",
+  "license": "CC0-1.0",
+  "license_link": "https://spdx.org/licenses/CC0-1.0.html",
+  "hardware": "Combustion Integrated Rack (CIR), Multi-user Droplet Combustion Appartatus (MDCA)",
+  "total_file_size_bytes": 1224752113090.0,
+  "metadata_url_sha256": "de041dc1dc8b093e8f168b36d3b06cab257b4d75ffb24ff21754b8af4256ebcf",
+  "retrieved_at": "2026-11-14T18:22:36.005521+00:00"
+}
