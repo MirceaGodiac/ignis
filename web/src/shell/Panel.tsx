@@ -1,21 +1,21 @@
 // The side panel (Linear peek / Slack thread): the selected run, claim, source, figure, route step
 // or release, with a back trail. Every link inside it pushes onto the trail; Escape closes it.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { AnswerRefusal, ArtifactRef, Claim, EvidenceRef, InlinePayload, ReadResult, ResearchAnswer, SearchHit, SourceLocator } from "../contracts/generated";
 import type { ToolCallState } from "../research/eventLog";
 import { call, RefusalError, type ExperimentDetail } from "../api";
 import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
-import { fmtGravity } from "../format";
+import { fmtNum } from "../format";
 import { ArtifactValue, EvidenceSummary, locatorText, placeShort } from "../views/Answer";
 import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, RefusalNote, ReleaseState, shortId, Synthetic, words } from "../ui/common";
 import { useCompare } from "./compare";
 import { INVESTIGATIONS } from "../data/investigations";
-import { conditionRows, gapText } from "../research/runConditions";
+import { CONDITION_GROUPS, conditionLabel, conditionRows, gapText, humanKey, type ConditionRow } from "../research/runConditions";
 import { useData } from "./data";
 import { itemKey, usePanel, type PanelItem } from "./inspector";
-import { FamilyMark, FAMILY_LABEL, IconBack, IconChevron, IconClose } from "./icons";
+import { FamilyMark, FAMILY_LABEL, IconBack, IconChevron, IconClose, IconSources, IconTable, IconVideo } from "./icons";
 import { href } from "./router";
 import { callArgs, callQuery, callValue, describeCall, rangeText, sourceTitle, TOOL_KIND, TOOL_LABEL } from "../views/turns";
 import "../views/trail.css";
@@ -81,7 +81,8 @@ export function Panel() {
           </button>
         )}
         <h2 ref={heading} tabIndex={-1} style={{ outline: "none" }}>
-          {itemTitle(current)}
+          {/* A run names itself large in the body; the head says only what kind of item it is. */}
+          {current.kind === "run" ? TITLE.run : itemTitle(current)}
         </h2>
         <button className="btn btn-quiet btn-icon" onClick={close} aria-label="Close the panel" title="Close (Esc)">
           <IconClose />
@@ -258,24 +259,64 @@ function askAboutRun(id: string, s: { investigation_id: string; aliases?: { sche
   return `What do the NASA sources and data report for run ${name} of ${s.investigation_id}: its conditions, what was observed, and which files record it?`;
 }
 
+const TABLE_EXT = ["csv", "tsv", "xlsx", "xls", "parquet", "json"];
+const VIDEO_EXT = ["mp4", "mov", "avi", "mkv", "webm"];
+const extOf = (path: string | null) => (path?.match(/\.([a-z0-9]{1,8})$/i)?.[1] ?? "").toLowerCase();
+
+/** A NASA file name as a reader scans it: no folder, extension or investigation prefix, parts split
+ * at underscores ("PSI-159_Experimental table_CFI-G_Normal Flames.csv" → "Experimental table · CFI-G · Normal Flames"). */
+function fileDisplayName(path: string, investigation: string): string {
+  const base = path.split(/[\\/]/).pop() ?? path;
+  const stem = base.replace(/\.[a-z0-9]{1,8}$/i, "");
+  const bare = stem.startsWith(`${investigation}_`) ? stem.slice(investigation.length + 1) : stem;
+  return bare.split("_").map((p) => p.trim()).filter(Boolean).join(" · ") || base;
+}
+
 /** The NASA files this run's record was read from, each opened at the place the record cites. */
-function RunOriginals({ record }: { record: unknown }) {
+function RunOriginals({ record, investigation }: { record: unknown; investigation: string }) {
   const files = runSources(record);
   if (files.length === 0) return null;
   return (
     <div className="panel-sec">
       <h3>NASA originals</h3>
-      <ul style={{ display: "grid", gap: 6, fontSize: 13, paddingLeft: 0, listStyle: "none" }}>
-        {files.map((f) => (
-          <li key={f.sourceId} style={{ display: "flex", gap: 8, alignItems: "baseline", justifyContent: "space-between" }}>
-            <span style={{ overflowWrap: "anywhere" }}>
-              {f.path ?? <code>{f.sourceId.slice(0, 19)}…</code>}
-              <span className="muted small"> · {f.uses.slice(0, 4).join(", ")}{f.uses.length > 4 ? ", …" : ""}</span>
-            </span>
-            <OpenOriginal sourceId={f.sourceId} loc={f.loc} title={f.path} />
-          </li>
-        ))}
+      <ul className="file-list">
+        {files.map((f) => {
+          const ext = extOf(f.path);
+          const Icon = TABLE_EXT.includes(ext) ? IconTable : VIDEO_EXT.includes(ext) ? IconVideo : IconSources;
+          const names = f.uses.filter((u) => u.startsWith("name ")).map((u) => u.slice(5));
+          const fields = f.uses.filter((u) => !u.startsWith("name ")).map((u) => conditionLabel(u.replace(/ /g, "_")));
+          const place = f.loc.page != null ? `p. ${f.loc.page}` : f.loc.row != null ? `row ${f.loc.row}` : null;
+          const gives = [...fields, ...(names.length ? [names.length === 1 ? "run name" : "run names"] : [])].map((x, i) => (i === 0 ? x.charAt(0).toUpperCase() + x.slice(1) : x.charAt(0).toLowerCase() + x.slice(1)));
+          const meta = [ext ? ext.toUpperCase() : null, place, gives.length ? gives.join(", ") : null].filter(Boolean).join(" · ");
+          const full = [f.path ?? f.sourceId, names.length ? `Names: ${names.join(", ")}` : null, fields.length ? `Conditions: ${fields.join(", ")}` : null].filter(Boolean).join("\n");
+          return (
+            <li key={f.sourceId} className="file-card">
+              <span className="file-icon" aria-hidden="true">
+                <Icon />
+              </span>
+              <span className="file-main" title={full}>
+                <span className="file-name">{f.path ? fileDisplayName(f.path, investigation) : <code>{f.sourceId.slice(0, 19)}…</code>}</span>
+                {meta && <span className="file-meta">{meta}</span>}
+              </span>
+              <OpenOriginal sourceId={f.sourceId} loc={f.loc} title={f.path} label="Open ↗" />
+            </li>
+          );
+        })}
       </ul>
+    </div>
+  );
+}
+
+/** A label, then the value with its unit in a muted tone; a long label keeps one line and gives way to the value. */
+function SpecRow({ label, value, unit, note }: { label: string; value: ReactNode; unit?: string; note?: string | null }) {
+  return (
+    <div className="spec-row">
+      <dt title={label}>{label}</dt>
+      <dd>
+        <span className="v">{value}</span>
+        {unit && <span className="u">{unit}</span>}
+        {note && <span className="spec-note">{note}</span>}
+      </dd>
     </div>
   );
 }
@@ -296,21 +337,28 @@ function RunItem({ id }: { id: string }) {
     return r ? <RefusalNote refusal={r} /> : null;
   }
   const { record, summary, releases } = q.data;
-  const rows = conditionRows(summary.conditions);
+  const rows: ConditionRow[] = conditionRows(summary.conditions);
+  if (summary.gravity?.value_si != null) rows.push({ key: "gravity", label: "Gravity", value: fmtNum(summary.gravity.value_si), unit: "g₀", note: null, group: "Atmosphere", text: "" });
+  const groups = CONDITION_GROUPS.map((g) => ({ g, rows: rows.filter((r) => r.group === g) })).filter((x) => x.rows.length);
   const gaps = summary.gaps.flatMap((g) => gapText(g) ?? []);
+  const family = FAMILY_LABEL[summary.family] ?? summary.family;
+  const config = summary.configuration?.replace(/_/g, " ");
+  const sub = [summary.fuel_or_material, config && !family.toLowerCase().includes(config.toLowerCase()) ? config : null, summary.investigation_id].filter(Boolean).join(" · ");
   return (
     <>
-      <div className="panel-sec">
-        <div className="toolbar">
+      <div className="run-head">
+        <div className="run-title">
+          <p className="run-id">{id.split(":").pop()}</p>
           <span className="tag">
-            <FamilyMark family={summary.family} size={9} /> {FAMILY_LABEL[summary.family] ?? summary.family}
+            <FamilyMark family={summary.family} size={9} /> {family}
           </span>
           {summary.synthetic && <Synthetic label="Synthetic run" />}
         </div>
-        <p style={{ fontSize: 14 }}>
-          {[summary.fuel_or_material, summary.configuration?.replace(/_/g, " "), summary.investigation_id].filter(Boolean).join(" · ")}
-        </p>
-        <div className="toolbar">
+        {sub && <p className="run-sub">{sub}</p>}
+        <div className="run-actions">
+          <a className="btn btn-s btn-primary" href={href("research", null, { new: "1", q: askAboutRun(id, summary) })}>
+            Ask about this run
+          </a>
           <button className="btn btn-s" onClick={() => cmp.toggle(id)} aria-pressed={cmp.has(id)}>
             {cmp.has(id) ? "Remove from compare" : "Add to compare"}
           </button>
@@ -319,40 +367,25 @@ function RunItem({ id }: { id: string }) {
               Forecast
             </a>
           )}
-          <a className="btn btn-s btn-primary" href={href("research", null, { new: "1", q: askAboutRun(id, summary) })}>
-            Ask about this run
-          </a>
         </div>
       </div>
-      <div className="panel-sec">
-        <h3>Conditions</h3>
-        <dl className="kv">
-          {rows.map((r) => (
-            <div key={r.key} style={{ display: "contents" }}>
-              <dt>{r.label}</dt>
-              <dd className="num">{r.text}</dd>
-            </div>
-          ))}
-          {summary.gravity?.value_si != null && (
-            <>
-              <dt>Gravity</dt>
-              <dd className="num">{fmtGravity(summary.gravity.value_si)}</dd>
-            </>
-          )}
-        </dl>
-      </div>
-      <RunOriginals record={record} />
+      {groups.map(({ g, rows: rs }) => (
+        <div key={g} className="panel-sec">
+          <h3>{groups.length === 1 ? "Conditions" : g}</h3>
+          <dl className="spec">
+            {rs.map((r) => (
+              <SpecRow key={r.key} label={r.label} value={r.value} unit={r.unit} note={r.note} />
+            ))}
+          </dl>
+        </div>
+      ))}
+      <RunOriginals record={record} investigation={summary.investigation_id} />
       {summary.quantities.length > 0 && (
         <div className="panel-sec">
           <h3>Measured series</h3>
-          <dl className="kv">
+          <dl className="spec">
             {summary.quantities.map((qq) => (
-              <div key={qq.quantity} style={{ display: "contents" }}>
-                <dt>{words(qq.quantity)}</dt>
-                <dd className="num">
-                  {qq.count} points · {qq.archive_t_min_s.toFixed(2)}–{qq.archive_t_max_s.toFixed(2)} s
-                </dd>
-              </div>
+              <SpecRow key={qq.quantity} label={humanKey(qq.quantity)} value={`${qq.count} points`} unit={`${fmtNum(+qq.archive_t_min_s.toFixed(2))}–${fmtNum(+qq.archive_t_max_s.toFixed(2))} s`} />
             ))}
           </dl>
         </div>
@@ -360,18 +393,17 @@ function RunItem({ id }: { id: string }) {
       {releases.length > 0 && (
         <div className="panel-sec">
           <h3>Models</h3>
-          {releases.map((r) => (
-            <div key={r.id} className="stat-line">
-              <span>{r.model_name}</span>
-              <ReleaseState state={r.state} />
-            </div>
-          ))}
+          <dl className="spec">
+            {releases.map((r) => (
+              <SpecRow key={r.id} label={r.model_name} value={<ReleaseState state={r.state} />} />
+            ))}
+          </dl>
         </div>
       )}
       {gaps.length > 0 && (
         <div className="panel-sec">
           <h3>Not available</h3>
-          <ul style={{ display: "grid", gap: 4, fontSize: 13, paddingLeft: 18, color: "var(--ink-2)" }}>
+          <ul className="gap-list">
             {gaps.map((g) => (
               <li key={g}>{g}</li>
             ))}
@@ -415,23 +447,23 @@ function EvidenceItem({ evidence }: { evidence: EvidenceRef }) {
       <div className="panel-sec">
         <h3>Where it is</h3>
         <dl className="kv">
-          <dt>source</dt>
+          <dt>Source</dt>
           <dd>
             <code>{evidence.source_id}</code>
           </dd>
           {evidence.parse_view_id && (
             <>
-              <dt>parse view</dt>
+              <dt>Parse view</dt>
               <dd>
                 <code>{evidence.parse_view_id}</code>
               </dd>
             </>
           )}
-          <dt>locator</dt>
+          <dt>Locator</dt>
           <dd>{locatorText(evidence)}</dd>
           {loc?.char_start != null && (
             <>
-              <dt>characters</dt>
+              <dt>Characters</dt>
               <dd className="num">
                 {loc.char_start}–{loc.char_end} ({loc.offset_unit ? words(loc.offset_unit) : "unit not declared: not citable"})
               </dd>
@@ -439,7 +471,7 @@ function EvidenceItem({ evidence }: { evidence: EvidenceRef }) {
           )}
           {loc && (
             <>
-              <dt>asset</dt>
+              <dt>Asset</dt>
               <dd>
                 <code>{shortId(loc.asset_sha256, 26)}</code>
               </dd>
@@ -572,19 +604,19 @@ function ArtifactItem({ artifact, caption }: { artifact: ArtifactRef; caption?: 
       {isTypedArtifact(artifact.contract) && q.data != null && <TypedArtifactBody contract={artifact.contract} data={q.data} />}
       {isTypedArtifact(artifact.contract) && q.error != null && <ErrorNote error={q.error} title="The typed view needs the payload, which is not available here" />}
       <dl className="kv">
-        <dt>artifact</dt>
+        <dt>Artifact</dt>
         <dd>
           <code>{artifact.artifact_id}</code>
         </dd>
-        <dt>size</dt>
+        <dt>Size</dt>
         <dd>
           {fmtBytes(artifact.byte_length)} · {artifact.media_type}
         </dd>
-        <dt>created</dt>
+        <dt>Created</dt>
         <dd className="num">{artifact.created_at}</dd>
         {artifact.produced_by?.job_id && (
           <>
-            <dt>job</dt>
+            <dt>Job</dt>
             <dd>
               <code>{artifact.produced_by.job_id}</code>
             </dd>
@@ -592,13 +624,13 @@ function ArtifactItem({ artifact, caption }: { artifact: ArtifactRef; caption?: 
         )}
         {artifact.produced_by?.release_id && (
           <>
-            <dt>release</dt>
+            <dt>Release</dt>
             <dd>
               <code>{shortId(artifact.produced_by.release_id, 26)}</code>
             </dd>
           </>
         )}
-        <dt>sha256</dt>
+        <dt>SHA-256</dt>
         <dd>
           <code>{shortId(artifact.sha256, 26)}</code>
         </dd>
@@ -1061,17 +1093,17 @@ function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }
         <p style={{ fontSize: 13 }}>No evaluation supports this release's predictions: show its outputs as experimental model output only.</p>
       )}
       <dl className="kv">
-        <dt>family</dt>
+        <dt>Family</dt>
         <dd>{FAMILY_LABEL[r.family] ?? r.family}</dd>
-        <dt>trained on</dt>
+        <dt>Trained on</dt>
         <dd>{trained}</dd>
-        <dt>lineage</dt>
+        <dt>Lineage</dt>
         <dd>{r.lineage ? words(r.lineage) : "not recorded"}</dd>
-        <dt>features</dt>
+        <dt>Features</dt>
         <dd>{r.feature_order.join(", ") || "none"}</dd>
-        <dt>baseline</dt>
+        <dt>Baseline</dt>
         <dd>{r.is_baseline ? "yes" : "no"}</dd>
-        <dt>release</dt>
+        <dt>Release</dt>
         <dd>
           <code>{r.id}</code>
         </dd>

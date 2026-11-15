@@ -61,6 +61,11 @@ function Shell() {
   const { experiments } = useData();
   const { close } = panel;
   useEffect(() => close(), [route.view, route.id, close]);
+  // The main column is one scroller shared by every view: a new page starts at its top, so a question
+  // opened from a scrolled page does not land with its first message under the sticky header.
+  useEffect(() => {
+    document.getElementById("main")?.scrollTo({ top: 0 });
+  }, [route.view, route.id]);
 
   const goal = route.view === "research" && route.id ? episodes.data?.find((e) => e.episode_id === route.id)?.goal : null;
   useEffect(() => {

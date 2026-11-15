@@ -169,6 +169,18 @@ export const IconCheck = (p: P) => (
 );
 
 /** Family marks, shared by the map, the legend and the run index. */
+export const IconTable = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="2.5" y="3" width="11" height="10" rx="1.5" />
+    <path d="M2.5 6.5h11M2.5 9.75h11M6.5 6.5V13" />
+  </svg>
+);
+export const IconVideo = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="2" y="4" width="8.5" height="8" rx="1.5" />
+    <path d="m10.5 7 3.5-2v6l-3.5-2" />
+  </svg>
+);
 export function FamilyMark({ family, size = 10 }: { family: string; size?: number }) {
   const s = size;
   const h = s / 2;

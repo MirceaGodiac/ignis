@@ -1,5 +1,6 @@
 // Left rail: the wordmark, a new question and search, the pages grouped by what a researcher does
-// (router SECTIONS), then the recent questions (ChatList).
+// (router SECTIONS), then the recent questions (ChatList). The rail is one viewport tall: everything
+// stays put except the recent questions, which scroll on their own; the theme switch is pinned below.
 // A page whose service this deployment does not serve stays reachable and is drawn dimmed.
 import { useState } from "react";
 import { ChatList } from "./ChatList";
@@ -67,7 +68,7 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
         </div>
       </div>
 
-      <div className="side-scroll">
+      <div className="side-nav">
         {SECTIONS.map((s) => (
           <div key={s.label ?? "top"} className={s.label ? "side-section" : undefined}>
             {s.label && <div className="side-label">{s.label}</div>}
@@ -87,9 +88,9 @@ export function Sidebar({ route, compareCount, onCommand }: { route: Route; comp
             </div>
           </div>
         ))}
-
-        {(episodes.data?.length ?? 0) > 0 && <ChatList episodes={episodes.data!} route={route} onNavigate={close} />}
       </div>
+
+      {(episodes.data?.length ?? 0) > 0 && <ChatList episodes={episodes.data!} route={route} onNavigate={close} />}
 
       <div className="side-foot">
         <ThemeSwitch />
