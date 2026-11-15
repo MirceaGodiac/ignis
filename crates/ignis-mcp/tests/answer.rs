@@ -1059,3 +1059,21 @@ fn a_condition_resolves_against_the_conditions_snapshot() {
     let refused = refusal(&w, &submit(again));
     assert_eq!(kinds(&refused), vec![K::StaleSnapshot; 3], "{refused:#?}");
 }
+
+/// A malformed submission is refused with the JSON path of the offending field, so the model fixes
+/// that field (seen live: four retries that moved `kind` between blocks and claims without a path).
+#[test]
+fn a_malformed_submission_names_the_field_path() {
+    let w = world();
+    search(&w, &w.ep);
+    let mut s = observed(vec![]);
+    s["claims"][0]["support"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("kind");
+    let r = submit(&w, &w.ep, s);
+    assert_eq!(r.execution_status, ExecutionStatus::Refused);
+    let e = r.error.unwrap();
+    assert_eq!(e.code, ErrorCode::InvalidRequest);
+    assert!(e.message.contains("`claims[0].support[0]"), "{}", e.message);
+}
