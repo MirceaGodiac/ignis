@@ -14,7 +14,8 @@
           "kind": "evidence",
           "id": "fixture-evidence-01"
         }
-      ]
+      ],
+      "written_in": 2
     },
     {
       "item_id": "fixture-item-open-question",
@@ -28,7 +29,8 @@
       ],
       "requires_partitions": [
         "validation"
-      ]
+      ],
+      "written_in": 2
     }
   ],
   "ops": [
@@ -66,12 +68,13 @@
       "reason": "Synthetic fixture: merged into the method item."
     }
   ],
-  "content_digest": "sha256:03561b834190c5e9571aeb6f6b3bc7e443de1f3f1dcc8bcb0f5e6ef5f13cf86d",
+  "content_digest": "sha256:e5efcec126c9bc4e6394f95b9f5ab42dbec46eae9331f9dbf9c000a776a4afc4",
   "author": {
     "kind": "agent",
     "id": "fixture-agent"
   },
   "episode_id": "fixture-episode-01",
+  "scope_id": "fixture-scope-01",
   "created_at": "2026-11-14T12:00:00Z",
   "origin": "synthetic_fixture"
 }

@@ -21,11 +21,12 @@ use std::sync::Arc;
 
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
-    Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef, EpisodeId, ErrorCode,
-    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode,
-    InlinePayload, JobLookup, JobRef, Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef,
-    ResponseFormat, RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor,
-    ToolResult, ToolsSchema, WebFetchRequest, WebSearchRequest,
+    Author, AuthorKind, Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef,
+    EpisodeId, ErrorCode, ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus,
+    ForecastRequest, GraphNeighborsRequest, GroundingMode, InlinePayload, JobLookup, JobRef,
+    Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef, ResponseFormat, RetryPolicy,
+    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
+    WebFetchRequest, WebSearchRequest, WikiPatch, WikiReadRequest,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -79,6 +80,9 @@ pub struct ToolServices {
     /// Web discovery (`web_search`, `web_fetch`) the KnowledgeService serves. Off by default:
     /// nothing networked runs unless the deployment opts in.
     pub web: WebTools,
+    /// The KnowledgeService has a wiki store attached (`wiki_read`, `wiki_patch`). Without it
+    /// the wiki tools are not registered and capability status says why.
+    pub wiki: bool,
 }
 
 /// Which web discovery tools the deployment enabled (`IGNIS_ENABLE_WEB`).
@@ -98,6 +102,9 @@ pub const WEB_DISABLED: &str =
 /// Why `web_search` is absent when web discovery is on without a provider.
 pub const WEB_SEARCH_NO_PROVIDER: &str =
     "no web search provider configured (set PARALLEL_API_KEY with IGNIS_ENABLE_WEB=1)";
+
+/// Why the wiki tools are absent while knowledge is configured.
+pub const WIKI_NOT_CONFIGURED: &str = "wiki store not attached to the KnowledgeService";
 
 /// Why `conditions_query` is absent while datasets are configured.
 pub const CONDITIONS_NOT_BUILT: &str =
@@ -122,7 +129,7 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
         .into_iter()
         .map(|d| {
             let unavailable = match d.name.as_str() {
-                "sources_search" | "sources_read" | "sources_outline"
+                "sources_search" | "sources_read" | "sources_outline" | "graph_neighbors"
                     if services.knowledge.is_none() =>
                 {
                     Some("KnowledgeService not configured")
@@ -131,6 +138,10 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                     Some("DatasetService not configured")
                 }
                 "conditions_query" if !services.conditions => Some(CONDITIONS_NOT_BUILT),
+                "wiki_read" | "wiki_patch" if services.knowledge.is_none() => {
+                    Some("KnowledgeService not configured")
+                }
+                "wiki_read" | "wiki_patch" if !services.wiki => Some(WIKI_NOT_CONFIGURED),
                 "models_inspect" | "models_forecast" if services.models_disabled => {
                     Some(MODELS_DISABLED)
                 }
@@ -140,7 +151,6 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 "analysis_execute" if services.sandbox.is_none() => {
                     Some("isolated runner not configured or failed preflight")
                 }
-                "wiki_patch" => Some("wiki service not implemented"),
                 "web_search" | "web_fetch" if services.knowledge.is_none() => {
                     Some("KnowledgeService not configured")
                 }
@@ -149,10 +159,10 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                 }
                 "web_search" if services.web == WebTools::FetchOnly => Some(WEB_SEARCH_NO_PROVIDER),
                 "web_search" | "web_fetch" => None,
-                "sources_search" | "sources_read" | "sources_outline" | "datasets_inspect"
-                | "conditions_query" | "models_inspect" | "models_forecast"
-                | "analysis_execute" | "artifacts_read" | "jobs_get" | "answer_submit" => None,
-                // graph_neighbors, wiki_read: their
+                "sources_search" | "sources_read" | "sources_outline" | "graph_neighbors"
+                | "datasets_inspect" | "conditions_query" | "models_inspect"
+                | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get"
+                | "answer_submit" | "wiki_read" | "wiki_patch" => None,
                 // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
@@ -396,6 +406,30 @@ impl ToolHost {
                 let req: WebFetchRequest = decode(contract, args)?;
                 checked(req.validate())?;
                 value(self.knowledge()?.web_fetch(scope, &req))
+            }
+            "wiki_read" => {
+                let req: WikiReadRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                value(self.knowledge()?.wiki_read(scope, &req))
+            }
+            "wiki_patch" => {
+                let patch: WikiPatch = decode(contract, args)?;
+                checked(patch.validate())?;
+                // The author is the scope's principal acting through the agent; the episode is the
+                // runtime grant's. Neither is ever taken from the arguments.
+                let author = Author {
+                    kind: AuthorKind::Agent,
+                    id: scope.principal.as_str().to_string(),
+                };
+                value(
+                    self.knowledge()?
+                        .wiki_patch(scope, &author, episode, &patch),
+                )
+            }
+            "graph_neighbors" => {
+                let req: GraphNeighborsRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                value(self.knowledge()?.graph_neighbors(scope, &req))
             }
             "datasets_inspect" => {
                 let req: DatasetRef = decode(contract, args)?;

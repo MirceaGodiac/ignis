@@ -177,6 +177,7 @@ pub fn host_full(
             models_disabled: false,
             conditions: true,
             web: Default::default(),
+            wiki: false,
         },
         store.clone(),
         artifacts.clone(),

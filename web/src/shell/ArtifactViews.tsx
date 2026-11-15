@@ -5,7 +5,7 @@ import { Fragment } from "react";
 import type { AnalysisArtifact, AnswerRefusal, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease, VisualObservationBundle } from "../contracts/generated";
 import { ContourVideo } from "./ContourVideo";
 import { checkSummary, columnUnit, durationS, evaluationSummary, exposureRows, fmtMetric, limitRows, outcomeText, UNCERTAINTY_TEXT, type TypedArtifact } from "../research/artifactViews";
-import { Caution, fmtBytes, ReleaseState, shortId, words } from "../ui/common";
+import { Caution, Gap, ReleaseState, fmtBytes, shortId, words } from "../ui/common";
 import { usePanel } from "./inspector";
 import { useReleases } from "./queries";
 
@@ -236,49 +236,76 @@ function EvaluationResultView({ r }: { r: EvaluationResult }) {
           <dd className="num">
             {r.cases.refused} / {r.cases.failed}
           </dd>
-          <dt>target</dt>
-          <dd>
-            {words(r.request.target)} ({r.request.unit})
-          </dd>
+          {r.request.target && (
+            <>
+              <dt>target</dt>
+              <dd>
+                {words(r.request.target)} ({r.request.unit})
+              </dd>
+            </>
+          )}
           <dt>partition</dt>
           <dd>{r.request.partition}</dd>
-          <dt>cutoffs</dt>
-          <dd className="num">{r.request.cutoffs_s.map((c) => `${c} s`).join(", ")}</dd>
-          <dt>candidate</dt>
-          <dd>
-            <ReleaseLink id={r.request.candidate.release_id} />
-          </dd>
+          {(r.request.cutoffs_s ?? []).length > 0 && (
+            <>
+              <dt>cutoffs</dt>
+              <dd className="num">{r.request.cutoffs_s!.map((c) => `${c} s`).join(", ")}</dd>
+            </>
+          )}
+          {r.request.candidate && (
+            <>
+              <dt>candidate</dt>
+              <dd>
+                <ReleaseLink id={r.request.candidate.release_id} />
+              </dd>
+            </>
+          )}
+          {r.request.harness && (
+            <>
+              <dt>arms</dt>
+              <dd>
+                {r.request.harness.variants.map((v) => v.name).join(", ")} · baseline {r.request.harness.baseline}
+              </dd>
+              <dt>gold set</dt>
+              <dd>
+                <code>{r.request.harness.gold_set.set_id}</code> · {r.request.harness.gold_set.split} · {r.request.harness.gold_set.task_count} tasks × {r.request.harness.repetitions} repetitions
+              </dd>
+            </>
+          )}
         </dl>
+        {r.harness && <Gap title="Harness comparison">The per-arm scores and paired deltas are in the payload; their view is part of T11.</Gap>}
         {!s.denominatorKept && <Caution title="Case accounting does not add up">Scored, refused and failed cases do not sum to the total.</Caution>}
       </div>
-      <div className="panel-sec">
-        <h3>Metrics</h3>
-        <div className="tbl-wrap">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th className="r">Value</th>
-                <th className="r">n</th>
-                <th>Over</th>
-              </tr>
-            </thead>
-            <tbody>
-              {r.metrics.map((m, i) => (
-                <tr key={`${m.metric}${i}`}>
-                  <td>
-                    {m.metric.toUpperCase()} <span className="dim">v{m.version}</span>
-                  </td>
-                  <td className="r num">{fmtMetric(m.value, m.unit)}</td>
-                  <td className="r num">{m.n}</td>
-                  <td className="dim">{words(m.population)}</td>
+      {!r.harness && (
+        <div className="panel-sec">
+          <h3>Metrics</h3>
+          <div className="tbl-wrap">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th className="r">Value</th>
+                  <th className="r">n</th>
+                  <th>Over</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {r.metrics.map((m, i) => (
+                  <tr key={`${m.metric}${i}`}>
+                    <td>
+                      {m.metric.toUpperCase()} <span className="dim">v{m.version}</span>
+                    </td>
+                    <td className="r num">{fmtMetric(m.value, m.unit)}</td>
+                    <td className="r num">{m.n}</td>
+                    <td className="dim">{words(m.population)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="muted small">A metric over scored cases describes only those cases. Read it with the coverage above.</p>
         </div>
-        <p className="muted small">A metric over scored cases describes only those cases. Read it with the coverage above.</p>
-      </div>
+      )}
       {(r.failures ?? []).length > 0 && (
         <div className="panel-sec">
           <h3>Cases not scored</h3>
@@ -314,9 +341,7 @@ function AnalysisArtifactView({ a }: { a: AnalysisArtifact }) {
           {a.support.admitted ? "admitted" : <span className="tag tag-warn">not admitted</span>} · gate {words(a.support.gate)}
           {(a.support.reasons ?? []).length > 0 && <div className="muted small">{a.support.reasons!.join("; ")}</div>}
         </dd>
-        {a.quantity && (
-          <Row k="quantity" v={`${words(a.quantity)}${a.unit ? ` (${a.unit})` : ""}`} />
-        )}
+        {a.quantity && <Row k="quantity" v={`${words(a.quantity)}${a.unit ? ` (${a.unit})` : ""}`} />}
         <dt>time origin</dt>
         <dd>{a.time_origin ? <code>{a.time_origin}</code> : <span className="tag tag-warn">not stated</span>}</dd>
         {n > 0 && <Row k="points" v={`${n}, ${a.times_s![0]} s to ${a.times_s![n - 1]} s`} />}

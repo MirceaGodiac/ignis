@@ -143,9 +143,25 @@ fn research_services(
 ) -> ignis_server::v1::ResearchServices {
     use std::sync::Arc;
     let mut web = ignis_server::v1::WebTools::Disabled;
+    let mut wiki = false;
     let knowledge = if ignis_evidence::catalog::default_db().exists() {
         match ignis_evidence::service::EvidenceService::open_default() {
-            Ok(mut s) => {
+            Ok(s) => {
+                // The research wiki (R4) lives under the runs root, next to the other run state.
+                let path = ignis_evidence::wiki::default_path();
+                let mut s = match ignis_evidence::wiki::WikiStore::open(
+                    &path,
+                    ignis_core::contracts::Origin::System,
+                ) {
+                    Ok(w) => {
+                        wiki = true;
+                        s.with_wiki(w)
+                    }
+                    Err(e) => {
+                        eprintln!("wiki not configured ({}): {e:#}", path.display());
+                        s
+                    }
+                };
                 if ignis_evidence::web::enabled_from_env() {
                     match web_store {
                         Some(store) => {
@@ -204,6 +220,7 @@ fn research_services(
         datasets,
         conditions,
         web,
+        wiki,
         ..Default::default()
     }
 }

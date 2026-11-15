@@ -3,12 +3,11 @@
 //   fixtures -> the server's fixture origin `/api/fixtures/v1` (`ignis serve --dev`): real routes,
 //               C0 fixture data;
 //   live     -> `/api/v1`, the research runtime (M2) with whatever services are configured.
-// Contract types come from contracts/generated.ts; server-only shapes from serverTypes.ts.
+// Contract types, including the /api/v1 request and response shapes (K1.7), come from contracts/generated.ts.
 
-import type { ErrorEnvelope, InlinePayload, ResearchAnswer, ResearchEvent } from "../contracts/generated";
+import type { Capabilities, ErrorEnvelope, InlinePayload, ResearchAnswer, ResearchEvent } from "../contracts/generated";
 import { FIXTURES } from "./fixtures";
 import { ApiError, type ResearchClient } from "./http";
-import type { Capabilities } from "./serverTypes";
 import { encodeFrame, HEARTBEAT } from "./sse";
 import { resolvePointer } from "./units";
 
@@ -49,6 +48,7 @@ const MOCK_CAPABILITIES: Capabilities = {
   models: { available: true, detail: "C0 fixture release_w0.json" },
   artifact_store: { available: true, detail: "C0 fixture answer only" },
   mcp: { available: false, detail: "mock mode" },
+  analysis_runner: { available: false, detail: "mock mode: no isolated runner in the browser" },
   tools: [],
 };
 
@@ -140,7 +140,17 @@ export function mockClient(faults: MockStreamFaults): ResearchClient {
       const a = FIXTURES.sourceAccess.find((x) => x.source_id === id);
       return a ? ok(a) : fail(notInFixtures(`access to source ${id}`), 404);
     },
-    conditions: () => ok(FIXTURES.conditionsTable),
+    conditions: (q) => {
+      // The conditions service applies filters (with rules such as "a burner-stream O2 is never the
+      // atmosphere"); mock mode does not re-implement them, it says so. Paging is plain slicing.
+      if ((q.filters ?? []).length > 0) return fail({ code: "unsupported", message: "Mock mode cannot apply condition filters: the conditions service does. Use a server.", retry: { kind: "never" } }, 501);
+      const t = FIXTURES.conditionsTable;
+      const from = q.cursor?.startsWith("mock:") ? Number(q.cursor.slice(5)) || 0 : 0;
+      const size = q.page_size ?? 1000;
+      const rows = t.rows.slice(from, from + size);
+      const next = from + rows.length;
+      return ok({ ...t, rows, envelopes: q.include_envelopes ? t.envelopes : [], total_count: t.rows.length, next_cursor: next < t.rows.length ? `mock:${next}` : null });
+    },
     listModels: () => ok(FIXTURES.releases),
     postMessage: () => fail(MOCK_ONLY, 501),
   };

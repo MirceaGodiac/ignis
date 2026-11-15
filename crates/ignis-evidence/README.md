@@ -34,6 +34,23 @@ Catalog: `artifacts/evidence/evidence.sqlite` (override with `--db`). Retrieval 
 `configs/evidence/retrieval.toml` (fusion `rrf_k = 60`, lexical/dense depth, rerank `top_n`, timeout
 with fallback to the RRF order).
 
+### Retrieval evaluation and the τ/w sweep (R12b)
+
+```bash
+ignis evidence retrieval-eval --tasks benchmarks/t10/dev/tasks.json \
+  --db artifacts/evidence/evidence.sqlite --pack artifacts/evidence/expansion-llm \
+  [--expected-terms <task_id → ExpectedTerm[] json>] [--tau 0.01,0.02,0.05,0.1,0.2] [--w 0.1,...,4] \
+  [--out artifacts/evidence/retrieval_eval]
+```
+
+nDCG@10 and recall@10 per question type (single-hop, multi-hop, figure) for `bm25`,
+`query_expansion`, `doc_expansion` and `query_doc_expansion`, ranked as the builder scope sees the
+corpus (the lockbox applies). The input catalog is never written: each τ re-enriches a working copy.
+Writes `report.json`, `report.md` and `proposal.json`; the proposal is never applied to `sira.rs`.
+Dev split only: it refuses `holdout/` paths, any file holding a non-dev task and any scope that may
+read the test partition. The relevance rule (span, page, table row, path) and the metric definition
+are in `src/retrieval_eval.rs`. The fixture in `tests/fixtures/retrieval_eval/` is synthetic.
+
 ## Tests
 
 ```bash

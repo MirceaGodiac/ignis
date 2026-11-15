@@ -47,6 +47,14 @@
     {"path": "models/patch_w0.json", "contract": "HandwrittenWeightPatch", "shows": "W0 literal patch: box, element and scalar assignments"},
     {"path": "models/release_w0.json", "contract": "ModelRelease", "shows": "literal release: not_trained, experimental, manifest bound to tensors"},
     {"path": "evaluation/request_dev.json", "contract": "EvaluationRequest", "shows": "development feedback on validation"},
-    {"path": "evaluation/result_dev.json", "contract": "EvaluationResult", "shows": "accounting with a refused case kept in the denominator; not assessed for qualification"}
+    {"path": "evaluation/result_dev.json", "contract": "EvaluationResult", "shows": "accounting with a refused case kept in the denominator; not assessed for qualification"},
+    {"path": "evaluation/gold_task_documentary.json", "contract": "GoldTask", "shows": "documentary task (LitQA2 format): choices, the right one supported by a locator; insufficient evidence always offered"},
+    {"path": "evaluation/gold_task_analytical.json", "contract": "GoldTask", "shows": "analytical task: an executable check and expected SI values with a tolerance"},
+    {"path": "evaluation/gold_task_citation.json", "contract": "GoldTask", "shows": "citation task: a statement to support, scored on the accepted locators"},
+    {"path": "evaluation/gold_task_predictive.json", "contract": "GoldTask", "shows": "predictive task: scored only through a frozen evaluator protocol; no answer of its own"},
+    {"path": "evaluation/gold_set_dev.json", "contract": "GoldSet", "shows": "frozen dev set of the two tasks, pinned by set_hash"},
+    {"path": "evaluation/gold_prompts_dev.json", "contract": "GoldPromptSet", "shows": "what a builder's harness runner receives from the dev set: questions and choices, no answer keys"},
+    {"path": "evaluation/request_harness.json", "contract": "EvaluationRequest", "shows": "harness benchmark: two arms (same runtime, model, effort), two repetitions, cluster by task cluster"},
+    {"path": "evaluation/harness_comparison.json", "contract": "EvaluationResult", "shows": "harness comparison: every planned run reported (one failed), per-arm scores with cost, paired delta with an interval; not assessed"}
   ]
 }
