@@ -58,7 +58,7 @@ def main():
                 shutil.copytree(src, root / "models" / parent[7:])
             out = Path(tmp) / "rebuilt.json"
             r = subprocess.run(
-                [a.ignis, "wsp", "assemble", "--family", KEYS[name], "--patch", str(cand / "patch.json"),
+                [a.ignis, "wsp", "assemble", "--family", KEYS.get(name, name.removesuffix(".wsp")), "--patch", str(cand / "patch.json"),
                  "--binding", str(cand.parent / "binding.json"), "--root", str(root), "--out", str(out)],
                 capture_output=True, text=True)
             if r.returncode != 0:

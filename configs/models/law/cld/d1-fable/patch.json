@@ -1,0 +1,55 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-cld-v1-d1-fable",
+  "spec_hash": "sha256:bb23a7b334500ac5f2a4800b5232356704fe4b9ddea49780445f74f36674cc9a",
+  "parent_release_id": "sha256:0995df666bdabfa546607fcba565da166a28839ed984f2f1226bc62274eefe4e",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_cld_d1.md(sha256:6144d2fb3bf0734c99655acae5705191fd690467ea19ab99ba9ca5e01114c86e;data-informed-D1-from-train-days)",
+      "repo:docs/wsp/feedback/cld_train_anatomy.md(train-days-only)",
+      "coordinator-summary-of-the-13.2-blind-look(aggregates-only;no-validation-case)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "cld-train-cases(transfer_cld/cases_train.jsonl)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-validation-aggregates-of-the-W0-parent"
+    ],
+    "prior_candidates": [
+      "sha256:0995df666bdabfa546607fcba565da166a28839ed984f2f1226bc62274eefe4e"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.b0",
+      "index": [],
+      "value": 6.03
+    },
+    {
+      "op": "set",
+      "tensor": "loss.blowoff.median.skip",
+      "index": [
+        3
+      ],
+      "value": 1.21
+    },
+    {
+      "op": "set",
+      "tensor": "radiometer.median.b0",
+      "index": [],
+      "value": -0.66
+    }
+  ],
+  "rationale": "D1 of cld.wsp (PROTOCOL 13.3): one damped step typed by the author from the train anatomy of the W0 law; the Edits block of docs/wsp/research/phys_cld_d1.md (sha256 6144d2fb3bf0734c99655acae5705191fd690467ea19ab99ba9ca5e01114c86e) verbatim as a revision of the W0 release. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

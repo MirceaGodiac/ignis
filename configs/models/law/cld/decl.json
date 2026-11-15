@@ -1,11 +1,22 @@
 {
   "slug": "cld",
-  "status": "placeholder",
+  "status": "declared",
   "family": "other",
-  "investigation": "registered before the restatement of its law",
-  "description": "Placeholder: no feature and one dimensionless target. Replace this file with the declaration of the restated law (status declared) before writing any edits; no release of a placeholder can be assembled.",
-  "features": [],
+  "investigation": "PSI-21, ACME CLD Flame: methane and ethylene coflow flames diluted with nitrogen, on a 2.18 mm tube in a 25 mm air annulus",
+  "description": "W0 law of docs/wsp/research/phys_cld_w0.md, section 7 (W0 with the exceptions stated in its section 8.3): loss of a dilute coflow flame by blow-off, and its radiometer excess. Time origin of loss: flame onset. The planned fuel-off (planned_fuel_off_from_onset, seconds since onset) is declared as the scheduled stop, which the typed edits of section 7.4 address. Derived case inputs (the most severe fraction and coflow of the schedule, the first constant-flow stage, the window and the stop) are written by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "x_fuel_final", "unit": "1", "transform": "ln", "description": "lowest fuel fraction the script reaches (section 7.1)"},
+    {"name": "v_coflow_final", "unit": "m/s", "transform": "ln", "description": "highest coflow speed the script reaches (section 7.1)"},
+    {"name": "window", "unit": "s", "transform": "ln", "description": "planned fuel-off, seconds since flame onset (at_cutoff.planned_fuel_off_from_onset_s)"},
+    {"name": "is_ethylene", "unit": "1", "transform": "identity", "description": "1 when fuel = ethylene"},
+    {"name": "x_fuel_stage", "unit": "1", "transform": "ln", "description": "x_fuel of the first constant-flow segment of the schedule"},
+    {"name": "v_fuel_stage", "unit": "m/s", "transform": "ln", "description": "v_fuel_m_s of the first constant-flow segment of the schedule"}
+  ],
   "targets": [
-    {"name": "outcome", "kind": "positive", "unit": "1", "description": "placeholder target"}
+    {"name": "loss", "kind": "event", "causes": ["blowoff", "other"],
+     "scheduled_stop": {"condition": "planned_fuel_off_from_onset"},
+     "description": "the flame goes out while the fuel still flows, seconds since flame onset"},
+    {"name": "radiometer", "kind": "positive", "unit": "V", "shared_quantity": null,
+     "description": "excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)"}
   ]
 }

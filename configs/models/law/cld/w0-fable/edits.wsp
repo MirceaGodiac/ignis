@@ -1,0 +1,85 @@
+# Transcribed verbatim from docs/wsp/research/phys_cld_w0.md, section 7.4, lines 315-397 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/cld/root).
+# cld.wsp: W0 with stated exceptions. Author claude-fable-5-2. Source: docs/wsp/research/phys_cld_w0.md
+# features z = (z_x, z_u, z_w, e, z_s, z_v), columns 0..5
+x.x_fuel_final.centre = 1.0
+x.x_fuel_final.scale = 1.0
+x.x_fuel_final.lo = 0.04
+x.x_fuel_final.hi = 1.0
+x.v_coflow_final.centre = 0.2
+x.v_coflow_final.scale = 1.0
+x.v_coflow_final.lo = 0.02
+x.v_coflow_final.hi = 1.5
+x.window.centre = 60.0
+x.window.scale = 1.0
+x.window.lo = 5.0
+x.window.hi = 600.0
+x.is_ethylene.centre = 0.0
+x.is_ethylene.scale = 1.0
+x.is_ethylene.lo = 0.0
+x.is_ethylene.hi = 1.0
+x.x_fuel_stage.centre = 1.0
+x.x_fuel_stage.scale = 1.0
+x.x_fuel_stage.lo = 0.04
+x.x_fuel_stage.hi = 1.0
+x.v_fuel_stage.centre = 0.2
+x.v_fuel_stage.scale = 1.0
+x.v_fuel_stage.lo = 0.02
+x.v_fuel_stage.hi = 1.5
+
+# --- loss by blow-off: ln tau = ln window + ln 2.5 - ln Phi_final.
+# b0 = ln(60 s) + ln(2.5) - ln(0.66 * 0.2 / (1.4 * 0.38)): 604 s for pure methane at 0.2 m/s.
+# skip: S_L falls 0.55 per e-fold of dilution; more coflow, sooner; longer window, later;
+# ethylene: ln(0.68 / 0.38) + 0.55 * 0.47.
+loss.blowoff.median.b0 = 6.403
+loss.blowoff.median.skip[0:6] = [0.55, -1.0, 1.0, 0.84, 0.0, 0.0]
+# unit 0: no gain above the pure fuel (ethylene above 62 %).
+loss.blowoff.median.W1[0, 0] = 1.0
+loss.blowoff.median.W1[0, 3] = 0.47
+loss.blowoff.median.b1[0] = 0.0
+loss.blowoff.median.w2[0] = -0.55
+# units 1 to 3: S_L falls faster below 50, 30 and 20 % methane (31, 19 and 12.5 % ethylene).
+loss.blowoff.median.W1[1, 0] = -1.0
+loss.blowoff.median.W1[1, 3] = -0.47
+loss.blowoff.median.b1[1] = -0.693
+loss.blowoff.median.w2[1] = -0.5
+loss.blowoff.median.W1[2, 0] = -1.0
+loss.blowoff.median.W1[2, 3] = -0.47
+loss.blowoff.median.b1[2] = -1.204
+loss.blowoff.median.w2[2] = -0.6
+loss.blowoff.median.W1[3, 0] = -1.0
+loss.blowoff.median.W1[3, 3] = -0.47
+loss.blowoff.median.b1[3] = -1.609
+loss.blowoff.median.w2[3] = -1.0
+loss.blowoff.shape = 3.4
+# other losses: 4 % in 120 s, hazard falling with time.
+loss.other.median.b0 = 11.156
+loss.other.median.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+loss.other.shape = 0.5
+# only if the planned fuel-off is declared as the scheduled stop:
+loss.stop.offset_s[0:3] = [0.0, 0.0, 0.0]
+loss.stop.offset_w[0:3] = [1.0, 0.0, 0.0]
+
+# --- radiometer excess = c_V * chi * Q. b0 = ln(0.5 V/W * 0.05 * 26.72 W) = ln(0.668 V).
+# skip: proportional to fuel-stream speed and to fuel fraction; ethylene releases 1.65 times
+# the heat per volume of fuel.
+radiometer.median.b0 = -0.404
+radiometer.median.skip[0:6] = [0.0, 0.0, 0.0, 0.5, 1.0, 1.0]
+# units 0 to 2: soot, ln(1 + chi_soot x^2.5 / 0.05) in three pieces; 1.099 = ln(0.15 / 0.05),
+# ethylene 0.847 = ln(0.35 / 0.15) more.
+radiometer.median.W1[0, 3] = 0.847
+radiometer.median.W1[0, 4] = 2.5
+radiometer.median.b1[0] = 3.299
+radiometer.median.w2[0] = 0.31
+radiometer.median.W1[1, 3] = 0.847
+radiometer.median.W1[1, 4] = 2.5
+radiometer.median.b1[1] = 1.099
+radiometer.median.w2[1] = 0.38
+radiometer.median.W1[2, 3] = 0.847
+radiometer.median.W1[2, 4] = 2.5
+radiometer.median.b1[2] = -1.101
+radiometer.median.w2[2] = 0.31
+radiometer.spread.b0 = 0.8
+radiometer.spread.skip[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+radiometer.tail_weight = 0.1
+radiometer.tail_width = 3.0

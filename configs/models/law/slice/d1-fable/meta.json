@@ -1,0 +1,31 @@
+{
+  "patch_id": "law-slice-v1-d1-fable",
+  "parent_release_id": "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_slice_d1.md(sha256:adad2fbff877db6e6a5eaf6881ba34e1622d44446afb0d4721dfa57a619d648a;data-informed-D1-from-train-days)",
+      "repo:docs/wsp/feedback/slice_train_anatomy.md(train-days-only)",
+      "coordinator-summary-of-the-13.2-blind-look(aggregates-only;no-validation-case)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "slice-train-cases(transfer_slice/cases_train.jsonl)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-validation-aggregates-of-the-W0-parent"
+    ],
+    "prior_candidates": [
+      "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e"
+    ]
+  },
+  "rationale": "D1 of slice.wsp (PROTOCOL 13.3): one damped step typed by the author from the train anatomy of the W0 law; the Edits block of docs/wsp/research/phys_slice_d1.md (sha256 adad2fbff877db6e6a5eaf6881ba34e1622d44446afb0d4721dfa57a619d648a) verbatim as a revision of the W0 release. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

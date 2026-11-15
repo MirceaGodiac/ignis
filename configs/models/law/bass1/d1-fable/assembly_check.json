@@ -1,0 +1,27 @@
+{
+ "slug": "bass1",
+ "dossier": "docs\\wsp\\research\\phys_bass1_d1.md",
+ "sha256": "0a9b15c73e1cf59a696ef37dac61cd7e3caa3cb1230f79e9a98bbddc3c336555",
+ "parent": "sha256:97c0daf9de84482ed7b125b3d41302521f5dd7281c0667241807d93387e239a2",
+ "release": "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
+ "edits_lines": 10,
+ "changed": {
+  "('flat_quench_speed.median.W1', (0, 2))": [
+   0.0,
+   1.0
+  ],
+  "('flat_quench_speed.median.w2', (0,))": [
+   0.0,
+   1.44
+  ],
+  "('flat_quench_speed.spread.W1', (0, 2))": [
+   0.0,
+   1.0
+  ],
+  "('flat_quench_speed.spread.w2', (0,))": [
+   0.0,
+   0.43
+  ]
+ },
+ "mismatches": {}
+}

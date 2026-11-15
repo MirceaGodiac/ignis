@@ -244,6 +244,8 @@ impl<S: PrefixSource> PrefixSource for ServedPrefixes<S> {
 /// `ignis_wsp::ViewSourcePrefixes` over the data lane's store).
 pub struct ServedModels<S> {
     inner: WspModelService<ServedPrefixes<S>>,
+    /// Releases of the generic law forward (no expert, so not runnable through `inner`), loaded.
+    law: BTreeMap<String, Arc<registry::LoadedRelease>>,
     records: Vec<ModelRelease>,
     cards: Vec<ModelCard>,
     policies: BTreeMap<String, ProspectivePolicy>,
@@ -288,10 +290,27 @@ impl<S: PrefixSource> ServedModels<S> {
             });
             records.push(r);
         }
-        let policies = ignis_wsp::experts()
+        let mut policies: BTreeMap<String, ProspectivePolicy> = ignis_wsp::experts()
             .iter()
             .map(|x| (x.model_name().to_string(), x.policy().clone()))
             .collect();
+        // Generic law releases have no expert: their prospective conditions are the declared
+        // features, nothing else.
+        let mut law = BTreeMap::new();
+        for r in &records {
+            if let Some(i) = law_index(&r.model_name) {
+                let d = ignis_wsp::law::decl(i);
+                let names: Vec<&str> = d.features.iter().map(|f| f.name.as_str()).collect();
+                policies.insert(
+                    r.model_name.clone(),
+                    ProspectivePolicy::new(r.family, &names, &[]),
+                );
+                law.insert(
+                    r.id.clone(),
+                    Arc::new(registry::load(&dir, &r.id).with_context(|| r.id.clone())?),
+                );
+            }
+        }
         let scenarios = Scenarios::default();
         let inner = WspModelService::new(
             dir.clone(),
@@ -302,6 +321,7 @@ impl<S: PrefixSource> ServedModels<S> {
         );
         Ok(ServedModels {
             inner,
+            law,
             records,
             cards,
             policies,
@@ -364,6 +384,13 @@ impl<S: PrefixSource> ServedModels<S> {
         }
         s
     }
+}
+
+/// Index of a generic law slug by its model name (`<slug>.wsp`).
+pub fn law_index(model_name: &str) -> Option<usize> {
+    ignis_wsp::law_slugs::SLUGS
+        .iter()
+        .position(|s| s.model_name == model_name)
 }
 
 fn measured_number(v: f64, unit: &str) -> Measured {
@@ -512,7 +539,10 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
     }
 
     fn release(&self, scope: &ExecutionScope, id: &ReleaseId) -> ServiceResult<ModelRelease> {
-        self.served(id)?;
+        let r = self.served(id)?;
+        if self.law.contains_key(&r.id) {
+            return Ok(r.clone());
+        }
         self.inner.release(scope, id)
     }
 
@@ -521,8 +551,41 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
         scope: &ExecutionScope,
         req: &ForecastRequest,
     ) -> ServiceResult<AnalysisArtifact> {
-        self.served(&req.release_id)?;
-        self.inner.forecast(scope, req)
+        let release = self.served(&req.release_id)?;
+        let Some(loaded) = self.law.get(&release.id) else {
+            return self.inner.forecast(scope, req);
+        };
+        // The generic law forward: the same checks as the service of ignis-wsp, then the strict
+        // forward on an admitted typed scenario (law releases have no stored runs).
+        req.validate()?;
+        scope.require(Capability::RunModels)?;
+        scope.require(Capability::ReadData)?;
+        let ForecastInput::Prefix { input_hash } = &req.input else {
+            return Err(envelope(
+                ErrorCode::CapabilityUnavailable,
+                format!(
+                    "{} reads typed conditions only (no stored run of this investigation                      carries its features): admit a scenario and forecast its input_hash",
+                    release.model_name
+                ),
+            ));
+        };
+        let prefix = self.scenarios.get(input_hash).ok_or_else(|| {
+            envelope(
+                ErrorCode::NotFound,
+                format!("no admitted scenario {input_hash}"),
+            )
+        })?;
+        if prefix.family != release.family {
+            return Err(envelope(
+                ErrorCode::InvalidRequest,
+                format!("scenario {input_hash} was admitted for another family"),
+            ));
+        }
+        let artifact = ignis_wsp::artifact_of(loaded, &prefix, &req.settings.value())
+            .map_err(ignis_wsp::service::envelope_of)?;
+        ignis_core::analysis::validate_artifact(&artifact, release, &prefix)
+            .map_err(ignis_wsp::service::envelope_of)?;
+        Ok(artifact)
     }
 
     fn tool_note(&self) -> Option<String> {

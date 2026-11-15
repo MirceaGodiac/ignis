@@ -191,19 +191,19 @@ fn the_demo_spec_has_the_documented_tensors() {
     // the first target with a shared quantity names the spec's target
     assert_eq!(spec.target.quantity, Quantity::SpreadRate);
     // a placeholder (all lane-local) says why it names phase_end_time
-    let bre = law::spec(law_slugs::by_key("bre").unwrap());
-    assert_eq!(bre.target.quantity, Quantity::PhaseEndTime);
-    assert!(bre.target.excludes[0].contains("only because ModelSpec.target requires"));
-    assert!(bre
+    let ph = law::spec(law_slugs::by_key("sflame_event").unwrap());
+    assert_eq!(ph.target.quantity, Quantity::PhaseEndTime);
+    assert!(ph.target.excludes[0].contains("only because ModelSpec.target requires"));
+    assert!(ph
         .target
         .excludes
         .iter()
-        .any(|e| e.starts_with("bre:outcome")));
+        .any(|e| e.starts_with("sflame_event:outcome")));
 }
 
 #[test]
 fn a_placeholder_cannot_be_assembled() {
-    for slug in ["bre", "sflame_event", "bass1"] {
+    for slug in ["sflame_event"] {
         let e = root(slug).err().expect("placeholder must not assemble");
         assert!(
             format!("{e:#}").contains("failed build check")

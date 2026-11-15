@@ -1,0 +1,21 @@
+{
+  "patch_id": "law-spice-v1-w0-fable",
+  "parent_release_id": "sha256:d990bc1e17cbd73dbf050ffe378d3c310e14bc06ddee21165c5523e71a3d1a92",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_spice_w0.md(variant-B-of-section-5.1;exposure-in-its-section-8.3)",
+      "the-author-had-read-Dotson-et-al-2011(the-paper-on-this-experiment);variant-B-takes-no-number-from-it-for-smoke_point_length;the-other-targets-keep-the-main-law's-lines,which-include-the-paper's-exponents-and-A-constants",
+      "repo:docs/wsp/feedback/spice_feasibility.md(paragraph-for-the-physicist,sections-1,2,4;no-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Variant B of spice.wsp (docs/wsp/research/phys_spice_w0.md section 5.1): the section 7.4 block with the eight smoke_point_length lines of section 5.1 substituted, which take no number from the published paper on this experiment. Only smoke_point_length differs from the main variant (lit-fable); smoke_point_fuel_flow, flame_length and emits_soot are those of the main law. Source: docs/wsp/research/phys_spice_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

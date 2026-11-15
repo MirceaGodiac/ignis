@@ -1,0 +1,1035 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-spice-v1-lit-fable",
+  "spec_hash": "sha256:0dce43b67260ae6d91fd96c7156db8f98fe83167cb4630f8af0f294564143a92",
+  "parent_release_id": "sha256:d990bc1e17cbd73dbf050ffe378d3c310e14bc06ddee21165c5523e71a3d1a92",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_spice_w0.md(W0-law,main-variant;exposure-in-its-section-8.3)",
+      "published-paper-on-this-experiment(Dotson-et-al-2011:fit-of-the-same-smoke-points-the-target-T1-is-scored-on;exponents-and-A-constants;class-L*;T1-is-NOT-blind)",
+      "repo:docs/wsp/feedback/spice_feasibility.md(paragraph-for-the-physicist,sections-1,2,4;no-outcome)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.centre",
+      "index": [],
+      "value": 0.001
+    },
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.lo",
+      "index": [],
+      "value": 0.0003
+    },
+    {
+      "op": "set",
+      "tensor": "x.nozzle_diameter.hi",
+      "index": [],
+      "value": 0.004
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.centre",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.lo",
+      "index": [],
+      "value": 0.03
+    },
+    {
+      "op": "set",
+      "tensor": "x.coflow_speed.hi",
+      "index": [],
+      "value": 0.9
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.centre",
+      "index": [],
+      "value": 1e-6
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.lo",
+      "index": [],
+      "value": 5e-8
+    },
+    {
+      "op": "set",
+      "tensor": "x.fuel_mass_flow.hi",
+      "index": [],
+      "value": 0.00002
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.lo",
+      "index": [],
+      "value": 0.4
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propylene.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.b0",
+      "index": [],
+      "value": -3.863
+    },
+    {
+      "op": "set_box",
+      "tensor": "smoke_point_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        -0.82,
+        0.287,
+        -1.03,
+        2.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -0.91
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": 0.414
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": -0.423
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": -0.224
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.b1",
+      "index": [
+        0
+      ],
+      "value": 1.342
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.w2",
+      "index": [
+        0
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.W1",
+      "index": [
+        1,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.b1",
+      "index": [
+        1
+      ],
+      "value": -0.288
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.median.w2",
+      "index": [
+        1
+      ],
+      "value": 0.65
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.b0",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set_box",
+      "tensor": "smoke_point_length.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -0.91
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": 0.414
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": -0.423
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": -0.224
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.b1",
+      "index": [
+        0
+      ],
+      "value": 1.342
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.w2",
+      "index": [
+        0
+      ],
+      "value": -0.2
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -0.91
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": 0.414
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        1,
+        4
+      ],
+      "value": -0.423
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.W1",
+      "index": [
+        1,
+        5
+      ],
+      "value": -0.224
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.b1",
+      "index": [
+        1
+      ],
+      "value": 0.842
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.spread.w2",
+      "index": [
+        1
+      ],
+      "value": 0.2
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_length.tail_width",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.b0",
+      "index": [],
+      "value": -13.784
+    },
+    {
+      "op": "set_box",
+      "tensor": "smoke_point_fuel_flow.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        -1.48,
+        0.232,
+        -1.03,
+        1.857
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -0.91
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": 0.414
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "index": [
+        0,
+        4
+      ],
+      "value": -0.423
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "index": [
+        0,
+        5
+      ],
+      "value": -0.224
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.b1",
+      "index": [
+        0
+      ],
+      "value": 1.342
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.w2",
+      "index": [
+        0
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "index": [
+        1,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.b1",
+      "index": [
+        1
+      ],
+      "value": -0.288
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.w2",
+      "index": [
+        1
+      ],
+      "value": 0.65
+    },
+    {
+      "op": "set_box",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -2.91,
+        -0.586,
+        0.0,
+        -1.75,
+        -0.643,
+        -1.659,
+        2.416
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.b1",
+      "index": [
+        2
+      ],
+      "value": 2.158
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.w2",
+      "index": [
+        2
+      ],
+      "value": -0.1289
+    },
+    {
+      "op": "set_box",
+      "tensor": "smoke_point_fuel_flow.median.W1",
+      "start": [
+        3,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -2.91,
+        -0.586,
+        0.0,
+        -1.75,
+        -0.643,
+        -1.659,
+        2.416
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.b1",
+      "index": [
+        3
+      ],
+      "value": -1.537
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.median.w2",
+      "index": [
+        3
+      ],
+      "value": 0.1289
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.spread.b0",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set_box",
+      "tensor": "smoke_point_fuel_flow.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "smoke_point_fuel_flow.tail_width",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b0",
+      "index": [],
+      "value": -3.895
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        1.0,
+        0.66,
+        0.055,
+        0.0,
+        0.143
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -2.0,
+        -1.0,
+        1.0,
+        -0.27,
+        -0.452,
+        -0.405,
+        0.559
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        0
+      ],
+      "value": 0.784
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.148
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        1,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -2.0,
+        -1.0,
+        1.0,
+        -0.27,
+        -0.452,
+        -0.405,
+        0.559
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        1
+      ],
+      "value": -2.435
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        1
+      ],
+      "value": -0.148
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -0.91,
+        0.414,
+        -1.0,
+        -1.48,
+        -0.191,
+        -1.254,
+        1.857
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        2
+      ],
+      "value": 1.374
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        2
+      ],
+      "value": -0.14
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.W1",
+      "start": [
+        3,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -0.91,
+        0.414,
+        -1.0,
+        -1.48,
+        -0.191,
+        -1.254,
+        1.857
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        3
+      ],
+      "value": 0.274
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        3
+      ],
+      "value": 0.14
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.spread.b0",
+      "index": [],
+      "value": 0.22
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_width",
+      "index": [],
+      "value": 3.0
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.b0",
+      "index": [],
+      "value": -0.195
+    },
+    {
+      "op": "set_box",
+      "tensor": "emits_soot.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        6.1,
+        9.03,
+        -1.415,
+        6.283,
+        -11.33
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "emits_soot.logit.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -2.0,
+        -1.0,
+        1.0,
+        -0.27,
+        -0.452,
+        -0.405,
+        0.559
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.b1",
+      "index": [
+        0
+      ],
+      "value": 0.784
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.w2",
+      "index": [
+        0
+      ],
+      "value": 0.903
+    },
+    {
+      "op": "set_box",
+      "tensor": "emits_soot.logit.W1",
+      "start": [
+        1,
+        0
+      ],
+      "shape": [
+        1,
+        7
+      ],
+      "values": [
+        -2.0,
+        -1.0,
+        1.0,
+        -0.27,
+        -0.452,
+        -0.405,
+        0.559
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.b1",
+      "index": [
+        1
+      ],
+      "value": -2.435
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.w2",
+      "index": [
+        1
+      ],
+      "value": -0.903
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.W1",
+      "index": [
+        2,
+        0
+      ],
+      "value": -0.91
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.W1",
+      "index": [
+        2,
+        1
+      ],
+      "value": 0.414
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.W1",
+      "index": [
+        2,
+        4
+      ],
+      "value": -0.423
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.W1",
+      "index": [
+        2,
+        5
+      ],
+      "value": -0.224
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.b1",
+      "index": [
+        2
+      ],
+      "value": 1.342
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.w2",
+      "index": [
+        2
+      ],
+      "value": -6.1
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.W1",
+      "index": [
+        3,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.b1",
+      "index": [
+        3
+      ],
+      "value": -0.288
+    },
+    {
+      "op": "set",
+      "tensor": "emits_soot.logit.w2",
+      "index": [
+        3
+      ],
+      "value": -3.965
+    }
+  ],
+  "rationale": "Main variant of spice.wsp: the law of docs/wsp/research/phys_spice_w0.md section 7.4 typed verbatim. Its smoke-point length uses the investigators' published fit of the same smoke points (Dotson et al. 2011), so for T1 it is not a blind forecast; the flame-length law and the soot probability are the author's. Source: docs/wsp/research/phys_spice_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

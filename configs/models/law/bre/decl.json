@@ -1,11 +1,24 @@
 {
   "slug": "bre",
-  "status": "placeholder",
+  "status": "declared",
   "family": "other",
-  "investigation": "registered before the restatement of its law",
-  "description": "Placeholder: no feature and one dimensionless target. Replace this file with the declaration of the restated law (status declared) before writing any edits; no release of a placeholder can be assembled.",
-  "features": [],
+  "investigation": "PSI-20, ACME Burning Rate Emulator (BRE): porous-disc burner of 25 or 50 mm in a quiescent microgravity chamber",
+  "description": "W0 law of docs/wsp/research/phys_bre_w0.md, section 7.1: self-extinction of a flame over a porous burner by radiation as it grows by diffusion. Time origin: ignition. Derived case inputs (burner_mass_flux, is_methane, stated_time and the renamed conditions) are written by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "burner_diameter", "unit": "m", "transform": "ln", "description": "diameter of the porous face (0.025 or 0.050)"},
+    {"name": "burner_mass_flux", "unit": "kg/m2/s", "transform": "ln", "description": "mass flow of the burner gas (fuel plus its nitrogen) at the first setpoint, per unit face area"},
+    {"name": "x_o2", "unit": "1", "transform": "ln", "description": "oxygen mole fraction of the chamber gas just before ignition"},
+    {"name": "pressure", "unit": "Pa", "transform": "ln", "description": "chamber pressure just before ignition"},
+    {"name": "x_fuel", "unit": "1", "transform": "ln", "description": "fuel mole fraction of the burner gas (1 for a pure fuel, 0.5 for the 50 % bottle)"},
+    {"name": "is_methane", "unit": "1", "transform": "identity", "description": "1 for methane, 0 for ethylene"},
+    {"name": "stated_time", "unit": "s", "transform": "ln", "description": "the time asked about by lasts; any admissible value for the other targets, which give it no weight"}
+  ],
   "targets": [
-    {"name": "outcome", "kind": "positive", "unit": "1", "description": "placeholder target"}
+    {"name": "flame_end", "kind": "event", "causes": ["extinction"],
+     "description": "the flame goes out by itself while the fuel flow is still at its first setpoint, seconds since ignition; no scheduled_stop condition (a stop comes from known_controls when one is known)"},
+    {"name": "lasts", "kind": "binary",
+     "description": "the flame is still burning stated_time seconds after ignition, flow unchanged"},
+    {"name": "height_at_end", "kind": "positive", "unit": "m", "shared_quantity": null,
+     "description": "height of the flame above the burner centre in the last second before self-extinction (lane-local)"}
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "patch_id": "law-slice-v1-w0-fable",
+  "parent_release_id": "sha256:a8a09553667e1d47ea850c4506a3078039a280a5060d6aed48235de88bece484",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_slice_w0.md(zero-shot-W0-law;exposure-in-its-section-8.3)",
+      "published-paper-on-this-experiment(Cao-et-al-2015:burner,18-conditions,which-flames-were-lifted;class-L*;the-mechanism-and-threshold-were-written-before-reading-it)",
+      "repo:docs/wsp/feedback/slice_feasibility.md(paragraph-for-the-physicist,sections-1,2;the-stepping-procedure,tube-sizes,input-names;no-outcome-count)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "W0 of slice.wsp: the zero-shot law of docs/wsp/research/phys_slice_w0.md (lifting and blow-off of a jet flame base), its section 7.4 typed verbatim as a revision of the neutral root. Source: docs/wsp/research/phys_slice_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

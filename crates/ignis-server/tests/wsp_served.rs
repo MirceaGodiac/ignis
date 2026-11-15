@@ -200,7 +200,7 @@ async fn served_releases_and_cards_are_listed_honestly() {
     let releases: Vec<ModelRelease> = serde_json::from_value(list).unwrap();
     let ids: Vec<&str> = releases.iter().map(|r| r.id.as_str()).collect();
     assert_eq!(
-        ids,
+        ids[..5],
         [
             FLEX_METHANOL,
             FLEX_HEPTANE,
@@ -209,10 +209,15 @@ async fn served_releases_and_cards_are_listed_honestly() {
             BASS_FRONT
         ]
     );
+    assert_eq!(
+        ids.len(),
+        14,
+        "five family releases and nine generic-law releases"
+    );
     let (st, cards) = http(&h, "GET", "/model-cards", None).await;
     assert_eq!(st, StatusCode::OK, "{cards}");
     let cards: Vec<ModelCard> = serde_json::from_value(cards).unwrap();
-    assert_eq!(cards.len(), 5);
+    assert_eq!(cards.len(), 14);
     for (c, r) in cards.iter().zip(&releases) {
         assert_eq!(c.release_id.as_str(), r.id);
         assert_eq!(c.trained_on, TrainedOn::NotTrained);
@@ -334,6 +339,54 @@ async fn typed_scenarios_run_the_strict_forward_of_each_family_type() {
     assert!(!art.support.admitted);
     assert!(!art.support.reasons.is_empty());
     assert!(art.event_cdf.is_empty() && art.quantiles.is_empty());
+
+    // Generic law forward (law.rs): typed features in, each declared target out.
+    let (_, cards) = http(&h, "GET", "/model-cards", None).await;
+    let cards: Vec<ModelCard> = serde_json::from_value(cards).unwrap();
+    for card in cards.iter().filter(|c| c.family == Family::Other) {
+        let i = ignis_wsp_serve::law_index(&card.model_name).unwrap();
+        let fixture = ignis_wsp::law_tools::fixture_prefix(i);
+        let conditions: serde_json::Map<String, Value> = fixture
+            .known_conditions
+            .iter()
+            .map(|(k, m)| (k.clone(), json!(m.value_si.unwrap())))
+            .collect();
+        let (st, a) = admit(
+            &h,
+            card.release_id.as_str(),
+            json!({"cutoff_s": 0.0, "conditions": conditions}),
+        )
+        .await;
+        assert_eq!(st, StatusCode::OK, "{}: {a}", card.model_name);
+        let hash = a["input_hash"].as_str().unwrap().to_string();
+        for t in &ignis_wsp::law::decl(i).targets {
+            let (st, tr) = http(
+                &h,
+                "POST",
+                "/analyses",
+                Some(json!({"schema_version": "wsp.v1",
+                "release_id": card.release_id, "input": {"kind": "prefix", "input_hash": hash},
+                "settings": {"target": t.name, "times_s": [1.0, 10.0, 100.0]},
+                "client_request_id": format!("{}-{}", card.model_name, t.name)})),
+            )
+            .await;
+            assert_eq!(st, StatusCode::ACCEPTED, "{tr}");
+            let job = finished(&h, tr["job"]["job_id"].as_str().unwrap()).await;
+            assert_eq!(
+                job.status,
+                JobStatus::Succeeded,
+                "{} {}: {job:#?}",
+                card.model_name,
+                t.name
+            );
+        }
+        // A stored run is refused for a law release, with the reason.
+        let (_, tr) = http(&h, "POST", "/analyses", Some(json!({"schema_version": "wsp.v1",
+            "release_id": card.release_id, "input": {"kind": "stored_run", "run_id": "any", "cutoff_s": 1.0},
+            "client_request_id": format!("{}-stored", card.model_name)}))).await;
+        let job = finished(&h, tr["job"]["job_id"].as_str().unwrap()).await;
+        assert_eq!(job.error.unwrap().code, ErrorCode::CapabilityUnavailable);
+    }
 
     // A condition the release does not read is refused at admission.
     let (st, e) = admit(
