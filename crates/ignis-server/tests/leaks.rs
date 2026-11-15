@@ -124,8 +124,14 @@ async fn sealed_partitions_are_not_served() {
         assert_eq!(e["n_observations"], Value::Null);
         assert_eq!(e["quantities"], json!([]));
     }
-    let (_, one) = call(&r, "GET", "/api/experiments/fixture-flex-3", None).await;
-    assert_eq!(one["control_history"], Value::Null);
+    // How a run ended is an outcome: served for a train run, null for validation and test runs.
+    let (_, one) = call(&r, "GET", "/api/experiments/fixture-flex-1", None).await;
+    assert_eq!(one["endpoint"]["run_id"], "fixture-flex-1", "{one}");
+    for run in ["fixture-flex-2", "fixture-flex-3"] {
+        let (_, one) = call(&r, "GET", &format!("/api/experiments/{run}"), None).await;
+        assert_eq!(one["control_history"], Value::Null, "{run}");
+        assert_eq!(one["endpoint"], Value::Null, "{run}");
+    }
 
     // Internal routes are not part of the public runtime by default.
     for path in ["/api/seal", "/api/reveal", "/api/admin/reload"] {

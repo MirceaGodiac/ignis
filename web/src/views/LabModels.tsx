@@ -4,8 +4,8 @@
 // partition or on conditions typed here; a typed scenario is a synthetic input, never a NASA run.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnalysisArtifact, JobRef, ModelCard, ModelInput, ScenarioAdmitted, ToolResult } from "../contracts/generated";
-import { call, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
+import type { AnalysisArtifact, EndpointRecord, JobRef, ModelCard, ModelInput, ScenarioAdmitted, ToolResult } from "../contracts/generated";
+import { call, type ExperimentDetail, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
 import { ForecastChart, type Bands, type ChartPoint } from "../components/ForecastChart";
 import { useData } from "../shell/data";
 import { Caution, Gap, words } from "../ui/common";
@@ -320,6 +320,16 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auto, cutoff]);
   const slide = auto && extent != null && extent > 0;
+  // An event model (no observed series) is read against how the run actually ended: the server
+  // serves the endpoint only for train runs, and the model never receives it.
+  const ended = useQuery({
+    queryKey: [legacy, "run-endpoint", fixed?.id],
+    queryFn: () => call<ExperimentDetail>(legacy, `/experiments/${encodeURIComponent(fixed!.id)}`),
+    enabled: auto && !obsInput,
+    retry: false,
+    staleTime: 300_000,
+  });
+  const endpoint = auto && !obsInput ? ended.data?.endpoint ?? null : null;
   const trainWithData = useMemo(() => {
     const ids = new Set(runs.map((r) => r.id));
     return allRuns.filter((r) => ids.has(r.id) && (!obsInput || hasSeries(r))).slice(0, 6);
@@ -489,6 +499,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
             {busy && <span className="fc-busy muted">updating…</span>}
           </div>
           {art?.support.admitted && <OutcomeBar artifact={art} />}
+          {art?.support.admitted && endpoint && <RecordedEnd endpoint={endpoint} />}
           {obsInput && (
             <>
               <ul className="legend legend-inline fc-legend" aria-label="Chart legend">
@@ -631,6 +642,36 @@ function OutcomeBar({ artifact }: { artifact: AnalysisArtifact }) {
         <li className="muted">by {fmtNum(artifact.times_s![last])} s</li>
       </ul>
     </div>
+  );
+}
+
+/** How the run ended in NASA's record, next to the outcome probabilities. Never a model input. */
+function RecordedEnd({ endpoint: e }: { endpoint: EndpointRecord }) {
+  const causes = (e.allowed_causes ?? []).map((c) => OUTCOME[c] ?? words(c));
+  const what = causes.length ? causes.join(" or ") : "ended";
+  const at = (t: number | null | undefined) => (t != null ? <b className="num">{fmtNum(t)} s</b> : null);
+  const text =
+    e.censoring === "event" ? (
+      <>
+        {what} at {at(e.first_terminal_s) ?? "an unrecorded time"}
+      </>
+    ) : e.censoring === "interval" ? (
+      <>
+        {what} between {at(e.last_confirmed_active_s) ?? "?"} and {at(e.first_terminal_s) ?? "?"}
+      </>
+    ) : e.censoring === "scheduled_stop" ? (
+      <>stopped by the test script{e.intervention_s != null ? <> at {at(e.intervention_s)}</> : null}, before any other ending</>
+    ) : e.censoring === "right" ? (
+      <>still burning when the record ends{e.last_confirmed_active_s != null ? <> at {at(e.last_confirmed_active_s)}</> : null}</>
+    ) : (
+      <>how it ended is not recorded</>
+    );
+  return (
+    <p className="fc-recorded" title={e.original_comment ?? e.original_label}>
+      <span className="glyph g-revealed" aria-hidden="true" /> <b>Recorded</b>: {text}
+      {e.resolution !== "resolved" ? ` (${words(e.resolution)})` : ""}.{" "}
+      <span className="muted">From the NASA record; the model did not see it.</span>
+    </p>
   );
 }
 
