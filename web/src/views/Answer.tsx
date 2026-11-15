@@ -2,6 +2,8 @@
 // where it comes from (source number in reading order and the place in it). Hovering a chip shows
 // the quoted passage, with 1/N across the claim's supports; "Open" shows the original at that place
 // in the side panel. Under the answer: its sources, its follow-ups, copy.
+import { RichText } from "../shell/RichText";
+import { OpenOriginal } from "../shell/OpenOriginal";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ArtifactRef, Claim, ClaimSupport, EvidenceRef, ResearchAnswer } from "../contracts/generated";
@@ -96,7 +98,7 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
           if (b.type === "text")
             return (
               <p key={i} className="answer-text">
-                {b.text}{" "}
+                <RichText text={b.text} />{" "}
                 {(b.claim_ids ?? []).map((id) => {
                   const c = claims.get(id);
                   return c ? <Cite key={id} claim={c} evidence={evidence} srcNo={srcNo} onEnter={show} onLeave={hide} /> : null;
@@ -228,9 +230,12 @@ function CiteCard({
       {e && (
         <div className="cite-card-foot">
           <EvidenceClassTag cls={e.evidence_class} />
-          <button className="btn btn-s" onClick={() => panel.open({ kind: "evidence", evidence: e, claim })}>
-            Open <IconChevron />
-          </button>
+          <span style={{ display: "flex", gap: 6 }}>
+            {e.locator && <OpenOriginal sourceId={e.source_id} loc={e.locator} />}
+            <button className="btn btn-s" onClick={() => panel.open({ kind: "evidence", evidence: e, claim })}>
+              Open <IconChevron />
+            </button>
+          </span>
         </div>
       )}
     </div>
@@ -276,6 +281,7 @@ function SourcesRow({ answer, srcNo }: { answer: ResearchAnswer; srcNo: Map<stri
                       {placeShort(e)}
                     </button>
                   ))}
+                  {evs[0]?.locator && <OpenOriginal sourceId={id} loc={evs[0].locator} label="Original ↗" className="linkish" />}
                 </span>
               </span>
             </li>

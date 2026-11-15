@@ -241,6 +241,13 @@ function SourcesItem({ answers }: { answers: ResearchAnswer[] }) {
 
 // ---------------------------------------------------------------- run
 
+/** A question about one run, naming it as NASA does when its record says how. */
+function askAboutRun(id: string, s: { investigation_id: string; aliases?: { scheme: string; name: string }[] }): string {
+  const nasa = (s.aliases ?? []).find((a) => !["pi", "campaign_day", "sample_number"].includes(a.scheme))?.name;
+  const name = nasa ? `${nasa} (${id})` : id;
+  return `What do the NASA sources and data report for run ${name} of ${s.investigation_id}: its conditions, what was observed, and which files record it?`;
+}
+
 /** The NASA files this run's record was read from, each opened at the place the record cites. */
 function RunOriginals({ record }: { record: unknown }) {
   const files = runSources(record);
@@ -302,6 +309,9 @@ function RunItem({ id }: { id: string }) {
               Forecast
             </a>
           )}
+          <a className="btn btn-s btn-primary" href={href("research", null, { new: "1", q: askAboutRun(id, summary) })}>
+            Ask about this run
+          </a>
         </div>
       </div>
       <div className="panel-sec">
