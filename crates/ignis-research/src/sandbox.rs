@@ -733,12 +733,19 @@ fn view_of<'a>(b: &'a DatasetBundle, view: &str) -> ServiceResult<&'a DatasetVie
     })
 }
 
-/// Every dataset in the transitive lineage of `root` must be readable by `scope`: an artifact
-/// computed from a partition the scope does not hold (an evaluation run's output in the same
-/// workspace) is refused like the partition itself. A dataset the scope cannot see at all (the
-/// evaluator root outside an evaluation scope) is refused, not skipped. A lineage artifact that is
-/// not in the workspace store has no lineage to follow. Runs named in a lineage are not checked
-/// here: the run → partition map belongs to the DatasetService, which does not expose it.
+/// Everything partitioned in the transitive lineage of `root` must be readable by `scope`: an
+/// artifact computed from a partition the scope does not hold (an evaluation run's output in the
+/// same workspace) is refused like the partition itself. Fails closed on anything it cannot place:
+/// - a dataset is checked bundle by bundle; one the scope cannot see at all (the evaluator root
+///   outside an evaluation scope) is refused, not skipped;
+/// - a run is checked against every partition the frozen splits give it
+///   ([`DatasetService::run_partitions`]); a run with no known partition, or no service to ask,
+///   is refused;
+/// - an observation is refused: its run cannot be resolved here;
+/// - a lineage artifact that is not in the workspace store is refused: what it was computed from
+///   is unknown.
+///
+/// Sources, evidence, releases, wiki pages and episodes carry no partition.
 pub fn check_lineage(
     scope: &ExecutionScope,
     artifacts: &dyn ArtifactStore,
@@ -747,6 +754,7 @@ pub fn check_lineage(
 ) -> ServiceResult<()> {
     let mut seen_art = std::collections::HashSet::new();
     let mut seen_ds = std::collections::HashSet::new();
+    let mut seen_run = std::collections::HashSet::new();
     seen_art.insert(root.artifact_id.as_str().to_string());
     let mut todo: Vec<EntityRef> = root.inputs.clone();
     while let Some(e) = todo.pop() {
@@ -774,11 +782,61 @@ pub fn check_lineage(
                 }
                 match artifacts.stat(scope, &id) {
                     Ok(a) => todo.extend(a.inputs),
-                    Err(e) if e.code == ErrorCode::NotFound => {}
+                    Err(e) if e.code == ErrorCode::NotFound => {
+                        return Err(err(
+                            ErrorCode::ScopeDenied,
+                            format!(
+                                "artifact {} was computed from artifact {id}, which is not in this workspace; its partitions are unknown",
+                                root.artifact_id
+                            ),
+                        ));
+                    }
                     Err(e) => return Err(e),
                 }
             }
-            _ => {}
+            EntityRef::Run(id) => {
+                if !seen_run.insert(id.as_str().to_string()) {
+                    continue;
+                }
+                let refuse = |why: String| {
+                    err(
+                        ErrorCode::ScopeDenied,
+                        format!(
+                            "artifact {} was computed from run {id}, which this scope cannot read: {why}",
+                            root.artifact_id
+                        ),
+                    )
+                };
+                let ds = datasets
+                    .ok_or_else(|| refuse("no DatasetService to check its partition".into()))?;
+                let parts = ds
+                    .run_partitions(scope, &id)
+                    .map_err(|e| refuse(e.message))?;
+                if parts.is_empty() {
+                    return Err(refuse(
+                        "no frozen split assigns it a partition (unknown partition)".into(),
+                    ));
+                }
+                for p in parts {
+                    scope
+                        .require_partition(p)
+                        .map_err(|e| refuse(e.to_string()))?;
+                }
+            }
+            EntityRef::Observation(id) => {
+                return Err(err(
+                    ErrorCode::ScopeDenied,
+                    format!(
+                        "artifact {} was computed from observation {id}, whose run and partition cannot be resolved here",
+                        root.artifact_id
+                    ),
+                ));
+            }
+            EntityRef::Source(_)
+            | EntityRef::Evidence(_)
+            | EntityRef::Release(_)
+            | EntityRef::WikiPage(_)
+            | EntityRef::Episode(_) => {}
         }
     }
     Ok(())
