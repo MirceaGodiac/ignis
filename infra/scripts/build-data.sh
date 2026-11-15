@@ -64,6 +64,9 @@ fi
 # file counts and sizes) as a citable source; offline, from the metadata saved by `sources inspect`.
 # Writes data/evidence/psi_records/ (records.jsonl: the server opens each record's PSI landing page).
 run evidence corpus records
+# Content classes (body | fragment | glossary | references | contents) of every stored chunk, from
+# its section and text: views imported before the classes existed, or skipped as already stored.
+run evidence reclassify
 run evidence verify
 run evidence corpus snapshot
 for family in flex acme_normal acme_inverse bass; do
