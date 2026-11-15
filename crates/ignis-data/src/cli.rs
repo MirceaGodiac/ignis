@@ -67,6 +67,10 @@ pub enum SourcesCmd {
     /// International microgravity-combustion sources (separate investigations, never NASA cohorts).
     #[command(subcommand)]
     Intl(IntlCmd),
+    /// Media indexes for streaming without copies (R11): `.ts` keyframes, ZIP central
+    /// directories, TIFF frames; byte ranges only, dry run without `--execute`.
+    #[command(subcommand)]
+    Media(crate::media::cli::MediaCmd),
 }
 
 #[derive(Subcommand, Debug)]
@@ -607,6 +611,10 @@ pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {
             if verify && bad > 0 {
                 anyhow::bail!("{bad} manifest entries missing or mismatched");
             }
+        }
+        SourcesCmd::Media(cmd) => {
+            let flights = storage::FLIGHTS.iter().map(|f| f.accession.to_string());
+            crate::media::cli::run(cmd, flights.collect())?;
         }
         SourcesCmd::Ntrs {
             query,

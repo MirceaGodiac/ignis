@@ -1051,6 +1051,20 @@ export type OutlineNodeId = string;
  */
 export type AccessMode = "direct" | "proxy" | "link_out";
 /**
+ * Video codec of an indexed MPEG-TS recording.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "VideoCodec".
+ */
+export type VideoCodec = "h264" | "hevc" | "mpeg2";
+/**
+ * Which keyframes an index lists.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyframeCoverage".
+ */
+export type KeyframeCoverage = "all" | "sampled";
+/**
  * A graph node: an IGNIS record ([`EntityRef`], wire `{kind, id}`) or a domain concept
  * ([`ConceptRef`], wire `{concept, id}`). A v1 link endpoint (always an `EntityRef`) reads
  * unchanged. Passages, figures and tables are `EntityRef::Evidence`; analyses are artifacts.
@@ -1502,6 +1516,8 @@ export interface IgnisContracts {
   OutlineRequest?: OutlineRequest;
   SourceOutline?: SourceOutline;
   SourceAccess?: SourceAccess;
+  MediaKeyframeIndex?: MediaKeyframeIndex;
+  ArchiveListing?: ArchiveListing;
   ProvenanceLink?: ProvenanceLink;
   GraphNeighborsRequest?: GraphNeighborsRequest;
   GraphNeighborsPage?: GraphNeighborsPage;
@@ -3438,6 +3454,108 @@ export interface SourceAccess {
   schema_version: EvidenceSchema;
   source_id: SourceId;
   url: string;
+}
+/**
+ * Keyframe index of one `.ts` source version (R11), the input of M12's byte-range HLS
+ * playlists. Written by `ignis sources media keyframes`, read by `/api/v1/sources/{id}/â€¦m3u8`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "MediaKeyframeIndex".
+ */
+export interface MediaKeyframeIndex {
+  /**
+   * Bytes the indexer read to build this index (byte ranges, not the whole file).
+   */
+  bytes_read: number;
+  codec: VideoCodec;
+  coverage: KeyframeCoverage;
+  /**
+   * Presentation time where the last frame ends (last PTS + one frame duration).
+   */
+  end_pts_s: number;
+  /**
+   * Indexer name and version.
+   */
+  indexer: string;
+  /**
+   * Length of the leading packets up to and including the first PMT (whole packets): the
+   * playlists' initialization section (`EXT-X-MAP`).
+   */
+  init_bytes: number;
+  keyframes: KeyframeEntry[];
+  origin: Origin;
+  schema_version: EvidenceSchema;
+  /**
+   * Size of the indexed object; a source of another size makes the index stale.
+   */
+  size_bytes: number;
+  source_id: SourceId;
+  video_pid: number;
+}
+/**
+ * One keyframe of an MPEG-TS recording.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "KeyframeEntry".
+ */
+export interface KeyframeEntry {
+  /**
+   * Bytes from `offset` to the next video PES start: the keyframe's access unit plus the
+   * packets of other streams interleaved with it (whole packets). The I-frame byte range.
+   */
+  length: number;
+  /**
+   * Byte offset of the TS packet that starts the keyframe's PES.
+   */
+  offset: number;
+  /**
+   * Presentation time in seconds (90 kHz PTS, 33-bit wraps unwrapped by the indexer).
+   */
+  pts_s: number;
+}
+/**
+ * A page of a remote archive's entries (R11), read from its cached central directory; the
+ * archive itself stays at NASA.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ArchiveListing".
+ */
+export interface ArchiveListing {
+  archive_size_bytes: number;
+  entries: ArchiveEntry[];
+  /**
+   * Index of this page's first entry in the directory order.
+   */
+  first: number;
+  /**
+   * `after` for the next page; absent on the last page.
+   */
+  next_after?: number | null;
+  origin: Origin;
+  schema_version: EvidenceSchema;
+  source_id: SourceId;
+  /**
+   * Entries in the archive (all pages).
+   */
+  total_entries: number;
+}
+/**
+ * One entry of a remote archive's central directory.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ArchiveEntry".
+ */
+export interface ArchiveEntry {
+  compressed_bytes: number;
+  /**
+   * A TIFF frame: served converted to PNG (faithful) or WebP (display) on request.
+   */
+  frame: boolean;
+  /**
+   * Path inside the archive (what `/sources/{id}/archive/entry?name=` takes).
+   */
+  name: string;
+  size_bytes: number;
 }
 /**
  * A typed edge between two nodes, with the evidence and method that established it. A purely

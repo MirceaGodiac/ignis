@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "KeyframeCoverage": {
+      "description": "Which keyframes an index lists.",
+      "oneOf": [
+        {
+          "const": "all",
+          "description": "Every keyframe of the recording (the whole file was read).",
+          "type": "string"
+        },
+        {
+          "const": "sampled",
+          "description": "Keyframes found by byte-range probes a few seconds of presentation time apart; enough for\nkeyframe-aligned segments and I-frame scrubbing, not a list of every keyframe.",
+          "type": "string"
+        }
+      ]
+    },
+    "KeyframeEntry": {
+      "additionalProperties": false,
+      "description": "One keyframe of an MPEG-TS recording.",
+      "properties": {
+        "length": {
+          "description": "Bytes from `offset` to the next video PES start: the keyframe's access unit plus the\npackets of other streams interleaved with it (whole packets). The I-frame byte range.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Byte offset of the TS packet that starts the keyframe's PES.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pts_s": {
+          "description": "Presentation time in seconds (90 kHz PTS, 33-bit wraps unwrapped by the indexer).",
+          "type": "number"
+        }
+      },
+      "required": [
+        "offset",
+        "length",
+        "pts_s"
+      ],
+      "type": "object"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "VideoCodec": {
+      "description": "Video codec of an indexed MPEG-TS recording.",
+      "enum": [
+        "h264",
+        "hevc",
+        "mpeg2"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/MediaKeyframeIndex",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Keyframe index of one `.ts` source version (R11), the input of M12's byte-range HLS\nplaylists. Written by `ignis sources media keyframes`, read by `/api/v1/sources/{id}/â€¦m3u8`.",
+  "properties": {
+    "bytes_read": {
+      "description": "Bytes the indexer read to build this index (byte ranges, not the whole file).",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "codec": {
+      "$ref": "#/$defs/VideoCodec"
+    },
+    "coverage": {
+      "$ref": "#/$defs/KeyframeCoverage"
+    },
+    "end_pts_s": {
+      "description": "Presentation time where the last frame ends (last PTS + one frame duration).",
+      "type": "number"
+    },
+    "indexer": {
+      "description": "Indexer name and version.",
+      "type": "string"
+    },
+    "init_bytes": {
+      "description": "Length of the leading packets up to and including the first PMT (whole packets): the\nplaylists' initialization section (`EXT-X-MAP`).",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "keyframes": {
+      "items": {
+        "$ref": "#/$defs/KeyframeEntry"
+      },
+      "type": "array"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "size_bytes": {
+      "description": "Size of the indexed object; a source of another size makes the index stale.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "video_pid": {
+      "format": "uint16",
+      "maximum": 65535,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_id",
+    "size_bytes",
+    "init_bytes",
+    "video_pid",
+    "codec",
+    "end_pts_s",
+    "coverage",
+    "keyframes",
+    "bytes_read",
+    "indexer",
+    "origin"
+  ],
+  "title": "MediaKeyframeIndex",
+  "type": "object"
+}
