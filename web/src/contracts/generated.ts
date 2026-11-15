@@ -2496,6 +2496,16 @@ export interface ArtifactReadRequest {
   byte_length?: number | null;
   byte_offset?: number | null;
   /**
+   * With a `json_pointer` that resolves to an array: how many items to return (default: as
+   * many as fit one inline page). `next_item` says where the next slice starts.
+   */
+  item_count?: number | null;
+  /**
+   * With a `json_pointer` that resolves to an array: the first item of the slice to return
+   * (default 0). The answer is `{items, item_offset, of, next_item}`.
+   */
+  item_offset?: number | null;
+  /**
    * RFC 6901 pointer into a JSON artifact (`""` = whole document).
    */
   json_pointer?: string | null;

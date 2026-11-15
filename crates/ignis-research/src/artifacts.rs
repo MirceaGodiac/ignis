@@ -256,9 +256,11 @@ impl ArtifactStore for LocalArtifactStore {
 /// larger artifacts are read by byte range).
 pub const POINTER_MAX_BYTES: u64 = 8 << 20;
 
-/// Bytes returned inline by one `artifacts_read` page when the caller gives no length (a context
-/// budget, not a size limit: the page says where the next one starts).
-pub const INLINE_PAGE_BYTES: u64 = 64 << 10;
+/// Bytes returned inline by one `artifacts_read` page when the caller gives no length, and the
+/// budget of a default array slice (a context budget, not a size limit: the page says where the
+/// next one starts). Kept well under the tool's inline limit, since JSON escaping of the text
+/// grows it on the wire.
+pub const INLINE_PAGE_BYTES: u64 = 24 << 10;
 
 /// `true` for `application/json` and `+json` media types.
 pub fn is_json(media_type: &str) -> bool {
@@ -316,15 +318,69 @@ pub fn read_json_pointer(
     })
 }
 
-/// `artifacts_read` for an agent: a JSON Pointer, or one page of text by byte range. A page that does
-/// not reach the end of the artifact is `partial` and says where the next one starts. Binary bytes
-/// are not inlined into a model context (the HTTP route serves them).
+/// One slice of an array read by pointer: `{items, item_offset, of, next_item}`. Without a count,
+/// as many items from `offset` as fit [`INLINE_PAGE_BYTES`] (at least one, so a read always
+/// advances). Partial unless the slice is the whole array.
+fn slice_items(
+    items: Vec<serde_json::Value>,
+    offset: Option<u64>,
+    count: Option<u64>,
+    meta: &ArtifactRef,
+) -> ServiceResult<InlinePayload> {
+    let len = items.len();
+    let start = offset.unwrap_or(0);
+    if start > len as u64 {
+        return Err(refused(
+            ErrorCode::InvalidRequest,
+            format!("item_offset {start} is past the end of the array ({len} items)"),
+        ));
+    }
+    let start = start as usize;
+    let end = match count {
+        Some(n) => start
+            .saturating_add(usize::try_from(n).unwrap_or(usize::MAX))
+            .min(len),
+        None => {
+            let budget = INLINE_PAGE_BYTES as usize;
+            let mut used = 2usize;
+            let mut end = start;
+            for it in &items[start..] {
+                let n = serde_json::to_vec(it).map_or(usize::MAX, |b| b.len()) + 1;
+                if end > start && used.saturating_add(n) > budget {
+                    break;
+                }
+                used = used.saturating_add(n);
+                end += 1;
+            }
+            end
+        }
+    };
+    let next = (end < len).then_some(end);
+    let slice: Vec<serde_json::Value> = items.into_iter().skip(start).take(end - start).collect();
+    Ok(InlinePayload {
+        value: serde_json::json!({
+            "items": slice,
+            "item_offset": start,
+            "of": len,
+            "next_item": next,
+        }),
+        partial: start > 0 || end < len,
+        full: Some(meta.clone()),
+    })
+}
+
+/// `artifacts_read` for an agent: a JSON Pointer, or one page of text by byte range. A pointer to
+/// an array answers one slice of it when the caller asks for one (`item_offset`/`item_count`) or
+/// when the array does not fit one page. A page or slice that does not reach the end is `partial`
+/// and says where the next one starts. Binary bytes are not inlined into a model context (the HTTP
+/// route serves them).
 pub fn read_for_tool(
     store: &dyn ArtifactStore,
     scope: &ExecutionScope,
     req: &ArtifactReadRequest,
 ) -> ServiceResult<InlinePayload> {
     let meta = store.stat(scope, &req.artifact_id)?;
+    let slicing = req.item_offset.is_some() || req.item_count.is_some();
     if let Some(p) = &req.json_pointer {
         if req.byte_offset.is_some() || req.byte_length.is_some() {
             return Err(refused(
@@ -332,7 +388,29 @@ pub fn read_for_tool(
                 "json_pointer and byte_offset/byte_length are exclusive",
             ));
         }
-        return read_json_pointer(store, scope, &meta, p);
+        let found = read_json_pointer(store, scope, &meta, p)?;
+        let slice = found.value.is_array()
+            && (slicing
+                || serde_json::to_vec(&found.value)
+                    .map_or(true, |b| b.len() as u64 > INLINE_PAGE_BYTES));
+        return match found.value {
+            serde_json::Value::Array(items) if slice => {
+                slice_items(items, req.item_offset, req.item_count, &meta)
+            }
+            _ if slicing => Err(refused(
+                ErrorCode::InvalidRequest,
+                format!(
+                    "item_offset/item_count slice an array; pointer {p:?} does not resolve to one"
+                ),
+            )),
+            value => Ok(InlinePayload { value, ..found }),
+        };
+    }
+    if slicing {
+        return Err(refused(
+            ErrorCode::InvalidRequest,
+            "item_offset/item_count need a json_pointer to an array",
+        ));
     }
     let offset = req.byte_offset.unwrap_or(0);
     if offset > meta.byte_length {
