@@ -50,6 +50,10 @@ use crate::search::{Ranked, RankedHit, Retriever, SearchOpts};
 /// Section summaries next to the catalog (answers of `ignis evidence outline-summaries --execute`).
 pub const SUMMARIES_FILE: &str = "outline_summaries.jsonl";
 
+/// Label pass answers and the combined labels next to the catalog (R8).
+pub const LABEL_ANSWERS_FILE: &str = "label_answers.jsonl";
+pub const LABELS_FILE: &str = "source_labels.jsonl";
+
 /// Requested page size when the request names none.
 pub const DEFAULT_PAGE_SIZE: u32 = 10;
 /// Characters of page text per read response (more pages follow with `next`).
@@ -862,6 +866,20 @@ impl KnowledgeService for EvidenceService {
         };
         page.validate()?;
         Ok(page)
+    }
+
+    /// Every label of one source (R8 `source_labels.jsonl` next to the catalog), conflicts
+    /// included. Labels describe a document; they never resolve run identities.
+    fn labels(
+        &self,
+        scope: &ExecutionScope,
+        source: &SourceId,
+    ) -> ServiceResult<Vec<ignis_core::contracts::SourceLabel>> {
+        self.check_scope(scope)?;
+        self.publication_of(source)?;
+        let path = self.summaries_path.with_file_name(LABELS_FILE);
+        let all = crate::labels::read_labels(&path).map_err(internal)?;
+        Ok(all.into_iter().filter(|l| &l.source_id == source).collect())
     }
 
     /// The section tree of the source's active view (R7b, [`crate::outline`]). Headings a scope's
