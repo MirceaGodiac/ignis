@@ -618,10 +618,48 @@ async fn post_message(
         v.hub.notify(&ev.episode_id, ev.seq);
     }
     // The message is recorded either way; a runtime problem shows in the log and in /capabilities.
+    // A message the runtime did not take stays unsent, never lost: the next message, a resume or
+    // the recovery of the next host process sends it.
     if let Some(rt) = v.runtime.clone() {
         let (scope, id) = (c.scope, p.id);
-        if let Err(e) = blocking(move || rt.kick(&scope, &id)).await {
-            tracing::warn!(error = ?e, "agent runtime did not take the message");
+        let store = v.store.clone();
+        let r = blocking(move || match rt.kick(&scope, &id) {
+            Ok(()) => Ok(None),
+            Err(e) => {
+                let why = ignis_research::runtime::mapping::not_started(&e.message);
+                store
+                    .record_runtime(
+                        &scope,
+                        &id,
+                        vec![ignis_research::store::RuntimeRecord {
+                            mark: None,
+                            causation: Default::default(),
+                            change: ignis_research::store::RuntimeChange::Status {
+                                to: ignis_core::contracts::EpisodeStatus::WaitingUser,
+                                reason: Some(why),
+                                from_any: vec![
+                                    ignis_core::contracts::EpisodeStatus::Ready,
+                                    ignis_core::contracts::EpisodeStatus::Completed,
+                                    ignis_core::contracts::EpisodeStatus::WaitingUser,
+                                ],
+                            },
+                        }],
+                    )
+                    .map(|evs| Some((e, evs.last().map(|ev| ev.seq))))
+            }
+        })
+        .await;
+        match r {
+            Ok(Some((e, seq))) => {
+                tracing::warn!(error = ?e, "agent runtime did not take the message");
+                if let Some(seq) = seq {
+                    v.hub.notify(&ev.episode_id, seq);
+                }
+            }
+            Ok(None) => {}
+            Err(e) => {
+                tracing::warn!(error = ?e, "record that the runtime did not take the message")
+            }
         }
     }
     Ok(Accepted(MessageAccepted {

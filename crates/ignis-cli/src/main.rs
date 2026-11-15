@@ -297,15 +297,34 @@ fn main() -> anyhow::Result<()> {
         Cmd::Wsp(c) => ignis_wsp::run(c)?,
         Cmd::State(c) => ignis_server::ops::run_state(c)?,
         Cmd::Metrics(c) => ignis_server::observe::run_metrics(c)?,
-        Cmd::Harness(c) => ignis_server::harness_run::run(
-            c,
-            ignis_server::Services {
-                experts: experts(),
-                fixture_experts: ignis_server::fixture::experts(),
-                acquisition: Some(acquisition_scorer()),
-                research: research_services(None, None),
-            },
-        )?,
+        Cmd::Harness(c) => {
+            // The same lane services as `ignis serve` (data roots, served models, web), so the
+            // episodes run on real IGNIS tools; web snapshots go to the run's own state.
+            let ignis_server::harness_run::HarnessCmd::Run(run) = &c;
+            let serve = ignis_server::harness_run::serve_args(run)?;
+            let web_store = if ignis_evidence::web::enabled_from_env() {
+                ignis_server::ops::artifact_store(
+                    ignis_server::ops::ArtifactBackend::Local,
+                    &Default::default(),
+                    serve.state_dir.join("artifacts"),
+                    "registry",
+                )
+                .map_err(|e| eprintln!("web discovery not configured: artifact store: {e}"))
+                .ok()
+            } else {
+                None
+            };
+            let research = research_services(Some(&serve), web_store);
+            ignis_server::harness_run::run(
+                c,
+                ignis_server::Services {
+                    experts: experts(),
+                    fixture_experts: ignis_server::fixture::experts(),
+                    acquisition: Some(acquisition_scorer()),
+                    research,
+                },
+            )?
+        }
         Cmd::Eval(c) => {
             let source = eval_source(&c)?;
             std::process::exit(ignis_lab::eval::run(c, &experts(), source.as_ref()))

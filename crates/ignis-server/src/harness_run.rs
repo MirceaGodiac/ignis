@@ -71,6 +71,10 @@ pub struct HarnessRunArgs {
     /// Versioned price list; unset = the one built into the binary.
     #[arg(long, env = "IGNIS_PRICE_LIST")]
     pub price_list: Option<PathBuf>,
+    /// Serve the model families, as `ignis serve --enable-models` (served releases from
+    /// `IGNIS_WSP_SERVED`, default `configs/models/served`).
+    #[arg(long, env = "IGNIS_ENABLE_MODELS")]
+    pub enable_models: bool,
     /// Actually run (starts the agent runtime: real runtimes spend money). Without it, print the
     /// plan and exit.
     #[arg(long)]
@@ -336,44 +340,37 @@ fn key(parts: &[&str]) -> String {
     format!("harness-{}", &h[..32])
 }
 
-fn serve_args(run: &HarnessRunArgs, variant: &Variant) -> ServeArgs {
-    let out = &run.out;
+/// The `ignis serve` arguments of a harness run: the same data roots, served models, runner and
+/// sources as `ignis serve` (its defaults and `IGNIS_*` environment), with the harness's own
+/// state directory, loopback ports, local auth and local artifacts, and the variant's runtime.
+pub fn serve_args(run: &HarnessRunArgs) -> anyhow::Result<ServeArgs> {
+    #[derive(clap::Parser)]
+    struct Serve {
+        #[command(flatten)]
+        args: ServeArgs,
+    }
+    let mut s = <Serve as clap::Parser>::try_parse_from(["ignis-serve"])
+        .map_err(|e| anyhow::anyhow!("serve settings of the harness run: {e}"))?
+        .args;
     let mut runtime = run.runtime.clone();
-    runtime.harness_dir = match variant {
-        Variant::Dir(d) => Some(std::path::absolute(d).unwrap_or_else(|_| d.clone())),
+    runtime.harness_dir = match Variant::parse(&run.variant).map_err(|e| anyhow::anyhow!(e))? {
+        Variant::Dir(d) => Some(std::path::absolute(&d).unwrap_or(d)),
         Variant::Digest(_) => None,
     };
-    let none = out.join("none");
-    ServeArgs {
-        port: 0,
-        host: "127.0.0.1".into(),
-        root: std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
-        data: none.join("registry"),
-        cohorts: none.join("cohorts"),
-        splits: none.join("splits"),
-        raw_samples: none.join("raw"),
-        artifacts: out.join("model-artifacts"),
-        evidence_db: none.join("evidence.sqlite"),
-        compute_threads: 2,
-        dev: false,
-        fixtures: none.join("fixtures"),
-        web_dist: none.join("web"),
-        state_dir: out.join("state"),
-        auth: AuthMode::Local,
-        internal_routes: false,
-        enable_models: false,
-        max_upload_bytes: 1 << 20,
-        contract_fixtures: none.join("contracts"),
-        codex: runtime,
-        mcp_port: 0,
-        runner: Default::default(),
-        sources: Default::default(),
-        answer_grounding: Default::default(),
-        price_list: None,
-        artifact_backend: Default::default(),
-        r2: Default::default(),
-        access: Default::default(),
-    }
+    let none = run.out.join("none");
+    s.port = 0;
+    s.host = "127.0.0.1".into();
+    s.mcp_port = 0;
+    s.dev = false;
+    s.internal_routes = false;
+    s.web_dist = none.join("web");
+    s.state_dir = std::path::absolute(run.out.join("state"))?;
+    s.auth = AuthMode::Local;
+    s.artifact_backend = Default::default();
+    s.enable_models = run.enable_models;
+    s.price_list = None;
+    s.codex = runtime;
+    Ok(s)
 }
 
 /// Run the command. `services` are the lane services the episodes' tools run on (as for
@@ -436,10 +433,13 @@ pub fn run_tasks(args: &HarnessRunArgs, services: Services) -> anyhow::Result<Op
     }
 
     std::fs::create_dir_all(args.out.join("traces"))?;
-    let router = crate::app(serve_args(args, &variant), services);
+    // The runtime first: the app binds the IGNIS MCP listener only inside a Tokio runtime, and
+    // without it the agent runs with no IGNIS tools at all.
     let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
+    let serve = serve_args(args)?;
+    let router = rt.block_on(async move { crate::app(serve, services) });
     let state = args.out.join("state");
     let store = crate::observe::open_store(&state)?;
     let artifacts = ignis_research::LocalArtifactStore::open(state.join("artifacts"))
@@ -454,6 +454,8 @@ pub fn run_tasks(args: &HarnessRunArgs, services: Services) -> anyhow::Result<Op
                 .unwrap_or("unknown")
         );
     }
+
+    check_tools(&caps)?;
 
     let mut runs = vec![];
     let mut episodes = vec![];
@@ -595,6 +597,42 @@ pub fn run_tasks(args: &HarnessRunArgs, services: Services) -> anyhow::Result<Op
     drop(router);
     rt.shutdown_timeout(Duration::from_secs(5));
     Ok(Some(summary))
+}
+
+/// Fail closed when the agent would run without IGNIS tools: no MCP endpoint, or no registered
+/// tool available. Unconfigured data services are reported (the run is still the product path).
+pub fn check_tools(caps: &Value) -> anyhow::Result<()> {
+    if caps["mcp"]["available"] != json!(true) {
+        anyhow::bail!(
+            "the agent would run without IGNIS tools: MCP {}",
+            caps["mcp"]["detail"].as_str().unwrap_or("unavailable")
+        );
+    }
+    let tools = caps["tools"].as_array().cloned().unwrap_or_default();
+    let available: Vec<&str> = tools
+        .iter()
+        .filter(|t| t["available"] == json!(true))
+        .filter_map(|t| t["name"].as_str())
+        .collect();
+    anyhow::ensure!(
+        !available.is_empty(),
+        "the agent would run without IGNIS tools: none of {} is available",
+        tools.len()
+    );
+    for svc in ["knowledge", "datasets", "models"] {
+        if caps[svc]["available"] != json!(true) {
+            eprintln!(
+                "harness run: {svc}: {}",
+                caps[svc]["detail"].as_str().unwrap_or("unavailable")
+            );
+        }
+    }
+    eprintln!(
+        "harness run: {} IGNIS tools available over MCP: {}",
+        available.len(),
+        available.join(", ")
+    );
+    Ok(())
 }
 
 /// Wait until the episode leaves the running states; cancel it when `timeout` passes.

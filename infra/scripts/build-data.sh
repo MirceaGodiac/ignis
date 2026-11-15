@@ -37,6 +37,8 @@ run() {
 # Metadata and listing of all 19 flight investigations (small JSON; no data bytes): the PSI
 # investigation records below and the listing check at the end read them.
 run sources inspect PSI-69 PSI-68 PSI-39 PSI-159 PSI-10 PSI-23 PSI-20 PSI-21 PSI-22 PSI-107 PSI-106   PSI-25 PSI-26 PSI-98 PSI-99 PSI-100 PSI-102 PSI-101 PSI-47
+# FLEX: every run's processed diameter series (DropletData, ColorCamData, LLUVData; 740 text files,
+# ~20 MB) and CIR logs; the FLEX models read the measured diameters up to the cutoff from them.
 run sources samples
 # Records and the conditions table first: they read only the NASA sample files, so a problem in
 # the evidence-corpus steps below cannot leave the Conditions page stale.

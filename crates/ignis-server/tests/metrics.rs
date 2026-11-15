@@ -225,10 +225,15 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
     assert!(0.0 <= p50 && p50 <= p95, "{lat}");
 
     // Per turn: the thread totals become per-turn usage (the partial total is not counted twice).
-    // Turn 1: 1000 in, 400 cached (40 %); turn 2: 1000 more, 800 more cached (80 %).
+    // The fake never submits an answer, so each question gets the host's one continuation turn
+    // (no usage of its own; it moves the fake's thread totals by one turn).
+    // Turn 1: 1000 in, 400 cached (40 %); question 2's turn (third of the thread): 2000 more,
+    // 2000 more cached (100 %).
     let turns = m["turns"].as_array().unwrap();
-    assert_eq!(turns.len(), 2, "{m}");
-    let (t1, t2) = (&turns[0]["tokens"], &turns[1]["tokens"]);
+    assert_eq!(turns.len(), 4, "{m}");
+    assert_eq!(turns[1]["tokens"]["reports"], 0);
+    assert_eq!(turns[3]["tokens"]["reports"], 0);
+    let (t1, t2) = (&turns[0]["tokens"], &turns[2]["tokens"]);
     assert_eq!(
         (
             t1["input_tokens"].as_u64(),
@@ -241,7 +246,7 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
             t2["input_tokens"].as_u64(),
             t2["cached_input_tokens"].as_u64()
         ),
-        (Some(1000), Some(800))
+        (Some(2000), Some(2000))
     );
     assert_eq!(
         (
@@ -250,18 +255,18 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
         ),
         (Some(100), Some(40))
     );
-    assert!(close(pct(t1), 40.0) && close(pct(t2), 80.0), "{t1} {t2}");
-    assert!(close(pct(&m["tokens"]), 60.0));
+    assert!(close(pct(t1), 40.0) && close(pct(t2), 100.0), "{t1} {t2}");
+    assert!(close(pct(&m["tokens"]), 80.0));
 
     // Per question: one turn and one call each; cost from the list.
     // Turn 1: (600 × 1 + 400 × 0.1 + 100 × 2) / 1e6; turn 2: (200 × 1 + 800 × 0.1 + 100 × 2) / 1e6.
     let qs = m["questions"].as_array().unwrap();
     assert_eq!(qs.len(), 2);
-    let want = [840e-6, 480e-6];
+    let want = [840e-6, 600e-6];
     for (q, w) in qs.iter().zip(want) {
         assert_eq!(
             (q["turns"].as_u64(), q["tool_calls"].as_u64()),
-            (Some(1), Some(1))
+            (Some(2), Some(1))
         );
         assert_eq!(q["cost"]["status"], "priced", "{q}");
         assert_eq!(q["cost"]["cost"]["basis"], "price_list");
@@ -284,13 +289,13 @@ async fn the_metrics_routes_measure_latency_tokens_cache_and_cost_of_real_turns(
     );
     assert_eq!(w["tools"][0]["latency"]["samples"], 2);
     assert!(
-        close(w["cost"]["cost"]["amount"].as_f64().unwrap(), 1320e-6),
+        close(w["cost"]["cost"]["amount"].as_f64().unwrap(), 1440e-6),
         "{w}"
     );
     assert!(
         close(
             w["cost_per_question"]["cost"]["amount"].as_f64().unwrap(),
-            660e-6
+            720e-6
         ),
         "{w}"
     );

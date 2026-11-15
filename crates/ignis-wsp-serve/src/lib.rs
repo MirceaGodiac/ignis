@@ -20,7 +20,7 @@
 //! [`ModelService::admit_scenario`]: conditions a person typed, admitted as a synthetic prefix
 //! (`evidence_class = synthetic`), never a NASA run.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -31,8 +31,9 @@ use ignis_core::contracts::{AnalysisArtifact, Finite};
 use ignis_core::contracts::{
     Authorship, Capability, ControlStage, ErrorCode, ErrorEnvelope, EvidenceClass, ExecutionScope,
     Family, ForecastInput, ForecastRequest, Measured, ModelCard, ModelInput, ModelInputKind,
-    ModelRelease, PrefixBundle, Qualification, RawValue, ReleaseId, ReportedScore, Resolution,
-    RetryPolicy, RunId, ScenarioAdmitted, ScenarioRequest, ScenarioValue, WspSchema,
+    ModelRelease, Partition, PrefixBundle, Qualification, RawValue, ReleaseId, ReportedScore,
+    Resolution, RetryPolicy, RunId, ScenarioAdmitted, ScenarioRequest, ScenarioValue,
+    StoredRunList, WspSchema,
 };
 use ignis_core::hashing::{content_hash, hex_part};
 use ignis_core::prefix::ProspectivePolicy;
@@ -87,6 +88,25 @@ pub struct ServedEntry {
     /// `fuel_blend_x` condition): the release carries no blend law.
     #[serde(default)]
     pub refuse_blends: bool,
+    /// Partitions of the release's frozen split whose stored runs research scopes (the forecast
+    /// lab and its agents) may forecast and read. Absent = `["train"]`, the default of every
+    /// deployment. Opening `validation` or `test` is a deployment decision recorded here with
+    /// `open_reason` (e.g. the one final test was spent, so a forecast on those runs no longer
+    /// contaminates an evaluation); evaluator bundles and `ignis eval` never read it.
+    #[serde(default)]
+    pub open_partitions: Option<BTreeSet<Partition>>,
+    /// Why validation or test runs are opened; required exactly when they are.
+    #[serde(default)]
+    pub open_reason: Option<String>,
+}
+
+impl ServedEntry {
+    /// The partitions research scopes may forecast with this release (`train` by default).
+    pub fn open(&self) -> BTreeSet<Partition> {
+        self.open_partitions
+            .clone()
+            .unwrap_or_else(|| BTreeSet::from([Partition::Train]))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -120,6 +140,22 @@ impl ServedList {
             ensure!(
                 !e.inputs.is_empty() && !e.limits.is_empty() && !e.cite.trim().is_empty(),
                 "release {}: inputs, limits and cite are required",
+                e.release_id
+            );
+            let open = e.open();
+            ensure!(
+                open.contains(&Partition::Train),
+                "release {}: open_partitions must include train",
+                e.release_id
+            );
+            let beyond_train = open.len() > 1;
+            let reason = e
+                .open_reason
+                .as_deref()
+                .is_some_and(|r| !r.trim().is_empty());
+            ensure!(
+                beyond_train == reason,
+                "release {}: open_reason is required exactly when open_partitions opens validation or test",
                 e.release_id
             );
         }
@@ -259,6 +295,10 @@ impl<S: PrefixSource> PrefixSource for ServedPrefixes<S> {
     ) -> ServiceResult<Option<RunId>> {
         self.stored.resolve_run(scope, release, run_id)
     }
+
+    fn runs(&self, release: &ModelRelease) -> ServiceResult<Vec<(RunId, Partition)>> {
+        self.stored.runs(release)
+    }
 }
 
 // ---------------------------------------------------------------- the service
@@ -317,6 +357,8 @@ impl<S: PrefixSource> ServedModels<S> {
                 limits: e.limits.clone(),
                 cite: e.cite.clone(),
                 card_doc: e.card_doc.clone(),
+                open_partitions: e.open(),
+                open_reason: e.open_reason.clone(),
             });
             records.push(r);
         }
@@ -342,13 +384,19 @@ impl<S: PrefixSource> ServedModels<S> {
             }
         }
         let scenarios = Scenarios::default();
+        let open: HashMap<String, BTreeSet<Partition>> = list
+            .releases
+            .iter()
+            .map(|e| (e.release_id.as_str().to_string(), e.open()))
+            .collect();
         let inner = WspModelService::new(
             dir.clone(),
             ServedPrefixes {
                 stored,
                 scenarios: scenarios.clone(),
             },
-        );
+        )
+        .with_open_partitions(open);
         let mut targets = BTreeMap::new();
         for e in &list.releases {
             if let Some(t) = &e.targets {
@@ -460,7 +508,9 @@ impl<S: PrefixSource> ServedModels<S> {
                     Authorship::DataInformed => "data-informed",
                 },
                 needs.join(", "),
-                if c.stored_runs {
+                if c.stored_runs && c.open_partitions.len() > 1 {
+                    "stored runs work, held-out validation and test runs included"
+                } else if c.stored_runs {
                     "stored runs work"
                 } else {
                     "stored runs are refused: only a scenario a person admitted in the forecast lab"
@@ -700,6 +750,47 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
 
     fn cards(&self, _: &ExecutionScope) -> ServiceResult<Vec<ModelCard>> {
         Ok(self.cards.clone())
+    }
+
+    fn stored_runs(&self, scope: &ExecutionScope, id: &ReleaseId) -> ServiceResult<StoredRunList> {
+        let release = self.served(id)?;
+        let card = self
+            .cards
+            .iter()
+            .find(|c| c.release_id.as_str() == release.id)
+            .expect("a served release has a card");
+        if !card.stored_runs || self.law.contains_key(&release.id) {
+            // Reads typed conditions only: no stored run is ever its input.
+            return Ok(StoredRunList {
+                schema_version: WspSchema::default(),
+                release_id: id.clone(),
+                split_id: release.split_id.clone(),
+                open_partitions: BTreeSet::new(),
+                open_reason: None,
+                runs: vec![],
+            });
+        }
+        let mut list = self.inner.stored_runs(scope, id)?;
+        if list.open_partitions.len() > 1 {
+            list.open_reason = card.open_reason.clone();
+        }
+        Ok(list)
+    }
+
+    fn opened_splits(&self) -> BTreeMap<String, BTreeSet<Partition>> {
+        let mut m: BTreeMap<String, BTreeSet<Partition>> = BTreeMap::new();
+        for (r, c) in self.records.iter().zip(&self.cards) {
+            let extra: BTreeSet<Partition> = c
+                .open_partitions
+                .iter()
+                .copied()
+                .filter(|p| *p != Partition::Train)
+                .collect();
+            if !extra.is_empty() {
+                m.entry(r.split_id.clone()).or_default().extend(extra);
+            }
+        }
+        m
     }
 
     fn admit_scenario(

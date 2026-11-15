@@ -20,7 +20,8 @@ use crate::{auto, cohort, paths, review, store, views};
 pub enum SourcesCmd {
     /// Fetch investigation metadata + file listing (read-only) and write the listing manifest.
     Inspect { investigations: Vec<String> },
-    /// Fetch the bounded representative sample set (< ~150 MB total) and update manifests.
+    /// Fetch the bounded sample set and update manifests: tables, FLEX test sheets and every FLEX
+    /// run's processed series, the representative ACME/BASS tests. No video, images or archives.
     Samples { investigations: Vec<String> },
     /// Full / bulk fetch. Dry-run by default (resource guard); prints bytes and estimated time.
     Fetch {
@@ -454,43 +455,25 @@ fn fetch_all(
     Ok(records)
 }
 
+/// Stage 2 of the FLEX samples: the test sheets fetched by stage 1 name each run's CIR test point;
+/// every run's processed series and CIR logs follow (`samples::flex_stage2`), whatever the fuel.
 fn flex_stage2(files: &[RemoteFile]) -> anyhow::Result<Vec<RemoteFile>> {
-    let mut sheets = vec![];
+    let sheet_re = Regex::new(r"^PSI-69_Raw Data_FLEX-(\d+)_TestSheet\.txt$").unwrap();
+    let mut per_run_cir: BTreeMap<String, String> = BTreeMap::new();
     for f in files {
+        let Some(c) = sheet_re.captures(&f.file_name) else {
+            continue;
+        };
         let p = paths::raw(Some("PSI-69")).join(&f.file_name);
-        if f.file_name.ends_with("_TestSheet.txt") && p.exists() {
+        let cir = if p.exists() {
             let ts = families::flex::parse_testsheet(&std::fs::read(&p)?);
-            if crate::text::lower(ts.get("fuel").unwrap_or("")).starts_with("methanol") {
-                sheets.push((f.file_name.clone(), ts));
-            }
-        }
+            ts.get("cir_test_number").unwrap_or("").trim().to_string()
+        } else {
+            String::new()
+        };
+        per_run_cir.insert(c[1].to_string(), cir);
     }
-    sheets.sort_by(|a, b| a.0.cmp(&b.0));
-    // Deterministic spread: first two methanol runs of every 6th test date (sorted), up to 14 runs.
-    let mut by_date: BTreeMap<String, Vec<&(String, families::flex::Sheet)>> = BTreeMap::new();
-    for s in &sheets {
-        by_date
-            .entry(
-                s.1.get("test_date")
-                    .filter(|d| !d.is_empty())
-                    .unwrap_or("?")
-                    .to_string(),
-            )
-            .or_default()
-            .push(s);
-    }
-    let mut dates: Vec<&String> = by_date.keys().collect();
-    dates.sort_by(|a, b| by_date[*a][0].0.cmp(&by_date[*b][0].0));
-    let num_re = Regex::new(r"FLEX-(\d+)_").unwrap();
-    let mut chosen: BTreeMap<String, String> = BTreeMap::new();
-    for d in dates.iter().step_by(6) {
-        for (name, ts) in by_date[*d].iter().take(2).map(|x| (&x.0, &x.1)) {
-            let num = num_re.captures(name).unwrap()[1].to_string();
-            chosen.insert(num, ts.get("cir_test_number").unwrap_or("").to_string());
-        }
-    }
-    let nums: Vec<String> = chosen.keys().take(14).cloned().collect();
-    Ok(smp::flex_stage2(files, &nums, &chosen))
+    Ok(smp::flex_stage2(files, &per_run_cir))
 }
 
 pub fn run_sources(cmd: SourcesCmd) -> anyhow::Result<()> {

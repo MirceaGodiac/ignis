@@ -1,0 +1,94 @@
+{
+  "$defs": {
+    "Partition": {
+      "description": "Partition of a frozen split. `Test` is the lockbox: only an evaluation scope may read it.",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "type": "string"
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "StoredRunEntry": {
+      "additionalProperties": false,
+      "description": "One stored run a release may forecast in this deployment, with its partition in the release's\nfrozen split. `held_out` = the partition is validation or test: no author of the release read\nthe run while writing it.",
+      "properties": {
+        "held_out": {
+          "type": "boolean"
+        },
+        "partition": {
+          "$ref": "#/$defs/Partition"
+        },
+        "run_id": {
+          "$ref": "#/$defs/RunId"
+        }
+      },
+      "required": [
+        "run_id",
+        "partition",
+        "held_out"
+      ],
+      "type": "object"
+    },
+    "WspSchema": {
+      "description": "Wire tag of model specs, patches, build manifests and forecast requests.",
+      "enum": [
+        "wsp.v1"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/StoredRunList",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The stored runs of a release's frozen split that the caller's scope may forecast with it\n(`GET /api/v1/models/{id}/runs`): every run of the partitions [`ModelCard::open_partitions`]\nnames. Empty for a release that reads no stored run.",
+  "properties": {
+    "open_partitions": {
+      "items": {
+        "$ref": "#/$defs/Partition"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "open_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "release_id": {
+      "$ref": "#/$defs/ReleaseId"
+    },
+    "runs": {
+      "items": {
+        "$ref": "#/$defs/StoredRunEntry"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/WspSchema"
+    },
+    "split_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_id",
+    "split_id",
+    "open_partitions",
+    "runs"
+  ],
+  "title": "StoredRunList",
+  "type": "object"
+}

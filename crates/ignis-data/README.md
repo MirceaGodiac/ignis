@@ -24,7 +24,7 @@ separate).
 
 ```bash
 ignis sources inspect [INV...]          # metadata + listing (read-only)
-ignis sources samples [INV...]          # bounded sample set (< ~150 MB)
+ignis sources samples [INV...]          # bounded sample set (no media; every FLEX series)
 ignis sources fetch <INV> [--pattern RE] [--category C] [--execute]
 ignis sources manifest <INV> [--verify]
 ignis sources intl list|inspect|manifest|fetch

@@ -8,7 +8,9 @@
 //! * The admitted prefix comes from a [`PrefixSource`]. The service tells the source the release
 //!   and the prospective policy of the release's own model, asks it first where the data comes from
 //!   ([`Provenance`]), checks that against the host's [`ExecutionScope`], and only then asks for the
-//!   prefix. A test-partition run is refused before its prefix is built.
+//!   prefix. A test-partition run is refused before its prefix is built, unless the deployment
+//!   opened that partition of the release to research scopes
+//!   ([`WspModelService::with_open_partitions`], from the served list, with its reason).
 //! * Scientific refusals of a forward are artifacts (`support.admitted = false`) and are returned as
 //!   they are. A forward that cannot run the release at all (no literal forward, forward or spec
 //!   mismatch) is an `unsupported` [`ErrorEnvelope`]: there is no artifact a forward produced.
@@ -25,7 +27,7 @@ use ignis_core::analysis::{build_run_prefix, validate_artifact};
 use ignis_core::contracts::{
     AnalysisArtifact, Capability, ErrorCode, ErrorEnvelope, EvidenceClass, ExecutionScope,
     ForecastInput, ForecastRequest, ModelRelease, Partition, PrefixBundle, ReleaseId, RetryPolicy,
-    RunId,
+    RunId, ScopeRole, StoredRunEntry, StoredRunList, WspSchema,
 };
 use ignis_core::expert::{Refusal, RefusalKind};
 use ignis_core::hashing::{hex_part, is_digest};
@@ -96,6 +98,18 @@ pub trait PrefixSource: Send + Sync {
         _run_id: &RunId,
     ) -> ServiceResult<Option<RunId>> {
         Ok(None)
+    }
+
+    /// Every stored run of the release's frozen split with its partition (no outcome is read).
+    /// The service filters it by what the scope may forecast.
+    fn runs(&self, release: &ModelRelease) -> ServiceResult<Vec<(RunId, Partition)>> {
+        Err(envelope(
+            ErrorCode::CapabilityUnavailable,
+            format!(
+                "this deployment cannot list the stored runs of split {}",
+                release.split_id
+            ),
+        ))
     }
 }
 
@@ -178,6 +192,20 @@ impl PrefixSource for MemoryPrefixes {
         input: &ForecastInput,
     ) -> ServiceResult<PrefixBundle> {
         Ok(self.find(input)?.0.clone())
+    }
+
+    fn runs(&self, _: &ModelRelease) -> ServiceResult<Vec<(RunId, Partition)>> {
+        let mut v: Vec<(RunId, Partition)> = self
+            .by_run
+            .values()
+            .filter_map(|(b, p)| match p {
+                Provenance::Partition(p) => RunId::new(b.run_id.clone()).ok().map(|r| (r, *p)),
+                Provenance::SyntheticFixture => None,
+            })
+            .collect();
+        v.sort_by(|a, b| a.0.as_str().cmp(b.0.as_str()));
+        v.dedup();
+        Ok(v)
     }
 }
 
@@ -342,6 +370,26 @@ impl<V: ViewSource + Send + Sync> PrefixSource for ViewSourcePrefixes<V> {
             })?;
         build_run_prefix(&archive, cutoff_s.get(), policy).map_err(envelope_of)
     }
+
+    fn runs(&self, release: &ModelRelease) -> ServiceResult<Vec<(RunId, Partition)>> {
+        let split = self.source.split(&release.split_id).map_err(|e| {
+            envelope(
+                ErrorCode::CapabilityUnavailable,
+                format!(
+                    "split {} of release {} is not available: {e:#}",
+                    release.split_id, release.id
+                ),
+            )
+        })?;
+        Ok(split
+            .run_to_group
+            .keys()
+            .filter_map(|r| {
+                let p = split.partition_of(r)?;
+                RunId::new(r.clone()).ok().map(|id| (id, p))
+            })
+            .collect())
+    }
 }
 
 // ---------------------------------------------------------------- the service
@@ -357,6 +405,9 @@ pub struct WspModelService<P> {
     /// Loaded releases by the hex part of their id. Only successful loads are kept.
     cache: Mutex<HashMap<String, Slot>>,
     loads: AtomicU64,
+    /// Partitions the deployment opened to research scopes, by release id (see
+    /// [`WspModelService::with_open_partitions`]).
+    open: HashMap<String, BTreeSet<Partition>>,
 }
 
 impl<P: PrefixSource> WspModelService<P> {
@@ -373,7 +424,30 @@ impl<P: PrefixSource> WspModelService<P> {
             policies,
             cache: Mutex::new(HashMap::new()),
             loads: AtomicU64::new(0),
+            open: HashMap::new(),
         }
+    }
+
+    /// Opens partitions of a release's split to research scopes (release id -> partitions): a
+    /// stored run of an opened partition is forecast for a research scope although its scope
+    /// grants only `train`. A deployment decision made in its served list, with a reason (e.g. the
+    /// final test was spent); evaluation and authoring scopes keep their own grants unchanged.
+    pub fn with_open_partitions(mut self, open: HashMap<String, BTreeSet<Partition>>) -> Self {
+        self.open = open;
+        self
+    }
+
+    /// May `scope` forecast a stored run of partition `p` with `release`?
+    pub fn may_forecast(
+        &self,
+        scope: &ExecutionScope,
+        release: &ModelRelease,
+        p: Partition,
+    ) -> bool {
+        scope.require_partition(p).is_ok()
+            || (scope.role == ScopeRole::Research
+                && scope.validate().is_ok()
+                && self.open.get(&release.id).is_some_and(|s| s.contains(&p)))
     }
 
     pub fn registry_root(&self) -> &Path {
@@ -574,7 +648,9 @@ impl<P: PrefixSource> ModelService for WspModelService<P> {
         };
         let provenance = self.prefixes.provenance(scope, release, &req.input)?;
         if let Provenance::Partition(p) = provenance {
-            scope.require_partition(p)?;
+            if !self.may_forecast(scope, release, p) {
+                scope.require_partition(p)?;
+            }
         }
         let prefix = self.prefixes.prefix(scope, release, policy, &req.input)?;
         check_prefix(&prefix, release, policy, &req.input, provenance)?;
@@ -582,5 +658,34 @@ impl<P: PrefixSource> ModelService for WspModelService<P> {
             crate::artifact_of(&loaded, &prefix, &req.settings.value()).map_err(envelope_of)?;
         validate_artifact(&artifact, release, &prefix).map_err(envelope_of)?;
         Ok(artifact)
+    }
+
+    fn stored_runs(&self, scope: &ExecutionScope, id: &ReleaseId) -> ServiceResult<StoredRunList> {
+        scope.require(Capability::ReadData)?;
+        let loaded = self.loaded(id)?;
+        let release = &loaded.release;
+        let open: BTreeSet<Partition> = [Partition::Train, Partition::Validation, Partition::Test]
+            .into_iter()
+            .filter(|p| self.may_forecast(scope, release, *p))
+            .collect();
+        let runs = self
+            .prefixes
+            .runs(release)?
+            .into_iter()
+            .filter(|(_, p)| open.contains(p))
+            .map(|(run_id, partition)| StoredRunEntry {
+                run_id,
+                partition,
+                held_out: partition != Partition::Train,
+            })
+            .collect();
+        Ok(StoredRunList {
+            schema_version: WspSchema::default(),
+            release_id: id.clone(),
+            split_id: release.split_id.clone(),
+            open_partitions: open,
+            open_reason: None,
+            runs,
+        })
     }
 }
