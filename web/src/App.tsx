@@ -6,6 +6,7 @@ import { DataProvider, useData } from "./shell/data";
 import { PanelProvider, usePanel } from "./shell/inspector";
 import { Panel } from "./shell/Panel";
 import { href, useRoute, VIEW_TITLE } from "./shell/router";
+import { Original } from "./views/Original";
 import { Sidebar } from "./shell/Sidebar";
 import { IconChevron, IconSearch } from "./shell/icons";
 import { useEpisodes } from "./shell/queries";
@@ -110,6 +111,7 @@ function Shell() {
         {route.view === "lab" && <Lab runId={route.id} />}
         {route.view === "sources" && <Sources key={route.params.get("q") ?? ""} initial={route.params.get("q")} />}
         {route.view === "models" && <Models />}
+        {route.view === "original" && <Original sourceId={route.id} params={route.params} />}
       </main>
       <Panel />
       <CommandMenu open={cmd} onClose={() => setCmd(false)} />

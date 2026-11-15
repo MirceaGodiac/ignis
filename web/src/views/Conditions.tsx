@@ -4,6 +4,7 @@
 //   2. Which conditions did each run record? (value with its original's locator, or an explicit gap)
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { OpenOriginal, locatorSource } from "../shell/OpenOriginal";
 import type { ConditionCell, ConditionKey, ConditionsTable, Measured, SourceLocator } from "../contracts/generated";
 import { axesOf, fitText, gravityStatus, HABITAT_LIST, PARTIAL_G, PSI_PA, rankFor, type EnvelopeAxes, type Fit, type Slot } from "../research/habitats";
 import { useData } from "../shell/data";
@@ -288,7 +289,10 @@ function CellDetail({ p }: { p: Picked }) {
             </>
           )}
           <dt>from</dt>
-          <dd>{locText(m.locator)}</dd>
+          <dd>
+            {locText(m.locator)}{" "}
+            {m.locator?.asset_sha256 && <OpenOriginal sourceId={locatorSource(m.locator)} loc={m.locator} title={m.locator.path ?? `${p.investigation} ${KEY_LABEL[c.key]}`} />}
+          </dd>
           {m.uncertainty_si != null && (
             <>
               <dt>uncertainty</dt>
