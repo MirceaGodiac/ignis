@@ -1,0 +1,1419 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-bass3-v1",
+  "family": "other",
+  "model_name": "bass3.wsp",
+  "target": {
+    "quantity": "mole_fraction",
+    "unit": "1",
+    "description": "Third law of the plastics (docs/wsp/research/phys_bass_study.md section 4, PROTOCOL 13.6): the seven bass2 features plus u_pot1 and is_one_sided. Derived by tools/wsp/ext/law_inputs.py from condition fields only. (MoleFraction is the first target with a shared quantity); targets: holds_low_flow, holds_high_flow, oxygen_limit, quench_speed, blowoff_speed, flat_holds_low_flow, flat_holds_high_flow, flat_quench_speed",
+    "excludes": [
+      "bass3:holds_low_flow (binary): lane-local target, not a shared quantity",
+      "bass3:holds_high_flow (binary): lane-local target, not a shared quantity",
+      "bass3:flat_holds_low_flow (binary): lane-local target, not a shared quantity",
+      "bass3:flat_holds_high_flow (binary): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "x_o2",
+      "unit": "1",
+      "source": "condition:x_o2",
+      "transform": "ln: ln(x / x.x_o2.centre) / x.x_o2.scale; refused unless x.x_o2.lo <= x <= x.x_o2.hi @1"
+    },
+    {
+      "name": "flow_speed",
+      "unit": "m/s",
+      "source": "condition:flow_speed",
+      "transform": "ln: ln(x / x.flow_speed.centre) / x.flow_speed.scale; refused unless x.flow_speed.lo <= x <= x.flow_speed.hi @1"
+    },
+    {
+      "name": "nose_radius",
+      "unit": "m",
+      "source": "condition:nose_radius",
+      "transform": "ln: ln(x / x.nose_radius.centre) / x.nose_radius.scale; refused unless x.nose_radius.lo <= x <= x.nose_radius.hi @1"
+    },
+    {
+      "name": "heat_time",
+      "unit": "s",
+      "source": "condition:heat_time",
+      "transform": "ln: ln(x / x.heat_time.centre) / x.heat_time.scale; refused unless x.heat_time.lo <= x <= x.heat_time.hi @1"
+    },
+    {
+      "name": "is_concurrent",
+      "unit": "1",
+      "source": "condition:is_concurrent",
+      "transform": "identity: (x - x.is_concurrent.centre) / x.is_concurrent.scale; refused unless x.is_concurrent.lo <= x <= x.is_concurrent.hi @1"
+    },
+    {
+      "name": "is_rod",
+      "unit": "1",
+      "source": "condition:is_rod",
+      "transform": "identity: (x - x.is_rod.centre) / x.is_rod.scale; refused unless x.is_rod.lo <= x <= x.is_rod.hi @1"
+    },
+    {
+      "name": "flat_thickness",
+      "unit": "m",
+      "source": "condition:flat_thickness",
+      "transform": "ln: ln(x / x.flat_thickness.centre) / x.flat_thickness.scale; refused unless x.flat_thickness.lo <= x <= x.flat_thickness.hi @1"
+    },
+    {
+      "name": "u_pot1",
+      "unit": "m/s",
+      "source": "condition:u_pot1",
+      "transform": "ln: ln(x / x.u_pot1.centre) / x.u_pot1.scale; refused unless x.u_pot1.lo <= x <= x.u_pot1.hi @1"
+    },
+    {
+      "name": "is_one_sided",
+      "unit": "1",
+      "source": "condition:is_one_sided",
+      "transform": "identity: (x - x.is_one_sided.centre) / x.is_one_sided.scale; refused unless x.is_one_sided.lo <= x <= x.is_one_sided.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.x_o2.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_o2."
+    },
+    {
+      "name": "x.x_o2.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_o2."
+    },
+    {
+      "name": "x.x_o2.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_o2 (raw SI value)."
+    },
+    {
+      "name": "x.x_o2.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_o2 (raw SI value)."
+    },
+    {
+      "name": "x.flow_speed.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of flow_speed."
+    },
+    {
+      "name": "x.flow_speed.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of flow_speed."
+    },
+    {
+      "name": "x.flow_speed.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of flow_speed (raw SI value)."
+    },
+    {
+      "name": "x.flow_speed.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of flow_speed (raw SI value)."
+    },
+    {
+      "name": "x.nose_radius.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of nose_radius."
+    },
+    {
+      "name": "x.nose_radius.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of nose_radius."
+    },
+    {
+      "name": "x.nose_radius.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of nose_radius (raw SI value)."
+    },
+    {
+      "name": "x.nose_radius.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of nose_radius (raw SI value)."
+    },
+    {
+      "name": "x.heat_time.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of heat_time."
+    },
+    {
+      "name": "x.heat_time.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of heat_time."
+    },
+    {
+      "name": "x.heat_time.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of heat_time (raw SI value)."
+    },
+    {
+      "name": "x.heat_time.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of heat_time (raw SI value)."
+    },
+    {
+      "name": "x.is_concurrent.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_concurrent."
+    },
+    {
+      "name": "x.is_concurrent.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_concurrent."
+    },
+    {
+      "name": "x.is_concurrent.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_concurrent (raw SI value)."
+    },
+    {
+      "name": "x.is_concurrent.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_concurrent (raw SI value)."
+    },
+    {
+      "name": "x.is_rod.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_rod."
+    },
+    {
+      "name": "x.is_rod.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_rod."
+    },
+    {
+      "name": "x.is_rod.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_rod (raw SI value)."
+    },
+    {
+      "name": "x.is_rod.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_rod (raw SI value)."
+    },
+    {
+      "name": "x.flat_thickness.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of flat_thickness."
+    },
+    {
+      "name": "x.flat_thickness.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of flat_thickness."
+    },
+    {
+      "name": "x.flat_thickness.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of flat_thickness (raw SI value)."
+    },
+    {
+      "name": "x.flat_thickness.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of flat_thickness (raw SI value)."
+    },
+    {
+      "name": "x.u_pot1.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of u_pot1."
+    },
+    {
+      "name": "x.u_pot1.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of u_pot1."
+    },
+    {
+      "name": "x.u_pot1.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of u_pot1 (raw SI value)."
+    },
+    {
+      "name": "x.u_pot1.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of u_pot1 (raw SI value)."
+    },
+    {
+      "name": "x.is_one_sided.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_one_sided."
+    },
+    {
+      "name": "x.is_one_sided.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_one_sided."
+    },
+    {
+      "name": "x.is_one_sided.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_one_sided (raw SI value)."
+    },
+    {
+      "name": "x.is_one_sided.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_one_sided (raw SI value)."
+    },
+    {
+      "name": "holds_low_flow.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(holds_low_flow) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "holds_low_flow.logit.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(holds_low_flow) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "holds_low_flow.logit.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(holds_low_flow); row j reads z in feature order."
+    },
+    {
+      "name": "holds_low_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(holds_low_flow) (hinge positions)."
+    },
+    {
+      "name": "holds_low_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(holds_low_flow)."
+    },
+    {
+      "name": "holds_high_flow.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(holds_high_flow) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "holds_high_flow.logit.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(holds_high_flow) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "holds_high_flow.logit.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(holds_high_flow); row j reads z in feature order."
+    },
+    {
+      "name": "holds_high_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(holds_high_flow) (hinge positions)."
+    },
+    {
+      "name": "holds_high_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(holds_high_flow)."
+    },
+    {
+      "name": "oxygen_limit.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(1)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median oxygen_limit / 1 1) at z = 0 before hinge terms (ln(1))."
+    },
+    {
+      "name": "oxygen_limit.median.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median oxygen_limit / 1 1) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "oxygen_limit.median.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median oxygen_limit / 1 1); row j reads z in feature order."
+    },
+    {
+      "name": "oxygen_limit.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median oxygen_limit / 1 1) (hinge positions)."
+    },
+    {
+      "name": "oxygen_limit.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median oxygen_limit / 1 1)."
+    },
+    {
+      "name": "oxygen_limit.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of oxygen_limit at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "oxygen_limit.spread.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of oxygen_limit on z, in feature order; every element is stated."
+    },
+    {
+      "name": "oxygen_limit.spread.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of oxygen_limit; row j reads z in feature order."
+    },
+    {
+      "name": "oxygen_limit.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of oxygen_limit (hinge positions)."
+    },
+    {
+      "name": "oxygen_limit.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of oxygen_limit."
+    },
+    {
+      "name": "oxygen_limit.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of oxygen_limit (0: one log-normal)."
+    },
+    {
+      "name": "oxygen_limit.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of oxygen_limit over that of the core (1: no wider component)."
+    },
+    {
+      "name": "quench_speed.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m/s)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median quench_speed / 1 m/s) at z = 0 before hinge terms (ln(m/s))."
+    },
+    {
+      "name": "quench_speed.median.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median quench_speed / 1 m/s) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "quench_speed.median.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median quench_speed / 1 m/s); row j reads z in feature order."
+    },
+    {
+      "name": "quench_speed.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median quench_speed / 1 m/s) (hinge positions)."
+    },
+    {
+      "name": "quench_speed.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median quench_speed / 1 m/s)."
+    },
+    {
+      "name": "quench_speed.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of quench_speed at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "quench_speed.spread.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of quench_speed on z, in feature order; every element is stated."
+    },
+    {
+      "name": "quench_speed.spread.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of quench_speed; row j reads z in feature order."
+    },
+    {
+      "name": "quench_speed.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of quench_speed (hinge positions)."
+    },
+    {
+      "name": "quench_speed.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of quench_speed."
+    },
+    {
+      "name": "quench_speed.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of quench_speed (0: one log-normal)."
+    },
+    {
+      "name": "quench_speed.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of quench_speed over that of the core (1: no wider component)."
+    },
+    {
+      "name": "blowoff_speed.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m/s)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median blowoff_speed / 1 m/s) at z = 0 before hinge terms (ln(m/s))."
+    },
+    {
+      "name": "blowoff_speed.median.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median blowoff_speed / 1 m/s) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "blowoff_speed.median.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median blowoff_speed / 1 m/s); row j reads z in feature order."
+    },
+    {
+      "name": "blowoff_speed.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median blowoff_speed / 1 m/s) (hinge positions)."
+    },
+    {
+      "name": "blowoff_speed.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median blowoff_speed / 1 m/s)."
+    },
+    {
+      "name": "blowoff_speed.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of blowoff_speed at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "blowoff_speed.spread.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of blowoff_speed on z, in feature order; every element is stated."
+    },
+    {
+      "name": "blowoff_speed.spread.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of blowoff_speed; row j reads z in feature order."
+    },
+    {
+      "name": "blowoff_speed.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of blowoff_speed (hinge positions)."
+    },
+    {
+      "name": "blowoff_speed.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of blowoff_speed."
+    },
+    {
+      "name": "blowoff_speed.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of blowoff_speed (0: one log-normal)."
+    },
+    {
+      "name": "blowoff_speed.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of blowoff_speed over that of the core (1: no wider component)."
+    },
+    {
+      "name": "flat_holds_low_flow.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(flat_holds_low_flow) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "flat_holds_low_flow.logit.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(flat_holds_low_flow) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flat_holds_low_flow.logit.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(flat_holds_low_flow); row j reads z in feature order."
+    },
+    {
+      "name": "flat_holds_low_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(flat_holds_low_flow) (hinge positions)."
+    },
+    {
+      "name": "flat_holds_low_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(flat_holds_low_flow)."
+    },
+    {
+      "name": "flat_holds_high_flow.logit.b0",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "logit(1)",
+      "bounds": {
+        "min": -40.0,
+        "max": 40.0
+      },
+      "description": "Value of the logit of P(flat_holds_high_flow) at z = 0 before hinge terms (logit(1))."
+    },
+    {
+      "name": "flat_holds_high_flow.logit.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the logit of P(flat_holds_high_flow) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flat_holds_high_flow.logit.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the logit of P(flat_holds_high_flow); row j reads z in feature order."
+    },
+    {
+      "name": "flat_holds_high_flow.logit.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the logit of P(flat_holds_high_flow) (hinge positions)."
+    },
+    {
+      "name": "flat_holds_high_flow.logit.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the logit of P(flat_holds_high_flow)."
+    },
+    {
+      "name": "flat_quench_speed.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(m/s)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median flat_quench_speed / 1 m/s) at z = 0 before hinge terms (ln(m/s))."
+    },
+    {
+      "name": "flat_quench_speed.median.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median flat_quench_speed / 1 m/s) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flat_quench_speed.median.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median flat_quench_speed / 1 m/s); row j reads z in feature order."
+    },
+    {
+      "name": "flat_quench_speed.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median flat_quench_speed / 1 m/s) (hinge positions)."
+    },
+    {
+      "name": "flat_quench_speed.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median flat_quench_speed / 1 m/s)."
+    },
+    {
+      "name": "flat_quench_speed.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of flat_quench_speed at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "flat_quench_speed.spread.skip",
+      "shape": [
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of flat_quench_speed on z, in feature order; every element is stated."
+    },
+    {
+      "name": "flat_quench_speed.spread.W1",
+      "shape": [
+        8,
+        9
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of flat_quench_speed; row j reads z in feature order."
+    },
+    {
+      "name": "flat_quench_speed.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of flat_quench_speed (hinge positions)."
+    },
+    {
+      "name": "flat_quench_speed.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of flat_quench_speed."
+    },
+    {
+      "name": "flat_quench_speed.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of flat_quench_speed (0: one log-normal)."
+    },
+    {
+      "name": "flat_quench_speed.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of flat_quench_speed over that of the core (1: no wider component)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/bass3/decl.json (status Declared): {\"slug\":\"bass3\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-26 BASS and PSI-25 BASS-II (non-fabric solids): PMMA rods, spheres, spherical sections, films and slabs in a slow duct flow in the Microgravity Science Glovebox\",\"description\":\"Third law of the plastics (docs/wsp/research/phys_bass_study.md section 4, PROTOCOL 13.6): the seven bass2 features plus u_pot1 and is_one_sided. Derived by tools/wsp/ext/law_inputs.py from condition fields only.\",\"features\":[{\"name\":\"x_o2\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"oxygen mole fraction of the gas entering the duct during the step\"},{\"name\":\"flow_speed\",\"unit\":\"m/s\",\"transform\":\"ln\",\"description\":\"duct speed of the step\"},{\"name\":\"nose_radius\",\"unit\":\"m\",\"transform\":\"ln\",\"description\":\"radius of the rod, sphere or spherical section as installed; 0.01 for a flat sample (weight zero in the flat targets)\"},{\"name\":\"heat_time\",\"unit\":\"s\",\"transform\":\"ln\",\"description\":\"time from ignition of this burn to the end of the step (for quench and blow-off speeds: to the event); 200 where it is not recorded\"},{\"name\":\"is_concurrent\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"flat samples: 1 if the flame spreads with the flow, 0 against it; 0 for rods and spheres\"},{\"name\":\"is_rod\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 if the sample is a rod (any flow configuration); 0 for spheres, sections and flat samples\"},{\"name\":\"flat_thickness\",\"unit\":\"m\",\"transform\":\"ln\",\"description\":\"flat samples: thickness as installed; rods, spheres and sections: 0.0005 (weight zero)\"},{\"name\":\"u_pot1\",\"unit\":\"m/s\",\"transform\":\"ln\",\"description\":\"the burn's fan curve at fan display 46.5 (pot 1), m/s\"},{\"name\":\"is_one_sided\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"flat samples: 1 if sides_burning is 1, else 0; rods, spheres, sections: 0\"}],\"targets\":[{\"name\":\"holds_low_flow\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"rod tip or sphere: flame not quenched by heat loss at the end of the step\"},{\"name\":\"holds_high_flow\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"rod tip or sphere: stagnation flame not blown off\"},{\"name\":\"oxygen_limit\",\"kind\":\"positive\",\"unit\":\"1\",\"shared_quantity\":\"mole_fraction\",\"causes\":[],\"scheduled_stop\":null,\"description\":\"rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time\"},{\"name\":\"quench_speed\",\"kind\":\"positive\",\"unit\":\"m/s\",\"shared_quantity\":\"flow_velocity\",\"causes\":[],\"scheduled_stop\":null,\"description\":\"rod tip or sphere: duct speed below which the flame goes out\"},{\"name\":\"blowoff_speed\",\"kind\":\"positive\",\"unit\":\"m/s\",\"shared_quantity\":\"flow_velocity\",\"causes\":[],\"scheduled_stop\":null,\"description\":\"rod tip or sphere: duct speed at which the stagnation flame blows off\"},{\"name\":\"flat_holds_low_flow\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"film or slab: flame not quenched\"},{\"name\":\"flat_holds_high_flow\",\"kind\":\"binary\",\"unit\":null,\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"film or slab: flame not blown off\"},{\"name\":\"flat_quench_speed\",\"kind\":\"positive\",\"unit\":\"m/s\",\"shared_quantity\":\"flow_velocity\",\"causes\":[],\"scheduled_stop\":null,\"description\":\"film or slab: duct speed below which the flame goes out\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

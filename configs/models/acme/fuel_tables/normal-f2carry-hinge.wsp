@@ -1,0 +1,16 @@
+# The fuel table of the NEUTRAL CARRY of F2 on acme_normal.wsp13, HINGE members: the seven columns of
+# configs/models/acme/fuel_tables/normal-f2-hinge.wsp unchanged, the new columns inert (fuel.dtad_k 0,
+# fuel.k_rel 1, fuel.zst0 1, fuel.gz 0) and fuel.sigma the property values of the dossier (read only for
+# blends, which this table refuses since hydrogen is not admitted). Not a candidate.
+fuel.admit[0:6] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
+fuel.mw_g_mol[0:6] = [30.07, 44.1, 58.12, 28.054, 16.043, 2.016]
+fuel.s[0:6] = [0.0, 0.0, 0.0, -0.31, 0.068, 0.757]
+fuel.se_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 0.0], [0.0, 0.0]]
+fuel.ft_coord[0:6, 0:2] = [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.9, -0.9], [0.0, 0.0]]
+fuel.dosc[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+fuel.tad_min_k[0:6] = [0.0, 0.0, 0.0, 1900.0, 1900.0, 0.0]
+fuel.sigma[0:6] = [3.725, 3.628, 3.579, 3.422, 3.989, 7.936]
+fuel.dtad_k[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+fuel.k_rel[0:6] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+fuel.zst0[0:6] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+fuel.gz[0:6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

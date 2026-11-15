@@ -1,0 +1,25 @@
+{
+ "slug": "efield",
+ "candidate": "e1-fable",
+ "label": "E1",
+ "edits": "runs/dev/gen7/study/efield_e1.wsp",
+ "edits_sha256": "9c4344adf3598741e0d769d77f2e94acd3de4eceb760e91cde485f5dab6ed39b",
+ "study": "docs/wsp/research/phys_efield_study.md",
+ "study_sha256": "573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e",
+ "parent": "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+ "release": "sha256:dbb4bd6453a2870ddbc6c34125b38068dd6b83da87025b2ae170aa0f25b873b0",
+ "elements_written": 31,
+ "elements_written_equal_to_parent": [
+  "('ion_current.median.W1', (0, 5))",
+  "('ion_current.median.W1', (0, 6))",
+  "('ion_current.median.W1', (1, 5))",
+  "('ion_current.median.W1', (1, 6))",
+  "('ion_current.median.skip', (2,))",
+  "('ion_current.median.skip', (5,))",
+  "('ion_current.median.skip', (6,))",
+  "('ion_current.median.w2', (0,))"
+ ],
+ "elements_differing_from_parent": 23,
+ "differing_not_written": [],
+ "mismatches": {}
+}

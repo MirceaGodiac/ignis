@@ -1,0 +1,111 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bre-v1-d2-fable",
+  "spec_hash": "sha256:a27a3dafa38c9824a7335b7fc7581011e275e01713abfa171e926df8b63d9248",
+  "parent_release_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bre2.md(sha256:23372bd3a57c733bab552e53815b289672646350d51b14712b275aa0d07b6ebb)",
+      "repo:docs/wsp/feedback/gen7_failure_analysis.md"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bre-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-and-13.3-validation-aggregates"
+    ],
+    "prior_candidates": [
+      "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "lasts.logit.skip",
+      "index": [
+        3
+      ],
+      "value": -1.72
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        3
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": 0.13
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        6,
+        3
+      ],
+      "shape": [
+        2,
+        1
+      ],
+      "value": 0.8
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.median.skip",
+      "index": [
+        3
+      ],
+      "value": -0.15
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        3
+      ],
+      "shape": [
+        5,
+        1
+      ],
+      "value": -0.43
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        5,
+        3
+      ],
+      "shape": [
+        2,
+        1
+      ],
+      "value": 0.8
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.median.skip",
+      "index": [
+        3
+      ],
+      "value": -0.43
+    }
+  ],
+  "rationale": "bre d2-fable (PROTOCOL 13.4): docs/wsp/research/phys_bre2.md (sha256 23372bd3a57c733bab552e53815b289672646350d51b14712b275aa0d07b6ebb), the changed lines verbatim as a revision of W0. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "origin": "system"
+}

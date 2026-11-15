@@ -1,0 +1,7 @@
+# bass3 S1: runs/dev/gen7/study/bass3_s1.wsp (sha256 cb27400ba1f53214164fb66b88282cf0a305bf9063ccaeafe824730ffa2f6f45), verbatim, a revision of
+# bass3 s1-fable sha256:a1eb577a…03d1 (docs/wsp/research/phys_bass_study2.md); every other number is the parent's.
+# S1 (bass physicist, PROTOCOL 13.6): kept burning, one-sided slabs.
+# A slab burning on one side dies at 19.7, 21.2, 21.6 % oxygen (M3, M2, M14, the oxygen read after the burn):
+# its floor for keeping a flame is 21 %, not the film's 13.8 %. l_f - l_os = 20 ln(0.21 / 0.138) = 8.40.
+flat_holds_low_flow.logit.W1[1, 8] = 8.40
+flat_holds_low_flow.logit.w2[1] = -1.0

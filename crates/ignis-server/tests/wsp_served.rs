@@ -22,7 +22,7 @@ use tower::ServiceExt;
 
 const FLEX_METHANOL: &str =
     "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce";
-const ACME_NORMAL: &str = "sha256:55fcf4cbbf500ca57a4e4207426826d5c3d3b21d84fb279479e29b7e5a65971d";
+const ACME_NORMAL: &str = "sha256:d1660331c1f96091dad7f6f148c08f50db0cd03317b6c1dec458bd92696a45aa";
 const ACME_INVERSE: &str =
     "sha256:dff7da0da8e77785acecc0ffb5acaf222358d4274b36e2c52f39426aaebd594e";
 const BASS_FRONT: &str = "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c";
@@ -209,15 +209,11 @@ async fn served_releases_and_cards_are_listed_honestly() {
             BASS_FRONT
         ]
     );
-    assert_eq!(
-        ids.len(),
-        14,
-        "five family releases and nine generic-law releases"
-    );
+    assert_eq!(ids.len(), 15, "the final release of every investigation");
     let (st, cards) = http(&h, "GET", "/model-cards", None).await;
     assert_eq!(st, StatusCode::OK, "{cards}");
     let cards: Vec<ModelCard> = serde_json::from_value(cards).unwrap();
-    assert_eq!(cards.len(), 14);
+    assert_eq!(cards.len(), 15);
     for (c, r) in cards.iter().zip(&releases) {
         assert_eq!(c.release_id.as_str(), r.id);
         assert_eq!(c.trained_on, TrainedOn::NotTrained);
@@ -359,7 +355,35 @@ async fn typed_scenarios_run_the_strict_forward_of_each_family_type() {
         .await;
         assert_eq!(st, StatusCode::OK, "{}: {a}", card.model_name);
         let hash = a["input_hash"].as_str().unwrap().to_string();
+        let list = ignis_wsp_serve::ServedList::read(&served_dir().join("served.json")).unwrap();
+        let served = list
+            .releases
+            .iter()
+            .find(|e| e.release_id == card.release_id)
+            .and_then(|e| e.targets.clone());
         for t in &ignis_wsp::law::decl(i).targets {
+            if served.as_ref().is_some_and(|s| !s.contains(&t.name)) {
+                // A declared target that is not the model is refused, never forecast.
+                let (_, tr) = http(
+                    &h,
+                    "POST",
+                    "/analyses",
+                    Some(json!({"schema_version": "wsp.v1",
+                    "release_id": card.release_id, "input": {"kind": "prefix", "input_hash": hash},
+                    "settings": {"target": t.name, "times_s": [1.0, 10.0, 100.0]},
+                    "client_request_id": format!("{}-{}-refused", card.model_name, t.name)})),
+                )
+                .await;
+                let job = finished(&h, tr["job"]["job_id"].as_str().unwrap()).await;
+                assert_eq!(
+                    job.status,
+                    JobStatus::Failed,
+                    "{} {}",
+                    card.model_name,
+                    t.name
+                );
+                continue;
+            }
             let (st, tr) = http(
                 &h,
                 "POST",
@@ -417,7 +441,7 @@ async fn stored_runs_respect_the_partition_and_the_mcp_tools_reach_the_forward()
     for name in ["models_inspect", "models_forecast"] {
         let t = tools.iter().find(|t| t.descriptor.name == name).unwrap();
         assert!(t.unavailable.is_none());
-        assert!(t.descriptor.summary.contains("acme_normal.wsp12"), "{name}");
+        assert!(t.descriptor.summary.contains("acme_normal.wsp13"), "{name}");
         assert!(
             t.descriptor.summary.contains("never substitute a number") || name == "models_inspect"
         );

@@ -1,0 +1,32 @@
+{
+ "slug": "spice",
+ "candidate": "p2-fable",
+ "label": "P2",
+ "edits": "runs/dev/gen7/study/spice_p2.wsp",
+ "edits_sha256": "63530856c22440ae2096655f03d1e9343538799161cd504ff6e92b065d98105c",
+ "study": "docs/wsp/research/phys_spice_study.md",
+ "study_sha256": "df53f43e936b41877b3ed74c0d611d4ff2975174a78396fe3ca5a10027185bcb",
+ "parent": "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8",
+ "release": "sha256:f1fe69f0956eddbbc4333187b1668d0e3b8e6ddc8af649872408e99581e3258a",
+ "elements_written": 55,
+ "elements_written_equal_to_parent": [
+  "('flame_length.median.W1', (2, 2))",
+  "('flame_length.median.W1', (3, 2))",
+  "('flame_length.median.W1', (4, 1))",
+  "('flame_length.median.W1', (4, 5))",
+  "('smoke_point_length.median.W1', (0, 2))",
+  "('smoke_point_length.median.W1', (0, 6))",
+  "('smoke_point_length.median.W1', (1, 1))",
+  "('smoke_point_length.median.W1', (1, 2))",
+  "('smoke_point_length.median.W1', (1, 6))",
+  "('smoke_point_length.median.b0', ())",
+  "('smoke_point_length.median.skip', (0,))",
+  "('smoke_point_length.median.skip', (1,))",
+  "('smoke_point_length.median.skip', (2,))",
+  "('smoke_point_length.median.skip', (6,))",
+  "('smoke_point_length.median.w2', (0,))"
+ ],
+ "elements_differing_from_parent": 40,
+ "differing_not_written": [],
+ "mismatches": {}
+}

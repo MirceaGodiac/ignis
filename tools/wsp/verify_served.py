@@ -21,6 +21,7 @@ KEYS = {
     "flex_methanol.wsp2": "flex_methanol2",
     "flex_heptane.wsp2": "flex_heptane2",
     "acme_normal.wsp12": "acme_normal12",
+    "acme_normal.wsp13": "acme_normal13",
     "acme_inverse.wsp12": "acme_inverse12",
     "bass_front.wsp": "bass_front",
 }

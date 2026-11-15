@@ -1,0 +1,15 @@
+{
+  "patch_id": "law-bass3-v1-root",
+  "author": {
+    "provider": "ignis",
+    "model_id": "ignis-wsp-law-root"
+  },
+  "exposure": {
+    "sources": [],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "rationale": "Neutral root of a law slug, generated from the spec alone by `ignis wsp law-root`: no claim (no feature weight, no hinge, the widest spread and clock shapes the spec allows, domain at the tensor bounds). A lineage root for literal revisions; never a candidate.",
+  "origin": "system"
+}

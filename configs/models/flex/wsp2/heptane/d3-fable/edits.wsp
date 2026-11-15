@@ -1,0 +1,75 @@
+# flex_heptane.wsp2 — D3 literal revision of D2 sha256:43f7871f…588d, spec flex_heptane-wsp-v2
+# Author: claude-fable-5-2 (Anthropic). DATA-INFORMED, not zero-shot. No fit, no search: every number
+# below was typed by the author. One law is revised, the cool-flame burning rate; everything else is
+# D2 unchanged, on the same frozen forward (droplet3.rs).
+#
+# What was read (full list in meta.json): the n-heptane TRAIN runs (conditions, series, test sheets,
+# narratives), re-measured by the author on 15 November; the physics dossier of the fifth generation
+# and its independent train-only check (docs/wsp/research/phys_flex_heptane.md,
+# docs/wsp/feedback/verify_phys_flex_heptane.md); the train feedback of D2; the aggregate validation
+# tables of the earlier candidates. EXPOSED AND NOT USED: the trajectory of the validation run
+# FLEX-035 (PSI-69:181F001:2009-11-27), studied in detail on 15 November for the comparison with
+# Farouk & Dryer (docs/wsp/RESULTS_POINT_METRICS.md). That study is why this law was looked at again.
+# It set no number: the five statements below are the cool-rate block of flex_heptane.wsp5 P0
+# (configs/models/flex/wsp5/heptane/p0-fable/edits.wsp, lines 27-31), typed on 14 November from the
+# train runs before FLEX-035 was opened, and copied here digit for digit.
+#
+# c = (c_o2, c_co2, c_he, c_logp, c_logd0):
+#   c_o2 = (x_O2 - 0.21)/0.05   c_co2 = x_CO2/0.20   c_he = x_He/0.20
+#   c_logp = ln(p / 1e5 Pa)     c_logd0 = ln(D0 / 2 mm)
+# N(x) = b0 + skip . x + sum_j w2[j] * relu(b1[j] + W1[j, :] . x)
+
+# =====================================================================================================
+# The cool-flame burning rate, ln(K_c / 1 mm2/s) = N_cool_k(c)   [D3]
+# =====================================================================================================
+# Mechanism. A cool flame sits at a fixed flame temperature (600-800 K, set by low-temperature
+# chemistry), so the heat reaching the droplet depends on the conductivity of the gas and not on how
+# much oxygen it holds (published quasi-steady theory, Williams and Nayagam 2019). D2 carried
+# +0.2 per 5 % of oxygen, +0.1 per e-fold of pressure, -0.05 per 20 % of CO2 and +0.2 per e-fold of
+# initial diameter, from the literature scalings of W0.
+#
+# Train, the sustained cool flames (mm2/s, finite differences over the steady stage; the author's
+# table of 15 November agrees with the independent table of 14 November within about 0.01):
+#   15 % O2            2.55 mm  0.31-0.32
+#   16 % O2            3.34 mm  0.34      2.52 mm  0.33
+#   17 % O2, 20 % CO2  3.76 mm  0.35      2.90 mm  0.35
+#   18 % O2            3.43 mm  0.36
+#   18 % O2, 15 % CO2  3.74 mm  0.35      2.40 mm  0.34
+#   19 % O2, 10 % CO2  3.40 mm  0.36      2.48 mm  0.31-0.32 (no steady stage)
+#   23 % O2, 25 % CO2, 0.7 atm  3.32 mm  0.36
+#   24 % O2, 20 % CO2, 0.7 atm  3.53 mm  0.34
+# Twelve runs in nine sessions: 0.31-0.36, no trend beyond 0.02 in oxygen from 15 to 24 %, in CO2 from
+# 0 to 25 % or between 0.7 and 1 atm. D2 is right at 15-16 % and runs away from there: 0.375 at 18 %
+# (measured 0.36), 0.41 and 0.44 for the two runs at 0.7 atm (measured 0.36 and 0.34), and 0.43 for a
+# 3.85 mm droplet in air, an atmosphere where no train run holds a cool flame in nitrogen alone.
+# Size: three same-atmosphere pairs give exponents 0.16, 0.10 and -0.05; droplets of 3.3 mm and more
+# sit 0.015 above smaller ones. 0.15 instead of 0.2.
+#
+# Typed: 0.325 mm2/s at the 2 mm reference (0.345 at 3 mm, 0.358 at 3.85 mm), size exponent 0.15, no
+# oxygen, CO2 or pressure term up to 1 atm. With it the twelve runs sit within 6 % by the independent
+# table (D2: within 6 % for nine, then +11, +15 and +29 %). The price is at 15 to 17 % of oxygen, where
+# D2 was within 2 % and this law is 2 to 6 % fast (the flame is near its oxygen limit at 15 %, and at
+# 14 % it does not hold).
+cool.k.b0 = -1.125
+# Helium raises the conductivity: theory 1.21 times at 15 %; the one train run with a cool flame in
+# helium (H19H101, 15 %, whose sheet and table disagree on its atmosphere; its hot-flame rate is 12 to
+# 18 % above the air law, which is what 15 % of helium gives) burned at 0.43 where this gives 0.41.
+# +0.2 per 20 % of helium (D2: +0.14).
+cool.k.skip[0:5] = [0.0, 0.0, 0.2, 0.0, 0.15]
+# Above 1 atm a hotter flame takes over and burns faster (published numerical work; 0.47-0.52 mm2/s in
+# the one train run at 2 atm, where D2 gave 0.37): +0.5 per e-fold of pressure above 1e5 Pa, which
+# gives 0.49 at 2 atm. One run, and it is the run the number comes from.
+cool.k.W1[0, 3] = 1.0
+cool.k.b1[0] = 0.0
+cool.k.w2[0] = 0.5
+
+# Not changed, and why (docs/wsp/RESULTS_HEPTANE_D3.md):
+#   - The radiative clock and the critical diameter. On train the clock of D2 is within 0.13 (in ln)
+#     for twelve of the thirteen nitrogen and CO2 runs at 1 atm, and no air run above 3.36 mm lost
+#     its flame to radiation (3.56 and 3.58 mm oscillated and burned on, both drifting fast). Nothing
+#     in a prefix of diameters separates the near-critical runs that lost the flame from those that
+#     kept it (prefix rate ratios 0.91-1.03 against 0.88-1.10). The input that does order them, the
+#     drift of the droplet, is not among the prefix observations.
+#   - The width of the clock (rad.sharp) and the class sharpness: the train residual is a third of
+#     the width, but widths are not set from the runs a law was typed from (PROTOCOL 8, 12.3).
+#   - The point forecast stays the median of the predictive distribution (no forward change).

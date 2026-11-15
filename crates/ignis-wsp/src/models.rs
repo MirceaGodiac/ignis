@@ -26,6 +26,7 @@ use crate::{
 use crate::{astra_tools, condition_committee, droplet7, front3, front4};
 use crate::{committee2, flame4};
 use crate::{committee3, flame5, flame6, flame7};
+use crate::{committee4, flame10, flame8, flame9};
 // bass_front.wsp5
 use crate::{droplet8, droplet8_tools};
 use crate::{droplet9, droplet9_tools};
@@ -84,6 +85,15 @@ pub enum Forward {
     Flame7,
     /// `committee3.rs`: the committee of `committee2.rs` with `flame5`, `flame6`, `flame7` members.
     Committee3,
+    /// `flame8.rs`: the hinge laws reading the second fuel table and the diluent table.
+    Flame8,
+    /// `flame9.rs`: the growth laws with the second tables and the heating law of phys_sflame_f3.md.
+    Flame9,
+    /// `flame10.rs`: the hinge laws with the heating law, the second tables and its new terms.
+    Flame10,
+    /// `committee4.rs`: the committee of `committee3.rs` with `flame8`, `flame9`, `flame10` members
+    /// and two oxygen candidates.
+    Committee4,
     /// `front5.rs`: the tip of `front.rs` with the boundary law of ignition and quench.
     Front5,
     /// `droplet8.rs`: the law of `droplet6.rs` for eight fuels, with the domain of CFI and FLEX-2.
@@ -117,7 +127,7 @@ const fn model(
     }
 }
 
-pub const MODELS: [Model; 62] = [
+pub const MODELS: [Model; 66] = [
     model("flex", "flex.wsp", Family::Flex, Forward::Flex1),
     model(
         "acme_normal",
@@ -360,6 +370,30 @@ pub const MODELS: [Model; 62] = [
         Family::AcmeInverse,
         Forward::Committee3,
     ),
+    model(
+        "acme_normal13",
+        "acme_normal.wsp13",
+        Family::AcmeNormal,
+        Forward::Committee4,
+    ),
+    model(
+        "acme_normal14",
+        "acme_normal.wsp14",
+        Family::AcmeNormal,
+        Forward::Flame8,
+    ),
+    model(
+        "acme_normal15",
+        "acme_normal.wsp15",
+        Family::AcmeNormal,
+        Forward::Flame9,
+    ),
+    model(
+        "acme_normal16",
+        "acme_normal.wsp16",
+        Family::AcmeNormal,
+        Forward::Flame10,
+    ),
     // bass_front.wsp5
     model(
         "bass_front5",
@@ -544,6 +578,10 @@ impl Model {
             Forward::Flame6 => flame6::spec(self.family),
             Forward::Flame7 => flame7::spec(self.family),
             Forward::Committee3 => committee3::spec(self.family),
+            Forward::Flame8 => flame8::spec(self.family),
+            Forward::Flame9 => flame9::spec(self.family),
+            Forward::Flame10 => flame10::spec(self.family),
+            Forward::Committee4 => committee4::spec(self.family),
             Forward::Front5 => front5::spec(),
             Forward::Droplet8(fuel) => droplet8::spec(fuel),
             Forward::Droplet9(fuel) => droplet9::spec(fuel),
@@ -590,6 +628,10 @@ impl Model {
             Forward::Flame6 => flame6::artifact(&spec, release, prefix, settings),
             Forward::Flame7 => flame7::artifact(&spec, release, prefix, settings),
             Forward::Committee3 => committee3::artifact(&spec, release, prefix, settings),
+            Forward::Flame8 => flame8::artifact(&spec, release, prefix, settings),
+            Forward::Flame9 => flame9::artifact(&spec, release, prefix, settings),
+            Forward::Flame10 => flame10::artifact(&spec, release, prefix, settings),
+            Forward::Committee4 => committee4::artifact(&spec, release, prefix, settings),
             Forward::Front5 => front5::artifact(&spec, release, prefix, settings),
             Forward::Droplet8(_) => droplet8::artifact(&spec, release, prefix, settings),
             Forward::Droplet9(_) => droplet9::artifact(&spec, release, prefix, settings),
@@ -614,7 +656,11 @@ impl Model {
             | Forward::Flame5
             | Forward::Flame6
             | Forward::Flame7
-            | Forward::Committee3 => acme_tools::default_fixture(self.family),
+            | Forward::Committee3
+            | Forward::Flame8
+            | Forward::Flame9
+            | Forward::Flame10
+            | Forward::Committee4 => acme_tools::default_fixture(self.family),
             Forward::Bass1 => bass_tools::fixture_prefix(4.0, 0.002, 0.001, false),
             Forward::Front => front_tools::fixture_prefix(10.0, 0.001),
             Forward::Front2 => front_tools::fixture_prefix(10.0, 0.001),
@@ -659,6 +705,10 @@ impl Model {
             Forward::Flame6 => flame_tools::release_notes10(self.family),
             Forward::Flame7 => flame_tools::release_notes11(self.family),
             Forward::Committee3 => flame_tools::release_notes12(self.family),
+            Forward::Flame8 => flame_tools::release_notes14(self.family),
+            Forward::Flame9 => flame_tools::release_notes15(self.family),
+            Forward::Flame10 => flame_tools::release_notes16(self.family),
+            Forward::Committee4 => flame_tools::release_notes13(self.family),
             Forward::Front5 => front5_tools::release_notes(),
             Forward::Droplet8(fuel) => droplet8_tools::release_notes(fuel),
             Forward::Droplet9(fuel) => droplet9_tools::release_notes(fuel),

@@ -1,0 +1,53 @@
+{
+  "patch_id": "flex_heptane-wsp-v2-d3-fable",
+  "parent_release_id": "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "nasa:PSI-69-test-sheets,DropletData-and-narratives-of-the-heptane-train-partition(re-read-and-re-measured-by-the-author-on-15-November:windowed-finite-differences-of-D-squared,sheet-burn-times-and-extinction-diameters)",
+      "repo:docs/wsp/research/phys_flex_heptane.md(physics-dossier-of-the-fifth-generation;its-expectations-section-names-the-conditions-of-five-validation-runs,inputs-only,181F001-among-them)",
+      "repo:docs/wsp/feedback/verify_phys_flex_heptane.md(independent-train-only-check-of-that-dossier:cool-flame-rate-table-of-twelve-train-runs)",
+      "repo:configs/models/flex/wsp5/heptane/p0-fable/edits.wsp(cool-rate-block-typed-14-November;its-five-statements-are-copied-here-unchanged)",
+      "repo:runs/dev/fb_train_flex_heptane_d2.json(train-feedback-of-D2,D1-and-W0,per-case)",
+      "author:long-horizon-forecasts-of-D2-on-train-runs(per-run,train-only,15-November)",
+      "repo:docs/wsp/RESULTS.md,docs/wsp/RESULTS_GEN5.md,docs/wsp/PROTOCOL.md(aggregate-validation-tables-of-W0,D1,D2,wsp3-D3,wsp5-P0-and-P1:CRPS-and-coverage-only;P0,which-holds-this-cool-rate-block-among-four-changes,scored-47.2-against-46.1-micrometres)",
+      "repo:docs/wsp/RESULTS_POINT_METRICS.md(EXPOSED:the-0-to-38-s-trajectory-of-validation-run-PSI-69:181F001:2009-11-27,FLEX-035,was-studied-in-detail-by-this-lane-and-its-diagnosis-read-by-the-author:hot-flame-end-near-7-to-9-s,cool-flame-rate-0.37-to-0.40-mm2-per-s,stall-at-1.27-mm,scores-of-D2-against-Farouk-and-Dryer;STUDIED,NOT-USED-TO-SET-NUMBERS:it-is-the-reason-this-law-was-revisited;every-number-of-this-patch-was-typed-on-14-November-before-that-study)",
+      "repo:docs/wsp/RESULTS_POINT_METRICS.md(post-hoc-aggregate-point-metrics-of-D2,W0-and-the-d-squared-law-on-the-spent-sealed-FLEX-test;the-nRMSE-of-one-test-run,H05H103,is-printed-there;not-used)",
+      "repo:docs/wsp/research/exp_flex.md(published-FLEX-literature)",
+      "author:pretraining-knowledge(unverifiable;may-include-published-descriptions-of-the-FLEX-heptane-droplet-of-3.9-mm-in-air:Nayagam-et-al-2012,Farouk-and-Dryer-2014)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;conditions,series,test-sheets,narratives)",
+        "partitions": [
+          "train"
+        ]
+      },
+      {
+        "dataset_id": "flex-c43bbe3580ffce2a(heptane;aggregate-scores-of-earlier-candidates;conditions-of-five-runs;the-trajectory-diagnosis-of-one-run,181F001,studied-and-not-used-to-set-numbers)",
+        "partitions": [
+          "validation"
+        ]
+      },
+      {
+        "dataset_id": "flex-660b7d9ede629b30(methanol;outcomes-of-the-train-partition)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [],
+    "prior_candidates": [
+      "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
+      "sha256:8e40db9dceb898e336f69422d3e2cff2df52b6050188ef84af1a9d0a7ba4ebb1",
+      "sha256:6ea680d16a04a17cb180bd1628467d7cc0f246c882feffebc25050d226646d8f",
+      "sha256:74b3a0f195884a860d28ab41d9fb3250633a346d0b980138ee1c7d84881842a3",
+      "sha256:c2c7b700867f3fab86e956100db6aed3db100438f6584347c9af5be6b75ad760"
+    ]
+  },
+  "rationale": "D3, data-informed. D2 with one law revised: the cool-flame burning rate no longer depends on oxygen, CO2 or pressure up to 1 atm (0.325 mm2/s at 2 mm, size exponent 0.15, helium +0.2 per 20 %, +0.5 per e-fold of pressure above 1 atm). Mechanism: a cool flame burns at a fixed flame temperature, so its rate follows the gas conductivity, not the oxygen. Train: twelve sustained cool flames in nine sessions burn at 0.31-0.36 mm2/s with no trend beyond 0.02 in oxygen (15-24 %), CO2 (0-25 %) or pressure (0.7-1 atm); D2 gave 0.41-0.44 where 0.34-0.36 was measured and 0.43 for a large droplet in air. The five statements are the cool-rate block of flex_heptane.wsp5 P0, typed on 14 November, copied unchanged. Not changed for want of train evidence: the radiative clock, the critical diameter, the widths, the point forecast (median). The validation run FLEX-035 was studied in detail by this lane before this patch was written; it is recorded as studied, not used to set numbers. Every number typed by the author; no fit, no search.",
+  "origin": "system"
+}

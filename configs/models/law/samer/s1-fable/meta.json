@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-samer-v1-s1-fable",
+  "parent_release_id": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_samer_study.md(sha256:e9687b7b782354b0b0ecaa96af88983971190a76543ea48ded07a50eafaa884f;candidate-S1)",
+      "repo:runs/dev/gen7/study/samer_s1.wsp(sha256:b9a15a814a4ca024dfc61045d4503adedb3ce2acffc80b57749f564f0d5e4872)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-S1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "samer-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-S1"
+    ],
+    "prior_candidates": [
+      "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0"
+    ]
+  },
+  "rationale": "samer S1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/samer_s1.wsp verbatim as a revision of samer w0-fable (docs/wsp/research/phys_samer_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

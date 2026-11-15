@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-efield3-v1-s1-fable",
+  "parent_release_id": "sha256:f78c2ece35c2e4808e00edb7aca5c797fe668edb11d9f6250081ef1e9c38efd8",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_efield_study.md(sha256:573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e;section-4)",
+      "repo:runs/dev/gen7/study/efield3_block.wsp(sha256:3810450a923772c5522165daf05b4e6456d9dfab21e14647552ed9be8d7703ec)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "efield-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-to-13.6-development-scores",
+      "what-if-run-of-E1"
+    ],
+    "prior_candidates": [
+      "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+      "sha256:dbb4bd6453a2870ddbc6c34125b38068dd6b83da87025b2ae170aa0f25b873b0"
+    ]
+  },
+  "rationale": "efield3 (PROTOCOL 13.6): data-informed from the development days (train and validation); efield3 = E1's ion current (configs/models/law/efield/e1-fable, its lines runs/dev/gen7/study/efield_e1.wsp) plus the new flame-out law with burner, coflow and polarity; docs/wsp/research/phys_efield_study.md section 4 (sha256 573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e), the typed block verbatim on the full chain of efield E1. Typed, not run, by its author before this assembly. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

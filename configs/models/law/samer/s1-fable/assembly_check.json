@@ -1,0 +1,33 @@
+{
+ "slug": "samer",
+ "candidate": "s1-fable",
+ "label": "S1",
+ "edits": "runs/dev/gen7/study/samer_s1.wsp",
+ "edits_sha256": "b9a15a814a4ca024dfc61045d4503adedb3ce2acffc80b57749f564f0d5e4872",
+ "study": "docs/wsp/research/phys_samer_study.md",
+ "study_sha256": "e9687b7b782354b0b0ecaa96af88983971190a76543ea48ded07a50eafaa884f",
+ "parent": "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+ "release": "sha256:e33ee7665b599e7e6c8c978f61ebf3bf106b2b6a94c3a0821dbdf42cf47a1b5f",
+ "elements_written": 103,
+ "elements_written_equal_to_parent": [
+  "('d10.median.W1', (3, 7))",
+  "('d10.median.W1', (3, 8))",
+  "('d10.median.W1', (4, 7))",
+  "('d10.median.W1', (4, 8))",
+  "('d10.median.W1', (5, 7))",
+  "('d10.median.W1', (5, 8))",
+  "('d10.median.W1', (6, 7))",
+  "('d10.median.W1', (6, 8))",
+  "('d30.median.W1', (3, 7))",
+  "('d30.median.W1', (3, 8))",
+  "('d30.median.W1', (4, 7))",
+  "('d30.median.W1', (4, 8))",
+  "('d30.median.W1', (5, 7))",
+  "('d30.median.W1', (5, 8))",
+  "('d30.median.W1', (6, 7))",
+  "('d30.median.W1', (6, 8))"
+ ],
+ "elements_differing_from_parent": 87,
+ "differing_not_written": [],
+ "mismatches": {}
+}

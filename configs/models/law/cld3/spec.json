@@ -1,0 +1,869 @@
+{
+  "schema_version": "wsp.v1",
+  "spec_id": "law-cld3-v1",
+  "family": "other",
+  "model_name": "cld3.wsp",
+  "target": {
+    "quantity": "phase_end_time",
+    "unit": "s",
+    "description": "Third law of PSI-21 (docs/wsp/research/phys_cld_study.md section 5, PROTOCOL 13.6): the declaration of cld with t_severe appended (index 6) and the cause crossing added to loss. Time origin of loss: flame onset; the planned fuel-off is the scheduled stop, as in cld. Derived by tools/wsp/ext/law_inputs.py from condition fields only. (PhaseEndTime is the first target with a shared quantity); targets: loss, radiometer",
+    "excludes": [
+      "cld3:radiometer (positive, V): lane-local target, not a shared quantity"
+    ]
+  },
+  "features": [
+    {
+      "name": "x_fuel_final",
+      "unit": "1",
+      "source": "condition:x_fuel_final",
+      "transform": "ln: ln(x / x.x_fuel_final.centre) / x.x_fuel_final.scale; refused unless x.x_fuel_final.lo <= x <= x.x_fuel_final.hi @1"
+    },
+    {
+      "name": "v_coflow_final",
+      "unit": "m/s",
+      "source": "condition:v_coflow_final",
+      "transform": "ln: ln(x / x.v_coflow_final.centre) / x.v_coflow_final.scale; refused unless x.v_coflow_final.lo <= x <= x.v_coflow_final.hi @1"
+    },
+    {
+      "name": "window",
+      "unit": "s",
+      "source": "condition:window",
+      "transform": "ln: ln(x / x.window.centre) / x.window.scale; refused unless x.window.lo <= x <= x.window.hi @1"
+    },
+    {
+      "name": "is_ethylene",
+      "unit": "1",
+      "source": "condition:is_ethylene",
+      "transform": "identity: (x - x.is_ethylene.centre) / x.is_ethylene.scale; refused unless x.is_ethylene.lo <= x <= x.is_ethylene.hi @1"
+    },
+    {
+      "name": "x_fuel_stage",
+      "unit": "1",
+      "source": "condition:x_fuel_stage",
+      "transform": "ln: ln(x / x.x_fuel_stage.centre) / x.x_fuel_stage.scale; refused unless x.x_fuel_stage.lo <= x <= x.x_fuel_stage.hi @1"
+    },
+    {
+      "name": "v_fuel_stage",
+      "unit": "m/s",
+      "source": "condition:v_fuel_stage",
+      "transform": "ln: ln(x / x.v_fuel_stage.centre) / x.v_fuel_stage.scale; refused unless x.v_fuel_stage.lo <= x <= x.v_fuel_stage.hi @1"
+    },
+    {
+      "name": "t_severe",
+      "unit": "s",
+      "source": "condition:t_severe",
+      "transform": "ln: ln(x / x.t_severe.centre) / x.t_severe.scale; refused unless x.t_severe.lo <= x <= x.t_severe.hi @1"
+    }
+  ],
+  "domain": [],
+  "tensors": [
+    {
+      "name": "x.x_fuel_final.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_fuel_final."
+    },
+    {
+      "name": "x.x_fuel_final.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_fuel_final."
+    },
+    {
+      "name": "x.x_fuel_final.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_fuel_final (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel_final.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_fuel_final (raw SI value)."
+    },
+    {
+      "name": "x.v_coflow_final.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of v_coflow_final."
+    },
+    {
+      "name": "x.v_coflow_final.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of v_coflow_final."
+    },
+    {
+      "name": "x.v_coflow_final.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of v_coflow_final (raw SI value)."
+    },
+    {
+      "name": "x.v_coflow_final.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of v_coflow_final (raw SI value)."
+    },
+    {
+      "name": "x.window.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of window."
+    },
+    {
+      "name": "x.window.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of window."
+    },
+    {
+      "name": "x.window.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of window (raw SI value)."
+    },
+    {
+      "name": "x.window.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of window (raw SI value)."
+    },
+    {
+      "name": "x.is_ethylene.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Centre c of the identity transform of is_ethylene."
+    },
+    {
+      "name": "x.is_ethylene.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the identity transform of is_ethylene."
+    },
+    {
+      "name": "x.is_ethylene.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of is_ethylene (raw SI value)."
+    },
+    {
+      "name": "x.is_ethylene.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of is_ethylene (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel_stage.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of x_fuel_stage."
+    },
+    {
+      "name": "x.x_fuel_stage.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of x_fuel_stage."
+    },
+    {
+      "name": "x.x_fuel_stage.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of x_fuel_stage (raw SI value)."
+    },
+    {
+      "name": "x.x_fuel_stage.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of x_fuel_stage (raw SI value)."
+    },
+    {
+      "name": "x.v_fuel_stage.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of v_fuel_stage."
+    },
+    {
+      "name": "x.v_fuel_stage.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of v_fuel_stage."
+    },
+    {
+      "name": "x.v_fuel_stage.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of v_fuel_stage (raw SI value)."
+    },
+    {
+      "name": "x.v_fuel_stage.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "m/s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of v_fuel_stage (raw SI value)."
+    },
+    {
+      "name": "x.t_severe.centre",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Centre c of the ln transform of t_severe."
+    },
+    {
+      "name": "x.t_severe.scale",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 9.999999999999999e-31,
+        "max": 1e+30
+      },
+      "description": "Scale s of the ln transform of t_severe."
+    },
+    {
+      "name": "x.t_severe.lo",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Lower end of the declared domain of t_severe (raw SI value)."
+    },
+    {
+      "name": "x.t_severe.hi",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -1e+30,
+        "max": 1e+30
+      },
+      "description": "Upper end of the declared domain of t_severe (raw SI value)."
+    },
+    {
+      "name": "loss.blowoff.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 25.0
+      },
+      "description": "Value of ln(median time of cause blowoff of loss alone / 1 s), since the time origin at z = 0 before hinge terms (ln(s))."
+    },
+    {
+      "name": "loss.blowoff.median.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median time of cause blowoff of loss alone / 1 s), since the time origin on z, in feature order; every element is stated."
+    },
+    {
+      "name": "loss.blowoff.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median time of cause blowoff of loss alone / 1 s), since the time origin; row j reads z in feature order."
+    },
+    {
+      "name": "loss.blowoff.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median time of cause blowoff of loss alone / 1 s), since the time origin (hinge positions)."
+    },
+    {
+      "name": "loss.blowoff.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median time of cause blowoff of loss alone / 1 s), since the time origin."
+    },
+    {
+      "name": "loss.blowoff.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.1,
+        "max": 50.0
+      },
+      "description": "Log-logistic shape of cause blowoff of loss (sd of ln T = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "loss.other.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 25.0
+      },
+      "description": "Value of ln(median time of cause other of loss alone / 1 s), since the time origin at z = 0 before hinge terms (ln(s))."
+    },
+    {
+      "name": "loss.other.median.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median time of cause other of loss alone / 1 s), since the time origin on z, in feature order; every element is stated."
+    },
+    {
+      "name": "loss.other.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median time of cause other of loss alone / 1 s), since the time origin; row j reads z in feature order."
+    },
+    {
+      "name": "loss.other.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median time of cause other of loss alone / 1 s), since the time origin (hinge positions)."
+    },
+    {
+      "name": "loss.other.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median time of cause other of loss alone / 1 s), since the time origin."
+    },
+    {
+      "name": "loss.other.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.1,
+        "max": 50.0
+      },
+      "description": "Log-logistic shape of cause other of loss (sd of ln T = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "loss.crossing.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(s)",
+      "bounds": {
+        "min": -20.0,
+        "max": 25.0
+      },
+      "description": "Value of ln(median time of cause crossing of loss alone / 1 s), since the time origin at z = 0 before hinge terms (ln(s))."
+    },
+    {
+      "name": "loss.crossing.median.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median time of cause crossing of loss alone / 1 s), since the time origin on z, in feature order; every element is stated."
+    },
+    {
+      "name": "loss.crossing.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median time of cause crossing of loss alone / 1 s), since the time origin; row j reads z in feature order."
+    },
+    {
+      "name": "loss.crossing.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median time of cause crossing of loss alone / 1 s), since the time origin (hinge positions)."
+    },
+    {
+      "name": "loss.crossing.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median time of cause crossing of loss alone / 1 s), since the time origin."
+    },
+    {
+      "name": "loss.crossing.shape",
+      "shape": [],
+      "role": "hazard_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.1,
+        "max": 50.0
+      },
+      "description": "Log-logistic shape of cause crossing of loss (sd of ln T = pi / (shape sqrt 3))."
+    },
+    {
+      "name": "loss.stop.offset_s",
+      "shape": [
+        3
+      ],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "s",
+      "bounds": {
+        "min": -100000.0,
+        "max": 100000.0
+      },
+      "description": "Offsets added to the stop condition: node k stops at condition + offset_s[k]."
+    },
+    {
+      "name": "loss.stop.offset_w",
+      "shape": [
+        3
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weights of the offset nodes (normalised by their sum); all zero: the stop condition is not read."
+    },
+    {
+      "name": "radiometer.median.b0",
+      "shape": [],
+      "role": "physical_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "ln(V)",
+      "bounds": {
+        "min": -80.0,
+        "max": 80.0
+      },
+      "description": "Value of ln(median radiometer / 1 V) at z = 0 before hinge terms (ln(V))."
+    },
+    {
+      "name": "radiometer.median.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of ln(median radiometer / 1 V) on z, in feature order; every element is stated."
+    },
+    {
+      "name": "radiometer.median.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of ln(median radiometer / 1 V); row j reads z in feature order."
+    },
+    {
+      "name": "radiometer.median.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of ln(median radiometer / 1 V) (hinge positions)."
+    },
+    {
+      "name": "radiometer.median.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of ln(median radiometer / 1 V)."
+    },
+    {
+      "name": "radiometer.spread.b0",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.001,
+        "max": 10.0
+      },
+      "description": "Value of the ln-sd of the core component of radiometer at z = 0 before hinge terms (1)."
+    },
+    {
+      "name": "radiometer.spread.skip",
+      "shape": [
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "description": "Linear weights of the ln-sd of the core component of radiometer on z, in feature order; every element is stated."
+    },
+    {
+      "name": "radiometer.spread.W1",
+      "shape": [
+        8,
+        7
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge input weights of the ln-sd of the core component of radiometer; row j reads z in feature order."
+    },
+    {
+      "name": "radiometer.spread.b1",
+      "shape": [
+        8
+      ],
+      "role": "bias",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge biases of the ln-sd of the core component of radiometer (hinge positions)."
+    },
+    {
+      "name": "radiometer.spread.w2",
+      "shape": [
+        8
+      ],
+      "role": "weight",
+      "fill": {
+        "rule": "structural_zero"
+      },
+      "description": "Hinge output weights of the ln-sd of the core component of radiometer."
+    },
+    {
+      "name": "radiometer.tail_weight",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "description": "Weight of the wider component of radiometer (0: one log-normal)."
+    },
+    {
+      "name": "radiometer.tail_width",
+      "shape": [],
+      "role": "noise_parameter",
+      "fill": {
+        "rule": "author_writes_all"
+      },
+      "unit": "1",
+      "bounds": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "description": "ln-sd of the wider component of radiometer over that of the core (1: no wider component)."
+    },
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "role": "constant",
+      "fill": {
+        "rule": "fixed",
+        "values": [
+          512.0
+        ]
+      },
+      "unit": "1",
+      "description": "Integration steps per requested interval of an event target (numerical, not physics)."
+    }
+  ],
+  "forward": {
+    "entry_point": "ignis_wsp::law::forecast",
+    "version": "1",
+    "profile": "strict_no_fitting"
+  },
+  "notes": "Generic law forward law.rs, declaration configs/models/law/cld3/decl.json (status Declared): {\"slug\":\"cld3\",\"status\":\"declared\",\"family\":\"other\",\"investigation\":\"PSI-21, ACME CLD Flame: methane and ethylene coflow flames diluted with nitrogen, on a 2.18 mm tube in a 25 mm air annulus\",\"description\":\"Third law of PSI-21 (docs/wsp/research/phys_cld_study.md section 5, PROTOCOL 13.6): the declaration of cld with t_severe appended (index 6) and the cause crossing added to loss. Time origin of loss: flame onset; the planned fuel-off is the scheduled stop, as in cld. Derived by tools/wsp/ext/law_inputs.py from condition fields only.\",\"features\":[{\"name\":\"x_fuel_final\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"lowest fuel fraction the script reaches (section 7.1)\"},{\"name\":\"v_coflow_final\",\"unit\":\"m/s\",\"transform\":\"ln\",\"description\":\"highest coflow speed the script reaches (section 7.1)\"},{\"name\":\"window\",\"unit\":\"s\",\"transform\":\"ln\",\"description\":\"planned fuel-off, seconds since flame onset (at_cutoff.planned_fuel_off_from_onset_s)\"},{\"name\":\"is_ethylene\",\"unit\":\"1\",\"transform\":\"identity\",\"description\":\"1 when fuel = ethylene\"},{\"name\":\"x_fuel_stage\",\"unit\":\"1\",\"transform\":\"ln\",\"description\":\"x_fuel of the first constant-flow segment of the schedule\"},{\"name\":\"v_fuel_stage\",\"unit\":\"m/s\",\"transform\":\"ln\",\"description\":\"v_fuel_m_s of the first constant-flow segment of the schedule\"},{\"name\":\"t_severe\",\"unit\":\"s\",\"transform\":\"ln\",\"description\":\"seconds from flame onset at which the schedule first holds both its lowest x_fuel and its highest v_coflow_m_s (the later of the two times, less at_cutoff.onset_from_ignition_command_s), and not less than 2 s\"}],\"targets\":[{\"name\":\"loss\",\"kind\":\"event\",\"unit\":null,\"shared_quantity\":null,\"causes\":[\"blowoff\",\"other\",\"crossing\"],\"scheduled_stop\":{\"condition\":\"planned_fuel_off_from_onset\"},\"description\":\"the flame goes out while the fuel still flows, seconds since flame onset\"},{\"name\":\"radiometer\",\"kind\":\"positive\",\"unit\":\"V\",\"shared_quantity\":null,\"causes\":[],\"scheduled_stop\":null,\"description\":\"excess of the radiometer sum over its pre-ignition level in the first constant-flow stage (lane-local)\"}]}. Each network is N(z) = b0 + skip . z + sum_j w2[j] relu(b1[j] + W1[j, :] . z). A positive target is a mixture of two log-normals of one median exp(N_median), ln-sds N_spread and tail_width * N_spread, weights 1 - tail_weight and tail_weight; a non-positive spread is refused. A binary target is logistic(N_logit). An event target is the competition of log-logistic clocks exp(N_c), shape c.shape, conditioned on no event before the cutoff; the earliest control stage scheduled_stop or flow_stop, and the declared stop condition plus each offset node with a positive weight, take the active mass. Lane-local targets are labelled <slug>:<target> in diagnostics.law and carry no shared quantity. Uncertainty kind: assumed_noise."
+}

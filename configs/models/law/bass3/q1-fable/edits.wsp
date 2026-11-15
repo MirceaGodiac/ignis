@@ -1,0 +1,16 @@
+# bass3 Q1: runs/dev/gen7/study/bass3_q1.wsp (sha256 ef6bcbd80bd7bb6be6f169b07a447f8ea416bb414ec93909bd8d2f2d4a466aad), verbatim, a revision of
+# bass3 s1-fable sha256:a1eb577a…03d1 (docs/wsp/research/phys_bass_study2.md); every other number is the parent's.
+# Q1 (bass physicist, PROTOCOL 13.6): the oxygen threshold of a 5 mm two-sided slab.
+# The cases bracket it between 20.0 % (M11, reached its limit) and 21.8 % (M4, did not); bass3 typed 20.6 %,
+# the low edge once the change of class takes its 1.2 points. Middle of the bracket: 21.0 % (2 mm stays 18.0 %).
+# z_c = -0.2332 + 0.1682 ln(thickness / 0.5 mm) + 0.28 one_sided; times 30.
+flat_quench_speed.median.W1[3, 6] = 5.05
+flat_quench_speed.median.b1[3] = -7.00
+flat_quench_speed.median.W1[4, 6] = 4.75
+flat_quench_speed.median.b1[4] = -8.382
+flat_quench_speed.spread.W1[3, 6] = 5.05
+flat_quench_speed.spread.b1[3] = -7.00
+flat_quench_speed.spread.W1[4, 6] = 5.05
+flat_quench_speed.spread.b1[4] = -7.93
+flat_quench_speed.spread.W1[5, 6] = 5.05
+flat_quench_speed.spread.b1[5] = -8.87

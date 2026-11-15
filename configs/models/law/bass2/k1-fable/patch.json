@@ -1,0 +1,150 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bass2-v1-k1-fable",
+  "spec_hash": "sha256:9d09d100d7f0577a4078f952e0ac7ca41b597fc7f41abf11a97e3ac876bfb9b9",
+  "parent_release_id": "sha256:e008cba3f5101f218c1e7f353fed928a8e11a22500ebf1197dc9f050c57ca4c9",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_study.md(sha256:08b20a41160c880a43c98fcabef63539d96bdc3dfcd6012b2d19eadcab894b21;section-3)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-K1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass1-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-K1"
+    ],
+    "prior_candidates": [
+      "sha256:e008cba3f5101f218c1e7f353fed928a8e11a22500ebf1197dc9f050c57ca4c9"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.b0",
+      "index": [],
+      "value": -4.42
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.skip",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.skip",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.skip",
+      "index": [
+        3
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.skip",
+      "index": [
+        5
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.w2",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.w2",
+      "index": [
+        2
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.median.w2",
+      "index": [
+        3
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.spread.b0",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.spread.w2",
+      "index": [
+        0
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "quench_speed.spread.w2",
+      "index": [
+        1
+      ],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.b0",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.w2",
+      "index": [
+        1
+      ],
+      "value": 0.36
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.w2",
+      "index": [
+        2
+      ],
+      "value": -0.36
+    }
+  ],
+  "rationale": "bass2 K1 (PROTOCOL 13.6): the fifteen lines of runs/dev/gen7/study/bass_k1.wsp verbatim as a revision of bass2 s1. Transcribed by the assembly engineer (claude-opus-5-5).",
+  "origin": "system"
+}

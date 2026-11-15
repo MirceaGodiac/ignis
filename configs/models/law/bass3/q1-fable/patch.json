@@ -1,0 +1,122 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bass3-v1-q1-fable",
+  "spec_hash": "sha256:0f0407da6bf288f1ee8626267879012ef19b4f8a94b44b0c2343e884571a4226",
+  "parent_release_id": "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bass_study2.md(sha256:c360d112399edc92bacebf5efc3ec70c8c683f5e57b67cefd8183b7fe3230c75;candidate-Q1)",
+      "repo:runs/dev/gen7/study/bass3_q1.wsp(sha256:ef6bcbd80bd7bb6be6f169b07a447f8ea416bb414ec93909bd8d2f2d4a466aad)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-Q1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bass3-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-Q1"
+    ],
+    "prior_candidates": [
+      "sha256:a1eb577ae257a788109329a8cc54509925ecab4c1e3e88ddcf9decf0fd7703d1"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.median.W1",
+      "index": [
+        3,
+        6
+      ],
+      "value": 5.05
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.median.b1",
+      "index": [
+        3
+      ],
+      "value": -7.0
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.median.W1",
+      "index": [
+        4,
+        6
+      ],
+      "value": 4.75
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.median.b1",
+      "index": [
+        4
+      ],
+      "value": -8.382
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.W1",
+      "index": [
+        3,
+        6
+      ],
+      "value": 5.05
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.b1",
+      "index": [
+        3
+      ],
+      "value": -7.0
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.W1",
+      "index": [
+        4,
+        6
+      ],
+      "value": 5.05
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.b1",
+      "index": [
+        4
+      ],
+      "value": -7.93
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.W1",
+      "index": [
+        5,
+        6
+      ],
+      "value": 5.05
+    },
+    {
+      "op": "set",
+      "tensor": "flat_quench_speed.spread.b1",
+      "index": [
+        5
+      ],
+      "value": -8.87
+    }
+  ],
+  "rationale": "bass3 Q1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/bass3_q1.wsp verbatim as a revision of bass3 s1-fable (docs/wsp/research/phys_bass_study2.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

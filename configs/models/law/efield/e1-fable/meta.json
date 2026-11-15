@@ -1,0 +1,33 @@
+{
+  "patch_id": "law-efield-v1-e1-fable",
+  "parent_release_id": "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_efield_study.md(sha256:573d8dbc5abe440fc8cb097270b4b61908d69fd057aa3ab9c79e491c7458da6e;candidate-E1)",
+      "repo:runs/dev/gen7/study/efield_e1.wsp(sha256:9c4344adf3598741e0d769d77f2e94acd3de4eceb760e91cde485f5dab6ed39b)",
+      "runs/dev/gen7/whatif_log.jsonl(the-logged-what-if-run-of-E1)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "efield-train-and-validation-cases",
+        "partitions": [
+          "train",
+          "validation"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-13.3-13.4-development-scores",
+      "what-if-run-of-E1"
+    ],
+    "prior_candidates": [
+      "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9"
+    ]
+  },
+  "rationale": "efield E1 (PROTOCOL 13.6): data-informed from the development days (train and validation); runs/dev/gen7/study/efield_e1.wsp verbatim as a revision of efield w0-fable (docs/wsp/research/phys_efield_study.md). Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}
