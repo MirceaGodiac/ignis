@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the data the server reads, on the origin host, with the release image itself: fetch the
 # bounded NASA sample set and the evidence-corpus reports (public NASA servers, ~0.3 GB), parse
-# and index them, ingest the records and build the FLEX/ACME builder dataset bundles.
+# and index them, ingest the records, build the conditions table and the FLEX/ACME builder bundles.
 #
 #   sudo infra/scripts/build-data.sh          (reads IGNIS_IMAGE from /etc/ignis/release.env)
 #
@@ -50,6 +50,14 @@ fi
 run evidence verify
 run evidence corpus snapshot
 run data ingest
+# The conditions table (Conditions page, atmosphere map, conditions_query) reads the four families'
+# records and the experimental tables of these investigations (`SPECS` in
+# crates/ignis-data/src/conditions.rs; a missing one stops `data conditions` with its file name).
+# Small CSVs (~1 MB in all); a file already present at the listed version is not fetched again.
+for inv in PSI-10 PSI-20 PSI-21 PSI-22 PSI-23 PSI-39 PSI-47 PSI-68 PSI-98 PSI-99 PSI-100 PSI-101 PSI-102 PSI-106 PSI-107; do
+  run sources fetch "$inv" --pattern '_Experimental table_' --execute
+done
+run data conditions
 for family in flex acme_normal acme_inverse; do
   run data bundle "$family"
   run data bundle "$family" --partitions train
