@@ -33,6 +33,13 @@ export function contentRangeLength(header: string | null): number | null {
   return Number.isSafeInteger(n) && n > 0 ? n : null;
 }
 
+/** Body length from a `Content-Length` header (CORS-safelisted, so readable when `Content-Range` is not). */
+export function contentLength(header: string | null): number | null {
+  if (!header || !/^\s*\d+\s*$/.test(header)) return null;
+  const n = Number(header);
+  return Number.isSafeInteger(n) && n > 0 ? n : null;
+}
+
 /** HTTP Range header for the half-open byte span [begin, end) that PDF.js asks for. */
 export const rangeHeader = (begin: number, end: number) => `bytes=${begin}-${end - 1}`;
 
