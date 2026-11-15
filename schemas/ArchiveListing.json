@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "ArchiveEntry": {
+      "additionalProperties": false,
+      "description": "One entry of a remote archive's central directory.",
+      "properties": {
+        "compressed_bytes": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "frame": {
+          "description": "A TIFF frame: served converted to PNG (faithful) or WebP (display) on request.",
+          "type": "boolean"
+        },
+        "name": {
+          "description": "Path inside the archive (what `/sources/{id}/archive/entry?name=` takes).",
+          "type": "string"
+        },
+        "size_bytes": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "size_bytes",
+        "compressed_bytes",
+        "frame"
+      ],
+      "type": "object"
+    },
+    "EvidenceSchema": {
+      "description": "Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents\nare still read. An addition of v2 (a field, a relation, a concept node, a new document type) is\nrefused under the v1 tag, so a v1 reader never receives a document it would misread.",
+      "oneOf": [
+        {
+          "enum": [
+            "evidence.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evidence.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/ArchiveListing",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A page of a remote archive's entries (R11), read from its cached central directory; the\narchive itself stays at NASA.",
+  "properties": {
+    "archive_size_bytes": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/ArchiveEntry"
+      },
+      "type": "array"
+    },
+    "first": {
+      "description": "Index of this page's first entry in the directory order.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "next_after": {
+      "description": "`after` for the next page; absent on the last page.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvidenceSchema"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "total_entries": {
+      "description": "Entries in the archive (all pages).",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_id",
+    "archive_size_bytes",
+    "total_entries",
+    "first",
+    "entries",
+    "origin"
+  ],
+  "title": "ArchiveListing",
+  "type": "object"
+}

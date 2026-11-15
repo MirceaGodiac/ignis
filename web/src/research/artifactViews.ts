@@ -58,6 +58,8 @@ export const CONTRACT_COVERAGE = {
   SourceLabel: { notShown: "Waits for the classifier (R8); T7 source panel will show labels" },
   LabelSet: { notShown: "Waits for the classifier (R8); T7 source panel will show labels" },
   SourceAccess: { view: "Side panel: evidence original, PDF at the bbox or video at the time (T7)" },
+  MediaKeyframeIndex: { notShown: "Server-side input of the .ts HLS playlists (R11/M12); the viewer plays playlist.m3u8 / iframes.m3u8" },
+  ArchiveListing: { notShown: "Waits for a T7 archive browser (R11 /sources/{id}/archive); frames open via /archive/entry" },
   SourceOutline: { notShown: "Waits for outlines (R7); T7 source panel section tree" },
   ConditionsTable: { view: "Conditions page: habitat relevance and conditions per run (T9)" },
   GraphNeighborsPage: { notShown: "Waits for the graph service (R9); T7 related navigation" },
