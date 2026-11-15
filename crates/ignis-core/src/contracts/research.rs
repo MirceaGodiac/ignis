@@ -17,13 +17,14 @@ use std::fmt;
 use schemars::{json_schema, JsonSchema, Schema, SchemaGenerator};
 use serde::{de, Deserialize, Deserializer, Serialize};
 
+use super::common::RunId;
 use super::common::{
     check_id, ensure, opaque_id, schema_tag, AnswerId, ApprovalId, ArtifactId, ArtifactRef,
     Capability, ClaimId, ClientRequestId, ContractError, CorpusSnapshotId, Digest, EpisodeId,
     ErrorEnvelope, EventId, EvidenceId, Finite, InlinePayload, JobId, MessageId, Origin, ReleaseId,
     RuntimeBuildId, ScopeId, SourceId, Timestamp, ToolCallId, WorkspaceId,
 };
-use super::{EvidenceClass, EvidenceRef, Partition};
+use super::{ConditionKey, EvidenceClass, EvidenceRef, Partition, SourceLocator};
 
 /// Wire tag of episodes, events, answers and traces. Wave K1 writes `research.v2`; `research.v1`
 /// (C0) documents are still read. A v2 addition (tool arguments, step rationale, a view block, a
@@ -675,7 +676,7 @@ pub fn tool_catalog() -> Vec<ToolDescriptor> {
         t("jobs_get", "State of a job this workspace submitted (e.g. by models_forecast): status, progress, output artifacts or error.", E::Read, true, &[], "JobLookup", "JobRef", false, Lane::Mircea),
         t("wiki_patch", "Write a wiki revision against a base revision (compare-and-swap).", E::WorkspaceWrite, false, &[C::WikiWrite], "WikiPatch", "WikiRevision", false, Lane::Raul),
         // Wave K1 (K1.9). Request/response types stay in their families.
-        t("answer_submit", "Store this turn's answer once it is ready: `blocks` (text and views) bound to `claims`, each claim bound to evidence returned in this episode by sources_search, sources_read, datasets_inspect or conditions_query, or to values of artifacts produced in it; `limitations` that change the interpretation. Bind every number to its reference in the claim's `values` (an artifact cell by digest, row keys and column, or a returned quote); the host records what each resolves to and never takes a bare numeral. Use once per turn, last. The host validates it; a refusal lists every problem at once, so fix all of them and submit again.", E::Compute, true, &[], "AnswerSubmission", "ResearchAnswer", false, Lane::Mircea),
+        t("answer_submit", "Store this turn's answer once it is ready: `blocks` (text and views) bound to `claims`, each claim bound to evidence returned in this episode by sources_search, sources_read, datasets_inspect or conditions_query, or to values of artifacts produced in it; `limitations` that change the interpretation. Bind every number to its reference in the claim's `values` (an artifact cell by digest, row keys and column, or a returned quote); the host records what each resolves to and never takes a bare numeral. Use once per turn, last; evidence from other episodes or seen only through artifacts_read is refused. The host validates it; a refusal lists every problem at once, so fix all of them and submit again.", E::Compute, true, &[], "AnswerSubmission", "ResearchAnswer", false, Lane::Mircea),
         t("sources_outline", "Section tree of one source version (titles, page spans; summaries labelled generated).", E::Read, true, &[C::ReadSources], "OutlineRequest", "SourceOutline", false, Lane::Raul),
         t("conditions_query", "Experimental conditions per run and the tested envelope per investigation, gaps explicit (missing, conflicting, not applicable).", E::Read, true, &[C::ReadData], "ConditionsQuery", "ConditionsTable", false, Lane::Raul),
         t("graph_neighbors", "Typed links around a run, source, release or concept in the combustion graph.", E::Read, true, &[C::ReadSources], "GraphNeighborsRequest", "GraphNeighborsPage", false, Lane::Raul),
@@ -1142,11 +1143,43 @@ pub enum ValueSource {
         /// holding `value_si` + `unit_si` or `value` + `unit`.
         column: String,
     },
+    /// One cell of the experimental conditions (`conditions_query`, `/api/v1/conditions`), read
+    /// under a conditions snapshot. Cell-level grounding: the host queries the conditions service
+    /// with the episode's scope and reads the cell back.
+    ConditionsCell {
+        /// The `DatasetService::conditions_snapshot` the value was read under (the
+        /// `x-ignis-snapshot` of the conditions routes). The host reads the current one from the
+        /// service; a different one is stale.
+        snapshot: Digest,
+        investigation_id: String,
+        /// The run. Absent for an investigation-level test point; `locator` then selects the row.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        run_id: Option<RunId>,
+        key: ConditionKey,
+        /// The cell's source locator, matched on `asset_sha256`, `path` and `row`. Required to
+        /// pick one candidate of a conflicting cell and to select a row that has no run id.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        locator: Option<SourceLocator>,
+        /// Which number of the cell: its SI value (default) or the raw value as the source wrote it.
+        #[serde(default)]
+        reading: CellReading,
+    },
     /// A number written in the quote of evidence a retrieval tool returned in this episode (PDF
     /// text). Text-level grounding only: the host checks that the stated number, followed by its
     /// unit, occurs in the quote the tool returned, not what the number measures. Numbers in PDF
     /// tables are not covered until table parse views exist.
     EvidenceQuote { evidence_id: EvidenceId },
+}
+
+/// Which number of a measured cell a value reads.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CellReading {
+    /// `value_si` in `unit_si`.
+    #[default]
+    Si,
+    /// `raw_value` in `raw_unit`, as the source wrote it.
+    Raw,
 }
 
 /// How deep a resolved number was checked.
@@ -1279,6 +1312,24 @@ impl ClaimValue {
         }
         let (rows, column) = match &self.source {
             ValueSource::ArtifactCell { rows, column, .. } => (rows, column),
+            ValueSource::ConditionsCell {
+                investigation_id,
+                run_id,
+                locator,
+                ..
+            } => {
+                ensure(!investigation_id.trim().is_empty(), c, || {
+                    "a conditions cell names its investigation".into()
+                })?;
+                ensure(run_id.is_some() || locator.is_some(), c, || {
+                    "a row without a run id is selected by its cells' locator (never by position)"
+                        .into()
+                })?;
+                return ensure(self.derivation.is_none(), c, || {
+                    "a derivation belongs to a number computed by analysis_execute (an artifact cell)"
+                        .into()
+                });
+            }
             ValueSource::EvidenceQuote { .. } => {
                 ensure(self.value.is_some(), c, || {
                     "a quoted number is stated (value and unit): the host finds it in the quote"
@@ -1329,7 +1380,7 @@ impl ClaimValue {
     pub fn artifact_id(&self) -> Option<&ArtifactId> {
         match &self.source {
             ValueSource::ArtifactCell { artifact_id, .. } => Some(artifact_id),
-            ValueSource::EvidenceQuote { .. } => None,
+            _ => None,
         }
     }
 
@@ -1337,7 +1388,7 @@ impl ClaimValue {
     pub fn evidence_id(&self) -> Option<&EvidenceId> {
         match &self.source {
             ValueSource::EvidenceQuote { evidence_id } => Some(evidence_id),
-            ValueSource::ArtifactCell { .. } => None,
+            _ => None,
         }
     }
 
@@ -1982,6 +2033,18 @@ impl ResearchAnswer {
                             ),
                         ));
                     }
+                }
+                if matches!(v.source, ValueSource::ConditionsCell { .. })
+                    && matches!(claim.kind, ClaimKind::Computed | ClaimKind::Predicted)
+                {
+                    out.push(AnswerProblem::claim(
+                        K::KindSupportMismatch,
+                        id,
+                        format!(
+                            "{:?} claim {id} reads an experimental condition; a condition is observed, not computed or predicted",
+                            claim.kind
+                        ),
+                    ));
                 }
                 for a in v.cited_artifacts().filter(|a| !artifacts.contains_key(a)) {
                     out.push(AnswerProblem::claim(

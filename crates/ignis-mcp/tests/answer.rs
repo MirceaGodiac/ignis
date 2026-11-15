@@ -931,3 +931,130 @@ fn a_quoted_number_must_be_written_in_the_returned_quote() {
     }
     assert_eq!(answer.grounding.as_ref().unwrap().grounded, 2);
 }
+
+/// The C0 conditions table behind a snapshot the test can move (M11's `conditions_snapshot`).
+struct Conditions {
+    snapshot: std::sync::Mutex<Digest>,
+}
+
+impl ignis_core::services::DatasetService for Conditions {
+    fn dataset(
+        &self,
+        _: &ExecutionScope,
+        id: &DatasetId,
+    ) -> ignis_core::services::ServiceResult<DatasetBundle> {
+        Err(ErrorEnvelope::new(
+            ErrorCode::NotFound,
+            format!("{id}"),
+            RetryPolicy::Never,
+        ))
+    }
+    fn conditions(
+        &self,
+        _: &ExecutionScope,
+        _: &ConditionsQuery,
+    ) -> ignis_core::services::ServiceResult<ConditionsTable> {
+        Ok(fixture("data/conditions_table.json"))
+    }
+    fn conditions_snapshot(
+        &self,
+        _: &ExecutionScope,
+    ) -> ignis_core::services::ServiceResult<Digest> {
+        Ok(self.snapshot.lock().unwrap().clone())
+    }
+}
+
+const SNAP_A: &str = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const SNAP_B: &str = "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+fn condition(run: &str, key: &str, value: f64, unit: &str) -> Value {
+    json!({"value": value, "unit": unit,
+           "source": {"kind": "conditions_cell", "snapshot": SNAP_A,
+                      "investigation_id": "fixture-investigation-a", "run_id": run, "key": key}})
+}
+
+/// A number read from the experimental conditions resolves against the conditions service under
+/// the snapshot it was read with: the run's key cell, a conflicting cell's candidate by locator,
+/// never a missing cell.
+#[test]
+fn a_condition_resolves_against_the_conditions_snapshot() {
+    let w = world();
+    let datasets = Arc::new(Conditions {
+        snapshot: std::sync::Mutex::new(Digest::parse(SNAP_A).unwrap()),
+    });
+    let host = ignis_mcp::ToolHost::new(
+        ignis_mcp::ToolServices {
+            knowledge: Some(w.h.knowledge.clone()),
+            datasets: Some(datasets.clone()),
+            ..Default::default()
+        },
+        w.h.store.clone(),
+        w.h.artifacts.clone(),
+        Origin::SyntheticFixture,
+        Arc::new(|| {}),
+    )
+    .with_grounding(GroundingMode::Enforce);
+    search(&w, &w.ep);
+    let submit = |s: Value| host.call_in(&w.sc, Some(&w.ep), "answer_submit", s);
+    let candidate = json!({"asset_sha256": "2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+                           "path": "fixture-experiment-table.csv", "row": 5});
+
+    // A conflicting cell without a locator, a missing cell, a misread value, a condition stated
+    // as a prediction: each named.
+    let mut s = observed(vec![
+        condition("fixture-run-02", "oxygen_mole_fraction", 0.4, "1"),
+        condition("fixture-run-01", "gravity_level", 1.0, "g0"),
+        condition("fixture-run-01", "pressure", 101.3, "kPa"),
+    ]);
+    s["claims"].as_array_mut().unwrap().push(json!({
+        "claim_id": "claim-pred", "kind": "predicted", "text": "Synthetic.",
+        "values": [condition("fixture-run-01", "pressure", 101352.9, "Pa")]
+    }));
+    s["blocks"][0]["claim_ids"] = json!(["claim-p", "claim-pred"]);
+    let r = submit(s);
+    let refused = refusal(&w, &r);
+    use AnswerProblemKind as K;
+    let mut got = kinds(&refused);
+    got.sort();
+    let mut want = vec![
+        K::UnresolvedRow,
+        K::UnknownColumn,
+        K::ValueMismatch,
+        K::KindSupportMismatch,
+    ];
+    want.sort();
+    assert_eq!(got, want, "{refused:#?}");
+    let msg = &r.error.as_ref().unwrap().message;
+    assert!(msg.contains("pick a candidate by its locator"), "{msg}");
+    assert!(msg.contains("holds no value"), "{msg}");
+
+    // The same cells bound correctly: SI rounded to stated digits, the raw value as written, and
+    // the conflicting cell's candidate picked by its locator.
+    let mut rounded = condition("fixture-run-01", "pressure", 101.4, "kPa");
+    rounded["significant_digits"] = json!(4);
+    let mut raw = condition("fixture-run-01", "pressure", 14.7, "psi");
+    raw["source"]["reading"] = json!("raw");
+    let mut picked = condition("fixture-run-02", "oxygen_mole_fraction", 40.0, "%");
+    picked["source"]["locator"] = candidate;
+    let good = observed(vec![rounded, raw, picked]);
+    let r = submit(good.clone());
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:#?}");
+    let answer: ResearchAnswer =
+        serde_json::from_value(r.result.as_ref().unwrap().value.clone()).unwrap();
+    let resolved: Vec<(f64, &str)> = answer.claims[0]
+        .values
+        .iter()
+        .map(|v| {
+            let r = v.resolved.as_ref().unwrap();
+            (r.value.get(), r.unit.as_str())
+        })
+        .collect();
+    assert_eq!(resolved, vec![(101352.9, "Pa"), (14.7, "psi"), (0.4, "1")]);
+
+    // Once the conditions move to another snapshot, the same binding is stale.
+    *datasets.snapshot.lock().unwrap() = Digest::parse(SNAP_B).unwrap();
+    let mut again = good;
+    again["client_request_id"] = json!("crid-after-snapshot-moved");
+    let refused = refusal(&w, &submit(again));
+    assert_eq!(kinds(&refused), vec![K::StaleSnapshot; 3], "{refused:#?}");
+}

@@ -10,7 +10,10 @@
 //! compared exactly, and a value stated to `n` significant digits must equal the cell rounded to
 //! `n` digits.
 
-use ignis_core::contracts::{AnswerProblemKind, KeyEquals, KeyValue, RowSelector};
+use ignis_core::contracts::{
+    AnswerProblemKind, CellReading, ConditionCell, ConditionKey, ConditionsRow, ConditionsTable,
+    KeyEquals, KeyValue, RawValue, RowSelector, RunId, SourceLocator,
+};
 use ignis_core::units;
 use serde_json::Value;
 
@@ -316,6 +319,151 @@ fn cell_of(
         value: x,
         unit: u.into(),
     })
+}
+
+/// Same cell of the same source: `asset_sha256`, `path` and `row` (the identity M11 publishes).
+fn same_place(a: &SourceLocator, b: &SourceLocator) -> bool {
+    a.asset_sha256 == b.asset_sha256 && a.path == b.path && a.row == b.row
+}
+
+fn place(l: &SourceLocator) -> String {
+    format!(
+        "{}{}{}",
+        l.asset_sha256,
+        l.path.as_ref().map(|p| format!(" {p}")).unwrap_or_default(),
+        l.row.map(|r| format!(" row {r}")).unwrap_or_default()
+    )
+}
+
+/// The cell of a conditions table a `ValueSource::ConditionsCell` names: the one row of
+/// `investigation_id` with `run_id` (or, without one, whose `key` cell sits at `locator`), its `key`
+/// cell, and for a conflicting cell the candidate at `locator`. Only a measured value is a number.
+pub(crate) fn conditions_cell(
+    table: &ConditionsTable,
+    investigation_id: &str,
+    run_id: Option<&RunId>,
+    key: ConditionKey,
+    locator: Option<&SourceLocator>,
+    reading: CellReading,
+) -> Result<Cell, Problem> {
+    fn cell_in(r: &ConditionsRow, key: ConditionKey) -> Option<&ConditionCell> {
+        r.cells.iter().find(|c| c.key() == key)
+    }
+    let cell_of = |r| cell_in(r, key);
+    let at = |c: &ConditionCell| -> Vec<SourceLocator> {
+        match c {
+            ConditionCell::Value { value, .. } => value.locator.iter().cloned().collect(),
+            ConditionCell::Conflicting { candidates, .. } => candidates
+                .iter()
+                .filter_map(|m| m.locator.clone())
+                .collect(),
+            _ => vec![],
+        }
+    };
+    let rows: Vec<&ConditionsRow> = table
+        .rows
+        .iter()
+        .filter(|r| r.investigation_id == investigation_id)
+        .filter(|r| match run_id {
+            Some(id) => r.run.run_id.as_ref() == Some(id),
+            None => {
+                r.run.run_id.is_none()
+                    && cell_of(r).is_some_and(|c| {
+                        at(c)
+                            .iter()
+                            .any(|l| locator.is_some_and(|w| same_place(l, w)))
+                    })
+            }
+        })
+        .collect();
+    let who = match run_id {
+        Some(id) => format!("run {id} of {investigation_id}"),
+        None => format!(
+            "the run-less row of {investigation_id} at {}",
+            locator.map(place).unwrap_or_default()
+        ),
+    };
+    let found = match rows.as_slice() {
+        [one] => *one,
+        [] => return Err(row(format!("no conditions row for {who}"))),
+        many => {
+            return Err(row(format!(
+                "{} conditions rows for {who}; name the cell's locator",
+                many.len()
+            )))
+        }
+    };
+    let Some(cell) = cell_of(found) else {
+        return Err(column(format!("{who} has no {key:?} cell")));
+    };
+    let measured = match cell {
+        ConditionCell::Value { value, .. } => {
+            if let (Some(want), Some(got)) = (locator, value.locator.as_ref()) {
+                if !same_place(want, got) {
+                    return Err(row(format!(
+                        "the {key:?} cell of {who} sits at {}, not at {}",
+                        place(got),
+                        place(want)
+                    )));
+                }
+            }
+            value
+        }
+        ConditionCell::Conflicting {
+            candidates, reason, ..
+        } => {
+            let Some(want) = locator else {
+                return Err(row(format!(
+                    "the {key:?} cell of {who} is conflicting ({reason}); pick a candidate by its locator: {}",
+                    candidates
+                        .iter()
+                        .filter_map(|m| m.locator.as_ref())
+                        .map(place)
+                        .collect::<Vec<_>>()
+                        .join("; ")
+                )));
+            };
+            candidates
+                .iter()
+                .find(|m| m.locator.as_ref().is_some_and(|l| same_place(l, want)))
+                .ok_or_else(|| {
+                    row(format!(
+                        "no candidate of the conflicting {key:?} cell of {who} sits at {}",
+                        place(want)
+                    ))
+                })?
+        }
+        ConditionCell::Missing { reason, .. } | ConditionCell::NotApplicable { reason, .. } => {
+            return Err(column(format!(
+                "the {key:?} cell of {who} holds no value ({reason}); bind a number only to a measured value"
+            )))
+        }
+    };
+    let (value, unit, what) = match reading {
+        CellReading::Si => (
+            measured.value_si,
+            measured.unit_si.clone(),
+            "value_si + unit_si",
+        ),
+        CellReading::Raw => (
+            match measured.raw_value {
+                Some(RawValue::Number(x)) => Some(x),
+                _ => None,
+            },
+            measured.raw_unit.clone(),
+            "numeric raw_value + raw_unit",
+        ),
+    };
+    match (value, unit.filter(|u| !u.trim().is_empty())) {
+        (Some(value), Some(unit)) => Ok(Cell { value, unit }),
+        (Some(_), None) => Err((
+            AnswerProblemKind::UnitMismatch,
+            format!("the {key:?} cell of {who} states no unit for that number"),
+        )),
+        (None, _) => Err(column(format!(
+            "the {key:?} cell of {who} has no {what} (a categorical or unconverted value)"
+        ))),
+    }
 }
 
 /// `x` rounded to `digits` significant decimal digits.

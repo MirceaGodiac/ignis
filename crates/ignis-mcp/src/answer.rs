@@ -27,14 +27,14 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use ignis_core::contracts::{
     AnswerId, AnswerProblem, AnswerProblemKind, AnswerRefusal, AnswerSubmission, ArtifactId,
-    ArtifactRef, Causation, Claim, ClaimSupport, EntityRef, EpisodeId, EpisodePins, ErrorCode,
-    ErrorEnvelope, EventBody, EvidenceId, EvidenceRef, ExecutionOutcome, ExecutionRecord,
-    ExecutionScope, Finite, GroundingLevel, GroundingMode, GroundingReport, Origin, Producer,
-    ResearchAnswer, ResearchSchema, ResolvedValue, RetryPolicy, Timestamp, ToolCallId,
-    ValueDerivation, ValueSource, ViewSpec,
+    ArtifactRef, Causation, Claim, ClaimSupport, ConditionsQuery, ConditionsTable, DatasetSchema,
+    Digest, EntityRef, EpisodeId, EpisodePins, ErrorCode, ErrorEnvelope, EventBody, EvidenceId,
+    EvidenceRef, ExecutionOutcome, ExecutionRecord, ExecutionScope, Finite, GroundingLevel,
+    GroundingMode, GroundingReport, Origin, Producer, ResearchAnswer, ResearchSchema,
+    ResolvedValue, RetryPolicy, Timestamp, ToolCallId, ValueDerivation, ValueSource, ViewSpec,
 };
 use ignis_core::hashing::sha256_hex;
-use ignis_core::services::{ArtifactDraft, ArtifactStore, ServiceResult};
+use ignis_core::services::{ArtifactDraft, ArtifactStore, DatasetService, ServiceResult};
 use ignis_research::ResearchStore;
 use serde_json::Value;
 
@@ -62,6 +62,8 @@ pub(crate) struct AnswerHost<'a> {
     pub origin: Origin,
     /// Whether a grounding problem refuses the answer or is only recorded in it (M7b).
     pub grounding: GroundingMode,
+    /// Conditions of experimental runs, to read a `conditions_cell` back (absent: not served).
+    pub datasets: Option<&'a dyn DatasetService>,
 }
 
 fn internal(msg: impl Into<String>) -> ErrorEnvelope {
@@ -448,6 +450,8 @@ impl AnswerHost<'_> {
         evidence: &BTreeMap<EvidenceId, EvidenceRef>,
     ) -> ServiceResult<(u32, Vec<AnswerProblem>)> {
         let mut docs: BTreeMap<ArtifactId, Result<Value, String>> = BTreeMap::new();
+        // The conditions snapshot, read once per submission from the service (never the client).
+        let mut conditions: Option<Result<(Digest, ConditionsTable), String>> = None;
         let mut out = Vec::new();
         let mut grounded = 0u32;
         for c in claims.iter_mut() {
@@ -496,6 +500,63 @@ impl AnswerHost<'_> {
                                 })
                             }
                             Err((kind, detail)) => push(kind, format!("{at}: {detail}")),
+                        }
+                    }
+                    ValueSource::ConditionsCell {
+                        snapshot,
+                        investigation_id,
+                        run_id,
+                        key,
+                        locator,
+                        reading,
+                    } => {
+                        let at = format!(
+                            "value {n}{stated} from the {key:?} condition of {investigation_id}"
+                        );
+                        let read = conditions
+                            .get_or_insert_with(|| self.read_conditions(scope))
+                            .as_ref();
+                        let (current, table) = match read {
+                            Ok(t) => t,
+                            Err(e) => {
+                                push(AnswerProblemKind::UnresolvedRow, format!("{at}: {e}"));
+                                continue;
+                            }
+                        };
+                        if current != snapshot {
+                            push(
+                                AnswerProblemKind::StaleSnapshot,
+                                format!(
+                                    "{at}: read under conditions snapshot {snapshot}, but the conditions are now {current}; query them again and bind the current snapshot"
+                                ),
+                            );
+                            continue;
+                        }
+                        let cell = match grounding::conditions_cell(
+                            table,
+                            investigation_id,
+                            run_id.as_ref(),
+                            *key,
+                            locator.as_ref(),
+                            *reading,
+                        ) {
+                            Ok(cell) => cell,
+                            Err((kind, detail)) => {
+                                push(kind, format!("{at}: {detail}"));
+                                continue;
+                            }
+                        };
+                        v.resolved = Finite::new(cell.value).ok().map(|value| ResolvedValue {
+                            level: GroundingLevel::Cell,
+                            value,
+                            unit: cell.unit.clone(),
+                        });
+                        if let (Some(x), Some(unit)) = (v.value, v.unit.as_deref()) {
+                            if let Err((kind, detail)) =
+                                grounding::compare(x.get(), unit, v.significant_digits, &cell)
+                            {
+                                push(kind, format!("{at}: {detail}"));
+                            }
                         }
                     }
                     ValueSource::ArtifactCell {
@@ -578,6 +639,44 @@ impl AnswerHost<'_> {
             }
         }
         Ok((grounded, out))
+    }
+
+    /// The conditions the scope sees, every page, under one snapshot: read before and after the
+    /// query, so a table that changed while it was read is not taken for either version.
+    fn read_conditions(&self, scope: &ExecutionScope) -> Result<(Digest, ConditionsTable), String> {
+        let Some(ds) = self.datasets else {
+            return Err(
+                "this host serves no experimental conditions (conditions_query is not configured)"
+                    .into(),
+            );
+        };
+        let msg = |e: ErrorEnvelope| format!("the conditions could not be read: {}", e.message);
+        let before = ds.conditions_snapshot(scope).map_err(msg)?;
+        let mut q = ConditionsQuery {
+            schema_version: DatasetSchema::V2,
+            investigation_ids: vec![],
+            run_ids: vec![],
+            keys: vec![],
+            filters: vec![],
+            include_unknown: true,
+            include_envelopes: false,
+            page_size: None,
+            cursor: None,
+        };
+        let mut table = ds.conditions(scope, &q).map_err(msg)?;
+        while let Some(cursor) = table.next_cursor.take() {
+            q.cursor = Some(cursor);
+            let page = ds.conditions(scope, &q).map_err(msg)?;
+            table.rows.extend(page.rows);
+            table.next_cursor = page.next_cursor;
+        }
+        let after = ds.conditions_snapshot(scope).map_err(msg)?;
+        if before != after {
+            return Err(format!(
+                "the conditions changed while they were read ({before} then {after}); submit again"
+            ));
+        }
+        Ok((after, table))
     }
 
     /// Whether the cell's artifact was computed by `analysis_execute`, and if so whether the
