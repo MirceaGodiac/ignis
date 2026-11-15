@@ -112,7 +112,8 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
                 || base == "AnswerSubmission"
                 || base == "Capabilities"
                 || base == "EpisodeMetrics"
-                || base == "ErrorEnvelope",
+                || base == "ErrorEnvelope"
+                || base == "SkillText",
             "{path}: no origin label"
         );
 
@@ -124,6 +125,7 @@ fn fixtures_match_schemas_contracts_and_wire_form() {
             "ToolResult" => drop(check::<ToolResult>(&v, ToolResult::validate)),
             "ErrorEnvelope" => drop(check::<ErrorEnvelope>(&v, ErrorEnvelope::validate)),
             "ExecutionRecord" => drop(check::<ExecutionRecord>(&v, ExecutionRecord::validate)),
+            "SkillText" => drop(check::<SkillText>(&v, SkillText::validate)),
             "ResearchAnswer" => drop(check::<ResearchAnswer>(&v, ResearchAnswer::validate)),
             "AnswerSubmission" => drop(check::<AnswerSubmission>(&v, AnswerSubmission::validate)),
             "AnswerRefusal" => drop(check::<AnswerRefusal>(&v, AnswerRefusal::validate)),
@@ -1575,4 +1577,55 @@ fn source_gone_is_never_retryable() {
     )
     .validate()
     .unwrap();
+}
+
+/// The model's own knowledge is a `background` claim: accepted without support (a `complete`
+/// answer may hold it), but never bound as data, so neither a citation nor a grounded number rides
+/// on it.
+#[test]
+fn background_claims_carry_no_support_and_no_values() {
+    let base = fixture("research/answer_background.json");
+    typed::<ResearchAnswer>(&base).validate().unwrap();
+    let mismatch = |v: &Value, id: &str| {
+        typed::<ResearchAnswer>(v).problems().iter().any(|p| {
+            p.kind == AnswerProblemKind::KindSupportMismatch
+                && p.claim_id.as_ref().map(|c| c.as_str()) == Some(id)
+        })
+    };
+    let mut cited = base.clone();
+    cited["claims"][1]["support"] =
+        json!([{"kind": "evidence", "evidence_id": "fixture-evidence-01"}]);
+    assert!(
+        mismatch(&cited, "fixture-claim-05"),
+        "supported by evidence: it is source_reports, not background"
+    );
+    let mut bound = base.clone();
+    bound["claims"][2]["values"] = json!([{"value": 1.0, "unit": "atm",
+        "source": {"kind": "evidence_quote", "evidence_id": "fixture-evidence-01"}}]);
+    assert!(
+        mismatch(&bound, "fixture-claim-06"),
+        "a number bound as grounded data on a background claim"
+    );
+
+    // The same rules hold on the submission, which carries no support check.
+    let mut sub = base.clone();
+    for k in [
+        "schema_version",
+        "answer_id",
+        "episode_id",
+        "evidence",
+        "artifacts",
+        "origin",
+        "created_at",
+    ] {
+        sub.as_object_mut().unwrap().remove(k);
+    }
+    for c in sub["claims"].as_array_mut().unwrap() {
+        c.as_object_mut().unwrap().remove("checked_by");
+    }
+    let s: AnswerSubmission = typed(&sub);
+    assert!(s.problems().is_empty(), "{:?}", s.problems());
+    sub["claims"][1]["support"] =
+        json!([{"kind": "artifact_value", "artifact_id": "a", "pointer": "/x"}]);
+    assert!(typed::<AnswerSubmission>(&sub).validate().is_err());
 }

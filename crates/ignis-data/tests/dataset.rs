@@ -453,3 +453,68 @@ fn an_unknown_dataset_lists_the_builder_ids_and_never_the_evaluator_ones() {
     }
     let _ = std::fs::remove_dir_all(&root);
 }
+
+/// Seen live (2026-11-15): the agent asked for `flex` and was refused, then picked a
+/// `-train-validation` id the public scope cannot read and was refused again. A family name that
+/// names exactly one readable bundle resolves to it; an unknown id lists only readable bundles.
+#[test]
+fn a_family_name_resolves_to_the_one_readable_bundle_and_refusals_list_only_readable_ones() {
+    let root = std::env::temp_dir().join(format!("ignis-dataset-alias-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let store = DatasetStore {
+        builder_root: root.join("work/datasets"),
+        evaluator_root: root.join("holdout/datasets"),
+    };
+    let train = build(&BundleSpec::builder(&[Partition::Train]), SECRET_M);
+    let dev = build(
+        &BundleSpec::builder(&[Partition::Train, Partition::Validation]),
+        SECRET_M,
+    );
+    assert_ne!(train.bundle.dataset_id, dev.bundle.dataset_id);
+    store.save(&train).unwrap();
+    store.save(&dev).unwrap();
+    let rd = [Capability::ReadData];
+    let public = scope(ScopeRole::Research, &[Partition::Train], &rd);
+    let research = scope(
+        ScopeRole::Research,
+        &[Partition::Train, Partition::Validation],
+        &rd,
+    );
+    let family = DatasetId::new("flex").unwrap();
+
+    // one readable flex bundle: the family name resolves to it, under its real id
+    let b = store.dataset(&public, &family).unwrap();
+    assert_eq!(b, train.bundle);
+    // two readable flex bundles: ambiguous, refused with both
+    let e = store.dataset(&research, &family).unwrap_err();
+    assert_eq!(e.code, ErrorCode::NotFound);
+    for id in [&train.bundle.dataset_id, &dev.bundle.dataset_id] {
+        assert!(e.message.contains(id.as_str()), "{}", e.message);
+    }
+    // an unknown name lists what this session can read, with what it holds, never the rest
+    let e = store
+        .dataset(&public, &DatasetId::new("sensors-daft").unwrap())
+        .unwrap_err();
+    assert_eq!(e.code, ErrorCode::NotFound);
+    assert!(
+        e.message.contains(train.bundle.dataset_id.as_str()),
+        "{}",
+        e.message
+    );
+    assert!(
+        !e.message.contains(dev.bundle.dataset_id.as_str()),
+        "{}",
+        e.message
+    );
+    assert!(e.message.contains("partitions train"), "{}", e.message);
+    assert!(e.message.contains("1 more in the store"), "{}", e.message);
+    // the alias never widens access: a validation bundle stays refused by its own id
+    assert_eq!(
+        store
+            .dataset(&public, &dev.bundle.dataset_id)
+            .unwrap_err()
+            .code,
+        ErrorCode::ScopeDenied
+    );
+    let _ = std::fs::remove_dir_all(&root);
+}

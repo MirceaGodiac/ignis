@@ -167,6 +167,7 @@ impl AnswerHost<'_> {
         let (grounded, grounding_problems) =
             self.ground_values(scope, &ep.pins, &mut claims, &artifacts, &found)?;
         problems.extend(grounding_problems);
+        problems.extend(self.background(scope, &mut claims));
 
         let answer = ResearchAnswer {
             schema_version: ResearchSchema::V2,
@@ -273,6 +274,60 @@ impl AnswerHost<'_> {
             artifact,
             appended: Some(ev.seq),
         })
+    }
+
+    /// `background` claims (the model's own knowledge): the host records that it did not verify
+    /// them (`host_rule` / `unverifiable`, so a number in their text is never shown as grounded)
+    /// and refuses one that names a run of the validation or test partition, whose outcome may
+    /// only come from what the tools return (model weights may have memorized published results
+    /// of the runs the lockbox holds). Run ids always contain `:` (`PSI-69:053F001:2010-05-05`),
+    /// so only such tokens are looked up; without a dataset service the check cannot run.
+    fn background(&self, scope: &ExecutionScope, claims: &mut [Claim]) -> Vec<AnswerProblem> {
+        use ignis_core::contracts::{
+            ClaimKind, Partition, RunId, SupportCheck, SupportCheckMethod, SupportVerdict,
+        };
+        let mut out = Vec::new();
+        for claim in claims
+            .iter_mut()
+            .filter(|c| c.kind == ClaimKind::Background)
+        {
+            claim.checked_by = Some(SupportCheck {
+                method: SupportCheckMethod::HostRule,
+                model_id: None,
+                verdict: SupportVerdict::Unverifiable,
+                confidence: None,
+            });
+            let Some(datasets) = self.datasets else {
+                continue;
+            };
+            let tokens: BTreeSet<&str> = claim
+                .text
+                .split(|c: char| c.is_whitespace() || ",;()[]{}\"'`".contains(c))
+                .map(|t| t.trim_matches(|c: char| c == '.' || c == ':'))
+                .filter(|t| t.contains(':'))
+                .collect();
+            for t in tokens {
+                let Ok(run) = RunId::new(t) else { continue };
+                let Ok(parts) = datasets.run_partitions(scope, &run) else {
+                    continue;
+                };
+                if let Some(p) = parts
+                    .iter()
+                    .find(|p| matches!(p, Partition::Validation | Partition::Test))
+                {
+                    out.push(AnswerProblem {
+                        kind: AnswerProblemKind::KindSupportMismatch,
+                        claim_id: Some(claim.claim_id.clone()),
+                        block: None,
+                        detail: format!(
+                            "background claim {} names run {t} of the {p:?} partition: a run's outcome is never stated from the model's own knowledge; state only what the tools return about it (as an observed or source_reports claim with support), or drop the run from the claim",
+                            claim.claim_id
+                        ),
+                    });
+                }
+            }
+        }
+        out
     }
 
     /// The answer an earlier `answer.completed` event stored.

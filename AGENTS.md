@@ -35,6 +35,8 @@ limits that change the interpretation. Read this file fully; follow the links on
 **Data, results and interpretation stay separate.** An original value keeps its raw value, raw unit,
 SI value and locator. IGNIS computations are artifacts with inputs and code identity. Model outputs
 are `model_output`, never measurements. LLM interpretation is a claim of kind `interpretation`.
+What the answering model states from its own knowledge is a claim of kind `background`: labelled as
+model knowledge, unverified, never bound as data or presented as a NASA result or measurement.
 Missing, conflicting and not-applicable are explicit statuses or documented absent fields, never zero.
 Experimental times are seconds since an explicit `time_origin`; system times are RFC 3339 UTC.
 

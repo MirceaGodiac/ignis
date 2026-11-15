@@ -733,7 +733,13 @@ fn the_harness_bundle_reaches_every_thread_and_is_pinned_on_the_episode() {
 fn the_harness_prefix_is_byte_identical_across_episodes_and_scopes() {
     use ignis_research::runtime::HarnessBundle;
     let dir = tempfile::tempdir().unwrap();
-    let bundle = HarnessBundle::embedded(&["sources_search".into(), "answer_submit".into()]);
+    // As served: skills on demand (the prefix carries the skill index, not the texts).
+    let bundle = HarnessBundle::embedded(&[
+        "sources_search".into(),
+        "answer_submit".into(),
+        "skills_read".into(),
+    ]);
+    assert!(!bundle.text().contains("<skill "));
     let mut cfg = config(dir.path());
     cfg.harness = Some(bundle.clone());
     let h = Harness::with_config(dir.path(), cfg);
@@ -757,4 +763,118 @@ fn the_harness_prefix_is_byte_identical_across_episodes_and_scopes() {
             .digest
     };
     assert_eq!(pin(&a, &ea), pin(&b, &eb));
+}
+
+/// One line per record of a fake app-server log of the workspace's `CODEX_HOME`.
+fn fake_log(dir: &std::path::Path, ws: &str, file: &str) -> Vec<serde_json::Value> {
+    let want = ignis_core::hashing::sha256_hex(ws.as_bytes());
+    let path = dir
+        .join("codex")
+        .join(format!("ws-{}", &want[..16]))
+        .join(file);
+    std::fs::read_to_string(path)
+        .unwrap_or_default()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect()
+}
+
+/// Codex's coding-agent base prompt is replaced by the IGNIS base (`model_instructions_file`), the
+/// built-in tools and prompt sections a research agent never uses are switched off, and the whole
+/// prefix the model sees before the turn input (base + harness) is the same bytes for every
+/// workspace, scope and process, so a prompt cache keyed on it can serve every episode.
+#[test]
+fn the_base_prompt_replaces_codex_defaults_and_the_whole_prefix_is_stable() {
+    use ignis_research::runtime::{codex_base_instructions, HarnessBundle, CODEX_BASE_LABEL};
+    let dir = tempfile::tempdir().unwrap();
+    let bundle = HarnessBundle::embedded(&["sources_search".into(), "answer_submit".into()]);
+    let mut cfg = config(dir.path());
+    cfg.harness = Some(bundle.clone());
+    let h = Harness::with_config(dir.path(), cfg);
+    let base = codex_base_instructions();
+    assert!(!base.contains('\r') && base.contains("IGNIS"));
+
+    // The manifest names the base prompt by content, so traces say which bytes ran.
+    let overrides = &h.bridge.manifest().config_overrides;
+    let digest = ignis_core::hashing::sha256_hex(base.as_bytes());
+    assert!(
+        overrides.contains(&format!(
+            "model_instructions_file={CODEX_BASE_LABEL} sha256:{digest}"
+        )),
+        "{overrides:?}"
+    );
+
+    let (a, b) = (scope("ws-b1", false), scope("ws-b2", true));
+    let (ea, eb) = (h.episode(&a, "base-a"), h.episode(&b, "base-b"));
+    h.say(&a, &ea, "a question about flames");
+    h.say(&b, &eb, "a different question");
+    h.wait_status(&a, &ea, EpisodeStatus::Completed);
+    h.wait_status(&b, &eb, EpisodeStatus::Completed);
+    // A second process for the first workspace (a host restart) resumes with the same prefix.
+    h.bridge.shutdown();
+    let h = {
+        let mut cfg = config(dir.path());
+        cfg.harness = Some(bundle.clone());
+        Harness::with_config(dir.path(), cfg)
+    };
+    h.say(&a, &ea, "a follow-up");
+    h.wait(&a, &ea, "second answer", |e| completed_texts(e).len() == 2);
+
+    let mut sent = fake_log(dir.path(), "ws-b1", "fake-instructions.jsonl");
+    sent.extend(fake_log(dir.path(), "ws-b2", "fake-instructions.jsonl"));
+    let methods: Vec<_> = sent.iter().map(|v| v["method"].as_str().unwrap()).collect();
+    assert_eq!(methods, ["thread/start", "thread/resume", "thread/start"]);
+    for v in &sent {
+        assert_eq!(v["baseInstructions"].as_str(), Some(base.as_str()), "{v}");
+        assert_eq!(
+            v["developerInstructions"].as_str(),
+            Some(bundle.text()),
+            "{v}"
+        );
+    }
+
+    // Every app-server process got the same switches (they are process-wide, not per thread).
+    let mut procs = fake_log(dir.path(), "ws-b1", "fake-overrides.jsonl");
+    procs.extend(fake_log(dir.path(), "ws-b2", "fake-overrides.jsonl"));
+    assert_eq!(procs.len(), 3);
+    for p in &procs {
+        let o: Vec<&str> = p
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|x| x.as_str().unwrap())
+            .collect();
+        for off in [
+            "features.shell_tool=false",
+            "features.goals=false",
+            "features.view_image=false",
+            "features.sleep_tool=false",
+            "skills.bundled.enabled=false",
+            "skills.include_instructions=false",
+            "include_permissions_instructions=false",
+            "include_collaboration_mode_instructions=false",
+            "include_apps_instructions=false",
+            "web_search=\"disabled\"",
+        ] {
+            assert!(o.contains(&off), "{off} missing from {o:?}");
+        }
+        let file: Vec<_> = o
+            .iter()
+            .filter_map(|x| x.strip_prefix("model_instructions_file="))
+            .collect();
+        assert_eq!(file.len(), 1, "{o:?}");
+        assert_eq!(
+            file[0],
+            procs[0]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find_map(|x| { x.as_str().unwrap().strip_prefix("model_instructions_file=") })
+                .unwrap(),
+            "one file for every process"
+        );
+        let path: String = serde_json::from_str(file[0]).unwrap();
+        assert!(std::path::Path::new(&path).is_absolute(), "{path}");
+        assert!(path.contains(&digest[..16]), "named by its content: {path}");
+    }
 }

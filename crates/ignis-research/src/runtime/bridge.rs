@@ -908,6 +908,9 @@ impl Inner {
             st.generation
         };
         let label = format!("{}#{generation}", &sha256_hex(ws.as_str().as_bytes())[..8]);
+        // Rewritten when missing (e.g. a state directory cleaned since preflight): Codex refuses to
+        // start on a missing `model_instructions_file`.
+        self.cfg.ensure_base_instructions().map_err(unavailable)?;
         let mut cmd = self.cfg.command(&home);
         // The IGNIS tools: a loopback MCP server, reached with a token bound to this workspace's
         // host-derived scope (one process per workspace). Revoked when the process goes away.

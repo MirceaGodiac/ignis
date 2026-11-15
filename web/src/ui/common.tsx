@@ -105,6 +105,7 @@ export const CLAIM_LABEL: Record<Claim["kind"], string> = {
   computed: "Computed by IGNIS",
   predicted: "Model prediction",
   interpretation: "Interpretation",
+  background: "Model knowledge, not from the NASA corpus",
 };
 
 const CLAIM_GLYPH: Record<Claim["kind"], string> = {
@@ -113,6 +114,7 @@ const CLAIM_GLYPH: Record<Claim["kind"], string> = {
   computed: "g-computed",
   predicted: "g-predicted",
   interpretation: "g-interpretation",
+  background: "g-background",
 };
 
 export function ClaimGlyph({ kind }: { kind: Claim["kind"] }) {

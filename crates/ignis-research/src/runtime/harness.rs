@@ -7,11 +7,17 @@
 //!   the host) loads a variant from a directory instead.
 //! - The tool section is generated from [`tool_catalog`], restricted to the tools the runtime is
 //!   actually attached to, so descriptions cannot drift from the contract.
-//! - Skills are inlined, not installed for discovery: both runtimes run without a shell, file tools
-//!   or the Skill tool (`--tools ""`), so a skill on disk could be listed but never read.
+//! - Skills load on demand. Both runtimes run without a shell, file tools or the Skill tool
+//!   (`--tools ""`), so a skill on disk could be listed but never read; instead the prefix carries
+//!   a one-line skill index and the IGNIS tool `skills_read` serves a skill's full text from the
+//!   bundle the episode is pinned to (the host keeps its rendered bundles on a [`HarnessShelf`]).
+//!   Every model request re-sends the prefix, so a skill the question does not need costs nothing.
+//!   A runtime not attached to `skills_read` gets the skills inlined instead, as before.
 //! - The prefix is byte-stable for prompt caching: no timestamps, episode ids or user data, line
-//!   endings normalized to `\n`, tools in name order, skills in directory-name order. The digest is
-//!   the sha256 of exactly the bytes injected.
+//!   endings normalized to `\n`, tools in name order, skills in directory-name order.
+//! - The digest identifies everything the agent can be given: the sha256 of the prefix bytes, followed,
+//!   when skills are served on demand, by the served skill texts (each as a `<skill>` block, in
+//!   name order). Without on-demand skills it is the sha256 of exactly the bytes injected.
 //!
 //! **Prefix and tail.** The bundle is the whole cached prefix and nothing else: the same bytes for
 //! every episode, scope and turn, so the runtime's prompt cache serves it (caching only the stable
@@ -22,15 +28,16 @@
 //! (the prompt on stdin).
 //!
 //! Codex receives the prefix as `developerInstructions` on `thread/start` and `thread/resume`
-//! (Codex keeps its own base instructions); Claude Code receives it with
+//! (its coding-agent base instructions are replaced by `runtime/codex_base.md` through
+//! `model_instructions_file`, see `preflight.rs`); Claude Code receives it with
 //! `--append-system-prompt-file` (its default system prompt stays, its prompt snapshot keeps the
 //! session's first system prompt verbatim on resume).
 
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use ignis_core::contracts::{
-    tool_catalog, Digest, EpisodeId, ExecutionScope, HarnessRef, RuntimeBuildId,
+    tool_catalog, Digest, EpisodeId, ExecutionScope, HarnessRef, RuntimeBuildId, SkillText,
 };
 use ignis_core::services::ServiceResult;
 
@@ -42,6 +49,10 @@ pub const EMBEDDED_LABEL: &str = "h1";
 
 /// Model name recorded when IGNIS did not choose one and the runtime has not reported it.
 pub const RUNTIME_DEFAULT_MODEL: &str = "runtime-default";
+
+/// The IGNIS tool that serves a skill's full text; when the runtime is attached to it, the prefix
+/// carries only the skill index.
+pub const SKILLS_TOOL: &str = "skills_read";
 
 const EMBEDDED_INVESTIGATOR: &str = include_str!("../../../../harness/investigator.md");
 const EMBEDDED_SKILLS: &[(&str, &str)] = &[
@@ -104,11 +115,31 @@ impl HarnessSource {
     }
 }
 
-/// A rendered harness bundle: the instruction prefix and its digest. Cheap to clone.
+/// One skill of a bundle, parsed from its SKILL.md (line endings `\n`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Skill {
+    pub name: String,
+    pub description: String,
+    /// The text after the frontmatter, trimmed.
+    pub body: String,
+}
+
+impl Skill {
+    fn block(&self) -> String {
+        format!(
+            "\n<skill name=\"{}\">\n{}\n\n{}\n</skill>\n",
+            self.name, self.description, self.body
+        )
+    }
+}
+
+/// A rendered harness bundle: the instruction prefix, the skills it serves on demand and its
+/// digest. Cheap to clone.
 #[derive(Clone, PartialEq, Eq)]
 pub struct HarnessBundle {
     label: String,
     text: Arc<str>,
+    skills: Arc<[Skill]>,
     digest: Digest,
 }
 
@@ -118,6 +149,7 @@ impl std::fmt::Debug for HarnessBundle {
             .field("label", &self.label)
             .field("digest", &self.digest)
             .field("bytes", &self.text.len())
+            .field("skills", &self.skills.len())
             .finish()
     }
 }
@@ -127,7 +159,7 @@ fn lf(s: &str) -> String {
 }
 
 /// `---\nkey: value\n---\nbody` → (`name`, `description`, body). Fails closed on a malformed skill.
-fn parse_skill(dir_name: &str, text: &str) -> Result<(String, String, String), String> {
+fn parse_skill(dir_name: &str, text: &str) -> Result<Skill, String> {
     let bad = |why: &str| format!("skill {dir_name}: {why}");
     let rest = text
         .strip_prefix("---\n")
@@ -147,7 +179,15 @@ fn parse_skill(dir_name: &str, text: &str) -> Result<(String, String, String), S
         return Err(bad(&format!("name {name:?} differs from its directory")));
     }
     let description = field("description").ok_or_else(|| bad("no description"))?;
-    Ok((name, description, body.trim().to_string()))
+    let body = body.trim().to_string();
+    if body.is_empty() {
+        return Err(bad("empty body"));
+    }
+    Ok(Skill {
+        name,
+        description,
+        body,
+    })
 }
 
 /// The tool section: one entry per catalog tool the runtime is attached to, in name order.
@@ -162,7 +202,7 @@ fn tool_section(tools: &[String]) -> String {
     );
     if catalog.is_empty() {
         out.push_str(
-            "\nNo IGNIS tools are attached in this deployment: you cannot retrieve evidence, compute or submit a bound answer. Say so instead of answering from memory.\n",
+            "\nNo IGNIS tools are attached in this deployment: you cannot retrieve evidence, compute or submit a bound answer. Say so, and label anything you state from your own knowledge as such.\n",
         );
         return out;
     }
@@ -206,24 +246,40 @@ impl HarnessBundle {
             .iter()
             .map(|(n, s)| parse_skill(n, &lf(s)))
             .collect::<Result<Vec<_>, _>>()?;
-        skills.sort_by(|a, b| a.0.cmp(&b.0));
+        skills.sort_by(|a, b| a.name.cmp(&b.name));
+        if let Some(w) = skills.windows(2).find(|w| w[0].name == w[1].name) {
+            return Err(format!("skill {} appears twice", w[0].name));
+        }
+        let on_demand = !skills.is_empty() && tools.iter().any(|t| t == SKILLS_TOOL);
         let mut text = investigator;
         text.push_str("\n\n");
         text.push_str(&tool_section(tools));
-        if !skills.is_empty() {
+        let mut identity = None;
+        if on_demand {
+            text.push_str(&format!(
+                "\n## Skills\n\nA skill is the method for one kind of step. Read it with `{SKILLS_TOOL}` before your first tool call of that kind and follow it; read each skill once per episode.\n"
+            ));
+            for s in &skills {
+                text.push_str(&format!("\n- `{}`: {}", s.name, s.description));
+            }
+            text.push('\n');
+            // The digest covers the served texts too, so the pin identifies what the agent read.
+            let mut all = text.clone();
+            all.push_str("\n## Skills served on demand\n");
+            skills.iter().for_each(|s| all.push_str(&s.block()));
+            identity = Some(all);
+        } else if !skills.is_empty() {
             text.push_str(
                 "\n## Skills\n\nApply a skill when its description matches the question.\n",
             );
-            for (name, description, body) in &skills {
-                text.push_str(&format!(
-                    "\n<skill name=\"{name}\">\n{description}\n\n{body}\n</skill>\n"
-                ));
-            }
+            skills.iter().for_each(|s| text.push_str(&s.block()));
         }
-        let digest = Digest::of_bytes(text.as_bytes());
+        let digest = Digest::of_bytes(identity.as_deref().unwrap_or(&text).as_bytes());
         Ok(HarnessBundle {
             label: label.to_string(),
             text: text.into(),
+            // Both forms cover these exact texts with the digest (inline in the prefix, or appended).
+            skills: skills.into(),
             digest,
         })
     }
@@ -246,6 +302,24 @@ impl HarnessBundle {
 
     pub fn label(&self) -> &str {
         &self.label
+    }
+
+    /// The bundle's skills, in name order.
+    pub fn skills(&self) -> &[Skill] {
+        &self.skills
+    }
+
+    /// One skill's full text as `skills_read` returns it; `None` for a name the bundle lacks.
+    pub fn skill_text(&self, name: &str) -> Option<SkillText> {
+        self.skills
+            .iter()
+            .find(|s| s.name == name)
+            .map(|s| SkillText {
+                name: s.name.clone(),
+                description: s.description.clone(),
+                body: s.body.clone(),
+                harness_digest: self.digest.clone(),
+            })
     }
 
     /// The episode pin for this bundle injected into `build` running `model`.
@@ -275,6 +349,41 @@ impl HarnessBundle {
 
 pub(crate) fn short(label: &str, digest: &Digest) -> String {
     format!("{label} sha256:{}", &digest.hex()[..12])
+}
+
+/// The bundles a host rendered for its runtimes, by digest: where `skills_read` finds the skill
+/// texts of the bundle an episode is pinned to. Cheap to clone (shared).
+#[derive(Clone, Default)]
+pub struct HarnessShelf(Arc<RwLock<Vec<HarnessBundle>>>);
+
+impl std::fmt::Debug for HarnessShelf {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let held = self.0.read().map(|v| v.len()).unwrap_or_default();
+        f.debug_struct("HarnessShelf")
+            .field("bundles", &held)
+            .finish()
+    }
+}
+
+impl HarnessShelf {
+    /// Hold `bundle` (once per digest); the last one added is the host's current bundle.
+    pub fn add(&self, bundle: HarnessBundle) {
+        let mut v = self.0.write().unwrap_or_else(|e| e.into_inner());
+        v.retain(|b| b.digest != bundle.digest);
+        v.push(bundle);
+    }
+
+    /// The bundle with this digest, when this host holds it.
+    pub fn get(&self, digest: &Digest) -> Option<HarnessBundle> {
+        let v = self.0.read().unwrap_or_else(|e| e.into_inner());
+        v.iter().find(|b| &b.digest == digest).cloned()
+    }
+
+    /// The bundle added last (what a call outside an episode reads).
+    pub fn current(&self) -> Option<HarnessBundle> {
+        let v = self.0.read().unwrap_or_else(|e| e.into_inner());
+        v.last().cloned()
+    }
 }
 
 /// Pin `bundle` on the episode as injected into `build`, and return the note for the log when the
@@ -375,6 +484,67 @@ mod tests {
         assert_ne!(a.digest(), c.digest());
         let fewer = HarnessBundle::render("h1", &src, &tools()[..1]).unwrap();
         assert_ne!(a.digest(), fewer.digest());
+    }
+
+    /// With `skills_read` attached the prefix carries a one-line index per skill and no skill body,
+    /// stays byte-stable, and the digest still moves with any skill's text (which the bundle
+    /// serves byte-for-byte), so a pin identifies what `skills_read` returned.
+    #[test]
+    fn skills_on_demand_leave_the_prefix_but_stay_in_the_digest() {
+        let src = HarnessSource::embedded();
+        let mut with: Vec<String> = tools();
+        with.push(SKILLS_TOOL.into());
+        let lazy = HarnessBundle::render("h1", &src, &with).unwrap();
+        let eager = HarnessBundle::render("h1", &src, &tools()).unwrap();
+        let t = lazy.text();
+        assert!(!t.contains("<skill "), "no skill body in the prefix");
+        assert!(t.len() < eager.text().len());
+        for s in lazy.skills() {
+            assert!(t.contains(&format!("\n- `{}`: {}", s.name, s.description)));
+            assert!(!t.contains(&s.body));
+            let served = lazy.skill_text(&s.name).unwrap();
+            served.validate().unwrap();
+            assert_eq!(served.body, s.body);
+            assert_eq!(&served.harness_digest, lazy.digest());
+        }
+        assert_eq!(lazy.skills().len(), 3);
+        assert!(lazy.skill_text("no-such-skill").is_none());
+
+        let mut crlf = src.clone();
+        crlf.skills.reverse();
+        for s in &mut crlf.skills {
+            s.1 = s.1.replace('\n', "\r\n");
+        }
+        let again = HarnessBundle::render("h1", &crlf, &with).unwrap();
+        assert_eq!(again.text(), t);
+        assert_eq!(again.digest(), lazy.digest());
+
+        let mut edited = src.clone();
+        edited.skills[0].1.push_str("\nOne more step.\n");
+        let moved = HarnessBundle::render("h1", &edited, &with).unwrap();
+        assert_eq!(moved.text(), t, "a body edit leaves the prefix alone");
+        assert_ne!(moved.digest(), lazy.digest(), "but moves the digest");
+
+        let shelf = HarnessShelf::default();
+        shelf.add(lazy.clone());
+        shelf.add(moved.clone());
+        shelf.add(lazy.clone());
+        assert_eq!(shelf.current().as_ref(), Some(&lazy));
+        assert_eq!(shelf.get(moved.digest()).as_ref(), Some(&moved));
+
+        // Size with every catalog tool attached (`--nocapture` shows it).
+        let all: Vec<String> = tool_catalog().into_iter().map(|t| t.name).collect();
+        let before: Vec<String> = all.iter().filter(|n| *n != SKILLS_TOOL).cloned().collect();
+        let (b, a) = (
+            HarnessBundle::render("h1", &src, &before).unwrap(),
+            HarnessBundle::render("h1", &src, &all).unwrap(),
+        );
+        eprintln!(
+            "prefix bytes: skills inlined {}, skills on demand {}",
+            b.text().len(),
+            a.text().len()
+        );
+        assert!(a.text().len() < b.text().len());
     }
 
     #[test]

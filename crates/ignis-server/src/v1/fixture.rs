@@ -383,6 +383,7 @@ impl Fixture {
                 conditions: false,
                 web: Default::default(),
                 wiki: false,
+                wiki_write: false,
             },
             known,
         })

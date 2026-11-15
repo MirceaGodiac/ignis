@@ -17,7 +17,10 @@
 //!   answers.
 //!   `hang` also persists the items produced so far, so a restart can replay them.
 //! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`; the
-//!   `developerInstructions` of each `thread/start` / `thread/resume` to `fake-instructions.jsonl`.
+//!   `developerInstructions` of each `thread/start` / `thread/resume`, with the base instructions
+//!   the process runs with (the contents of `-c model_instructions_file=...`, read at start like the
+//!   real server, which refuses to start when the file is missing), to `fake-instructions.jsonl`;
+//!   the `-c` overrides of each `app-server` process to `fake-overrides.jsonl`.
 
 use std::collections::HashMap;
 use std::io::{BufRead, Write};
@@ -50,7 +53,15 @@ pub fn main() {
         write_schema(&PathBuf::from(out));
         return;
     }
-    serve();
+    serve(&args);
+}
+
+/// The values of every `-c key=value` in `args`.
+fn overrides(args: &[String]) -> Vec<String> {
+    args.windows(2)
+        .filter(|w| w[0] == "-c")
+        .map(|w| w[1].clone())
+        .collect()
 }
 
 fn variants(methods: &[&str]) -> Value {
@@ -223,6 +234,8 @@ struct Shared {
     wake: Condvar,
     ids: AtomicU64,
     home: PathBuf,
+    /// Contents of the `model_instructions_file` override (`None`: Codex's built-in prompt).
+    base_instructions: Option<String>,
 }
 
 impl Shared {
@@ -246,6 +259,7 @@ impl Shared {
             .open(self.home.join("fake-instructions.jsonl"))
         {
             let line = json!({"method": method,
+                              "baseInstructions": self.base_instructions,
                               "developerInstructions": params["developerInstructions"]});
             let _ = writeln!(f, "{line}");
         }
@@ -262,8 +276,26 @@ impl Shared {
     }
 }
 
-fn serve() {
+fn serve(args: &[String]) {
     let home = PathBuf::from(std::env::var("CODEX_HOME").unwrap_or(".".into()));
+    let overrides = overrides(args);
+    if let Ok(mut f) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(home.join("fake-overrides.jsonl"))
+    {
+        let _ = writeln!(f, "{}", json!(overrides));
+    }
+    let base_instructions = overrides
+        .iter()
+        .find_map(|o| o.strip_prefix("model_instructions_file="))
+        .map(|v| {
+            let path: String = serde_json::from_str(v).unwrap_or_else(|_| v.to_string());
+            std::fs::read_to_string(&path).unwrap_or_else(|e| {
+                eprintln!("ignis-fake-codex: model_instructions_file {path}: {e}");
+                std::process::exit(1)
+            })
+        });
     let framing = match std::env::var("IGNIS_FAKE_CODEX_FRAMING").as_deref() {
         Ok("split") => Framing::Split,
         Ok("merged") => Framing::Merged,
@@ -281,6 +313,7 @@ fn serve() {
         wake: Condvar::new(),
         ids: AtomicU64::new(1),
         home,
+        base_instructions,
     });
     let (mut initialized, mut ready) = (false, false);
     for line in std::io::stdin().lock().lines() {
