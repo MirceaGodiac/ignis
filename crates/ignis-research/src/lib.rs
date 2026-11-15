@@ -19,6 +19,7 @@
 
 pub mod artifacts;
 pub mod backup;
+pub mod metrics;
 pub mod r2;
 pub mod runtime;
 pub mod s3;

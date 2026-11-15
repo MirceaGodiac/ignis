@@ -68,6 +68,10 @@ export const CONTRACT_COVERAGE = {
   Capabilities: { view: "Sidebar services and tool availability" },
   AnswerRefusal: { view: "Route step of a refused answer_submit; side panel typed artifact" },
   TraceBundle: { notShown: "Waits for trace export (M10); T11 scorecard" },
+  // ---- M5 observability: derived from the log, served by /api/v1 metrics routes
+  UsageReport: { notShown: "Inside usage.reported events; summed by the metrics routes" },
+  EpisodeMetrics: { notShown: "Response of GET /api/v1/episodes/{id}/metrics; no UI yet" },
+  WorkspaceMetrics: { notShown: "Response of GET /api/v1/metrics; no UI yet" },
   MessageAccepted: { notShown: "Response: shown as the message in the thread" },
   ApprovalAccepted: { notShown: "Response: shown as the approval's new state in the thread" },
   // ---- requests and references: shown inside the object they produce or name
