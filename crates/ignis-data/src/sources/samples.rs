@@ -1,7 +1,8 @@
-//! Bounded, representative sample selection per investigation (no bulk ingestion).
+//! Bounded sample selection per investigation (no bulk ingestion: no video, images or archives).
 //!
 //! The selection is a deterministic function of the remote listing (and, for FLEX series, of the
 //! already-fetched test sheets), so `ignis sources samples` reproduces the same working sample.
+//! FLEX takes every run's processed series (the models read them); ACME and BASS a representative set.
 
 use regex::Regex;
 
@@ -28,30 +29,35 @@ pub fn flex_stage1(files: &[RemoteFile]) -> Vec<RemoteFile> {
     named(files, |n| t.is_match(n) || n.ends_with("_TestSheet.txt"))
 }
 
-/// DropletData + visible/UV channels for chosen methanol runs, plus the CIR test-point logs.
+/// NASA's processed series of a FLEX run, as `families::flex::ingest` reads them: liquid diameter
+/// (`DropletData`), visible and UV flame diameter (`ColorCamData`, `LLUVData`). Text, < 0.3 MB each.
+pub const FLEX_SERIES: [&str; 3] = ["DropletData", "ColorCamData", "LLUVData"];
+
+/// Every published processed series of every FLEX run with a test sheet (`per_run_cir`: file
+/// number -> CIR test point), plus the run's CIR test-point logs (record, comments, MDCA settings;
+/// the MDCA fiber flag enters the free-floating screen). No run subset: a run whose series NASA
+/// does not publish simply has none here.
 pub fn flex_stage2(
     files: &[RemoteFile],
-    numbers: &[String],
     per_run_cir: &std::collections::BTreeMap<String, String>,
 ) -> Vec<RemoteFile> {
-    let mut out = Vec::new();
-    for num in numbers {
-        let rx = Regex::new(&format!(
-            r"^PSI-69_Raw Data_FLEX-{}_(DropletData|ColorCamData|LLUVData)\.txt$",
-            regex::escape(num)
-        ))
-        .unwrap();
-        out.extend(named(files, |n| rx.is_match(n)));
-        if let Some(cir) = per_run_cir.get(num).filter(|c| !c.is_empty()) {
-            let want = [
-                format!("PSI-69_Raw Data_{cir}.txt"),
-                format!("PSI-69_Raw Data_{cir}_Comments.txt"),
-                format!("PSI-69_Raw Data_{cir}_MDCA_Testpoint_Settings.txt"),
-            ];
-            out.extend(named(files, |n| want.iter().any(|w| w == n)));
+    let mut want = std::collections::BTreeSet::new();
+    for (num, cir) in per_run_cir {
+        for kind in FLEX_SERIES {
+            want.insert(format!("PSI-69_Raw Data_FLEX-{num}_{kind}.txt"));
+        }
+        if !cir.is_empty() {
+            want.insert(format!("PSI-69_Raw Data_{cir}.txt"));
+            want.insert(format!("PSI-69_Raw Data_{cir}_Comments.txt"));
+            want.insert(format!("PSI-69_Raw Data_{cir}_MDCA_Testpoint_Settings.txt"));
         }
     }
-    out
+    // NASA's listing repeats a few rows: one entry per (name, version).
+    let mut seen = std::collections::BTreeSet::new();
+    named(files, |n| want.contains(n))
+        .into_iter()
+        .filter(|f| seen.insert((f.file_name.clone(), f.file_version)))
+        .collect()
 }
 
 pub const ACME_TESTS: [&str; 7] = [
