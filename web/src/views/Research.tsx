@@ -2,6 +2,7 @@
 // (collapsed), its answers with citation chips, and a composer at the bottom. Sources, a source's
 // original and a step's detail open in the side panel. State comes only from the ordered event log
 // (research/eventLog + stream, tested).
+import { RichText } from "../shell/RichText";
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { EpisodeStatus, ResearchAnswer, ResearchEpisode } from "../contracts/generated";
@@ -404,7 +405,7 @@ function TurnView({ turn, live }: { turn: Turn; live: boolean }) {
       {turn.stops.length > 0 && <RouteSummary stops={turn.stops} turn={turn} open={live} />}
       {replies.map((m) => (
         <p key={m.message_id} className="msg-agent">
-          {m.text}
+          <RichText text={m.text} />
           {!m.complete && <span className="muted"> …</span>}
         </p>
       ))}
