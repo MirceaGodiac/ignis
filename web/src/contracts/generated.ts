@@ -756,6 +756,39 @@ export type ClaimSupport =
  */
 export type ParseViewId = string;
 /**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "PageCursor".
+ */
+export type PageCursor = string;
+/**
+ * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
+ * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
+ * catalog is closed: a new key is a contract change.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionKey".
+ */
+export type ConditionKey =
+  | "oxygen_mole_fraction"
+  | "pressure"
+  | "flow_velocity"
+  | "gravity_level"
+  | "ambient_temperature"
+  | "fuel"
+  | "diluent"
+  | "sample_geometry"
+  | "hardware"
+  | "diagnostics";
+/**
+ * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
+ * `dataset.v1` (C0) documents are still read, and keep their content digests because a
+ * document is re-serialized with the tag it was read with. New document types require v2.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DatasetSchema".
+ */
+export type DatasetSchema = "dataset.v2" | "dataset.v1";
+/**
  * Language of an `analysis_execute` program. Closed: a new value needs a runner image that
  * provides it (and a preflight that proves it).
  *
@@ -775,6 +808,50 @@ export type Digest4 = string;
  * via the `definition` "RunnerIsolation".
  */
 export type RunnerIsolation = "gvisor" | "container";
+/**
+ * What a by-reference input resolved to when it was mounted, so a result names exactly the data
+ * it read (and its units).
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ResolvedInput".
+ */
+export type ResolvedInput =
+  | {
+      bundle_digest: Digest5;
+      columns: ColumnSpec[];
+      dataset_id: DatasetId;
+      kind: "dataset_view";
+      /**
+       * Partitions of the bundle, each granted by the scope that mounted it.
+       */
+      partitions: Partition[];
+      row_count: number;
+      /**
+       * Event that defines t = 0 for every time column.
+       */
+      time_origin: string;
+      view: string;
+    }
+  | {
+      kind: "conditions";
+      query: ConditionsQuery;
+      row_count: number;
+      snapshot: Digest6;
+    };
+/**
+ * [`super::DatasetBundle::content_digest`] of the bundle the view belongs to.
+ */
+export type Digest5 = string;
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ColumnRole".
+ */
+export type ColumnRole =
+  ("run_id" | "value" | "uncertainty" | "condition" | "flag") | "time" | "available_at" | "locator";
+/**
+ * `conditions_snapshot` of the data the table was answered from.
+ */
+export type Digest6 = string;
 /**
  * Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and
  * anything computed from them) can never be presented as NASA results or qualify a model.
@@ -861,11 +938,6 @@ export type RuntimeCredentials = "environment" | "shared_login_home" | "none";
  * via the `definition` "RuntimeProfile".
  */
 export type RuntimeProfile = "public";
-/**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "PageCursor".
- */
-export type PageCursor = string;
 export type SearchMode = "hybrid" | "lexical" | "dense";
 /**
  * How much a search or read returns per item: `concise` keeps ids, locators and short text for
@@ -1063,7 +1135,7 @@ export type AuthorKind = "agent" | "human";
 /**
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
-export type Digest5 = string;
+export type Digest7 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1092,21 +1164,6 @@ export type WebContent = "excerpt" | "full_snapshot";
  */
 export type BundleAudience = "builder" | "evaluator";
 /**
- * Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;
- * `dataset.v1` (C0) documents are still read, and keep their content digests because a
- * document is re-serialized with the tag it was read with. New document types require v2.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "DatasetSchema".
- */
-export type DatasetSchema = "dataset.v2" | "dataset.v1";
-/**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ColumnRole".
- */
-export type ColumnRole =
-  ("run_id" | "value" | "uncertainty" | "condition" | "flag") | "time" | "available_at" | "locator";
-/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "VisualBundleId".
  */
@@ -1129,25 +1186,6 @@ export type UnitsStatus = "metric" | "pixel_only" | "normalized";
  * axis or a smarter model does not calibrate a camera).
  */
 export type UnitsStatus1 = "metric" | "pixel_only" | "normalized";
-/**
- * A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their
- * [`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The
- * catalog is closed: a new key is a contract change.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionKey".
- */
-export type ConditionKey =
-  | "oxygen_mole_fraction"
-  | "pressure"
-  | "flow_velocity"
-  | "gravity_level"
-  | "ambient_temperature"
-  | "fuel"
-  | "diluent"
-  | "sample_geometry"
-  | "hardware"
-  | "diagnostics";
 /**
  * What an investigation tested for one key, over its runs.
  *
@@ -1277,7 +1315,7 @@ export type ForecastInput =
 /**
  * `DatasetBundle::content_digest` of the bundle evaluated.
  */
-export type Digest6 = string;
+export type Digest8 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "EvaluationPurpose".
@@ -2513,18 +2551,86 @@ export interface AnalysisExecuteRequest {
   source: string;
 }
 /**
- * One input of an analysis: an artifact of the caller's workspace, mounted read-only at
- * `/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.
+ * One input of an analysis, named by reference and mounted read-only at `/in/<name>`. Exactly one
+ * of `artifact_id`, `dataset_view` or `conditions` is set. The host resolves the reference under
+ * the caller's scope (every partition check applies, also to the lineage of an artifact), copies
+ * the bytes and verifies their digest; the request never carries the data itself. The runner never
+ * sees the host filesystem or other stores. `/job/inputs.json` lists the mounted inputs
+ * ([`MountedInput`]) for the program.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "AnalysisInput".
  */
 export interface AnalysisInput {
-  artifact_id: ArtifactId;
+  /**
+   * An artifact of the caller's workspace (e.g. the output of an earlier analysis).
+   */
+  artifact_id?: ArtifactId | null;
+  /**
+   * The complete answer of a `conditions_query` (every page), as one `ConditionsTable` JSON
+   * document; `cursor` must be absent.
+   */
+  conditions?: ConditionsQuery | null;
+  /**
+   * One columnar view (Parquet) of a curated dataset, as `datasets_inspect` lists it.
+   */
+  dataset_view?: DatasetViewRef | null;
   /**
    * File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).
    */
   name: string;
+}
+/**
+ * `conditions_query`: per-run conditions and, on request, each investigation's tested envelope.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionsQuery".
+ */
+export interface ConditionsQuery {
+  cursor?: PageCursor | null;
+  filters?: ConditionFilter[];
+  include_envelopes?: boolean;
+  include_unknown?: boolean;
+  /**
+   * Empty = every investigation.
+   */
+  investigation_ids?: string[];
+  /**
+   * Columns; empty = every key.
+   */
+  keys?: ConditionKey[];
+  page_size?: number | null;
+  run_ids?: RunId[];
+  schema_version: DatasetSchema;
+}
+/**
+ * A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
+ * missing or conflicting are kept only with `ConditionsQuery::include_unknown`.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ConditionFilter".
+ */
+export interface ConditionFilter {
+  /**
+   * Categorical keys.
+   */
+  any_of?: string[];
+  key: ConditionKey;
+  max_si?: number | null;
+  /**
+   * Numeric keys, SI.
+   */
+  min_si?: number | null;
+}
+/**
+ * A view of a dataset bundle by name.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "DatasetViewRef".
+ */
+export interface DatasetViewRef {
+  dataset_id: DatasetId;
+  view: string;
 }
 /**
  * The record of one `analysis_execute` run (the job's first output artifact): code identity,
@@ -2572,7 +2678,9 @@ export interface RunnerEnvironment {
   oci_runtime: string;
 }
 /**
- * An input as the program saw it: `/in/<name>` held exactly these bytes.
+ * An input as the program saw it: `/in/<name>` held exactly these bytes (`artifact.sha256`,
+ * verified while copying). `resolved` says what a dataset or conditions reference resolved to; it
+ * is absent for a workspace artifact.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "MountedInput".
@@ -2580,6 +2688,21 @@ export interface RunnerEnvironment {
 export interface MountedInput {
   artifact: ArtifactRef;
   name: string;
+  resolved?: ResolvedInput | null;
+}
+/**
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ColumnSpec".
+ */
+export interface ColumnSpec {
+  name: string;
+  nullable: boolean;
+  quantity?: Quantity | null;
+  role: ColumnRole;
+  /**
+   * SI unit of the stored values; display conversions never change it.
+   */
+  unit?: string | null;
 }
 /**
  * Resource budget of one execution, set by the host (never by the request).
@@ -3424,7 +3547,7 @@ export interface WikiItem {
  */
 export interface WikiRevision {
   author: Author;
-  content_digest: Digest5;
+  content_digest: Digest7;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
   items: WikiEntry[];
@@ -3629,20 +3752,6 @@ export interface DatasetView {
   row_count: number;
 }
 /**
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ColumnSpec".
- */
-export interface ColumnSpec {
-  name: string;
-  nullable: boolean;
-  quantity?: Quantity | null;
-  role: ColumnRole;
-  /**
-   * SI unit of the stored values; display conversions never change it.
-   */
-  unit?: string | null;
-}
-/**
  * Contours extracted from one video, with camera, time basis and calibration status. Metric
  * contours are `ContourObservation` JSONL (meters); `pixel_only` / `normalized` contours are
  * [`ImageContourObservation`] JSONL and can never be read as `ContourObservation`.
@@ -3710,48 +3819,6 @@ export interface ImageContourObservation {
   status: ContourStatus;
   time_s: number;
   units: UnitsStatus1;
-}
-/**
- * `conditions_query`: per-run conditions and, on request, each investigation's tested envelope.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionsQuery".
- */
-export interface ConditionsQuery {
-  cursor?: PageCursor | null;
-  filters?: ConditionFilter[];
-  include_envelopes?: boolean;
-  include_unknown?: boolean;
-  /**
-   * Empty = every investigation.
-   */
-  investigation_ids?: string[];
-  /**
-   * Columns; empty = every key.
-   */
-  keys?: ConditionKey[];
-  page_size?: number | null;
-  run_ids?: RunId[];
-  schema_version: DatasetSchema;
-}
-/**
- * A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is
- * missing or conflicting are kept only with `ConditionsQuery::include_unknown`.
- *
- * This interface was referenced by `IgnisContracts`'s JSON-Schema
- * via the `definition` "ConditionFilter".
- */
-export interface ConditionFilter {
-  /**
-   * Categorical keys.
-   */
-  any_of?: string[];
-  key: ConditionKey;
-  max_si?: number | null;
-  /**
-   * Numeric keys, SI.
-   */
-  min_si?: number | null;
 }
 /**
  * A page of the conditions matrix. Every row has exactly one cell per key in `keys`, so a gap is
@@ -3944,7 +4011,7 @@ export interface EvaluationRequest {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest6;
+  dataset_hash: Digest8;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;
@@ -4098,7 +4165,7 @@ export interface EvaluationRequest1 {
    * Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.
    */
   cutoffs_s: number[];
-  dataset_hash: Digest6;
+  dataset_hash: Digest8;
   dataset_id: DatasetId;
   metrics: MetricSpec[];
   partition: Partition;

@@ -6,9 +6,11 @@
 //! - no network (`--network none`), read-only root, `/tmp` in memory, uid/gid 65534, every
 //!   capability dropped, `no-new-privileges`, budgets on memory (no swap), CPU, pids, wall time and
 //!   file size;
-//! - exactly three bind mounts, all under a per-run directory: the program (`/job`, read-only), the
-//!   inputs (`/in`, read-only: copies of workspace artifacts the caller's scope may read) and the
-//!   output directory (`/out`). No host path, socket, home, key or other workspace is mounted, and no
+//! - exactly three bind mounts, all under a per-run directory: the program (`/job`, read-only, with
+//!   `/job/inputs.json` listing the mounted inputs), the inputs (`/in`, read-only: copies of the data
+//!   the request names by reference — workspace artifacts, dataset views, complete conditions
+//!   tables — resolved under the caller's scope, see [`check_inputs`]) and the output directory
+//!   (`/out`). No host path, socket, home, key or other workspace is mounted, and no
 //!   host environment variable is passed (only the fixed ones in [`FIXED_ENV`]);
 //! - the image is pinned by content address (image id) and the OCI runtime is named explicitly; with
 //!   `runsc` the program runs under gVisor, which is what the public deployment requires.
@@ -33,12 +35,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use ignis_core::contracts::{
-    AnalysisExecuteRequest, AnalysisLanguage, AnalysisOutput, ArtifactRef, CapturedStream, Digest,
-    EntityRef, ErrorCode, ErrorEnvelope, ExecutionOutcome, ExecutionRecord, ExecutionScope,
-    MountedInput, Origin, Producer, RejectedOutput, RetryPolicy, RunnerEnvironment,
+    AnalysisExecuteRequest, AnalysisInput, AnalysisLanguage, AnalysisOutput, ArtifactRef,
+    CapturedStream, ConditionsQuery, ConditionsTable, DatasetBundle, DatasetId, DatasetView,
+    Digest, EntityRef, ErrorCode, ErrorEnvelope, ExecutionOutcome, ExecutionRecord, ExecutionScope,
+    MountedInput, Origin, Producer, RejectedOutput, ResolvedInput, RetryPolicy, RunnerEnvironment,
     RunnerIsolation, RunnerLimits, Timestamp, ToolsSchema,
 };
-use ignis_core::services::{ArtifactDraft, ArtifactStore, ServiceResult};
+use ignis_core::services::{ArtifactDraft, ArtifactStore, DatasetService, ServiceResult};
 use serde::Deserialize;
 use sha2::{Digest as _, Sha256};
 
@@ -548,6 +551,7 @@ impl Sandbox {
         scope: &ExecutionScope,
         req: &AnalysisExecuteRequest,
         artifacts: &dyn ArtifactStore,
+        datasets: Option<&dyn DatasetService>,
         producer: Producer,
         cancel: &AtomicBool,
     ) -> ServiceResult<Vec<ArtifactRef>> {
@@ -555,49 +559,23 @@ impl Sandbox {
         let AnalysisLanguage::Python = req.language;
         let dir = RunDir::create(&self.cfg.work_dir)?;
 
-        // Inputs: only artifacts the scope can read, copied and verified against their digest.
-        let mut mounted = Vec::with_capacity(req.inputs.len());
-        for i in &req.inputs {
-            let art = artifacts.stat(scope, &i.artifact_id)?;
-            let mut src = artifacts.open(scope, &i.artifact_id, 0, None)?;
-            let path = dir.inputs().join(&i.name);
-            let mut dst = File::create(&path).map_err(|e| internal("staging an input", e))?;
-            let mut h = Sha256::new();
-            let mut buf = vec![0u8; 64 << 10];
-            loop {
-                let n = src
-                    .read(&mut buf)
-                    .map_err(|e| internal("reading an input", e))?;
-                if n == 0 {
-                    break;
-                }
-                h.update(&buf[..n]);
-                dst.write_all(&buf[..n])
-                    .map_err(|e| internal("staging an input", e))?;
-            }
-            dst.sync_all()
-                .map_err(|e| internal("staging an input", e))?;
-            if format!("sha256:{}", hex::encode(h.finalize())) != art.sha256.as_str() {
-                return Err(internal(
-                    "staging an input",
-                    format!("artifact {} does not match its digest", art.artifact_id),
-                ));
-            }
-            #[cfg(unix)]
-            {
-                use std::os::unix::fs::PermissionsExt;
-                std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o444))
-                    .map_err(|e| internal("staging an input", e))?;
-            }
-            mounted.push(MountedInput {
-                name: i.name.clone(),
-                artifact: art,
-            });
-        }
+        // Inputs: resolved by reference under the caller's scope, copied and verified against
+        // their digest. The program finds the list in /job/inputs.json.
+        let mounted = stage_inputs(scope, req, artifacts, datasets, &producer, &dir.inputs())?;
+        let manifest = serde_json::to_vec_pretty(&mounted).map_err(|e| internal("inputs", e))?;
+        std::fs::write(dir.job().join("inputs.json"), manifest)
+            .map_err(|e| internal("staging the input list", e))?;
         let origin = Origin::combine(mounted.iter().map(|m| m.artifact.origin));
+        // A dataset view is not a workspace artifact: its lineage is the dataset, whose partitions
+        // a later reader of these outputs must hold (see `check_lineage`).
         let lineage: Vec<EntityRef> = mounted
             .iter()
-            .map(|m| EntityRef::Artifact(m.artifact.artifact_id.clone()))
+            .map(|m| match &m.resolved {
+                Some(ResolvedInput::DatasetView { dataset_id, .. }) => {
+                    EntityRef::Dataset(dataset_id.clone())
+                }
+                _ => EntityRef::Artifact(m.artifact.artifact_id.clone()),
+            })
             .collect();
         let put = |media_type: &str,
                    contract: Option<&str>,
@@ -708,6 +686,296 @@ impl Sandbox {
         out.extend(record.outputs.into_iter().map(|o| o.artifact));
         Ok(out)
     }
+}
+
+// ------------------------------------------------------------------------------ inputs
+
+fn datasets_of<'a>(
+    datasets: Option<&'a dyn DatasetService>,
+    input: &str,
+) -> ServiceResult<&'a dyn DatasetService> {
+    datasets.ok_or_else(|| {
+        err(
+            ErrorCode::CapabilityUnavailable,
+            format!(
+                "input {input:?} names a dataset or conditions reference, but no DatasetService is configured"
+            ),
+        )
+    })
+}
+
+/// A bundle the scope may read: the service's own checks, then every partition of the bundle
+/// against the scope (`ExecutionScope::require_partition`), so a service that missed a check still
+/// cannot hand the runner a partition the scope does not hold.
+fn readable_bundle(
+    scope: &ExecutionScope,
+    ds: &dyn DatasetService,
+    id: &DatasetId,
+) -> ServiceResult<DatasetBundle> {
+    let b = ds.dataset(scope, id)?;
+    for p in &b.partitions {
+        scope.require_partition(*p)?;
+    }
+    Ok(b)
+}
+
+fn view_of<'a>(b: &'a DatasetBundle, view: &str) -> ServiceResult<&'a DatasetView> {
+    b.views.iter().find(|v| v.name == view).ok_or_else(|| {
+        let names: Vec<&str> = b.views.iter().map(|v| v.name.as_str()).collect();
+        err(
+            ErrorCode::NotFound,
+            format!(
+                "{} has no view {view:?}; its views are {}",
+                b.dataset_id,
+                names.join(", ")
+            ),
+        )
+    })
+}
+
+/// Every dataset in the transitive lineage of `root` must be readable by `scope`: an artifact
+/// computed from a partition the scope does not hold (an evaluation run's output in the same
+/// workspace) is refused like the partition itself. A dataset the scope cannot see at all (the
+/// evaluator root outside an evaluation scope) is refused, not skipped. A lineage artifact that is
+/// not in the workspace store has no lineage to follow. Runs named in a lineage are not checked
+/// here: the run → partition map belongs to the DatasetService, which does not expose it.
+pub fn check_lineage(
+    scope: &ExecutionScope,
+    artifacts: &dyn ArtifactStore,
+    datasets: Option<&dyn DatasetService>,
+    root: &ArtifactRef,
+) -> ServiceResult<()> {
+    let mut seen_art = std::collections::HashSet::new();
+    let mut seen_ds = std::collections::HashSet::new();
+    seen_art.insert(root.artifact_id.as_str().to_string());
+    let mut todo: Vec<EntityRef> = root.inputs.clone();
+    while let Some(e) = todo.pop() {
+        match e {
+            EntityRef::Dataset(id) => {
+                if !seen_ds.insert(id.as_str().to_string()) {
+                    continue;
+                }
+                let refuse = |why: String| {
+                    err(
+                        ErrorCode::ScopeDenied,
+                        format!(
+                            "artifact {} was computed from dataset {id}, which this scope cannot read: {why}",
+                            root.artifact_id
+                        ),
+                    )
+                };
+                let ds = datasets
+                    .ok_or_else(|| refuse("no DatasetService to check its partitions".into()))?;
+                readable_bundle(scope, ds, &id).map_err(|e| refuse(e.message))?;
+            }
+            EntityRef::Artifact(id) => {
+                if !seen_art.insert(id.as_str().to_string()) {
+                    continue;
+                }
+                match artifacts.stat(scope, &id) {
+                    Ok(a) => todo.extend(a.inputs),
+                    Err(e) if e.code == ErrorCode::NotFound => {}
+                    Err(e) => return Err(e),
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+/// Resolve every by-reference input of `req` under `scope` without copying anything: the checks a
+/// tool runs before it queues the job, so a refusal (scope, partition, lineage, missing view) is
+/// immediate. The job repeats them when it stages the inputs.
+pub fn check_inputs(
+    scope: &ExecutionScope,
+    req: &AnalysisExecuteRequest,
+    artifacts: &dyn ArtifactStore,
+    datasets: Option<&dyn DatasetService>,
+) -> ServiceResult<()> {
+    req.validate().map_err(ErrorEnvelope::from)?;
+    for i in &req.inputs {
+        if let Some(id) = &i.artifact_id {
+            let art = artifacts.stat(scope, id)?;
+            check_lineage(scope, artifacts, datasets, &art)?;
+        } else if let Some(v) = &i.dataset_view {
+            let b = readable_bundle(scope, datasets_of(datasets, &i.name)?, &v.dataset_id)?;
+            view_of(&b, &v.view)?;
+        } else if i.conditions.is_some() {
+            datasets_of(datasets, &i.name)?.conditions_snapshot(scope)?;
+        }
+    }
+    Ok(())
+}
+
+/// Copy `src` to `path`, failing unless the bytes hash to `expected`.
+fn copy_verified(
+    mut src: impl Read,
+    path: &Path,
+    expected: &Digest,
+    what: &str,
+) -> ServiceResult<()> {
+    let mut dst = File::create(path).map_err(|e| internal("staging an input", e))?;
+    let mut h = Sha256::new();
+    let mut buf = vec![0u8; 64 << 10];
+    loop {
+        let n = match src.read(&mut buf) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) if e.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(e) => return Err(internal("reading an input", e)),
+        };
+        h.update(&buf[..n]);
+        dst.write_all(&buf[..n])
+            .map_err(|e| internal("staging an input", e))?;
+    }
+    dst.sync_all()
+        .map_err(|e| internal("staging an input", e))?;
+    if format!("sha256:{}", hex::encode(h.finalize())) != expected.as_str() {
+        return Err(internal(
+            "staging an input",
+            format!("{what} does not match its digest"),
+        ));
+    }
+    Ok(())
+}
+
+/// Every page of a conditions query as one table. The snapshot is read before and after: a table
+/// assembled across a change of the underlying data is refused (retry), never mixed.
+fn complete_conditions(
+    scope: &ExecutionScope,
+    ds: &dyn DatasetService,
+    q: &ConditionsQuery,
+) -> ServiceResult<(ConditionsTable, Digest)> {
+    let before = ds.conditions_snapshot(scope)?;
+    let mut page_q = q.clone();
+    let mut table = ds.conditions(scope, &page_q)?;
+    while let Some(c) = table.next_cursor.take() {
+        if page_q.cursor.as_ref() == Some(&c) {
+            return Err(internal(
+                "conditions",
+                "the service returned the same cursor twice",
+            ));
+        }
+        page_q.cursor = Some(c);
+        let page = ds.conditions(scope, &page_q)?;
+        table.rows.extend(page.rows);
+        table.next_cursor = page.next_cursor;
+    }
+    table.total_count = Some(table.rows.len() as u64);
+    let after = ds.conditions_snapshot(scope)?;
+    if before != after {
+        return Err(ErrorEnvelope::new(
+            ErrorCode::Conflict,
+            "the conditions data changed while the table was read; retry",
+            RetryPolicy::AfterDelay { seconds: 1 },
+        ));
+    }
+    Ok((table, after))
+}
+
+fn stage_one(
+    scope: &ExecutionScope,
+    i: &AnalysisInput,
+    artifacts: &dyn ArtifactStore,
+    datasets: Option<&dyn DatasetService>,
+    producer: &Producer,
+    path: &Path,
+) -> ServiceResult<MountedInput> {
+    if let Some(id) = &i.artifact_id {
+        let art = artifacts.stat(scope, id)?;
+        check_lineage(scope, artifacts, datasets, &art)?;
+        let src = artifacts.open(scope, id, 0, None)?;
+        copy_verified(src, path, &art.sha256, &format!("artifact {id}"))?;
+        return Ok(MountedInput {
+            name: i.name.clone(),
+            artifact: art,
+            resolved: None,
+        });
+    }
+    if let Some(v) = &i.dataset_view {
+        let ds = datasets_of(datasets, &i.name)?;
+        let b = readable_bundle(scope, ds, &v.dataset_id)?;
+        let view = view_of(&b, &v.view)?;
+        let (art, src) = ds.open_view(scope, &v.dataset_id, &v.view, 0, None)?;
+        if art.sha256 != view.artifact.sha256 {
+            return Err(internal(
+                "staging an input",
+                format!(
+                    "view {} of {} is served with digest {}; the bundle says {}",
+                    v.view, v.dataset_id, art.sha256, view.artifact.sha256
+                ),
+            ));
+        }
+        let what = format!("view {} of {}", v.view, v.dataset_id);
+        copy_verified(src, path, &art.sha256, &what)?;
+        return Ok(MountedInput {
+            name: i.name.clone(),
+            artifact: art,
+            resolved: Some(ResolvedInput::DatasetView {
+                dataset_id: v.dataset_id.clone(),
+                view: v.view.clone(),
+                bundle_digest: b.content_digest(),
+                partitions: b.partitions.clone(),
+                time_origin: b.time_origin.clone(),
+                columns: view.columns.clone(),
+                row_count: view.row_count,
+            }),
+        });
+    }
+    if let Some(q) = &i.conditions {
+        let ds = datasets_of(datasets, &i.name)?;
+        let (table, snapshot) = complete_conditions(scope, ds, q)?;
+        let bytes = serde_json::to_vec_pretty(&table).map_err(|e| internal("conditions", e))?;
+        let art = artifacts.put(
+            scope,
+            ArtifactDraft {
+                media_type: "application/json".into(),
+                contract: Some("ConditionsTable".into()),
+                produced_by: producer.clone(),
+                inputs: vec![],
+                origin: table.origin,
+            },
+            &mut bytes.as_slice(),
+        )?;
+        copy_verified(bytes.as_slice(), path, &art.sha256, "the conditions table")?;
+        return Ok(MountedInput {
+            name: i.name.clone(),
+            artifact: art,
+            resolved: Some(ResolvedInput::Conditions {
+                query: q.clone(),
+                snapshot,
+                row_count: table.rows.len() as u64,
+            }),
+        });
+    }
+    Err(err(
+        ErrorCode::InvalidRequest,
+        format!("input {:?} names no reference", i.name),
+    ))
+}
+
+/// Resolve, copy and verify every input into `dir` (read-only for the program).
+fn stage_inputs(
+    scope: &ExecutionScope,
+    req: &AnalysisExecuteRequest,
+    artifacts: &dyn ArtifactStore,
+    datasets: Option<&dyn DatasetService>,
+    producer: &Producer,
+    dir: &Path,
+) -> ServiceResult<Vec<MountedInput>> {
+    let mut mounted = Vec::with_capacity(req.inputs.len());
+    for i in &req.inputs {
+        let path = dir.join(&i.name);
+        mounted.push(stage_one(scope, i, artifacts, datasets, producer, &path)?);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o444))
+                .map_err(|e| internal("staging an input", e))?;
+        }
+    }
+    Ok(mounted)
 }
 
 enum OutKind {
