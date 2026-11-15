@@ -731,6 +731,7 @@ fn a_derived_number_cites_its_computation_and_inputs() {
     record.inputs = vec![MountedInput {
         name: "series.json".into(),
         artifact: w.h.artifacts.stat(&w.sc, &w.observed).unwrap(),
+        resolved: None,
     }];
     record.stdout = CapturedStream {
         total_bytes: 0,
