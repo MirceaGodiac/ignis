@@ -1,0 +1,442 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "investigation_id": "PSI-68",
+ "frozen_on": "2026-11-15",
+ "rule": "the tests whose frames are downloaded and measured first. The rule is fixed here,\nbefore any frame is fetched, and uses conditions and file sizes only:\n  - a single free droplet of a pure fuel that a droplet candidate covers, inside the declared domain of the\n    forward by its measured conditions, with a backlit archive, on a TRAIN or VALIDATION day;\n  - every such n-heptane and iso-octane test;\n  - n-octane and n-decane: per day in date order, the first two test points by name, days taken in date order\n    alternating between the two fuels, until the batch holds CAP_BYTES.\nTest days are not in the batch: their frames stay on NASA's server until the final run.",
+ "cap_bytes": 102005473280,
+ "bytes": 75920964547,
+ "tests": [
+  {
+   "test_id": "E066C01",
+   "date": "PSI-68:day:2013-03-08",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E066C01A.zip",
+   "bytes": 1225643685
+  },
+  {
+   "test_id": "E066C02",
+   "date": "PSI-68:day:2013-03-08",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E066C02A.zip",
+   "bytes": 1229772134
+  },
+  {
+   "test_id": "E066C03",
+   "date": "PSI-68:day:2013-03-08",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E066C03A.zip",
+   "bytes": 830403273
+  },
+  {
+   "test_id": "E066C04",
+   "date": "PSI-68:day:2013-03-08",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E066C04A.zip",
+   "bytes": 1008311156
+  },
+  {
+   "test_id": "E073C01",
+   "date": "PSI-68:day:2013-03-14",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E073C01A.zip",
+   "bytes": 798393202
+  },
+  {
+   "test_id": "E073C02",
+   "date": "PSI-68:day:2013-03-14",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E073C02A.zip",
+   "bytes": 1203419015
+  },
+  {
+   "test_id": "E073C03",
+   "date": "PSI-68:day:2013-03-14",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E073C03A.zip",
+   "bytes": 1778917353
+  },
+  {
+   "test_id": "E073C04",
+   "date": "PSI-68:day:2013-03-14",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E073C04A.zip",
+   "bytes": 1478599939
+  },
+  {
+   "test_id": "E073C07",
+   "date": "PSI-68:day:2013-03-14",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E073C07A.zip",
+   "bytes": 828119153
+  },
+  {
+   "test_id": "E073C09",
+   "date": "PSI-68:day:2013-03-14",
+   "partition": "train",
+   "fuel": "n-heptane",
+   "candidate": "flex_heptane (frozen: wsp2 D2, wsp5)",
+   "archive": "E073C09A.zip",
+   "bytes": 828046554
+  },
+  {
+   "test_id": "E163L11",
+   "date": "PSI-68:day:2014-06-13",
+   "partition": "train",
+   "fuel": "iso-octane",
+   "candidate": "wsp5/isooctane/w0-fable",
+   "archive": "E163L11A.zip",
+   "bytes": 733943076
+  },
+  {
+   "test_id": "E175L01",
+   "date": "PSI-68:day:2014-06-24",
+   "partition": "train",
+   "fuel": "iso-octane",
+   "candidate": "wsp5/isooctane/w0-fable",
+   "archive": "E175L01A.zip",
+   "bytes": 1202081661
+  },
+  {
+   "test_id": "E017A01",
+   "date": "PSI-68:day:2012-01-17",
+   "partition": "validation",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E017A01A.zip",
+   "bytes": 1184298700
+  },
+  {
+   "test_id": "E017A02",
+   "date": "PSI-68:day:2012-01-17",
+   "partition": "validation",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E017A02A.zip",
+   "bytes": 885882399
+  },
+  {
+   "test_id": "A221D02",
+   "date": "PSI-68:day:2012-08-08",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A221D02A.zip",
+   "bytes": 1219296655
+  },
+  {
+   "test_id": "A221D03",
+   "date": "PSI-68:day:2012-08-08",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A221D03A.zip",
+   "bytes": 1218038951
+  },
+  {
+   "test_id": "E053A01",
+   "date": "PSI-68:day:2012-02-22",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E053A01A.zip",
+   "bytes": 971349954
+  },
+  {
+   "test_id": "E053A02",
+   "date": "PSI-68:day:2012-02-22",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E053A02A.zip",
+   "bytes": 977345969
+  },
+  {
+   "test_id": "A278D01",
+   "date": "PSI-68:day:2012-10-04",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A278D01A.zip",
+   "bytes": 2103124573
+  },
+  {
+   "test_id": "A278D02",
+   "date": "PSI-68:day:2012-10-04",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A278D02A.zip",
+   "bytes": 2897834598
+  },
+  {
+   "test_id": "E059A01",
+   "date": "PSI-68:day:2012-02-28",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E059A01A.zip",
+   "bytes": 343043975
+  },
+  {
+   "test_id": "A109D04",
+   "date": "PSI-68:day:2016-04-18",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A109D04A.zip",
+   "bytes": 1300592053
+  },
+  {
+   "test_id": "A109D05",
+   "date": "PSI-68:day:2016-04-18",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A109D05A.zip",
+   "bytes": 2204590805
+  },
+  {
+   "test_id": "E135F02",
+   "date": "PSI-68:day:2012-05-14",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E135F02A.zip",
+   "bytes": 1221086387
+  },
+  {
+   "test_id": "E135F03",
+   "date": "PSI-68:day:2012-05-14",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E135F03A.zip",
+   "bytes": 1222992605
+  },
+  {
+   "test_id": "A113D03",
+   "date": "PSI-68:day:2016-04-22",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A113D03A.zip",
+   "bytes": 2176597909
+  },
+  {
+   "test_id": "A113D06",
+   "date": "PSI-68:day:2016-04-22",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A113D06A.zip",
+   "bytes": 3204155853
+  },
+  {
+   "test_id": "E156F04",
+   "date": "PSI-68:day:2012-06-04",
+   "partition": "validation",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E156F04A.zip",
+   "bytes": 1697130624
+  },
+  {
+   "test_id": "E156F05",
+   "date": "PSI-68:day:2012-06-04",
+   "partition": "validation",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E156F05A.zip",
+   "bytes": 1709702875
+  },
+  {
+   "test_id": "A118D01",
+   "date": "PSI-68:day:2016-04-27",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A118D01A.zip",
+   "bytes": 1300276436
+  },
+  {
+   "test_id": "A118D02",
+   "date": "PSI-68:day:2016-04-27",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A118D02A.zip",
+   "bytes": 2175553040
+  },
+  {
+   "test_id": "E159F01",
+   "date": "PSI-68:day:2012-06-07",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E159F01A.zip",
+   "bytes": 2448443501
+  },
+  {
+   "test_id": "E159F03",
+   "date": "PSI-68:day:2012-06-07",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E159F03A.zip",
+   "bytes": 1487500767
+  },
+  {
+   "test_id": "A123D01",
+   "date": "PSI-68:day:2016-05-02",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A123D01A.zip",
+   "bytes": 1305609882
+  },
+  {
+   "test_id": "A123D02",
+   "date": "PSI-68:day:2016-05-02",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A123D02A.zip",
+   "bytes": 2197023413
+  },
+  {
+   "test_id": "E209L10",
+   "date": "PSI-68:day:2014-07-28",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E209L10A.zip",
+   "bytes": 694233365
+  },
+  {
+   "test_id": "A127D01",
+   "date": "PSI-68:day:2016-05-06",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A127D01A.zip",
+   "bytes": 1293417880
+  },
+  {
+   "test_id": "A127D02",
+   "date": "PSI-68:day:2016-05-06",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A127D02A.zip",
+   "bytes": 2204004099
+  },
+  {
+   "test_id": "A134D01",
+   "date": "PSI-68:day:2016-05-13",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A134D01A.zip",
+   "bytes": 1300403175
+  },
+  {
+   "test_id": "A134D02",
+   "date": "PSI-68:day:2016-05-13",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A134D02A.zip",
+   "bytes": 1774140473
+  },
+  {
+   "test_id": "A139D07",
+   "date": "PSI-68:day:2016-05-18",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A139D07A.zip",
+   "bytes": 1849138832
+  },
+  {
+   "test_id": "A139D08",
+   "date": "PSI-68:day:2016-05-18",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A139D08A.zip",
+   "bytes": 2703430018
+  },
+  {
+   "test_id": "A298D02",
+   "date": "PSI-68:day:2016-10-24",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A298D02A.zip",
+   "bytes": 1527002453
+  },
+  {
+   "test_id": "A298D03",
+   "date": "PSI-68:day:2016-10-24",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A298D03A.zip",
+   "bytes": 2136171880
+  },
+  {
+   "test_id": "A301D01",
+   "date": "PSI-68:day:2016-10-27",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A301D01A.zip",
+   "bytes": 2524372732
+  },
+  {
+   "test_id": "A301D02",
+   "date": "PSI-68:day:2016-10-27",
+   "partition": "validation",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A301D02A.zip",
+   "bytes": 2234214941
+  },
+  {
+   "test_id": "A307D01",
+   "date": "PSI-68:day:2016-11-02",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A307D01A.zip",
+   "bytes": 2539465222
+  },
+  {
+   "test_id": "A307D02",
+   "date": "PSI-68:day:2016-11-02",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A307D02A.zip",
+   "bytes": 2543847352
+  }
+ ]
+}

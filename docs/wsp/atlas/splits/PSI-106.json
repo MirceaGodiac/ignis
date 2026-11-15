@@ -1,0 +1,49 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-106",
+ "acronym": "SLICE",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "group_id of the test catalogue (docs/wsp/atlas/SCHEMA.md): the test day or session",
+ "catalogue_level": {
+  "test_day": 12
+ },
+ "strata": {
+  "all": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-106:day:2012-02-09",
+     "PSI-106:day:2012-02-17",
+     "PSI-106:day:2012-02-27",
+     "PSI-106:day:2012-03-01",
+     "PSI-106:day:2012-03-09",
+     "PSI-106:day:2012-03-12",
+     "PSI-106:day:2012-03-19"
+    ],
+    "validation": [
+     "PSI-106:day:2012-03-05",
+     "PSI-106:day:2012-03-15"
+    ],
+    "test": [
+     "PSI-106:day:2012-02-13",
+     "PSI-106:day:2012-02-20",
+     "PSI-106:day:2012-03-23"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 7,
+    "validation": 2,
+    "test": 3
+   }
+  }
+ },
+ "frozen_on": "2026-11-14",
+ "use": {
+  "train": "outcomes may be read by a model's author",
+  "validation": "read only as an aggregate table from a look registered in docs/wsp/PROTOCOL.md beforehand",
+  "test": "never read by an author or by an agent working for one; scored once by the evaluation lane",
+  "held": "as validation: no outcome is read per test; scored only as an aggregate in a registered look"
+ },
+ "note": "A test that is not in the catalogue yet belongs to the partition of its group id. A group id that is not listed here is held until this file's rule has been applied to it in a new file; this file is not rewritten."
+}

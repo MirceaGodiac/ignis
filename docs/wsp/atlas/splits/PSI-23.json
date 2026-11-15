@@ -1,0 +1,55 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-23",
+ "acronym": "ACME s-Flame",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "group_id of the test catalogue (docs/wsp/atlas/SCHEMA.md): the test day or session",
+ "catalogue_level": {
+  "test_day": 18
+ },
+ "strata": {
+  "all": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-23:day:19254",
+     "PSI-23:day:19304",
+     "PSI-23:day:19352",
+     "PSI-23:day:20006",
+     "PSI-23:day:20013",
+     "PSI-23:day:20024",
+     "PSI-23:day:20029",
+     "PSI-23:day:20132",
+     "PSI-23:day:20136",
+     "PSI-23:day:20155",
+     "PSI-23:day:20190"
+    ],
+    "validation": [
+     "PSI-23:day:19256",
+     "PSI-23:day:19308",
+     "PSI-23:day:20160",
+     "PSI-23:day:20164"
+    ],
+    "test": [
+     "PSI-23:day:20142",
+     "PSI-23:day:20170",
+     "PSI-23:day:20176"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 11,
+    "validation": 4,
+    "test": 3
+   }
+  }
+ },
+ "frozen_on": "2026-11-14",
+ "use": {
+  "train": "outcomes may be read by a model's author",
+  "validation": "read only as an aggregate table from a look registered in docs/wsp/PROTOCOL.md beforehand",
+  "test": "never read by an author or by an agent working for one; scored once by the evaluation lane",
+  "held": "as validation: no outcome is read per test; scored only as an aggregate in a registered look"
+ },
+ "note": "A test that is not in the catalogue yet belongs to the partition of its group id. A group id that is not listed here is held until this file's rule has been applied to it in a new file; this file is not rewritten."
+}

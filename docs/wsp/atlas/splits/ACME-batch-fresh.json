@@ -1,0 +1,2578 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "status": "FROZEN 2026-11-15 before any endpoint, sensor channel, setpoint log or stage file of a listed test was opened. Scoring set: tiers A1, A2, A3 (26 tests); tier B1 is listed for completeness and is not scored by F2. Draft text: DRAFT, not frozen",
+ "investigation_id": "PSI-10",
+ "drafted_on": "2026-11-15",
+ "batch": "acme-fresh",
+ "rule": "Flame Design (PSI-10) tests that no release has scored and whose endpoint was never measured. Every day of CFI-G and Flame Design is already in a spent partition, so these are the tests the transfer rule excluded on those days, chosen from the table conditions, the script parameter file and the listing only (no channel, setpoint log, TP stamp, comment or after-test column read). Tier A can be scored by acme_normal/acme_inverse.wsp12 F2 once its conditions are written to a cases file; tier B needs a conversion or a law that F2 does not carry. Group = test day; partition_of_day is the PSI-10 split of that day, which this batch does not change. Held: no outcome is read until the batch and its release list are frozen.",
+ "split": "docs/wsp/atlas/splits/PSI-10.json",
+ "endpoint_tool": "tools/wsp/ext/flame_design.py (thresholds unchanged)",
+ "caveats": [
+  "On a ramp-to-zero test the flame_design.py label rule calls the end operator_termination whenever the scripted ramp starts before the flame ends, so tier A1 mostly tests the planned stop (first flow change 5-29 s after onset), not extinction physics.",
+  "The day-level PDFs (test sheets, flow traces, daily test point logs) and the _Comments.txt files of these days are published and may describe outcomes; nothing records whether anyone read them for these tests.",
+  "Tier A2 needs flame_design.py to run without _TP.txt (the flow-on fallback used for s-Flame); the transfer rule requires it today.",
+  "Sibling conditions copy mass flow, fuel fraction and Tad of an included test with identical script setpoints; Tad is not corrected for the O2 difference between the two tests."
+ ],
+ "bytes": 204745850,
+ "bytes_to_download": 0,
+ "counts": {
+  "A1": 20,
+  "A2": 3,
+  "A3": 3,
+  "B1": 29
+ },
+ "groups": [
+  "PSI-10:day:19115",
+  "PSI-10:day:19123",
+  "PSI-10:day:19137",
+  "PSI-10:day:19142",
+  "PSI-10:day:19150",
+  "PSI-10:day:19156",
+  "PSI-10:day:19171",
+  "PSI-10:day:19175",
+  "PSI-10:day:19182",
+  "PSI-10:day:19189",
+  "PSI-10:day:19196",
+  "PSI-10:day:19206",
+  "PSI-10:day:21301",
+  "PSI-10:day:21349",
+  "PSI-10:day:22024",
+  "PSI-10:day:22027"
+ ],
+ "tiers": {
+  "A1": "scripted short constant stage then ramp to zero; test flows equal to an included constant-flow test (sibling) of the same family",
+  "A2": "constant flow, table conditions complete and inside the F2 domain; excluded only because the _TP.txt stage file is missing",
+  "A3": "inverse, scripted multi-stage flows (v2); stage-1 flows equal to an included sibling",
+  "B1": "scripted ignition-to-test ramp (flows still changing at the cutoffs), or no sibling: conditions need a GCF conversion, and a ramp or dilution law that F2 does not carry"
+ },
+ "tests": [
+  {
+   "test_id": "19115B2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19115",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMPED",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115B1",
+    "pressure_pa": 102663.0,
+    "mass_flow_kg_s": 6.398048e-07,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.204939,
+    "tad_k": 2345.9,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 20.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19115B2_data.csv",
+     "bytes": 3939610,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19115B2_mfcSetpoints.csv",
+     "bytes": 14766,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19115B2_TP.txt",
+     "bytes": 1112,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19115B2.txt",
+     "bytes": 2131,
+     "on_disk": true
+    }
+   },
+   "bytes": 3957619,
+   "held": true
+  },
+  {
+   "test_id": "19115G1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19115",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMPED",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115F1",
+    "pressure_pa": 102731.9,
+    "mass_flow_kg_s": 6.380369e-07,
+    "x_fuel_role": 0.29203,
+    "x_o2_role": 0.203864,
+    "tad_k": 2186.1,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 9.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19115G1_data.csv",
+     "bytes": 3076586,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19115G1_mfcSetpoints.csv",
+     "bytes": 21926,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19115G1_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19115G1.txt",
+     "bytes": 2133,
+     "on_disk": true
+    }
+   },
+   "bytes": 3101759,
+   "held": true
+  },
+  {
+   "test_id": "19123L4",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19123",
+   "partition_of_day": "test",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19156J3",
+    "pressure_pa": 103352.5,
+    "mass_flow_kg_s": 1.299724e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.200536,
+    "tad_k": 2773.6,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 13.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19123L4_data.csv",
+     "bytes": 2844189,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19123L4_mfcSetpoints.csv",
+     "bytes": 9406,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19123L4_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19123L4.txt",
+     "bytes": 2119,
+     "on_disk": true
+    }
+   },
+   "bytes": 2856828,
+   "held": true
+  },
+  {
+   "test_id": "19123L5",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19123",
+   "partition_of_day": "test",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19156J3",
+    "pressure_pa": 103352.5,
+    "mass_flow_kg_s": 1.299724e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.200108,
+    "tad_k": 2773.6,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 13.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19123L5_data.csv",
+     "bytes": 2732689,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19123L5_mfcSetpoints.csv",
+     "bytes": 7526,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19123L5_TP.txt",
+     "bytes": 1098,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19123L5.txt",
+     "bytes": 2118,
+     "on_disk": true
+    }
+   },
+   "bytes": 2743431,
+   "held": true
+  },
+  {
+   "test_id": "19123L6",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19123",
+   "partition_of_day": "test",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19156J3",
+    "pressure_pa": 103352.5,
+    "mass_flow_kg_s": 1.299724e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.199796,
+    "tad_k": 2773.6,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 13.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19123L6_data.csv",
+     "bytes": 2851089,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19123L6_mfcSetpoints.csv",
+     "bytes": 8526,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19123L6_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19123L6.txt",
+     "bytes": 2119,
+     "on_disk": true
+    }
+   },
+   "bytes": 2862848,
+   "held": true
+  },
+  {
+   "test_id": "19123L7",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19123",
+   "partition_of_day": "test",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115B1",
+    "pressure_pa": 103283.5,
+    "mass_flow_kg_s": 6.398048e-07,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.199416,
+    "tad_k": 2345.9,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 13.5,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19123L7_data.csv",
+     "bytes": 3177807,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19123L7_mfcSetpoints.csv",
+     "bytes": 12006,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19123L7_TP.txt",
+     "bytes": 1094,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19123L7.txt",
+     "bytes": 2119,
+     "on_disk": true
+    }
+   },
+   "bytes": 3193026,
+   "held": true
+  },
+  {
+   "test_id": "19137G1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123A1,19123A2,19123A3,19123A4",
+    "pressure_pa": 102318.3,
+    "mass_flow_kg_s": 1.6260595e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.205363,
+    "tad_k": 2360.45,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137G1_data.csv",
+     "bytes": 2980539,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137G1_mfcSetpoints.csv",
+     "bytes": 10566,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137G1_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137G1.txt",
+     "bytes": 2122,
+     "on_disk": true
+    }
+   },
+   "bytes": 2994357,
+   "held": true
+  },
+  {
+   "test_id": "19137H1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123A1,19123A2,19123A3,19123A4",
+    "pressure_pa": 102456.1,
+    "mass_flow_kg_s": 1.6260595e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.204891,
+    "tad_k": 2360.45,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137H1_data.csv",
+     "bytes": 2762627,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137H1_mfcSetpoints.csv",
+     "bytes": 9806,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137H1_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137H1.txt",
+     "bytes": 2122,
+     "on_disk": true
+    }
+   },
+   "bytes": 2775685,
+   "held": true
+  },
+  {
+   "test_id": "19137J1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123A1,19123A2,19123A3,19123A4",
+    "pressure_pa": 102456.1,
+    "mass_flow_kg_s": 1.6260595e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.204442,
+    "tad_k": 2360.45,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137J1_data.csv",
+     "bytes": 2800129,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137J1_mfcSetpoints.csv",
+     "bytes": 9806,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137J1_TP.txt",
+     "bytes": 1082,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137J1.txt",
+     "bytes": 2122,
+     "on_disk": true
+    }
+   },
+   "bytes": 2813139,
+   "held": true
+  },
+  {
+   "test_id": "19137K2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123A1,19123A2,19123A3,19123A4",
+    "pressure_pa": 102456.1,
+    "mass_flow_kg_s": 1.6260595e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.203628,
+    "tad_k": 2360.45,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137K2_data.csv",
+     "bytes": 2753509,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137K2_mfcSetpoints.csv",
+     "bytes": 9006,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137K2_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137K2.txt",
+     "bytes": 2122,
+     "on_disk": true
+    }
+   },
+   "bytes": 2765767,
+   "held": true
+  },
+  {
+   "test_id": "19137L2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19137L1,19137L7,19175N3",
+    "pressure_pa": 102456.1,
+    "mass_flow_kg_s": 9.678078666666666e-07,
+    "x_fuel_role": 0.51861,
+    "x_o2_role": 0.202842,
+    "tad_k": 2426.1666666666665,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137L2_data.csv",
+     "bytes": 3102617,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137L2_mfcSetpoints.csv",
+     "bytes": 27046,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137L2_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137L2.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 3132925,
+   "held": true
+  },
+  {
+   "test_id": "19137L3",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19137L1,19137L7,19175N3",
+    "pressure_pa": 102594.0,
+    "mass_flow_kg_s": 9.678078666666666e-07,
+    "x_fuel_role": 0.51861,
+    "x_o2_role": 0.202393,
+    "tad_k": 2426.1666666666665,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137L3_data.csv",
+     "bytes": 3146701,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137L3_mfcSetpoints.csv",
+     "bytes": 25526,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137L3_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137L3.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 3175489,
+   "held": true
+  },
+  {
+   "test_id": "19137L4",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19137L1,19137L7,19175N3",
+    "pressure_pa": 102663.0,
+    "mass_flow_kg_s": 9.678078666666666e-07,
+    "x_fuel_role": 0.51861,
+    "x_o2_role": 0.201997,
+    "tad_k": 2426.1666666666665,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137L4_data.csv",
+     "bytes": 3106311,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137L4_mfcSetpoints.csv",
+     "bytes": 25486,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137L4_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137L4.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 3135059,
+   "held": true
+  },
+  {
+   "test_id": "19137L5",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19137L1,19137L7,19175N3",
+    "pressure_pa": 102594.0,
+    "mass_flow_kg_s": 9.678078666666666e-07,
+    "x_fuel_role": 0.51861,
+    "x_o2_role": 0.201642,
+    "tad_k": 2426.1666666666665,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137L5_data.csv",
+     "bytes": 2981805,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137L5_mfcSetpoints.csv",
+     "bytes": 23926,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137L5_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137L5.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 3008993,
+   "held": true
+  },
+  {
+   "test_id": "19137L6",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19137L1,19137L7,19175N3",
+    "pressure_pa": 102594.0,
+    "mass_flow_kg_s": 9.678078666666666e-07,
+    "x_fuel_role": 0.51861,
+    "x_o2_role": 0.20133,
+    "tad_k": 2426.1666666666665,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137L6_data.csv",
+     "bytes": 3101457,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137L6_mfcSetpoints.csv",
+     "bytes": 28686,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137L6_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137L6.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 3133405,
+   "held": true
+  },
+  {
+   "test_id": "19137L8",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19137L1,19137L7,19175N3",
+    "pressure_pa": 102731.9,
+    "mass_flow_kg_s": 9.678078666666666e-07,
+    "x_fuel_role": 0.51861,
+    "x_o2_role": 0.200458,
+    "tad_k": 2426.1666666666665,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137L8_data.csv",
+     "bytes": 3056533,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137L8_mfcSetpoints.csv",
+     "bytes": 27046,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137L8_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137L8.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 3086841,
+   "held": true
+  },
+  {
+   "test_id": "19156J5",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19156",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19156J3",
+    "pressure_pa": 103904.0,
+    "mass_flow_kg_s": 1.299724e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.364457,
+    "tad_k": 2773.6,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 6.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19156J5_data.csv",
+     "bytes": 3387572,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19156J5_mfcSetpoints.csv",
+     "bytes": 39606,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19156J5_TP.txt",
+     "bytes": 1199,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19156J5.txt",
+     "bytes": 2198,
+     "on_disk": true
+    }
+   },
+   "bytes": 3430575,
+   "held": true
+  },
+  {
+   "test_id": "19189K2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115N1,19123D1,19189J1,19189J2",
+    "pressure_pa": 131276.2,
+    "mass_flow_kg_s": 2.5131546666666666e-06,
+    "x_fuel_role": 0.495867,
+    "x_o2_role": 0.372525,
+    "tad_k": 2582.4333333333334,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 29.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189K2_data.csv",
+     "bytes": 4394514,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189K2_mfcSetpoints.csv",
+     "bytes": 36366,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189JK2_TP.txt",
+     "bytes": 1112,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189K2.txt",
+     "bytes": 2210,
+     "on_disk": true
+    }
+   },
+   "bytes": 4434202,
+   "held": true
+  },
+  {
+   "test_id": "19189K3",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115N1,19123D1,19189J1,19189J2",
+    "pressure_pa": 131345.2,
+    "mass_flow_kg_s": 2.5131546666666666e-06,
+    "x_fuel_role": 0.495867,
+    "x_o2_role": 0.369302,
+    "tad_k": 2582.4333333333334,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 22.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189K3_data.csv",
+     "bytes": 5947848,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189K3_mfcSetpoints.csv",
+     "bytes": 94286,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189JK3_TP.txt",
+     "bytes": 1112,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189K3.txt",
+     "bytes": 2210,
+     "on_disk": true
+    }
+   },
+   "bytes": 6045456,
+   "held": true
+  },
+  {
+   "test_id": "19189P1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "A1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123J1,19150F1,19156K1",
+    "pressure_pa": 131414.1,
+    "mass_flow_kg_s": 2.5129113333333338e-06,
+    "x_fuel_role": 0.20707533333333336,
+    "x_o2_role": 0.365498,
+    "tad_k": 2380.866666666667,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 22.0,
+   "script_flags": [
+    "flow_timeout_cuts_ramp_to_zero",
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189P1_data.csv",
+     "bytes": 3997903,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189P1_mfcSetpoints.csv",
+     "bytes": 40046,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189JP1_TP.txt",
+     "bytes": 1064,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189P1.txt",
+     "bytes": 2209,
+     "on_disk": true
+    }
+   },
+   "bytes": 4041222,
+   "held": true
+  },
+  {
+   "test_id": "19150H1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19150",
+   "partition_of_day": "train",
+   "tier": "A2",
+   "table_note": null,
+   "conditions": {
+    "source": "conditions.csv (experiment table)",
+    "pressure_pa": 105627.7,
+    "mass_flow_kg_s": 2.52004e-06,
+    "x_fuel_role": 0.481698,
+    "x_o2_role": 0.365615,
+    "tad_k": 2695.2,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 160.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19150H1_data.csv",
+     "bytes": 4129398,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19150H1_mfcSetpoints.csv",
+     "bytes": 6206,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19150H1.txt",
+     "bytes": 1939,
+     "on_disk": true
+    }
+   },
+   "bytes": 4137543,
+   "held": true
+  },
+  {
+   "test_id": "19206L6",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19206",
+   "partition_of_day": "test",
+   "tier": "A2",
+   "table_note": null,
+   "conditions": {
+    "source": "conditions.csv (experiment table)",
+    "pressure_pa": 102387.2,
+    "mass_flow_kg_s": 5.778492e-07,
+    "x_fuel_role": 0.291209,
+    "x_o2_role": 0.20288,
+    "tad_k": 2178.5,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 62.0,
+   "script_flags": [
+    "fiber_positions_differ_without_move_unverified_in_v1"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19206L6_data.csv",
+     "bytes": 3615613,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19206L6_mfcSetpoints.csv",
+     "bytes": 6286,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19206L6.txt",
+     "bytes": 2217,
+     "on_disk": true
+    }
+   },
+   "bytes": 3624116,
+   "held": true
+  },
+  {
+   "test_id": "21301C2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:21301",
+   "partition_of_day": "validation",
+   "tier": "A2",
+   "table_note": null,
+   "conditions": {
+    "source": "conditions.csv (experiment table)",
+    "pressure_pa": 94432.1,
+    "mass_flow_kg_s": 1.05e-06,
+    "x_fuel_role": 0.25,
+    "x_o2_role": 0.4,
+    "tad_k": 2607.2,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 34.63333333333333,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_21301C2_data.csv",
+     "bytes": 3750453,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_21301C2_mfcSetpoints.csv",
+     "bytes": 1887,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run21301C2.txt",
+     "bytes": 2044,
+     "on_disk": true
+    }
+   },
+   "bytes": 3754384,
+   "held": true
+  },
+  {
+   "test_id": "22024B2",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:22024",
+   "partition_of_day": "train",
+   "tier": "A3",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 21361F3,21361F4,22018A1,22018B1",
+    "pressure_pa": 102318.3,
+    "mass_flow_kg_s": 4.07479e-06,
+    "x_fuel_role": 0.16731925,
+    "x_o2_role": 0.849978,
+    "tad_k": 2747.45,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 17.2,
+   "script_flags": [
+    "multi_stage_flow"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_22024B2_data.csv",
+     "bytes": 3802278,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_22024B2_mfcSetpoints.csv",
+     "bytes": 9965,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_22024B2_TP.txt",
+     "bytes": 1082,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run22024B2.txt",
+     "bytes": 2138,
+     "on_disk": true
+    }
+   },
+   "bytes": 3815463,
+   "held": true
+  },
+  {
+   "test_id": "22027B4",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:22027",
+   "partition_of_day": "train",
+   "tier": "A3",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 21361F6,22018G1,22027B1,22027B2",
+    "pressure_pa": 304196.9,
+    "mass_flow_kg_s": 2.7917776923076924e-06,
+    "x_fuel_role": 0.10208076923076924,
+    "x_o2_role": 0.849978,
+    "tad_k": 2494.6,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 4.2,
+   "script_flags": [
+    "multi_stage_flow"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_22027B4_data.csv",
+     "bytes": 2809991,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_22027B4_mfcSetpoints.csv",
+     "bytes": 5045,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_22027B4_TP.txt",
+     "bytes": 1096,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run22027B4.txt",
+     "bytes": 2134,
+     "on_disk": true
+    }
+   },
+   "bytes": 2818266,
+   "held": true
+  },
+  {
+   "test_id": "22027B8",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:22027",
+   "partition_of_day": "train",
+   "tier": "A3",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 21361F6,22018G1,22027B1,22027B2",
+    "pressure_pa": 303921.1,
+    "mass_flow_kg_s": 2.7917776923076924e-06,
+    "x_fuel_role": 0.10208076923076924,
+    "x_o2_role": 0.849978,
+    "tad_k": 2494.6,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 3.2,
+   "script_flags": [
+    "multi_stage_flow"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_22027B8_data.csv",
+     "bytes": 3285951,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_22027B8_mfcSetpoints.csv",
+     "bytes": 27885,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_22027B8_TP.txt",
+     "bytes": 1096,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run22027B8.txt",
+     "bytes": 2135,
+     "on_disk": true
+    }
+   },
+   "bytes": 3317067,
+   "held": true
+  },
+  {
+   "test_id": "19115D2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19115",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMPED",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115A1,19196N1",
+    "pressure_pa": 102663.0,
+    "mass_flow_kg_s": 9.6956105e-07,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.206169,
+    "tad_k": 2581.95,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 139.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19115D2_data.csv",
+     "bytes": 2705387,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19115D2_mfcSetpoints.csv",
+     "bytes": 5926,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19115D2_TP.txt",
+     "bytes": 1162,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_19115D2.txt",
+     "bytes": 2137,
+     "on_disk": true
+    }
+   },
+   "bytes": 2714612,
+   "held": true
+  },
+  {
+   "test_id": "19142G4",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19142",
+   "partition_of_day": "validation",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19196B1",
+    "pressure_pa": 100180.9,
+    "mass_flow_kg_s": 9.704512e-07,
+    "x_fuel_role": 0.290348,
+    "x_o2_role": 0.378721,
+    "tad_k": 2653.1,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 74.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19142G4_data.csv",
+     "bytes": 6065957,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19142G4_mfcSetpoints.csv",
+     "bytes": 27606,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19142G4_TP.txt",
+     "bytes": 1128,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19142G4.txt",
+     "bytes": 2134,
+     "on_disk": true
+    }
+   },
+   "bytes": 6096825,
+   "held": true
+  },
+  {
+   "test_id": "19142G5",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19142",
+   "partition_of_day": "validation",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115F1",
+    "pressure_pa": 100456.7,
+    "mass_flow_kg_s": 6.380369e-07,
+    "x_fuel_role": 0.29203,
+    "x_o2_role": 0.375587,
+    "tad_k": 2186.1,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 76.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19142G5_data.csv",
+     "bytes": 5576353,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19142G5_mfcSetpoints.csv",
+     "bytes": 17966,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19142G5_TP.txt",
+     "bytes": 1112,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19142G5.txt",
+     "bytes": 2133,
+     "on_disk": true
+    }
+   },
+   "bytes": 5597564,
+   "held": true
+  },
+  {
+   "test_id": "19156B2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19156",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 102663.0,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 137.5,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19156B2_data.csv",
+     "bytes": 2343197,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19156B2_mfcSetpoints.csv",
+     "bytes": 4326,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19156B2_TP.txt",
+     "bytes": 1196,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19156B2.txt",
+     "bytes": 2214,
+     "on_disk": true
+    }
+   },
+   "bytes": 2350933,
+   "held": true
+  },
+  {
+   "test_id": "19156J1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19156",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19115L1,19123L1,19123L2,19150J1",
+    "pressure_pa": 103973.0,
+    "mass_flow_kg_s": 2.51626475e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.373448,
+    "tad_k": 2671.5666666666666,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 55.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19156J1_data.csv",
+     "bytes": 4562400,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19156J1_mfcSetpoints.csv",
+     "bytes": 33926,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19156J1_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19156J1.txt",
+     "bytes": 2196,
+     "on_disk": true
+    }
+   },
+   "bytes": 4599636,
+   "held": true
+  },
+  {
+   "test_id": "19171B1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19171",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 102111.4,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": null,
+   "script_flags": [
+    "missing:igniterDelayBeforeRetractMs,fiberMoveDuringTest"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19171B1_data.csv",
+     "bytes": 5463447,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19171B1_mfcSetpoints.csv",
+     "bytes": 44766,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19171B1_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19171B1.txt",
+     "bytes": 1828,
+     "on_disk": true
+    }
+   },
+   "bytes": 5511171,
+   "held": true
+  },
+  {
+   "test_id": "19171B3",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19171",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19156B4",
+    "pressure_pa": 103145.6,
+    "mass_flow_kg_s": 1.300426e-06,
+    "x_fuel_role": 0.06031,
+    "x_o2_role": 0.372136,
+    "tad_k": 1829.2,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 55.0,
+   "script_flags": [
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19171B3_data.csv",
+     "bytes": 5421129,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19171B3_mfcSetpoints.csv",
+     "bytes": 42926,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19171B3_TP.txt",
+     "bytes": 1128,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19171B3.txt",
+     "bytes": 2216,
+     "on_disk": true
+    }
+   },
+   "bytes": 5467399,
+   "held": true
+  },
+  {
+   "test_id": "19171J1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19171",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 104248.8,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 67.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19171J1_data.csv",
+     "bytes": 4854211,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19171J1_mfcSetpoints.csv",
+     "bytes": 37886,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19171J1_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19171J1.txt",
+     "bytes": 2209,
+     "on_disk": true
+    }
+   },
+   "bytes": 4895420,
+   "held": true
+  },
+  {
+   "test_id": "19171J3",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19171",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 104455.6,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 42.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19171J3_data.csv",
+     "bytes": 3793441,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19171J3_mfcSetpoints.csv",
+     "bytes": 25886,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19171J3_TP.txt",
+     "bytes": 1112,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19171J3.txt",
+     "bytes": 2211,
+     "on_disk": true
+    }
+   },
+   "bytes": 3822650,
+   "held": true
+  },
+  {
+   "test_id": "19171J4",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19171",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 104524.6,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 64.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19171J4_data.csv",
+     "bytes": 4724977,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19171J4_mfcSetpoints.csv",
+     "bytes": 33886,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19171J4_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19171J4.txt",
+     "bytes": 2212,
+     "on_disk": true
+    }
+   },
+   "bytes": 4762189,
+   "held": true
+  },
+  {
+   "test_id": "19175A2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19175",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 127484.1,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 38.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19175A2_data.csv",
+     "bytes": 3831295,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19175A2_mfcSetpoints.csv",
+     "bytes": 10526,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19175A2_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19175A2.txt",
+     "bytes": 2202,
+     "on_disk": true
+    }
+   },
+   "bytes": 3845137,
+   "held": true
+  },
+  {
+   "test_id": "19182G1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19182",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123K1,19175B9,19175N1",
+    "pressure_pa": 127415.2,
+    "mass_flow_kg_s": 1.298275e-06,
+    "x_fuel_role": 0.21065333333333333,
+    "x_o2_role": 0.398542,
+    "tad_k": 2404.733333333333,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 42.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19182G1_data.csv",
+     "bytes": 3914935,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19182G1_mfcSetpoints.csv",
+     "bytes": 8406,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19182G1_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19182G1.txt",
+     "bytes": 2210,
+     "on_disk": true
+    }
+   },
+   "bytes": 3926665,
+   "held": true
+  },
+  {
+   "test_id": "19182G6",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19182",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19200A6",
+    "pressure_pa": 128311.5,
+    "mass_flow_kg_s": 9.721514e-07,
+    "x_fuel_role": 0.130824,
+    "x_o2_role": 0.393608,
+    "tad_k": 2358.2,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": 36.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19182G6_data.csv",
+     "bytes": 3542633,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19182G6_mfcSetpoints.csv",
+     "bytes": 18006,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19182G6_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19182G6.txt",
+     "bytes": 2209,
+     "on_disk": true
+    }
+   },
+   "bytes": 3563962,
+   "held": true
+  },
+  {
+   "test_id": "19182G7",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19182",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 128587.3,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 60.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19182G7_data.csv",
+     "bytes": 4843310,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19182G7_mfcSetpoints.csv",
+     "bytes": 33966,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19182G7_TP.txt",
+     "bytes": 1114,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19182G7.txt",
+     "bytes": 2209,
+     "on_disk": true
+    }
+   },
+   "bytes": 4880599,
+   "held": true
+  },
+  {
+   "test_id": "19182G8",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19182",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 128863.1,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 60.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19182G8_data.csv",
+     "bytes": 5015617,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19182G8_mfcSetpoints.csv",
+     "bytes": 34006,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19182G8_TP.txt",
+     "bytes": 1112,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19182G8.txt",
+     "bytes": 2209,
+     "on_disk": true
+    }
+   },
+   "bytes": 5052944,
+   "held": true
+  },
+  {
+   "test_id": "19182A1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19182",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 129345.7,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 56.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19182A1_data.csv",
+     "bytes": 2973843,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19182A1_mfcSetpoints.csv",
+     "bytes": 9966,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19182A1_TP.txt",
+     "bytes": 1176,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19182A1.txt",
+     "bytes": 2217,
+     "on_disk": true
+    }
+   },
+   "bytes": 2987202,
+   "held": true
+  },
+  {
+   "test_id": "19189A2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 128863.1,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": null,
+   "script_flags": [
+    "missing:igniterDelayBeforeRetractMs,fiberMoveDuringTest"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189A2_data.csv",
+     "bytes": 2854493,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189A2_mfcSetpoints.csv",
+     "bytes": 9966,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189A2_TP.txt",
+     "bytes": 1160,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189A2.txt",
+     "bytes": 1831,
+     "on_disk": true
+    }
+   },
+   "bytes": 2867450,
+   "held": true
+  },
+  {
+   "test_id": "19189A3",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 128518.3,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 56.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189A3_data.csv",
+     "bytes": 2892869,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189A3_mfcSetpoints.csv",
+     "bytes": 9966,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189A3_TP.txt",
+     "bytes": 1178,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189A3.txt",
+     "bytes": 2217,
+     "on_disk": true
+    }
+   },
+   "bytes": 2906230,
+   "held": true
+  },
+  {
+   "test_id": "19189A4",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 129690.5,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 51.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189A4_data.csv",
+     "bytes": 2600483,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189A4_mfcSetpoints.csv",
+     "bytes": 8366,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189A4_TP.txt",
+     "bytes": 1194,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189A4.txt",
+     "bytes": 2216,
+     "on_disk": true
+    }
+   },
+   "bytes": 2612259,
+   "held": true
+  },
+  {
+   "test_id": "19189D2",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19189",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 129897.3,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 54.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19189D2_data.csv",
+     "bytes": 2900399,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19189D2_mfcSetpoints.csv",
+     "bytes": 8406,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19189D2_TP.txt",
+     "bytes": 1194,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19189D2.txt",
+     "bytes": 2216,
+     "on_disk": true
+    }
+   },
+   "bytes": 2912215,
+   "held": true
+  },
+  {
+   "test_id": "19196F1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19196",
+   "partition_of_day": "validation",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 127897.8,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 47.0,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19196F1_data.csv",
+     "bytes": 2550652,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19196F1_mfcSetpoints.csv",
+     "bytes": 8366,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19196F1_TP.txt",
+     "bytes": 1196,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19196F1.txt",
+     "bytes": 2210,
+     "on_disk": true
+    }
+   },
+   "bytes": 2562424,
+   "held": true
+  },
+  {
+   "test_id": "19156J6",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19156",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 103835.1,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 5.0,
+   "script_flags": [
+    "flow_timeout_cuts_ramp_to_zero",
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19156J6_data.csv",
+     "bytes": 3594975,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19156J6_mfcSetpoints.csv",
+     "bytes": 41886,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19156J6_TP.txt",
+     "bytes": 1199,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19156J6.txt",
+     "bytes": 2198,
+     "on_disk": true
+    }
+   },
+   "bytes": 3640258,
+   "held": true
+  },
+  {
+   "test_id": "19156J7",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19156",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 103835.1,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 13.0,
+   "script_flags": [
+    "flow_timeout_cuts_ramp_to_zero",
+    "ramp_flow_to_zero"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19156J7_data.csv",
+     "bytes": 3864286,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19156J7_mfcSetpoints.csv",
+     "bytes": 34726,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19156J7_TP.txt",
+     "bytes": 1199,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19156J7.txt",
+     "bytes": 2205,
+     "on_disk": true
+    }
+   },
+   "bytes": 3902416,
+   "held": true
+  },
+  {
+   "test_id": "19137K1",
+   "family": "acme_normal",
+   "group": "PSI-10:day:19137",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure (and O2 when given) + test flows of sibling(s) 19123A1,19123A2,19123A3,19123A4",
+    "pressure_pa": 102387.2,
+    "mass_flow_kg_s": 1.6260595e-06,
+    "x_fuel_role": 1.0,
+    "x_o2_role": 0.204017,
+    "tad_k": 2360.45,
+    "outside_f2_domain": []
+   },
+   "script_planned_first_flow_change_s": null,
+   "script_flags": [
+    "missing:igniterDelayBeforeRetractMs,fiberMoveDuringTest"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_19137K1_data.csv",
+     "bytes": 2805750,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_19137K1_mfcSetpoints.csv",
+     "bytes": 9806,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_19137K1_TP.txt",
+     "bytes": 1130,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run19137K1.txt",
+     "bytes": 1743,
+     "on_disk": true
+    }
+   },
+   "bytes": 2818429,
+   "held": true
+  },
+  {
+   "test_id": "21349M4",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:21349",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 102663.0,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 63.3,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_21349M4_data.csv",
+     "bytes": 5166296,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_21349M4_mfcSetpoints.csv",
+     "bytes": 49925,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_21349M4_TP.txt",
+     "bytes": 1082,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run21349M4.txt",
+     "bytes": 2134,
+     "on_disk": true
+    }
+   },
+   "bytes": 5219437,
+   "held": true
+  },
+  {
+   "test_id": "21349M5",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:21349",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 103352.5,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 57.3,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_21349M5_data.csv",
+     "bytes": 4956724,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_21349M5_mfcSetpoints.csv",
+     "bytes": 41925,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_21349M5_TP.txt",
+     "bytes": 1080,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run21349M5.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 5001861,
+   "held": true
+  },
+  {
+   "test_id": "21349M6",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:21349",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 104248.8,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 31.299999999999997,
+   "script_flags": [],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_21349M6_data.csv",
+     "bytes": 3579364,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_21349M6_mfcSetpoints.csv",
+     "bytes": 21925,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_21349M6_TP.txt",
+     "bytes": 1078,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run21349M6.txt",
+     "bytes": 2134,
+     "on_disk": true
+    }
+   },
+   "bytes": 3604501,
+   "held": true
+  },
+  {
+   "test_id": "22024B3",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:22024",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 102456.1,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 25.3,
+   "script_flags": [
+    "multi_stage_flow"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_22024B3_data.csv",
+     "bytes": 4212382,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_22024B3_mfcSetpoints.csv",
+     "bytes": 14005,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_22024B3_TP.txt",
+     "bytes": 1080,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run22024B3.txt",
+     "bytes": 2134,
+     "on_disk": true
+    }
+   },
+   "bytes": 4229601,
+   "held": true
+  },
+  {
+   "test_id": "22024M2",
+   "family": "acme_inverse",
+   "group": "PSI-10:day:22024",
+   "partition_of_day": "train",
+   "tier": "B1",
+   "table_note": "RAMP",
+   "conditions": {
+    "source": "table pressure only; flows from the script, conversion not done",
+    "pressure_pa": 51779.7,
+    "mass_flow_kg_s": null,
+    "x_fuel_role": null,
+    "x_o2_role": null,
+    "tad_k": null,
+    "outside_f2_domain": null
+   },
+   "script_planned_first_flow_change_s": 25.3,
+   "script_flags": [
+    "multi_stage_flow"
+   ],
+   "files": {
+    "data": {
+     "name": "PSI-10_Raw Data_22024M2_data.csv",
+     "bytes": 4221179,
+     "on_disk": true
+    },
+    "setpoints": {
+     "name": "PSI-10_Raw Data_22024M2_mfcSetpoints.csv",
+     "bytes": 14005,
+     "on_disk": true
+    },
+    "tp": {
+     "name": "PSI-10_Raw Data_22024M2_TP.txt",
+     "bytes": 1080,
+     "on_disk": true
+    },
+    "script": {
+     "name": "PSI-10_Raw Data_as run22024M2.txt",
+     "bytes": 2132,
+     "on_disk": true
+    }
+   },
+   "bytes": 4238396,
+   "held": true
+  }
+ ],
+ "not_in_batch": {
+  "printed_by_mistake": {
+   "tests": [
+    "19123L3",
+    "19206N1",
+    "19142G1"
+   ],
+   "why": "the after-test table columns (XO2 final, pfinal) of these rows were printed on 15 Nov while this draft was prepared; dropped"
+  },
+  "live_ramp": {
+   "tests": [
+    "19142G2",
+    "19142G3",
+    "19142F1",
+    "19142J2",
+    "19142J3",
+    "19171S1"
+   ],
+   "why": "table says RAMP but the pre-ignition script shows a plain long constant stage: the ramp was commanded live and shows only in mfcSetpoints, which also reveal the end"
+  },
+  "low_o2": {
+   "tests": [
+    "22024K2",
+    "22024K3"
+   ],
+   "why": "table O2 is \"LOW O2\"; no per-test O2 in a pre-ignition file"
+  },
+  "outside_domain": {
+   "tests": [
+    "21328N1",
+    "21328N2",
+    "21328N3",
+    "21328N4",
+    "21328N5",
+    "21349A1",
+    "21349B1",
+    "21349D2",
+    "21349D3"
+   ],
+   "why": "constant flow but F2 refuses (c_zst / c_xf); baseline-only"
+  },
+  "not_published": {
+   "tests": [
+    "19137C1",
+    "19206A1",
+    "19206A5",
+    "19206G1",
+    "19206G2",
+    "19206G3",
+    "19206G4",
+    "19206G5",
+    "19206G7",
+    "19206G8",
+    "19206G9",
+    "19206H1",
+    "19206H2",
+    "19206H3",
+    "19206H4",
+    "19206K1",
+    "19206K2",
+    "21301J1",
+    "21301J2",
+    "22042M1"
+   ],
+   "why": "no data/setpoint/TP/script text file in the NASA listing retrieved 15 Nov 2026 (22042M1 is also on a day in no partition)"
+  },
+  "no_table_row": {
+   "PSI-10": [
+    "19115C1",
+    "19115D1",
+    "19115H1",
+    "19115P1",
+    "19123H1",
+    "19123L8",
+    "19124H1",
+    "19142B1",
+    "19175B2",
+    "19196N2",
+    "22024M1"
+   ],
+   "PSI-159": [
+    "21106A1",
+    "21106A2",
+    "21106A3",
+    "21106G1",
+    "21106G2",
+    "21106G3",
+    "21106G4",
+    "21106G5",
+    "21106G8",
+    "21176M1",
+    "21242F1",
+    "21337A7"
+   ],
+   "why": "raw files published but no row in the experiment table: no O2/Tad, and whether a hot flame was established is unknown without reading channels"
+  },
+  "cfig_outside_cohort": {
+   "tests": "73 table rows of PSI-159 (50 normal, 23 inverse): 70 hot_ignition no/flash, 3 hot ignitions with an unresolved endpoint cause (21088C1 train day; two 50 % butane tests on test days)",
+   "why": "no hot flame to forecast, or the table outcome is already ingested in data/work/records"
+  },
+  "sflame_test_days": {
+   "tests": "PSI-23 days 20142 (17 test names), 20170 (20), 20176 (24); day 19245 has logs and GC files only",
+   "why": "already the frozen, unread test partition of docs/wsp/atlas/splits/PSI-23.json; all helium-diluted (F2 has no diluent input), 20142 is a H2/CH4 blend (no blend law), 20170/20176 mix ~21 % and ~30 % O2 with no per-test O2 source"
+  }
+ }
+}

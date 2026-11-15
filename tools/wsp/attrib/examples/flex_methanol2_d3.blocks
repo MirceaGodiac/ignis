@@ -1,0 +1,7 @@
+# flex_methanol.wsp2 D3: three scalars of its edits, steps of 10 %, and a zero step (identity check)
+rate.b0 x1.1
+unc.s_pop x1.1
+post.size_exp x1.1
+rate.b0 x1
+# a box: three elements of one statement, each scaled
+rate.skip[0:3] x1.1

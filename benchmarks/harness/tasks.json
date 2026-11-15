@@ -1,0 +1,96 @@
+{
+  "schema": "ignis.harness.tasks.v0",
+  "task_set": "nasa-pilot-22-20261115",
+  "origin": "system",
+  "partition": "dev",
+  "tasks": [
+    {
+      "task_id": "q01",
+      "question": "In the Flame Extinguishment Experiment (FLEX) on the ISS, what unexpected burning behaviour was observed for large n-heptane droplets after their visible flame went out?"
+    },
+    {
+      "task_id": "q02",
+      "question": "What practical spacecraft question was the Flame Extinguishment Experiment (FLEX) designed to inform?"
+    },
+    {
+      "task_id": "q03",
+      "question": "Which ISS rack and which insert/apparatus were used to run the FLEX-2 droplet combustion tests?"
+    },
+    {
+      "task_id": "q04",
+      "question": "What burner geometry and flame type did the ACME s-Flame investigation use, and what was it studying?"
+    },
+    {
+      "task_id": "q05",
+      "question": "What is the Burning Rate Emulator (BRE) in the ACME program and what was it for?"
+    },
+    {
+      "task_id": "q06",
+      "question": "What did the ACME E-FIELD Flames investigation study?"
+    },
+    {
+      "task_id": "q07",
+      "question": "What kind of flames did the ACME CLD Flame investigation study?"
+    },
+    {
+      "task_id": "q08",
+      "question": "How did the ACME Cool Flames Investigation with Gases (CFI-G) differ from the earlier droplet cool-flame work?"
+    },
+    {
+      "task_id": "q09",
+      "question": "What was the Burning and Suppression of Solids (BASS) investigation about?"
+    },
+    {
+      "task_id": "q10",
+      "question": "Where was the Spacecraft Fire Experiment-I (Saffire-I) carried out, and why there?"
+    },
+    {
+      "task_id": "q11",
+      "question": "What did the Smoke Point In Co-flow Experiment (SPICE) measure?"
+    },
+    {
+      "task_id": "q12",
+      "question": "What phenomenon did the Structure and Liftoff In Combustion Experiment (SLICE) investigate?"
+    },
+    {
+      "task_id": "q13",
+      "question": "What was the goal of the Smoke and Aerosol Measurement Experiment (SAME)?"
+    },
+    {
+      "task_id": "q14",
+      "question": "What did the Cool Flames Investigation (CFI, PSI-39) study, and with what hardware?"
+    },
+    {
+      "task_id": "q15",
+      "question": "What is the DOI of the FLEX (PSI-69) dataset in NASA's Physical Sciences Informatics (PSI) system?"
+    },
+    {
+      "task_id": "q16",
+      "question": "Approximately how large (total file size) is the FLEX-2 (PSI-68) dataset in NASA's Physical Sciences Informatics system?"
+    },
+    {
+      "task_id": "q17",
+      "question": "Which commercial instrument does NASA's PSI record list as the hardware for the Dust and Aerosol Measurement Feasibility Test (DAFT / DAFT-2)?"
+    },
+    {
+      "task_id": "q18",
+      "question": "What is the PSI investigation number of Burning and Suppression of Solids - II (BASS-II) in NASA's Physical Sciences Informatics system?"
+    },
+    {
+      "task_id": "q19",
+      "question": "What is the DOI of the ACME s-Flame (PSI-23) dataset in NASA's Physical Sciences Informatics system?"
+    },
+    {
+      "task_id": "q20",
+      "question": "Approximately how large (total file size) is the BASS (PSI-26) dataset in NASA's Physical Sciences Informatics system?"
+    },
+    {
+      "task_id": "q21",
+      "question": "What burning rate constant K (in mm^2/s) was measured in FLEX-2 test run 'FX2-999-Z'?"
+    },
+    {
+      "task_id": "q22",
+      "question": "Which ACME combustion experiment was operated on the lunar surface, and what oxygen concentration did it use?"
+    }
+  ]
+}

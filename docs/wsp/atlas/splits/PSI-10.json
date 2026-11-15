@@ -1,0 +1,75 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-10",
+ "acronym": "ACME/Flame Design",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "group_id of the test catalogue (docs/wsp/atlas/SCHEMA.md): the test day or session",
+ "catalogue_level": {
+  "test": 327
+ },
+ "strata": {
+  "inverse_flames": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-10:day:21328",
+     "PSI-10:day:21349",
+     "PSI-10:day:22024",
+     "PSI-10:day:22027",
+     "PSI-10:day:22035"
+    ],
+    "validation": [
+     "PSI-10:day:21340",
+     "PSI-10:day:22018"
+    ],
+    "test": [
+     "PSI-10:day:21361"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 75,
+    "validation": 25,
+    "test": 20
+   }
+  },
+  "normal_flames": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-10:day:19115",
+     "PSI-10:day:19137",
+     "PSI-10:day:19150",
+     "PSI-10:day:19156",
+     "PSI-10:day:19171",
+     "PSI-10:day:19175",
+     "PSI-10:day:19182",
+     "PSI-10:day:19189"
+    ],
+    "validation": [
+     "PSI-10:day:19142",
+     "PSI-10:day:19196",
+     "PSI-10:day:21301"
+    ],
+    "test": [
+     "PSI-10:day:19123",
+     "PSI-10:day:19200",
+     "PSI-10:day:19206"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 114,
+    "validation": 41,
+    "test": 52
+   }
+  }
+ },
+ "frozen_on": "2026-11-14",
+ "use": {
+  "train": "outcomes may be read by a model's author",
+  "validation": "read only as an aggregate table from a look registered in docs/wsp/PROTOCOL.md beforehand",
+  "test": "never read by an author or by an agent working for one; scored once by the evaluation lane",
+  "held": "as validation: no outcome is read per test; scored only as an aggregate in a registered look"
+ },
+ "note": "A test that is not in the catalogue yet belongs to the partition of its group id. A group id that is not listed here is held until this file's rule has been applied to it in a new file; this file is not rewritten."
+}

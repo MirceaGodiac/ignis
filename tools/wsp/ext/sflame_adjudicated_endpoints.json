@@ -1,0 +1,149 @@
+{
+ "source": "docs/wsp/research/phys_sflame_f4.md section 2.3 (claude-fable-5-2): the 16 endpoints adjudicated from the script's stamps, the radiometer and the burner thermocouple; a second outcome version beside the coded one, never replacing it",
+ "endpoints": [
+  {
+   "test": "20155B1",
+   "fuel_diluent": "H2, He",
+   "sensor_label": "extinction 5.3",
+   "script": "burner limit, flow off 11.2",
+   "cause": "operator_termination",
+   "end_s": 9.7,
+   "why": "script"
+  },
+  {
+   "test": "20190G1",
+   "fuel_diluent": "H2, He",
+   "sensor_label": "extinction 2.7",
+   "script": "burner limit, flow off 11.0",
+   "cause": "operator_termination",
+   "end_s": 9.9,
+   "why": "script"
+  },
+  {
+   "test": "19352D5",
+   "fuel_diluent": "H2, N2",
+   "sensor_label": "extinction 1.4",
+   "script": "burner limit",
+   "cause": "operator_termination",
+   "end_s": 17.4,
+   "why": "script"
+  },
+  {
+   "test": "19352D6",
+   "fuel_diluent": "H2, N2",
+   "sensor_label": "extinction 1.1",
+   "script": "burner limit",
+   "cause": "operator_termination",
+   "end_s": 20.9,
+   "why": "script"
+  },
+  {
+   "test": "20024M1",
+   "fuel_diluent": "H2, N2",
+   "sensor_label": "extinction 17.0",
+   "script": "scripted end",
+   "cause": "operator_termination",
+   "end_s": 46.8,
+   "why": "script"
+  },
+  {
+   "test": "20024N3",
+   "fuel_diluent": "H2, N2",
+   "sensor_label": "extinction 9.0",
+   "script": "scripted end",
+   "cause": "operator_termination",
+   "end_s": 47.1,
+   "why": "script"
+  },
+  {
+   "test": "20013C3",
+   "fuel_diluent": "blend, N2",
+   "sensor_label": "extinction 38.9",
+   "script": "scripted end, flow off 50.2",
+   "cause": "operator_termination",
+   "end_s": 47.9,
+   "why": "script"
+  },
+  {
+   "test": "20013C4",
+   "fuel_diluent": "blend, N2",
+   "sensor_label": "extinction 28.5",
+   "script": "scripted end, flow off 50.3",
+   "cause": "operator_termination",
+   "end_s": 47.8,
+   "why": "script"
+  },
+  {
+   "test": "20013C5",
+   "fuel_diluent": "blend, N2",
+   "sensor_label": "extinction 21.2",
+   "script": "scripted end, flow off 51.6",
+   "cause": "operator_termination",
+   "end_s": 48.0,
+   "why": "script"
+  },
+  {
+   "test": "20155A2",
+   "fuel_diluent": "H2, He",
+   "sensor_label": "stop 2.4",
+   "script": "extinction detected 2.0, flow off 3.4",
+   "cause": "extinction",
+   "end_s": 2.4,
+   "why": "script"
+  },
+  {
+   "test": "20190A1",
+   "fuel_diluent": "H2, He",
+   "sensor_label": "stop 2.6",
+   "script": "extinction detected 1.7, flow off 3.5",
+   "cause": "extinction",
+   "end_s": 2.6,
+   "why": "script"
+  },
+  {
+   "test": "19352D4",
+   "fuel_diluent": "H2, N2",
+   "sensor_label": "stop 4.9",
+   "script": "extinction detected 4.4, flow off 7.0",
+   "cause": "extinction",
+   "end_s": 4.9,
+   "why": "script"
+  },
+  {
+   "test": "20006C1",
+   "fuel_diluent": "blend, N2",
+   "sensor_label": "stop 26.8",
+   "script": "extinction detected 26.5, flow off 27.9",
+   "cause": "extinction",
+   "end_s": 26.5,
+   "why": "script"
+  },
+  {
+   "test": "20155H1",
+   "fuel_diluent": "H2, He",
+   "sensor_label": "stop 7.9",
+   "script": "extinction detected 7.3, flow off 8.5",
+   "cause": "operator_termination",
+   "end_s": 7.3,
+   "why": "sensor"
+  },
+  {
+   "test": "20024N2",
+   "fuel_diluent": "H2, N2",
+   "sensor_label": "stop 15.4",
+   "script": "extinction detected 15.0",
+   "cause": "operator_termination",
+   "end_s": 15.0,
+   "why": "sensor"
+  },
+  {
+   "test": "19308H4",
+   "fuel_diluent": "CH4, N2",
+   "sensor_label": "stop 1.7",
+   "script": "extinction detected 9.7, flow off 11.0",
+   "cause": "extinction",
+   "end_s": 8.2,
+   "why": "script and radiometer"
+  }
+ ]
+}

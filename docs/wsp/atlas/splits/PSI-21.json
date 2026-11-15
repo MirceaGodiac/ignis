@@ -1,0 +1,69 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-21",
+ "acronym": "ACME CLD Flame",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "group_id of the test catalogue (docs/wsp/atlas/SCHEMA.md): the test day or session",
+ "catalogue_level": {
+  "test_day": 32
+ },
+ "strata": {
+  "all": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-21:day:17319",
+     "PSI-21:day:17324",
+     "PSI-21:day:17342",
+     "PSI-21:day:18005",
+     "PSI-21:day:18011",
+     "PSI-21:day:18022",
+     "PSI-21:day:18026",
+     "PSI-21:day:18043",
+     "PSI-21:day:18053",
+     "PSI-21:day:18145",
+     "PSI-21:day:18192",
+     "PSI-21:day:18214",
+     "PSI-21:day:18218",
+     "PSI-21:day:18235",
+     "PSI-21:day:18239",
+     "PSI-21:day:18241",
+     "PSI-21:day:18257",
+     "PSI-21:day:21046",
+     "PSI-21:day:21062"
+    ],
+    "validation": [
+     "PSI-21:day:18003",
+     "PSI-21:day:18008",
+     "PSI-21:day:18032",
+     "PSI-21:day:18177",
+     "PSI-21:day:18249",
+     "PSI-21:day:18253"
+    ],
+    "test": [
+     "PSI-21:day:17356",
+     "PSI-21:day:18039",
+     "PSI-21:day:18151",
+     "PSI-21:day:18186",
+     "PSI-21:day:18199",
+     "PSI-21:day:21041",
+     "PSI-21:day:21050"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 19,
+    "validation": 6,
+    "test": 7
+   }
+  }
+ },
+ "frozen_on": "2026-11-14",
+ "use": {
+  "train": "outcomes may be read by a model's author",
+  "validation": "read only as an aggregate table from a look registered in docs/wsp/PROTOCOL.md beforehand",
+  "test": "never read by an author or by an agent working for one; scored once by the evaluation lane",
+  "held": "as validation: no outcome is read per test; scored only as an aggregate in a registered look"
+ },
+ "note": "A test that is not in the catalogue yet belongs to the partition of its group id. A group id that is not listed here is held until this file's rule has been applied to it in a new file; this file is not rewritten."
+}

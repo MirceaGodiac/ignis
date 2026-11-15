@@ -1,0 +1,253 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "investigation_id": "PSI-68",
+ "frozen_on": "2026-11-15",
+ "batch": "batch3",
+ "rule": "in the owner's order of priority (no frame and no outcome is read):\n 1. FLEX-2 train days, n-decane, measured ambient (batch-2 tier A never fetched), <= 1.2 atm: 5. The batch-1/2\n    loss table says the track was kept most often at reduced oxygen (x_O2 ~0.17 at 1 atm: 3 of 4 usable),\n    at 0.5 atm (8 of 13 tier-B n-decane usable) and in helium (2 of 3); in air at 1 atm 3 of 11; above\n    1.2 atm 0 of 9. No measured-ambient test at reduced pressure is left, so: the three x_O2 0.17 tests of\n    two days (A221D04, A118D06, A118D04) and one test of each air day (A113D07, A109D08), smallest archive\n    first within a day.\n 2. FLEX-2 train days, n-octane, measured ambient, never fetched: all that remain (E053A03, E135F10), and the\n    two archives the old downloader corrupted (A184D03, A186D02: n-decane, ambient unknown, kept set).\n 3. FLEX-2 TEST days, n-decane/n-octane free droplets with a measured ambient, never fetched: only n-decane in\n    helium at 0.5 atm exists (day 2012-11-05, A310D02-08; no n-octane): the 3 smallest archives. Held blind.\n 4. CFI train days, n-dodecane free droplets without a processed series, with a backlit archive: 2, spread\n    over the diluent (F125A04 air 1 atm, F139A03 He 0.29 1 atm). CFI test days, n-dodecane, never fetched,\n    with an archive: both that exist (F158A03 free, 5 atm, outside the pressure domain; F163A03 support not\n    stated). Held blind.",
+ "bytes": 17121025429,
+ "tests": [
+  {
+   "test_id": "A221D04",
+   "date": "PSI-68:day:2012-08-08",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 1,
+   "archive": "A221D04A.zip",
+   "bytes": 1004218133,
+   "conditions": {
+    "x_o2": 0.16992000000000002,
+    "x_co2": 0.0,
+    "x_he": 0.0,
+    "pressure_pa": 102715.33625069959,
+    "ambient_how": "joined: gas reading point A221R01 of the same day, before the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A118D06",
+   "date": "PSI-68:day:2016-04-27",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 1,
+   "archive": "A118D06A.zip",
+   "bytes": 1677376654,
+   "conditions": {
+    "x_o2": 0.16821999999999998,
+    "x_co2": 0.00027,
+    "x_he": 0.0,
+    "pressure_pa": 102753.6565859711,
+    "ambient_how": "joined: gas reading point A118R01 of the same day, after the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A118D04",
+   "date": "PSI-68:day:2016-04-27",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 1,
+   "archive": "A118D04A.zip",
+   "bytes": 2125777701,
+   "conditions": {
+    "x_o2": 0.16821999999999998,
+    "x_co2": 0.00027,
+    "x_he": 0.0,
+    "pressure_pa": 102662.93609527152,
+    "ambient_how": "joined: gas reading point A118R01 of the same day, after the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A113D07",
+   "date": "PSI-68:day:2016-04-22",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 1,
+   "archive": "A113D07A.zip",
+   "bytes": 1296686108,
+   "conditions": {
+    "x_o2": 0.20506,
+    "x_co2": 0.00268,
+    "x_he": 0.0,
+    "pressure_pa": 102338.88250249262,
+    "ambient_how": "joined: gas reading point A113R01 of the same day, after the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A109D08",
+   "date": "PSI-68:day:2016-04-18",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 1,
+   "archive": "A109D08A.zip",
+   "bytes": 1912268374,
+   "conditions": {
+    "x_o2": 0.20690999999999998,
+    "x_co2": 0.0026,
+    "x_he": 0.0,
+    "pressure_pa": 101941.28483191994,
+    "ambient_how": "joined: gas reading point A109R01 of the same day, after the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "E053A03",
+   "date": "PSI-68:day:2012-02-22",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "priority": 2,
+   "archive": "E053A03A.zip",
+   "bytes": 976385031,
+   "conditions": {
+    "x_o2": 0.21,
+    "x_co2": 0.0,
+    "x_he": 0.0,
+    "pressure_pa": 102833.92607614207,
+    "ambient_how": "joined: gas reading point E053R01 of the same day, before the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "E135F10",
+   "date": "PSI-68:day:2012-05-14",
+   "partition": "train",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "priority": 2,
+   "archive": "E135F10A.zip",
+   "bytes": 3324301530,
+   "conditions": {
+    "x_o2": 0.21,
+    "x_co2": 0.0,
+    "x_he": 0.0,
+    "pressure_pa": 102010.58598214871,
+    "ambient_how": "joined: gas reading point E135R01 of the same day, before the test point"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A184D03",
+   "date": "PSI-68:day:2012-07-02",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 2,
+   "archive": "A184D03A.zip",
+   "bytes": 991732081,
+   "conditions": {
+    "x_o2": null,
+    "x_co2": null,
+    "x_he": null,
+    "pressure_pa": 51487.28956246135,
+    "ambient_how": "unknown"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A186D02",
+   "date": "PSI-68:day:2012-07-04",
+   "partition": "train",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 2,
+   "archive": "A186D02A.zip",
+   "bytes": 996559822,
+   "conditions": {
+    "x_o2": null,
+    "x_co2": null,
+    "x_he": null,
+    "pressure_pa": 50946.740590676985,
+    "ambient_how": "unknown"
+   },
+   "held": false
+  },
+  {
+   "test_id": "A310D04",
+   "date": "PSI-68:day:2012-11-05",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 3,
+   "archive": "A310D04A.zip",
+   "bytes": 824368126,
+   "conditions": {
+    "x_o2": 0.2495,
+    "x_co2": 0.0,
+    "x_he": 0.7495,
+    "pressure_pa": 51233.56249407277,
+    "ambient_how": "joined: gas reading point A310R01 of the same day, before the test point"
+   },
+   "held": true
+  },
+  {
+   "test_id": "A310D03",
+   "date": "PSI-68:day:2012-11-05",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 3,
+   "archive": "A310D03A.zip",
+   "bytes": 995577324,
+   "conditions": {
+    "x_o2": 0.2495,
+    "x_co2": 0.0,
+    "x_he": 0.7495,
+    "pressure_pa": 51172.8886298929,
+    "ambient_how": "joined: gas reading point A310R01 of the same day, before the test point"
+   },
+   "held": true
+  },
+  {
+   "test_id": "A310D05",
+   "date": "PSI-68:day:2012-11-05",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "priority": 3,
+   "archive": "A310D05A.zip",
+   "bytes": 995774545,
+   "conditions": {
+    "x_o2": 0.2495,
+    "x_co2": 0.0,
+    "x_he": 0.7495,
+    "pressure_pa": 51255.62571741091,
+    "ambient_how": "joined: gas reading point A310R01 of the same day, before the test point"
+   },
+   "held": true
+  }
+ ],
+ "amendments": [
+  {
+   "at": "2026-11-15T11:29:33+02:00",
+   "by": "measurer, on the owner instruction to close batch 3",
+   "rule": "batch closed: nothing more fetched; the two archives in flight (A118D04 unfinished) were stopped and their partial files deleted",
+   "fetched_and_measured": [
+    "A109D08",
+    "A113D07",
+    "A118D06",
+    "A221D04"
+   ],
+   "never_fetched": [
+    "A118D04",
+    "E053A03",
+    "E135F10",
+    "A184D03",
+    "A186D02",
+    "A310D04",
+    "A310D03",
+    "A310D05"
+   ],
+   "notes": [
+    "A113D07A.zip was refused twice by the strict zip check because NASA's archive carries a Thumbs.db member with a wrong stored CRC; accepted by tools/wsp/media/fetch_batch3.py after every other member's CRC was checked",
+    "the four held test-day archives (A310D03/04/05) and the four CFI archives were never fetched"
+   ]
+  }
+ ]
+}
