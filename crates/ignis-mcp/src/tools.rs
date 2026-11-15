@@ -22,9 +22,10 @@ use std::sync::Arc;
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
     Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef, EpisodeId, ErrorCode,
-    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode, InlinePayload,
-    JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, ResponseFormat, RetryPolicy,
-    ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
+    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode,
+    InlinePayload, JobLookup, JobRef, Origin, Producer, ReadRequest, ReleaseRef, ResponseFormat,
+    RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor, ToolResult,
+    ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
