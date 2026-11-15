@@ -391,3 +391,67 @@ An extra rule for this variant.
     let pin = h.store.episode(&sc, &ep2).unwrap().pins.harness.unwrap();
     assert_eq!(&pin.digest, h2.digest());
 }
+
+#[test]
+fn a_turn_s_usage_and_reported_cost_are_recorded_and_measured() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness(dir.path());
+    let sc = scope("ws-u", false);
+    let ep = h.episode(&sc, "usage");
+    h.say(&sc, &ep, "search with a tool and report usage");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    check_event_log(&evs).unwrap();
+    let usage: Vec<_> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::UsageReported { usage } => Some((usage.clone(), e.causation.clone())),
+            _ => None,
+        })
+        .collect();
+    let [(u, c)] = &usage[..] else {
+        panic!("{usage:?}")
+    };
+    // Anthropic counts cache reads and writes apart from input; the report folds them in.
+    assert_eq!(u.accounting, UsageAccounting::Increment);
+    assert_eq!(u.model.as_deref(), Some("claude-opus-5-5"));
+    assert_eq!(u.input_tokens, 200 + 6000 + 1800);
+    assert_eq!(
+        (u.cached_input_tokens, u.cache_write_tokens),
+        (Some(6000), Some(1800))
+    );
+    assert_eq!(u.output_tokens, 500);
+    let reported = u.reported_cost.as_ref().unwrap();
+    assert_eq!(reported.basis, CostBasis::ProviderReported);
+    assert!(c.runtime_turn_id.is_some());
+
+    // The metrics price it from the price list (not from the reported cost).
+    let m = ignis_research::metrics::measure_episode(
+        &h.store,
+        &sc,
+        &ep,
+        &ignis_research::metrics::PriceList::builtin(),
+    )
+    .unwrap()
+    .metrics;
+    m.validate().unwrap();
+    assert_eq!(m.turns.len(), 1);
+    assert_eq!(m.turns[0].tool_calls, 1);
+    assert_eq!(m.tools[0].tool, "sources_search");
+    assert_eq!(m.tools[0].latency.as_ref().unwrap().samples, 1);
+    let pct = m.tokens.cache_hit_pct.unwrap().get();
+    assert!((pct - 75.0).abs() < 1e-9, "{pct}");
+    let CostStatus::Priced { cost } = &m.questions[0].cost else {
+        panic!("{:?}", m.questions[0].cost)
+    };
+    // 200 × 4 + 6000 × 0.20 + 1800 × 5 + 500 × 20, per million tokens.
+    let want = (200.0 * 4.0 + 6000.0 * 0.20 + 1800.0 * 5.0 + 500.0 * 20.0) / 1e6;
+    assert!(
+        (cost.amount.get() - want).abs() < 1e-12,
+        "{}",
+        cost.amount.get()
+    );
+    assert_eq!(
+        cost.price_list.as_deref(),
+        Some("ignis-llm-prices@2026-11-15")
+    );
+}

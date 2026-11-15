@@ -158,6 +158,7 @@ fn router(dir: &Path, sources: SourceArgs) -> axum::Router {
         r2: Default::default(),
         access: support::access().args.clone(),
         sources,
+        price_list: None,
     };
     app(
         args,

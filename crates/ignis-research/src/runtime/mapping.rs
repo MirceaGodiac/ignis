@@ -12,12 +12,14 @@
 //! | `item/*` `userMessage` | nothing (IGNIS recorded `message.user` itself) |
 //! | `item/completed` of any other item type | `runtime.opaque` (method `item/completed`) |
 //! | `turn/completed` | `episode.status_changed` (completed / waiting_user / paused / cancelled / failed) |
+//! | `thread/tokenUsage/updated` | `usage.reported` (`thread_total`; a malformed one stays opaque) |
 //!
 //! Every record that can be seen twice (live, then again in a thread replayed after a restart)
 //! carries a mark, so it is appended once. Deltas are live-only and unmarked.
 
 use ignis_core::contracts::{
-    Causation, EpisodeStatus, EventBody, MessageId, RationaleSource, ToolCallId,
+    Causation, EpisodeStatus, EventBody, MessageId, RationaleSource, ToolCallId, UsageAccounting,
+    UsageReport,
 };
 use serde_json::Value;
 
@@ -199,11 +201,38 @@ pub fn map_notification(method: &str, params: &Value, stop: Option<StopReason>) 
             Some(t) => map_turn_completed(t, stop),
             None => opaque(method, params),
         },
+        "thread/tokenUsage/updated" => {
+            match params.pointer("/tokenUsage/total").and_then(codex_usage) {
+                Some(usage) => vec![record(
+                    None,
+                    causation(turn, None),
+                    EventBody::UsageReported { usage },
+                )],
+                None => opaque(method, params),
+            }
+        }
         // Known, but carry no event: the turn start is recorded by IGNIS before `turn/start` is sent,
         // and server-request resolution is handled by the bridge's approval bookkeeping.
         "turn/started" | "thread/started" | "serverRequest/resolved" => vec![],
         _ => opaque(method, params),
     }
+}
+
+/// The running thread total of a Codex `TokenUsageBreakdown` (input includes the cached part,
+/// output includes reasoning). `None` when a required count is missing or inconsistent.
+fn codex_usage(total: &Value) -> Option<UsageReport> {
+    let n = |k: &str| total.get(k).and_then(Value::as_u64);
+    let usage = UsageReport {
+        accounting: UsageAccounting::ThreadTotal,
+        model: None,
+        input_tokens: n("inputTokens")?,
+        cached_input_tokens: n("cachedInputTokens"),
+        cache_write_tokens: None,
+        output_tokens: n("outputTokens")?,
+        reasoning_tokens: n("reasoningOutputTokens"),
+        reported_cost: None,
+    };
+    usage.validate().is_ok().then_some(usage)
 }
 
 fn opaque(method: &str, params: &Value) -> Vec<Mapped> {
@@ -386,6 +415,40 @@ mod tests {
         assert!(
             matches!(&out[..], [Mapped::Opaque { method, payload, .. }] if method == "x/somethingNew" && payload == &p)
         );
+    }
+
+    #[test]
+    fn codex_token_usage_is_a_thread_total_and_a_malformed_one_stays_opaque() {
+        let p = json!({"threadId": "t", "turnId": "u", "tokenUsage": {
+            "total": {"totalTokens": 130, "inputTokens": 100, "cachedInputTokens": 60,
+                      "outputTokens": 30, "reasoningOutputTokens": 12},
+            "last": {"inputTokens": 1, "outputTokens": 1}}});
+        let out = map_notification("thread/tokenUsage/updated", &p, None);
+        let [Mapped::Record(r)] = &out[..] else {
+            panic!("{out:?}")
+        };
+        let RuntimeChange::Event(EventBody::UsageReported { usage }) = &r.change else {
+            panic!()
+        };
+        assert_eq!(usage.accounting, UsageAccounting::ThreadTotal);
+        assert_eq!(
+            (usage.input_tokens, usage.cached_input_tokens),
+            (100, Some(60))
+        );
+        assert_eq!(
+            (usage.output_tokens, usage.reasoning_tokens),
+            (30, Some(12))
+        );
+        assert_eq!(r.causation.runtime_turn_id.as_deref(), Some("u"));
+        // No output count, or more cached than input: not interpreted.
+        for total in [
+            json!({"inputTokens": 10}),
+            json!({"inputTokens": 1, "cachedInputTokens": 2, "outputTokens": 0}),
+        ] {
+            let p = json!({"threadId": "t", "tokenUsage": {"total": total}});
+            let out = map_notification("thread/tokenUsage/updated", &p, None);
+            assert!(matches!(&out[..], [Mapped::Opaque { .. }]), "{out:?}");
+        }
     }
 
     #[test]
