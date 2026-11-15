@@ -498,6 +498,11 @@ impl AnswerHost<'_> {
                     artifact_id,
                     pointer,
                 } => checks.push((artifact_id, pointer.as_str(), Want::Table)),
+                ViewSpec::Chart {
+                    artifact_id,
+                    pointer,
+                    ..
+                } => checks.push((artifact_id, pointer.as_str(), Want::Table)),
                 _ => {}
             }
             for (a, p, want) in checks {

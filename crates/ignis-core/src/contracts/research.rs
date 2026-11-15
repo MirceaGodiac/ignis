@@ -1600,6 +1600,46 @@ pub enum ViewSpec {
         artifact_id: ArtifactId,
         pointer: String,
     },
+    /// A chart drawn by the client from rows inside a cited JSON artifact: `pointer` names an array
+    /// of rows, `x`, `y` and `group` name fields of a row by JSON Pointer relative to the row
+    /// (`/cells/0/value/value_si`, `/nearness/distance`). The agent chooses the mark and the fields;
+    /// every plotted number is read from the artifact, never typed into the view.
+    Chart {
+        artifact_id: ArtifactId,
+        pointer: String,
+        mark: ChartMark,
+        x: ChartAxis,
+        y: Vec<ChartAxis>,
+        /// Field that splits rows into series (colour and legend), e.g. `/investigation_id`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        group: Option<String>,
+        /// Field shown as each point's or bar's label, e.g. `/run/run_id`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        label: Option<String>,
+    },
+}
+
+/// How a chart draws its rows.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ChartMark {
+    Bar,
+    Line,
+    Scatter,
+}
+
+/// One chart axis: the row field it reads and how it is titled and scaled.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ChartAxis {
+    /// JSON Pointer relative to a row.
+    pub field: String,
+    pub title: String,
+    /// Unit shown after the title, e.g. `kPa`; the client converts nothing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
+    #[serde(default)]
+    pub log: bool,
 }
 
 /// The contract a view requires of an artifact it reads, if any.
@@ -1839,6 +1879,19 @@ fn view_pointers(view: &ViewSpec) -> Vec<&str> {
             })
             .collect(),
         ViewSpec::ArtifactTable { pointer, .. } => vec![pointer.as_str()],
+        ViewSpec::Chart {
+            pointer,
+            x,
+            y,
+            group,
+            label,
+            ..
+        } => {
+            let mut v = vec![pointer.as_str(), x.field.as_str()];
+            v.extend(y.iter().map(|a| a.field.as_str()));
+            v.extend(group.iter().chain(label.iter()).map(String::as_str));
+            v
+        }
         _ => vec![],
     }
 }
@@ -1848,7 +1901,9 @@ fn view_artifacts(view: &ViewSpec) -> Vec<&ArtifactId> {
         ViewSpec::SeriesComparison { series } => series.iter().map(|s| &s.artifact_id).collect(),
         ViewSpec::ConditionsMatrix { table } | ViewSpec::AtmosphereMap { table } => vec![table],
         ViewSpec::VideoOverlay { bundle, .. } => vec![bundle],
-        ViewSpec::ArtifactTable { artifact_id, .. } => vec![artifact_id],
+        ViewSpec::ArtifactTable { artifact_id, .. } | ViewSpec::Chart { artifact_id, .. } => {
+            vec![artifact_id]
+        }
         ViewSpec::SourceExcerpt { .. } | ViewSpec::ReleaseCard { .. } => vec![],
     }
 }

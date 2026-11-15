@@ -729,6 +729,22 @@ export type ViewSpec =
       artifact_id: ArtifactId;
       kind: "artifact_table";
       pointer: string;
+    }
+  | {
+      artifact_id: ArtifactId;
+      /**
+       * Field that splits rows into series (colour and legend), e.g. `/investigation_id`.
+       */
+      group?: string | null;
+      kind: "chart";
+      /**
+       * Field shown as each point's or bar's label, e.g. `/run/run_id`.
+       */
+      label?: string | null;
+      mark: ChartMark;
+      pointer: string;
+      x: ChartAxis;
+      y: ChartAxis[];
     };
 /**
  * What a plotted series is. Fixed against the artifact it reads: a predicted series comes only from
@@ -738,6 +754,13 @@ export type ViewSpec =
  * via the `definition` "SeriesRole".
  */
 export type SeriesRole = "observed" | "computed" | "predicted";
+/**
+ * How a chart draws its rows.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ChartMark".
+ */
+export type ChartMark = "bar" | "line" | "scatter";
 /**
  * How a claim's support was checked (K1.5).
  *
@@ -2879,6 +2902,24 @@ export interface SeriesRef {
 export interface SeriesBand {
   lower_pointer: string;
   upper_pointer: string;
+}
+/**
+ * One chart axis: the row field it reads and how it is titled and scaled.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "ChartAxis".
+ */
+export interface ChartAxis {
+  /**
+   * JSON Pointer relative to a row.
+   */
+  field: string;
+  log?: boolean;
+  title: string;
+  /**
+   * Unit shown after the title, e.g. `kPa`; the client converts nothing.
+   */
+  unit?: string | null;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
