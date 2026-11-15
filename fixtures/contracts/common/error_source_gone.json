@@ -1,0 +1,7 @@
+{
+  "code": "source_gone",
+  "message": "Synthetic fixture: corpus integrity: the manifest lists \"PSI-25_Reports_Example.pdf\" version Some(1), but PSI no longer serves it (geode 410)",
+  "retry": {
+    "kind": "never"
+  }
+}

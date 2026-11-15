@@ -179,6 +179,7 @@ fn service(db: &Path, cfg: dense::RetrievalCfg) -> EvidenceService {
 fn req(query: &str, mode: SearchMode, page_size: u32, cursor: Option<PageCursor>) -> SearchRequest {
     SearchRequest {
         response_format: None,
+        expected_terms: Vec::new(),
         schema_version: EvidenceSchema::V1,
         query: query.into(),
         mode,

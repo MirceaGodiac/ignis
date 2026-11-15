@@ -155,6 +155,40 @@ pub struct SearchRequest {
     /// v2.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
+    /// v2. SIRA query expansion (LANES_V2 R12a): concepts, equivalent phrasings and discriminative
+    /// terms a relevant passage would contain, never a guessed answer. The service keeps those the
+    /// corpus holds, rarest first, and adds them to the lexical score with IDF weights; the page
+    /// reports which ones it kept.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub expected_terms: Vec<ExpectedTerm>,
+}
+
+/// One expected term of a [`SearchRequest`] and how important the caller thinks it is.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ExpectedTerm {
+    pub term: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub importance: Option<TermImportance>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum TermImportance {
+    High,
+    Medium,
+    Low,
+}
+
+impl TermImportance {
+    /// The weight the finalizer gives a term of this importance (Corpus's SIRA: 1, 0.6, 0.3).
+    pub fn weight(imp: Option<TermImportance>) -> f64 {
+        match imp {
+            Some(TermImportance::High) => 1.0,
+            Some(TermImportance::Low) => 0.3,
+            _ => 0.6,
+        }
+    }
 }
 
 impl SearchRequest {
@@ -168,6 +202,17 @@ impl SearchRequest {
         if self.response_format.is_some() {
             self.schema_version
                 .require_v2("SearchRequest", "response_format")?;
+        }
+        if !self.expected_terms.is_empty() {
+            self.schema_version
+                .require_v2("SearchRequest", "expected_terms")?;
+            ensure(
+                self.expected_terms
+                    .iter()
+                    .all(|t| !t.term.trim().is_empty()),
+                "SearchRequest",
+                || "empty expected term".into(),
+            )?;
         }
         Ok(())
     }

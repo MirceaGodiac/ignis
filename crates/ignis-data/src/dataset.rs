@@ -951,10 +951,15 @@ fn atomic_write(p: &Path, bytes: &[u8]) -> anyhow::Result<()> {
 /// The parsed conditions table, kept while its file is unchanged (same length and modification time).
 /// The table is a file built offline (`ignis data conditions`, about 5 MB); parsing it on every request
 /// cost most of a request's time. A rebuilt file is read again on the next request.
-fn cached_table(p: &Path) -> ServiceResult<Arc<ConditionsTable>> {
+///
+/// The entry also holds the digest of the very bytes it parsed, and `conditions_snapshot` reports
+/// that digest: the snapshot an answer names is always the data its cells came from, even when a
+/// rewrite keeps the file's length and modification time (the cache would then serve the old
+/// table, and the snapshot names the old table too).
+fn cached_table(p: &Path) -> ServiceResult<(Arc<ConditionsTable>, Digest)> {
     type Key = (u64, Option<std::time::SystemTime>);
-    static TABLE: std::sync::Mutex<Option<(PathBuf, Key, Arc<ConditionsTable>)>> =
-        std::sync::Mutex::new(None);
+    type Entry = (PathBuf, Key, Arc<ConditionsTable>, Digest);
+    static TABLE: std::sync::Mutex<Option<Entry>> = std::sync::Mutex::new(None);
     let meta = std::fs::metadata(p).map_err(|_| {
         err(
             ErrorCode::CapabilityUnavailable,
@@ -963,19 +968,20 @@ fn cached_table(p: &Path) -> ServiceResult<Arc<ConditionsTable>> {
     })?;
     let key: Key = (meta.len(), meta.modified().ok());
     let mut slot = TABLE.lock().unwrap_or_else(|e| e.into_inner());
-    if let Some((path, k, t)) = slot.as_ref() {
+    if let Some((path, k, t, d)) = slot.as_ref() {
         if path == p && *k == key {
-            return Ok(t.clone());
+            return Ok((t.clone(), d.clone()));
         }
     }
-    let text = std::fs::read_to_string(p)
-        .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+    let bytes =
+        std::fs::read(p).map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+    let digest = Digest::of_bytes(&bytes);
     let table: Arc<ConditionsTable> = Arc::new(
-        serde_json::from_str(&text)
+        serde_json::from_slice(&bytes)
             .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?,
     );
-    *slot = Some((p.to_path_buf(), key, table.clone()));
-    Ok(table)
+    *slot = Some((p.to_path_buf(), key, table.clone(), digest.clone()));
+    Ok((table, digest))
 }
 
 impl DatasetService for DatasetStore {
@@ -1022,7 +1028,7 @@ impl DatasetService for DatasetStore {
             .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
         scope.require(Capability::ReadData)?;
         let p = crate::conditions::table_path();
-        let full = cached_table(&p)?;
+        let (full, _) = cached_table(&p)?;
         let splits: Vec<Split> = crate::cohort::split_files()
             .iter()
             .map(|f| {
@@ -1039,39 +1045,31 @@ impl DatasetService for DatasetStore {
         crate::conditions::query(&full, q, visible).map_err(|e| err(ErrorCode::InvalidRequest, e))
     }
 
-    /// Digest over the conditions table bytes and every frozen split file (name and bytes), the
-    /// inputs that decide both the cells and which runs a scope sees.
+    /// Digest over the conditions table the service answers from (the bytes its cached copy was
+    /// parsed from) and every frozen split file (name and bytes): the inputs that decide both the
+    /// cells and which runs a scope sees.
     fn conditions_snapshot(&self, scope: &ExecutionScope) -> ServiceResult<Digest> {
         scope
             .validate()
             .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
         scope.require(Capability::ReadData)?;
-        let p = crate::conditions::table_path();
-        let read = |p: &Path| {
-            std::fs::read(p).map_err(|e| {
+        let (_, table) = cached_table(&crate::conditions::table_path())?;
+        let mut parts = vec![format!("conditions_table {table}")];
+        for f in crate::cohort::split_files() {
+            let bytes = std::fs::read(&f).map_err(|e| {
                 err(
                     ErrorCode::CapabilityUnavailable,
-                    format!("{}: {e}", p.display()),
+                    format!("{}: {e}", f.display()),
                 )
-            })
-        };
-        let mut parts = vec![format!("conditions_table {}", Digest::of_bytes(&read(&p)?))];
-        for f in crate::cohort::split_files() {
+            })?;
             let name = f
                 .file_name()
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_string();
-            parts.push(format!("split {name} {}", Digest::of_bytes(&read(&f)?)));
+            parts.push(format!("split {name} {}", Digest::of_bytes(&bytes)));
         }
-        Ok(Digest::of_bytes(
-            parts
-                .join(
-                    "
-",
-                )
-                .as_bytes(),
-        ))
+        Ok(Digest::of_bytes(parts.join("\n").as_bytes()))
     }
 
     /// Bundles the scope may read: a bundle refused for a partition is not listed; the evaluator
