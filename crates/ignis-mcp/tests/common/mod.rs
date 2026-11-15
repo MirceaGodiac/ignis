@@ -34,12 +34,19 @@ pub struct FakeKnowledge {
     pub calls: Mutex<Vec<ExecutionScope>>,
     /// Hits repeated into the page (to make a large result).
     pub repeat: AtomicUsize,
+    /// Replaces the quote of every hit (a passage that states numbers).
+    pub quote: Mutex<Option<String>>,
 }
 
 impl KnowledgeService for FakeKnowledge {
     fn search(&self, scope: &ExecutionScope, _: &SearchRequest) -> ServiceResult<SearchPage> {
         self.calls.lock().unwrap().push(scope.clone());
         let mut page: SearchPage = fixture("evidence/search_page.json");
+        if let Some(q) = self.quote.lock().unwrap().clone() {
+            for h in &mut page.hits {
+                h.evidence.quote = Some(q.clone());
+            }
+        }
         let n = self.repeat.load(Ordering::SeqCst);
         if n > 1 {
             let hits = page.hits.clone();

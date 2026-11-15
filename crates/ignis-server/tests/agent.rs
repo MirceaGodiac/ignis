@@ -36,6 +36,7 @@ fn args(dir: &Path, codex: CodexArgs) -> ServeArgs {
         auth: AuthMode::Local,
         internal_routes: false,
         enable_models: true,
+        answer_grounding: Default::default(),
         max_upload_bytes: 1 << 20,
         contract_fixtures: "fixtures/contracts".into(),
         codex,
