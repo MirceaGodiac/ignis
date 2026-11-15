@@ -52,7 +52,9 @@ required conditions and the time the flame was established.
 A committee of ten slots (`committee3.rs`, rules of `committee2.rs`): the forecast is the weighted mean of the member
 event tables,
 
-$$P(t)=\sum_k o_k\sum_i w_i\,P_{i,k}(t),$$
+```math
+P(t)=\sum_k o_k\sum_i w_i\,P_{i,k}(t),
+```
 
 with the pair `mix.w_early`/`mix.w_late` weighing the slots on the shared records, the pair `mix.ws_early`/`mix.ws_late`
 when the planned stop is given, and then three passes with a scheduled stop at `programmed_stop + script.offset_s[k]`
@@ -62,7 +64,9 @@ weighed by `script.offset_w`. Only the four growth-clock members carry weight: t
 Each member is the growth-clock forward with a typed fuel table (`flame6.rs`, laws of `flame3.rs`). For an inverse
 flame the burner-side reactant is oxygen,
 
-$$r_{ss}=\frac{\dot m_{tot}}{4\pi\rho D\,\ln(1/Z_{st})},\qquad r_{ext}=\sqrt{\frac{\dot m_{O_2}}{4\pi\dot m''_{cr}}},\qquad \Phi=(r_{ss}/r_{ext})^2 .$$
+```math
+r_{ss}=\frac{\dot m_{tot}}{4\pi\rho D\,\ln(1/Z_{st})},\qquad r_{ext}=\sqrt{\frac{\dot m_{O_2}}{4\pi\dot m''_{cr}}},\qquad \Phi=(r_{ss}/r_{ext})^2 .
+```
 
 The critical flux is typed so low (`se.flux.b0` = −4.6) that lean flames do not reach $r_{ext}$ and the growth clock
 does not act: with the published inverse constants it gives lean flames minutes (decision D-23,
@@ -70,20 +74,24 @@ does not act: with the published inverse constants it gives lean flames minutes 
 sheet falls to about 1.0 g m⁻² s⁻¹, set by the diffusion of ambient fuel (`phys_acme_inverse.md` 1.1, 1.4). The
 model carries it as an empirical oscillation and quench clock,
 
-$$S_i(t)=G_i(t')\;\frac{1}{1+(t'/\tau_{osc})^{k}}\;e^{-h t'},\qquad \ln\tau_{osc}=N^*_{se}(\text{se.osc};c)+\text{fuel.dosc},\quad t'=\max(t-\text{floor},0),$$
+```math
+S_i(t)=G_i(t')\;\frac{1}{1+(t'/\tau_{osc})^{k}}\;e^{-h t'},\qquad \ln\tau_{osc}=N^*_{se}(\text{se.osc};c)+\text{fuel.dosc},\quad t'=\max(t-\text{floor},0),
+```
 
 with a weak class at ignition $p_{weak}=\sigma(N_{flash}(c))$ (air injected into a lean ambient). The hold scenario
-(slots b1, b3) adds one hidden unit to $N_{osc}$, $20\,\mathrm{relu}(c_{logm}-0.6\,c_{zst}-0.2)$: in the marginal
+(slots b1, b3) adds one hidden unit to $N_{osc}$, $`20\,\mathrm{relu}(c_{logm}-0.6\,c_{zst}-0.2)`$: in the marginal
 band of the mixture fraction a flame at a high oxygen flow is held in a limit cycle (`acme_inverse.wsp3` D5). The
 burner warms as
 
-$$T_b(t)=T_0+\Delta T\,(1-e^{-t/\tau_b}),\qquad \ln\Delta T_j=N^*_{ft}(\text{bt.rise};b)+\sigma_{bt}z_j,$$
+```math
+T_b(t)=T_0+\Delta T\,(1-e^{-t/\tau_b}),\qquad \ln\Delta T_j=N^*_{ft}(\text{bt.rise};b)+\sigma_{bt}z_j,
+```
 
 and trips at the weighted limits 455 and 510 °C (`bt.*`); programmed stops are atoms at the campaign's script
 times (`ft.atom_*`), switched off in b2, b3, which answer when the planned stop is known.
 
 The fuel enters through the table (`fuel.rs`): every law network is evaluated at the alkane vertices E (1, 0),
-P (0, 0), B (0, 1) and weighed by the fuel's coordinates, $N^*(x)=\sum_v w_vN(x_v)$, $(w_E,w_P,w_B)=(e,1-e-b,b)$.
+P (0, 0), B (0, 1) and weighed by the fuel's coordinates, $`N^*(x)=\sum_v w_vN(x_v)`$, $(w_E,w_P,w_B)=(e,1-e-b,b)$.
 Ethylene is (1, 0) in the self-extinction laws, (0.5, 0) in the burner laws, and its quench clock is doubled
 (`fuel.dosc` = 0.7, $e^{0.7}\approx2.0$): a lean ethylene flame, with a Lewis number below ethane's, should not
 pulsate and ends at the published critical flux of 0.68 g O₂ m⁻² s⁻¹ (`phys_spherical_fuels.md` 3.4).

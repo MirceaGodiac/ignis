@@ -64,15 +64,21 @@ rim boundary layer, factor 0.66) and, on small tubes, the wall shear of the fuel
 fuel lowers `S_L`; cabin oxygen raises it roughly as the cube
 (SpaceApps-Ardealu:docs/wsp/research/phys_slice_w0.md, sections 0 and 1):
 
-$$v_k = 0.66\,U_{co} + 8\,l_j\,\frac{Z_{st}}{Z_{st,\mathrm{CH_4}}}\,\frac{U_j}{d},\qquad l_j = 3.3\ \mu\mathrm{m},\qquad \Phi = \frac{v_k}{1.4\,S_L}$$
+```math
+v_k = 0.66\,U_{co} + 8\,l_j\,\frac{Z_{st}}{Z_{st,\mathrm{CH_4}}}\,\frac{U_j}{d},\qquad l_j = 3.3\ \mu\mathrm{m},\qquad \Phi = \frac{v_k}{1.4\,S_L}
+```
 
-Lifted when $\Phi > 1$, blown off when $\Phi > 1.3$, with $\ln\Phi$ known to 0.5 (one standard
-deviation). In the network's features ($z_{co}=\ln(U_{co}/0.3)$, $z_j=\ln U_j$, $z_d=\ln(d/1.6\,\mathrm{mm})$,
+Lifted when $\Phi \gt1$, blown off when $\Phi \gt1.3$, with $\ln\Phi$ known to 0.5 (one standard
+deviation). In the network's features ($z_{co}=\ln(U_{co}/0.3)$, $z_j=\ln U_j$, $`z_d=\ln(d/1.6\,\mathrm{mm})`$,
 $z_x=\ln x_{fuel}$, $z_o=\ln(x_{O_2}/0.21)$, $e_2$, $e_3$ the fuel indicators):
 
-$$\ln\Phi = -0.987 + z_{co} - 0.55 z_x - 3.0 z_o - 0.076(e_2+e_3) + \mathrm{sp}(t) + 0.5\,\mathrm{relu}(-0.693 - z_x)$$
+```math
+\ln\Phi = -0.987 + z_{co} - 0.55 z_x - 3.0 z_o - 0.076(e_2+e_3) + \mathrm{sp}(t) + 0.5\,\mathrm{relu}(-0.693 - z_x)
+```
 
-$$t = -2.485 - z_{co} + z_j - z_d - 1.3 z_x + 0.065 e_2 + 0.088 e_3,\qquad \mathrm{sp}(t) = 0.31\,\mathrm{relu}(t+2.2) + 0.38\,\mathrm{relu}(t) + 0.31\,\mathrm{relu}(t-2.2)$$
+```math
+t = -2.485 - z_{co} + z_j - z_d - 1.3 z_x + 0.065 e_2 + 0.088 e_3,\qquad \mathrm{sp}(t) = 0.31\,\mathrm{relu}(t+2.2) + 0.38\,\mathrm{relu}(t) + 0.31\,\mathrm{relu}(t-2.2)
+```
 
 `sp` is $\ln(1+e^t)$ in three pieces (the jet part added to the coflow part); it is carried by hinge
 units 0 to 2 of every logit network, and the steeper fall of `S_L` below 50 % fuel by hinge unit 3.
@@ -82,17 +88,19 @@ units 0 to 2 of every logit network, and the steeper fall of `S_L` below 50 % fu
 - `blow_off.logit` $= -2.184 + 2.0\ln\Phi$: the crew stepped the flow up line by line, so the chance of
   blow-off on a line is the chance that the limit lies inside one step of about 10 % (section 1.6 of
   the W0 dossier).
-- `flame_length`: $\ln L = \ln(K\dot m / Z_{st}) + 0.148\,\mathrm{clip}(\ln(0.5\,U_j/U_{co}), 0, 3.22)$,
+- `flame_length`: $`\ln L = \ln(K\dot m / Z_{st}) + 0.148\,\mathrm{clip}(\ln(0.5\,U_j/U_{co}), 0, 3.22)`$,
   $K$ about 1.30 mm per mg/s.
 
 The second law (SpaceApps-Ardealu:docs/wsp/research/phys_slice2.md) adds two facts about the log. A
-flame past the blow-off limit is not there to be lifted, so lifting is the window $1 < \Phi < 1.3$
+flame past the blow-off limit is not there to be lifted, so lifting is the window $1 \lt \Phi \lt 1.3$
 conditional on the flame being present; and the crew wrote "lifted" only when they noticed it, typed as
 a chance of 0.5:
 
-$$p_{\mathrm{lifted}} = p_{\mathrm{lift\_noted}}\;\frac{p_{\mathrm{past\_lift}} - p_{\mathrm{past\_blow}}}{1 - p_{\mathrm{past\_blow}}}$$
+```math
+p_{\mathrm{lifted}} = p_{\mathrm{lift\_noted}}\;\frac{p_{\mathrm{past\_lift}} - p_{\mathrm{past\_blow}}}{1 - p_{\mathrm{past\_blow}}}
+```
 
-Since `past_blow` is the `past_lift` network with a lower offset, $p_{past\_lift} \ge p_{past\_blow}$
+Since `past_blow` is the `past_lift` network with a lower offset, $`p_{past\_lift} \ge p_{past\_blow}`$
 and the result lies in [0, 1]. This combination is applied at scoring time, outside the forward.
 
 Full derivations: [docs/research/FORMULAS.md](../../research/FORMULAS.md), section slice2.wsp.
@@ -158,7 +166,7 @@ Feature columns are `(z_co, z_j, z_d, z_x, z_o, e2, e3, z_m)`.
 | `lift_noted.logit.*` | 89 elements (0) | all zero (`b0` = 0.0) | a lifted flame is noted half of the time ($p = 0.5$) |
 | `flame_length.median.b0` | [] (1) | -3.752 | $\ln(1296) + \ln(10^{-6}) - \ln(0.0552)$: 23.5 mm per mg/s of methane in strong coflow |
 | `flame_length.median.skip` | [8] (4) | [0, 0, 0, 1.3, 0, -0.065, -0.088, 1.0] | length proportional to $\dot m$; $Z_{st}$ rises with dilution (1.3 per e-fold), ethane, propane |
-| `flame_length.median.W1`, `b1`, `w2` | rows 0, 1: [-1, 1, 0...]; b1 [0.511, -2.708]; w2 [0.148, -0.148] | (4), (2), (2) | $\ln F = 0.148\,\mathrm{clip}(\ln(0.5U_j/U_{co}), 0, 3.219)$, 0.511 at the centre |
+| `flame_length.median.W1`, `b1`, `w2` | rows 0, 1: [-1, 1, 0...]; b1 [0.511, -2.708]; w2 [0.148, -0.148] | (4), (2), (2) | $`\ln F = 0.148\,\mathrm{clip}(\ln(0.5U_j/U_{co}), 0, 3.219)`$, 0.511 at the centre |
 | `flame_length.spread.b0` | [] (1) | 0.22 | ln-sd of the length (other spread tensors zero) |
 | `flame_length.tail_weight`, `tail_width` | 2 scalars (2) | 0.1, 3.0 | 10 % of cases three times wider |
 | `num.substeps` | constant | 512 | integration steps (numerical, not physics; unused by these targets) |

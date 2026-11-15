@@ -53,7 +53,7 @@ click reuses that tab.
 - "The access link expired." with **Resolve again**.
 - A `link_out` source (or one without CORS): "Not streamed by IGNIS. This source opens at the
   provider. Use "Open at NASA"."
-- PDF: "The PDF could not be opened here: <reason>". Video: "The video could not be played here.
+- PDF: "The PDF could not be opened here: `<reason>`". Video: "The video could not be played here.
   Open it at NASA." Table: "The cited record is past the end of the file".
 
 ## Data

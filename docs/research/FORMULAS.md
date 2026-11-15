@@ -28,7 +28,7 @@ IGNIS models are written by **weight-space programming**:
    - Uncertainty is part of the typed model: spreads, scenario weights and quadrature nodes are typed
      numbers too.
 4. **Most laws share one shape.** A law is a small hinge network,
-   $N(x)=b_0+\mathrm{skip}\cdot x+\sum_j w_{2,j}\,\mathrm{relu}(b_{1,j}+W_{1,j,:}\cdot x)$
+   $`N(x)=b_0+\mathrm{skip}\cdot x+\sum_j w_{2,j}\,\mathrm{relu}(b_{1,j}+W_{1,j,:}\cdot x)`$
    (`crates/ignis-wsp/src/nn.rs:69-84`). The author writes each hinge as a physical statement: a
    threshold, a slope or a change of regime. Written out at its typed numbers, every law below is a
    closed-form expression.
@@ -123,19 +123,23 @@ All paths are relative to the root of `ignis-web` unless prefixed `SpaceApps-Ard
 |---|---|---|
 | $q$ | $D^2$, liquid diameter squared (m²) | droplet3.rs:942 |
 | $q_0$ | $D_0^2$, back-extrapolated to the time origin (section 1.6) | droplet3.rs:999-1001 |
-| $w$ | burn progress, $\mathrm{clamp}(1-q/q_0,\,0,\,1)$ | droplet3.rs:696, 1361 |
-| $s$ | diffusion clock, $t\,K_{ref}/q_0$, with $t$ in s since the time origin (igniter energised) | droplet3.rs:697, 1362 |
+| $w$ | burn progress, $`\mathrm{clamp}(1-q/q_0,\,0,\,1)`$ | droplet3.rs:696, 1361 |
+| $s$ | diffusion clock, $`t\,K_{ref}/q_0`$, with $t$ in s since the time origin (igniter energised) | droplet3.rs:697, 1362 |
 | $K_{ref}$ | $10^{-6}$ m²/s (`norm.k_ref_m2_s`) | droplet3.rs:393 |
 | $D_{ref}$ | 2 mm (`norm.d_ref_m`) | droplet3.rs:391 |
 | $p_{ref}$ | $10^5$ Pa (`norm.p_ref_pa`) | droplet3.rs:392 |
 
 The condition vector $c$ is built at droplet3.rs:975-981 and 999-1001:
 
-$$c=\big(c_{O_2},c_{CO_2},c_{He},c_{\log p},c_{\log D_0}\big)=\Big(\tfrac{x_{O_2}-0.21}{0.05},\ \tfrac{x_{CO_2}}{0.20},\ \tfrac{x_{He}}{0.20},\ \ln\tfrac{p}{p_{ref}},\ \ln\tfrac{\sqrt{q_0}}{D_{ref}}\Big)$$
+```math
+c=\big(c_{O_2},c_{CO_2},c_{He},c_{\log p},c_{\log D_0}\big)=\Big(\tfrac{x_{O_2}-0.21}{0.05},\ \tfrac{x_{CO_2}}{0.20},\ \tfrac{x_{He}}{0.20},\ \ln\tfrac{p}{p_{ref}},\ \ln\tfrac{\sqrt{q_0}}{D_{ref}}\Big)
+```
 
 Every law is a one-hidden-layer ReLU network with a linear skip path. The author writes the hinges; any hidden unit the patch does not write is zero (`sparse`, spec.rs:46-47). The kernel is at nn.rs:69-84:
 
-$$N(x)=b_0+\mathrm{skip}\cdot x+\sum_j w_{2,j}\,\mathrm{relu}\big(b_{1,j}+W_{1,j,:}\cdot x\big),\qquad \mathrm{relu}(u)=\max(u,0)$$
+```math
+N(x)=b_0+\mathrm{skip}\cdot x+\sum_j w_{2,j}\,\mathrm{relu}\big(b_{1,j}+W_{1,j,:}\cdot x\big),\qquad \mathrm{relu}(u)=\max(u,0)
+```
 
 Hidden widths: 16 for the rate network and 8 for every other law (droplet3.rs:86-88). The logistic $\sigma(u)=1/(1+e^{-u})$ is at nn.rs:44-51.
 
@@ -166,7 +170,9 @@ A free droplet is in one of three states: **hot flame**, **cool flame** (n-hepta
 
 The population rate is at droplet3.rs:676-685. The run's path, at RK4 node $z_k$, is at droplet3.rs:1377-1381:
 
-$$\frac{dq}{dt}=-K_h,\qquad K_h=K_{ref}\exp\!\big(N_{rate}(c,w,s)+b+s_z z_k\big),\qquad x_{rate}=(c,\,w,\,s)\in\mathbb R^7$$
+```math
+\frac{dq}{dt}=-K_h,\qquad K_h=K_{ref}\exp\!\big(N_{rate}(c,w,s)+b+s_z z_k\big),\qquad x_{rate}=(c,\,w,\,s)\in\mathbb R^7
+```
 
 With $N_{rate}$ constant this is the classical law $D^2=D_0^2-Kt$. Here the burning constant depends on the atmosphere, on the progress $w$ (methanol absorbing water, a large droplet's flame still developing) and on the clock $s$ (heat-up). $b$ is the run's log-rate offset from the prefix (1.6), and $s_z z_k$ is the scenario spread (1.8).
 
@@ -178,13 +184,23 @@ Typed rate laws, written out from the hinge units:
 
 **Methanol D3**
 
-$$\ln\frac{K_h}{K_{ref}}=-0.53+0.14c_{O_2}-0.04c_{CO_2}+0.18c_{He}+0.10c_{\log p}-0.35w-0.19\,\mathrm{relu}(-c_{O_2})+0.14\,\mathrm{relu}(-0.6-c_{O_2})$$
-$$\qquad-0.5\,\mathrm{relu}(-0.3+c_{\log D_0}-0.65w)-0.6\,\mathrm{relu}(1-5.56s)-0.55\,\mathrm{relu}(-0.9-c_{O_2}-2s)$$
+```math
+\ln\frac{K_h}{K_{ref}}=-0.53+0.14c_{O_2}-0.04c_{CO_2}+0.18c_{He}+0.10c_{\log p}-0.35w-0.19\,\mathrm{relu}(-c_{O_2})+0.14\,\mathrm{relu}(-0.6-c_{O_2})
+```
+
+```math
+\qquad-0.5\,\mathrm{relu}(-0.3+c_{\log D_0}-0.65w)-0.6\,\mathrm{relu}(1-5.56s)-0.55\,\mathrm{relu}(-0.9-c_{O_2}-2s)
+```
 
 **n-Heptane D2**
 
-$$\ln\frac{K_h}{K_{ref}}=-0.48+0.13c_{O_2}-0.08c_{CO_2}+0.15c_{He}+0.05c_{\log p}-0.15c_{\log D_0}-0.12\,\mathrm{relu}(-c_{O_2})-0.05\,\mathrm{relu}(-0.7-c_{O_2})$$
-$$\qquad-0.05\,\mathrm{relu}(c_{He}-1.5)-0.3\,\mathrm{relu}(-0.4+c_{\log D_0}-0.65w)+0.11\,\mathrm{relu}(1-3.33s)-0.3\,\mathrm{relu}(1-1.667s)$$
+```math
+\ln\frac{K_h}{K_{ref}}=-0.48+0.13c_{O_2}-0.08c_{CO_2}+0.15c_{He}+0.05c_{\log p}-0.15c_{\log D_0}-0.12\,\mathrm{relu}(-c_{O_2})-0.05\,\mathrm{relu}(-0.7-c_{O_2})
+```
+
+```math
+\qquad-0.05\,\mathrm{relu}(c_{He}-1.5)-0.3\,\mathrm{relu}(-0.4+c_{\log D_0}-0.65w)+0.11\,\mathrm{relu}(1-3.33s)-0.3\,\mathrm{relu}(1-1.667s)
+```
 
 At $c=0$ (air, 1 atm, $D_0$ = 2 mm), computed here from the typed numbers:
 
@@ -199,9 +215,13 @@ For methanol the plateau also falls by the $-0.35w$ term as the burn progresses.
 
 The laws are at droplet3.rs:707-734:
 
-$$\ln\frac{D_{crit}}{D_{ref}}=N_{crit}(c_{O_2},c_{CO_2},c_{He},c_{\log p}),\qquad x_{exc}=c_{\log D_0}-\ln\frac{D_{crit}}{D_{ref}}=\ln\frac{D_0}{D_{crit}}$$
+```math
+\ln\frac{D_{crit}}{D_{ref}}=N_{crit}(c_{O_2},c_{CO_2},c_{He},c_{\log p}),\qquad x_{exc}=c_{\log D_0}-\ln\frac{D_{crit}}{D_{ref}}=\ln\frac{D_0}{D_{crit}}
+```
 
-$$\pi_R=P(\text{radiative class})=\sigma(\kappa\,x_{exc}+\beta)$$
+```math
+\pi_R=P(\text{radiative class})=\sigma(\kappa\,x_{exc}+\beta)
+```
 
 - **Below $D_{crit}$:** a droplet burns until its own history ends the flame. This is decided by **progress**: the diffusive class.
 - **Above $D_{crit}$:** the flame grows until radiation quenches it. This is decided by the **clock**: the radiative class.
@@ -212,66 +232,84 @@ Critical-diameter laws (both have $W_1=0$):
 
 | Fuel | Law | $\kappa$ | $\beta$ | $D_{crit}$ in air, 1 atm |
 |---|---|---|---|---|
-| methanol D3 | $\ln(D_{crit}/2\,\mathrm{mm})=1.51+0.75c_{O_2}-0.16c_{CO_2}-0.18c_{He}+0.7c_{\log p}$ | 10 | 0.7 | 9.05 mm (3.68 mm at 15 % O₂) |
-| heptane D2 | $\ln(D_{crit}/2\,\mathrm{mm})=0.615+0.62c_{O_2}-0.45c_{CO_2}-0.08c_{He}$ | 14 | 0.5 | 3.70 mm |
+| methanol D3 | $`\ln(D_{crit}/2\,\mathrm{mm})=1.51+0.75c_{O_2}-0.16c_{CO_2}-0.18c_{He}+0.7c_{\log p}`$ | 10 | 0.7 | 9.05 mm (3.68 mm at 15 % O₂) |
+| heptane D2 | $`\ln(D_{crit}/2\,\mathrm{mm})=0.615+0.62c_{O_2}-0.45c_{CO_2}-0.08c_{He}`$ | 14 | 0.5 | 3.70 mm |
 
 #### 1.3 Diffusive extinction (progress law, Gompertz in $w$)
 
 droplet3.rs:712 and 736-740:
 
-$$w_D=\sigma\big(N_{diff}(c,x_{exc})\big),\qquad \Lambda_D(w)=\ln 2\,\Big(e^{a_D(w-w_D)}-e^{-a_D w_D}\Big),\qquad S_D(w)=e^{-\Lambda_D(w)}$$
+```math
+w_D=\sigma\big(N_{diff}(c,x_{exc})\big),\qquad \Lambda_D(w)=\ln 2\,\Big(e^{a_D(w-w_D)}-e^{-a_D w_D}\Big),\qquad S_D(w)=e^{-\Lambda_D(w)}
+```
 
-$\Lambda_D(0)=0$ and $\Lambda_D(w_D)=\ln 2\,(1-e^{-a_Dw_D})\approx\ln 2$, so $w_D$ is the median progress at extinction and $a_D$ its sharpness.
+$\Lambda_D(0)=0$ and $`\Lambda_D(w_D)=\ln 2\,(1-e^{-a_Dw_D})\approx\ln 2`$, so $w_D$ is the median progress at extinction and $a_D$ its sharpness.
 
-| Fuel | $\mathrm{logit}\,w_D$ | $a_D$ | Air, $D_0$ = 2 mm (computed) |
+| Fuel | $`\mathrm{logit}\,w_D`$ | $a_D$ | Air, $D_0$ = 2 mm (computed) |
 |---|---|---|---|
-| methanol D3 | $1.35+0.12c_{O_2}-0.6c_{\log p}+0.5\,\mathrm{relu}(c_{O_2}-1)-2.0\,\mathrm{relu}(x_{exc}+0.3)$ | 14 | $w_D$ = 0.794, $D/D_0$ = 0.454 |
-| heptane D2 | $2.44+0.5c_{O_2}-0.3c_{CO_2}+0.5c_{\log D_0}-0.5\,\mathrm{relu}(c_{O_2})-1.0\,\mathrm{relu}(x_{exc}+0.3)$ | 10 | $w_D$ = 0.920, $D/D_0$ = 0.283 |
+| methanol D3 | $`1.35+0.12c_{O_2}-0.6c_{\log p}+0.5\,\mathrm{relu}(c_{O_2}-1)-2.0\,\mathrm{relu}(x_{exc}+0.3)`$ | 14 | $w_D$ = 0.794, $D/D_0$ = 0.454 |
+| heptane D2 | $`2.44+0.5c_{O_2}-0.3c_{CO_2}+0.5c_{\log D_0}-0.5\,\mathrm{relu}(c_{O_2})-1.0\,\mathrm{relu}(x_{exc}+0.3)`$ | 10 | $w_D$ = 0.920, $D/D_0$ = 0.283 |
 
 #### 1.4 Radiative extinction (clock law, Gompertz in $s/s_R$)
 
 droplet3.rs:713 and 742-746:
 
-$$s_R=\exp\big(N_{rad}(c,x_{exc})\big),\qquad \Lambda_R(s)=\ln 2\,\Big(e^{a_R(s/s_R-1)}-e^{-a_R}\Big),\qquad S_R(s)=e^{-\Lambda_R(s)}$$
+```math
+s_R=\exp\big(N_{rad}(c,x_{exc})\big),\qquad \Lambda_R(s)=\ln 2\,\Big(e^{a_R(s/s_R-1)}-e^{-a_R}\Big),\qquad S_R(s)=e^{-\Lambda_R(s)}
+```
 
 | Fuel | $\ln s_R$ | $a_R$ |
 |---|---|---|
-| methanol D3 | $-0.22c_{He}-3.8\,\mathrm{relu}(x_{exc}-0.05)$ | 5 |
-| heptane D2 | $0.227-2.0\,\mathrm{relu}(x_{exc})-1.0\,\mathrm{relu}(c_{\log D_0}-0.14)$ | 4 |
+| methanol D3 | $`-0.22c_{He}-3.8\,\mathrm{relu}(x_{exc}-0.05)`$ | 5 |
+| heptane D2 | $`0.227-2.0\,\mathrm{relu}(x_{exc})-1.0\,\mathrm{relu}(c_{\log D_0}-0.14)`$ | 4 |
 
 For methanol, $s_R=1$ without helium up to $x_{exc}=0.05$ and collapses above it. For heptane, a droplet at $D_0=D_{crit}$ = 3.7 mm in air has $s_R=e^{0.227-0.475}$ = 0.78 (computed).
 
-The hot flame has no reignition and no other end. There is also a constant **disruption hazard** $\lambda_{dis}=e^{\texttt{haz.log\_disruption}}$ (droplet3.rs:651). It is reported in the events and never changes the diameter: methanol $e^{-4.83}$ = 0.0080 /s, heptane $e^{-3.9}$ = 0.0202 /s.
+The hot flame has no reignition and no other end. There is also a constant **disruption hazard** $`\lambda_{dis}=e^{\texttt{haz.log_disruption}}`$ (droplet3.rs:651). It is reported in the events and never changes the diameter: methanol $e^{-4.83}$ = 0.0080 /s, heptane $e^{-3.9}$ = 0.0202 /s.
 
 #### 1.5 Cool flame (n-heptane) and the unlit droplet
 
 **Cool flame.** It occurs only after a *radiative* extinction, never after a diffusive one ($p_c$ is set to 0 for diffusive bins, droplet3.rs:1499). The laws are at droplet3.rs:714-720:
 
-$$p_c=\sigma\big(N_{cool,p}(c,x_{exc})\big),\qquad K_c=K_{ref}\,e^{N_{cool,k}(c)},\qquad \ln\frac{D_{ce}}{D_{ref}}=N_{cool,d}(c)+sd_{ce}\,u$$
+```math
+p_c=\sigma\big(N_{cool,p}(c,x_{exc})\big),\qquad K_c=K_{ref}\,e^{N_{cool,k}(c)},\qquad \ln\frac{D_{ce}}{D_{ref}}=N_{cool,d}(c)+sd_{ce}\,u
+```
 
 The burning law, the closed form at droplet3.rs:1435-1445:
 
-$$q(t)=\max\big(q_e-K_c(t-t_e),\,q_{min}\big)\quad\text{for } t\le t_x=t_e+\frac{q_e-q_x}{K_c},\qquad q_x=D_{ce}^2$$
+```math
+q(t)=\max\big(q_e-K_c(t-t_e),\,q_{min}\big)\quad\text{for } t\le t_x=t_e+\frac{q_e-q_x}{K_c},\qquad q_x=D_{ce}^2
+```
 
 After $t_x$ the droplet is unlit from $(t_x,q_x)$, with the post law at scale $\lambda_{cool}$ = `post.cool_scale`. If $q_x\ge q_e$ or $K_c\le0$, the cool flame has zero length and the droplet is unlit at once with scale $\lambda_{cool}$ (droplet3.rs:1436-1438).
 
 The scenario rate multiplies the cool rate:
-- after a radiative extinction inside the forecast, $K_c\to K_c\,e^{b+s_zz_k}$, the *hot* run offset (droplet3.rs:1485, 1504);
-- for a cool flame already burning at the cutoff, $K_c\to K_c\,e^{b_{cool}+s_zz_k}$ (droplet3.rs:1556).
+- after a radiative extinction inside the forecast, $`K_c\to K_c\,e^{b+s_zz_k}`$, the *hot* run offset (droplet3.rs:1485, 1504);
+- for a cool flame already burning at the cutoff, $`K_c\to K_c\,e^{b_{cool}+s_zz_k}`$ (droplet3.rs:1556).
 
 $D_{ce}$ takes 5 nodes $u=-2,\dots,2$ (step `num.ce_step` = 1) with weights $\propto e^{-u^2/2}$ (droplet3.rs:1343-1360).
 
 Typed cool-flame laws, heptane D2:
 
-$$\mathrm{logit}\,p_c=3.0-7.5\,\mathrm{relu}(-1-c_{O_2})-7.0\,\mathrm{relu}(c_{He}-0.75)$$
-$$\ln\frac{K_c}{K_{ref}}=-0.97+0.2c_{O_2}-0.05c_{CO_2}+0.14c_{He}+0.1c_{\log p}+0.2c_{\log D_0}$$
-$$\ln\frac{D_{ce}}{2\,\mathrm{mm}}=-0.77-0.25c_{O_2}+0.05c_{CO_2}+0.2c_{He}-1.0c_{\log p}+0.8c_{\log D_0},\qquad sd_{ce}=0.12$$
+```math
+\mathrm{logit}\,p_c=3.0-7.5\,\mathrm{relu}(-1-c_{O_2})-7.0\,\mathrm{relu}(c_{He}-0.75)
+```
+
+```math
+\ln\frac{K_c}{K_{ref}}=-0.97+0.2c_{O_2}-0.05c_{CO_2}+0.14c_{He}+0.1c_{\log p}+0.2c_{\log D_0}
+```
+
+```math
+\ln\frac{D_{ce}}{2\,\mathrm{mm}}=-0.77-0.25c_{O_2}+0.05c_{CO_2}+0.2c_{He}-1.0c_{\log p}+0.8c_{\log D_0},\qquad sd_{ce}=0.12
+```
 
 Computed here: $p_c$ = 0.953 in air, 0.818 at 15 % O₂ and 0.5 at 14 % O₂. At $c=0$, $K_c$ = 0.379 mm²/s and $D_{ce}$ = 0.93 mm.
 
-**No flame.** A droplet unlit since $(t_e,q_e)$ follows a long-time rate plus a decaying transient from the flame's heat (droplet3.rs:748-768, 1431-1433). With $r=q_e/D_{ref}^2=(D_e/2\,\mathrm{mm})^2$ and $u=\max(t-t_e,0)$:
+**No flame.** A droplet unlit since $(t_e,q_e)$ follows a long-time rate plus a decaying transient from the flame's heat (droplet3.rs:748-768, 1431-1433). With $`r=q_e/D_{ref}^2=(D_e/2\,\mathrm{mm})^2`$ and $u=\max(t-t_e,0)$:
 
-$$q(t)=\max\Big(q_e-\big[k_\infty r^{m}\,u+\lambda\,k_{hot}r^{h}\,\tau_e\big(1-e^{-u/\tau_e}\big)\big],\ q_{min}\Big),\qquad \tau_e=\max\big(\tau_0 r^{n},\,10^{-3}\,\mathrm{s}\big)$$
+```math
+q(t)=\max\Big(q_e-\big[k_\infty r^{m}\,u+\lambda\,k_{hot}r^{h}\,\tau_e\big(1-e^{-u/\tau_e}\big)\big],\ q_{min}\Big),\qquad \tau_e=\max\big(\tau_0 r^{n},\,10^{-3}\,\mathrm{s}\big)
+```
 
 This is the integral of $-dq/dt=k_\infty r^m+\lambda k_{hot}r^h e^{-u/\tau_e}$. The scale $\lambda$ depends on the path:
 
@@ -287,7 +325,7 @@ All of this is at droplet3.rs:910-1215.
 
 **1. Admission.** The forward keeps liquid-diameter observations that are valid, positive and inside $0\le t\le\tau$. Of equal time stamps it keeps the first, and it refuses an unsorted prefix (droplet3.rs:922-943). It requires the modelled phase to be established at the cutoff (droplet3.rs:915-920).
 
-**2. Validity gate.** An observation $(t_i,q_i)$ is dropped if at least `gate.min_later` = 3 later values have $q_j>q_i(1+0.05)$, or at least 3 later values have $q_j<q_i(1-0.05)-k_{max}(t_j-t_i)$. The two counts are kept separately, and $k_{max}$ = 2e-6 m²/s (droplet3.rs:871-901). Fewer than 2 kept points is a refusal (droplet3.rs:945-954).
+**2. Validity gate.** An observation $(t_i,q_i)$ is dropped if at least `gate.min_later` = 3 later values have $q_j\gt q_i(1+0.05)$, or at least 3 later values have $q_j\lt q_i(1-0.05)-k_{max}(t_j-t_i)$. The two counts are kept separately, and $k_{max}$ = 2e-6 m²/s (droplet3.rs:871-901). Fewer than 2 kept points is a refusal (droplet3.rs:945-954).
 
 **3. Windows.** Let $t_1,t_n$ be the first and last kept times and $\Delta=t_n-t_1$. With $f=0.25$:
 - head $[t_1,t_1+f\Delta]$;
@@ -299,15 +337,21 @@ Each window gives its mean time $\bar t$ and mean $\bar q$ (droplet3.rs:850-865,
 
 **4. Initial diameter**, one pass (droplet3.rs:999-1001). With $c_{\log D_0}$ first set from $\bar q_{head}$:
 
-$$q_0=\bar q_{head}+K_{ref}e^{N_{rate}(c,0,0)}\,\bar t_{head}$$
+```math
+q_0=\bar q_{head}+K_{ref}e^{N_{rate}(c,0,0)}\,\bar t_{head}
+```
 
 The conditions $c$ must lie in the spec domain or the forecast is refused: $c_{O_2}\in[-2.2,4.8]$, $c_{CO_2}\in[0,4]$, $c_{He}\in[0,3]$, $c_{\log p}\in[-1,1.5]$, $c_{\log D_0}\in[-0.9,1.26]$ (droplet3.rs:457-463, 1004-1019).
 
 **5. Innovations.** For two windows $a\to b$ (droplet3.rs:688-704, 1021-1037):
 
-$$K_{obs}=\frac{\bar q_a-\bar q_b}{\bar t_b-\bar t_a},\qquad K_{mod}=\Big[\tfrac16\Big(\tfrac{1}{K_{pop}(w_a,s_a)}+\tfrac{4}{K_{pop}(\bar w,\bar s)}+\tfrac{1}{K_{pop}(w_b,s_b)}\Big)\Big]^{-1}$$
+```math
+K_{obs}=\frac{\bar q_a-\bar q_b}{\bar t_b-\bar t_a},\qquad K_{mod}=\Big[\tfrac16\Big(\tfrac{1}{K_{pop}(w_a,s_a)}+\tfrac{4}{K_{pop}(\bar w,\bar s)}+\tfrac{1}{K_{pop}(w_b,s_b)}\Big)\Big]^{-1}
+```
 
-$$e=\mathrm{clamp}\Big(\ln\frac{\max(K_{obs},k_{floor})}{K_{mod}},\,-e_{lo},\,e_{hi}\Big),\qquad \nu=\frac{2\sqrt{\bar q_b}\,\sigma_{frame}\sqrt{1/n_a+1/n_b}}{(\bar t_b-\bar t_a)\,K_{mod}}$$
+```math
+e=\mathrm{clamp}\Big(\ln\frac{\max(K_{obs},k_{floor})}{K_{mod}},\,-e_{lo},\,e_{hi}\Big),\qquad \nu=\frac{2\sqrt{\bar q_b}\,\sigma_{frame}\sqrt{1/n_a+1/n_b}}{(\bar t_b-\bar t_a)\,K_{mod}}
+```
 
 - $K_{pop}$ is the population hot rate without $b$.
 - $k_{floor}$ = 2e-8 m²/s.
@@ -317,17 +361,23 @@ $$e=\mathrm{clamp}\Big(\ln\frac{\max(K_{obs},k_{floor})}{K_{mod}},\,-e_{lo},\,e_
 
 **6. Gains.** Let $g=(\ln(\bar t_{tail}-\bar t_{head}),\ \ln(n/32),\ \mathrm{clamp}(w_{tail}/0.08,0,1))$ (droplet3.rs:1056-1079). Then:
 
-$$\gamma=\sigma(\texttt{enc.gain\_b}+\texttt{enc.gain\_w}\cdot g),\qquad g_s=\sigma(\texttt{filt.gain\_b}+\texttt{filt.gain\_w}\cdot g)$$
+```math
+\gamma=\sigma(\texttt{enc.gain_b}+\texttt{enc.gain_w}\cdot g),\qquad g_s=\sigma(\texttt{filt.gain_b}+\texttt{filt.gain_w}\cdot g)
+```
 
 Both are 0 if $\bar t_{tail}\le\bar t_{head}$.
 
 **7. Run offset and scenario spread** (droplet3.rs:1080-1081):
 
-$$b=\gamma\,(m_0e_{late}+m_1e_{early}),\qquad s_z=\sqrt{s_{floor}^2+(1-\gamma)\,s_{pop}^2}$$
+```math
+b=\gamma\,(m_0e_{late}+m_1e_{early}),\qquad s_z=\sqrt{s_{floor}^2+(1-\gamma)\,s_{pop}^2}
+```
 
 **8. Level at the cutoff (anchor).** The last end window is carried to $\tau$ along the end rate, clamped (droplet3.rs:1085-1095). No weight enters it except through the cap:
 
-$$q_{cut}=\bar q_{end}-\mathrm{clamp}\big(K_{end},\,0,\,\min(2\max(K_{late},k_{floor}),\,k_{max})\big)\,(\tau-\bar t_{end})$$
+```math
+q_{cut}=\bar q_{end}-\mathrm{clamp}\big(K_{end},\,0,\,\min(2\max(K_{late},k_{floor}),\,k_{max})\big)\,(\tau-\bar t_{end})
+```
 
 - If $K_{late}$ is not finite, the cap is $k_{max}$; if $K_{end}$ is not finite, the slope is 0.
 - If the end windows are unused, the tail window is carried instead.
@@ -335,25 +385,31 @@ $$q_{cut}=\bar q_{end}-\mathrm{clamp}\big(K_{end},\,0,\,\min(2\max(K_{late},k_{f
 
 **9. Prior state at the cutoff**, from the laws at the observed $w_{cut}=w(q_{cut})$ and $s_{cut}=\tau K_{ref}/q_0$ (droplet3.rs:1113-1129):
 
-$$P_{hot}=\pi_R S_R(s_{cut})+(1-\pi_R)S_D(w_{cut}),\qquad P_{cool}=\pi_R\big(1-S_R(s_{cut})\big)\,p_c\,\Phi\Big(\frac{\ln\sqrt{q_{cut}}-\ln D_{ce}}{sd_{ce}}\Big),\qquad P_{none}=\max(1-P_{hot}-P_{cool},0)$$
+```math
+P_{hot}=\pi_R S_R(s_{cut})+(1-\pi_R)S_D(w_{cut}),\qquad P_{cool}=\pi_R\big(1-S_R(s_{cut})\big)\,p_c\,\Phi\Big(\frac{\ln\sqrt{q_{cut}}-\ln D_{ce}}{sd_{ce}}\Big),\qquad P_{none}=\max(1-P_{hot}-P_{cool},0)
+```
 
-When $sd_{ce}=0$, $\Phi(\cdot)$ is replaced by $\mathbb 1[\sqrt{q_{cut}}>D_{ce}]$.
+When $sd_{ce}=0$, $\Phi(\cdot)$ is replaced by $\mathbb 1[\sqrt{q_{cut}}\gt D_{ce}]$.
 
-**10. State filter on the end rate.** It runs only if $g_s>0$ and $K_{end}$, $K_{mod,end}>0$ are finite (droplet3.rs:1132-1157). With $r=K_{end}/K_{mod,end}$:
+**10. State filter on the end rate.** It runs only if $g_s\gt0$ and $K_{end}$, $K_{mod,end}\gt0$ are finite (droplet3.rs:1132-1157). With $r=K_{end}/K_{mod,end}$:
 
-$$P_i\propto \text{prior}_i\Big[\mathcal N\big(r;\mu_i,\sqrt{\sigma_i^2+\nu_{end}^2}\big)+l_{floor}\Big]^{g_s}$$
+```math
+P_i\propto \text{prior}_i\Big[\mathcal N\big(r;\mu_i,\sqrt{\sigma_i^2+\nu_{end}^2}\big)+l_{floor}\Big]^{g_s}
+```
 
 | State | $\mu_i$ | $\sigma_i$ |
 |---|---|---|
 | hot | 1 | `filt.sd_hot` |
-| cool | $\rho_c=K_c/K_{mod,end}$ | `filt.sd_hot`$\cdot\max(\rho_c,10^{-6})$ |
+| cool | $\rho_c=K_c/K_{mod,end}$ | `filt.sd_hot`$`\cdot\max(\rho_c,10^{-6})`$ |
 | no flame | $\rho_e=(k_\infty r_c^m+\tfrac12k_{hot}r_c^h)/K_{mod,end}$, with $r_c=q_{cut}/D_{ref}^2$ | `filt.sd_evap` |
 
 The combined sd is floored at $10^{-9}$. If the normaliser is not positive and finite, the prior is kept.
 
-**11. Cool-flame offset** (droplet3.rs:1158-1164), set only when $K_c>0$:
+**11. Cool-flame offset** (droplet3.rs:1158-1164), set only when $K_c\gt0$:
 
-$$b_{cool}=\texttt{enc.cool\_gain}\cdot g_s\cdot\mathrm{clamp}\big(\ln(\max(K_{end},k_{floor})/K_c),-e_{lo},e_{hi}\big)$$
+```math
+b_{cool}=\texttt{enc.cool_gain}\cdot g_s\cdot\mathrm{clamp}\big(\ln(\max(K_{end},k_{floor})/K_c),-e_{lo},e_{hi}\big)
+```
 
 **12. Class given hot** (droplet3.rs:1166-1170): $\rho_R=\pi_RS_R(s_{cut})/P_{hot}$, or $\pi_R$ if $P_{hot}=0$.
 
@@ -372,7 +428,9 @@ The edits comments state 0.08 / 0.36 / 0.55 (methanol) and 0.09 / 0.23 / 0.31 (h
 
 **Hot path per node.** One RK4 path $q_k(t)$ per node serves both classes (section 1.1). The conditional survivals since the cutoff are (droplet3.rs:1363-1373, 1405, 1418):
 
-$$\tilde S_{D,k}(t_i)=\min\Big(\tilde S_{D,k}(t_{i-1}),\ \frac{e^{-\Lambda_D(w(q_k(t_i)))}}{\max(S_D(w_{cut}),10^{-300})}\Big),\qquad \tilde S_R(t_i)=\frac{e^{-\Lambda_R(s(t_i))}}{\max(S_R(s_{cut}),10^{-300})}$$
+```math
+\tilde S_{D,k}(t_i)=\min\Big(\tilde S_{D,k}(t_{i-1}),\ \frac{e^{-\Lambda_D(w(q_k(t_i)))}}{\max(S_D(w_{cut}),10^{-300})}\Big),\qquad \tilde S_R(t_i)=\frac{e^{-\Lambda_R(s(t_i))}}{\max(S_R(s_{cut}),10^{-300})}
+```
 
 **Extinction bins.** Extinction mass per step, $\tilde S(t_i)-\tilde S(t_{i+1})$ floored at 0, is collected in bins of `num.bin_s` = 0.5 s (10 steps). Each bin carries its mass-weighted mean time and mean $q$, taken at step midpoints (droplet3.rs:1406-1428). The bin in progress at a forecast time is emitted with its mass up to now, at time $\tfrac12(t_{start}+t)$ and level $\tfrac12(q_{start}+q_k(t))$ (droplet3.rs:1519-1544).
 
@@ -380,17 +438,19 @@ $$\tilde S_{D,k}(t_i)=\min\Big(\tilde S_{D,k}(t_{i-1}),\ \frac{e^{-\Lambda_D(w(q
 
 | Atom | Weight | Diameter |
 |---|---|---|
-| still hot | $P_{hot}\,\omega_k\,[(1-\rho_R)\tilde S_{D,k}(t)+\rho_R\tilde S_R(t)]$ | $\sqrt{q_k(t)}$ |
-| diffusive bin $\beta$ | $P_{hot}\,\omega_k\,(1-\rho_R)\,m^D_{k\beta}$ | unlit from $(t_\beta,q_\beta)$, $\lambda=1$ |
-| radiative bin, no cool flame | $P_{hot}\,\omega_k\,\rho_R\,m^R_{\beta}(1-p_c)$ | unlit from $(t_\beta,q_\beta)$, $\lambda=1$ |
-| radiative bin, cool flame, node $u$ | $P_{hot}\,\omega_k\,\rho_R\,m^R_{\beta}\,p_c\,\omega^{ce}_u$ | cool law from $(t_\beta,q_\beta)$ with $K_ce^{b+s_zz_k}$, $q_x=q_{ce,u}$ |
-| cool at cutoff | $P_{cool}\,\omega_k\,\omega^{ce}_u/\sum_{u':q_{ce,u'}<q_{cut}}\omega^{ce}_{u'}$, for nodes with $q_{ce,u}<q_{cut}$ | cool law from $(\tau,q_{cut})$ with $K_ce^{b_{cool}+s_zz_k}$ |
-| cool at cutoff, no node qualifies | $P_{cool}\,\omega_k$ | unlit from $(\tau,q_{cut})$ with $\lambda_{cool}$ |
+| still hot | $`P_{hot}\,\omega_k\,[(1-\rho_R)\tilde S_{D,k}(t)+\rho_R\tilde S_R(t)]`$ | $\sqrt{q_k(t)}$ |
+| diffusive bin $\beta$ | $`P_{hot}\,\omega_k\,(1-\rho_R)\,m^D_{k\beta}`$ | unlit from $(t_\beta,q_\beta)$, $\lambda=1$ |
+| radiative bin, no cool flame | $`P_{hot}\,\omega_k\,\rho_R\,m^R_{\beta}(1-p_c)`$ | unlit from $(t_\beta,q_\beta)$, $\lambda=1$ |
+| radiative bin, cool flame, node $u$ | $`P_{hot}\,\omega_k\,\rho_R\,m^R_{\beta}\,p_c\,\omega^{ce}_u`$ | cool law from $(t_\beta,q_\beta)$ with $K_ce^{b+s_zz_k}$, $q_x=q_{ce,u}$ |
+| cool at cutoff | $`P_{cool}\,\omega_k\,\omega^{ce}_u/\sum_{u':q_{ce,u'}\lt q_{cut}}\omega^{ce}_{u'}`$, for nodes with $q_{ce,u}\lt q_{cut}$ | cool law from $(\tau,q_{cut})$ with $K_ce^{b_{cool}+s_zz_k}$ |
+| cool at cutoff, no node qualifies | $`P_{cool}\,\omega_k`$ | unlit from $(\tau,q_{cut})$ with $\lambda_{cool}$ |
 | unlit at cutoff | $P_{none}$ | unlit from $(\tau,q_{cut})$ with $\lambda_{now}$ |
 
 Atoms of weight $\le10^{-12}$ are skipped. The scale for a droplet unlit at the cutoff is (droplet3.rs:1450-1457):
 
-$$\lambda_{now}=g_s\,\mathrm{clamp}\Big(\frac{K_{end}-k_\infty r_c^m}{\max(k_{hot}r_c^h,10^{-12})},0,3\Big)+\frac{1-g_s}{2}$$
+```math
+\lambda_{now}=g_s\,\mathrm{clamp}\Big(\frac{K_{end}-k_\infty r_c^m}{\max(k_{hot}r_c^h,10^{-12})},0,3\Big)+\frac{1-g_s}{2}
+```
 
 It falls back to 0.5 if $k_{hot}=0$ or $K_{end}$ is not finite.
 
@@ -399,18 +459,22 @@ It falls back to 0.5 if $k_{hot}=0$ or $K_{end}$ is not finite.
 - **Latent quantiles:** step quantiles, the smallest atom with cumulative weight $\ge p\sum W$ (droplet3.rs:1219-1233).
 - **Measurement quantiles.** The atoms are pooled on cells of $\sigma_d/4$, starting from the smallest atom, keeping mass and mean. The predictive CDF of one measurement is
 
-$$F(x)=\frac{1}{\sum W}\sum_{\text{cells}}W_c\,\Phi\Big(\frac{x-\bar D_c}{\sigma_d}\Big)$$
+```math
+F(x)=\frac{1}{\sum W}\sum_{\text{cells}}W_c\,\Phi\Big(\frac{x-\bar D_c}{\sigma_d}\Big)
+```
 
   with $\Phi=1$ beyond $+8\sigma$ and 0 below $-8\sigma$. Each quantile is found by 44 bisections on $[\bar D_{min}-8\sigma_d,\ \bar D_{max}+8\sigma_d]$ and floored at 0 (droplet3.rs:1239-1298, 1591-1594). This inverts the mixture; it involves no fitted spread.
 - **State probabilities:** hot $=\sum(\text{hot atoms})/\sum W$, and cool $=$ the weight of atoms still inside a cool flame.
 
-**Events.** These are competing risks for a droplet hot at the cutoff (droplet3.rs:1605-1622). Let $A(t)=P_{hot}(t)\,e^{-\lambda_{dis}(t-\tau)}$. The disruption incidence $C$ is the trapezoid integral of $\lambda_{dis}A$, with $C(t_0)=P_{hot}(t_0)-A(t_0)$. Then:
+**Events.** These are competing risks for a droplet hot at the cutoff (droplet3.rs:1605-1622). Let $`A(t)=P_{hot}(t)\,e^{-\lambda_{dis}(t-\tau)}`$. The disruption incidence $C$ is the trapezoid integral of $\lambda_{dis}A$, with $C(t_0)=P_{hot}(t_0)-A(t_0)$. Then:
 
-$$E(t)=\mathrm{clamp}\big(\max(E_{prev},\,1-A-C),0,1\big),\qquad \text{disruption}=\min(C,1-E),\qquad \text{active}=\max(1-E-\text{disruption},0)$$
+```math
+E(t)=\mathrm{clamp}\big(\max(E_{prev},\,1-A-C),0,1\big),\qquad \text{disruption}=\min(C,1-E),\qquad \text{active}=\max(1-E-\text{disruption},0)
+```
 
 The event rows are `active_supported`, `hot_phase_end` $=E$, `disruption` and `unresolved` $=0$ (event categories at droplet3.rs:1734-1739; `FLEX_CAUSES` at crates/ignis-core/src/views.rs:16).
 
-**Emitted grid.** The default quantile levels are $(0.05,0.25,0.5,0.75,0.95)$ (common.rs:14, 65-71). The default times are 41 equally spaced points from $\tau$ to $\min(\tau+10\,\mathrm{s},45\,\mathrm{s})$ (common.rs:75-96, droplet3.rs:1716). Requested times outside $[\tau,45]$ are refused (droplet3.rs:1717-1730). The uncertainty kind is `assumed_noise` (droplet3.rs:1748): the spread is an assumed scenario distribution, not a calibrated posterior.
+**Emitted grid.** The default quantile levels are $(0.05,0.25,0.5,0.75,0.95)$ (common.rs:14, 65-71). The default times are 41 equally spaced points from $\tau$ to $`\min(\tau+10\,\mathrm{s},45\,\mathrm{s})`$ (common.rs:75-96, droplet3.rs:1716). Requested times outside $[\tau,45]$ are refused (droplet3.rs:1717-1730). The uncertainty kind is `assumed_noise` (droplet3.rs:1748): the spread is an assumed scenario distribution, not a calibrated posterior.
 
 #### 1.8 Parameter table (`edits.wsp` of D3 and D2)
 
@@ -477,34 +541,57 @@ This forward has one hot state and a single extinction intensity per unit of bur
 
 **Burning and extinction.** Classical RK4 on $(q,\Lambda)$ (flex.rs:647-711):
 
-$$\frac{dq}{dt}=-K,\qquad \ln\frac{K}{K_{ref}}=N_{rate}(c,w,s)+b+s_zz_k$$
+```math
+\frac{dq}{dt}=-K,\qquad \ln\frac{K}{K_{ref}}=N_{rate}(c,w,s)+b+s_zz_k
+```
 
-$$\frac{d\Lambda}{dt}=\eta\,\frac{K}{q_0},\qquad \ln\eta=\min\big(N_{haz}(c,w,s)+\ell_b\,b,\ 12\big)$$
+```math
+\frac{d\Lambda}{dt}=\eta\,\frac{K}{q_0},\qquad \ln\eta=\min\big(N_{haz}(c,w,s)+\ell_b\,b,\ 12\big)
+```
 
 - $\Lambda=0$ at the cutoff (flex.rs:666), so survival is conditional on burning at $\tau$.
-- Since $dw/dt=K/q_0$, $\Lambda=\int\eta\,dw$: extinction is decided by progress.
+- Since $dw/dt=K/q_0$, $`\Lambda=\int\eta\,dw`$: extinction is decided by progress.
 - The cap 12 is `haz.log_eta_cap` (flex.rs:208).
 
 **Steps.** Sub-steps end exactly on each forecast time: $n_{sub}=\max(1,\lceil(t_j-t)/0.05-10^{-9}\rceil)$ (flex.rs:672-673). At $q\le q_{min}$ the path is frozen and its exit time recorded (flex.rs:687-708).
 
 **Extinguished droplet.** It evaporates at a constant rate (flex.rs:749):
 
-$$q(t)=\max\big(q_{mid}-k_{evap}(t-t_{mid}),\,q_{min}\big)$$
+```math
+q(t)=\max\big(q_{mid}-k_{evap}(t-t_{mid}),\,q_{min}\big)
+```
 
 There is one atom per RK4 step that carries extinction mass $e^{-\Lambda_i}-e^{-\Lambda_{i+1}}$, located at the step midpoint (flex.rs:692-700). There are no bins.
 
 **Typed laws**
 
-$$\ln\frac{K}{K_{ref}}=-0.58+0.16c_{O_2}-0.075c_{CO_2}+0.11c_{He}+0.08c_{\log p}-0.08c_{\log D_0}+0.052w$$
-$$-0.035\,\mathrm{relu}(c_{O_2}-0.8)-0.03\,\mathrm{relu}(c_{O_2}-2)-0.05\,\mathrm{relu}(-c_{O_2}-0.6)-0.06\,\mathrm{relu}(-c_{O_2}-1.2)$$
-$$-0.14\,\mathrm{relu}(v_K-0.2)-0.2\,\mathrm{relu}(v_K-0.6)-0.2\,\mathrm{relu}(w-0.25)-0.25\,\mathrm{relu}(w-0.6)-1.0\,\mathrm{relu}(1-6.6667s)$$
+```math
+\ln\frac{K}{K_{ref}}=-0.58+0.16c_{O_2}-0.075c_{CO_2}+0.11c_{He}+0.08c_{\log p}-0.08c_{\log D_0}+0.052w
+```
 
-$$v_K=-0.05c_{O_2}+0.06c_{CO_2}+0.15c_{\log p}+c_{\log D_0}-0.65w$$
+```math
+-0.035\,\mathrm{relu}(c_{O_2}-0.8)-0.03\,\mathrm{relu}(c_{O_2}-2)-0.05\,\mathrm{relu}(-c_{O_2}-0.6)-0.06\,\mathrm{relu}(-c_{O_2}-1.2)
+```
 
-$$\ln\eta=-9.306-1.56c_{O_2}+0.96c_{CO_2}+0.84c_{He}-0.6c_{\log p}+1.2c_{\log D_0}+12w+1.08\,\mathrm{relu}(c_{O_2})+0.3\,\mathrm{relu}(c_{O_2}-0.8)$$
-$$+2.4\,\mathrm{relu}(-c_{O_2}-0.6)+4.2\,\mathrm{relu}(-c_{O_2}-1)+3.6\,\mathrm{relu}(-c_{O_2}-1.4)+0.96\,\mathrm{relu}(c_{CO_2}-2)+3.0\,\mathrm{relu}(v_\eta-0.45)+10.8\,\mathrm{relu}(v_\eta-0.85)$$
+```math
+-0.14\,\mathrm{relu}(v_K-0.2)-0.2\,\mathrm{relu}(v_K-0.6)-0.2\,\mathrm{relu}(w-0.25)-0.25\,\mathrm{relu}(w-0.6)-1.0\,\mathrm{relu}(1-6.6667s)
+```
 
-$$v_\eta=-0.25c_{O_2}+0.08c_{CO_2}+0.15c_{\log p}+c_{\log D_0}$$
+```math
+v_K=-0.05c_{O_2}+0.06c_{CO_2}+0.15c_{\log p}+c_{\log D_0}-0.65w
+```
+
+```math
+\ln\eta=-9.306-1.56c_{O_2}+0.96c_{CO_2}+0.84c_{He}-0.6c_{\log p}+1.2c_{\log D_0}+12w+1.08\,\mathrm{relu}(c_{O_2})+0.3\,\mathrm{relu}(c_{O_2}-0.8)
+```
+
+```math
++2.4\,\mathrm{relu}(-c_{O_2}-0.6)+4.2\,\mathrm{relu}(-c_{O_2}-1)+3.6\,\mathrm{relu}(-c_{O_2}-1.4)+0.96\,\mathrm{relu}(c_{CO_2}-2)+3.0\,\mathrm{relu}(v_\eta-0.45)+10.8\,\mathrm{relu}(v_\eta-0.85)
+```
+
+```math
+v_\eta=-0.25c_{O_2}+0.08c_{CO_2}+0.15c_{\log p}+c_{\log D_0}
+```
 
 Computed here, at $c=0$: $K=e^{-0.58}$ = 0.560 mm²/s on the plateau. Integrated from $w=0$, $\eta=e^{-9.306+12w}$ gives $\Lambda(w)=\ln2$ at $w\approx0.95$.
 
@@ -515,13 +602,17 @@ Computed here, at $c=0$: $K=e^{-0.58}$ = 0.560 mm²/s on the plateau. Integrated
 
 The level carries the tail window along the **unclamped** late finite difference (flex.rs:552-553):
 
-$$q_{cut}=\bar q_{tail}-K_{late}(\tau-\bar t_{tail})$$
+```math
+q_{cut}=\bar q_{tail}-K_{late}(\tau-\bar t_{tail})
+```
 
 The slope is 0 if $K_{late}$ is not finite. $K_{cut}$ (flex.rs:551) is reported only. $T_{valid}$ is 30 s, and the $c_{\log D_0}$ domain is $[-0.7,1.26]$ (flex.rs:156, 211).
 
 **Quantiles** (flex.rs:720-778). First, interpolated atom quantiles are taken at the cumulative-weight centres (common.rs:166-189); this gives the latent quantiles. Measurement noise is then added around the median in quadrature, with $z_p=\Phi^{-1}(p)$ (quad.rs:111-157):
 
-$$Q_p=\mathrm{med}\pm\sqrt{(Q^{lat}_p-\mathrm{med})^2+(z_p\sigma_d)^2}$$
+```math
+Q_p=\mathrm{med}\pm\sqrt{(Q^{lat}_p-\mathrm{med})^2+(z_p\sigma_d)^2}
+```
 
 The sign follows $p\lessgtr0.5$, and the lower side is floored at 0.
 
@@ -530,7 +621,7 @@ The sign follows $p\lessgtr0.5$, and the lower side is floored at 0.
 | Row | Value |
 |---|---|
 | active | $\sum_k\omega_ke^{-\Lambda_k}e^{-\lambda_{dis}(t-\tau)}$, for paths not yet at the floor |
-| hot_phase_end | $\sum_k\omega_k\sum_{\text{steps}}m\,e^{-\lambda_{dis}(t_{mid}-\tau)}$ |
+| hot_phase_end | $`\sum_k\omega_k\sum_{\text{steps}}m\,e^{-\lambda_{dis}(t_{mid}-\tau)}`$ |
 | unresolved | burning paths that reached the floor: $\omega_ke^{-\Lambda_k}e^{-\lambda_{dis}(t_{exit}-\tau)}$ |
 | disruption | the remainder |
 
@@ -554,28 +645,45 @@ Scenario nodes are as in 1.7: 15 × 0.5 (flex.rs:627-637).
 
 | | droplet.rs (W0) | droplet3.rs (D3/D2) |
 |---|---|---|
-| Unlit law (droplet.rs:695-707) | $q_e-k_\infty r^mu-\lambda k_{hot}\,\tau_e(1-e^{-u/\tau_e})$ with $\tau_e=\max(\tau_0r,10^{-3})$: $h=0$, $n=1$ fixed | $h$, $n$ typed |
+| Unlit law (droplet.rs:695-707) | $`q_e-k_\infty r^mu-\lambda k_{hot}\,\tau_e(1-e^{-u/\tau_e})`$ with $\tau_e=\max(\tau_0r,10^{-3})$: $h=0$, $n=1$ fixed | $h$, $n$ typed |
 | State evidence | the mid→tail ratio $r=K_{late}/K_{mod,late}$ with exponent $\gamma$ (the rate gain); hot sd $s_{pop}$ (droplet.rs:1031-1052) | end-window rate, own exponent $g_s$, `filt.sd_hot` |
 | Level at the cutoff | $\bar q_{tail}-\mathrm{clamp}(K_{late},0,k_{max})(\tau-\bar t_{tail})$ (droplet.rs:989-994) | 1.6 step 8 |
-| Cool offset | $b_{cool}=\gamma\,\mathrm{clamp}(\ln(\max(K_{late},k_{floor})/K_c),\cdot)$ (droplet.rs:1053-1058) | `enc.cool_gain`$\cdot g_s\cdot$… on $K_{end}$ |
+| Cool offset | $`b_{cool}=\gamma\,\mathrm{clamp}(\ln(\max(K_{late},k_{floor})/K_c),\cdot)`$ (droplet.rs:1053-1058) | `enc.cool_gain`$`\cdot g_s\cdot`$… on $K_{end}$ |
 | $\lambda_{now}$ | uses $K_{late}$, $\gamma$ and $k_{hot}$ (droplet.rs:1334-1338) | $K_{end}$, $g_s$, $k_{hot}r^h$ |
 
 **Typed laws (`configs/models/flex/wsp/heptane/w0-fable/edits.wsp`)**
 
-$$\ln\frac{K_h}{K_{ref}}=-0.51+0.13c_{O_2}-0.08c_{CO_2}+0.15c_{He}+0.05c_{\log p}-0.22c_{\log D_0}+0.10w-0.06\,\mathrm{relu}(-c_{O_2})-0.05\,\mathrm{relu}(-0.7-c_{O_2})$$
-$$-0.05\,\mathrm{relu}(c_{He}-1.5)-0.3\,\mathrm{relu}(-0.4+c_{\log D_0}-0.65w)-0.7\,\mathrm{relu}(1-5s)$$
+```math
+\ln\frac{K_h}{K_{ref}}=-0.51+0.13c_{O_2}-0.08c_{CO_2}+0.15c_{He}+0.05c_{\log p}-0.22c_{\log D_0}+0.10w-0.06\,\mathrm{relu}(-c_{O_2})-0.05\,\mathrm{relu}(-0.7-c_{O_2})
+```
 
-$$\ln\frac{D_{crit}}{2\,\mathrm{mm}}=0.34+0.55c_{O_2}-0.15c_{CO_2}-0.05c_{He}-0.2c_{\log p},\qquad \kappa=6,\ \beta=0$$
+```math
+-0.05\,\mathrm{relu}(c_{He}-1.5)-0.3\,\mathrm{relu}(-0.4+c_{\log D_0}-0.65w)-0.7\,\mathrm{relu}(1-5s)
+```
 
-$$\mathrm{logit}\,w_D=3.2+1.5c_{O_2}-0.3c_{CO_2}+2.0c_{\log D_0}-1.2\,\mathrm{relu}(c_{O_2})-1.0\,\mathrm{relu}(x_{exc}+0.3),\qquad a_D=10$$
+```math
+\ln\frac{D_{crit}}{2\,\mathrm{mm}}=0.34+0.55c_{O_2}-0.15c_{CO_2}-0.05c_{He}-0.2c_{\log p},\qquad \kappa=6,\ \beta=0
+```
 
-$$\ln s_R=-0.6-0.8\,\mathrm{relu}(x_{exc}-0.1),\qquad a_R=4$$
+```math
+\mathrm{logit}\,w_D=3.2+1.5c_{O_2}-0.3c_{CO_2}+2.0c_{\log D_0}-1.2\,\mathrm{relu}(c_{O_2})-1.0\,\mathrm{relu}(x_{exc}+0.3),\qquad a_D=10
+```
 
-$$\mathrm{logit}\,p_c=1.7-0.2c_{CO_2}-0.8c_{He}+0.5c_{\log p}+1.0x_{exc}-1.0\,\mathrm{relu}(-c_{O_2})$$
+```math
+\ln s_R=-0.6-0.8\,\mathrm{relu}(x_{exc}-0.1),\qquad a_R=4
+```
 
-$$\ln\frac{K_c}{K_{ref}}=-0.92+0.2c_{O_2}-0.05c_{CO_2}+0.14c_{He}+0.1c_{\log p}+0.2c_{\log D_0}$$
+```math
+\mathrm{logit}\,p_c=1.7-0.2c_{CO_2}-0.8c_{He}+0.5c_{\log p}+1.0x_{exc}-1.0\,\mathrm{relu}(-c_{O_2})
+```
 
-$$\ln\frac{D_{ce}}{2\,\mathrm{mm}}=-0.57-0.18c_{O_2}+0.05c_{CO_2}+0.2c_{He}-1.0c_{\log p}+0.5c_{\log D_0},\qquad sd_{ce}=0.25$$
+```math
+\ln\frac{K_c}{K_{ref}}=-0.92+0.2c_{O_2}-0.05c_{CO_2}+0.14c_{He}+0.1c_{\log p}+0.2c_{\log D_0}
+```
+
+```math
+\ln\frac{D_{ce}}{2\,\mathrm{mm}}=-0.57-0.18c_{O_2}+0.05c_{CO_2}+0.2c_{He}-1.0c_{\log p}+0.5c_{\log D_0},\qquad sd_{ce}=0.25
+```
 
 **Other values**
 
@@ -670,35 +778,45 @@ With `sc.on` = `ce.on` = 0 and `dy.frac` = 0 the forward equals droplet5 (drople
 
 **Radiative survival with a heavy tail.** A log-logistic clock of shape 1 and the same median is mixed in (droplet8.rs:1251-1258):
 
-$$S_R(s)=(1-\varepsilon_r)e^{-\Lambda_R(s)}+\frac{\varepsilon_r}{1+\max(s,0)/s_R}$$
+```math
+S_R(s)=(1-\varepsilon_r)e^{-\Lambda_R(s)}+\frac{\varepsilon_r}{1+\max(s,0)/s_R}
+```
 
 **Cool-flame end in O₂ partial pressure** (`ce.on` = 1; droplet8.rs:1153-1169):
 
-$$D_{ce}=D_0\Big(\frac{D_0}{D_{ref}}\Big)^{n_{ce}-1}g_0\sqrt{\frac{p_{ref}-\beta}{\max(p_{O_2}-\beta,\epsilon)}}\,(1+c_{He}x_{He}),\qquad p_{O_2}=\frac{x_{O_2}\,p}{101325\ \mathrm{Pa}}\ (\mathrm{atm})$$
+```math
+D_{ce}=D_0\Big(\frac{D_0}{D_{ref}}\Big)^{n_{ce}-1}g_0\sqrt{\frac{p_{ref}-\beta}{\max(p_{O_2}-\beta,\epsilon)}}\,(1+c_{He}x_{He}),\qquad p_{O_2}=\frac{x_{O_2}\,p}{101325\ \mathrm{Pa}}\ (\mathrm{atm})
+```
 
 $D_0=\sqrt{q_0}$, and the spread `cool.d.sd` is kept.
 
 **Self-cooling unlit droplet** (`sc.on` = 1; droplet8.rs:1171-1228). The rate is $K_{floor}(u)+K_0/(1+u/t_0)$, integrated in closed form:
 
-$$J_{sc}(u)=K_0t_0\ln\Big(1+\frac{u}{t_0}\Big)+k_{cold}'u+(k_{warm}'-k_{cold}')\tau_w\big(1-e^{-u/\tau_w}\big),\qquad t_0=\frac{T^*c_l\,q_e}{1.5K_0L}$$
+```math
+J_{sc}(u)=K_0t_0\ln\Big(1+\frac{u}{t_0}\Big)+k_{cold}'u+(k_{warm}'-k_{cold}')\tau_w\big(1-e^{-u/\tau_w}\big),\qquad t_0=\frac{T^*c_l\,q_e}{1.5K_0L}
+```
 
 with $g=\exp(\gamma_0x_{He}+\gamma_1x_{CO_2}+\gamma_2\ln(p/p_{ref}))$ and:
 
-| Last flame | $K_0$ | $k'_{cold}$ | $k'_{warm}$ |
+| Last flame | $K_0$ | $`k'_{cold}`$ | $`k'_{warm}`$ |
 |---|---|---|---|
-| lost to radiation | $g\,k_{0,hot}$ | $g\,k_{cold}$ | $k_{warm}$ |
-| ended diffusively | $g\,f\,k_{0,hot}$ | $g\,f\,k_{cold}$ | $f\,k_{warm}$, with $f$ = `sc.diff_scale` |
-| cool flame | $g\,k_{0,cool}$ | $g\,k_{cold}$ | $k_{warm}$ |
+| lost to radiation | $`g\,k_{0,hot}`$ | $`g\,k_{cold}`$ | $k_{warm}$ |
+| ended diffusively | $`g\,f\,k_{0,hot}`$ | $`g\,f\,k_{cold}`$ | $`f\,k_{warm}`$, with $f$ = `sc.diff_scale` |
+| cool flame | $`g\,k_{0,cool}`$ | $`g\,k_{cold}`$ | $k_{warm}$ |
 
 Branches: if $1.5K_0L\le0$ then $t_0=\infty$ and the heat term is $K_0u$; if $K_0\le0$ the heat term is 0.
 
 **Dying flame after a radiative loss without a cool flame** (droplet8.rs:1230-1234, 2290-2317):
 
-$$J_{die}(u)=k_{die}\tau_{dy}(1-e^{-u/\tau_{dy}}),\qquad k_{die}=\texttt{dy.frac}\cdot K_ce^{b+s_zz_k}$$
+```math
+J_{die}(u)=k_{die}\tau_{dy}(1-e^{-u/\tau_{dy}}),\qquad k_{die}=\texttt{dy.frac}\cdot K_ce^{b+s_zz_k}
+```
 
 **Flame cameras** (droplet8.rs:1458-1489, 1833-1851). The last time with continuous UV or visible flame frames, $t_\ell$, shifts the state probabilities:
 
-$$P\leftarrow\texttt{fl.trust}\cdot v+(1-\texttt{fl.trust})\,P$$
+```math
+P\leftarrow\texttt{fl.trust}\cdot v+(1-\texttt{fl.trust})\,P
+```
 
 $v=(1,0,0)$ if the flame is seen within `fl.gap_s` of the cutoff; otherwise $v=(0,P_c,P_n)/(P_c+P_n)$. The flame diameter itself is not read.
 
@@ -706,7 +824,7 @@ $v=(1,0,0)$ if the flame is seen within `fl.gap_s` of the cutoff; otherwise $v=(
 
 There is no fuel-property table in the code. A fuel enters only:
 - through its spec id, name and `has_cool`;
-- through typed release numbers, including the property constants $c_l$, $L$ and $T^*$ inside `sc.*`.
+- through typed release numbers, including the property constants $c_l$, $L$ and $`T^*`$ inside `sc.*`.
 
 The only physical constants in the code are 101325 Pa and 1e-6 (mm²/s → m²/s) (droplet8.rs:222-224).
 
@@ -774,9 +892,13 @@ PROTOCOL calls these "the zero-shot candidates of arm F" (SpaceApps-Ardealu:docs
 
 `droplet10.rs` is a copy of `droplet3.rs`, not of droplet8. It adds three tensors, `trans.depth`, `trans.tau_s` and `trans.tau_exp` (SpaceApps-Ardealu:crates/ignis-wsp/src/droplet10.rs:357-368). They apply only to a cool flame that follows a hot flame lost *inside* the forecast; a cool flame burning at the cutoff is unchanged (droplet10.rs:1567, 1621). The cool rate rises from a sag after the transition (droplet10.rs:1489-1490):
 
-$$K(t)=K_c\big(1-a\,e^{-(t-t_e)/\tau_t}\big),\qquad \tau_t=\max\big(\tau_s(q_e/D_{ref}^2)^{n_t},10^{-3}\big)$$
+```math
+K(t)=K_c\big(1-a\,e^{-(t-t_e)/\tau_t}\big),\qquad \tau_t=\max\big(\tau_s(q_e/D_{ref}^2)^{n_t},10^{-3}\big)
+```
 
-$$q(t)=q_e-K_c\Big[(t-t_e)-a\tau_t\big(1-e^{-(t-t_e)/\tau_t}\big)\Big]$$
+```math
+q(t)=q_e-K_c\Big[(t-t_e)-a\tau_t\big(1-e^{-(t-t_e)/\tau_t}\big)\Big]
+```
 
 The end time where $q=q_x$ is found by 40 bisections on $[(q_e-q_x)/K_c,\ (q_e-q_x)/K_c+a\tau_t]$ (droplet10.rs:1492-1502). With $a=0$ the forward is droplet3.
 
@@ -819,36 +941,46 @@ No Weibull law appears anywhere in `crates/ignis-wsp/src` (grep). Every event cl
 
 **Hinge network** (`crates/ignis-wsp/src/nn.rs:69-84`). For an input $x\in\mathbb R^n$ and hidden width $h$:
 
-$$N(x)=b_0+\sum_{k}s_k x_k+\sum_{j=1}^{h} w_{2,j}\,\max\!\Big(0,\;b_{1,j}+\sum_k W_{1,jk}x_k\Big).$$
+```math
+N(x)=b_0+\sum_{k}s_k x_k+\sum_{j=1}^{h} w_{2,j}\,\max\!\Big(0,\;b_{1,j}+\sum_k W_{1,jk}x_k\Big).
+```
 
 The tensors are `<law>.b0`, `<law>.skip`, `<law>.w2`, `<law>.b1` and `<law>.W1`, with $W_1$ row-major $[h,n]$. With every hidden weight zero, $N$ is the linear law $b_0+s\cdot x$.
 
 **Logistic** (`nn.rs:44-51`):
 
-$$\sigma(x)=\frac{1}{1+e^{-x}}$$
+```math
+\sigma(x)=\frac{1}{1+e^{-x}}
+```
 
-It is computed as $e^{x}/(1+e^{x})$ for $x<0$.
+It is computed as $e^{x}/(1+e^{x})$ for $x\lt0$.
 
-**Normal quantile.** $\Phi_N^{-1}(p)$ is Acklam's rational approximation, with $|\text{rel. err}|<1.2\cdot10^{-9}$ (`quad.rs:111-157`).
+**Normal quantile.** $\Phi_N^{-1}(p)$ is Acklam's rational approximation, with $|\text{rel. err}|\lt1.2\cdot10^{-9}$ (`quad.rs:111-157`).
 
 **Equal-probability nodes** (`crates/ignis-wsp/src/flame6.rs:405-411`, the same in `flame7.rs:379-385`):
 
-$$z_i=\begin{cases}0,& n=1\\[2pt] \Phi_N^{-1}\!\big(\tfrac{i+1/2}{n}\big),& i=0,\dots,n-1\end{cases}$$
+```math
+z_i=\begin{cases}0,& n=1\\[2pt] \Phi_N^{-1}\!\big(\tfrac{i+1/2}{n}\big),& i=0,\dots,n-1\end{cases}
+```
 
 **Log-logistic survival and hazard** (`flame6.rs:390-395`, `flame7.rs:360-375`):
 
-$$S_{LL}(t;\tau,k)=\begin{cases}1,&t\le 0\\[2pt] \dfrac{1}{1+(t/\tau)^k},&t>0\end{cases}\qquad
-\lambda_{LL}(t;\tau,k)=\begin{cases}0,&t\le0\ \text{or}\ \tau\le0\\[2pt] \dfrac{k}{t}\dfrac{(t/\tau)^k}{1+(t/\tau)^k},&\text{otherwise}\end{cases}$$
+```math
+S_{LL}(t;\tau,k)=\begin{cases}1,&t\le 0\\[2pt] \dfrac{1}{1+(t/\tau)^k},&t>0\end{cases}\qquad
+\lambda_{LL}(t;\tau,k)=\begin{cases}0,&t\le0\ \text{or}\ \tau\le0\\[2pt] \dfrac{k}{t}\dfrac{(t/\tau)^k}{1+(t/\tau)^k},&\text{otherwise}\end{cases}
+```
 
 **Inverse complementary error function** (`flame6.rs:399-401`):
 
-$$\operatorname{erfc}^{-1}(y)=-\Phi_N^{-1}(y/2)/\sqrt2$$
+```math
+\operatorname{erfc}^{-1}(y)=-\Phi_N^{-1}(y/2)/\sqrt2
+```
 
 **Forecast times** (`crates/ignis-wsp/src/common.rs:75-96`; members `flame6.rs:977-985`):
 
 - The times are the request's `times_s`, sorted.
-- Otherwise there are `n_points` (default 41, at least 2) equally spaced times from the cutoff to $\min(\tau+h,\,t_{\max})$, with default $h=60$ s and $t_{\max}=$ `num.horizon_s`.
-- Times $<\tau$ and non-finite times are dropped, and exact duplicates are removed.
+- Otherwise there are `n_points` (default 41, at least 2) equally spaced times from the cutoff to $`\min(\tau+h,\,t_{\max})`$, with default $h=60$ s and $t_{\max}=$ `num.horizon_s`.
+- Times $\lt\tau$ and non-finite times are dropped, and exact duplicates are removed.
 - An empty list is a horizon refusal.
 
 ---
@@ -889,7 +1021,9 @@ The prefix conditions used are `pressure` $p$, `injected_mass_flow` $\dot m$ (th
 
 The feature vector (`flame6.rs:734-744`, identical in `flame7.rs`) is
 
-$$c=\Big(\ln\tfrac{p}{p_{ref}},\ \ln\tfrac{\dot m}{\dot m_{ref}},\ \tfrac{x_{O_2}-x_{O_2,ref}}{s_{O_2}},\ \ln\tfrac{x_f}{x_{f,ref}},\ \tfrac{T_{ad}-T_{ref}}{T_{sc}},\ \tfrac{Z_{st}-Z_{ref}}{Z_{sc}},\ e_k^{ft},\ b_k^{ft}\Big)$$
+```math
+c=\Big(\ln\tfrac{p}{p_{ref}},\ \ln\tfrac{\dot m}{\dot m_{ref}},\ \tfrac{x_{O_2}-x_{O_2,ref}}{s_{O_2}},\ \ln\tfrac{x_f}{x_{f,ref}},\ \tfrac{T_{ad}-T_{ref}}{T_{sc}},\ \tfrac{Z_{st}-Z_{ref}}{Z_{sc}},\ e_k^{ft},\ b_k^{ft}\Big)
+```
 
 - The last two entries are the fuel's `fuel.ft_coord` (§1.2).
 - Normal flames: $x_{O_2}$ is the ambient O₂ fraction and $x_f$ is the injected fuel fraction.
@@ -902,8 +1036,10 @@ $$c=\Big(\ln\tfrac{p}{p_{ref}},\ \ln\tfrac{\dot m}{\dot m_{ref}},\ \tfrac{x_{O_2
 
 The derived burner quantities are
 
-$$Y_R=\frac{x_RW_R}{x_RW_R+(1-x_R)W_{N_2}},\qquad \dot m_{tot}=\dot m/Y_R,\qquad
-L=\begin{cases}\ln\frac{1}{1-Z_{st}}&\text{normal}\\[2pt]\ln\frac1{Z_{st}}&\text{inverse}\end{cases}$$
+```math
+Y_R=\frac{x_RW_R}{x_RW_R+(1-x_R)W_{N_2}},\qquad \dot m_{tot}=\dot m/Y_R,\qquad
+L=\begin{cases}\ln\frac{1}{1-Z_{st}}&\text{normal}\\[2pt]\ln\frac1{Z_{st}}&\text{inverse}\end{cases}
+```
 
 **Condition-gate refusals** (`flame6.rs:683-717`):
 
@@ -939,12 +1075,14 @@ The rows are 0 ethane, 1 propane, 2 butane, 3 ethylene, 4 methane, 5 hydrogen (`
 
 **Release gates** (`fuel.rs:308-325`):
 
-- `fuel.admit[k]`$=0$ is refused, and so is any value other than 0 or 1;
-- $T_{ad}<$ `fuel.tad_min_k[k]` is refused.
+- `fuel.admit[k]`$`=0`$ is refused, and so is any value other than 0 or 1;
+- $T_{ad}\lt$ `fuel.tad_min_k[k]` is refused.
 
 **Vertex weighing** (`fuel.rs:343-393`). A law network $N$ that reads the two indicator entries is evaluated at the alkane vertices $E=(1,0)$, $P=(0,0)$ and $B=(0,1)$:
 
-$$N^*(x)=\sum_{v\in\{E,P,B\},\,w_v\neq0} w_v\,N(x\,|\,(x_{i_e},x_{i_b})\leftarrow v),\qquad (w_E,w_P,w_B)=(e,\,1-e-b,\,b)$$
+```math
+N^*(x)=\sum_{v\in\{E,P,B\},\,w_v\neq0} w_v\,N(x\,|\,(x_{i_e},x_{i_b})\leftarrow v),\qquad (w_E,w_P,w_B)=(e,\,1-e-b,\,b)
+```
 
 - The coordinates $(e,b)$ are `fuel.se_coord[k,:]` for the self-extinction laws and `fuel.ft_coord[k,:]` for the burner-rise law.
 - A weight that is exactly zero (IEEE) is skipped.
@@ -981,64 +1119,92 @@ What reads each column:
 
 **Laws** (`flame6.rs:521-545`). The fuel shift is $s_f=$ `fuel.s[k]` for normal flames and $0$ for inverse flames. Units: $m_{cr}$ in g m⁻² s⁻¹, $D$ in mm² s⁻¹, and $\rho D=$ `se.rho_d_g_m_s` in g m⁻¹ s⁻¹; the code converts all three to SI.
 
-$$\ln m_{cr}=N^*_{se}(\texttt{se.flux};c)-s_f,\qquad \ln D=N^*_{se}(\texttt{se.diff};c)$$
+```math
+\ln m_{cr}=N^*_{se}(\texttt{se.flux};c)-s_f,\qquad \ln D=N^*_{se}(\texttt{se.diff};c)
+```
 
 **Quasi-steady flame radius and radiative-extinction radius.** The extinction radius is the radius at which the reactant flux per flame area equals the critical flux:
 
-$$r_{ss}=\frac{\dot m_{tot}}{4\pi\,\rho D\,L},\qquad
+```math
+r_{ss}=\frac{\dot m_{tot}}{4\pi\,\rho D\,L},\qquad
 r_{ext}=\sqrt{\frac{\dot m}{4\pi\,m_{cr}}},\qquad
-\hat\Phi=\Big(\frac{r_{ss}}{r_{ext}}\Big)^2,\qquad t_g=\frac{r_{ext}^2}{4D}$$
+\hat\Phi=\Big(\frac{r_{ss}}{r_{ext}}\Big)^2,\qquad t_g=\frac{r_{ext}^2}{4D}
+```
 
 (`flame6.rs:539-545`).
 
 **Growth clock.** The flame radius grows as
 
-$$r_f=r_{ss}\,\operatorname{erfc}\!\big(r_f/(2\sqrt{Dt})\big)$$
+```math
+r_f=r_{ss}\,\operatorname{erfc}\!\big(r_f/(2\sqrt{Dt})\big)
+```
 
 The time to reach $r_{ext}$ is
 
-$$R(\Phi)=\frac{t_g}{\big[\operatorname{erfc}^{-1}(\Phi^{-1/2})\big]^2}\quad\text{if }\ln\Phi>0,\ t_g>0,\ 0<\Phi^{-1/2}<1,\ \operatorname{erfc}^{-1}>0,\ R\ \text{finite},\ R<\texttt{num.tau\_cap\_s};\ \text{else none ("held")}$$
+```math
+R(\Phi)=\frac{t_g}{\big[\operatorname{erfc}^{-1}(\Phi^{-1/2})\big]^2}\quad\text{if }\ln\Phi>0,\ t_g>0,\ 0<\Phi^{-1/2}<1,\ \operatorname{erfc}^{-1}>0,\ R\ \text{finite},\ R<\texttt{num.tau_cap_s};\ \text{else none ("held")}
+```
 
 (`flame6.rs:418-433`). $\Phi^{-1/2}$ is taken as $e^{-\frac12\ln\Phi}$.
 
-**Reduced-flow quadrature** (`flame6.rs:546-551`). With $n=\mathrm{clamp}(\texttt{num.phi\_nodes},1,64)$ (`flame6.rs:465`):
+**Reduced-flow quadrature** (`flame6.rs:546-551`). With $`n=\mathrm{clamp}(\texttt{num.phi_nodes},1,64)`$ (`flame6.rs:465`):
 
-$$\ln\Phi_i=\ln\hat\Phi+\sigma_\phi z_i,\qquad R_i=R(\Phi_i)$$
+```math
+\ln\Phi_i=\ln\hat\Phi+\sigma_\phi z_i,\qquad R_i=R(\Phi_i)
+```
 
-$$p_{held}=\#\{i:R_i\text{ none}\}/n$$
+```math
+p_{held}=\#\{i:R_i\text{ none}\}/n
+```
 
 **Weak class and second clocks** (`flame6.rs:530-537`, `601-613`):
 
-$$p_w=\sigma\big(N^*_{se}(\texttt{se.flash};c)\big),\qquad
+```math
+p_w=\sigma\big(N^*_{se}(\texttt{se.flash};c)\big),\qquad
 \tau_{osc}=\exp\big(N^*_{se}(\texttt{se.osc};c)+\texttt{fuel.dosc}[k]\big),\qquad
-h_{hold}=e^{\texttt{se.hold\_log\_rate}}$$
+h_{hold}=e^{\texttt{se.hold_log_rate}}
+```
 
 **Self-extinction survival from the time origin.** With $t'=\max(t-t_{fl},0)$ and $t_{fl}=$ `se.floor_s` (`flame6.rs:631-646`):
 
-$$S_w(t)=S_{LL}(t;\tau_w,k_w),\qquad
-S_i(t)=\big[S_{LL}(t';R_i,k_{se})\ \text{or }1\text{ if held}\big]\;S_{LL}(t';\tau_{osc},k_{osc})\;e^{-h_{hold}t'}$$
+```math
+S_w(t)=S_{LL}(t;\tau_w,k_w),\qquad
+S_i(t)=\big[S_{LL}(t';R_i,k_{se})\ \text{or }1\text{ if held}\big]\;S_{LL}(t';\tau_{osc},k_{osc})\;e^{-h_{hold}t'}
+```
 
-$$S_{se}(t)=p_w S_w(t)+(1-p_w)\frac1n\sum_{i}S_i(t)$$
+```math
+S_{se}(t)=p_w S_w(t)+(1-p_w)\frac1n\sum_{i}S_i(t)
+```
 
 #### 1.4 Burner-heating law (both member kinds b and c)
 
 **Burner features** (`flame6.rs:553-561`, `flame7.rs:496-504`):
 
-$$b=\Big(\ln\frac{r_{ss}[\mathrm{mm}]}{r_{ref}},\ \ln\frac{\dot m_{tot}}{\dot m_{tot,ref}},\ c_{tad},\ c_{xf},\ c_{logp},\ e,\ b\Big)$$
+```math
+b=\Big(\ln\frac{r_{ss}[\mathrm{mm}]}{r_{ref}},\ \ln\frac{\dot m_{tot}}{\dot m_{tot,ref}},\ c_{tad},\ c_{xf},\ c_{logp},\ e,\ b\Big)
+```
 
-**Equilibrium rise** (`flame6.rs:562`). With $T_0=$ `bt.t0_c` and $\tau_b=$ `bt.tau_s`, the burner temperature is $T_b(t)=T_0+\Delta T\,(1-e^{-t/\tau_b})$, where
+**Equilibrium rise** (`flame6.rs:562`). With $T_0=$ `bt.t0_c` and $\tau_b=$ `bt.tau_s`, the burner temperature is $`T_b(t)=T_0+\Delta T\,(1-e^{-t/\tau_b})`$, where
 
-$$\ln\Delta T=N^*_{ft}(\texttt{bt.rise};b)$$
+```math
+\ln\Delta T=N^*_{ft}(\texttt{bt.rise};b)
+```
 
 **Time to limit $l$** (`flame6.rs:438-441`):
 
-$$t_l(\Delta T)=-\tau_b\ln\!\Big(1-\frac{T_{lim,l}-T_0}{\Delta T}\Big)\quad\text{if }\frac{T_{lim,l}-T_0}{\Delta T}<1,\ \text{else never}$$
+```math
+t_l(\Delta T)=-\tau_b\ln\!\Big(1-\frac{T_{lim,l}-T_0}{\Delta T}\Big)\quad\text{if }\frac{T_{lim,l}-T_0}{\Delta T}<1,\ \text{else never}
+```
 
-**Heating quadrature and limit mixture** (`flame6.rs:567-588`, `flame7.rs:510-530`). Set $\bar w_l=\texttt{bt.limit\_w}[l]/\sum\texttt{bt.limit\_w}$ and $n_b=\mathrm{clamp}(\texttt{num.bt\_nodes},1,64)$. Then
+**Heating quadrature and limit mixture** (`flame6.rs:567-588`, `flame7.rs:510-530`). Set $`\bar w_l=\texttt{bt.limit_w}[l]/\sum\texttt{bt.limit_w}`$ and $`n_b=\mathrm{clamp}(\texttt{num.bt_nodes},1,64)`$. Then
 
-$$\ln\Delta T_j=\ln\Delta T+\sigma_{bt}z_j$$
+```math
+\ln\Delta T_j=\ln\Delta T+\sigma_{bt}z_j
+```
 
-$$S_{bt}(t)=\min\Big(1,\ p_{never}+\sum_{l:\bar w_l>0}\sum_{j:t_{jl}\text{ exists}}\frac{\bar w_l}{n_b}S_{LL}(t;t_{jl},k_{bt})\Big)$$
+```math
+S_{bt}(t)=\min\Big(1,\ p_{never}+\sum_{l:\bar w_l>0}\sum_{j:t_{jl}\text{ exists}}\frac{\bar w_l}{n_b}S_{LL}(t;t_{jl},k_{bt})\Big)
+```
 
 $p_{never}$ collects the weight $\bar w_l/n_b$ of every pair that never reaches its limit. When all limit weights are 0, $p_{never}=1$ and the clock is off.
 
@@ -1048,25 +1214,33 @@ A weighted limit with $T_{lim,l}\le T_0$ makes the release unrunnable: it is a s
 
 **Programmed-stop atoms** (`flame6.rs:590-599`). For $a=0..7$:
 
-$$p_a=\sigma\big(\texttt{ft.atom\_logit}[a]+\texttt{ft.atom\_w}[a,:]\cdot c_{ft}\big)$$
+```math
+p_a=\sigma\big(\texttt{ft.atom_logit}[a]+\texttt{ft.atom_w}[a,:]\cdot c_{ft}\big)
+```
 
 - $c_{ft}$ is $c$ with entries 6 and 7 set to `ft_coord`.
-- An atom is kept only if $p_a>10^{-9}$ and $T_a=\texttt{ft.atom\_t\_s}[a]>0$.
+- An atom is kept only if $p_a\gt10^{-9}$ and $`T_a=\texttt{ft.atom_t_s}[a]\gt0`$.
 - Kept values are clipped to $\min(p_a,1-10^{-9})$.
 
-**Survival, growth member** (`flame6.rs:652-656`). With $\beta=e^{\texttt{ft.log\_base}}$ and $h_a=$ `num.atom_half_s`:
+**Survival, growth member** (`flame6.rs:652-656`). With $`\beta=e^{\texttt{ft.log_base}}`$ and $h_a=$ `num.atom_half_s`:
 
-$$S_{ps}(t)=e^{-\beta\max(t,0)}\prod_a(1-p_a)^{\mathrm{clamp}\left(\frac{t-(T_a-h_a)}{2h_a},0,1\right)}$$
+```math
+S_{ps}(t)=e^{-\beta\max(t,0)}\prod_a(1-p_a)^{\mathrm{clamp}\left(\frac{t-(T_a-h_a)}{2h_a},0,1\right)}
+```
 
 **Hazard, hinge member** (`flame7.rs:573-578`), the same law written as a hazard:
 
-$$\lambda_{ft}(t)=\beta+\sum_a\mathbf 1\{|t-T_a|\le h_a\}\frac{-\ln(1-p_a)}{2h_a}$$
+```math
+\lambda_{ft}(t)=\beta+\sum_a\mathbf 1\{|t-T_a|\le h_a\}\frac{-\ln(1-p_a)}{2h_a}
+```
 
 #### 1.6 Hinge member with the heating law `flame7.rs` (slots c)
 
 **Laws** (`flame7.rs:480-494`, `544-547`):
 
-$$\ln\tau_R=N^*_{se}\big(\texttt{se.tau};\,c\ \text{with}\ c_{logm}\to c_{logm}+s_f\big),\qquad p_w=\sigma\big(N^*_{se}(\texttt{se.flash};c)\big)$$
+```math
+\ln\tau_R=N^*_{se}\big(\texttt{se.tau};\,c\ \text{with}\ c_{logm}\to c_{logm}+s_f\big),\qquad p_w=\sigma\big(N^*_{se}(\texttt{se.flash};c)\big)
+```
 
 - $s_f=$ `fuel.s[k]` for normal flames and 0 for inverse flames.
 - $r_{ss}$ is computed only for the burner features.
@@ -1081,33 +1255,41 @@ $$\ln\tau_R=N^*_{se}\big(\texttt{se.tau};\,c\ \text{with}\ c_{logm}\to c_{logm}+
 
 #### 1.7 Competing-risk integration and the emitted table (members)
 
-The cutoff is $\tau=$ `prefix.cutoff_s`. The stop $t_{stop}$ is the earliest `t_start_s` of a control stage `scheduled_stop` or `flow_stop`, or of an operator action whose control starts with `mfcs off` (`flame6.rs:752-763`). Integration ends at $t_{end}=\min(t_{stop},\texttt{num.horizon\_s})$, or at the horizon when there is no stop (`flame6.rs:808`).
+The cutoff is $\tau=$ `prefix.cutoff_s`. The stop $t_{stop}$ is the earliest `t_start_s` of a control stage `scheduled_stop` or `flow_stop`, or of an operator action whose control starts with `mfcs off` (`flame6.rs:752-763`). Integration ends at $`t_{end}=\min(t_{stop},\texttt{num.horizon_s})`$, or at the horizon when there is no stop (`flame6.rs:808`).
 
 The grid between successive targets $\min(t_j,t_{end})$ has
 
-$$n_{sub}=\max\big(1,\lceil (t_b-t_a)/\texttt{num.dt\_s}-10^{-9}\rceil\big)$$
+```math
+n_{sub}=\max\big(1,\lceil (t_b-t_a)/\texttt{num.dt_s}-10^{-9}\rceil\big)
+```
 
 equal steps (`flame6.rs:824-825`, `flame7.rs:731-732`).
 
 **Growth member** (`flame6.rs:798-862`). The integration starts at $\tau$ with $s=1$. Each step uses survival ratios, so it is conditioned on survival to the cutoff:
 
-$$\Lambda_e=-\ln\min\!\Big(1,\tfrac{S_{se}(t_b)}{S_{se}(t_a)}\Big),\quad
-\Lambda_o=-\ln\min\!\Big(1,\tfrac{S_{bt}(t_b)}{S_{bt}(t_a)}\Big)-\ln\min\!\Big(1,\tfrac{S_{ps}(t_b)}{S_{ps}(t_a)}\Big)$$
+```math
+\Lambda_e=-\ln\min\!\Big(1,\tfrac{S_{se}(t_b)}{S_{se}(t_a)}\Big),\quad
+\Lambda_o=-\ln\min\!\Big(1,\tfrac{S_{bt}(t_b)}{S_{bt}(t_a)}\Big)-\ln\min\!\Big(1,\tfrac{S_{ps}(t_b)}{S_{ps}(t_a)}\Big)
+```
 
 - Each term is 0 if its survival at $t_a$ is $\le0$, and $+\infty$ if the ratio is 0 (`flame6.rs:786-796`).
-- The step loses $\ell=s\,(1-e^{-(\Lambda_e+\Lambda_o)})$.
+- The step loses $`\ell=s\,(1-e^{-(\Lambda_e+\Lambda_o)})`$.
 - Extinction receives the share $\Lambda_e/(\Lambda_e+\Lambda_o)$. With infinite terms the share is ½ if both are infinite, 1 if only $\Lambda_e$ is, and 0 otherwise (`flame6.rs:836-850`).
 
 **Hinge member** (`flame7.rs:716-761`). Each class is integrated separately with the hazards taken at the midpoint of the step:
 
-$$\lambda_o=\lambda_{ft}(t+h/2)-\tfrac1h\ln\min\!\big(1,S_{bt}(t_b)/S_{bt}(t_a)\big),\qquad \ell=s\,(1-e^{-(\lambda_{se}+\lambda_o)h})$$
+```math
+\lambda_o=\lambda_{ft}(t+h/2)-\tfrac1h\ln\min\!\big(1,S_{bt}(t_b)/S_{bt}(t_a)\big),\qquad \ell=s\,(1-e^{-(\lambda_{se}+\lambda_o)h})
+```
 
 - The loss is split $\lambda_{se}:\lambda_o$.
 - A non-finite total puts all of $\ell$ into termination.
 
 The weak-class probability at the cutoff (`flame7.rs:776-785`) is
 
-$$p_w^\tau=\frac{p_wS^{(w)}(\tau)}{p_wS^{(w)}(\tau)+(1-p_w)S^{(m)}(\tau)}$$
+```math
+p_w^\tau=\frac{p_wS^{(w)}(\tau)}{p_wS^{(w)}(\tau)+(1-p_w)S^{(m)}(\tau)}
+```
 
 - $S^{(\cdot)}(\tau)$ is each class run from 0 to $\tau$ with all its hazards.
 - If the denominator is 0, $p_w^\tau=p_w$.
@@ -1120,10 +1302,12 @@ $$p_w^\tau=\frac{p_wS^{(w)}(\tau)}{p_wS^{(w)}(\tau)+(1-p_w)S^{(m)}(\tau)}$$
 
 The four rows are:
 
-$$\text{active\_supported}=\begin{cases}0&\text{stopped or beyond}\\ s&\text{else}\end{cases},\quad
+```math
+\text{active_supported}=\begin{cases}0&\text{stopped or beyond}\\ s&\text{else}\end{cases},\quad
 \text{extinction}=F_e,\quad
-\text{operator\_termination}=F_o+s\,\mathbf 1_{\text{stopped}},\quad
-\text{unresolved\_support}=s\,\mathbf 1_{\text{beyond}}$$
+\text{operator_termination}=F_o+s\,\mathbf 1_{\text{stopped}},\quad
+\text{unresolved_support}=s\,\mathbf 1_{\text{beyond}}
+```
 
 So a known stop ends the fed phase: the hazards are off after it, and all mass still burning at the stop is counted as operator termination.
 
@@ -1144,35 +1328,41 @@ So a known stop ends the fed phase: the hazards are off after it, and all mass s
 
 #### 1.8 The committee (`committee3.rs:594-871`)
 
-**Date and era** (`committee3.rs:469-505`, `640-653`). The test day is $d=1000\,\text{year}+\text{day of year}$. It is taken from the first valid `YYYY-MM-DD` in `session_id`; otherwise from `YYDDD` after the last `:` of `run_id`, read as year $2000+YY$; otherwise there is none.
+**Date and era** (`committee3.rs:469-505`, `640-653`). The test day is $`d=1000\,\text{year}+\text{day of year}`$. It is taken from the first valid `YYYY-MM-DD` in `session_id`; otherwise from `YYDDD` after the last `:` of `run_id`, read as year $2000+YY$; otherwise there is none.
 
-$$p_{late}=\begin{cases}0& d\le d_{e}\\ 1& d\ge d_{l}\\ \texttt{era.p\_late\_between}& d_e<d<d_l\\ \texttt{era.p\_late\_unknown}&\text{no date}\end{cases}$$
+```math
+p_{late}=\begin{cases}0& d\le d_{e}\\ 1& d\ge d_{l}\\ \texttt{era.p_late_between}& d_e<d<d_l\\ \texttt{era.p_late_unknown}&\text{no date}\end{cases}
+```
 
 The release is refused as unrunnable if $d_e\ge d_l$ or $p_{late}\notin[0,1]$ (`committee3.rs:621-629`, `654-662`).
 
 **Script path** (`committee3.rs:666-681`). It is taken when all of these hold:
 
-- the condition `programmed_stop` $T_{prog}$ is resolved, finite and $>0$;
-- some entry of `mix.ws_early` or `mix.ws_late` is $>0$;
-- some entry of `script.offset_w` is $>0$.
+- the condition `programmed_stop` $T_{prog}$ is resolved, finite and $\gt0$;
+- some entry of `mix.ws_early` or `mix.ws_late` is $\gt0$;
+- some entry of `script.offset_w` is $\gt0$.
 
 On the script path the weight pair is (`mix.ws_early`, `mix.ws_late`); otherwise it is (`mix.w_early`, `mix.w_late`).
 
 **Slot weights** (`committee3.rs:573-582`, `683-714`). A vector whose era has non-zero probability must be $\ge0$ with a positive sum, or the forecast is refused. Each vector is divided by its sum, and then
 
-$$w_i=\begin{cases}e_i&e_i=l_i\ (\text{exactly})\\ (1-p_{late})\,e_i+p_{late}\,l_i&\text{otherwise}\end{cases}$$
+```math
+w_i=\begin{cases}e_i&e_i=l_i\ (\text{exactly})\\ (1-p_{late})\,e_i+p_{late}\,l_i&\text{otherwise}\end{cases}
+```
 
 - When $p_{late}=1$ the early vector is neither checked nor used.
 - When $p_{late}=0$ the late vector is neither checked nor used.
 
-**Planned-stop nodes** (`committee3.rs:717-755`). For each $k$ with $\texttt{offset\_w}[k]>0$, where $o=\texttt{offset\_w}/\sum\texttt{offset\_w}$ and a negative entry is refused:
+**Planned-stop nodes** (`committee3.rs:717-755`). For each $k$ with $`\texttt{offset_w}[k]\gt0`$, where $`o=\texttt{offset_w}/\sum\texttt{offset_w}`$ and a negative entry is refused:
 
 - the prefix loses `programmed_stop`;
-- it gains a control stage `scheduled_stop` at $T_{prog}+\delta_k$, with $\delta_k=\texttt{script.offset\_s}[k]$.
+- it gains a control stage `scheduled_stop` at $T_{prog}+\delta_k$, with $`\delta_k=\texttt{script.offset_s}[k]`$.
 
 **Mixture** (`committee3.rs:843-861`). For every row $c\in$ {active_supported, extinction, operator_termination, unresolved_support} and every time $t$:
 
-$$P_c(t)=\sum_{k}o_k\sum_{i:w_i>0}w_i\,P^{(i,k)}_c(t)$$
+```math
+P_c(t)=\sum_{k}o_k\sum_{i:w_i>0}w_i\,P^{(i,k)}_c(t)
+```
 
 - Off the script path there is a single pass with $o=1$, and a `programmed_stop` the prefix carries is left in place and not read.
 - If exactly one member is run on one node, its table is returned bit for bit.
@@ -1181,7 +1371,7 @@ $$P_c(t)=\sum_{k}o_k\sum_{i:w_i>0}w_i\,P^{(i,k)}_c(t)$$
 
 **What the code fixes.** These hold whatever the release types:
 
-- Each member is a valid competing-risk table: $\sum_c P^{(i,k)}_c(t)=1$ up to rounding.
+- Each member is a valid competing-risk table: $`\sum_c P^{(i,k)}_c(t)=1`$ up to rounding.
 - The mixture is convex, so it is one too.
 - A known scheduled stop at $T$ moves every member's remaining active mass into operator termination for $t\ge T$.
 
@@ -1206,7 +1396,9 @@ The tool reads only the pre-ignition parameter file `<inv>_Raw Data_as run<test>
 - v2: $(\texttt{igniterEndPosition}-\texttt{igniterStartPosition})/\texttt{igniterVelocityCountsPerSec}$, taken as an absolute value in the code;
 - v1: 0.
 
-$$T_{prog}=D+S+F-G\qquad(\text{forecast clock, origin at flame onset})$$
+```math
+T_{prog}=D+S+F-G\qquad(\text{forecast clock, origin at flame onset})
+```
 
 - A missing term gives branch `incomplete_file` and `planned_stop_s = None`.
 - A file without a constant-flow stage gives `no_constant_flow_stage`.
@@ -1218,17 +1410,23 @@ The F2 header says the release "is meant for that input, and for the stage sum w
 **Normal F2, slots b0–b3 (`flame6.rs`).** All four are identical except:
 
 - `bt.limit_w`: b0 and b2 have $[0,1,0]$, so the limit is 510 °C; b1 and b3 have $[1,0,0]$, so the limit is 455 °C;
-- b2 and b3 have all atoms off ($\texttt{atom\_logit}=-40$, so $p_a<10^{-9}$) and $\beta=e^{-9}$;
+- b2 and b3 have all atoms off ($`\texttt{atom_logit}=-40`$, so $p_a\lt10^{-9}$) and $\beta=e^{-9}$;
 - b0 and b1 have atoms $T=(61.5,98,126.5,275.5)$ s with logits $(-2,-2.9,-2.2,0)$ and $\beta=e^{-7.4}$.
 
 Here $c=(c_p,c_m,c_{o},c_x,c_T,c_z,f_e,f_b)$:
 
-$$\ln m_{cr}=-1.715+0.5\max(0,\,c_p-c_o-0.9)-s_f$$
+```math
+\ln m_{cr}=-1.715+0.5\max(0,\,c_p-c_o-0.9)-s_f
+```
 
-$$N_{diff}=3.92+0.45c_p-0.385c_o+0.2c_x+0.27f_b+0.21\max(0,c_o+5f_b-4.1)+0.18\max(0,c_o-5f_e-5f_b+0.9)$$
+```math
+N_{diff}=3.92+0.45c_p-0.385c_o+0.2c_x+0.27f_b+0.21\max(0,c_o+5f_b-4.1)+0.18\max(0,c_o-5f_e-5f_b+0.9)
+```
 
-$$\operatorname{logit}p_w=-10.2-6.7c_T,\qquad \ln\tau_{osc}=13\ (\approx4.4\cdot10^5\ \text{s}),\qquad
-\ln\Delta T=5.88-0.4b_{rss}-0.4b_{mtot}-0.15\max(0,c_x-0.5)$$
+```math
+\operatorname{logit}p_w=-10.2-6.7c_T,\qquad \ln\tau_{osc}=13\ (\approx4.4\cdot10^5\ \text{s}),\qquad
+\ln\Delta T=5.88-0.4b_{rss}-0.4b_{mtot}-0.15\max(0,c_x-0.5)
+```
 
 On the declared domain $c_o\le1.5$, so $\max(0,c_o-4.1)=0$ at vertices E and P.
 
@@ -1239,9 +1437,13 @@ On the declared domain $c_o\le1.5$, so $\max(0,c_o-4.1)=0$ at vertices E and P.
 
 With $c_m'=c_m+s_f$:
 
-$$\begin{aligned}\ln\tau_R={}&2.43-0.28c_p+0.84c_o-0.2f_b+1.4\max(0,0.5-0.24c_p-c_m'+0.65c_o)+2.0\max(0,-0.22-0.24c_p-c_m'+0.65c_o)\\&-0.35\max(0,-5-c_x+5f_b)-0.14\max(0,-4.1+c_o+5f_b)-0.12\max(0,0.9+c_o-5f_e-5f_b)\end{aligned}$$
+```math
+\begin{aligned}\ln\tau_R={}&2.43-0.28c_p+0.84c_o-0.2f_b+1.4\max(0,0.5-0.24c_p-c_m'+0.65c_o)+2.0\max(0,-0.22-0.24c_p-c_m'+0.65c_o)\\&-0.35\max(0,-5-c_x+5f_b)-0.14\max(0,-4.1+c_o+5f_b)-0.12\max(0,0.9+c_o-5f_e-5f_b)\end{aligned}
+```
 
-$$\operatorname{logit}p_w=-18-12c_T$$
+```math
+\operatorname{logit}p_w=-18-12c_T
+```
 
 Hidden unit 3 has `w2[3] = 0` and contributes nothing.
 
@@ -1251,13 +1453,21 @@ Hidden unit 3 has `w2[3] = 0` and contributes nothing.
 - $\sigma_{bt}=0.25$;
 - the indicator-free laws
 
-$$\ln m_{cr}=-4.6\ (0.01005\ \text{g O}_2\,\text{m}^{-2}\text{s}^{-1}),\qquad \ln D=3.332\ (27.99\ \text{mm}^2/\text{s})$$
+```math
+\ln m_{cr}=-4.6\ (0.01005\ \text{g O}_2\,\text{m}^{-2}\text{s}^{-1}),\qquad \ln D=3.332\ (27.99\ \text{mm}^2/\text{s})
+```
 
-$$\operatorname{logit}p_w=-5.33-5c_T-10\max(0,c_x-0.2)$$
+```math
+\operatorname{logit}p_w=-5.33-5c_T-10\max(0,c_x-0.2)
+```
 
-$$\ln\tau_{osc}=2.17+0.45c_o+3c_x+10\max(0,c_x-0.3)-8\max(0,-1-c_m)+8\max(0,-0.6-c_o)\;[+20\max(0,c_m-0.6c_z-0.2)\ \text{in b1, b3}]+\texttt{dosc}_k$$
+```math
+\ln\tau_{osc}=2.17+0.45c_o+3c_x+10\max(0,c_x-0.3)-8\max(0,-1-c_m)+8\max(0,-0.6-c_o)\;[+20\max(0,c_m-0.6c_z-0.2)\ \text{in b1, b3}]+\texttt{dosc}_k
+```
 
-$$\ln\Delta T=5.88-0.4b_{rss}-0.4b_{mtot}+0.3f_e$$
+```math
+\ln\Delta T=5.88-0.4b_{rss}-0.4b_{mtot}+0.3f_e
+```
 
 For ethylene the burner rise is weighed $(0.5,0.5,0)$, which gives $+0.15$.
 
@@ -1267,7 +1477,7 @@ The scenarios differ as follows:
 - b0 and b1 have atoms $T=(63,64,65,66,67,90)$ s with logits $(-2.94,-2.59,-2.2,0.49,-1.73,-1.39)$ and $\beta=e^{-5.5}$.
 - b2 and b3 have the atoms off and $\beta=e^{-9}$.
 
-Whether $\hat\Phi>1$ (a growth clock) at given conditions under $m_{cr}=0.01$ g m⁻² s⁻¹ was not evaluated here.
+Whether $\hat\Phi\gt1$ (a growth clock) at given conditions under $m_{cr}=0.01$ g m⁻² s⁻¹ was not evaluated here.
 
 #### 1.11 Parameter tables, F2
 
@@ -1373,7 +1583,9 @@ The second candidate is $(x_{O_2}^{(b)},T_{ad}^{(b)},Z_{st}^{(b)})$ (`committee4
 
 Each gets the full committee forecast (`:657`, `:661`), and the two are mixed:
 
-$$P_c(t)=(1-w_b)\,P^{(1)}_c(t)+w_b\,P^{(2)}_c(t),\qquad w_b=\texttt{mix.o2\_b\_w}$$
+```math
+P_c(t)=(1-w_b)\,P^{(1)}_c(t)+w_b\,P^{(2)}_c(t),\qquad w_b=\texttt{mix.o2_b_w}
+```
 
 (`committee4.rs:649`, `:670-677`). Branches:
 
@@ -1393,32 +1605,38 @@ F3-s1 types $w_b=0.5$. Its edits.wsp says this weight is not read in stage 1, be
 
 **Reading the fuel.** A single species is read as its row (`:284-302`). A blend `a+b` with mole fraction $x$ of `a` (`fuel2.rs:305-335`) is mixed as
 
-$$y_a=\frac{xW_a}{xW_a+(1-x)W_b},\quad w_a=\frac{y_a\sigma_a}{y_a\sigma_a+(1-y_a)\sigma_b},\quad W=xW_a+(1-x)W_b,\quad c=w_ac_a+(1-w_a)c_b$$
+```math
+y_a=\frac{xW_a}{xW_a+(1-x)W_b},\quad w_a=\frac{y_a\sigma_a}{y_a\sigma_a+(1-y_a)\sigma_b},\quad W=xW_a+(1-x)W_b,\quad c=w_ac_a+(1-w_a)c_b
+```
 
 - The rule for $c$ applies to `s`, `se_coord`, `ft_coord`, `dosc`, `tad_min_k`, `dtad_k`, `zst0` and `gz`.
 - `k_rel` is kept per species.
 
 A blend is refused at the condition gate when (`:404-477`):
 
-- a row has `admit`$\neq1$;
+- a row has `admit`$`\neq1`$;
 - a species is not in the table;
 - `fuel_blend_x` is missing or outside $[0,1]$;
 - `fuel_blend_x` is given for a single fuel;
 - a stored indicator is nonzero.
 
-**Reading the diluent.** `diluent_species` absent means nitrogen. Any text other than `nitrogen` or `helium` is refused, and so is `dil.admit`$=0$ (`:480-495`).
+**Reading the diluent.** `diluent_species` absent means nitrogen. Any text other than `nitrogen` or `helium` is refused, and so is `dil.admit`$`=0`$ (`:480-495`).
 
-**Flame temperature** (`fuel2.rs:513-519`), with $T_0=\texttt{phys.t\_stream\_k}=298.15$ K:
+**Flame temperature** (`fuel2.rs:513-519`), with $`T_0=\texttt{phys.t_stream_k}=298.15`$ K:
 
-$$T_1=\begin{cases}T_{ad}, & Le_{O_2}=1\\[2pt] T_0+(T_{ad}-T_0)\dfrac{1-(1-Z_{st})^{1/Le_{O_2}}}{Z_{st}}, & \text{otherwise}\end{cases}$$
+```math
+T_1=\begin{cases}T_{ad}, & Le_{O_2}=1\\[2pt] T_0+(T_{ad}-T_0)\dfrac{1-(1-Z_{st})^{1/Le_{O_2}}}{Z_{st}}, & \text{otherwise}\end{cases}
+```
 
 - With $Le_{O_2}\neq1$, $Z_{st}\notin(0,1)$ is refused (`:572`).
-- $T_1<\texttt{fuel.tad\_min\_k}$ is refused (`:522-529`, `:578-580`).
+- $`T_1\lt\texttt{fuel.tad_min_k}`$ is refused (`:522-529`, `:578-580`).
 - A non-finite `burner_limit_c` is refused (`:498-508`).
 
 **Burner-stream conductivity** (`fuel2.rs:535-541`):
 
-$$\kappa=\sum_{i\in\text{fuel}}x_f\,x_i\,(k_{rel,i}-1)+(1-x_f)(k_{rel,d}-1)$$
+```math
+\kappa=\sum_{i\in\text{fuel}}x_f\,x_i\,(k_{rel,i}-1)+(1-x_f)(k_{rel,d}-1)
+```
 
 #### 2.3 Growth members `flame9.rs` against `flame6.rs`
 
@@ -1426,42 +1644,58 @@ The laws, the vertex weighing and everything after the clocks are those of `flam
 
 **Condition feature** (`flame9.rs:827`):
 
-$$c_{tad}=(T_1+\texttt{fuel.dtad\_k}-T_{ref})/T_{scale}$$
+```math
+c_{tad}=(T_1+\texttt{fuel.dtad_k}-T_{ref})/T_{scale}
+```
 
 **Reactant mass fraction** (`:810`):
 
-$$Y_R=\frac{x_RW_R}{x_RW_R+(1-x_R)\,\texttt{dil.mw\_g\_mol}[d]}$$
+```math
+Y_R=\frac{x_RW_R}{x_RW_R+(1-x_R)\,\texttt{dil.mw_g_mol}[d]}
+```
 
 **Critical flux and diffusivity** (`flame9.rs:597-602`):
 
-$$\ln m_{cr}=N^*_{se}(\texttt{se.flux};c)-s_f+\texttt{dil.dflux}[d]-\texttt{fuel.gz}\,\max(0,\,Z_{st}-\texttt{fuel.zst0})$$
+```math
+\ln m_{cr}=N^*_{se}(\texttt{se.flux};c)-s_f+\texttt{dil.dflux}[d]-\texttt{fuel.gz}\,\max(0,\,Z_{st}-\texttt{fuel.zst0})
+```
 
-$$\ln D=N^*_{se}(\texttt{se.diff};c)+\ln\texttt{dil.d\_far}[d]\quad(\text{skipped when }d_{far}=1)$$
+```math
+\ln D=N^*_{se}(\texttt{se.diff};c)+\ln\texttt{dil.d_far}[d]\quad(\text{skipped when }d_{far}=1)
+```
 
 **Quasi-steady radius** (`:474-479`, `:606-607`):
 
-$$r_{ss}=\frac{\dot m_{tot}}{4\pi\,(\rho D)\,\texttt{dil.rho\_d}[d]\,L}\quad(\text{factor skipped when exactly }1)$$
+```math
+r_{ss}=\frac{\dot m_{tot}}{4\pi\,(\rho D)\,\texttt{dil.rho_d}[d]\,L}\quad(\text{factor skipped when exactly }1)
+```
 
-**Burner side.** $b_2=(T_1-T_{ref})/T_{scale}$, without `dtad` (`:621`). With $T_b=\texttt{bt.t0\_c}+273.15$ (`flame9.rs:633-640`):
+**Burner side.** $b_2=(T_1-T_{ref})/T_{scale}$, without `dtad` (`:621`). With $`T_b=\texttt{bt.t0_c}+273.15`$ (`flame9.rs:633-640`):
 
-$$\ln\Delta T_{eq}=N^*_{ft}(\texttt{bt.rise};b)+\texttt{bt.kappa\_exp}\,\mathrm{ln1p}(\kappa)+\ln\frac{T_1-T_b}{\texttt{bt.tflame\_ref\_k}-T_b}$$
+```math
+\ln\Delta T_{eq}=N^*_{ft}(\texttt{bt.rise};b)+\texttt{bt.kappa_exp}\,\mathrm{ln1p}(\kappa)+\ln\frac{T_1-T_b}{\texttt{bt.tflame_ref_k}-T_b}
+```
 
-- The last term is omitted when `bt.tflame_ref_k`$=0$.
+- The last term is omitted when `bt.tflame_ref_k`$`=0`$.
 - Otherwise $T_1\le T_b$ is refused (`:795-800`).
 
 **Script limit as an input** (`flame9.rs:545-550`, `:642`). When the prefix carries `burner_limit_c` $=L$:
 
-$$T_{lim,l}=\texttt{bt.limit\_c}[l]+(L-\texttt{bt.limit\_script\_c})$$
+```math
+T_{lim,l}=\texttt{bt.limit_c}[l]+(L-\texttt{bt.limit_script_c})
+```
 
 The check that a weighted limit lies above `bt.t0_c` is applied to the shifted value (`:554-566`, `:999`).
 
-With nitrogen, inert new columns, $\kappa=0$, `tflame_ref`$=0$ and no $L$, the forecast equals `flame6.rs` bit for bit (`flame9.rs:30-33`).
+With nitrogen, inert new columns, $\kappa=0$, `tflame_ref`$`=0`$ and no $L$, the forecast equals `flame6.rs` bit for bit (`flame9.rs:30-33`).
 
 #### 2.4 Hinge members with the heating law (`flame10.rs`) against `flame7.rs`
 
 The radiative clock gains the diluent shifts (`flame10.rs:533-539`):
 
-$$\ln\tau_R=N^*_{se}\big(\texttt{se.tau};\,c\text{ with }c_{logm}+s_f+\texttt{dil.dlogm}[d]\big)+\texttt{dil.dlnr}[d]$$
+```math
+\ln\tau_R=N^*_{se}\big(\texttt{se.tau};\,c\text{ with }c_{logm}+s_f+\texttt{dil.dlogm}[d]\big)+\texttt{dil.dlnr}[d]
+```
 
 The other edits match `flame9.rs`:
 
@@ -1487,7 +1721,7 @@ The committee lines are those of normal F2 (`edits.wsp:13-22`):
 | No planned stop | b0, c0 | b1, c1 |
 | Planned stop | b2, c2 | b3, c3 |
 
-The offsets are $\{-1,0,1\}$ s with weights $\{0.25,0.5,0.25\}$.
+The offsets are $`\{-1,0,1\}`$ s with weights $`\{0.25,0.5,0.25\}`$.
 
 **Comparison with F2** (`params.npz` of F3-s1 against `55fcf4cb…`, slots b0–c3). Every shared tensor is identical except `fuel.s`. The new tensors are:
 
@@ -1500,14 +1734,22 @@ The offsets are $\{-1,0,1\}$ s with weights $\{0.25,0.5,0.25\}$.
 
 - **The conductivity term is inactive.** Every `k_rel` is 1, so $\kappa=0$, and the typed `kappa_exp` 0.45 has no effect.
 - **The adiabatic temperature reaches the burner only through the flame-temperature factor.** Nitrogen has $Le=1$, so $T_1=T_{ad}$. `bt.rise` has zero weight on $b_2$, so
-  $$\ln\Delta T_{eq}\mathrel{+}=\ln\frac{T_{ad}-303.15}{2346.85}.$$
+
+  ```math
+  \ln\Delta T_{eq}\mathrel{+}=\ln\frac{T_{ad}-303.15}{2346.85}.
+  ```
+
 - **Only `se.flash` reads $c_{tad}$**, through `skip[4]`. Methane's `dtad` $=-350$ K therefore shifts the weak-class logit by
-  $$\texttt{skip}[4]\cdot(-350/300)=+7.82\ \text{(b, skip}=-6.7),\qquad +14.0\ \text{(c, skip}=-12).$$
+
+  ```math
+  \texttt{skip}[4]\cdot(-350/300)=+7.82\ \text{(b, skip}=-6.7),\qquad +14.0\ \text{(c, skip}=-12).
+  ```
+
 - **The script limit enters as an offset:**
   - early slots: limit 510 with script setting 500, so $T_{lim}=L+10$;
   - late slots: limit 455 with script setting 450, so $T_{lim}=L+5$;
   - without $L$ the limits are 510 and 455 °C, as in F2.
-- **The ethylene dilution term acts only in the b slots**, as $-1.0\max(0,Z_{st}-0.30)$ on $\ln m_{cr}$. The c slots have `gz`$=0$.
+- **The ethylene dilution term acts only in the b slots**, as $-1.0\max(0,Z_{st}-0.30)$ on $\ln m_{cr}$. The c slots have `gz`$`=0`$.
 
 #### 2.6 Parameter table, F3-s1, running slots
 
@@ -1567,7 +1809,7 @@ The chain is f3-s1 → `f4-methane` (`57fe4255…ebe2`) → `f4-helium` (`370ed3
 This turns on terms that are idle for nitrogen:
 
 - $T_1$ comes from the Lewis-number formula with $Le=1.37$;
-- $\kappa=(1-x_f)\cdot4.8$, so $\ln\Delta T_{eq}\mathrel{+}=0.45\,\mathrm{ln1p}(\kappa)$;
+- $\kappa=(1-x_f)\cdot4.8$, so $`\ln\Delta T_{eq}\mathrel{+}=0.45\,\mathrm{ln1p}(\kappa)`$;
 - $\ln m_{cr}\mathrel{+}=1.15$ and $\ln D\mathrel{+}=\ln3.5$;
 - $c_{logm}\mathrel{+}=0.6$ and $\ln\tau_R\mathrel{-}=0.75$ in the hinge members.
 
@@ -1623,7 +1865,9 @@ Each uses the neutral fuel table. Its meta.json says no number came from the PSI
 
 So the forecast is
 
-$$P_c(t)=\tfrac12P^{(a0)}_c(t)+\tfrac12P^{(b0)}_c(t)$$
+```math
+P_c(t)=\tfrac12P^{(a0)}_c(t)+\tfrac12P^{(b0)}_c(t)
+```
 
 **Member a0 (`flame5.rs`).** The stored values are the same for both families except `norm.*`. Every network has only its bias:
 
@@ -1635,19 +1879,29 @@ $$P_c(t)=\tfrac12P^{(a0)}_c(t)+\tfrac12P^{(b0)}_c(t)$$
 
 With $k=1$, $\lambda_{LL}(t;\tau,1)=1/(\tau+t)$. Up to the $e^{-40}$ terms and the midpoint quadrature (`flame5.rs:468-501`), the two competing causes therefore have
 
-$$\lambda_e(t)=\frac{1}{29.96+t},\qquad \lambda_o(t)=\frac1{99.48+t},\qquad S(t\,|\,\tau)=\frac{(29.96+\tau)(99.48+\tau)}{(29.96+t)(99.48+t)}$$
+```math
+\lambda_e(t)=\frac{1}{29.96+t},\qquad \lambda_o(t)=\frac1{99.48+t},\qquad S(t\,|\,\tau)=\frac{(29.96+\tau)(99.48+\tau)}{(29.96+t)(99.48+t)}
+```
 
-$$F_e(t)=\int_\tau^t\lambda_eS,\qquad F_o(t)=\int_\tau^t\lambda_oS$$
+```math
+F_e(t)=\int_\tau^t\lambda_eS,\qquad F_o(t)=\int_\tau^t\lambda_oS
+```
 
 These do not depend on any condition.
 
 **Member b0 (`flame6.rs`), the "published theory".** This is the root of `wsp3/*/baseline-theory`. Its header cites the sources below; the citations are the author's and were not checked here. The laws are
 
-$$r_{ss}=\frac{\dot m_{tot}}{4\pi\cdot0.0334\,L}\quad(\text{Kim et al. 2023})$$
+```math
+r_{ss}=\frac{\dot m_{tot}}{4\pi\cdot0.0334\,L}\quad(\text{Kim et al. 2023})
+```
 
-$$m_{cr}=e^{-1.609}=0.200\ \text{g fuel m}^{-2}\text{s}^{-1}\ (\text{normal; Irace et al. 2023, ethylene, 1 bar}),\qquad e^{-0.386}=0.680\ \text{g O}_2\ \text{m}^{-2}\text{s}^{-1}\ (\text{inverse})$$
+```math
+m_{cr}=e^{-1.609}=0.200\ \text{g fuel m}^{-2}\text{s}^{-1}\ (\text{normal; Irace et al. 2023, ethylene, 1 bar}),\qquad e^{-0.386}=0.680\ \text{g O}_2\ \text{m}^{-2}\text{s}^{-1}\ (\text{inverse})
+```
 
-$$D=e^{3.332-c_{logp}}=27.99\ \tfrac{p_{ref}}{p}\ \text{mm}^2/\text{s}$$
+```math
+D=e^{3.332-c_{logp}}=27.99\ \tfrac{p_{ref}}{p}\ \text{mm}^2/\text{s}
+```
 
 The other stored values:
 
@@ -1683,7 +1937,7 @@ PROTOCOL also scores against an "incidence baseline": "for each cutoff, the frac
 
 ### 4. From prefix to score
 
-**Cases.** A case is a pair (test, cutoff $\tau$) with $\tau\in\{1,3,5\}$ s after the flame onset, the flame still burning (PROTOCOL §11, `docs/wsp/PROTOCOL.md:633`, research repo). The harness passes `--cutoffs 1,3,5` (`tools/wsp/dev_eval.py:283`).
+**Cases.** A case is a pair (test, cutoff $\tau$) with $`\tau\in\{1,3,5\}`$ s after the flame onset, the flame still burning (PROTOCOL §11, `docs/wsp/PROTOCOL.md:633`, research repo). The harness passes `--cutoffs 1,3,5` (`tools/wsp/dev_eval.py:283`).
 
 **The prefix.** The prefix (a `PrefixBundle`) holds:
 
@@ -1717,15 +1971,19 @@ The uncertainty kind is `assumed_noise`.
 
 Each source is a convex mixture of competing-risk tables.
 
-**Score** (`crates/ignis-lab/src/eval/scores.rs:326-375`, `crates/ignis-lab/src/eval/scoring.rs:560-660`). For each cause $c\in\{$extinction, operator_termination$\}$ and horizon $h$:
+**Score** (`crates/ignis-lab/src/eval/scores.rs:326-375`, `crates/ignis-lab/src/eval/scoring.rs:560-660`). For each cause $`c\in\{`$extinction, operator_termination$`\}`$ and horizon $h$:
 
-$$\mathrm{BS}_c(h)=\frac1n\sum_{i\,\text{eligible}}w_i\big(\mathbf 1\{T_i\le h,\ \text{cause}_i=c\}-F_{c,i}(h)\big)^2$$
+```math
+\mathrm{BS}_c(h)=\frac1n\sum_{i\,\text{eligible}}w_i\big(\mathbf 1\{T_i\le h,\ \text{cause}_i=c\}-F_{c,i}(h)\big)^2
+```
 
 - The weights are IPCW with a Kaplan–Meier censoring estimate (Graf/Gerds): $w_i=1/\hat G(T_i)$ for an event before $h$, and $1/\hat G(h)$ otherwise.
 - A case censored before $h$ has weight 0 but stays in $n$.
 - $F_{c,i}(h)$ is interpolated from the emitted row (`interp_row`).
 
-$$\mathrm{IBS}_c=\frac{1}{h_{last}-h_0}\sum_{m}\frac{(h_m-h_{m-1})(\mathrm{BS}_c(h_m)+\mathrm{BS}_c(h_{m-1}))}{2}$$
+```math
+\mathrm{IBS}_c=\frac{1}{h_{last}-h_0}\sum_{m}\frac{(h_m-h_{m-1})(\mathrm{BS}_c(h_m)+\mathrm{BS}_c(h_{m-1}))}{2}
+```
 
 This is the trapezoid over 6 to 120 s with NaN entries dropped (`scores.rs:362-375`).
 
@@ -1768,7 +2026,7 @@ The methane row is unchanged from F1. F1's tables were typed from `phys_spherica
 ### 6. Not determined here
 
 - Which adapter writes `programmed_stop`, and the stage-sum fallback, into the prefix. Only the computation in `acme_script2.py` was read.
-- Whether $\hat\Phi>1$ (an active growth clock) at typical conditions in inverse F2, where $m_{cr}=0.01$ g m⁻² s⁻¹. No forward was run for this document.
+- Whether $\hat\Phi\gt1$ (an active growth clock) at typical conditions in inverse F2, where $m_{cr}=0.01$ g m⁻² s⁻¹. No forward was run for this document.
 - Exactly how the IPCW status and causes are derived from the event labels, beyond `scores.rs:280-358`.
 - The code of the incidence baseline.
 - The `flame8.rs` a0 parameters of the wsp13 baseline-set.
@@ -1810,19 +2068,27 @@ Positions are in **sample widths** $w$, measured from the upstream (igniter) edg
 
 With $U' = \max(U, u_{\min})$, $u_{\min}=0.1$ cm/s:
 
-$$u = \frac{U'}{u_{\mathrm{ref}}} - 1,\qquad c_{O_2} = \frac{X_{O_2} - o_{\mathrm{ref}}}{o_{\mathrm{scale}}},\qquad c_w = \ln r,\quad r = W/W_{\mathrm{ref}}$$
+```math
+u = \frac{U'}{u_{\mathrm{ref}}} - 1,\qquad c_{O_2} = \frac{X_{O_2} - o_{\mathrm{ref}}}{o_{\mathrm{scale}}},\qquad c_w = \ln r,\quad r = W/W_{\mathrm{ref}}
+```
 
 (`front.rs:382-386`), with $u_{\mathrm{ref}}=5$ cm/s, $o_{\mathrm{ref}}=0.19$, $o_{\mathrm{scale}}=0.02$ (`front.rs:197-200`).
 
 Each of the four laws (speed, over, burn, quench) is a one-hidden-layer hinge network of width 6 on $\mathbf c=(u,c_{O_2},c_w)$ (`nn.rs:69-84`, `front.rs:69-73`):
 
-$$N(\mathbf c) = b_0 + \mathbf{s}\cdot\mathbf c + \sum_{j=1}^{6} w_{2,j}\,\mathrm{relu}\!\left(b_{1,j} + W_{1,j}\cdot \mathbf c\right)$$
+```math
+N(\mathbf c) = b_0 + \mathbf{s}\cdot\mathbf c + \sum_{j=1}^{6} w_{2,j}\,\mathrm{relu}\!\left(b_{1,j} + W_{1,j}\cdot \mathbf c\right)
+```
 
 The laws are, with $o = X_{O_2}/o_{\mathrm{ref}}$ (`front.rs:387-395`):
 
-$$v = \max(N_{\mathrm{speed}}, v_{\min})\; o^{p_{v,0}}\, r^{p_{v,1}},\qquad h_{ss} = \max(N_{\mathrm{over}},0)\; o^{p_{h,0}}\, r^{p_{h,1}}$$
+```math
+v = \max(N_{\mathrm{speed}}, v_{\min})\; o^{p_{v,0}}\, r^{p_{v,1}},\qquad h_{ss} = \max(N_{\mathrm{over}},0)\; o^{p_{h,0}}\, r^{p_{h,1}}
+```
 
-$$\tau_b = e^{N_{\mathrm{burn}}},\qquad \lambda_q = e^{N_{\mathrm{quench}}}$$
+```math
+\tau_b = e^{N_{\mathrm{burn}}},\qquad \lambda_q = e^{N_{\mathrm{quench}}}
+```
 
 with $v_{\min}=0.001\ w/\mathrm{s}$ (`front.rs:202`).
 
@@ -1830,21 +2096,29 @@ with $v_{\min}=0.001\ w/\mathrm{s}$ (`front.rs:202`).
 
 D1 types no hidden unit for speed, over or burn, and no weight on $c_w$ anywhere (`d1-fable/edits.wsp:36-96`; `release.json` per-tensor nonzero counts: `speed.W1` 0, `over.W1` 0, `burn.W1` 0, `quench.W1` 3, all in columns 0 and 1). Substituting the typed values:
 
-$$v = (0.0535 + 0.032\,u)\, o^{1.5}\, r^{-1} = (0.0215 + 0.0064\,U')\, o^{1.5}\, r^{-1}\quad [w/\mathrm{s}]$$
+```math
+v = (0.0535 + 0.032\,u)\, o^{1.5}\, r^{-1} = (0.0215 + 0.0064\,U')\, o^{1.5}\, r^{-1}\quad [w/\mathrm{s}]
+```
 
 The floor $v_{\min}$ never binds for D1: the smallest network value is $0.0535+0.032\cdot(-0.98)=0.0221$.
 
-$$h_{ss} = (0.325 + 0.325\,u)\, o^{3}\, r^{-1} = 0.065\,U'\, o^{3}\, r^{-1}\quad [w]$$
+```math
+h_{ss} = (0.325 + 0.325\,u)\, o^{3}\, r^{-1} = 0.065\,U'\, o^{3}\, r^{-1}\quad [w]
+```
 
-$$\tau_b = e^{1.84} = 6.30\ \mathrm{s}\quad\text{(constant in flow, oxygen and width)}$$
+```math
+\tau_b = e^{1.84} = 6.30\ \mathrm{s}\quad\text{(constant in flow, oxygen and width)}
+```
 
-The quench hazard has two hidden units (`d1-fable/edits.wsp:84-96`). Since $5u = U'-5$, unit 0 reads $\mathrm{relu}(U_q - U')$ with $U_q = 2.27 - 1.33\,c_{O_2}$:
+The quench hazard has two hidden units (`d1-fable/edits.wsp:84-96`). Since $5u = U'-5$, unit 0 reads $\mathrm{relu}(U_q - U')$ with $`U_q = 2.27 - 1.33\,c_{O_2}`$:
 
-$$\ln\lambda_q = -7 + 2.5\,\mathrm{relu}\!\left(2.27 - 1.33\,c_{O_2} - U'\right) + 12\,\mathrm{relu}\!\left(-0.9 - c_{O_2}\right)\quad[\ln(1/\mathrm{s})]$$
+```math
+\ln\lambda_q = -7 + 2.5\,\mathrm{relu}\!\left(2.27 - 1.33\,c_{O_2} - U'\right) + 12\,\mathrm{relu}\!\left(-0.9 - c_{O_2}\right)\quad[\ln(1/\mathrm{s})]
+```
 
 The three terms:
 
-- Far from the boundary, $\lambda_q=e^{-7}=9.1\times10^{-4}\,\mathrm{s^{-1}}$.
+- Far from the boundary, $`\lambda_q=e^{-7}=9.1\times10^{-4}\,\mathrm{s^{-1}}`$.
 - Each cm/s below the quench velocity $U_q$ adds 2.5 to $\ln\lambda_q$.
 - Below $X_{O_2}=0.172$, each 0.02 of oxygen adds 12.
 
@@ -1852,13 +2126,19 @@ This is a piecewise-exponential hazard. There is no Weibull and no separate igni
 
 #### 1.4 The law path (prefix-free, from igniter-on)
 
-The path is integrated on the grid $t_i = t_0 + i\,\Delta t$, $\Delta t = 0.25$ s (`front.rs:206`). There are $n=\lceil (t_{\max}-t_0)/\Delta t\rceil\vee 1 + 1$ steps, with $x_0=h_0=\Lambda_0=0$ (`front.rs:580-588`). The laws are evaluated at the midpoint $t_m=t_i+\Delta t/2$, at the flow in force there. The flow is a right-continuous step function, $U(t)$ = the last entry with start $\le t$ (`front.rs:500-503`).
+The path is integrated on the grid $`t_i = t_0 + i\,\Delta t`$, $\Delta t = 0.25$ s (`front.rs:206`). There are $n=\lceil (t_{\max}-t_0)/\Delta t\rceil\vee 1 + 1$ steps, with $x_0=h_0=\Lambda_0=0$ (`front.rs:580-588`). The laws are evaluated at the midpoint $t_m=t_i+\Delta t/2$, at the flow in force there. The flow is a right-continuous step function, $U(t)$ = the last entry with start $\le t$ (`front.rs:500-503`).
 
-$$g(t_m)=\begin{cases}0 & t_m < t_0 + \text{ign.delay}\\ \text{ign.gain} & t_m < 0\\ 1 & \text{otherwise}\end{cases}\qquad(\texttt{front.rs:592-598})$$
+```math
+g(t_m)=\begin{cases}0 & t_m < t_0 + \text{ign.delay}\\ \text{ign.gain} & t_m < 0\\ 1 & \text{otherwise}\end{cases}\qquad(\texttt{front.rs:592-598})
+```
 
-$$x_{i+1} = x_i + g\,v\,\Delta t,\qquad h_{i+1} = \begin{cases} h_{ss} + (h_i - h_{ss})\,e^{-\Delta t/\tau_h} & g>0\\ h_i & g=0\end{cases}$$
+```math
+x_{i+1} = x_i + g\,v\,\Delta t,\qquad h_{i+1} = \begin{cases} h_{ss} + (h_i - h_{ss})\,e^{-\Delta t/\tau_h} & g>0\\ h_i & g=0\end{cases}
+```
 
-$$\Lambda_{i+1} = \Lambda_i + \lambda_q\,\Delta t\;\mathbf 1[t_m\ge 0]\qquad(\texttt{front.rs:599-605})$$
+```math
+\Lambda_{i+1} = \Lambda_i + \lambda_q\,\Delta t\;\mathbf 1[t_m\ge 0]\qquad(\texttt{front.rs:599-605})
+```
 
 $X(t)$, $H(t)$ and $\Lambda(t)$ are read by linear interpolation. Times outside the grid are clamped to its ends, so $X(t)=0$ for $t\le t_0$ (`front.rs:484-488`).
 
@@ -1870,37 +2150,51 @@ The prefix is the tip and base stills with $0\le t\le \tau$, where $\tau$ is the
 
 1. **Windows.** Let $t_f$ and $t_l$ be the first and last still. The windows are $[t_f, t_f+4]$ and $[t_l-4, t_l]$ (`enc.end_s` = 4 s), each reduced to its mean time and mean value (`front.rs:506-517, 628-632`). The late window gives $(t_e, p_e)$ and the early one $(t_a, p_a)$. The span is $\Delta = t_e - t_a$.
 
-2. **Tip offset.** It is read only if $\Delta\ge 3$ s (`enc.min_span_s`) and $X(t_e)-X(t_a) > 10^{-9}$ (`front.rs:636-645`):
+2. **Tip offset.** It is read only if $\Delta\ge 3$ s (`enc.min_span_s`) and $X(t_e)-X(t_a) \gt10^{-9}$ (`front.rs:636-645`):
 
-$$e_{\mathrm{tip}} = \begin{cases}\ln\dfrac{(p_e - H(t_e)) - (p_a - H(t_a))}{X(t_e)-X(t_a)} & \text{numerator} > 0\\[4pt] -\text{e\_clip}_0 & \text{otherwise}\end{cases}$$
+```math
+e_{\mathrm{tip}} = \begin{cases}\ln\dfrac{(p_e - H(t_e)) - (p_a - H(t_a))}{X(t_e)-X(t_a)} & \text{numerator} > 0\\[4pt] -\text{e_clip}_0 & \text{otherwise}\end{cases}
+```
 
 3. **Base offset.** It needs both base windows, $b_e$ at $t_{be}$ and $b_a$ at $t_{ba}$, with $t_{be}-t_{ba}\ge 3$ s and a positive law advance. $\tau_b$ is evaluated at the flow of the *later base window*, not at the cutoff (`front.rs:646-663`):
 
-$$e_{\mathrm{base}} = \ln\frac{b_e - b_a}{X(t_{be}-\tau_b) - X(t_{ba}-\tau_b)}\quad(\text{or } -\text{e\_clip}_0 \text{ if } b_e\le b_a)$$
+```math
+e_{\mathrm{base}} = \ln\frac{b_e - b_a}{X(t_{be}-\tau_b) - X(t_{ba}-\tau_b)}\quad(\text{or } -\text{e_clip}_0 \text{ if } b_e\le b_a)
+```
 
    The base condition is checked only inside the tip condition $\Delta\ge 3$ s.
 
 4. **Mix.** The offsets are combined over those available (`front.rs:665-671, 693`):
 
-$$e_{\mathrm{obs}} = \frac{\sum_k m_k e_k}{\sum_k m_k},\qquad m=(0.8,\,0.2)$$
+```math
+e_{\mathrm{obs}} = \frac{\sum_k m_k e_k}{\sum_k m_k},\qquad m=(0.8,\,0.2)
+```
 
    If none is available, $e_{\mathrm{obs}}=0$.
 
 5. **Settled share.** Take $U_e$, the flow at $t_e$. Walking back from $t_e$, find the most recent flow entry with $|U-U_e|\ge 0.8$ cm/s (`enc.change_cm_s`). The flow last changed at $t_{\mathrm{ch}}$, the start of the entry after it, never earlier than $t_0$. If no entry differs, $t_{\mathrm{ch}}=t_0$ (`front.rs:677-684`). Then
 
-$$\text{settled} = \mathrm{clamp}\!\left(\frac{t_e - t_{\mathrm{ch}}}{10\,\mathrm{s}},0,1\right)\qquad(\texttt{front.rs:685})$$
+```math
+\text{settled} = \mathrm{clamp}\!\left(\frac{t_e - t_{\mathrm{ch}}}{10\,\mathrm{s}},0,1\right)\qquad(\texttt{front.rs:685})
+```
 
 6. **Gain, offset and spread** (`front.rs:686-694, 705`):
 
-$$G = \sigma\!\left(b_G + w_{G,0}\ln\frac{\max(\Delta,10^{-6})}{10} + w_{G,1}\,\text{settled}\right)\quad(G=0 \text{ if no offset is available})$$
+```math
+G = \sigma\!\left(b_G + w_{G,0}\ln\frac{\max(\Delta,10^{-6})}{10} + w_{G,1}\,\text{settled}\right)\quad(G=0 \text{ if no offset is available})
+```
 
-$$\ln E = \mathrm{clamp}\!\left(G\,e_{\mathrm{obs}},\;-\text{e\_clip}_0,\;\text{e\_clip}_1\right)$$
+```math
+\ln E = \mathrm{clamp}\!\left(G\,e_{\mathrm{obs}},\;-\text{e_clip}_0,\;\text{e_clip}_1\right)
+```
 
-$$s = \sqrt{G\,s_{\mathrm{floor}}^2 + (1-G)\,s_{\mathrm{pop}}^2 + (s_{\mathrm{far},0}\,c_{O_2})^2 + (s_{\mathrm{far},1}\,c_w)^2}$$
+```math
+s = \sqrt{G\,s_{\mathrm{floor}}^2 + (1-G)\,s_{\mathrm{pop}}^2 + (s_{\mathrm{far},0}\,c_{O_2})^2 + (s_{\mathrm{far},1}\,c_w)^2}
+```
 
 7. **Anchor.** $x_e = p_e - H(t_e)$, $h_e = H(t_e)$, $\sigma_x = \sigma_w$ (`front.rs:706-708`).
 
-For D1, $G=\sigma(-2.3 + 2.5\ln(\Delta/10) + 3.5\,\text{settled})$, and $E\in[e^{-0.7}, e^{0.7}]=[0.497, 2.014]$. For example, $\Delta=35$ s settled gives $G=0.987$.
+For D1, $`G=\sigma(-2.3 + 2.5\ln(\Delta/10) + 3.5\,\text{settled})`$, and $E\in[e^{-0.7}, e^{0.7}]=[0.497, 2.014]$. For example, $\Delta=35$ s settled gives $G=0.987$.
 
 **Without a tip still** (`front.rs:711-727`): $t_e=\tau$, $G=0$, $\ln E=0$, $s=\sqrt{s_{\mathrm{pop}}^2 + \text{far}^2}$, $x_e = X(\tau)$, $h_e = H(\tau)$ and $\sigma_x = \sigma_{x0}$. The front then starts at 0 at igniter-on.
 
@@ -1908,33 +2202,47 @@ For D1, $G=\sigma(-2.3 + 2.5\ln(\Delta/10) + 3.5\,\text{settled})$, and $E\in[e^
 
 For the uncut tip, at a forecast time $t\ge\tau$ (`front.rs:731-740`):
 
-$$A(t) = E\,\big(X(t) - X(t_e)\big),\qquad \mu(t) = x_e + A(t) + H(t)$$
+```math
+A(t) = E\,\big(X(t) - X(t_e)\big),\qquad \mu(t) = x_e + A(t) + H(t)
+```
 
-$$\mathrm{sd}(t) = \sqrt{\sigma_x^2 + \big(s\,A(t)\big)^2 + \big(\text{rel\_over}\,(H(t)-h_e)\big)^2 + \text{drift}^2\,\max(t-t_e,0)}$$
+```math
+\mathrm{sd}(t) = \sqrt{\sigma_x^2 + \big(s\,A(t)\big)^2 + \big(\text{rel_over}\,(H(t)-h_e)\big)^2 + \text{drift}^2\,\max(t-t_e,0)}
+```
 
 Lead is measured from $t_e$, the mean time of the last window, not from the cutoff. The run offset scales the law's *advance* only. The overhang $H(t)$ is carried unscaled.
 
-**Quantiles.** The levels default to $p\in\{0.05,0.25,0.5,0.75,0.95\}$ (`common.rs:14, 65-71`). Each quantile is Gaussian and cut at the sample end $L_w$ when its length is known (`front.rs:745-751`):
+**Quantiles.** The levels default to $`p\in\{0.05,0.25,0.5,0.75,0.95\}`$ (`common.rs:14, 65-71`). Each quantile is Gaussian and cut at the sample end $L_w$ when its length is known (`front.rs:745-751`):
 
-$$q_p(t) = \min\!\big(\mu(t) + \Phi^{-1}(p)\,\mathrm{sd}(t),\;L_w\big),\qquad \text{mean}(t)=\min(\mu(t),L_w)$$
+```math
+q_p(t) = \min\!\big(\mu(t) + \Phi^{-1}(p)\,\mathrm{sd}(t),\;L_w\big),\qquad \text{mean}(t)=\min(\mu(t),L_w)
+```
 
 **Base (median only)** (`front.rs:752-755`). $\tau_b$ is taken at the flow at $t$. The base is not cut at $L_w$, and no overhang is added:
 
-$$\text{base}(t) = \max\!\Big(0,\; x_e + E\,\big(X(t-\tau_b) - X(t_e)\big)\Big)$$
+```math
+\text{base}(t) = \max\!\Big(0,\; x_e + E\,\big(X(t-\tau_b) - X(t_e)\big)\Big)
+```
 
 **Quenched by $t$** (`front.rs:756`). The hazard is counted only after the cutoff, and the flame is assumed to exist at $\tau$:
 
-$$P_q(t) = 1 - \exp\!\big(-\max(\Lambda(t)-\Lambda(\tau),0)\big)$$
+```math
+P_q(t) = 1 - \exp\!\big(-\max(\Lambda(t)-\Lambda(\tau),0)\big)
+```
 
 **Reached the end** (`front.rs:757-775`). Take $t^\ast = \max(t-\text{linger}, t_e)$:
 
-$$P_{\mathrm{end}}(t) = \Phi\!\left(\frac{\mu(t^\ast) - L_w}{\mathrm{sd}(t^\ast)}\right)\quad(\text{a step if sd}=0;\ 0 \text{ if } L_w \text{ unknown})$$
+```math
+P_{\mathrm{end}}(t) = \Phi\!\left(\frac{\mu(t^\ast) - L_w}{\mathrm{sd}(t^\ast)}\right)\quad(\text{a step if sd}=0;\ 0 \text{ if } L_w \text{ unknown})
+```
 
    A running maximum over the forecast times, in time order, then makes $P_{\mathrm{end}}$ non-decreasing.
 
 **Event rows** in the metric artifact (`front.rs:974-980`). The fourth row, `unresolved_support`, is left at 0:
 
-$$\text{active}=(1-P_q)(1-P_{\mathrm{end}}),\quad \text{extinction}=P_q,\quad \text{reached\_end}=(1-P_q)P_{\mathrm{end}}$$
+```math
+\text{active}=(1-P_q)(1-P_{\mathrm{end}}),\quad \text{extinction}=P_q,\quad \text{reached_end}=(1-P_q)P_{\mathrm{end}}
+```
 
 **What is emitted.** In sample widths on the track route (`Forecast`, `front.rs:459-471`): tip quantiles, mean, base median, `p_quenched`, `p_reached_end`, and the encoder diagnostics ($E$, $G$, offsets, laws at the cutoff). The metric route multiplies positions by $W$ (`front.rs:970-1001`).
 
@@ -1945,8 +2253,8 @@ $$\text{active}=(1-P_q)(1-P_{\mathrm{end}}),\quad \text{extinction}=P_q,\quad \t
 - $X_{O_2}\notin(0,1)$;
 - $r\le 0$ or $r$ not finite;
 - an empty or unsorted flow history, or one with negative or non-finite entries;
-- $t_0>0$;
-- $\tau<0$;
+- $t_0\gt0$;
+- $\tau\lt0$;
 - a forecast time outside $[\tau, \tau+600]$ s (`num.max_lead_s`).
 
 **Clamps and branches:**
@@ -1954,9 +2262,9 @@ $$\text{active}=(1-P_q)(1-P_{\mathrm{end}}),\quad \text{extinction}=P_q,\quad \t
 - $U'=\max(U,0.1)$;
 - $v\ge v_{\min}$;
 - $h_{ss}\ge 0$;
-- $\ln E$ clipped to $[-\text{e\_clip}_0, \text{e\_clip}_1]$;
-- a non-positive observed advance is set to $-\text{e\_clip}_0$;
-- the law advance must be $>10^{-9}$;
+- $\ln E$ clipped to $`[-\text{e_clip}_0, \text{e_clip}_1]`$;
+- a non-positive observed advance is set to $`-\text{e_clip}_0`$;
+- the law advance must be $\gt10^{-9}$;
 - the span must be $\ge$ 3 s;
 - the settled share lies in $[0,1]$;
 - quantiles are cut at $L_w$;
@@ -1993,7 +2301,7 @@ Spec bounds and descriptions: `front.rs:92-207`. D1 values: `d1-fable/edits.wsp:
 | $\mathbf s_h$ | `over.skip[0:3]` | linear part | [0.325, 0, 0] | [0, 0, 0] | w |
 | $p_{h,0},p_{h,1}$ | `over.pow[0:2]` | powers of $o$ and $r$ in $h_{ss}$ | [3.0, −1.0] | [0, 0] | 1 |
 | $\tau_h$ | `over.tau_s` | overhang relaxation time | 2.0 | 2.0 | s |
-| $b_{0,b}$ | `burn.b0` | $\ln\tau_b$ | 1.84 ($\tau_b$=6.30 s) | 1.79 ($\tau_b$=5.99 s) | ln s |
+| $b_{0,b}$ | `burn.b0` | $\ln\tau_b$ | 1.84 ($`\tau_b`$=6.30 s) | 1.79 ($`\tau_b`$=5.99 s) | ln s |
 | $\mathbf s_b$ | `burn.skip[0:3]` | linear part | [0, 0, 0] | [0, 0, 0] | ln s |
 | $b_{0,q}$ | `quench.b0` | $\ln\lambda_q$ at the reference | −7.0 | −40.0 | ln(1/s) |
 | $\mathbf s_q$ | `quench.skip[0:3]` | linear part | [0, 0, 0] | [0, 0, 0] | ln(1/s) |
@@ -2012,7 +2320,7 @@ Spec bounds and descriptions: `front.rs:92-207`. D1 values: `d1-fable/edits.wsp:
 | $\sigma_w$ | `unc.sigma_w` | tip sd at the cutoff | 0.04 | 0.04 | w |
 | $\sigma_{x0}$ | `unc.sigma_x0_w` | tip sd without stills | 0.3 | 1.0 | w |
 | rel_over | `unc.rel_over` | sd share of the overhang change | 0.5 | 0 | 1 |
-| drift | `unc.drift_w` | drift sd | 0.01 | 0.01 | w s$^{-1/2}$ |
+| drift | `unc.drift_w` | drift sd | 0.01 | 0.01 | w s$`^{-1/2}`$ |
 | $u_{\mathrm{ref}}$ | `norm.u_ref_cm_s` (constant) | flow reference | 5.0 | 5.0 | cm/s |
 | $u_{\min}$ | `norm.u_min_cm_s` (constant) | lowest flow evaluated | 0.1 | 0.1 | cm/s |
 | $o_{\mathrm{ref}}$, $o_{\mathrm{scale}}$ | `norm.o2_ref`, `norm.o2_scale` (constants) | oxygen reference and scale | 0.19, 0.02 | same | 1 |
@@ -2035,16 +2343,16 @@ Scorer: *research repo* `crates/ignis-wsp-dev/src/front.rs`. It is not in `ignis
 
 **Per-target scores** (`dev/front.rs:637-649`):
 
-- CRPS from the five quantiles, $\mathrm{CRPS}=2\sum_k \tfrac{\tau_{k+1}-\tau_{k-1}}{2}\,\rho_{\tau_k}(y-q_k)$ with $\tau_0=0$, $\tau_6=1$ and the pinball $\rho_\tau(y-q)=(\tau-\mathbf 1[y<q])(y-q)$ (*research repo* `crates/ignis-lab/src/eval/scores.rs:55-57, 74-88`);
+- CRPS from the five quantiles, $`\mathrm{CRPS}=2\sum_k \tfrac{\tau_{k+1}-\tau_{k-1}}{2}\,\rho_{\tau_k}(y-q_k)`$ with $\tau_0=0$, $\tau_6=1$ and the pinball $\rho_\tau(y-q)=(\tau-\mathbf 1[y\lt q])(y-q)$ (*research repo* `crates/ignis-lab/src/eval/scores.rs:55-57, 74-88`);
 - absolute error of $q_{0.5}$;
 - coverage of $[q_{0.25},q_{0.75}]$ and $[q_{0.05},q_{0.95}]$, ends inclusive.
 
-**Track ended** (`dev/front.rs:663-669`). At $h\in\{10,20,30,45,60\}$ s the forecast is $1-(1-P_q)(1-P_{\mathrm{end}})$, scored by Brier against the observation:
+**Track ended** (`dev/front.rs:663-669`). At $`h\in\{10,20,30,45,60\}`$ s the forecast is $1-(1-P_q)(1-P_{\mathrm{end}})$, scored by Brier against the observation:
 
 - `extinction` or `left_view` with $t_{\mathrm{end}}\le\tau+h$ counts as 1;
 - `lost` or `record_end` before $\tau+h$ is censored (`dev/front.rs:159-167`).
 
-**Ignition outcome** (`dev/front.rs:679-698`). The forecast is $P_q(20\,\mathrm s)$ from cutoff 0 with no stills, against `end.kind == no_spread`. For D1 this is $1-\exp(-\int_0^{20}\lambda_q)$. Worked example from the formula above: at 16.4 % O₂ and 6 cm/s, $\ln\lambda_q=-7+12\cdot0.4=-2.2$, which gives $P_q(20)=0.89$.
+**Ignition outcome** (`dev/front.rs:679-698`). The forecast is $`P_q(20\,\mathrm s)`$ from cutoff 0 with no stills, against `end.kind == no_spread`. For D1 this is $1-\exp(-\int_0^{20}\lambda_q)$. Worked example from the formula above: at 16.4 % O₂ and 6 cm/s, $\ln\lambda_q=-7+12\cdot0.4=-2.2$, which gives $P_q(20)=0.89$.
 
 ---
 
@@ -2052,14 +2360,18 @@ Scorer: *research repo* `crates/ignis-wsp-dev/src/front.rs`. It is not in `ignis
 
 Same forward, `front.rs`. Substituting `baseline-persistence/edits.wsp` (spec constants as in D1):
 
-- **Laws:** $v=0.05$ w/s at every flow, oxygen and width (all powers 0; the floor is irrelevant). $h_{ss}=0$, so $H\equiv0$ and the tip is the front. $\tau_b=e^{1.79}=5.99$ s. $\lambda_q=e^{-40}=4.2\times10^{-18}\,\mathrm{s^{-1}}$, so $P_q\approx0$.
-- **Path:** $X(t)=0.05\,(t-t_0)$ (`ign.gain` = 1, delay 0).
+- **Laws:** $v=0.05$ w/s at every flow, oxygen and width (all powers 0; the floor is irrelevant). $h_{ss}=0$, so $H\equiv0$ and the tip is the front. $\tau_b=e^{1.79}=5.99$ s. $`\lambda_q=e^{-40}=4.2\times10^{-18}\,\mathrm{s^{-1}}`$, so $P_q\approx0$.
+- **Path:** $`X(t)=0.05\,(t-t_0)`$ (`ign.gain` = 1, delay 0).
 - **Gain:** $G=\sigma(10)=0.99995$ whenever the tip offset exists. The mix $[1,0]$ means the base is never used.
-- **Run offset:** $\ln E=\mathrm{clamp}(G\ln\frac{p_e-p_a}{0.05\,\Delta},-3,3)$, or $-3$ if $p_e\le p_a$. For the usual case where the stills are after igniter-off, so $X(t_e)-X(t_a)=0.05\Delta$:
+- **Run offset:** $`\ln E=\mathrm{clamp}(G\ln\frac{p_e-p_a}{0.05\,\Delta},-3,3)`$, or $-3$ if $p_e\le p_a$. For the usual case where the stills are after igniter-off, so $X(t_e)-X(t_a)=0.05\Delta$:
 
-$$\mu(t) \approx p_e + \frac{p_e - p_a}{\Delta}\,(t - t_e)\qquad\text{(exponent } G=0.99995 \text{ on the ratio, not exactly 1)}$$
+```math
+\mu(t) \approx p_e + \frac{p_e - p_a}{\Delta}\,(t - t_e)\qquad\text{(exponent } G=0.99995 \text{ on the ratio, not exactly 1)}
+```
 
-$$\mathrm{sd}(t)=\sqrt{0.04^2 + (s\,A)^2 + 0.01^2\,(t-t_e)},\qquad s=\sqrt{G\cdot0.15^2+(1-G)\cdot0.5^2}\approx0.15$$
+```math
+\mathrm{sd}(t)=\sqrt{0.04^2 + (s\,A)^2 + 0.01^2\,(t-t_e)},\qquad s=\sqrt{G\cdot0.15^2+(1-G)\cdot0.5^2}\approx0.15
+```
 
 - **Without stills:** $\mu=0.05(\tau-t_0)+0.05(t-\tau)$, $s=0.5$, $\sigma_x=1.0$.
 - **Unchanged:** quantile cut at $L_w$, `linger` = 5 s and the $P_{\mathrm{end}}$ rule.
@@ -2075,27 +2387,39 @@ $$\mathrm{sd}(t)=\sqrt{0.04^2 + (s\,A)^2 + 0.01^2\,(t-t_e)},\qquad s=\sqrt{G\cdo
 
 **Boundary law.** The quench hazard is replaced by a boundary law. Indices: $m$ is the material (0 SIBAL, 1 PMMA 1 mm) and $d$ the direction (0 concurrent, 1 opposed); $p$ is in atm. The width is in cm: $W=r\cdot0.022\cdot100$ (`front5.rs:614-616`). The limit is computed in `front5.rs:668-697`:
 
-$$U_e=\begin{cases}\sqrt{U^2+u_s[m]^2}&\text{concurrent}\\ U+u_s[m]&\text{opposed}\end{cases},\qquad A = a_r[m,d] + \frac{a_w[m]}{W}$$
+```math
+U_e=\begin{cases}\sqrt{U^2+u_s[m]^2}&\text{concurrent}\\ U+u_s[m]&\text{opposed}\end{cases},\qquad A = a_r[m,d] + \frac{a_w[m]}{W}
+```
 
-$$X_{\lim}(U) = x_0[m] + c_p[m]\ln\frac1p + s_b[m,d]\,U_e + \frac{A}{p\,U_e}$$
+```math
+X_{\lim}(U) = x_0[m] + c_p[m]\ln\frac1p + s_b[m,d]\,U_e + \frac{A}{p\,U_e}
+```
 
-$$s^2 = \sigma_{x0}^2 + (\sigma_{cp}\ln\tfrac1p)^2 + (\sigma_{sb}U_e)^2 + \frac{\sigma_{ar}^2 + (\sigma_{aw}/W)^2}{(pU_e)^2},\qquad P_{\mathrm{sus}}=\Phi\!\left(\frac{X-X_{\lim}}{s}\right)$$
+```math
+s^2 = \sigma_{x0}^2 + (\sigma_{cp}\ln\tfrac1p)^2 + (\sigma_{sb}U_e)^2 + \frac{\sigma_{ar}^2 + (\sigma_{aw}/W)^2}{(pU_e)^2},\qquad P_{\mathrm{sus}}=\Phi\!\left(\frac{X-X_{\lim}}{s}\right)
+```
 
 The limit is refused if $U_e\le 0$.
 
 Over 41 equal-probability normal nodes $e_k$ with $w_k=1/41$, one node per burn and the same node at every time (`front5.rs:1040-1042, 713-723`):
 
-$$\text{lit}_k = w_k\,\Phi\!\left(\frac{X - X_{\lim}(U_{\mathrm{ign}}) - d_x[m] - s(U_{\mathrm{ign}})e_k}{\sigma_a}\right)\Phi\!\left(\frac{\ln(t_{\mathrm{on}}/t_{\mathrm{req}}[m])}{\sigma_{\ln t}}\right)$$
+```math
+\text{lit}_k = w_k\,\Phi\!\left(\frac{X - X_{\lim}(U_{\mathrm{ign}}) - d_x[m] - s(U_{\mathrm{ign}})e_k}{\sigma_a}\right)\Phi\!\left(\frac{\ln(t_{\mathrm{on}}/t_{\mathrm{req}}[m])}{\sigma_{\ln t}}\right)
+```
 
-$$\text{rate}_k = \left(\frac{w_r}{\tau[m,0]}+\frac{1-w_r}{\tau[m,1]}\right)\Phi\!\left(-\frac{X-X_{\lim}(U(t))-s(U(t))e_k}{\text{ext.width}}\right)$$
+```math
+\text{rate}_k = \left(\frac{w_r}{\tau[m,0]}+\frac{1-w_r}{\tau[m,1]}\right)\Phi\!\left(-\frac{X-X_{\lim}(U(t))-s(U(t))e_k}{\text{ext.width}}\right)
+```
 
-$$w_r=\frac{r_A}{r_A+b},\quad r_A=\max\!\left(\frac{A}{pU_e},0\right),\quad b=s_b U_e\quad(w_r=\tfrac12 \text{ if } r_A+b=0)$$
+```math
+w_r=\frac{r_A}{r_A+b},\quad r_A=\max\!\left(\frac{A}{pU_e},0\right),\quad b=s_b U_e\quad(w_r=\tfrac12 \text{ if } r_A+b=0)
+```
 
 $\Lambda_k$ is integrated exactly on the flow steps from igniter-off (`front5.rs:949-998`).
 
 **Event probabilities** (`front5.rs:1044-1080`):
 
-- With no flame in the prefix: $P_{\mathrm{alive}}=\sum_k\text{lit}_k e^{-\Lambda_k}$.
+- With no flame in the prefix: $`P_{\mathrm{alive}}=\sum_k\text{lit}_k e^{-\Lambda_k}`$.
 - With a flame seen at $t_c$, the time of the last prefix tip still (`front5.rs:1176-1182`): the nodes are reweighted, $\pi_k\propto w_k\Phi(\cdot)e^{-\Lambda_k(t_c)}$, and $P_{\mathrm{alive}}(t)=\sum_k\pi_k e^{-\max(\Lambda_k(t)-\Lambda_k(t_c),0)}/\sum\pi_k$.
 - In both cases $P_{\mathrm{alive}}$ is clipped at 1, and the forward reports $P_q=1-P_{\mathrm{alive}}$ (`front5.rs:1380`). With no flame in the prefix this includes "never lit".
 - For an opposed flow or for PMMA, only the events are returned and the tip is refused (`front5.rs:1183-1203`).
@@ -2128,9 +2452,11 @@ $\Lambda_k$ is integrated exactly on the flow steps from igniter-off (`front5.rs
 
 **`front3.rs`.** This forward is `front2.rs`, whose additions are all switched off in these releases (`speed.split`=0, `speed.kappa`=0, `over.tau_up_s`=0, flow paths `unc.flow_w`=[0,1,0]; `front3/r1-astra/patch.json`), plus an oxygen-supply speed (`front3.rs:110-126`):
 
-$$Y=\frac{X M_{O_2}}{X M_{O_2}+(1-X)M_c},\quad \mathcal A=\frac{n_f\rho Y}{m''\,\nu_s},\quad v_{\mathrm{SI}} = \tfrac12\mathcal A^2\nu\,t_r\,U + \sqrt{\left(\tfrac12\mathcal A^2\nu\,t_r\,U\right)^2 + (\mathcal A\alpha)^2}$$
+```math
+Y=\frac{X M_{O_2}}{X M_{O_2}+(1-X)M_c},\quad \mathcal A=\frac{n_f\rho Y}{m''\,\nu_s},\quad v_{\mathrm{SI}} = \tfrac12\mathcal A^2\nu\,t_r\,U + \sqrt{\left(\tfrac12\mathcal A^2\nu\,t_r\,U\right)^2 + (\mathcal A\alpha)^2}
+```
 
-Here $U$ is in m/s and $\nu_s$ is the stoichiometric O₂/fuel mass ratio. The speed is divided by $0.022\,r$ to give w/s (`front3.rs:594-606`).
+Here $U$ is in m/s and $\nu_s$ is the stoichiometric O₂/fuel mass ratio. The speed is divided by $`0.022\,r`$ to give w/s (`front3.rs:594-606`).
 
 The joint values (r1 → joint) are:
 
@@ -2182,9 +2508,9 @@ With $o=0.21/0.19$, $o^{1.5}=1.162$ and $o^3=1.350$:
 
 The last column is the time to cross 2.315 w at the law speed, overhang ignored.
 
-**Quench.** At 21 % O₂ ($c_{O_2}=1$), $U_q=0.94$ cm/s, far below 20 cm/s, so both units are off. $\lambda_q=e^{-7}$ and $P_q(60\,\mathrm s)=1-e^{-60e^{-7}}=0.053$ after the cutoff.
+**Quench.** At 21 % O₂ ($c_{O_2}=1$), $U_q=0.94$ cm/s, far below 20 cm/s, so both units are off. $\lambda_q=e^{-7}$ and $`P_q(60\,\mathrm s)=1-e^{-60e^{-7}}=0.053`$ after the cutoff.
 
-**Spread.** $\text{far}^2=(0.06\cdot1)^2+(0.25\cdot2.915)^2=0.535$, so $s=0.734$ at $G=1$ and $0.773$ at $G=0$. A 2 cm strip in the same oxygen has $s=0.085$. The run-offset term of the tip sd is $\approx0.73\,A(t)$ at the sheet whatever the prefix says, and $E$ itself stays bounded in $[0.497, 2.014]$. The forward accepts any positive $r$ (`front.rs:528-533`). At 18.5 every width term is an extrapolation from two classes (0.55 and 1).
+**Spread.** $\text{far}^2=(0.06\cdot1)^2+(0.25\cdot2.915)^2=0.535$, so $s=0.734$ at $G=1$ and $0.773$ at $G=0$. A 2 cm strip in the same oxygen has $s=0.085$. The run-offset term of the tip sd is $`\approx0.73\,A(t)`$ at the sheet whatever the prefix says, and $E$ itself stays bounded in $[0.497, 2.014]$. The forward accepts any positive $r$ (`front.rs:528-533`). At 18.5 every width term is an extrapolation from two classes (0.55 and 1).
 
 **Result.** From *research repo* `docs/wsp/feedback/saffire-transfer/results/README.md`, read as aggregates only: on the two wide concurrent sheets, 8 cases, D1 tip CRPS was 0.058 w against persistence 0.250. D1 was lower on 2 of 2 burns. Its 50 %/90 % coverage was 0.93/1.00, so the bands were wider than needed. This fits the inflated $s$ above, but the report does not attribute the coverage to that term. Persistence uses no width at all.
 
@@ -2194,11 +2520,11 @@ The last column is the time to cross 2.315 w at the law speed, overhang ignored.
 
 This is a metric contour forecast on a transverse coordinate $\xi\in[0,1]$ with $K=4$ cosine modes, $\phi_0=1$ and $\phi_m=\sqrt2\cos(m\pi\xi)$ (`bass.rs:152-159`):
 
-- $a_m=\int f\phi_m\,d\xi$ by the trapezoid rule (`bass.rs:161-169`).
+- $`a_m=\int f\phi_m\,d\xi`$ by the trapezoid rule (`bass.rs:161-169`).
 - $v_m$ is the finite difference of the window means over the last two windows, each spanning 0.34 of the prefix (`bass.rs:339-362`).
 - Propagation (`bass.rs:236-241`): $a_m(t_n+D)=a_m e^{-\delta_m D} + g_m v_m T_m(1-e^{-D/T_m})$.
 - The unresolved residual of the last contour is carried unchanged.
-- The mean front is $\int f\,d\xi$, with sd $\sqrt{\sigma^2 + (\text{rel}_v\,|g_0 v_0| + \sigma_v)^2 D^2}$ and Gaussian quantiles (`bass.rs:385-388, 403-415`).
+- The mean front is $`\int f\,d\xi`$, with sd $`\sqrt{\sigma^2 + (\text{rel}_v\,|g_0 v_0| + \sigma_v)^2 D^2}`$ and Gaussian quantiles (`bass.rs:385-388, 403-415`).
 
 The forecast is refused for pixel-only (uncalibrated) contours, for fewer than 4 usable contours, or for a lead over 60 s.
 
@@ -2260,44 +2586,46 @@ Tensors of the spec (`law.rs:374-509`). For each feature: `x.<f>.centre`, `x.<f>
 
 For feature $i$ with raw SI value $x_i$ (read from a resolved, finite prefix condition: `common.rs:50-62`) and typed $c_i,s_i,\ell_i,h_i$ (`law.rs:690-737`):
 
-$$
+```math
 z_i=\begin{cases}(x_i-c_i)/s_i & \text{identity}\\ \ln(x_i/c_i)/s_i & \text{ln}\\ (1/x_i-1/c_i)/s_i & \text{reciprocal}\end{cases}\qquad\text{admitted only if } \ell_i\le x_i\le h_i
-$$
+```
 
 (`law.rs:8-9`, `714-736`). The reasons for refusal are collected for every feature together (`law.rs:747-749`), under the gate `Condition` (`law.rs:994-1003`).
 
 #### A.3 The network of every law
 
-$$
+```math
 N(z)=b_0+\sum_{i}\mathrm{skip}_i\,z_i+\sum_{j=0}^{7}w2_j\,\operatorname{relu}\!\Big(b1_j+\sum_i W1_{ji}\,z_i\Big)
-$$
+```
 
 (`law.rs:10`, `657-671`; `crates/ignis-wsp/src/nn.rs:69-84`). With zero features, $N=b_0$ (`law.rs:658-660`). A hinge unit whose `w2` is zero does not contribute, even when its `W1` and `b1` are typed. Several releases below carry such inert rows, which are inherited from parents.
 
 #### A.4 Positive target: a two-component log-normal mixture of one median
 
-$$
+```math
 m=N_{\text{median}}(z),\qquad s=N_{\text{spread}}(z)>0,\qquad
 F(y)=(1-w)\,\Phi\!\Big(\frac{\ln y-m}{s}\Big)+w\,\Phi\!\Big(\frac{\ln y-m}{k s}\Big)
-$$
+```
 
 (`law.rs:11-12`, `1007-1019`; `docs/wsp/research/law_forward.md:113-120`). The quantile at level $p$ is $q_p=\exp(m+Q_p)$, where $Q_p$ solves $(1-w)\Phi(Q/s)+w\Phi(Q/(ks))=p$ (`law.rs:757-780`, `1029-1032`):
 
-$$
+```math
 Q_p=\begin{cases}s\,\Phi^{-1}(p) & w=0\ \text{or}\ k=1\\ k s\,\Phi^{-1}(p) & w=1\\ \text{200-step bisection on }[\min,\max](s\Phi^{-1}(p),\,ks\Phi^{-1}(p)) & \text{otherwise}\end{cases}
-$$
+```
 
 The mean is reported when finite (`law.rs:1039-1040`):
 
-$$
+```math
 \mathbb E[Y]=e^{m}\big[(1-w)e^{s^2/2}+w\,e^{k^2s^2/2}\big]
-$$
+```
 
-$\Phi^{-1}$ is Acklam's rational approximation with relative error below $1.2\times10^{-9}$ (`crates/ignis-wsp/src/quad.rs:25-73`), and $\Phi(x)=\tfrac12\operatorname{erfc}(-x/\sqrt2)$ (`quad.rs:76-78`). The default levels are $p\in\{0.05,0.25,0.5,0.75,0.95\}$ (`common.rs:14`, `64-71`). The release's uncertainty kind is `assumed_noise`: the spread tensors are the author's statement (`law.rs:1188`, `law_tools.rs:55-59`).
+$\Phi^{-1}$ is Acklam's rational approximation with relative error below $1.2\times10^{-9}$ (`crates/ignis-wsp/src/quad.rs:25-73`), and $\Phi(x)=\tfrac12\operatorname{erfc}(-x/\sqrt2)$ (`quad.rs:76-78`). The default levels are $`p\in\{0.05,0.25,0.5,0.75,0.95\}`$ (`common.rs:14`, `64-71`). The release's uncertainty kind is `assumed_noise`: the spread tensors are the author's statement (`law.rs:1188`, `law_tools.rs:55-59`).
 
 #### A.5 Binary target
 
-$$P(\text{yes})=\sigma\big(N_{\text{logit}}(z)\big)$$
+```math
+P(\text{yes})=\sigma\big(N_{\text{logit}}(z)\big)
+```
 
 (`law.rs:13`, `1051-1062`; `nn.rs:44-51`). The artifact carries $(P,1-P)$ as categories `yes` and `no` (`law.rs:1207-1210`).
 
@@ -2305,25 +2633,25 @@ $$P(\text{yes})=\sigma\big(N_{\text{logit}}(z)\big)$$
 
 The kernel's clocks are log-logistic, not Weibull. It returns cumulative incidence per cause; it does not return a hazard or a survival curve as the artifact (`law.rs:14-15`, `782-864`, `1064-1150`; `law_forward.md:129-158`). For each cause $c$, with $\tau_c=\exp N_c(z)$ and the scalar shape $k_c$:
 
-$$
+```math
 S_c(t)=\frac{1}{1+(t/\tau_c)^{k_c}},\qquad
 \ln S(t)=-\sum_c \operatorname{sp}\!\big(k_c(\ln t-\ln\tau_c)\big),\qquad
 h_c(t)=\frac{k_c}{t}\,\sigma\!\big(k_c(\ln t-\ln\tau_c)\big)
-$$
+```
 
-(`law.rs:789-807`; the declared meaning of the shape is $\operatorname{sd}(\ln T)=\pi/(k_c\sqrt3)$, `law.rs:495`). Conditioned on no event before the cutoff $\tau$ (`prefix.cutoff_s`) and with a stop $t_s>\tau$:
+(`law.rs:789-807`; the declared meaning of the shape is $\operatorname{sd}(\ln T)=\pi/(k_c\sqrt3)$, `law.rs:495`). Conditioned on no event before the cutoff $\tau$ (`prefix.cutoff_s`) and with a stop $t_s\gt\tau$:
 
-$$
+```math
 \text{active}(t)=\frac{S(t)}{S(\tau)}\ (t<t_s),\qquad
 F_c(t)=\frac{1}{S(\tau)}\int_\tau^{\min(t,t_s)} h_c(u)\,S(u)\,du,\qquad
-\text{scheduled\_stop}(t)=\frac{S(t_s)}{S(\tau)}\ (t\ge t_s)
-$$
+\text{scheduled_stop}(t)=\frac{S(t_s)}{S(\tau)}\ (t\ge t_s)
+```
 
 The numerical form (`law.rs:811-864`) works as follows. Each requested interval up to $\min(t_j,t_s)$ is cut into $n=512$ equal steps (`num.substeps`). Over a step the exact survival loss $\Delta=S(u_0)-S(u_1)$ is computed, with $S(u)=\min(1,e^{\ln S(u)-\ln S(\tau)})$ held monotone. That loss is shared among the causes in proportion to $h_c$ at the step midpoint, or equally if the total hazard is 0 (`law.rs:836-851`).
 
 The stop (`law.rs:923-934`, `1094-1141`):
 - The control stop $t_\text{ctl}$ is the earliest `t_start_s` of a known control named `scheduled_stop` or `flow_stop`.
-- Suppose the declaration names a stop condition $C$ (resolved, finite, $>0$) and $W=\sum_{k:\,w_k>0}w_k>0$, with $w_k$ = `offset_w[k]`. Then the table is a mixture over the passes $k$ with $w_k>0$, each weighted $w_k/W$ and run with stop $\min(t_\text{ctl},\,C+\text{offset\_s}[k])$.
+- Suppose the declaration names a stop condition $C$ (resolved, finite, $\gt0$) and $`W=\sum_{k:\,w_k\gt0}w_k\gt0`$, with $w_k$ = `offset_w[k]`. Then the table is a mixture over the passes $k$ with $w_k\gt0$, each weighted $w_k/W$ and run with stop $`\min(t_\text{ctl},\,C+\text{offset_s}[k])`$.
 - Otherwise there is one pass of weight 1 with stop $t_\text{ctl}$, or no stop at all.
 
 The rows sum to one at every time (`law_forward.md:147`).
@@ -2333,13 +2661,13 @@ The rows sum to one at every time (`law_forward.md:147`).
 | condition | outcome | lines |
 |---|---|---|
 | a release built with another forward hash | hard refusal `forward_mismatch` | `law.rs:947-962` |
-| feature tensors cannot define the transform ($\ell>h$, $s\le0$, ln centre $\le0$, reciprocal centre $=0$) | hard refusal `release_tensors` | `law.rs:694-703` |
+| feature tensors cannot define the transform ($\ell\gt h$, $s\le0$, ln centre $\le0$, reciprocal centre $=0$) | hard refusal `release_tensors` | `law.rs:694-703` |
 | release state `Failed` or `Unsupported`; prefix family ≠ spec family; unknown target | `Semantic` | `law.rs:963-986`, `904-921` |
-| cutoff not finite or $<0$ | `Horizon` | `law.rs:987-993` |
+| cutoff not finite or $\lt0$ | `Horizon` | `law.rs:987-993` |
 | condition missing, unresolved or non-finite; $x\notin[\ell,h]$; $x\le0$ under ln; $x=0$ under reciprocal; non-finite $z$ | `Condition` (all reasons listed) | `common.rs:50-62`, `law.rs:704-749` |
 | positive: $s\le0$ or non-finite, or $m$ non-finite | `Numerical` | `law.rs:1010-1015` |
 | positive: levels not strictly increasing in $(0,1)$ | `Semantic` | `law.rs:1021-1028` |
-| positive: a quantile not finite and $>0$ | `Numerical` | `law.rs:1033-1038` |
+| positive: a quantile not finite and $\gt0$ | `Numerical` | `law.rs:1033-1038` |
 | binary: non-finite logit | `Numerical` | `law.rs:1053-1058` |
 | event: non-finite clock | `Numerical` | `law.rs:1073-1078` |
 | event: neither `times_s` nor `horizon_s` given, or no time $\ge\tau$ | `Horizon` | `law.rs:1079-1093` |
@@ -2351,11 +2679,11 @@ Nothing is fitted at request time (`law_tools.rs:60-64`). What the form cannot e
 
 The forward emits quantiles, probabilities and cumulative-incidence rows. The scores are computed by the lane scorers (research repo):
 
-- **Quantile score ×2, equal weights** (SPICE, CLD radiometer, plastics). For SPICE: `research:tools/wsp/ext/spice_cases.py:140-146`, $\operatorname{QS}=\tfrac{2}{5}\sum_{k}\big(\tau_k-\mathbb 1[y<q_k]\big)(y-q_k)$. CLD uses the same form (`research:tools/wsp/ext/cld_cases.py:512-514`).
-- **Interval form** (plastics, where the outcome is the interval $[y_\text{lo},y_\text{hi}]$): $\tfrac25\sum_k \rho_{\tau_k}(q_k;[y_\text{lo},y_\text{hi}])$ with $\rho=\tau(y_\text{lo}-q)$ if $q<y_\text{lo}$, $(1-\tau)(q-y_\text{hi})$ if $q>y_\text{hi}$, and 0 inside the interval (`research:tools/wsp/ext/bass1_cases.py:641-651`).
-- **Quantile CRPS, trapezoid weights** (E-FIELD current, SAME-R $\ln d_{10}$): $2\sum_k\frac{\tau_{k+1}-\tau_{k-1}}{2}\,\rho_{\tau_k}(q_k,y)$ with $\tau_0=0$ and $\tau_{K+1}=1$ (`research:tools/wsp/ext/bre_cases.py:502-509`, `samer_cases.py:78-83`, `efield_cases.py:528-535`).
+- **Quantile score ×2, equal weights** (SPICE, CLD radiometer, plastics). For SPICE: `research:tools/wsp/ext/spice_cases.py:140-146`, $\operatorname{QS}=\tfrac{2}{5}\sum_{k}\big(\tau_k-\mathbb 1[y\lt q_k]\big)(y-q_k)$. CLD uses the same form (`research:tools/wsp/ext/cld_cases.py:512-514`).
+- **Interval form** (plastics, where the outcome is the interval $[y_\text{lo},y_\text{hi}]$): $\tfrac25\sum_k \rho_{\tau_k}(q_k;[y_\text{lo},y_\text{hi}])$ with $\rho=\tau(y_\text{lo}-q)$ if $q\lt y_\text{lo}$, $(1-\tau)(q-y_\text{hi})$ if $q\gt y_\text{hi}$, and 0 inside the interval (`research:tools/wsp/ext/bass1_cases.py:641-651`).
+- **Quantile CRPS, trapezoid weights** (E-FIELD current, SAME-R $\ln d_{10}$): $`2\sum_k\frac{\tau_{k+1}-\tau_{k-1}}{2}\,\rho_{\tau_k}(q_k,y)`$ with $\tau_0=0$ and $\tau_{K+1}=1$ (`research:tools/wsp/ext/bre_cases.py:502-509`, `samer_cases.py:78-83`, `efield_cases.py:528-535`).
 - **Brier**: $(p-y)^2$ (SLICE, SAME-R detector, plastics kept burning).
-- **IPCW Brier and integrated Brier** (BRE, CLD, E-FIELD events). At horizon $h$: $\frac1n\sum_i \hat G^{-1}\,(I_i-\hat F_i(h))^2$, with $\hat G$ the Kaplan–Meier censoring survival. The integrated Brier is the trapezoid mean over the horizons, $\frac{1}{h_K-h_1}\sum_i (h_i-h_{i-1})\frac{B_i+B_{i-1}}{2}$ (`research:tools/wsp/ext/transfer_acme.py:185-272`).
+- **IPCW Brier and integrated Brier** (BRE, CLD, E-FIELD events). At horizon $h$: $`\frac1n\sum_i \hat G^{-1}\,(I_i-\hat F_i(h))^2`$, with $\hat G$ the Kaplan–Meier censoring survival. The integrated Brier is the trapezoid mean over the horizons, $\frac{1}{h_K-h_1}\sum_i (h_i-h_{i-1})\frac{B_i+B_{i-1}}{2}$ (`research:tools/wsp/ext/transfer_acme.py:185-272`).
 
 For event targets the final list scores the sum over every declared cause (`research:tools/wsp/final/releases_final_gen7.json`, key `scoring`).
 
@@ -2377,11 +2705,11 @@ Built at `research:tools/wsp/ext/law_score.py:240-246`:
 
 The median and the quantiles are defined at `research:tools/wsp/ext/spice_cases.py:186-197` and `:47`:
 
-$$
+```math
 L_\text{LF}\,[\text{mm}]=\frac{\dot m\,[\text{mg/s}]\times10^{-3}}{4\pi\,\mu_\text{air}\,[\text{g m}^{-1}\text{s}^{-1}]\;Z_\text{st}}\times10^{3},
 \qquad
 q_p=L_\text{LF}\,e^{z_p\hat\sigma},\quad z_p\in\{-1.6449,-0.6745,0,0.6745,1.6449\}
-$$
+```
 
 - The docstring states it as Spalding / Lin & Faeth, "L/d = Re/(16 Zst) … ⇒ L = mdot/(4 pi mu Zst)", with unity coefficients (`spice_cases.py:191-192`).
 - $\dot m$ is `inputs_given_flow.mdot_jet_mg_s`, the investigators' total nozzle mass flow. $\mu_\text{air}$ is `mu_air_mean_g_m_s` and $Z_\text{st}$ is `zst_jet` = `mdot_total_mg_s / mdot_over_zst`. All three are columns of the "Smoke Point Datasheet" (`spice_cases.py:50-53`, `96-98`, `116-123`).
@@ -2405,17 +2733,17 @@ Built at `research:tools/wsp/ext/law_score.py:593-605`. This is the branch for c
 
 The formula is at `research:tools/wsp/ext/bass1_cases.py:693-705` and `716-718`:
 
-$$
+```math
 V_{g,\text{cr}}\,[\text{cm/s}]=100\,\frac{\varepsilon\,\sigma_\text{SB}\,(T_v^4-T_\infty^4)}{\rho_g\,c_g\,(T_f-T_v)},\qquad
 T_f=T_\infty+(2199-T_\infty)\,\frac{X_{O_2}}{0.21},\qquad
 \rho_g=\frac{101325\,p_\text{atm}}{287\,T_v}
-$$
+```
 
 with $\varepsilon=1$, $\sigma_\text{SB}=5.670\times10^{-8}$, $T_v=673$ K, $T_\infty=300$ K, $c_g=1070$ J kg⁻¹ K⁻¹, and $p_\text{atm}=1$ when absent. The baseline is undefined (no forecast) when $T_f\le T_v+50$.
 
 - The docstring cites the restatement as NASA/TM-20210011385 §2.2.7 eq. 2.5, and states that $\varepsilon$, $T_\infty$, $c_g$, the oxygen scaling of $T_f$ and $\rho_g$ were "set here" (`bass1_cases.py:694-698`).
-- Quantiles: $q_p=V_{g,\text{cr}}\,e^{s z_p}$, with the same five $z_p$ as in B.1.
-- The width is $s=0.4$ (`research:runs/dev/data_all/work/transfer_bass1/baselines_train.json`, `quench_bhattacharjee_2016.log_width_fitted`). It is the grid value $s\in\{0.05,0.10,\dots,2.00\}$ that minimises the train interval score, mean of day means, on the v1 train file (`bass1_cases.py:729-740`). The same file gives the median $1.304$ cm/s at $X=0.21$ (`median_at_x_o2`).
+- Quantiles: $`q_p=V_{g,\text{cr}}\,e^{s z_p}`$, with the same five $z_p$ as in B.1.
+- The width is $s=0.4$ (`research:runs/dev/data_all/work/transfer_bass1/baselines_train.json`, `quench_bhattacharjee_2016.log_width_fitted`). It is the grid value $`s\in\{0.05,0.10,\dots,2.00\}`$ that minimises the train interval score, mean of day means, on the v1 train file (`bass1_cases.py:729-740`). The same file gives the median $1.304$ cm/s at $X=0.21$ (`median_at_x_o2`).
 - It is scored with the interval form of A.8.
 
 ---
@@ -2456,26 +2784,26 @@ The lineage is root → `w0-fable` (variant B) → `p2-fable` → `p3-fable`. P2
 | $z_x$ | `x.x_fuel.*` | ln fuel mole fraction | 1.0 | [0.4, 1.0] | 1 |
 | $f_p, f_{py}, f_m$ | `x.is_propane/propylene/methane.*` | indicators (identity; ethylene is the reference) | 0 | [0, 1] | 1 |
 
-**T1, smoke-point length (the P1 law, unchanged in P3).** The author's reading: $L_{sp}=\max(L_0,\,c\,u^{0.55}(d/1.6\,\text{mm})^{-0.33}/x)\,(d_c/d)^3$ for $d<d_c$, with $L_0$ = 21, 28, 14 mm and $d_c$ = 0.96, 0.80, 0.56 mm for ethylene, propane, propylene (`configs/models/law/spice/p2-fable/edits.wsp:3-7`). As typed:
+**T1, smoke-point length (the P1 law, unchanged in P3).** The author's reading: $`L_{sp}=\max(L_0,\,c\,u^{0.55}(d/1.6\,\text{mm})^{-0.33}/x)\,(d_c/d)^3`$ for $d\lt d_c$, with $L_0$ = 21, 28, 14 mm and $d_c$ = 0.96, 0.80, 0.56 mm for ethylene, propane, propylene (`configs/models/law/spice/p2-fable/edits.wsp:3-7`). As typed:
 
-$$
+```math
 \ln\frac{L_{sp}}{1\,\text{m}}=-3.863+0.288f_p-0.405f_{py}+2.0f_m
 +\operatorname{relu}(0.970-0.33z_d+0.55z_u-z_x-0.045f_p-0.630f_{py})
 +3.0\,\operatorname{relu}(-0.041-z_d-1.1z_x-0.182f_p-0.539f_{py})
-$$
+```
 
 The spread is $s=0.18$ (`smoke_point_length.spread.b0`). The spread hinge rows are typed but their `w2` are 0. The tails are $w=0.1$ and $k=3.0$. The value $e^{-3.863}$ is 0.021 m, the ethylene still-air floor (`spice/w0-fable/edits.wsp:34`).
 
-**T2, flame length at a given flow (P3).** The author's reading: $L=c_f[\text{fuel}]\,K\dot m/Z_\text{st}\,(r/0.3)^{-0.08}+1.3d$ with $r=u_\text{air}/u_\text{fuel}$ (`configs/models/law/spice/p3-fable/edits.wsp:3-8`). Here $K=C_f\,Sc/(4\pi\mu)=1296$ m per kg/s (`research:docs/wsp/research/phys_spice_w0.md:223`), and $c_f$ = 1.079 for ethylene, 1.169 for propane, $1.324\,x^{0.22}$ for propylene (`research:docs/wsp/research/phys_spice_study.md:223-224`). As typed:
+**T2, flame length at a given flow (P3).** The author's reading: $`L=c_f[\text{fuel}]\,K\dot m/Z_\text{st}\,(r/0.3)^{-0.08}+1.3d`$ with $r=u_\text{air}/u_\text{fuel}$ (`configs/models/law/spice/p3-fable/edits.wsp:3-8`). Here $`K=C_f\,Sc/(4\pi\mu)=1296`$ m per kg/s (`research:docs/wsp/research/phys_spice_w0.md:223`), and $c_f$ = 1.079 for ethylene, 1.169 for propane, $`1.324\,x^{0.22}`$ for propylene (`research:docs/wsp/research/phys_spice_study.md:223-224`). As typed:
 
-$$
+```math
 \ln\frac{L}{1\,\text{m}}=\underbrace{-3.797-0.16z_d-0.08z_u+1.08z_m+0.858z_x+0.099f_p+0.173f_{py}+0.188f_m}_{\ln L_\text{far}}
 +0.31\operatorname{relu}(t+2.2)+0.38\operatorname{relu}(t)+0.31\operatorname{relu}(t-2.2)
-$$
+```
 
-$$
+```math
 t=-2.848+1.16z_d+0.08z_u-1.08z_m-0.858z_x-0.099f_p-0.173f_{py}-0.188f_m=\ln\!\big(1.3\,d/L_\text{far}\big)
-$$
+```
 
 The equality on the right is an identity of the typed numbers, because $\ln(1.3\times10^{-3})+3.797=-2.848$. The three hinges are the three-piece approximation of $\ln(1+e^{t})$, that is of $\ln(1+1.3d/L_\text{far})$ (`p2-fable/edits.wsp:17-19`). Hinge units 0 and 1, the W0 velocity-ratio step, have `w2 = 0` (`p3-fable/edits.wsp:11-12`). The spread is $s=0.10$, with $w=0.1$ and $k=3.0$.
 
@@ -2494,21 +2822,21 @@ The equality on the right is an identity of the typed numbers, because $\ln(1.3\
 
 **`spice/lit-fable`** (`sha256:40c345b0…d3bf`; the W0 section 7.4 main variant, typed verbatim). The source of T1 is Dotson et al. 2011, the published fit of the same smoke points, so T1 is not blind. The comment reads "1.342 = ln(21.2 mm * 25^0.414 / 21 mm); exponents -0.91 (diameter) and 0.414 (coflow), Dotson 2011" (`configs/models/law/spice/lit-fable/edits.wsp:34-49`):
 
-$$
+```math
 \ln\frac{L_{sp}}{1\,\text{m}}=-3.863-0.82z_x+0.287f_p-1.030f_{py}+2.0f_m
 +\operatorname{relu}\!\big(h\big)+0.65\operatorname{relu}(-0.288-z_x),\quad
 h=1.342-0.91z_d+0.414z_u-0.423f_p-0.224f_{py}
-$$
+```
 
-$$
+```math
 s=0.30-0.2\operatorname{relu}(h)+0.2\operatorname{relu}(h-0.5)\quad(\text{from }0.30\text{ at the floor to }0.20),\qquad w=0.1,\ k=3.0
-$$
+```
 
 Its flame length (`lit-fable/edits.wsp:95-116`; $L=K\dot m F/Z_\text{st}$ with a soot correction) is:
 
-$$
+```math
 \ln\frac{L}{1\,\text{m}}=-3.895+z_m+0.66z_x+0.055f_p+0.143f_m+0.148\big[\operatorname{relu}(\rho)-\operatorname{relu}(\rho-3.219)\big]-0.14\big[\operatorname{relu}(a)-\operatorname{relu}(a-1.1)\big]
-$$
+```
 
 with:
 - $\rho=0.784-2z_d-z_u+z_m-0.27z_x-0.452f_p-0.405f_{py}+0.559f_m$, which is $\ln(0.5/r)$ per the comment;
@@ -2539,72 +2867,72 @@ The lineage is root → bass3 s1 (which carries bass2 s1, bass1 D1 and bass1 W0 
 
 **Nose quench speed** ("out at pot 0.31 whatever radius, oxygen, time"; $b_0=\ln(0.941\times0.31\times0.044\ \text{m/s})$, `bass4/s1-fable/edits.wsp:282-286`):
 
-$$
+```math
 \ln\frac{u_q}{1\,\text{m/s}}=-4.356+z_p\quad\Longleftrightarrow\quad u_q=e^{-4.356}\,\frac{u_\text{pot1}}{0.044}=0.941\times0.31\times u_\text{pot1}=0.292\,u_\text{pot1},\qquad s=0.15,\ w=0.1,\ k=2.0
-$$
+```
 
 The four W0 hinge rows of $\ln(1-e^{-v})$ remain typed with `W1[:,5] = −20` for rods, and the median and spread `w2` are 0 since bass3. So nothing depends on $X$, $R$ or $t$.
 
 **Flat quench speed** (`edits.wsp:287-305`). Floor level, two-class threshold, and cap:
 
-$$
+```math
 \ell_0=-4.126-0.6z_x+0.405\,\text{conc}+z_p,\qquad
 g=30(z_c-z_x),\ \ z_c=-0.204+0.147z_{th}+0.28\,\text{os},\qquad
 \ell_\text{cap}=-2.744+0.3z_{th}+0.2\,\text{os}
-$$
+```
 
-$$
+```math
 \ln\frac{u_{fq}}{1\,\text{m/s}}=\ell_0+\operatorname{relu}(g)-\operatorname{relu}(\ell_0+g-\ell_\text{cap})
-$$
+```
 
-$$
+```math
 s=0.15+0.7\operatorname{relu}(g)-1.18\operatorname{relu}(g-0.93)+0.48\operatorname{relu}(g-1.87),\qquad w=0.15,\ k=2.5
-$$
+```
 
 The meanings are:
-- $\ell_0$ is pot 0.39 at 18 % O₂ (`b0` $=\ln(0.941\times0.39\times0.044)$).
+- $\ell_0$ is pot 0.39 at 18 % O₂ (`b0` $`=\ln(0.941\times0.39\times0.044)`$).
 - $z_c$ is the starting oxygen below which a slab reaches its limit during the burn: 18.0 % at 2 mm and 20.6 % at 5 mm, two sides.
-- $\ell_\text{cap}$ is 11 cm/s $\times(\text{thickness}/3\,\text{mm})^{0.3}$, times 1.22 one-sided.
+- $\ell_\text{cap}$ is 11 cm/s $`\times(\text{thickness}/3\,\text{mm})^{0.3}`$, times 1.22 one-sided.
 
 The typed tensors are unit 3 (`W1[3,{0,6,8}]` = −30, 4.41, 8.4; `b1[3]` = −6.12; `w2[3]` = 1.0) and unit 4 (`W1[4,{0,4,6,7,8}]` = −30.6, 0.405, 4.11, 1.0, 8.2; `b1[4]` = −7.502; `w2[4]` = −1.0). The second unit's row is exactly $\ell_0+g-\ell_\text{cap}$.
 
 **Kept burning, nose** (W0 lines; $l_f=28\ln(X/0.134)$, `edits.wsp:28-41`):
 
-$$
+```math
 \operatorname{logit}P_\text{low}=8.26+28z_x-\operatorname{relu}(8.04+21.7z_x-1.58z_u+3.67z_r-1.31z_t)
-$$
+```
 
-$$
+```math
 \operatorname{logit}P_\text{high}=8.26+28z_x-\sum_{j=0}^{3}c_j\operatorname{relu}(b_j+z_u-0.75z_r),\quad b=(-0.917,-2.527,-3.402,-4.319),\ c=(1.09,1.54,3.0,3.86)
-$$
+```
 
-**Kept burning, flat**, including the bass4 fabric floors (`edits.wsp:175-190`, `336-345`). SIBAL moves the floor to 17.0 % ($-20\ln(0.170/0.138)$) and Nomex/Ultem to 23.4 %; at high flow the floors are 15.8 % and 21.5 %:
+**Kept burning, flat**, including the bass4 fabric floors (`edits.wsp:175-190`, `336-345`). SIBAL moves the floor to 17.0 % ($`-20\ln(0.170/0.138)`$) and Nomex/Ultem to 23.4 %; at high flow the floors are 15.8 % and 21.5 %:
 
-$$
+```math
 \operatorname{logit}P_\text{low}=5.31+20z_x-4.17\,\text{sib}-10.56\,\text{nu}-\operatorname{relu}(5.33+15.5z_x-3.75z_u+1.52\,\text{conc}-4.17\,\text{sib}-10.56\,\text{nu})
-$$
+```
 
-$$
+```math
 \operatorname{logit}P_\text{high}=5.31+20z_x-2.71\,\text{sib}-8.87\,\text{nu}-\sum_{j=0}^{4}c_j\operatorname{relu}(b_j+z_u-0.693\,\text{conc}),\quad b=(0,-1.609,-2.303,-2.996,-3.689),\ c=(0.56,0.98,1.32,2.1,2.3)
-$$
+```
 
-**`bass1/w0-fable`** (`sha256:97c0daf9…39a2`; ZS, comparator). The author's physics reads $u_q=2Ra_q/3-D_c/R$ for the nose, with $v=\ln(\text{forced}/\text{diffusive})$, and $u_{fq}=c_\text{dir}\,0.151\ \text{cm/s}/(X-0.03)$ for flat samples (`bass4/s1-fable/edits.wsp:104-111`, `208`). The features are the first five above:
+**`bass1/w0-fable`** (`sha256:97c0daf9…39a2`; ZS, comparator). The author's physics reads $u_q=2Ra_q/3-D_c/R$ for the nose, with $v=\ln(\text{forced}/\text{diffusive})$, and $`u_{fq}=c_\text{dir}\,0.151\ \text{cm/s}/(X-0.03)`$ for flat samples (`bass4/s1-fable/edits.wsp:104-111`, `208`). The features are the first five above:
 
-$$
+```math
 \ln\frac{u_q}{1\,\text{m/s}}=-4.067-2.4z_x+z_r-0.5z_t-\sum_{j=0}^{3}c_j\operatorname{relu}(b_j+2.4z_x-2z_r+0.5z_t),\quad b=(2.334,0.534,-0.066,-0.366),\ c=(0.2,0.53,1.12,2.15)
-$$
+```
 
-$$
+```math
 s=0.75+0.3\operatorname{relu}(0.534+2.4z_x-2z_r+0.5z_t)+0.6\operatorname{relu}(-0.066+2.4z_x-2z_r+0.5z_t),\quad w=0.1,\ k=2.0
-$$
+```
 
-$$
+```math
 \ln\frac{u_{fq}}{1\,\text{m/s}}=-4.601-1.2z_x+0.405\,\text{conc},\quad s=0.5,\ w=0.15,\ k=2.5
-$$
+```
 
 The hinge arguments equal $v_j-v$ with $v=0.666-2.4z_x+2z_r-0.5z_t$ and knots $v_j$ = 3.0, 1.2, 0.6, 0.3. `bass1/d1-fable` adds $+1.44\operatorname{relu}(z_r)$ to the flat median and $+0.43\operatorname{relu}(z_r)$ to its spread; slabs thicker than 0.5 mm are supplied a nose radius of 0.02 (`configs/models/law/bass1/d1-fable/edits.wsp`).
 
-**`bass5/s1-fable`** (`sha256:050a4ceb…b82d`; post-final, in-sample). It is bass4 plus $z_w=\ln(W/0.02\,\text{m})$, domain [0.002, 0.1] m, entered as `W1[{3,4},11] = −3.3` in the flat-quench median and `W1[{3,4,5},11] = −3.3` in its spread. That is $z_c\to z_c-0.11z_w$, which the author explains as "a thick slab in a narrow frame loses heat sideways into the holder (4 lambda dT d / W^2)" (`configs/models/law/bass5/s1-fable/edits.wsp:349-352`). Every other number is bass4's (diff of the two dumps).
+**`bass5/s1-fable`** (`sha256:050a4ceb…b82d`; post-final, in-sample). It is bass4 plus $`z_w=\ln(W/0.02\,\text{m})`$, domain [0.002, 0.1] m, entered as `W1[{3,4},11] = −3.3` in the flat-quench median and `W1[{3,4,5},11] = −3.3` in its spread. That is $z_c\to z_c-0.11z_w$, which the author explains as "a thick slab in a narrow frame loses heat sideways into the holder (4 lambda dT d / W^2)" (`configs/models/law/bass5/s1-fable/edits.wsp:349-352`). Every other number is bass4's (diff of the two dumps).
 
 #### C.3 BRE: `bre/d3-fable` (`sha256:27e2af51…b955`), read by the `lasts` rule
 
@@ -2623,28 +2951,28 @@ The physics is self-extinction of a flame over a porous burner by radiation as i
 The author's reading (`configs/models/law/bre/d3-fable/edits.wsp:5-11`):
 - size ratio $b=0.514+1.01z_d+0.47z_m-0.93z_o+0.43z_f+0.11z_c$;
 - clock $\text{base}=2.451+2.05z_d+1.12z_m-0.03z_o+1.12z_f+0.08z_c$;
-- stand-off $s_o=2.307+z_d+z_m+z_f=\ln(\Lambda_0 d/25\,\text{mm})$;
+- stand-off $`s_o=2.307+z_d+z_m+z_f=\ln(\Lambda_0 d/25\,\text{mm})`$;
 - $\operatorname{logit}=5.5(H(v)-b)-9\operatorname{relu}(0.90-s_o)$ with $v=0.950+z_t-\text{base}$.
 
 As typed:
 
-$$
+```math
 \operatorname{logit}P(\text{lasts to }t)=-2.83-5.56z_d-2.59z_m+5.12z_o-2.37z_f-0.61z_c
 +\sum_{j=0}^{5}c_j\operatorname{relu}(b_j+2.05z_d+1.12z_m-0.03z_o+1.12z_f+0.08z_c-z_t)-9\operatorname{relu}(-1.41-z_d-z_m-z_f)
-$$
+```
 
 with $b=(2.51,0.26,-0.35,-0.86,-1.30,-1.72)$ and $c=(0.97,0.56,0.67,0.87,1.14,1.62)$. Pressure has weight 0. Unit 7 is typed but `w2[7] = 0`. The skip and $b_0$ are $-5.5\times$ the $b$ coefficients, and each hinge argument is $b_j-1.501-v$.
 
 The scoring rule (`research:docs/wsp/research/phys_bre2.md:19-30`; implemented at `research:tools/wsp/final/run_final_gen7.py:207-235`) uses cutoff $c\ge1$ s, horizons $h$ (6 to 210 s, `research:tools/wsp/ext/bre_cases.py:70`), and a stop $t_s=$ planned stop $+0.569-0.796$ s (the train medians in `research:runs/dev/data_all/work/transfer_bre/baselines_train.json`):
 
-$$
+```math
 P(\text{ext by }h)=\operatorname{clip}_{[0,1]}\Big(1-\frac{P_\text{lasts}(\min(h,t_s))}{P_\text{lasts}(c)}\Big),\qquad
 P(\text{operator termination by }h)=\min\Big(1,\frac{P_\text{lasts}(t_s)}{P_\text{lasts}(c)}\Big)\ \ (h\ge t_s)
-$$
+```
 
 These are scored with the IPCW integrated Brier for each cause (A.8).
 
-The `flame_end` clock is not used by the rule. For reference: $\ln\tau=2.09+1.39z_d+0.81z_m+0.57z_o+0.84z_f+0.01z_c+\sum_{j<7}c_j\operatorname{relu}(b_j-1.01z_d-0.47z_m+0.93z_o-0.43z_f-0.11z_c)-6\operatorname{relu}(-1.41-z_d-z_m-z_f)$, with $b$ = (1.286, 0.786, 0.486, 0.256, 0.056, −0.114, −0.264) (that is, knots of $b$ at 1.8 … 0.25), $c$ = (0.29, 0.36, 0.49, 0.70, 1.09, 2.09, 5.03), and shape 3.0.
+The `flame_end` clock is not used by the rule. For reference: $\ln\tau=2.09+1.39z_d+0.81z_m+0.57z_o+0.84z_f+0.01z_c+\sum_{j\lt7}c_j\operatorname{relu}(b_j-1.01z_d-0.47z_m+0.93z_o-0.43z_f-0.11z_c)-6\operatorname{relu}(-1.41-z_d-z_m-z_f)$, with $b$ = (1.286, 0.786, 0.486, 0.256, 0.056, −0.114, −0.264) (that is, knots of $b$ at 1.8 … 0.25), $c$ = (0.29, 0.36, 0.49, 0.70, 1.09, 2.09, 5.03), and shape 3.0.
 
 #### C.4 CLD Flame: `cld3/s1-fable` (`sha256:b9df5239…9e4b`), with `cld/d1-fable` served
 
@@ -2652,35 +2980,35 @@ The physics is loss of a dilute coflow flame by blow-off, plus its radiometer ex
 - `loss` = the sum of the cause rows at horizons 1 to 120 s, with the planned fuel-off as the declared stop, scored with the integrated Brier;
 - radiometer = CRPS of $\log_{10}$ of the volt quantiles (`research:tools/wsp/ext/law_score.py:27-28`).
 
-Features: $z_x=\ln x_\text{final}$ ([0.04, 1]); $z_u=\ln(U_{co}/0.2)$ ([0.02, 1.5] m/s); $z_w=\ln(W/60\,\text{s})$ ([5, 600]); $e$ = ethylene; $z_s=\ln x_\text{stage}$ ([0.04, 1]); $z_v=\ln(v_\text{stage}/0.2)$ ([0.02, 1.5] m/s); $z_T=\ln(t_\text{severe}/20\,\text{s})$ ([2, 600]).
+Features: $z_x=\ln x_\text{final}$ ([0.04, 1]); $z_u=\ln(U_{co}/0.2)$ ([0.02, 1.5] m/s); $`z_w=\ln(W/60\,\text{s})`$ ([5, 600]); $e$ = ethylene; $z_s=\ln x_\text{stage}$ ([0.04, 1]); $z_v=\ln(v_\text{stage}/0.2)$ ([0.02, 1.5] m/s); $`z_T=\ln(t_\text{severe}/20\,\text{s})`$ ([2, 600]).
 
-C1's sharp limit has $R=U_{co}/(10.2\,\text{s/m}\;S_L^2)$, $S_L$ linear in $\ln x$ (slope 1.3), and $R_c$ = 0.93 for methane, 1.8 for ethylene (`configs/models/law/cld3/s1-fable/edits.wsp:113-115`). With $-g=3.246+2.6z_x-z_u+3.092e$, so that $g=\ln(R/R_c)$ in that reading:
+C1's sharp limit has $`R=U_{co}/(10.2\,\text{s/m}\;S_L^2)`$, $S_L$ linear in $\ln x$ (slope 1.3), and $R_c$ = 0.93 for methane, 1.8 for ethylene (`configs/models/law/cld3/s1-fable/edits.wsp:113-115`). With $-g=3.246+2.6z_x-z_u+3.092e$, so that $g=\ln(R/R_c)$ in that reading:
 
-$$
+```math
 \ln\tau_\text{blowoff}=4.094+z_w+5\operatorname{relu}(-g)-2\operatorname{relu}(g),\quad k=4.0\qquad(4.094=\ln 60:\ \tau=W\,e^{5\operatorname{relu}(-g)-2\operatorname{relu}(g)})
-$$
+```
 
-$$
+```math
 \ln\tau_\text{crossing}=6.242+z_T-g+41\operatorname{relu}(-g),\quad k=6.0\qquad(\tau=t_\text{severe}R_c/R\ \text{beyond the limit; out of reach below})
-$$
+```
 
-$$
+```math
 \ln\tau_\text{other}=11.156,\quad k=0.5\qquad(\text{"4 \% in 120 s, hazard falling with time"})
-$$
+```
 
 The crossing law is `research:docs/wsp/research/phys_cld_study.md:193-209`. The stop is `offset_w` = [1, 0, 0], `offset_s` = [0, 0, 0]: the planned fuel-off itself. Blow-off units 2 and 3 are typed but have `w2 = 0`.
 
 Radiometer: excess = $c_V\chi Q$, plus soot as a three-piece $\ln(1+\chi_\text{soot}x^{2.5}/0.05)$ (`edits.wsp:82-89`):
 
-$$
+```math
 \ln\frac{V}{1\,\text{V}}=-0.66+0.5e+z_s+z_v+0.31\operatorname{relu}(a+3.299)+0.38\operatorname{relu}(a+1.099)+0.31\operatorname{relu}(a-1.101),\quad a=0.847e+2.5z_s;\quad s=0.8,\ w=0.1,\ k=3.0
-$$
+```
 
 **`cld/d1-fable`** (`sha256:a03ec603…2d4f`; served). It has the same features without $z_T$ and causes `blowoff` and `other` only. Its blow-off clock is the W0 form $\ln\tau=\ln W+\ln2.5-\ln\Phi_\text{final}$ after one step:
 
-$$
+```math
 \ln\tau_\text{blowoff}=6.03+0.55z_x-z_u+z_w+1.21e-0.55\operatorname{relu}(z_x+0.47e)-0.5\operatorname{relu}(-0.693-z_x-0.47e)-0.6\operatorname{relu}(-1.204-z_x-0.47e)-1.0\operatorname{relu}(-1.609-z_x-0.47e),\quad k=3.4
-$$
+```
 
 Its `other` clock, stop and radiometer are as in cld3. D1 changed only `blowoff.b0` (6.03), `blowoff.skip[3]` (1.21) and `radiometer.b0` (−0.66) of W0 (`configs/models/law/cld/d1-fable/edits.wsp:3-5`).
 
@@ -2688,65 +3016,65 @@ Its `other` clock, stop and radiometer are as in cld3. D1 changed only `blowoff.
 
 The physics is the ion current of a flame in a field, plus flame-out by ion wind, by press and by other causes. The time origin of `flame_end` is the field switched on (`configs/models/law/efield3/decl.json`). What is scored: the ion current in µA per planned level (CRPS, trapezoid weights), and the integrated Brier of the sum of the `flame_end` cause rows (`research:tools/wsp/ext/law_score.py:20`; the docstring names blowoff + other, and the final list sums every declared cause).
 
-Features: $z_c=\ln(\dot C/10^{19}\,\text{s}^{-1})$ ([1e18, 1e20]); $z_x=\ln x$ ([0.2, 1]); $e$ = ethylene; $p$ = mesh positive; $z_v=\ln(V/3000\,\text{V})$ ([100, 1e4]); $z_M=\ln(V_\text{max}/5000\,\text{V})$ ([100, 1e4]); $z_w=\ln(W/100\,\text{s})$ ([5, 2000]); gas = gas-jet burner; scb = still-coflow burner; str = $u_{co}\ge0.1$ m/s.
+Features: $`z_c=\ln(\dot C/10^{19}\,\text{s}^{-1})`$ ([1e18, 1e20]); $z_x=\ln x$ ([0.2, 1]); $e$ = ethylene; $p$ = mesh positive; $`z_v=\ln(V/3000\,\text{V})`$ ([100, 1e4]); $`z_M=\ln(V_\text{max}/5000\,\text{V})`$ ([100, 1e4]); $`z_w=\ln(W/100\,\text{s})`$ ([5, 2000]); gas = gas-jet burner; scb = still-coflow burner; str = $u_{co}\ge0.1$ m/s.
 
 **Ion current.** The author's reading: a rising branch of 0.25 µA/kV² below 1 kV with exponent 1.4 above, capped by an ion-pair yield of 0.8×10⁻⁶ per carbon (mesh negative) or by fixed positive ceilings (`configs/models/law/efield3/s1-fable/edits.wsp:110-151`). As typed:
 
-$$
+```math
 \ln\frac{I}{1\,\text{A}}=-13.664+0.9p+1.4z_v+0.35\,\text{gas}-\operatorname{relu}(u_0)-\operatorname{relu}(u_1)-0.6\operatorname{relu}(u_2)-\operatorname{relu}(u_3)-\operatorname{relu}(u_4)
-$$
+```
 
 | unit | argument $u_j$ | author's meaning |
 |---|---|---|
-| 0 | $-0.095-z_c-0.4z_x-1.1e-20p+1.4z_v+0.35\,\text{gas}$ | negative-mesh cap (yield per carbon, $x^{0.4}$, ethylene ×3) |
-| 1 | $-18.255-0.25z_c-0.95e+20p+1.4z_v-20\,\text{gas}+1.2\,\text{scb}-20\,\text{str}$ | positive ceiling of the coflow burner (off for the gas jet and a real coflow) |
+| 0 | $`-0.095-z_c-0.4z_x-1.1e-20p+1.4z_v+0.35\,\text{gas}`$ | negative-mesh cap (yield per carbon, $x^{0.4}$, ethylene ×3) |
+| 1 | $`-18.255-0.25z_c-0.95e+20p+1.4z_v-20\,\text{gas}+1.2\,\text{scb}-20\,\text{str}`$ | positive ceiling of the coflow burner (off for the gas jet and a real coflow) |
 | 2 | $-1.0986-z_v$ | steeper rise below 1 kV |
-| 3 | $-37.8-1.754e+20p+1.4z_v+20\,\text{gas}$ | positive ceiling of the gas jet, 0.45 µA methane, 2.6 µA ethylene |
-| 4 | $-38.545-z_c-0.4z_x-1.1e+20p+1.4z_v+20\,\text{str}$ | positive mesh with a real coflow: negative ceiling ×0.52 |
+| 3 | $`-37.8-1.754e+20p+1.4z_v+20\,\text{gas}`$ | positive ceiling of the gas jet, 0.45 µA methane, 2.6 µA ethylene |
+| 4 | $`-38.545-z_c-0.4z_x-1.1e+20p+1.4z_v+20\,\text{str}`$ | positive mesh with a real coflow: negative ceiling ×0.52 |
 
 The spread is $s=0.45$ (one spread hinge is typed with `w2 = 0`), with $w=0.1$ and $k=3.0$.
 
 **Flame end.** There is no declared stop:
 
-$$
+```math
 \ln\tau_\text{blowoff}=7.09-z_M+z_w-2.106\operatorname{relu}(\text{gas}-e-p),\ k=12;\qquad
 \ln\tau_\text{press}=7.09-z_M+z_w-2.148\operatorname{relu}(-1+\text{gas}-e+p),\ k=4
-$$
+```
 
-$$
+```math
 \ln\tau_\text{other}=8.006-4.2\operatorname{relu}(-1+\text{scb}-e+p)-1.6\operatorname{relu}(\text{scb}-e-p),\ k=1.5
-$$
+```
 
-$7.09=\ln(100\,\text{s}\times60\,\text{kV}/5\,\text{kV})$, and the offsets $-2.106=\ln(7.3/60)$ and $-2.148=\ln(7.0/60)$ correspond to the author's 7.3 kV (gas-jet methane, mesh negative) and 7.0 kV (mesh positive). For `other`, $e^{8.006}$ = 3000 s, giving 45 s with mesh positive and 600 s negative in still gas on the coflow burner (`edits.wsp:155-171`).
+$`7.09=\ln(100\,\text{s}\times60\,\text{kV}/5\,\text{kV})`$, and the offsets $-2.106=\ln(7.3/60)$ and $-2.148=\ln(7.0/60)$ correspond to the author's 7.3 kV (gas-jet methane, mesh negative) and 7.0 kV (mesh positive). For `other`, $e^{8.006}$ = 3000 s, giving 45 s with mesh positive and 600 s negative in still gas on the coflow burner (`edits.wsp:155-171`).
 
 #### C.6 SLICE: `slice2/s1-fable` (`sha256:d586d0d3…0b61`)
 
 The physics is lifting and blow-off of a jet-flame base through a stability number (`research:docs/wsp/research/phys_slice_w0.md:17-19`, `160-167`):
 
-$$
+```math
 v_k=0.66U_{co}+8\,l_j\,(Z_\text{st}/Z_{\text{st,CH}_4})\,U_j/d,\ \ l_j=3.3\,\mu\text{m};\qquad \Phi=v_k/(1.4S_L);\quad\text{lifted at }\Phi>1,\ \text{blown off at }\Phi>1.3
-$$
+```
 
 Features: $z_{co}=\ln(U_{co}/0.3)$ ([0.02, 1.5] m/s); $z_j=\ln(U_j/1)$ ([0.02, 100] m/s); $z_d=\ln(d/0.0016)$ ([0.0003, 0.004] m); $z_x=\ln x$ ([0.3, 1]); $z_o=\ln(X_{O_2}/0.21)$ ([0.18, 0.25]); $e_2$ = ethane; $e_3$ = propane; $z_m=\ln(\dot m/10^{-6})$ ([2e-8, 5e-5] kg/s).
 
-$$
+```math
 \ln\Phi=-0.987+z_{co}-0.55z_x-3.0z_o-0.076(e_2+e_3)+\operatorname{sp}_3(t)+0.5\operatorname{relu}(-0.693-z_x),\quad
 t=-2.485-z_{co}+z_j-z_d-1.3z_x+0.065e_2+0.088e_3
-$$
+```
 
-with $\operatorname{sp}_3(t)=0.31\operatorname{relu}(t+2.2)+0.38\operatorname{relu}(t)+0.31\operatorname{relu}(t-2.2)$. The typed logits are exact multiples of this (`configs/models/law/slice2/s1-fable/edits.wsp:38-109`):
+with $`\operatorname{sp}_3(t)=0.31\operatorname{relu}(t+2.2)+0.38\operatorname{relu}(t)+0.31\operatorname{relu}(t-2.2)`$. The typed logits are exact multiples of this (`configs/models/law/slice2/s1-fable/edits.wsp:38-109`):
 
-$$
-\operatorname{logit}P_\text{blow\_off}=-2.184+2.0\ln\Phi\ \ (b_0=-4.158),\qquad
-\operatorname{logit}P_\text{past\_lift}=3.4\ln\Phi\ \ (b_0=-3.356),
-$$
+```math
+\operatorname{logit}P_\text{blow_off}=-2.184+2.0\ln\Phi\ \ (b_0=-4.158),\qquad
+\operatorname{logit}P_\text{past_lift}=3.4\ln\Phi\ \ (b_0=-3.356),
+```
 
-$$
-\operatorname{logit}P_\text{past\_blow}=3.4\ln\Phi-0.892\ \ (b_0=-4.248;\ 0.892=3.4\ln1.3),\qquad
-\operatorname{logit}P_\text{lift\_noted}=0
-$$
+```math
+\operatorname{logit}P_\text{past_blow}=3.4\ln\Phi-0.892\ \ (b_0=-4.248;\ 0.892=3.4\ln1.3),\qquad
+\operatorname{logit}P_\text{lift_noted}=0
+```
 
-The scored `lifted` label is the scoring-time rule $P_\text{noted}\,(P_\text{past\_lift}-P_\text{past\_blow})/(1-P_\text{past\_blow})$ (`configs/models/law/slice2/decl.json`). Both labels are scored with Brier, mean of day means.
+The scored `lifted` label is the scoring-time rule $`P_\text{noted}\,(P_\text{past_lift}-P_\text{past_blow})/(1-P_\text{past_blow})`$ (`configs/models/law/slice2/decl.json`). Both labels are scored with Brier, mean of day means.
 
 The flame length is unscored: $\ln L=-3.752+1.3z_x-0.065e_2-0.088e_3+z_m+0.148[\operatorname{relu}(0.511-z_{co}+z_j)-\operatorname{relu}(-2.708-z_{co}+z_j)]$, with $s=0.22$.
 
@@ -2754,56 +3082,56 @@ The flame length is unscored: $\ln L=-3.752+1.3z_x-0.065e_2-0.088e_3+z_m+0.148[\
 
 The physics is smoke size by condensation and Brownian coagulation, plus the ISS detector scatter channel. In W0, $D_{30}=D_n(1+t/t_c)^{1/3}$ with $t_c=1/(KN_0)$ (`research:docs/wsp/research/phys_samer_w0.md:21-32`). S1 sets one $t_c=450$ s for every smoke and $d_{10}\propto(1+t/t_c)^{0.55}$ (`research:docs/wsp/research/phys_samer_study.md:197-205`):
 
-$$
+```math
 \ln d_{10}=\text{level}[m]+0.20\,\tfrac{T-T_\text{ref}}{50\,\text{K}}+f(U)+\text{no-flow terms}+0.30\ln\tfrac{t_h}{60\,\text{s}}+0.55\operatorname{sp}(y),\quad y=\ln\tfrac{t}{450\,\text{s}}+0.30\tfrac{U-8.1\,\text{cm/s}}{1\,\text{cm/s}}+0.30[U=0]
-$$
+```
 
-Features: indicators $k$ (Kapton), $t$ (Teflon), $s$ (silicone), $p$ (Pyrell), with lamp wick as the reference; $z_T=(T-673\,\text{K})/50\,\text{K}$ ([450, 950]); $z_v=(U-0.081)/0.01$ ([0, 0.12] m/s); nf = no flow; $z_a=\ln(t/100\,\text{s})$ ([5, 5000]); $z_h=\ln(t_h/60\,\text{s})$ ([20, 300]). As typed:
+Features: indicators $k$ (Kapton), $t$ (Teflon), $s$ (silicone), $p$ (Pyrell), with lamp wick as the reference; $`z_T=(T-673\,\text{K})/50\,\text{K}`$ ([450, 950]); $z_v=(U-0.081)/0.01$ ([0, 0.12] m/s); nf = no flow; $`z_a=\ln(t/100\,\text{s})`$ ([5, 5000]); $`z_h=\ln(t_h/60\,\text{s})`$ ([20, 300]). As typed:
 
-$$
+```math
 \ln\frac{d_{10}}{1\,\text{m}}=-15.412-1.416k-1.133t+0.125s+0.704p+0.2z_T-0.039z_v+0.236\,\text{nf}+0.3z_h
 +0.0373\operatorname{relu}(-3.1-z_v)-0.0763\operatorname{relu}(-6.1-z_v)+0.149\operatorname{relu}(k+t+\text{nf}-1)
-$$
+```
 
-$$
+```math
 \qquad+\sum_{j}c_j\operatorname{relu}(b_j+z_a+0.3z_v+0.3\,\text{nf})-0.5\operatorname{relu}(p+\text{nf}-1),\quad b=(0.996,-0.604,-2.404,-4.004),\ c=(0.11,0.165,0.165,0.11)
-$$
+```
 
 Since $b_j=\beta_j-\ln4.5$ with $\beta_j=2.5,0.9,-0.9,-2.5$, the four chords put knots at $y=-2.5,-0.9,0.9,2.5$ and sum to slope 0.55. The spread is
 
-$$
+```math
 s=0.40+0.06\,\text{nf}+0.03\operatorname{relu}(z_a-1),\quad w=0.1,\ k=2.5
-$$
+```
 
 The detector, $|V|\ge6.0$ V, is:
 
-$$
+```math
 \operatorname{logit}P_\text{iss}=3.956-7.57k-7.56t-1.57s-0.47p+0.6z_T-0.1z_v-2.6\,\text{nf}+0.5z_h+1.5\operatorname{relu}(s+\text{nf}-1)+0.3\operatorname{relu}(2k+2t+z_a-3)
-$$
+```
 
 Unit 0 of the detector is typed with `w2 = 0`. What is scored: CRPS of $\ln d_{10}$ (trapezoid weights) and the Brier of the detector. $d_{30}$ is typed but not scored.
 
 #### C.8 SAME: `same/w0-fable` (`sha256:e1362b55…2062`), ZS, held whole
 
-Features: $k$, $t$, $s$, dbp (lamp wick is the reference); $z_v=(U-0.081)/0.01$; $z_a=\ln(t/100\,\text{s})$. The growth term is $0.413\ln(1+t/t_c)$ with $t_c$ = 1000 s (lamp wick), 400 (Kapton), 500 (Teflon), 1400 (silicone), 2500 (DBP) (`configs/models/law/same/w0-fable/edits.wsp`, comments):
+Features: $k$, $t$, $s$, dbp (lamp wick is the reference); $z_v=(U-0.081)/0.01$; $`z_a=\ln(t/100\,\text{s})`$. The growth term is $0.413\ln(1+t/t_c)$ with $t_c$ = 1000 s (lamp wick), 400 (Kapton), 500 (Teflon), 1400 (silicone), 2500 (DBP) (`configs/models/law/same/w0-fable/edits.wsp`, comments):
 
-$$
+```math
 \ln\frac{d_{10}}{1\,\text{m}}=-15.614-0.586k-0.463t+0.215s+0.718\,\text{dbp}-0.039z_v+0.0373\operatorname{relu}(-3.1-z_v)-0.0763\operatorname{relu}(-6.1-z_v)+\sum_{j}c_j\operatorname{relu}(b_j+\mu)
-$$
+```
 
-where $\mu=0.917k+0.693t-0.336s-0.916\,\text{dbp}+z_a$, $b$ = (0.197, −1.403, −3.203, −4.803), and $c$ = (0.0826, 0.124, 0.124, 0.0826). The spread is $s=0.42+0.1\,\text{dbp}+0.03\operatorname{relu}(z_a-1)$, with $w=0.1$ and $k=2.5$. The detector:
+where $`\mu=0.917k+0.693t-0.336s-0.916\,\text{dbp}+z_a`$, $b$ = (0.197, −1.403, −3.203, −4.803), and $c$ = (0.0826, 0.124, 0.124, 0.0826). The spread is $`s=0.42+0.1\,\text{dbp}+0.03\operatorname{relu}(z_a-1)`$, with $w=0.1$ and $k=2.5$. The detector:
 
-$$
+```math
 \operatorname{logit}P_\text{iss}=1.1-2.83k-3.3t-0.25s+1.1\,\text{dbp}-0.1z_v+0.9\operatorname{relu}(2k+2t-0.164z_v-2)+0.3\operatorname{relu}(2k+2t+z_a-3)
-$$
+```
 
 #### C.9 DAFT: `daft/w0-fable` (`sha256:061f93de…5e5d`), ZS, held whole
 
-The physics is what a modified P-Trak reads, by kind of air, from the DustTrak reading. Features: indicators $c$ (cabin), $v$ (Velcro), $b$ (bag dust), with filtered air as the reference; $z_m=\ln(m/10^{-6}\,\text{kg m}^{-3})$ on the floored reading, domain [1e-9, 2e-4]. Each indicator owns a hinge pair $\omega[\operatorname{relu}(12\,\text{ind}+z_m-12)-\operatorname{relu}(12\,\text{ind}-z_m-12)]$. Since $|z_m|<12$ on the domain, that pair equals $\omega z_m$ when ind = 1 and 0 otherwise, so exactly:
+The physics is what a modified P-Trak reads, by kind of air, from the DustTrak reading. Features: indicators $c$ (cabin), $v$ (Velcro), $b$ (bag dust), with filtered air as the reference; $`z_m=\ln(m/10^{-6}\,\text{kg m}^{-3})`$ on the floored reading, domain [1e-9, 2e-4]. Each indicator owns a hinge pair $`\omega[\operatorname{relu}(12\,\text{ind}+z_m-12)-\operatorname{relu}(12\,\text{ind}-z_m-12)]`$. Since $|z_m|\lt12$ on the domain, that pair equals $\omega z_m$ when ind = 1 and 0 otherwise, so exactly:
 
-$$
+```math
 \ln\frac{N}{1\,\text{m}^{-3}}=10.82+5.144c+6.828v+9.798b+(0.30c+0.50v+0.95b)\,z_m,\qquad s=1.5-0.6b,\ w=0.15,\ k=2.5
-$$
+```
 
 The score is the CRPS of $\ln(1+N\ \text{per cm}^3)$ (`research:tools/wsp/ext/law_score.py:471`).
 

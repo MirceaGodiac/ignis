@@ -446,7 +446,7 @@ sequenceDiagram
 
     C->>C: show the reduced view kept in this browser, if any
     loop until next_cursor is empty
-        C->>V: ConditionsQuery {keys: O2, pressure, fuel; include_unknown; page_size; cursor}
+        C->>V: ConditionsQuery {keys: O2, pressure, fuel#59; include_unknown#59; page_size#59; cursor}
         V->>D: conditions_snapshot (before)
         V->>D: conditions(scope, query)
         D->>T: cached table
@@ -585,7 +585,7 @@ nothing (`open_default`).
 
 | Piece | Where |
 |---|---|
-| UI + Worker | Cloudflare Workers Static Assets, `ignis-edge` ([wrangler.jsonc](../infra/worker/wrangler.jsonc), [wrangler.staging.jsonc](../infra/worker/wrangler.staging.jsonc)) |
+| UI + Worker | Cloudflare Workers Static Assets, `ignis-edge` ([wrangler.jsonc](../infra/worker/wrangler.jsonc), `wrangler.staging.jsonc`) |
 | Origin | Google Compute Engine VM; Compose services `ignis` and `cloudflared`, supervised by systemd ([infra/deploy](../infra/deploy/)) |
 | Persistent paths | `/srv/ignis/{state,runner,backups,login,data,artifacts}` |
 | Timers | `ignis-backup.timer`, `ignis-autodeploy.timer` ([infra/deploy/systemd](../infra/deploy/systemd/)) |

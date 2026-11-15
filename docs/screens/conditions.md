@@ -36,7 +36,7 @@ needs and why it matters.
 ### Investigation card
 
 - **Header**: the investigation's map swatch (colour and shape), acronym, id and hardware.
-- **Statistic**: "<N> runs inside, at <M> test points", or "Nearest test <offset> away", for example
+- **Statistic**: "`<N>` runs inside, at `<M>` test points", or "Nearest test `<offset>` away", for example
   "+9.0 pts O2, −4.5 psi" (how far the test would move to reach the atmosphere; positive is higher).
 - **Tested**: oxygen range in percent and pressure range in psi over the investigation's test points.
 - **Burned**: up to three fuels from the atlas card (else the nearest point's fuel, else "not

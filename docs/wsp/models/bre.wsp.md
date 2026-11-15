@@ -60,11 +60,15 @@ larger sheet; radiation puts it out once the release per unit sheet area falls b
 Two heights, in burner radii, decide the outcome
 (SpaceApps-Ardealu:docs/wsp/research/phys_bre_w0.md, section 0):
 
-$$\xi_{ss} = \cot(L/Pe),\qquad Pe = \frac{mR}{2\rho D},\qquad L = \ln\!\left(1 + \frac{Y_O}{S\,Y_F}\right)$$
+```math
+\xi_{ss} = \cot(L/Pe),\qquad Pe = \frac{mR}{2\rho D},\qquad L = \ln\!\left(1 + \frac{Y_O}{S\,Y_F}\right)
+```
 
-$$\xi_e = \sqrt{\Lambda - 2/3},\qquad \Lambda = \frac{m\,Y_F\,\Delta h_c\,\big(1 - \phi_b/(1-\theta_c)\big)}{2\,q_{c0}\,p^a}\quad (\text{W0: } a = 0.5)$$
+```math
+\xi_e = \sqrt{\Lambda - 2/3},\qquad \Lambda = \frac{m\,Y_F\,\Delta h_c\,\big(1 - \phi_b/(1-\theta_c)\big)}{2\,q_{c0}\,p^a}\quad (\text{W0: } a = 0.5)
+```
 
-The flame is held (burns as long as it is fed) if it reaches its steady size first, $b = \ln(\xi_{ss}/\xi_e) < 0$;
+The flame is held (burns as long as it is fed) if it reaches its steady size first, $b = \ln(\xi_{ss}/\xi_e) \lt0$;
 otherwise it goes out at a time that shortens steeply as $b$ grows from 0 to 0.5. $q_{c0}$ = 9.4 kW/m2
 is the published critical release of a non-buoyant ethylene flame.
 
@@ -73,9 +77,13 @@ height, extinction height, growth curve and constants, and removes two things W0
 burner's share of the heat $\phi_b$ is charged at the extinction temperature, not the adiabatic one, and
 pressure has no exponent (the development data give 0 within about 0.2):
 
-$$\Lambda_0 = \frac{m_{fuel}\,\Delta h_c}{2\,q_{c0}},\qquad A = \frac{1-\theta_c}{1-\theta_c(1+\phi_b)},\qquad \xi_e = \sqrt{\Lambda_0/A - 2/3}$$
+```math
+\Lambda_0 = \frac{m_{fuel}\,\Delta h_c}{2\,q_{c0}},\qquad A = \frac{1-\theta_c}{1-\theta_c(1+\phi_b)},\qquad \xi_e = \sqrt{\Lambda_0/A - 2/3}
+```
 
-$$t_{ext} = 0.42\,\frac{R^2\,\xi_e^2}{D_0}\,e^{G(b)}\quad (b \ge 0),\qquad \text{held if } b < 0,\qquad \text{no flame stands if } \Lambda_0\,d/25\,\mathrm{mm} \lesssim 2.2$$
+```math
+t_{ext} = 0.42\,\frac{R^2\,\xi_e^2}{D_0}\,e^{G(b)}\quad (b \ge 0),\qquad \text{held if } b < 0,\qquad \text{no flame stands if } \Lambda_0\,d/25\,\mathrm{mm} \lesssim 2.2
+```
 
 The factor 0.42 is the clock read off the development tests ($D_{eff} = 1.2\times10^{-4}$ m2/s, the
 diffusivity of gas at 1000 K and more). In the network's features
@@ -83,17 +91,25 @@ $z = (z_d, z_m, z_o, z_p, z_f, z_c, z_t)$, all ln except the methane indicator $
 4 g/m2/s, 26.5 % oxygen, 1 atm, pure ethylene, 30 s), the law is three linear forms
 (`configs/models/law/bre/d3-fable/edits.wsp`):
 
-$$b = 0.514 + 1.01 z_d + 0.47 z_m - 0.93 z_o + 0.43 z_f + 0.11 z_c$$
+```math
+b = 0.514 + 1.01 z_d + 0.47 z_m - 0.93 z_o + 0.43 z_f + 0.11 z_c
+```
 
-$$\mathrm{base} = 2.451 + 2.05 z_d + 1.12 z_m - 0.03 z_o + 1.12 z_f + 0.08 z_c \quad (\ln \mathrm{s})$$
+```math
+\mathrm{base} = 2.451 + 2.05 z_d + 1.12 z_m - 0.03 z_o + 1.12 z_f + 0.08 z_c \quad (\ln \mathrm{s})
+```
 
-$$s = 2.307 + z_d + z_m + z_f = \ln(\Lambda_0\,d/25\,\mathrm{mm})$$
+```math
+s = 2.307 + z_d + z_m + z_f = \ln(\Lambda_0\,d/25\,\mathrm{mm})
+```
 
 and the served target is
 
-$$\mathrm{logit}\;\texttt{lasts} = 5.5\,\big(H(v) - b\big) - 9\,\mathrm{relu}(0.90 - s),\qquad v = 0.950 + z_t - (\mathrm{base} - 2.451)$$
+```math
+\mathrm{logit}\;\texttt{lasts} = 5.5\,\big(H(v) - b\big) - 9\,\mathrm{relu}(0.90 - s),\qquad v = 0.950 + z_t - (\mathrm{base} - 2.451)
+```
 
-$H = G^{-1}$ is the $b$ whose life is $t^*$, a falling curve in six pieces (hinge units 0 to 5 of
+$H = G^{-1}$ is the $b$ whose life is $`t^*`$, a falling curve in six pieces (hinge units 0 to 5 of
 `lasts.logit`, knots 3.46, 1.21, 0.60, 0.09, -0.35, -0.77); hinge unit 6 is the stand-off penalty. The
 slope 5.5 is $1.7/0.31$, the spread of $b$ (W0 had 4.0 for 0.425). For long times $H \to 0$ and the
 probability tends to that of a held flame, so the held class is in the target by construction
@@ -102,7 +118,9 @@ probability tends to that of a held flame, so the held class is in the target by
 **How the extinction probability is read** (scoring-time rule, phys_bre2.md section 2): for a horizon
 $h$ and a cutoff $c$ (seconds after ignition, at least 1 s), with the planned stop at `stop`,
 
-$$P(\text{out by } h \mid \text{burning at } c) = 1 - \frac{\texttt{lasts}(\min(h, \mathrm{stop}))}{\texttt{lasts}(c)},\qquad P(\text{operator termination}) = \frac{\texttt{lasts}(\mathrm{stop})}{\texttt{lasts}(c)}\ \ (h \ge \mathrm{stop})$$
+```math
+P(\text{out by } h \mid \text{burning at } c) = 1 - \frac{\texttt{lasts}(\min(h, \mathrm{stop}))}{\texttt{lasts}(c)},\qquad P(\text{operator termination}) = \frac{\texttt{lasts}(\mathrm{stop})}{\texttt{lasts}(c)}\ \ (h \ge \mathrm{stop})
+```
 
 `lasts` is non-increasing in `stated_time`, so the ratios lie in [0, 1].
 
@@ -131,7 +149,7 @@ Full derivations: [docs/research/FORMULAS.md](../../research/FORMULAS.md), secti
   SpaceApps-Ardealu:docs/wsp/research/phys_bre_study.md.
 - **Decisions** (phys_bre_study.md, sections 0 to 4). One number orders the outcomes, the size ratio
   `b`, once the adiabatic burner share and the pressure exponent are taken out: of 32 ethylene flames
-  on the 25 mm burner with $b < 0$ all 32 were burning at the planned stop, and of 24 with $b > 0.2$ all
+  on the 25 mm burner with $b \lt0$ all 32 were burning at the planned stop, and of 24 with $b \gt0.2$ all
   24 went out. The candidates, cumulative:
   1. C1: `b` with the burner share cut and no pressure, a pressure-free clock, one stand-off hinge
      (0.1955 to 0.1444 on extinction);
@@ -161,18 +179,18 @@ Feature columns are `(z_d, z_m, z_o, z_p, z_f, z_c, z_t)`.
 | `x.x_fuel.*` | 4 (4) | 1.0, 1.0, 0.2, 1.0 | fuel fraction 0.2 to 1 | W0; lo widened by d3 (W0 0.3) |
 | `x.is_methane.*` | 4 (2) | centre 0, scale 1, lo 0, hi 1 | fuel indicator (ethylene reference) | W0 |
 | `x.stated_time.*` | 4 (4) | 30.0, 1.0, 1.0, 3000.0 | 30 s centre; 1 to 3000 s | W0 |
-| `lasts.logit.b0` | [] (1) | -2.83 | $-5.5 \times 0.514$: $-5.5\,b$ at the centre | d3 |
+| `lasts.logit.b0` | [] (1) | -2.83 | $-5.5 \times 0.514$: $`-5.5\,b`$ at the centre | d3 |
 | `lasts.logit.skip` | [7] (5) | [-5.56, -2.59, 5.12, 0.0, -2.37, -0.61, 0.0] | $-5.5$ times the coefficients of `b`; pressure 0 (W0 had -1.08) | d3 |
 | `lasts.logit.W1` rows 0-5 | [8, 7] (36 of 45) | each [2.05, 1.12, -0.03, 0.0, 1.12, 0.08, -1.0] | $\mathrm{knot} - v$: the clock `base` and $-z_t$ | d3 (columns 0-4), W0 (columns 5-6) |
 | `lasts.logit.b1[0:6]` | (6) | [2.51, 0.26, -0.35, -0.86, -1.30, -1.72] | knots 3.46, 1.21, 0.60, 0.09, -0.35, -0.77 minus 0.950 | d3 |
 | `lasts.logit.w2[0:6]` | (6) | [0.97, 0.56, 0.67, 0.87, 1.14, 1.62] | 5.5 times the slope increments of $H$ | d3 |
-| `lasts.logit.W1[6]`, `b1[6]`, `w2[6]` | (3), (1), (1) | [-1, -1, 0, 0, -1, 0, 0]; -1.41; -9.0 | stand-off penalty $-9\,\mathrm{relu}(0.90 - s)$ | d3 |
+| `lasts.logit.W1[6]`, `b1[6]`, `w2[6]` | (3), (1), (1) | [-1, -1, 0, 0, -1, 0, 0]; -1.41; -9.0 | stand-off penalty $`-9\,\mathrm{relu}(0.90 - s)`$ | d3 |
 | `lasts.logit.W1[7]`, `b1[7]`, `w2[7]` | (6), (1), (0) | [-1.17, -2.17, 0.65, 0.5, -1.97, -0.18, 0]; -2.8; 0.0 | W0's steep small-flame hinge, switched off by d3 | W0 (d3 zeroed w2) |
 | `flame_end.extinction.median.b0` | [] (1) | 2.09 | $2.451 - 0.03 - 0.65 \times 0.514$ | d3 |
 | `flame_end.extinction.median.skip` | [7] (5) | [1.39, 0.81, 0.57, 0.0, 0.84, 0.01, 0.0] | `base` plus the chord of $G$ | d3 |
 | `flame_end.extinction.median.W1`, `b1`, `w2` | (38), (8), (8) | rows 0-6 [-1.01, -0.47, 0.93, 0, -0.43, -0.11, 0]; b1 [1.286 ... -0.264, -1.41]; w2 [0.29, 0.36, 0.49, 0.70, 1.09, 2.09, 5.03, -6.0] | $G(b)$ on knots 1.8 to 0.25; row 7 the stand-off penalty | d3 |
 | `flame_end.extinction.shape` | [] (1) | 3.0 | log-logistic clock shape (W0 2.2) | d3 |
-| `height_at_end.median.b0`, `skip` | (1), (5) | -3.28; [1.03, 0.56, -0.02, 0.0, 0.56, 0.04, 0.0] | $\ln(R\,\xi_e / 1\,\mathrm{m})$, $-3.28 = \ln(0.0125 \times 3.01)$ | d3 |
+| `height_at_end.median.b0`, `skip` | (1), (5) | -3.28; [1.03, 0.56, -0.02, 0.0, 0.56, 0.04, 0.0] | $`\ln(R\,\xi_e / 1\,\mathrm{m})`$, $-3.28 = \ln(0.0125 \times 3.01)$ | d3 |
 | `height_at_end.spread.b0`, `tail_weight`, `tail_width` | 3 (3) | 0.30, 0.1, 3.0 | ln-sd and tail | W0 |
 | other `height_at_end` tensors | (0) | zero | no hinge | |
 | `num.substeps` | constant | 512 | integration steps for the event target (numerical, not physics) | spec |

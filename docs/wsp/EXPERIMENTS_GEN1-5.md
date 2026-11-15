@@ -21,7 +21,7 @@ for this page.
 3. [Protocol rules and how they evolved](#3-protocol-rules-and-how-they-evolved)
 4. [Owner instructions that shaped the work](#4-owner-instructions-that-shaped-the-work)
 5. [Generation 1 (phase 1): W0 zero-shot, W1 and W2](#5-generation-1-phase-1-13-november-w0-zero-shot-w1-and-w2)
-6. [Generation 2 (phase 2): experiment-driven models](#6-generation-2-phase-2-13-14-november-experiment-driven-models)
+6. [Generation 2 (phase 2): experiment-driven models](#6-generation-2-phase-2-1314-november-experiment-driven-models)
 7. [Generation 3: train audits and the selection rule](#7-generation-3-14-november-0113-train-audits-and-the-selection-rule)
 8. [Generation 4: published science, new forwards, the first BASS model](#8-generation-4-14-november-morning-published-science-new-forwards-the-first-bass-model)
 9. [Generation 5: physics-first rebuild, committees and the planned stop](#9-generation-5-14-november-midday-physics-first-rebuild-committees-and-the-planned-stop)

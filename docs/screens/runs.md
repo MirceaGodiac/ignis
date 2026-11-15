@@ -37,7 +37,7 @@ panel, and tick runs to compare them.
    - **Atmosphere** segments: **Any atmosphere**, **Moon base and rovers**, **Spacesuit**, **ISS and
      Earth** (tooltip: the atmosphere's definition). With one chosen, a note repeats the definition,
      "· recorded ambient O2 and pressure".
-   - **Investigation chip** (when `inv` is set): "<acronym> ×"; click to remove the filter.
+   - **Investigation chip** (when `inv` is set): "`<acronym>` ×"; click to remove the filter.
 4. **Table** (click a column header to sort; click again to reverse; the arrow shows the direction):
 
    | Column | Content |

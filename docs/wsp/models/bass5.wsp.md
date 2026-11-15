@@ -78,29 +78,39 @@ flame's supply falls with the stretch rate; on the fast side chemistry has no ti
 (SpaceApps-Ardealu:docs/wsp/research/phys_bass1_w0.md, section 0). Every target is one network of
 the generic law forward (`law.rs`):
 
-$$z_i = \ln(x_i/c_i)\ \text{or}\ (x_i - c_i),\qquad N(z) = b_0 + \mathrm{skip}\cdot z + \sum_{j<8} w_2[j]\,\mathrm{relu}\big(b_1[j] + W_1[j,:]\cdot z\big)$$
+```math
+z_i = \ln(x_i/c_i)\ \text{or}\ (x_i - c_i),\qquad N(z) = b_0 + \mathrm{skip}\cdot z + \sum_{j<8} w_2[j]\,\mathrm{relu}\big(b_1[j] + W_1[j,:]\cdot z\big)
+```
 
 A binary target is $P = \mathrm{logistic}(N_\mathrm{logit})$; a positive target is a mixture of two
 log-normals of one median $e^{N_\mathrm{median}}$, ln-sds $N_\mathrm{spread}$ and
-$k\,N_\mathrm{spread}$, weights $1-w$ and $w$ (`tail_weight`, `tail_width`).
+$`k\,N_\mathrm{spread}`$, weights $1-w$ and $w$ (`tail_weight`, `tail_width`).
 
 **Rod tips and spheres, kept burning** (`holds_low_flow.*`, `holds_high_flow.*`; W0 lines). The
 thermal limit and the kinetic limit (a floor, then blow-off):
 
-$$X_{th} = x_s + \frac{q_r + b_c/\sqrt{t}}{k_s\sqrt{a_e}},\quad a_e = \frac{1.5\,(U + D_c/R)}{R};\qquad X_k = x_b + s_b\,a_n,\quad a_n = 1.5\,\frac{U}{R}\Big(\frac{R}{r_0}\Big)^{0.25}$$
+```math
+X_{th} = x_s + \frac{q_r + b_c/\sqrt{t}}{k_s\sqrt{a_e}},\quad a_e = \frac{1.5\,(U + D_c/R)}{R};\qquad X_k = x_b + s_b\,a_n,\quad a_n = 1.5\,\frac{U}{R}\Big(\frac{R}{r_0}\Big)^{0.25}
+```
 
 with $x_s = 0.030$, $q_r = 7.2$ kW/m², $b_c = 110$ kW m⁻² s^0.5, $k_s = 62$ kW m⁻² s^0.5,
 $D_c = 0.88$ cm²/s, $x_b = 0.134$, $s_b = 0.00035$ s, $r_0 = 0.318$ cm. Typed as logits:
 
-$$\ell_{low} = \min\big(28\ln(X/0.134),\ 6.3\,(\ln X - \ln X_{th})\big),\qquad \ln X_{th} = -1.750 - 0.25\,z_u + 0.583\,z_r - 0.208\,z_t$$
+```math
+\ell_{low} = \min\big(28\ln(X/0.134),\ 6.3\,(\ln X - \ln X_{th})\big),\qquad \ln X_{th} = -1.750 - 0.25\,z_u + 0.583\,z_r - 0.208\,z_t
+```
 
-$$\ell_{high} = 28\,\big(\ln(X/0.134) - \ln(X_k/0.134)\big)\quad\text{(four chords at } a_n = 5, 25, 60, 150\ \mathrm{s^{-1}})$$
+```math
+\ell_{high} = 28\,\big(\ln(X/0.134) - \ln(X_k/0.134)\big)\quad\text{(four chords at } a_n = 5, 25, 60, 150\ \mathrm{s^{-1}})
+```
 
 **Oxygen limit and blow-off speed** (`oxygen_limit.*`, `blowoff_speed.*`; W0 lines):
 $X_\mathrm{lim} = \max(X_{th}, X_k)$ written as $\ln 0.134$ plus the excess of the thermal limit and
 the blow-off rise, and
 
-$$U_b = \frac{(X - 0.134)\,R^{0.75}\,r_0^{0.25}}{1.5\times 0.00035}$$
+```math
+U_b = \frac{(X - 0.134)\,R^{0.75}\,r_0^{0.25}}{1.5\times 0.00035}
+```
 
 bent down towards $\ln(X - 0.134)$ by five knots at 19, 18, 17, 16 and 15 % O2.
 
@@ -109,7 +119,9 @@ recorded outcome is a fan setting, not a calibrated speed: rods, spheres, films 
 at pot 0.27 to 0.40 whatever the oxygen, diameter or configuration
 (SpaceApps-Ardealu:docs/wsp/research/phys_bass_study.md, section 0). So
 
-$$U_q = 0.941 \times 0.31 \times u_{pot1},\qquad \text{ln-sd } 0.15$$
+```math
+U_q = 0.941 \times 0.31 \times u_{pot1},\qquad \text{ln-sd } 0.15
+```
 
 where 0.941 is the lane's fan geometry and 0.31 the pot setting at which 22 development rods went
 out. The W0 forced-plus-diffusive chords are still written in `quench_speed.median.W1` and `.b1`
@@ -117,9 +129,13 @@ but carry `w2 = 0`: they are inert.
 
 **Films, slabs and fabrics, kept burning** (`flat_holds_*`; W0 lines, fabric shifts of bass4):
 
-$$\ell_{low} = \min\big(20\ln(X/X_f),\ 4.5\,(\ln X - \ln X_{th})\big),\quad \ln X_{th} = -1.711 - 0.833\,z_u + 0.338\,\mathrm{concurrent}$$
+```math
+\ell_{low} = \min\big(20\ln(X/X_f),\ 4.5\,(\ln X - \ln X_{th})\big),\quad \ln X_{th} = -1.711 - 0.833\,z_u + 0.338\,\mathrm{concurrent}
+```
 
-$$X_k = 0.138 + 0.0016\,U\ (\mathrm{cm/s}),\ \text{half the slope concurrent}$$
+```math
+X_k = 0.138 + 0.0016\,U\ (\mathrm{cm/s}),\ \text{half the slope concurrent}
+```
 
 The floor $X_f$ is 13.8 % for a PMMA film, moved to 17.0 % for SIBAL and 23.4 % for Nomex and Ultem
 at low flow, and to 15.8 % and 21.5 % under the blow-off rise (`skip[9]`, `skip[10]`, `W1[0,9]`,
@@ -129,15 +145,21 @@ at low flow, and to 15.8 % and 21.5 % under the blow-off rise (`skip[9]`, `skip[
 stays above its oxygen limit and burns down to the same fan floor as everything else, or it reaches
 that limit during a long burn and dies at whatever flow it was held at, 8 to 18 cm/s:
 
-$$\ln U_q = \mathrm{clamp}\big(\ln U_A + 30\,(z_c - z_x),\ \ln U_A,\ \ln U_B\big)$$
+```math
+\ln U_q = \mathrm{clamp}\big(\ln U_A + 30\,(z_c - z_x),\ \ln U_A,\ \ln U_B\big)
+```
 
-$$U_A = 0.941\times 0.39\,u_{pot1}\,(X/0.18)^{-0.6}\,1.5^{\mathrm{concurrent}},\qquad U_B = 11\ \mathrm{cm/s}\,(d/3\ \mathrm{mm})^{0.3}\,1.22^{\mathrm{one\text{-}sided}}$$
+```math
+U_A = 0.941\times 0.39\,u_{pot1}\,(X/0.18)^{-0.6}\,1.5^{\mathrm{concurrent}},\qquad U_B = 11\ \mathrm{cm/s}\,(d/3\ \mathrm{mm})^{0.3}\,1.22^{\mathrm{one\text{-}sided}}
+```
 
-$$z_c = -0.204 + 0.147\ln\frac{d}{0.5\ \mathrm{mm}} + 0.28\,\mathrm{one\text{-}sided} - 0.11\ln\frac{W}{2\ \mathrm{cm}}$$
+```math
+z_c = -0.204 + 0.147\ln\frac{d}{0.5\ \mathrm{mm}} + 0.28\,\mathrm{one\text{-}sided} - 0.11\ln\frac{W}{2\ \mathrm{cm}}
+```
 
-Unit 3 of the network carries $30\,(z_c - z_x)$ and unit 4 the cap $U_B$. The last term is the bass5
+Unit 3 of the network carries $`30\,(z_c - z_x)`$ and unit 4 the cap $U_B$. The last term is the bass5
 change: a slab is held along both long edges in a metal frame, and the heat conducted sideways into
-it per unit of burning area is $4\lambda_s (T_s - T_\infty)\,d/W^2$, 11 kW/m² for 4 mm in a 1 cm frame
+it per unit of burning area is $`4\lambda_s (T_s - T_\infty)\,d/W^2`$, 11 kW/m² for 4 mm in a 1 cm frame
 against 2.8 kW/m² in a 2 cm frame and 7.2 kW/m² radiated by the surface. A thick narrow slab
 therefore needs more oxygen to keep spreading: its threshold is 1.079 times higher at half the width
 (SpaceApps-Ardealu:docs/wsp/research/phys_bass_post_final.md, section 2). The size of the factor is

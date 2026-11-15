@@ -183,7 +183,7 @@ Every step fails closed. The running commit is read from the running image's
 | `postponed` | turns or jobs still running after `DRAIN_TIMEOUT` | none; retried next run |
 | `failed` | build, snapshot, smoke test or health failed; rolled back if it got that far | read the journal, fix forward on `main` |
 | `drill_rolled_back` | `--drill-rollback` completed | none |
-| `rollback_failed` | **origin down** | [§7.3](#73-when-automatic-rollback-fails) |
+| `rollback_failed` | **origin down** | [§7.3](#when-automatic-rollback-fails) |
 
 ```bash
 tail -n 5 /var/lib/ignis-deploy/deploys.jsonl
@@ -419,7 +419,7 @@ from a workstation with `cd infra/worker && npx wrangler tail`.
 |---|---|---|
 | `failed` / `build failed` | compile error on Linux, or disk | Read `journalctl -u ignis-autodeploy`. Fix forward on `main`; the commit is not retried until `main` moves (or `--force`). |
 | `only N GB free on … (need 8)` | Docker disk full after the three prune stages | `sudo docker system df`; remove unneeded images; lower `MIN_FREE_GB` only with reason. |
-| `smoke test failed` | the new image cannot restore or open the store, or does not serve | The `smoke|` lines in the journal show the container log. Live traffic was never touched. |
+| `smoke test failed` | the new image cannot restore or open the store, or does not serve | The `smoke\|` lines in the journal show the container log. Live traffic was never touched. |
 | Deploy `postponed` repeatedly | long turns or jobs | Wait, or deploy with `--no-drain` (cuts them off; the server's restart recovery handles it). |
 | `on hold (…)` in the journal | `/etc/ignis/autodeploy.hold` exists | Remove it when the reason is gone. |
 | Health check: `KnowledgeService/DatasetService not configured` | data under `/srv/ignis/data` or `/srv/ignis/artifacts/evidence` missing | Run `build-data.sh` (§6), restart. |

@@ -22,7 +22,7 @@ live while the agent works.
 
 ### Top bar
 
-- **Breadcrumb**: *Questions > <goal>* (the goal is cut to fit; hover for the whole text).
+- **Breadcrumb**: *Questions > `<goal>`* (the goal is cut to fit; hover for the whole text).
   *Questions* links to the history.
 - **Sources N** (once an answer cites sources): N is the number of distinct sources across the
   loaded answers. Toggles the *Sources* item in the side panel.
@@ -50,7 +50,7 @@ Each turn ([`views/turns.ts`](../../web/src/views/turns.ts) `toTurns`) shows, to
 
 Under the turns:
 
-- **Approval needed: <action>** with **Approve** and **Deny**, for each pending approval request
+- **Approval needed: `<action>`** with **Approve** and **Deny**, for each pending approval request
   (enabled when the agent runtime is available).
 - **Working** with a live dot, while the agent works and no turn exists yet.
 - "No agent is configured on this server", when the runtime is unavailable and nothing has
@@ -114,8 +114,8 @@ Under the turns:
   and **Open**. For a computed value it reads the value by JSON pointer from the artifact
   (`GET /api/v1/artifacts/{id}?pointer=`) together with its `/unit`. Clicking a chip opens the
   **Source** item in the side panel.
-- **Figures**: "Figure N. <caption>", a *Model output* tag for an analysis artifact (or the
-  contract), size, release, **run <id>** links, and **Open figure** (the *Figure* panel item).
+- **Figures**: "Figure N. `<caption>`", a *Model output* tag for an analysis artifact (or the
+  contract), size, release, **run `<id>`** links, and **Open figure** (the *Figure* panel item).
 - **Embedded views** ([`views/AnswerViews.tsx`](../../web/src/views/AnswerViews.tsx)): the agent
   places a component from a closed catalog and the UI draws it with its own components:
   - *Source excerpt*: evidence class, source id and place, the quote, **Open original**.
@@ -135,9 +135,9 @@ Under the turns:
   source (its id), the places cited in it (each opens the passage) and **Original ↗**.
 - **Copy** (icon): copies the answer's text blocks.
 - **Follow-ups** (up to six buttons), derived only from the answer:
-  - *Forecast <run> from its first seconds* for up to two runs the figures were computed from (opens
+  - *Forecast `<run>` from its first seconds* for up to two runs the figures were computed from (opens
     the Forecast lab on that run);
-  - *Compare <runs>* when two or more runs are named (sets the Compare selection, up to 8, and opens
+  - *Compare `<runs>`* when two or more runs are named (sets the Compare selection, up to 8, and opens
     Compare);
   - *Check the model-knowledge claims in the corpus*, when the answer has background claims;
   - *Find support for claim N*, for up to two claims with no support;
