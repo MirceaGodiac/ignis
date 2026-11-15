@@ -17,7 +17,7 @@ use std::sync::Arc;
 use ignis_core::services::ArtifactStore;
 use ignis_research::runtime::{
     claude_preflight, preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, CodexBridge,
-    CodexConfig, HarnessBundle, HarnessSource, McpAttachment, RuntimeBuildManifest,
+    CodexConfig, HarnessBundle, HarnessShelf, HarnessSource, McpAttachment, RuntimeBuildManifest,
     PINNED_CODEX_VERSION,
 };
 use ignis_research::ResearchStore;
@@ -159,7 +159,9 @@ pub struct RuntimeReport {
 }
 
 /// A runtime over `store`, its state under `home`, waking `hub` after each commit, with the IGNIS
-/// tools of `mcp` attached to every runtime process.
+/// tools of `mcp` attached to every runtime process. The harness bundle it renders goes on `shelf`
+/// (the tool host's), where `skills_read` serves its skills.
+#[allow(clippy::too_many_arguments)]
 pub fn runtime(
     pre: &Preflighted,
     home: PathBuf,
@@ -167,6 +169,7 @@ pub fn runtime(
     artifacts: Arc<dyn ArtifactStore>,
     hub: Arc<Hub>,
     mcp: Option<McpAttachment>,
+    shelf: &HarnessShelf,
 ) -> (Option<Arc<dyn AgentRuntime>>, RuntimeReport) {
     let manifest = match (&pre.cfg, &pre.outcome) {
         (Some(_), Ok(m)) => m.clone(),
@@ -211,6 +214,7 @@ pub fn runtime(
             );
         }
     };
+    shelf.add(bundle.clone());
     let harness = format!("harness {}", bundle.short());
     let tools = if mcp.is_some() {
         "IGNIS tools over loopback MCP"

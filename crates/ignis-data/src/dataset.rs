@@ -911,6 +911,72 @@ impl DatasetStore {
         })())
     }
 
+    /// The checks every served bundle passes after it is found: audience, a split that supersedes
+    /// an unsplit bundle, and each of its partitions against the scope.
+    fn admit(&self, scope: &ExecutionScope, b: &DatasetBundle) -> ServiceResult<()> {
+        let id = &b.dataset_id;
+        if b.audience == BundleAudience::Evaluator && scope.role != ScopeRole::Evaluation {
+            return Err(err(
+                ErrorCode::ScopeDenied,
+                "evaluator bundles are served to evaluation scopes only",
+            ));
+        }
+        // A bundle without a split (R2b sensor bundles, `split_id = unsplit`) declares `train` only
+        // because nothing assigns its runs yet. Once a frozen split assigns any run of its
+        // investigation, the split decides: the unsplit bundle is withheld until rebuilt on it.
+        if let Some(split) = unsplit_superseded(b, &crate::cohort::split_files()) {
+            return Err(err(
+                ErrorCode::ScopeDenied,
+                format!(
+                    "{id} was built without a split, but frozen split {split} now assigns runs of its investigation; the split's partitions win: rebuild the bundle on the split"
+                ),
+            ));
+        }
+        for p in &b.partitions {
+            scope.require_partition(*p)?;
+        }
+        Ok(())
+    }
+
+    /// Builder bundles this scope may read (every check of [`DatasetService::dataset`] passes),
+    /// in id order. Unreadable or invalid files are skipped here; asking for one by id says why.
+    fn readable_builder(&self, scope: &ExecutionScope) -> Vec<DatasetBundle> {
+        bundle_ids(&self.builder_root)
+            .into_iter()
+            .filter_map(|id| DatasetId::new(id).ok())
+            .filter_map(|id| self.load(BundleAudience::Builder, &id)?.ok())
+            .filter(|b| self.admit(scope, b).is_ok())
+            .collect()
+    }
+
+    fn not_found_message(&self, id: &DatasetId, readable: &[DatasetBundle]) -> String {
+        let total = bundle_ids(&self.builder_root).len();
+        if readable.is_empty() {
+            return if total == 0 {
+                format!("dataset {id} is not in this store; the store holds no datasets")
+            } else {
+                format!(
+                    "dataset {id} is not in this store; none of its {total} datasets is readable in this session"
+                )
+            };
+        }
+        let mut msg = format!(
+            "dataset {id} is not in this store; datasets readable in this session (pass the id, or a family name that names exactly one of them): {}",
+            readable
+                .iter()
+                .map(describe)
+                .collect::<Vec<_>>()
+                .join("; ")
+        );
+        if total > readable.len() {
+            msg.push_str(&format!(
+                "; {} more in the store are not readable in this session (a partition it does not hold)",
+                total - readable.len()
+            ));
+        }
+        msg
+    }
+
     /// Every builder bundle id in the store.
     pub fn list_builder(&self) -> anyhow::Result<Vec<String>> {
         let mut v = Vec::new();
@@ -1017,6 +1083,51 @@ fn bundle_ids(root: &Path) -> Vec<String> {
     v
 }
 
+/// `id (family, fuel: …, partitions: …, N views)`: enough to pick a bundle without inspecting all.
+fn describe(b: &DatasetBundle) -> String {
+    let mut parts = vec![b.family.as_str().to_string()];
+    if let Some(inv) = b.inclusion_criteria.get("investigation") {
+        parts.push(inv.clone());
+    }
+    if let Some(fuel) = b.inclusion_criteria.get("fuel") {
+        // "methanol (summary and test sheet agree)" -> "methanol"
+        let short = fuel.split(" (").next().unwrap_or(fuel).trim();
+        parts.push(format!("fuel {short}"));
+    }
+    let partitions: Vec<String> = b
+        .partitions
+        .iter()
+        .map(|p| format!("{p:?}").to_lowercase())
+        .collect();
+    parts.push(format!("partitions {}", partitions.join("+")));
+    parts.push(format!("{} views", b.views.len()));
+    format!("{} ({})", b.dataset_id, parts.join(", "))
+}
+
+/// The one readable bundle a family-like name points at: its family name (`flex`, `acme_normal`),
+/// or a prefix of its id that ends at a `-` (`flex`, `flex-660b7d9ede629b30`, `sensors-psi-10`).
+/// Ambiguous or unmatched names resolve to nothing.
+fn resolve_alias<'a>(name: &str, readable: &'a [DatasetBundle]) -> Option<&'a DatasetBundle> {
+    let name = name.trim().to_ascii_lowercase();
+    if name.is_empty() {
+        return None;
+    }
+    let hits: Vec<&DatasetBundle> = readable
+        .iter()
+        .filter(|b| {
+            let id = b.dataset_id.as_str().to_ascii_lowercase();
+            (b.family != Family::Other && b.family.as_str() == name)
+                || id
+                    .strip_prefix(&name)
+                    .is_some_and(|rest| rest.starts_with('-'))
+        })
+        .collect();
+    match hits.as_slice() {
+        [one] => Some(one),
+        _ => None,
+    }
+}
+
 impl DatasetService for DatasetStore {
     fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle> {
         scope
@@ -1029,45 +1140,24 @@ impl DatasetService for DatasetStore {
             None if scope.role == ScopeRole::Evaluation => self.load(BundleAudience::Evaluator, id),
             None => None,
         };
-        let b = found
-            .ok_or_else(|| {
-                // Name what exists, so the agent can pick an id instead of guessing (seen live:
-                // "ACME" asked for, nothing to go on). Builder ids only; a listed id may still be
-                // refused for this scope, which then says why.
-                let known = bundle_ids(&self.builder_root);
-                err(
-                    ErrorCode::NotFound,
-                    if known.is_empty() {
-                        format!("dataset {id} is not in this store; the store holds no datasets")
-                    } else {
-                        format!(
-                            "dataset {id} is not in this store; dataset ids here: {}",
-                            known.join(", ")
-                        )
-                    },
-                )
-            })?
-            .map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?;
-        if b.audience == BundleAudience::Evaluator && scope.role != ScopeRole::Evaluation {
-            return Err(err(
-                ErrorCode::ScopeDenied,
-                "evaluator bundles are served to evaluation scopes only",
-            ));
-        }
-        // A bundle without a split (R2b sensor bundles, `split_id = unsplit`) declares `train` only
-        // because nothing assigns its runs yet. Once a frozen split assigns any run of its
-        // investigation, the split decides: the unsplit bundle is withheld until rebuilt on it.
-        if let Some(split) = unsplit_superseded(&b, &crate::cohort::split_files()) {
-            return Err(err(
-                ErrorCode::ScopeDenied,
-                format!(
-                    "{id} was built without a split, but frozen split {split} now assigns runs of its investigation; the split's partitions win: rebuild the bundle on the split"
-                ),
-            ));
-        }
-        for p in &b.partitions {
-            scope.require_partition(*p)?;
-        }
+        let b = match found {
+            Some(b) => b.map_err(|e| err(ErrorCode::Internal, format!("{e:#}")))?,
+            // Seen live (2026-11-15): the agent asks for `flex`, `unknown` or `sensors-daft` and is
+            // refused, sometimes three times in one question. A family name that names exactly one
+            // bundle this session can read resolves to it (the bundle carries its real id); anything
+            // else is refused with the bundles this session can read, each with what it holds.
+            None => {
+                let readable = self.readable_builder(scope);
+                return match resolve_alias(id.as_str(), &readable) {
+                    Some(b) => Ok(b.clone()),
+                    None => Err(err(
+                        ErrorCode::NotFound,
+                        self.not_found_message(id, &readable),
+                    )),
+                };
+            }
+        };
+        self.admit(scope, &b)?;
         Ok(b)
     }
 

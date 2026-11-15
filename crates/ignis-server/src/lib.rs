@@ -489,6 +489,7 @@ fn v1_instance(
         artifacts.clone(),
         hub.clone(),
         attachment,
+        tools.harness(),
     );
     Arc::new(v1::V1 {
         store,

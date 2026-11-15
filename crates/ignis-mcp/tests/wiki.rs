@@ -67,6 +67,8 @@ fn wiki_host(wiki: bool) -> Wiki {
         ToolServices {
             knowledge: Some(Arc::new(WikiOnly(w))),
             wiki,
+            // A deployment whose sessions may write the wiki (research sessions never do).
+            wiki_write: wiki,
             ..Default::default()
         },
         store.clone(),
@@ -126,6 +128,29 @@ fn the_wiki_tools_are_registered_only_with_a_wiki_store() {
     .map(|t| t.unavailable)
     .collect();
     assert_eq!(why, vec![Some(ignis_mcp::tools::WIKI_NOT_CONFIGURED); 2]);
+    // A wiki store but no session that may write it (research scopes never hold wiki_write):
+    // wiki_read is served, wiki_patch is not attached, and capability status says why.
+    let why: Vec<_> = ignis_mcp::catalog(&ToolServices {
+        knowledge: Some(Arc::new(WikiOnly(
+            WikiStore::open(&off._dir.path().join("w3.sqlite"), Origin::SyntheticFixture).unwrap(),
+        ))),
+        wiki: true,
+        ..Default::default()
+    })
+    .into_iter()
+    .filter(|t| t.descriptor.name.starts_with("wiki_"))
+    .map(|t| (t.descriptor.name, t.unavailable))
+    .collect();
+    assert_eq!(
+        why,
+        vec![
+            (
+                "wiki_patch".to_string(),
+                Some(ignis_mcp::tools::WIKI_WRITE_NOT_GRANTED)
+            ),
+            ("wiki_read".to_string(), None),
+        ]
+    );
 }
 
 #[test]
