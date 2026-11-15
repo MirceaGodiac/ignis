@@ -202,6 +202,9 @@ export function applyEvent(state: EpisodeState, e: ResearchEvent): { state: Epis
       else s.pendingRationale = { ...s.pendingRationale, [id]: [...(s.pendingRationale[id] ?? []), note] };
       break;
     }
+    case "usage.reported":
+      // research.v2 (M5): measured token usage; metrics come from /api/v1/episodes/{id}/metrics.
+      break;
     case "runtime.opaque":
       // Archived, not interpreted: it stays in the timeline only.
       if (body.payload.payload) addArtifact(s, body.payload.payload);

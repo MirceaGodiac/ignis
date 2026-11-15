@@ -324,6 +324,10 @@ pub enum EventBody {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         payload: Option<ArtifactRef>,
     },
+    /// v2 (M5): token usage the runtime reported (Codex `thread/tokenUsage/updated`, the `usage` of
+    /// a Claude Code `result`). Measured by the provider, never estimated by IGNIS.
+    #[serde(rename = "usage.reported")]
+    UsageReported { usage: UsageReport },
 }
 
 /// One entry of an episode's append-only log. `seq` is gap-free and monotonic per episode and is
@@ -360,6 +364,10 @@ impl ResearchEvent {
                 ensure(!text.trim().is_empty(), c, || "empty rationale".into())
             }
             EventBody::ToolFinished { result } => result.validate(),
+            EventBody::UsageReported { usage } => {
+                self.schema_version.require_v2(c, "usage.reported")?;
+                usage.validate()
+            }
             EventBody::JobUpdated { job } => job.validate(),
             EventBody::ArtifactCreated { artifact }
             | EventBody::AnswerCompleted {
@@ -2253,6 +2261,76 @@ pub struct TokenUsage {
     pub reasoning_tokens: Option<u64>,
 }
 
+/// How the counts of a [`UsageReport`] add up.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum UsageAccounting {
+    /// The tokens of the calls since the previous report (Claude Code: one report per turn and
+    /// model). A turn's usage is the sum of its increments.
+    Increment,
+    /// The running total of the runtime thread so far (Codex). A turn's usage is its last total
+    /// minus the last total before it; a total lower than the previous one starts a new thread.
+    ThreadTotal,
+}
+
+/// Token usage as one runtime notification reported it (M5). Input counts include the cached
+/// part; output counts include reasoning. A count the runtime did not report stays absent.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct UsageReport {
+    pub accounting: UsageAccounting,
+    /// Model id as the runtime reported it; absent when the notification does not name it (Codex),
+    /// in which case the episode's harness pin names the model.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    /// Every input token, cache reads and cache writes included.
+    pub input_tokens: u64,
+    /// Of `input_tokens`, read from the provider's prompt cache.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cached_input_tokens: Option<u64>,
+    /// Of `input_tokens`, written to the provider's prompt cache (priced apart by some providers).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cache_write_tokens: Option<u64>,
+    /// Every output token, reasoning included.
+    pub output_tokens: u64,
+    /// Of `output_tokens`, spent on reasoning.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_tokens: Option<u64>,
+    /// What the runtime said these calls cost (`provider_reported`), when it says. IGNIS's own
+    /// figures come from a price list; this is kept next to them, never mixed in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reported_cost: Option<CostFigure>,
+}
+
+impl UsageReport {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "UsageReport";
+        ensure(
+            self.model.as_ref().is_none_or(|m| !m.trim().is_empty()),
+            c,
+            || "a model, when present, is named".into(),
+        )?;
+        let cache = self.cached_input_tokens.unwrap_or(0) as u128
+            + self.cache_write_tokens.unwrap_or(0) as u128;
+        ensure(cache <= self.input_tokens as u128, c, || {
+            "cache reads and writes exceed the input tokens".into()
+        })?;
+        ensure(
+            self.reasoning_tokens
+                .is_none_or(|r| r <= self.output_tokens),
+            c,
+            || "reasoning tokens exceed the output tokens".into(),
+        )?;
+        if let Some(cost) = &self.reported_cost {
+            cost.validate(c)?;
+            ensure(cost.basis == CostBasis::ProviderReported, c, || {
+                "a reported cost is provider_reported".into()
+            })?;
+        }
+        Ok(())
+    }
+}
+
 /// Where a cost figure comes from.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -2273,6 +2351,23 @@ pub struct CostFigure {
     /// Identity of the price list (provider page and date); present exactly for `price_list`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub price_list: Option<String>,
+}
+
+impl CostFigure {
+    /// Non-negative amount, an ISO 4217 code, and a price list named exactly for `price_list`.
+    pub fn validate(&self, c: &'static str) -> Result<(), ContractError> {
+        ensure(self.amount.get() >= 0.0, c, || "negative cost".into())?;
+        ensure(
+            self.currency.len() == 3 && self.currency.bytes().all(|b| b.is_ascii_uppercase()),
+            c,
+            || format!("{:?} is not an ISO 4217 code", self.currency),
+        )?;
+        ensure(
+            (self.basis == CostBasis::PriceList) == self.price_list.is_some(),
+            c,
+            || "a price-list cost names its price list (and only then)".into(),
+        )
+    }
 }
 
 /// Which benchmark run an episode belongs to (`ignis harness run --variant <v> --tasks <set>`).
@@ -2376,17 +2471,7 @@ impl TraceBundle {
             )?;
         }
         if let Some(cost) = &self.cost {
-            ensure(cost.amount.get() >= 0.0, c, || "negative cost".into())?;
-            ensure(
-                cost.currency.len() == 3 && cost.currency.bytes().all(|b| b.is_ascii_uppercase()),
-                c,
-                || format!("{:?} is not an ISO 4217 code", cost.currency),
-            )?;
-            ensure(
-                (cost.basis == CostBasis::PriceList) == cost.price_list.is_some(),
-                c,
-                || "a price-list cost names its price list (and only then)".into(),
-            )?;
+            cost.validate(c)?;
         }
         let parts: BTreeSet<_> = self.partitions_touched.iter().collect();
         ensure(parts.len() == self.partitions_touched.len(), c, || {
@@ -2416,6 +2501,224 @@ impl TraceBundle {
             c,
             || "finished before it started".into(),
         )
+    }
+}
+
+// ---------------------------------------------------------------- metrics (M5)
+//
+// Derived, never stored: recomputed from an episode's event log (tool timestamps, `usage.reported`)
+// and a versioned price list. Served by `GET /api/v1/episodes/{id}/metrics`, `GET /api/v1/metrics`
+// and `ignis metrics`. No `schema_version`: these are HTTP response shapes.
+
+/// Latency of finished tool calls, measured from `tool.started` to `tool.finished` (the
+/// `occurred_at` of each, stamped by the host when it records them). Percentiles use the
+/// nearest-rank method over the measured samples; nothing is interpolated or estimated.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct LatencyStats {
+    pub samples: u64,
+    pub p50_ms: Finite,
+    pub p95_ms: Finite,
+    pub max_ms: Finite,
+}
+
+impl LatencyStats {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "LatencyStats";
+        ensure(self.samples > 0, c, || "no samples".into())?;
+        ensure(
+            0.0 <= self.p50_ms.get()
+                && self.p50_ms.get() <= self.p95_ms.get()
+                && self.p95_ms.get() <= self.max_ms.get(),
+            c,
+            || "0 <= p50 <= p95 <= max".into(),
+        )
+    }
+}
+
+/// One tool's calls in the measured range.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ToolMetrics {
+    pub tool: String,
+    /// Calls started.
+    pub calls: u64,
+    /// Calls started whose `tool.finished` is not in the log (still running, or cut).
+    pub unfinished: u64,
+    /// Absent when no call finished.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub latency: Option<LatencyStats>,
+}
+
+/// Token totals of a turn, a question, an episode or a workspace (sums of reported usage).
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct TokenTotals {
+    /// `usage.reported` events that contributed.
+    pub reports: u64,
+    pub input_tokens: u64,
+    /// Absent when no contributing report gave a cached count (unknown, not zero).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cached_input_tokens: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cache_write_tokens: Option<u64>,
+    pub output_tokens: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_tokens: Option<u64>,
+    /// `100 * cached_input_tokens / input_tokens`; absent when the cached count is unknown or
+    /// there was no input.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cache_hit_pct: Option<Finite>,
+}
+
+impl TokenTotals {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "TokenTotals";
+        ensure(
+            self.cached_input_tokens.unwrap_or(0) as u128
+                + self.cache_write_tokens.unwrap_or(0) as u128
+                <= self.input_tokens as u128,
+            c,
+            || "cache reads and writes exceed the input tokens".into(),
+        )?;
+        ensure(
+            self.cache_hit_pct
+                .is_none_or(|p| (0.0..=100.0).contains(&p.get())),
+            c,
+            || "cache hit outside 0..=100 %".into(),
+        )
+    }
+}
+
+/// The money a range of usage cost. Fails closed: usage of a model the price list does not
+/// price, or of a token class it has no price for, is `unpriced`, never zero.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
+pub enum CostStatus {
+    /// No usage was reported in the range: there is nothing to price (not "free").
+    NoUsage,
+    /// Every reported token was priced by the price list (`basis = price_list`).
+    Priced { cost: CostFigure },
+    /// Some usage could not be priced; the amount is unknown.
+    Unpriced {
+        /// The models (or `unreported`) whose usage could not be priced.
+        models: Vec<String>,
+        /// Why, one line per problem.
+        reasons: Vec<String>,
+    },
+}
+
+impl CostStatus {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        let c = "CostStatus";
+        match self {
+            CostStatus::NoUsage => Ok(()),
+            CostStatus::Priced { cost } => {
+                cost.validate(c)?;
+                ensure(cost.basis == CostBasis::PriceList, c, || {
+                    "a computed cost comes from a price list".into()
+                })
+            }
+            CostStatus::Unpriced { models, reasons } => {
+                ensure(!models.is_empty() && !reasons.is_empty(), c, || {
+                    "an unpriced cost names the models and the reasons".into()
+                })
+            }
+        }
+    }
+}
+
+/// One runtime turn.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct TurnMetrics {
+    pub runtime_turn_id: String,
+    /// `seq` of the `message.user` the turn answers, when the log has one before it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub question_seq: Option<u64>,
+    pub events: EventRange,
+    pub tool_calls: u64,
+    pub tokens: TokenTotals,
+    pub cost: CostStatus,
+}
+
+/// One user question: its `message.user` and the turns that started under it (before the next
+/// question).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct QuestionMetrics {
+    pub message_seq: u64,
+    pub turns: u32,
+    pub tool_calls: u64,
+    pub tokens: TokenTotals,
+    pub cost: CostStatus,
+    /// From the `message.user` to the last event before the next question (host clock).
+    pub wall_time_s: Finite,
+}
+
+/// Metrics of one episode.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct EpisodeMetrics {
+    pub episode_id: EpisodeId,
+    /// Highest `seq` the metrics read (the log is read from seq 1).
+    pub last_seq: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub harness: Option<HarnessRef>,
+    /// Identity of the price list costs were computed with (`<name>@<version>`).
+    pub price_list: String,
+    pub tools: Vec<ToolMetrics>,
+    pub turns: Vec<TurnMetrics>,
+    pub questions: Vec<QuestionMetrics>,
+    pub tokens: TokenTotals,
+    pub cost: CostStatus,
+}
+
+fn check_tools(tools: &[ToolMetrics]) -> Result<(), ContractError> {
+    tools
+        .iter()
+        .filter_map(|t| t.latency.as_ref())
+        .try_for_each(LatencyStats::validate)
+}
+
+impl EpisodeMetrics {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        check_tools(&self.tools)?;
+        for t in &self.turns {
+            t.tokens.validate()?;
+            t.cost.validate()?;
+        }
+        for q in &self.questions {
+            q.tokens.validate()?;
+            q.cost.validate()?;
+        }
+        self.tokens.validate()?;
+        self.cost.validate()
+    }
+}
+
+/// Aggregate over the episodes of a workspace: latencies over every call (never averaged
+/// per-episode percentiles), token sums, and the mean cost per question when every question is
+/// priced.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct WorkspaceMetrics {
+    pub episodes: u64,
+    pub questions: u64,
+    pub price_list: String,
+    pub tools: Vec<ToolMetrics>,
+    pub tokens: TokenTotals,
+    pub cost: CostStatus,
+    /// `cost / questions`; `unpriced` when any usage is, `no_usage` when none was reported.
+    pub cost_per_question: CostStatus,
+}
+
+impl WorkspaceMetrics {
+    pub fn validate(&self) -> Result<(), ContractError> {
+        check_tools(&self.tools)?;
+        self.tokens.validate()?;
+        self.cost.validate()?;
+        self.cost_per_question.validate()
     }
 }
 
