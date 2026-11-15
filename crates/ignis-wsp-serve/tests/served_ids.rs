@@ -7,8 +7,9 @@ use std::path::{Path, PathBuf};
 use ignis_wsp::MemoryPrefixes;
 use ignis_wsp_serve::{ServedList, ServedModels};
 
-/// The adopted releases of `docs/wsp/README.md` (feat/handwritten-science e4477d6), in full.
-const PINNED: [(&str, &str); 5] = [
+/// The adopted releases: the five of `docs/wsp/README.md` (feat/handwritten-science e4477d6), then
+/// the nine generic-law releases of `docs/wsp/COVERAGE_19.md` (6d3c8e9), in full.
+const PINNED: [(&str, &str); 14] = [
     (
         "flex_methanol.wsp2",
         "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce",
@@ -28,6 +29,42 @@ const PINNED: [(&str, &str); 5] = [
     (
         "bass_front.wsp",
         "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
+    ),
+    (
+        "bre.wsp",
+        "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+    ),
+    (
+        "spice.wsp",
+        "sha256:93e750242725a5a1fb9d38f4178b23605cac636f210bf9f3f8bc8e8150e2f2a8",
+    ),
+    (
+        "efield.wsp",
+        "sha256:73f91b55c81dc724fe2441c2254e109c65f8e08b253fcbe4c00a841f7a0986a9",
+    ),
+    (
+        "samer.wsp",
+        "sha256:05f77ae2f7a666e0da69d04fa29d9ad8b0ac15790645abe1adc0149292327fb0",
+    ),
+    (
+        "same.wsp",
+        "sha256:e1362b55270238360ec6744cfea6225db42d0fe019f6ff1c77dd96cede5f2062",
+    ),
+    (
+        "daft.wsp",
+        "sha256:061f93de68e66b27606d99cae054c5bd03ddb136c03decc81489cad8b66f5e5d",
+    ),
+    (
+        "bass1.wsp",
+        "sha256:b3bb1869df2fc837f7957e925f55b357ecc6272d312f1ddbb46346da15376ca0",
+    ),
+    (
+        "slice.wsp",
+        "sha256:d10c94bc6ea0bcb957f89734393b0cbabbd44fdf0ac9c2e440f051a33cd3006e",
+    ),
+    (
+        "cld.wsp",
+        "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
     ),
 ];
 
@@ -50,7 +87,7 @@ fn served_ids_are_the_adopted_ids_and_verify() {
     assert_eq!(ids, PINNED);
     // The README quotes each adopted id as `sha256:<first 8>…<last 4>`.
     let readme = std::fs::read_to_string(repo().join("docs/wsp/README.md")).unwrap();
-    for (_, id) in PINNED {
+    for (_, id) in &PINNED[..5] {
         let hex = &id[7..];
         let quoted = format!("sha256:{}…{}", &hex[..8], &hex[hex.len() - 4..]);
         assert!(

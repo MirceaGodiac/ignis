@@ -1446,3 +1446,153 @@ What follows. The burner temperature limit is a setting of each script, already 
 committee takes the limit as an input of the test. It is typed from the s-Flame and CFI-G train days
 and judged once on these validation days, whose aggregates above have been seen (stated in its
 registration). The test days 20142, 20170 and 20176 stay unread.
+
+### 13.2 The nine investigations without a model: one blind look each, registered 15 November
+
+The laws are the dossiers `research/phys_<slug>_w0.md` as committed in `3b33929` and `99b3d57`, typed by
+claude-fable-5-2 before any score existed. An engineer transcribed their numbers into releases on the
+generic forward `law.rs` without choosing any (element-by-element check, and the forward reproduces each
+dossier's own table of expectations within the rounding of that table:
+`runs/dev/gen7/transcription_checks.md`). No release below has been scored on any data, train included.
+The full registration of each look (target, how the law gives it, baselines, cases and days, refusals
+expected, threats, what the author had seen) is [feedback/gen7_registrations.md](feedback/gen7_registrations.md),
+committed with this section; what follows is the list and the rule.
+
+| Investigation | Slug and candidate | Release | What the author had seen | Scored on |
+|---|---|---|---|---|
+| BRE (PSI-20) | `bre` w0 | `sha256:aa0eef5b…2b4d` | zero-shot; published aggregates of the experiment read for comparison | validation days (35 tests, 4 days): when the flame ends and why |
+| SPICE (PSI-107) | `spice` w0 (variant B) | `sha256:93e75024…f2a8` | zero-shot for the smoke-point length | validation (7 smoke points, 2 days) |
+| SPICE (PSI-107) | `spice` lit | `sha256:40c345b0…d3bf` | NOT blind: its centre is the investigators' published fit of the same smoke points | the same; reported beside, decides nothing |
+| E-FIELD (PSI-22) | `efield` w0 | `sha256:73f91b55…86a9` | typed with train aggregates seen (count of flame-outs, current range) | validation (36 tests, 4 days): ion current per level; flame out under the field |
+| SAME-R (PSI-101) | `samer` w0 | `sha256:05f77ae2…7fb0` | zero-shot; train facts of the note read after the constants were typed | validation (24 rows, 3 days): particle diameter; detector at full scale |
+| SAME (PSI-102) | `same` w0 | `sha256:e1362b55…2062` | zero-shot | the whole investigation, held (45 rows, one group) |
+| DAFT (PSI-47) | `daft` w0 | `sha256:061f93de…5e5d` | zero-shot | the whole investigation, held (53 readings, 2 groups) |
+| BASS and BASS-II plastics (PSI-26, PSI-25) | `bass1` w0 | `sha256:97c0daf9…39a2` | blind to the project's files; four published papers on these burns read | validation (41 burns, 12 days): the flow speed below which the flame goes out |
+| SLICE (PSI-106) | `slice` w0 | `sha256:d10c94bc…006e` | zero-shot; one paper on the experiment read as a check | validation (75 lines, 2 days): blow-off and lifting per line |
+| CLD Flame (PSI-21) | `cld` w0 | `sha256:0995df66…fe4e` | typed with train aggregates seen (share of flames lost, radiometer range) | validation (72 test points, 6 days): flame lost before fuel-off; radiometer level |
+
+**Decisions of the coordinator on the open points of the draft, taken before any score.**
+- BRE: the lane's clock (from the measured onset, about 0.8 s after ignition) is used unchanged; the law's
+  one cause is extinction, and the mass left at the planned stop is operator termination, with the stop
+  the lane's planned-stop baseline uses (two train medians of the data lane). Named as threats.
+- SLICE: no validation line carries the cabin oxygen. The value supplied is the median of the cabin
+  oxygen recorded on the train lines (conditions only), fixed before the look and stated in the result.
+  The 41 lines of the ethylene day are refusals (a fuel outside the law).
+- CLD: the planned fuel-off is declared as the scheduled stop, as the typed block needs. Schedules
+  without a constant-flow stage are refusals.
+- Plastics: only the quench speed is scored now. Whether the sample kept burning after the igniter is
+  scored after the author states, without seeing data, how the law answers it; rods in concurrent flow
+  and samples with no stated configuration are refusals.
+- SPICE: the flame-length target is scored as typed in both candidates.
+
+**What each result will be taken to mean**, per scored target, on the cases the release answers:
+it *beats the simple baseline* if its score is lower than that of the constant or incidence built from
+the train days (for SAME and DAFT, from SAME-R train); it *beats the best baseline* if it is also lower
+than every other baseline the scorer builds for that target; it *loses* if it is higher than the simple
+baseline. Refusals are counted and reported with their reasons. With two to six days per look no
+interval is quoted as stable, and nothing is called validated. Whatever the outcome, the release is the
+first hand-written model of its investigation and is reported as experimental, with its score beside the
+baseline; no number is changed from this look before the train days have been studied (12.3). The test
+days of every investigation stay unread.
+
+**Amendment to 13.2, plastics, before any score of this target (15 November).** The author stated, from
+the dossier alone, how the registered release answers "kept burning after the igniter" (section 9 of
+`research/phys_bass1_w0.md`; no typed number changed): the smaller of `holds_low_flow` and
+`holds_high_flow` for rod tips, spheres and sections, the smaller of the `flat_` pair for films and
+slabs, at the initial oxygen, the duct speed at ignition, nose radius half the diameter (0.01 for flat
+samples) and `heat_time` = the planned igniter on-time plus 60 s where a planned on-time is among the
+inputs known before ignition, otherwise 200 s. Refused: duct speed at ignition below 0.3 cm/s, oxygen
+outside 12 to 25 %, radius outside 2 to 30 mm, candles and wax, wake-lit spheres, rods lit at the
+downstream end, Nomex, Ultem, fabric, and flat PMMA thicker than 5 mm. The law forecasts whether an
+established flame is still there 60 s after the igniter is off; it does not forecast ignition, and it
+does not use earlier burns of the same sample. The score is the Brier score against the lane's
+`sustain`, beside the train incidence (simple baseline) and "always lit", read by the rule above and
+reported as "given that a flame was established".
+
+**Outcome of 13.2 (15 November; each look taken once, no rescoring; result files
+`feedback/<slug>_w0_result.md`, train anatomies `feedback/<slug>_train_anatomy.md`).** Scores on the
+cases the release answers; lower is better.
+
+| Investigation | Target | Answered / refused | Release | Simple baseline | Best baseline | Reading |
+|---|---|---|---|---|---|---|
+| BRE | extinction, integrated Brier | 87 / 3 | 0.2755 | 0.2274 | 0.2129 (planned stop) | loses |
+| BRE | operator termination | 87 / 3 | 0.1383 | 0.1799 | 0.0924 (planned stop) | beats the simple baseline |
+| SPICE, clean variant | smoke-point length, mm | 7 / 0 | 5.862 | 6.099 | 5.042 (per fuel) | beats the simple baseline |
+| SPICE, clean variant | length given the flow, mm | 7 / 0 | 2.533 | 6.099 | 1.261 (Lin and Faeth law) | beats the simple baseline |
+| SPICE, published-fit candidate (decides nothing) | smoke-point length, mm | 7 / 0 | 2.914 | 6.099 | 5.042 | beats the best baseline |
+| E-FIELD | ion current CRPS, µA | 1289 / 0 | 0.546 | 0.620 | 0.374 (space-charge law) | beats the simple baseline |
+| E-FIELD | flame out under the field | 36 / 0 | 0.0753 | 0.0884 | 0.0884 | beats the best baseline |
+| SAME-R | particle diameter (ln) | 23 / 1 | 0.167 | 0.393 | 0.339 (per material) | beats the best baseline |
+| SAME-R | detector at full scale, Brier | 23 / 1 | 0.228 | 0.411 | 0.247 | beats the best baseline |
+| SAME (held whole) | particle diameter (ln) | 45 / 0 | 0.184 | 0.220 | 0.192 | beats the best baseline |
+| SAME (held whole) | detector at full scale | 45 / 0 | 0.059 | 0.205 | 0.055 | beats the simple baseline |
+| DAFT (held whole) | number concentration (ln) | 53 / 0 | 0.777 | 2.678 | the only baseline | beats it |
+| Plastics | quench speed, interval CRPS cm/s | 28 / 13 | 0.517 | 0.230 | 0.180 (published correlation) | loses |
+| Plastics | kept burning after the igniter | 22 / 19 | 0.086 | 0.120 | 0.120 | beats the best baseline |
+| SLICE | blow-off per line | 34 / 41 | 0.155 | 0.161 | 0.149 (by tube) | beats the simple baseline |
+| SLICE | lifted per line | 34 / 41 | 0.089 | 0.056 | 0.056 | loses |
+| CLD Flame | flame lost, integrated Brier | 61 / 11 | 0.593 | 0.478 | 0.328 (by dilution ramp) | loses |
+| CLD Flame | radiometer, CRPS log10 V | 61 / 11 | 0.108 | 0.263 | 0.174 | beats the best baseline |
+
+Of 18 scored targets of the registered releases, the zero-shot law beats every baseline on 8, beats
+the simple baseline but not the best one on 6, and loses to the simple baseline on 4 (BRE extinction,
+plastics quench speed, SLICE lifting, CLD flame loss). SLICE was judged on its one methane day with
+the train-median cabin oxygen 0.2191; the 41 lines of the ethylene day are refusals. The plastics
+"kept burning" answer is given that a flame was established, with the 200 s default on every case; the
+two plastics targets treat opposed rods differently (covered for the quench speed, refused for "kept
+burning"), which is recorded as an inconsistency of the mapping, not corrected after the look. The
+CLD validation set is harder than train for every forecaster (the incidence baseline moves from 0.15 to
+0.48).
+
+What the train days say of the four that lose (anatomies): BRE forecasts extinction too early at
+reduced pressure and at 30 to 36 % oxygen; the plastics law puts the quench speed of thick opposed
+slabs about 5.7 cm/s too low; SLICE's loss is on the 0.4 mm tube; CLD under-forecasts the loss of
+diluting flames (86 % lost against 26 % forecast).
+
+### 13.3 One revision per investigation from its train days, registered 15 November before any score
+
+The authors of BRE, CLD Flame, SLICE, the plastics law and SAME-R each type one damped step from the
+train anatomy of their law (`research/phys_<slug>_d1.md`: numbers changed, old and new value, reason).
+The engineer assembles each as a revision of the registered zero-shot release (`d1-fable`) without
+choosing a number. Each revision is scored once on the same validation cases as 13.2, beside its
+zero-shot parent and the same baselines. The authors and the coordinator have seen the aggregates of
+13.2 above (not the validation cases); that exposure is the reason the test days stay unread and the
+final word belongs to them. **Reading:** a revision *replaces* its parent if its score is lower than
+the parent's on the target that lost (or, for SAME-R, on the particle diameter) and not higher than
+the parent's by more than 5 % on the other scored target of the investigation; otherwise the parent
+stays. SAME and DAFT have no data left to judge a revision and keep their zero-shot releases.
+
+**Amendment to 13.3, plastics, before any score of the revision (15 November).** The forward has no
+thickness feature, so the author's step uses the idle `nose_radius` of flat samples as a flag: flat
+PMMA thicker than 0.5 mm is supplied 0.02, films stay at 0.01 (`research/phys_bass1_d1.md`). This is
+an input convention computed from a condition known before the burn; the declaration is unchanged, and
+the zero-shot parent must give identical forecasts under either value (checked on forecasts before the
+revision is scored). If the check fails, the revision is not scored and the author's one-number
+fallback of the same file is used instead.
+
+**Outcome of 13.3 (15 November; each revision assembled verbatim from its committed dossier, run on
+train, then given its one look; `feedback/<slug>_d1_result.md`).**
+
+| Investigation | Target | W0 train | D1 train | W0 validation | D1 validation | Best baseline (validation) | Reading |
+|---|---|---|---|---|---|---|---|
+| CLD Flame | flame lost (the target that lost) | 0.1569 | 0.1253 | 0.5925 | 0.5139 | 0.3282 | **D1 replaces W0** |
+| CLD Flame | radiometer | 0.1500 | 0.1234 | 0.1083 | 0.1003 | 0.1743 | |
+| Plastics | quench speed (lost) | 1.3296 | 0.8987 | 0.5169 | 0.5067 | 0.1797 | **D1 replaces W0** |
+| Plastics | kept burning | 0.0147 | 0.0147 | 0.0862 | 0.0862 | 0.1203 | |
+| SLICE | lifted (lost) | 0.1559 | 0.1490 | 0.0886 | 0.0555 | 0.0563 | W0 stays |
+| SLICE | blow-off | 0.1023 | 0.0601 | 0.1548 | 0.1631 | 0.1493 | |
+| BRE | extinction (lost) | 0.2511 | 0.2174 | 0.2755 | 0.2866 | 0.2129 | W0 stays |
+| BRE | operator termination | 0.0494 | 0.0430 | 0.1383 | 0.1403 | 0.0924 | |
+| SAME-R | particle diameter (judged) | 0.2722 | 0.2158 | 0.1672 | 0.1725 | 0.3392 | W0 stays |
+| SAME-R | detector at full scale | 0.1501 | 0.1005 | 0.2279 | 0.2436 | 0.2473 | |
+
+Every step improved its train score; two of five also improved the validation target and replace their
+parents. SLICE's step repaired lifting (0.0886 to 0.0555, level with the incidence) but raised blow-off
+by 5.4 %, just past the 5 % allowance registered beforehand, so its parent stays. BRE's and SAME-R's
+steps were worse on validation on both targets: their train gains did not carry to other days. The two
+revisions that replace their parents still lose to the simple baseline on the target that lost (CLD
+0.514 against 0.478; plastics 0.507 against 0.230): what they need is structural (a feature saying that
+a test dilutes until the flame is lost; a thickness input and the rods), named by their authors. The
+plastics slab flag left every forecast of the zero-shot parent identical (0 of 66 flat rows differ).
+The validation days of these five investigations are now spent for selection; the test days of all of
+them are unread.

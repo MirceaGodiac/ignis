@@ -1,0 +1,83 @@
+{
+ "slug": "bre",
+ "dossier": "docs\\wsp\\research\\phys_bre_d1.md",
+ "sha256": "abca2b07b070fa9f58051e96b3ad12b8449d7d2cc76f538dacfb92bb7838e648",
+ "parent": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+ "release": "sha256:3cffa05ad9dcd29e1fc5b422474e30e2c07c6d5909ea944b77a12d9c695c0f76",
+ "edits_lines": 8,
+ "changed": {
+  "('flame_end.extinction.median.skip', (3,))": [
+   0.28,
+   -0.15
+  ],
+  "('flame_end.extinction.median.W1', (0, 3))": [
+   -0.27,
+   -0.43
+  ],
+  "('flame_end.extinction.median.W1', (1, 3))": [
+   -0.27,
+   -0.43
+  ],
+  "('flame_end.extinction.median.W1', (2, 3))": [
+   -0.27,
+   -0.43
+  ],
+  "('flame_end.extinction.median.W1', (3, 3))": [
+   -0.27,
+   -0.43
+  ],
+  "('flame_end.extinction.median.W1', (4, 3))": [
+   -0.27,
+   -0.43
+  ],
+  "('flame_end.extinction.median.W1', (5, 3))": [
+   0.5,
+   0.8
+  ],
+  "('flame_end.extinction.median.W1', (6, 3))": [
+   0.5,
+   0.8
+  ],
+  "('lasts.logit.skip', (3,))": [
+   -1.08,
+   -1.72
+  ],
+  "('lasts.logit.W1', (0, 3))": [
+   0.46,
+   0.13
+  ],
+  "('lasts.logit.W1', (1, 3))": [
+   0.46,
+   0.13
+  ],
+  "('lasts.logit.W1', (2, 3))": [
+   0.46,
+   0.13
+  ],
+  "('lasts.logit.W1', (3, 3))": [
+   0.46,
+   0.13
+  ],
+  "('lasts.logit.W1', (4, 3))": [
+   0.46,
+   0.13
+  ],
+  "('lasts.logit.W1', (5, 3))": [
+   0.46,
+   0.13
+  ],
+  "('lasts.logit.W1', (6, 3))": [
+   0.5,
+   0.8
+  ],
+  "('lasts.logit.W1', (7, 3))": [
+   0.5,
+   0.8
+  ],
+  "('height_at_end.median.skip', (3,))": [
+   -0.27,
+   -0.43
+  ]
+ },
+ "mismatches": {}
+}

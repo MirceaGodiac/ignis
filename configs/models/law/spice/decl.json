@@ -1,11 +1,26 @@
 {
   "slug": "spice",
-  "status": "placeholder",
+  "status": "declared",
   "family": "other",
-  "investigation": "registered before the restatement of its law",
-  "description": "Placeholder: no feature and one dimensionless target. Replace this file with the declaration of the restated law (status declared) before writing any edits; no release of a placeholder can be assembled.",
-  "features": [],
+  "investigation": "PSI-107, SPICE: laminar gas-jet diffusion flames in coflowing air in the Microgravity Science Glovebox",
+  "description": "W0 law of docs/wsp/research/phys_spice_w0.md, section 7: smoke point of a microgravity jet flame in coflow. Derived case inputs (SI conversions of nozzle_id_mm and u_air_cm_s, fuel indicators, fuel_mass_flow) are written by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "nozzle_diameter", "unit": "m", "transform": "ln", "description": "inner diameter of the fuel nozzle"},
+    {"name": "coflow_speed", "unit": "m/s", "transform": "ln", "description": "duct air speed (anemometer)"},
+    {"name": "fuel_mass_flow", "unit": "kg/s", "transform": "ln", "description": "mass flow of all gas through the nozzle; the two smoke-point targets give it weight zero"},
+    {"name": "x_fuel", "unit": "1", "transform": "ln", "description": "fuel mole fraction of the nozzle gas (balance nitrogen)"},
+    {"name": "is_propane", "unit": "1", "transform": "identity", "description": "indicator"},
+    {"name": "is_propylene", "unit": "1", "transform": "identity", "description": "indicator"},
+    {"name": "is_methane", "unit": "1", "transform": "identity", "description": "indicator (ethylene is the reference fuel)"}
+  ],
   "targets": [
-    {"name": "outcome", "kind": "positive", "unit": "1", "description": "placeholder target"}
+    {"name": "smoke_point_length", "kind": "positive", "unit": "m", "shared_quantity": null,
+     "description": "luminous length, nozzle to tip on the axis, at incipient soot emission (lane-local)"},
+    {"name": "smoke_point_fuel_flow", "kind": "positive", "unit": "kg/s", "shared_quantity": "mass_flow",
+     "description": "nozzle gas mass flow at the smoke point"},
+    {"name": "flame_length", "kind": "positive", "unit": "m", "shared_quantity": null,
+     "description": "luminous length of the flame at a setting (lane-local)"},
+    {"name": "emits_soot", "kind": "binary",
+     "description": "at this setting soot leaves the tip (at or past the smoke point)"}
   ]
 }

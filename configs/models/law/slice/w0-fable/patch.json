@@ -1,0 +1,679 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-slice-v1-w0-fable",
+  "spec_hash": "sha256:53e5528999e06c9fd91b58b1dfd7e6dc4ab1bdd259fdea9a4b7dfd4eb52b7db6",
+  "parent_release_id": "sha256:a8a09553667e1d47ea850c4506a3078039a280a5060d6aed48235de88bece484",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_slice_w0.md(zero-shot-W0-law;exposure-in-its-section-8.3)",
+      "published-paper-on-this-experiment(Cao-et-al-2015:burner,18-conditions,which-flames-were-lifted;class-L*;the-mechanism-and-threshold-were-written-before-reading-it)",
+      "repo:docs/wsp/feedback/slice_feasibility.md(paragraph-for-the-physicist,sections-1,2;the-stepping-procedure,tube-sizes,input-names;no-outcome-count)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.centre",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.lo",
+      "index": [],
+      "value": 0.02
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_coflow.hi",
+      "index": [],
+      "value": 1.5
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.lo",
+      "index": [],
+      "value": 0.02
+    },
+    {
+      "op": "set",
+      "tensor": "x.u_jet.hi",
+      "index": [],
+      "value": 100.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.centre",
+      "index": [],
+      "value": 0.0016
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.lo",
+      "index": [],
+      "value": 0.0003
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_id.hi",
+      "index": [],
+      "value": 0.004
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.lo",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.centre",
+      "index": [],
+      "value": 0.21
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.lo",
+      "index": [],
+      "value": 0.18
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.hi",
+      "index": [],
+      "value": 0.25
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_ethane.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_propane.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.centre",
+      "index": [],
+      "value": 1e-6
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.lo",
+      "index": [],
+      "value": 2e-8
+    },
+    {
+      "op": "set",
+      "tensor": "x.mdot_jet.hi",
+      "index": [],
+      "value": 0.00005
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.b0",
+      "index": [],
+      "value": -3.356
+    },
+    {
+      "op": "set_box",
+      "tensor": "lifted.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        3.4,
+        0.0,
+        0.0,
+        -1.87,
+        -10.2,
+        -0.258,
+        -0.258,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lifted.logit.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -1.0,
+        -1.3,
+        0.0,
+        0.065,
+        0.088,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.b1",
+      "index": [
+        0
+      ],
+      "value": -0.285
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.w2",
+      "index": [
+        0
+      ],
+      "value": 1.054
+    },
+    {
+      "op": "set_box",
+      "tensor": "lifted.logit.W1",
+      "start": [
+        1,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -1.0,
+        -1.3,
+        0.0,
+        0.065,
+        0.088,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.b1",
+      "index": [
+        1
+      ],
+      "value": -2.485
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.w2",
+      "index": [
+        1
+      ],
+      "value": 1.292
+    },
+    {
+      "op": "set_box",
+      "tensor": "lifted.logit.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -1.0,
+        -1.3,
+        0.0,
+        0.065,
+        0.088,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.b1",
+      "index": [
+        2
+      ],
+      "value": -4.685
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.w2",
+      "index": [
+        2
+      ],
+      "value": 1.054
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.W1",
+      "index": [
+        3,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.b1",
+      "index": [
+        3
+      ],
+      "value": -0.693
+    },
+    {
+      "op": "set",
+      "tensor": "lifted.logit.w2",
+      "index": [
+        3
+      ],
+      "value": 1.7
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b0",
+      "index": [],
+      "value": -4.158
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        2.0,
+        0.0,
+        0.0,
+        -1.1,
+        -6.0,
+        -0.152,
+        -0.152,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -1.0,
+        -1.3,
+        0.0,
+        0.065,
+        0.088,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        0
+      ],
+      "value": -0.285
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        0
+      ],
+      "value": 0.62
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        1,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -1.0,
+        -1.3,
+        0.0,
+        0.065,
+        0.088,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        1
+      ],
+      "value": -2.485
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        1
+      ],
+      "value": 0.76
+    },
+    {
+      "op": "set_box",
+      "tensor": "blow_off.logit.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        1,
+        8
+      ],
+      "values": [
+        -1.0,
+        1.0,
+        -1.0,
+        -1.3,
+        0.0,
+        0.065,
+        0.088,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        2
+      ],
+      "value": -4.685
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        2
+      ],
+      "value": 0.62
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.W1",
+      "index": [
+        3,
+        3
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.b1",
+      "index": [
+        3
+      ],
+      "value": -0.693
+    },
+    {
+      "op": "set",
+      "tensor": "blow_off.logit.w2",
+      "index": [
+        3
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b0",
+      "index": [],
+      "value": -3.752
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        1.3,
+        0.0,
+        -0.065,
+        -0.088,
+        1.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.W1",
+      "index": [
+        0,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.W1",
+      "index": [
+        0,
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        0
+      ],
+      "value": 0.511
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        0
+      ],
+      "value": 0.148
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.W1",
+      "index": [
+        1,
+        0
+      ],
+      "value": -1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.W1",
+      "index": [
+        1,
+        1
+      ],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.b1",
+      "index": [
+        1
+      ],
+      "value": -2.708
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.median.w2",
+      "index": [
+        1
+      ],
+      "value": -0.148
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.spread.b0",
+      "index": [],
+      "value": 0.22
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_length.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        8
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "flame_length.tail_width",
+      "index": [],
+      "value": 3.0
+    }
+  ],
+  "rationale": "W0 of slice.wsp: the zero-shot law of docs/wsp/research/phys_slice_w0.md (lifting and blow-off of a jet flame base), its section 7.4 typed verbatim as a revision of the neutral root. Source: docs/wsp/research/phys_slice_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

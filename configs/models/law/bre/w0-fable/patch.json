@@ -1,0 +1,598 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bre-v1-w0-fable",
+  "spec_hash": "sha256:a27a3dafa38c9824a7335b7fc7581011e275e01713abfa171e926df8b63d9248",
+  "parent_release_id": "sha256:2d0fae57312f2aa953cb4e218cba6bd84948282174ca90d21ebd9034a6378948",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bre_w0.md(zero-shot-W0-law;exposure-in-its-section-8.3)",
+      "repo:docs/wsp/atlas/cards/PSI-20.json(card-aggregate-findings:quasi-steady-burning-at-26.5%-and-above,21%-flames-self-extinguished;no-number-set-from-them)",
+      "published-abstracts-of-this-experiment(Wright-2021,Dehghani-2022;comparison-only)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.burner_diameter.centre",
+      "index": [],
+      "value": 0.025
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_diameter.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_diameter.lo",
+      "index": [],
+      "value": 0.02
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_diameter.hi",
+      "index": [],
+      "value": 0.06
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_mass_flux.centre",
+      "index": [],
+      "value": 0.004
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_mass_flux.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_mass_flux.lo",
+      "index": [],
+      "value": 0.0008
+    },
+    {
+      "op": "set",
+      "tensor": "x.burner_mass_flux.hi",
+      "index": [],
+      "value": 0.015
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.centre",
+      "index": [],
+      "value": 0.265
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.lo",
+      "index": [],
+      "value": 0.18
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_o2.hi",
+      "index": [],
+      "value": 0.45
+    },
+    {
+      "op": "set",
+      "tensor": "x.pressure.centre",
+      "index": [],
+      "value": 101325.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.pressure.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.pressure.lo",
+      "index": [],
+      "value": 50000.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.pressure.hi",
+      "index": [],
+      "value": 105000.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.centre",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.lo",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set",
+      "tensor": "x.x_fuel.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_methane.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.stated_time.centre",
+      "index": [],
+      "value": 30.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.stated_time.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.stated_time.lo",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.stated_time.hi",
+      "index": [],
+      "value": 3000.0
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.median.b0",
+      "index": [],
+      "value": 2.82
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        1.61,
+        1.05,
+        0.48,
+        0.28,
+        0.99,
+        0.01,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        5,
+        7
+      ],
+      "values": [
+        -0.921,
+        -0.38,
+        0.899,
+        -0.27,
+        -0.369,
+        -0.11,
+        0.0,
+        -0.921,
+        -0.38,
+        0.899,
+        -0.27,
+        -0.369,
+        -0.11,
+        0.0,
+        -0.921,
+        -0.38,
+        0.899,
+        -0.27,
+        -0.369,
+        -0.11,
+        0.0,
+        -0.921,
+        -0.38,
+        0.899,
+        -0.27,
+        -0.369,
+        -0.11,
+        0.0,
+        -0.921,
+        -0.38,
+        0.899,
+        -0.27,
+        -0.369,
+        -0.11,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.b1",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        1.232,
+        0.732,
+        0.432,
+        0.202,
+        0.002
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.w2",
+      "start": [
+        0
+      ],
+      "shape": [
+        5
+      ],
+      "values": [
+        0.29,
+        0.36,
+        0.49,
+        0.7,
+        1.09
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        5,
+        0
+      ],
+      "shape": [
+        2,
+        7
+      ],
+      "values": [
+        -1.17,
+        -2.17,
+        0.65,
+        0.5,
+        -1.97,
+        -0.18,
+        0.0,
+        -1.17,
+        -2.17,
+        0.65,
+        0.5,
+        -1.97,
+        -0.18,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.b1",
+      "start": [
+        5
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -1.7,
+        -2.8
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "flame_end.extinction.median.w2",
+      "start": [
+        5
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -1.8,
+        -6.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.shape",
+      "index": [],
+      "value": 2.2
+    },
+    {
+      "op": "set",
+      "tensor": "lasts.logit.b0",
+      "index": [],
+      "value": -2.27
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        -3.68,
+        -1.52,
+        3.6,
+        -1.08,
+        -1.48,
+        -0.44,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        6,
+        7
+      ],
+      "values": [
+        2.21,
+        1.29,
+        -0.1,
+        0.46,
+        1.23,
+        0.08,
+        -1.0,
+        2.21,
+        1.29,
+        -0.1,
+        0.46,
+        1.23,
+        0.08,
+        -1.0,
+        2.21,
+        1.29,
+        -0.1,
+        0.46,
+        1.23,
+        0.08,
+        -1.0,
+        2.21,
+        1.29,
+        -0.1,
+        0.46,
+        1.23,
+        0.08,
+        -1.0,
+        2.21,
+        1.29,
+        -0.1,
+        0.46,
+        1.23,
+        0.08,
+        -1.0,
+        2.21,
+        1.29,
+        -0.1,
+        0.46,
+        1.23,
+        0.08,
+        -1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.b1",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        3.273,
+        1.023,
+        0.413,
+        -0.097,
+        -0.537,
+        -0.957
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.w2",
+      "start": [
+        0
+      ],
+      "shape": [
+        6
+      ],
+      "values": [
+        0.71,
+        0.41,
+        0.49,
+        0.64,
+        0.83,
+        1.18
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        6,
+        0
+      ],
+      "shape": [
+        2,
+        7
+      ],
+      "values": [
+        -1.17,
+        -2.17,
+        0.65,
+        0.5,
+        -1.97,
+        -0.18,
+        0.0,
+        -1.17,
+        -2.17,
+        0.65,
+        0.5,
+        -1.97,
+        -0.18,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.b1",
+      "start": [
+        6
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -1.7,
+        -2.8
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "lasts.logit.w2",
+      "start": [
+        6
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -1.8,
+        -8.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.median.b0",
+      "index": [],
+      "value": -3.34
+    },
+    {
+      "op": "set_box",
+      "tensor": "height_at_end.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        1.11,
+        0.65,
+        -0.05,
+        -0.27,
+        0.62,
+        0.04,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.spread.b0",
+      "index": [],
+      "value": 0.3
+    },
+    {
+      "op": "set_box",
+      "tensor": "height_at_end.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        7
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.tail_weight",
+      "index": [],
+      "value": 0.1
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.tail_width",
+      "index": [],
+      "value": 3.0
+    }
+  ],
+  "rationale": "W0 of bre.wsp: the zero-shot law of docs/wsp/research/phys_bre_w0.md (self-extinction of a flame over a porous burner by radiation as it grows by diffusion), its section 7.4 typed verbatim as a revision of the neutral root. The author opened no file under runs/ (other than the brief), data/ or holdout/ and no feasibility note existed when it was written. Not fitted. Source: docs/wsp/research/phys_bre_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

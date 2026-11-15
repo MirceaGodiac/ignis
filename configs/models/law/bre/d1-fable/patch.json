@@ -1,0 +1,111 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-bre-v1-d1-fable",
+  "spec_hash": "sha256:a27a3dafa38c9824a7335b7fc7581011e275e01713abfa171e926df8b63d9248",
+  "parent_release_id": "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_bre_d1.md(sha256:abca2b07b070fa9f58051e96b3ad12b8449d7d2cc76f538dacfb92bb7838e648;data-informed-D1-from-train-days)",
+      "repo:docs/wsp/feedback/bre_train_anatomy.md(train-days-only)",
+      "coordinator-summary-of-the-13.2-blind-look(aggregates-only;no-validation-case)"
+    ],
+    "datasets": [
+      {
+        "dataset_id": "bre-train-cases(transfer_bre/cases_train.jsonl)",
+        "partitions": [
+          "train"
+        ]
+      }
+    ],
+    "development_feedback": [
+      "PROTOCOL-13.2-validation-aggregates-of-the-W0-parent"
+    ],
+    "prior_candidates": [
+      "sha256:aa0eef5bc7653922c7a7838796dab6946294e89f79c0b6c500124d9a4b212b4d"
+    ]
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "flame_end.extinction.median.skip",
+      "index": [
+        3
+      ],
+      "value": -0.15
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        0,
+        3
+      ],
+      "shape": [
+        5,
+        1
+      ],
+      "value": -0.43
+    },
+    {
+      "op": "fill_box",
+      "tensor": "flame_end.extinction.median.W1",
+      "start": [
+        5,
+        3
+      ],
+      "shape": [
+        2,
+        1
+      ],
+      "value": 0.8
+    },
+    {
+      "op": "set",
+      "tensor": "lasts.logit.skip",
+      "index": [
+        3
+      ],
+      "value": -1.72
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        0,
+        3
+      ],
+      "shape": [
+        6,
+        1
+      ],
+      "value": 0.13
+    },
+    {
+      "op": "fill_box",
+      "tensor": "lasts.logit.W1",
+      "start": [
+        6,
+        3
+      ],
+      "shape": [
+        2,
+        1
+      ],
+      "value": 0.8
+    },
+    {
+      "op": "set",
+      "tensor": "height_at_end.median.skip",
+      "index": [
+        3
+      ],
+      "value": -0.43
+    }
+  ],
+  "rationale": "D1 of bre.wsp (PROTOCOL 13.3): one damped step typed by the author from the train anatomy of the W0 law; the Edits block of docs/wsp/research/phys_bre_d1.md (sha256 abca2b07b070fa9f58051e96b3ad12b8449d7d2cc76f538dacfb92bb7838e648) verbatim as a revision of the W0 release. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen.",
+  "origin": "system"
+}

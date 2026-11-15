@@ -4635,6 +4635,12 @@ export interface ForecastSettings {
   quantile_levels?: number[] | null;
   seed?: number;
   /**
+   * Which declared target to forecast, for releases that declare several (the generic law
+   * forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+   * of every other request is unchanged.
+   */
+  target?: string | null;
+  /**
    * Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one
    * time grid so that event metrics compare like with like.
    */
@@ -4868,6 +4874,12 @@ export interface ForecastSettings1 {
   quantile_levels?: number[] | null;
   seed?: number;
   /**
+   * Which declared target to forecast, for releases that declare several (the generic law
+   * forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+   * of every other request is unchanged.
+   */
+  target?: string | null;
+  /**
    * Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one
    * time grid so that event metrics compare like with like.
    */
@@ -5032,6 +5044,12 @@ export interface ForecastSettings2 {
   n_points?: number | null;
   quantile_levels?: number[] | null;
   seed?: number;
+  /**
+   * Which declared target to forecast, for releases that declare several (the generic law
+   * forward of `ignis-wsp`); absent = the first. Not serialized when absent, so the settings hash
+   * of every other request is unchanged.
+   */
+  target?: string | null;
   /**
    * Explicit forecast times (s since the time origin). Lets cases at different cutoffs share one
    * time grid so that event metrics compare like with like.

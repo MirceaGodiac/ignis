@@ -21,6 +21,31 @@ measurement. The exact list, ids and inputs are in the descriptions of `models_i
 | `acme_inverse.wsp12` F2 | same, inverse flames | same | data-informed (ethylene row zero-shot) | same |
 | `bass_front.wsp` D1 | BASS (PSI-25), thin fabric | flame tip position after the cutoff (quantiles) | data-informed | x_o2, width in metres, flow history, tip positions; **stored runs are refused** (no stored run has them) |
 
+### The other investigations: generic law releases (law.rs)
+
+Nine releases run on one generic strict forward over declared features (typed conditions only; no
+stored run carries the features, so a stored-run forecast is refused). Pick a target with
+`settings.target`; event targets also need `settings.times_s`. Validation or held-whole scores,
+lower is better, beside the registered baseline (`docs/wsp/COVERAGE_19.md`):
+
+| Release | Investigation | Authorship | Score against baseline |
+|---|---|---|---|
+| `bre.wsp` W0 | BRE (PSI-20) | zero-shot | extinction 0.2755 vs incidence 0.2274: **loses**; termination 0.1383 vs 0.1799 |
+| `cld.wsp` D1 | CLD Flame (PSI-21) | train aggregates seen + one step from train days | flame lost 0.514 vs 0.478: **loses**; radiometer 0.100 vs 0.174 |
+| `efield.wsp` W0 | E-FIELD (PSI-22) | train aggregates seen | ion current 0.546 µA vs constant 0.620 (space-charge 0.374); flame out 0.0753 vs 0.0884 |
+| `bass1.wsp` D1 | BASS / BASS-II plastics (PSI-26, PSI-25) | zero-shot law + one step from train days | quench speed 0.507 vs 0.230: **loses**; kept burning 0.086 vs 0.120 |
+| `daft.wsp` W0 | DAFT (PSI-47) | zero-shot | number concentration 0.777 vs 2.678 (held whole) |
+| `samer.wsp` W0 | SAME-R (PSI-101) | zero-shot | diameter 0.167 vs 0.339; detector at full scale 0.228 vs 0.247 |
+| `same.wsp` W0 | SAME (PSI-102) | zero-shot | diameter 0.184 vs 0.192; detector 0.059 vs per-material 0.055 (held whole) |
+| `slice.wsp` W0 | SLICE (PSI-106) | zero-shot | blow-off 0.155 vs 0.161 (by-tube 0.149); lifting 0.089 vs 0.056: **loses** (one day) |
+| `spice.wsp` W0 | SPICE (PSI-107) | zero-shot | smoke-point length 5.86 mm vs constant 6.10 (per-fuel 5.04); 7 points |
+
+Transfers of the family releases: the n-heptane FLEX model covers FLEX-2 (PSI-68), 20.9 µm vs 32.6
+on 8 tests; the normal burner-flame F2 covers Flame Design (PSI-10) and s-Flame (PSI-23), where it is
+**undecided** and refuses helium, hydrogen and blends; the BASS front model covers Saffire I to III
+(PSI-98 to 100) as blind transfers on two sheets. A zero-shot n-dodecane model for CFI (PSI-39)
+exists but is not served. A target marked **loses** must be reported as losing to its baseline.
+
 ## 2. Procedure
 
 1. `models_inspect` the release: read `applicability` (domain), `lineage_note` and the construction

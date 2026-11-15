@@ -1,0 +1,327 @@
+{
+  "schema_version": "wsp.v1",
+  "patch_id": "law-daft-v1-w0-fable",
+  "spec_hash": "sha256:451e59f648b2015ce782bbe0e6ea9373c7e142bbde9ab010ffe1fb515a5f28e7",
+  "parent_release_id": "sha256:f6c492064bc897d1448c5edce3ad8d06d649b038fa53f4127cff5a0645d5539d",
+  "author": {
+    "provider": "anthropic",
+    "model_id": "claude-fable-5-2"
+  },
+  "exposure": {
+    "sources": [
+      "repo:docs/wsp/research/phys_daft_w0.md(zero-shot-W0-law;exposure-in-its-section-8)",
+      "repo:docs/wsp/feedback/daft_feasibility.md(sections-for-the-physicist,1-3;no-outcome)",
+      "repo:docs/wsp/atlas/cards/PSI-47.json(card-findings;no-number)",
+      "author:pretraining-knowledge(unverifiable)"
+    ],
+    "datasets": [],
+    "development_feedback": [],
+    "prior_candidates": []
+  },
+  "ops": [
+    {
+      "op": "set",
+      "tensor": "x.is_cabin.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_cabin.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_cabin.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_cabin.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_velcro.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_velcro.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_velcro.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_velcro.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_bag.centre",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_bag.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_bag.lo",
+      "index": [],
+      "value": 0.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.is_bag.hi",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.dusttrak_mass_floored.centre",
+      "index": [],
+      "value": 1e-6
+    },
+    {
+      "op": "set",
+      "tensor": "x.dusttrak_mass_floored.scale",
+      "index": [],
+      "value": 1.0
+    },
+    {
+      "op": "set",
+      "tensor": "x.dusttrak_mass_floored.lo",
+      "index": [],
+      "value": 1e-9
+    },
+    {
+      "op": "set",
+      "tensor": "x.dusttrak_mass_floored.hi",
+      "index": [],
+      "value": 0.0002
+    },
+    {
+      "op": "set",
+      "tensor": "number_concentration.median.b0",
+      "index": [],
+      "value": 10.82
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        5.144,
+        6.828,
+        9.798,
+        0.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.W1",
+      "start": [
+        0,
+        0
+      ],
+      "shape": [
+        2,
+        4
+      ],
+      "values": [
+        12.0,
+        0.0,
+        0.0,
+        1.0,
+        12.0,
+        0.0,
+        0.0,
+        -1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.b1",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -12.0,
+        -12.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.w2",
+      "start": [
+        0
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.3,
+        -0.3
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.W1",
+      "start": [
+        2,
+        0
+      ],
+      "shape": [
+        2,
+        4
+      ],
+      "values": [
+        0.0,
+        12.0,
+        0.0,
+        1.0,
+        0.0,
+        12.0,
+        0.0,
+        -1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.b1",
+      "start": [
+        2
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -12.0,
+        -12.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.w2",
+      "start": [
+        2
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.5,
+        -0.5
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.W1",
+      "start": [
+        4,
+        0
+      ],
+      "shape": [
+        2,
+        4
+      ],
+      "values": [
+        0.0,
+        0.0,
+        12.0,
+        1.0,
+        0.0,
+        0.0,
+        12.0,
+        -1.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.b1",
+      "start": [
+        4
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        -12.0,
+        -12.0
+      ]
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.median.w2",
+      "start": [
+        4
+      ],
+      "shape": [
+        2
+      ],
+      "values": [
+        0.95,
+        -0.95
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "number_concentration.spread.b0",
+      "index": [],
+      "value": 1.5
+    },
+    {
+      "op": "set_box",
+      "tensor": "number_concentration.spread.skip",
+      "start": [
+        0
+      ],
+      "shape": [
+        4
+      ],
+      "values": [
+        0.0,
+        0.0,
+        -0.6,
+        0.0
+      ]
+    },
+    {
+      "op": "set",
+      "tensor": "number_concentration.tail_weight",
+      "index": [],
+      "value": 0.15
+    },
+    {
+      "op": "set",
+      "tensor": "number_concentration.tail_width",
+      "index": [],
+      "value": 2.5
+    }
+  ],
+  "rationale": "W0 of daft.wsp: the zero-shot law of docs/wsp/research/phys_daft_w0.md (what a condensation counter reads by kind of air, from the photometer reading), its section 7.2 typed verbatim as a revision of the neutral root. DAFT is held whole. Not fitted. Source: docs/wsp/research/phys_daft_w0.md. Transcribed by the assembly engineer (claude-opus-5-5); no number chosen, rounded or changed.",
+  "origin": "system"
+}

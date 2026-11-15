@@ -1,11 +1,17 @@
 {
   "slug": "daft",
-  "status": "placeholder",
+  "status": "declared",
   "family": "other",
-  "investigation": "registered before the restatement of its law",
-  "description": "Placeholder: no feature and one dimensionless target. Replace this file with the declaration of the restated law (status declared) before writing any edits; no release of a placeholder can be assembled.",
-  "features": [],
+  "investigation": "PSI-47, DAFT / DAFT-2: a modified P-Trak condensation counter against a DustTrak photometer on cabin air and on test dust in orbit",
+  "description": "W0 law of docs/wsp/research/phys_daft_w0.md, section 7.1: what the counter reads, by kind of air, from the photometer reading. The indicators and dusttrak_mass_floored = max(dusttrak_mass_concentration, 1e-9 kg/m3) are derived by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "is_cabin", "unit": "1", "transform": "identity", "description": "cabin air through the hose"},
+    {"name": "is_velcro", "unit": "1", "transform": "identity", "description": "cabin air while Velcro is separated"},
+    {"name": "is_bag", "unit": "1", "transform": "identity", "description": "road dust in a bag (filtered air is the reference)"},
+    {"name": "dusttrak_mass_floored", "unit": "kg/m3", "transform": "ln", "description": "max(dusttrak_mass_concentration, 1e-9 kg/m3), the photometer reading floored at its resolution"}
+  ],
   "targets": [
-    {"name": "outcome", "kind": "positive", "unit": "1", "description": "placeholder target"}
+    {"name": "number_concentration", "kind": "positive", "unit": "1/m3", "shared_quantity": null,
+     "description": "what the modified P-Trak reads on the sample (lane-local)"}
   ]
 }

@@ -1,11 +1,24 @@
 {
   "slug": "bass1",
-  "status": "placeholder",
+  "status": "declared",
   "family": "other",
-  "investigation": "registered before the restatement of its law",
-  "description": "Placeholder: no feature and one dimensionless target. Replace this file with the declaration of the restated law (status declared) before writing any edits; no release of a placeholder can be assembled.",
-  "features": [],
+  "investigation": "PSI-26 BASS and PSI-25 BASS-II (non-fabric solids): PMMA rods, spheres, spherical sections, films and slabs in a slow duct flow in the Microgravity Science Glovebox",
+  "description": "W0 law of docs/wsp/research/phys_bass1_w0.md, section 7: quenching and blow-off of PMMA rods, spheres, films and slabs. The probability that a flame holds is the smaller of the low-flow and high-flow targets of its geometry, taken by the scorer. Derived case inputs (SI conversions, nose radius, the heat_time default of 200 s, the concurrent indicator) are written by tools/wsp/ext/law_inputs.py.",
+  "features": [
+    {"name": "x_o2", "unit": "1", "transform": "ln", "description": "oxygen mole fraction of the gas entering the duct during the step"},
+    {"name": "flow_speed", "unit": "m/s", "transform": "ln", "description": "duct speed of the step"},
+    {"name": "nose_radius", "unit": "m", "transform": "ln", "description": "radius of the rod, sphere or spherical section as installed; 0.01 for a flat sample (weight zero in the flat targets)"},
+    {"name": "heat_time", "unit": "s", "transform": "ln", "description": "time from ignition of this burn to the end of the step (for quench and blow-off speeds: to the event); 200 where it is not recorded"},
+    {"name": "is_concurrent", "unit": "1", "transform": "identity", "description": "flat samples: 1 if the flame spreads with the flow, 0 against it; 0 for rods and spheres"}
+  ],
   "targets": [
-    {"name": "outcome", "kind": "positive", "unit": "1", "description": "placeholder target"}
+    {"name": "holds_low_flow", "kind": "binary", "description": "rod tip or sphere: flame not quenched by heat loss at the end of the step"},
+    {"name": "holds_high_flow", "kind": "binary", "description": "rod tip or sphere: stagnation flame not blown off"},
+    {"name": "oxygen_limit", "kind": "positive", "unit": "1", "shared_quantity": "mole_fraction", "description": "rod tip or sphere: oxygen fraction at which the flame goes out at this speed and time"},
+    {"name": "quench_speed", "kind": "positive", "unit": "m/s", "shared_quantity": "flow_velocity", "description": "rod tip or sphere: duct speed below which the flame goes out"},
+    {"name": "blowoff_speed", "kind": "positive", "unit": "m/s", "shared_quantity": "flow_velocity", "description": "rod tip or sphere: duct speed at which the stagnation flame blows off"},
+    {"name": "flat_holds_low_flow", "kind": "binary", "description": "film or slab: flame not quenched"},
+    {"name": "flat_holds_high_flow", "kind": "binary", "description": "film or slab: flame not blown off"},
+    {"name": "flat_quench_speed", "kind": "positive", "unit": "m/s", "shared_quantity": "flow_velocity", "description": "film or slab: duct speed below which the flame goes out"}
   ]
 }

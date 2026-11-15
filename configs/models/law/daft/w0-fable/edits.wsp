@@ -1,0 +1,43 @@
+# Transcribed verbatim from docs/wsp/research/phys_daft_w0.md, section 7.2, lines 239-279 (no number changed).
+# A revision of the slug's neutral root (configs/models/law/daft/root).
+# daft.wsp W0: zero-shot law of docs/wsp/research/phys_daft_w0.md. Author claude-fable-5-2.
+# features: 0 is_cabin, 1 is_velcro, 2 is_bag, 3 dusttrak_mass_floored. Filtered air is the reference.
+x.is_cabin.centre = 0.0
+x.is_cabin.scale = 1.0
+x.is_cabin.lo = 0.0
+x.is_cabin.hi = 1.0
+x.is_velcro.centre = 0.0
+x.is_velcro.scale = 1.0
+x.is_velcro.lo = 0.0
+x.is_velcro.hi = 1.0
+x.is_bag.centre = 0.0
+x.is_bag.scale = 1.0
+x.is_bag.lo = 0.0
+x.is_bag.hi = 1.0
+x.dusttrak_mass_floored.centre = 0.000001
+x.dusttrak_mass_floored.scale = 1.0
+x.dusttrak_mass_floored.lo = 0.000000001
+x.dusttrak_mass_floored.hi = 0.0002
+
+# ln(N / 1 per m3). b0: filtered air, 5e4 per m3.
+number_concentration.median.b0 = 10.82
+# value of each kind of air extrapolated to a reading of 1 mg/m3, minus b0:
+# cabin 1.5e6 at 3e-9 kg/m3 with exponent 0.30; velcro 8e6 at 3e-8 with 0.50; bag 9e8 at 1e-6
+number_concentration.median.skip[0:4] = [5.144, 6.828, 9.798, 0.0]
+# units 0, 1: cabin, exponent 0.30 on the reading
+number_concentration.median.W1[0:2, 0:4] = [[12.0, 0.0, 0.0, 1.0], [12.0, 0.0, 0.0, -1.0]]
+number_concentration.median.b1[0:2] = [-12.0, -12.0]
+number_concentration.median.w2[0:2] = [0.30, -0.30]
+# units 2, 3: velcro, exponent 0.50
+number_concentration.median.W1[2:4, 0:4] = [[0.0, 12.0, 0.0, 1.0], [0.0, 12.0, 0.0, -1.0]]
+number_concentration.median.b1[2:4] = [-12.0, -12.0]
+number_concentration.median.w2[2:4] = [0.50, -0.50]
+# units 4, 5: bag, exponent 0.95
+number_concentration.median.W1[4:6, 0:4] = [[0.0, 0.0, 12.0, 1.0], [0.0, 0.0, 12.0, -1.0]]
+number_concentration.median.b1[4:6] = [-12.0, -12.0]
+number_concentration.median.w2[4:6] = [0.95, -0.95]
+# spread: 1.5 for filtered air, cabin and velcro; 0.9 for the dust
+number_concentration.spread.b0 = 1.5
+number_concentration.spread.skip[0:4] = [0.0, 0.0, -0.6, 0.0]
+number_concentration.tail_weight = 0.15
+number_concentration.tail_width = 2.5

@@ -1,0 +1,557 @@
+{
+  "id": "sha256:f6c492064bc897d1448c5edce3ad8d06d649b038fa53f4127cff5a0645d5539d",
+  "family": "other",
+  "model_name": "daft.wsp",
+  "is_baseline": false,
+  "architecture": {
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "profile": "strict_no_fitting",
+      "version": "1"
+    },
+    "kind": "literal_wsp",
+    "parameters": {
+      "authored_nonzero": 18,
+      "authored_total": 124,
+      "constant_total": 1,
+      "per_tensor": {
+        "num.substeps": [
+          1,
+          1
+        ],
+        "number_concentration.median.W1": [
+          32,
+          0
+        ],
+        "number_concentration.median.b0": [
+          1,
+          0
+        ],
+        "number_concentration.median.b1": [
+          8,
+          0
+        ],
+        "number_concentration.median.skip": [
+          4,
+          0
+        ],
+        "number_concentration.median.w2": [
+          8,
+          0
+        ],
+        "number_concentration.spread.W1": [
+          32,
+          0
+        ],
+        "number_concentration.spread.b0": [
+          1,
+          1
+        ],
+        "number_concentration.spread.b1": [
+          8,
+          0
+        ],
+        "number_concentration.spread.skip": [
+          4,
+          0
+        ],
+        "number_concentration.spread.w2": [
+          8,
+          0
+        ],
+        "number_concentration.tail_weight": [
+          1,
+          0
+        ],
+        "number_concentration.tail_width": [
+          1,
+          1
+        ],
+        "x.dusttrak_mass_floored.centre": [
+          1,
+          1
+        ],
+        "x.dusttrak_mass_floored.hi": [
+          1,
+          1
+        ],
+        "x.dusttrak_mass_floored.lo": [
+          1,
+          1
+        ],
+        "x.dusttrak_mass_floored.scale": [
+          1,
+          1
+        ],
+        "x.is_bag.centre": [
+          1,
+          1
+        ],
+        "x.is_bag.hi": [
+          1,
+          1
+        ],
+        "x.is_bag.lo": [
+          1,
+          1
+        ],
+        "x.is_bag.scale": [
+          1,
+          1
+        ],
+        "x.is_cabin.centre": [
+          1,
+          1
+        ],
+        "x.is_cabin.hi": [
+          1,
+          1
+        ],
+        "x.is_cabin.lo": [
+          1,
+          1
+        ],
+        "x.is_cabin.scale": [
+          1,
+          1
+        ],
+        "x.is_velcro.centre": [
+          1,
+          1
+        ],
+        "x.is_velcro.hi": [
+          1,
+          1
+        ],
+        "x.is_velcro.lo": [
+          1,
+          1
+        ],
+        "x.is_velcro.scale": [
+          1,
+          1
+        ]
+      }
+    },
+    "spec_hash": "sha256:451e59f648b2015ce782bbe0e6ea9373c7e142bbde9ab010ffe1fb515a5f28e7",
+    "spec_id": "law-daft-v1"
+  },
+  "config": {},
+  "feature_order": [
+    "is_cabin",
+    "is_velcro",
+    "is_bag",
+    "dusttrak_mass_floored"
+  ],
+  "units": {
+    "dusttrak_mass_floored": "kg/m3",
+    "is_bag": "1",
+    "is_cabin": "1",
+    "is_velcro": "1"
+  },
+  "normalization": {},
+  "priors": {},
+  "observation_model": {
+    "lane_local": "a target without a shared quantity is labelled <slug>:<target> in diagnostics.law; its artifacts carry quantity = null",
+    "noise": "assumed: the spread tensors of each target are the author's statement of how unsure the law is",
+    "targets": [
+      {
+        "description": "what the modified P-Trak reads on the sample (lane-local)",
+        "kind": "positive",
+        "label": "daft:number_concentration",
+        "shared_quantity": null,
+        "slug": "daft",
+        "status": "declared",
+        "target": "number_concentration",
+        "unit": "1/m3"
+      }
+    ]
+  },
+  "numerics": {
+    "event_integration": "num.substeps equal steps per requested interval; exact survival, causes share each step's loss by their midpoint hazards",
+    "positive_quantiles": "closed form for one log-normal; bisection of the fixed two-component mixture CDF otherwise",
+    "request_time_fitting": "none"
+  },
+  "tensors": [
+    {
+      "name": "num.substeps",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "0fa36789b943f5d0625f8b161a932003e8e72883d661980b5ac64a6a69d0c71a",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.median.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "2a2edbbf100711cafb607d7bf507fbd1dfb087d43fbf3f34632b6ff4e18d3460",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.median.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.median.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.median.skip",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.median.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.spread.W1",
+      "shape": [
+        8,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "2a2edbbf100711cafb607d7bf507fbd1dfb087d43fbf3f34632b6ff4e18d3460",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.spread.b0",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f2c7ffb02e4acd41f2ce9fa081342038d796eaadc5d6e3d557d521e399d36478",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.spread.b1",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.spread.skip",
+      "shape": [
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "cf456f866f02766313e6dfd85304ce4c3a1de7421ab9337e3399f50254696a49",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.spread.w2",
+      "shape": [
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "4ce80edd2a75cd63751c995cf31f3a40edc77f29ce608dc57866bb91babe73f0",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.tail_weight",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "f7f1276fefe208d47f31beeb29fdef4791f078be6f45ce51d0fec9239bdf385c",
+      "trainable": false
+    },
+    {
+      "name": "number_concentration.tail_width",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.dusttrak_mass_floored.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.dusttrak_mass_floored.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.dusttrak_mass_floored.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.dusttrak_mass_floored.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_bag.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_bag.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_bag.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_bag.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_cabin.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_cabin.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_cabin.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_cabin.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_velcro.centre",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    },
+    {
+      "name": "x.is_velcro.hi",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "daf09ea4c93c307b630784e017a1e56feb7bd1bd5b541a2998e966c55e261a78",
+      "trainable": false
+    },
+    {
+      "name": "x.is_velcro.lo",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "9410e4f8b783d65f2df4f90e075879a1b2641abbb201b14828fb81cc21fa764c",
+      "trainable": false
+    },
+    {
+      "name": "x.is_velcro.scale",
+      "shape": [],
+      "dtype": "float64",
+      "sha256": "6381b7d2fadaf5658007cd8462e3153eb51e6211f38732bf0659600940c3881f",
+      "trainable": false
+    }
+  ],
+  "posterior": [],
+  "posterior_parameters": [],
+  "cohort_id": "atlas:PSI-47:catalogue",
+  "split_id": "sha256:a345930846600ecf82c8d1f2350391323e8731bb536fb8c2132f9449e4dea08a",
+  "source_manifest_hash": "sha256:ac4eaced333f1b064f6225d27e103d35372b510b4c914ce031943b34e5c42989",
+  "code_version": "ignis-wsp@0.1.0+fwd.31f5fc46329b6264",
+  "applicability": {
+    "declaration": {
+      "description": "W0 law of docs/wsp/research/phys_daft_w0.md, section 7.1: what the counter reads, by kind of air, from the photometer reading. The indicators and dusttrak_mass_floored = max(dusttrak_mass_concentration, 1e-9 kg/m3) are derived by tools/wsp/ext/law_inputs.py.",
+      "family": "other",
+      "features": [
+        {
+          "description": "cabin air through the hose",
+          "name": "is_cabin",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "cabin air while Velcro is separated",
+          "name": "is_velcro",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "road dust in a bag (filtered air is the reference)",
+          "name": "is_bag",
+          "transform": "identity",
+          "unit": "1"
+        },
+        {
+          "description": "max(dusttrak_mass_concentration, 1e-9 kg/m3), the photometer reading floored at its resolution",
+          "name": "dusttrak_mass_floored",
+          "transform": "ln",
+          "unit": "kg/m3"
+        }
+      ],
+      "investigation": "PSI-47, DAFT / DAFT-2: a modified P-Trak condensation counter against a DustTrak photometer on cabin air and on test dust in orbit",
+      "slug": "daft",
+      "status": "declared",
+      "targets": [
+        {
+          "causes": [],
+          "description": "what the modified P-Trak reads on the sample (lane-local)",
+          "kind": "positive",
+          "name": "number_concentration",
+          "scheduled_stop": null,
+          "shared_quantity": null,
+          "unit": "1/m3"
+        }
+      ]
+    },
+    "declaration_path": "configs/models/law/daft/decl.json",
+    "features": [
+      {
+        "description": "cabin air through the hose",
+        "name": "is_cabin",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "cabin air while Velcro is separated",
+        "name": "is_velcro",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "road dust in a bag (filtered air is the reference)",
+        "name": "is_bag",
+        "transform": "identity",
+        "unit": "1"
+      },
+      {
+        "description": "max(dusttrak_mass_concentration, 1e-9 kg/m3), the photometer reading floored at its resolution",
+        "name": "dusttrak_mass_floored",
+        "transform": "ln",
+        "unit": "kg/m3"
+      }
+    ],
+    "investigation": "PSI-47, DAFT / DAFT-2: a modified P-Trak condensation counter against a DustTrak photometer on cabin air and on test dust in orbit",
+    "meaning": "declared domain of the handwritten law (tensors x.<feature>.lo, x.<feature>.hi), not a training-support region",
+    "slug": "daft",
+    "status": "declared",
+    "targets": [
+      {
+        "description": "what the modified P-Trak reads on the sample (lane-local)",
+        "kind": "positive",
+        "label": "daft:number_concentration",
+        "shared_quantity": null,
+        "slug": "daft",
+        "status": "declared",
+        "target": "number_concentration",
+        "unit": "1/m3"
+      }
+    ]
+  },
+  "evaluation": {},
+  "state": "experimental",
+  "parent_id": null,
+  "lineage": "literal_authoring",
+  "lineage_note": "Neutral root of a law slug, generated from the spec alone by `ignis wsp law-root`: no claim (no feature weight, no hinge, the widest spread and clock shapes the spec allows, domain at the tensor bounds). A lineage root for literal revisions",
+  "posterior_valid_for_parameters": false,
+  "trained_on": "not_trained",
+  "resource_record": null,
+  "created_at": "2026-11-15T06:21:19.131402Z",
+  "construction": {
+    "schema_version": "wsp.v1",
+    "construction_method": "literal_one_shot",
+    "spec_id": "law-daft-v1",
+    "spec_hash": "sha256:451e59f648b2015ce782bbe0e6ea9373c7e142bbde9ab010ffe1fb515a5f28e7",
+    "patch_id": "law-daft-v1-root",
+    "patch_hash": "sha256:ae9e41cad0415f43c7682f7ec8bc255ad5511d66fbade4805c0307a3d46f693b",
+    "author": {
+      "provider": "ignis",
+      "model_id": "ignis-wsp-law-root"
+    },
+    "exposure": {
+      "sources": [],
+      "datasets": [],
+      "development_feedback": [],
+      "prior_candidates": []
+    },
+    "weights_hash": "sha256:3f4760b56af3a572f3dc9974dae3e25bdfe44d8dde29a240d1390dce1f9e7fc7",
+    "forward": {
+      "entry_point": "ignis_wsp::law::forecast",
+      "version": "1",
+      "profile": "strict_no_fitting"
+    },
+    "forward_hash": "sha256:31f5fc46329b626451a6bac85d9e93d4455271f381a9f809dc6c5b6922677056",
+    "code_version": "ignis-wsp@0.1.0+fwd.31f5fc46329b6264",
+    "uncertainty_kind": "assumed_noise",
+    "checks": [
+      {
+        "check": "spec_valid",
+        "status": "passed",
+        "detail": "ModelSpec::validate"
+      },
+      {
+        "check": "patch_valid",
+        "status": "passed",
+        "detail": "HandwrittenWeightPatch::validate_against"
+      },
+      {
+        "check": "tensors_complete",
+        "status": "passed",
+        "detail": "124 authored elements (18 nonzero), 1 constants"
+      },
+      {
+        "check": "strict_forward_audit",
+        "status": "passed",
+        "detail": "forward sources name no fitting, sampling or random routine; ignis-wsp links no optimizer crate (tests/strict.rs checks the dependency graph)"
+      },
+      {
+        "check": "finite_forward_on_fixture",
+        "status": "passed",
+        "detail": "synthetic fixture prefix: 1 targets, valid finite artifacts"
+      }
+    ],
+    "origin": "system"
+  }
+}
