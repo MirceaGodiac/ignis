@@ -286,6 +286,27 @@ image was built from (its `org.opencontainers.image.revision` label), it does th
 8. After a good deploy: the deploy script and the units in `deploy/systemd/` are reinstalled from
    the deployed commit when they changed, and `ignis-server` images other than the running and the
    previous one are removed.
+9. **Web UI**, same commit: `web/` is built and the Worker `ignis-edge` deployed with Wrangler in a
+   `node:22-bookworm-slim` container (npm cache in the Docker volume `ignis-npm-cache`). The
+   hostnames fill `wrangler.jsonc`'s placeholders into a generated `wrangler.deploy.jsonc` in the
+   build worktree; the Worker's secrets (`ORIGIN_CLIENT_*`) are untouched. A failed UI deploy leaves
+   the server live and the previous UI in place, is recorded as `ui_failed`, and is not retried for
+   that commit until `main` moves or `ignis-autodeploy --ui`. When the server is already at the tip
+   but the UI is not (`/var/lib/ignis-deploy/ui_commit`), the next timer run deploys the UI alone.
+   A server rollback does not roll the UI back: use `npx wrangler rollback` from a workstation.
+
+   The step is off until `/etc/ignis/edge.env` exists (root 0600, `KEY=value` lines, no quotes;
+   Docker reads it as an env file):
+
+   ```text
+   CLOUDFLARE_API_TOKEN=<token: template "Edit Cloudflare Workers", this account only>
+   CLOUDFLARE_ACCOUNT_ID=<account id>
+   UI_HOSTNAME=ignis-ardealu.app
+   ORIGIN_HOSTNAME=origin.ignis-ardealu.app
+   ```
+
+   Since the UI follows `main`, deploying it by hand from a branch is overwritten on the next
+   release; ship UI work by merging it.
 
 Every attempt appends a line to `/var/lib/ignis-deploy/deploys.jsonl` (commit, outcome, build
 seconds, restart-to-healthy seconds, total seconds); the log is `journalctl -u ignis-autodeploy`.
@@ -297,6 +318,7 @@ Runs never overlap (a lock in `/var/lib/ignis-deploy`).
 sudo ignis-autodeploy --force             # redeploy the tip of main now
 sudo ignis-autodeploy --commit <sha>      # a specific commit on main
 sudo ignis-autodeploy --rollback          # previous image + checkout back (no store restore)
+sudo ignis-autodeploy --ui                # build and deploy only the web UI at the running commit
 sudo ignis-autodeploy --drill-rollback    # deploy, then roll back as if the checks failed
 echo "data job until 23:00 (raul)" | sudo tee /etc/ignis/autodeploy.hold   # pause the timer
 sudo rm /etc/ignis/autodeploy.hold                                          # resume

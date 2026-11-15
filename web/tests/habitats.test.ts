@@ -5,7 +5,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { ConditionsTable, InvestigationEnvelope } from "../src/contracts/generated";
-import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFit, PSI_PA, rankFor } from "../src/research/habitats.ts";
+import { axesOf, fitText, gravityStatus, HABITAT_LIST, habitatFilters, habitatFit, PSI_PA, rankFor } from "../src/research/habitats.ts";
+import { flagTags, quotedText } from "../src/research/conditionCells.ts";
+import { rowWindow } from "../src/research/windowing.ts";
+import { pointsFromConditions } from "../src/research/mapPoints.ts";
 
 const fixture = <T>(p: string): T => JSON.parse(readFileSync(fileURLToPath(new URL(`../../fixtures/contracts/${p}`, import.meta.url)), "utf8")) as T;
 const [moon, suit, iss] = ["moon", "suit", "iss"].map((id) => HABITAT_LIST.find((h) => h.id === id)!);
@@ -52,4 +55,57 @@ test("partial gravity: only a tested level between 0.1 g and 0.5 g counts", () =
   assert.equal(gravityStatus(axesOf(env("micro", [0.21, 0.21], [14.7, 14.7], [1e-6, 1e-3]))).status, "no_partial_data");
   assert.equal(gravityStatus(axesOf(env("lunar", [0.21, 0.21], [14.7, 14.7], [0.16, 0.17]))).status, "partial_tested");
   assert.equal(gravityStatus(axesOf(env("ground", [0.21, 0.21], [14.7, 14.7], [1, 1]))).status, "no_partial_data");
+});
+
+test("habitat filters select the same region the ranking calls within, with its tolerance", () => {
+  const [o2, pa] = habitatFilters(moon);
+  assert.deepEqual([o2.key, o2.min_si, o2.max_si], ["oxygen_mole_fraction", 0.295, 1]);
+  assert.equal(pa.key, "pressure");
+  assert.ok(Math.abs(pa.max_si! / PSI_PA - 10.2 * 1.01) < 1e-9 && Math.abs(pa.min_si! / PSI_PA - 4.3 * 0.99) < 1e-9);
+  const [o2Iss] = habitatFilters(iss);
+  assert.deepEqual([o2Iss.min_si, +o2Iss.max_si!.toFixed(3)], [0.205, 0.215]);
+});
+
+test("a gap shows the table's own text; flags stay on the cell, burner-stream O2 marked as not the atmosphere", () => {
+  assert.equal(quotedText('several values in one cell: "21; 26.5; 34"'), "21; 26.5; 34");
+  assert.equal(quotedText("impossible value “3400%”: spreadsheet slip"), "3400%");
+  assert.equal(quotedText("no row of the experimental table states it"), null);
+  assert.deepEqual(
+    flagTags(["approximate", "oxidizer_stream:burner", "composition_sum=0.980", "testsheet_agrees", "original_header:O", "new_flag"]).map((f) => [f.label, f.inline, f.notAtmosphere]),
+    [
+      ["~", true, false],
+      ["burner stream", true, true],
+      ["Σ 0.980", true, false],
+      ["test sheet agrees", false, false],
+      ["header reconciled", false, false],
+      ["new flag", false, false],
+    ],
+    "meaning-changing flags on the cell, provenance notes in the detail, unknown flags kept by name",
+  );
+});
+
+test("row windowing keeps the scroll height and renders only the rows in view plus a margin", () => {
+  assert.deepEqual(rowWindow(0, 330, 33, 1999), { start: 0, end: 21, top: 0, bottom: (1999 - 21) * 33 });
+  const mid = rowWindow(33 * 1000, 330, 33, 1999);
+  assert.deepEqual([mid.start, mid.end], [990, 1021]);
+  assert.equal(mid.top + (mid.end - mid.start) * 33 + mid.bottom, 1999 * 33, "total height is preserved");
+  assert.deepEqual(rowWindow(1e9, 330, 33, 1999).end, 1999, "past the end clamps to the last rows");
+  assert.deepEqual(rowWindow(0, 330, 33, 0), { start: 0, end: 0, top: 0, bottom: 0 });
+});
+
+test("map points: only recorded O2 and pressure are placed; burner-stream O2 and gaps are counted, never placed", () => {
+  const t = fixture<ConditionsTable>("data/conditions_table.json");
+  const base = pointsFromConditions(t);
+  assert.deepEqual(
+    base.points.map((p) => [p.id, p.o2, +p.kpa.toFixed(1), p.fuel]),
+    [["fixture-run-01", 0.21, 101.4, "synthetic-fuel-a"]],
+  );
+  assert.deepEqual(base.unplaced, { o2: 0, pressure: 0, both: 1, notAtmosphere: 0 }, "run-02: O2 conflicting and pressure missing");
+  const r1 = t.rows[0];
+  const burner = structuredClone(r1);
+  const o2 = burner.cells.find((c) => c.key === "oxygen_mole_fraction")!;
+  if (o2.status === "value") o2.value.flags = ["oxidizer_stream:burner"];
+  const noPressure = structuredClone(r1);
+  noPressure.cells = noPressure.cells.filter((c) => c.key !== "pressure");
+  assert.deepEqual(pointsFromConditions({ rows: [burner, noPressure] }).unplaced, { o2: 0, pressure: 1, both: 0, notAtmosphere: 1 });
 });
