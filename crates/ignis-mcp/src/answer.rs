@@ -119,7 +119,13 @@ impl AnswerHost<'_> {
                 Ok(a) => {
                     artifacts.insert(id.clone(), a);
                 }
-                Err(e) if e.code == ErrorCode::NotFound => {}
+                // Not in the workspace: it may be a view of a dataset bundle this scope reads (the
+                // ids `datasets_inspect` returns), resolved through the dataset service.
+                Err(e) if e.code == ErrorCode::NotFound => {
+                    if let Some(v) = self.dataset_view_ref(scope, id) {
+                        artifacts.insert(id.clone(), v);
+                    }
+                }
                 Err(e) => return Err(e),
             }
         }
@@ -587,36 +593,47 @@ impl AnswerHost<'_> {
                             );
                             continue;
                         }
-                        let doc = docs
-                            .entry(artifact_id.clone())
-                            .or_insert_with(|| self.read_json(scope, a));
-                        let doc = match doc {
-                            Ok(d) => &*d,
-                            Err(e) => {
-                                push(AnswerProblemKind::UnresolvedRow, format!("{at}: {e}"));
-                                continue;
+                        let cell = if a.media_type == PARQUET_MEDIA_TYPE {
+                            match self.view_cell(scope, a, rows, column) {
+                                Ok(cell) => cell,
+                                Err((kind, detail)) => {
+                                    push(kind, format!("{at}: {detail}"));
+                                    continue;
+                                }
                             }
-                        };
-                        if let (Some(pinned), Some(built)) = (
-                            &pins.corpus_snapshot,
-                            doc.get("corpus_snapshot").and_then(Value::as_str),
-                        ) {
-                            if pinned.as_str() != built {
-                                push(
+                        } else {
+                            let doc = docs
+                                .entry(artifact_id.clone())
+                                .or_insert_with(|| self.read_json(scope, a));
+                            let doc = match doc {
+                                Ok(d) => &*d,
+                                Err(e) => {
+                                    push(AnswerProblemKind::UnresolvedRow, format!("{at}: {e}"));
+                                    continue;
+                                }
+                            };
+                            if let (Some(pinned), Some(built)) = (
+                                &pins.corpus_snapshot,
+                                doc.get("corpus_snapshot").and_then(Value::as_str),
+                            ) {
+                                if pinned.as_str() != built {
+                                    push(
                                     AnswerProblemKind::StaleSnapshot,
                                     format!(
                                         "{at}: the table was built from corpus snapshot {built}, the episode is pinned to {pinned}; rebuild it on the pinned snapshot"
                                     ),
                                 );
-                                continue;
+                                    continue;
+                                }
                             }
-                        }
-                        let cell = match grounding::read_cell(doc, rows, column) {
-                            Ok(cell) => cell,
-                            Err((kind, detail)) => {
-                                push(kind, format!("{at}: {detail}"));
-                                continue;
-                            }
+                            let cell = match grounding::read_cell(doc, rows, column) {
+                                Ok(cell) => cell,
+                                Err((kind, detail)) => {
+                                    push(kind, format!("{at}: {detail}"));
+                                    continue;
+                                }
+                            };
+                            cell
                         };
                         // The cell is the truth the answer shows, whatever was stated.
                         v.resolved = Finite::new(cell.value).ok().map(|value| ResolvedValue {
@@ -778,6 +795,141 @@ impl AnswerHost<'_> {
         Ok(None)
     }
 
+    /// The `ArtifactRef` of a view of a dataset bundle the scope reads, if `id` names one. Its
+    /// contract is the bundle's (`DatasetBundle`): a view is one of a bundle's data tables.
+    fn dataset_view_ref(&self, scope: &ExecutionScope, id: &ArtifactId) -> Option<ArtifactRef> {
+        let ds = self.datasets?;
+        let bundles = ds.datasets(scope).ok()?;
+        bundles.iter().flat_map(|b| b.views.iter()).find_map(|v| {
+            (v.artifact.artifact_id == *id).then(|| ArtifactRef {
+                contract: Some("DatasetBundle".into()),
+                ..v.artifact.clone()
+            })
+        })
+    }
+
+    /// The cell of a dataset view (a bundle's Parquet artifact) a value is bound to: exactly one
+    /// row selector over the view itself (`table: ""`) whose keys name identity columns
+    /// (`/run_id`, `/channel`, `/time_s`), and a column (`/value_si`, `/raw_number`, …). The row is
+    /// read through `DatasetService::view_rows` at the pinned digest, never by position; its unit
+    /// is the one the view states (`unit_si` for an SI column, `raw_unit` for a raw one, else the
+    /// column's own unit).
+    fn view_cell(
+        &self,
+        scope: &ExecutionScope,
+        a: &ArtifactRef,
+        rows: &[ignis_core::contracts::RowSelector],
+        column: &str,
+    ) -> Result<grounding::Cell, grounding::Problem> {
+        use ignis_core::services::{ViewCell, ViewRowsQuery};
+        use AnswerProblemKind as K;
+        let Some(ds) = self.datasets else {
+            return Err((
+                K::UnresolvedRow,
+                "this host serves no datasets, so a dataset view cell cannot be read".into(),
+            ));
+        };
+        let one = |p: &str| {
+            let t = p.strip_prefix('/')?;
+            (!t.is_empty() && !t.contains('/')).then(|| t.replace("~1", "/").replace("~0", "~"))
+        };
+        let [sel] = rows else {
+            return Err((
+                K::UnresolvedRow,
+                r#"a dataset view cell takes exactly one row selector: {"table": "", "where": [key columns]}"#.into(),
+            ));
+        };
+        if !sel.table.is_empty() {
+            return Err((
+                K::UnresolvedRow,
+                format!(
+                    r#"the table of a dataset view is the view itself ("table": ""), not {:?}"#,
+                    sel.table
+                ),
+            ));
+        }
+        let mut keys = Vec::new();
+        for k in &sel.keys {
+            let name = one(&k.field).ok_or_else(|| {
+                (
+                    K::UnresolvedRow,
+                    format!(
+                        r#"key {:?} must name one column of the view (e.g. "/run_id")"#,
+                        k.field
+                    ),
+                )
+            })?;
+            keys.push((name, k.equals.clone()));
+        }
+        let col = one(column).ok_or_else(|| {
+            (
+                K::UnknownColumn,
+                format!(r#"column {column:?} must name one column of the view (e.g. "/value_si")"#),
+            )
+        })?;
+        let q = ViewRowsQuery {
+            view_sha256: a.sha256.clone(),
+            keys,
+            columns: vec![col.clone()],
+            with_unit_columns: true,
+            limit: 2,
+        };
+        let found = ds.view_rows(scope, &q).map_err(|e| {
+            let kind = if e.message.contains("no column") {
+                K::UnknownColumn
+            } else {
+                K::UnresolvedRow
+            };
+            (kind, e.message)
+        })?;
+        let row = match (found.rows.as_slice(), found.truncated) {
+            ([one], false) => one,
+            ([], _) => {
+                return Err((
+                    K::UnresolvedRow,
+                    format!("no row of {}.{} has those keys", found.dataset_id, found.view),
+                ))
+            }
+            _ => {
+                return Err((
+                    K::UnresolvedRow,
+                    format!(
+                        "several rows of {}.{} have those keys; add key columns until exactly one matches",
+                        found.dataset_id, found.view
+                    ),
+                ))
+            }
+        };
+        let json = |c: Option<&ViewCell>| match c {
+            Some(ViewCell::Number(x)) if x.is_finite() => serde_json::json!(x),
+            Some(ViewCell::Text(t)) => Value::String(t.clone()),
+            Some(ViewCell::Bool(b)) => Value::Bool(*b),
+            _ => Value::Null,
+        };
+        let mut rec = serde_json::Map::new();
+        rec.insert(col.clone(), json(row.get(&col)));
+        if col.ends_with("_si") {
+            rec.insert("unit_si".into(), json(row.get("unit_si")));
+        } else if col.starts_with("raw_") {
+            let u = json(row.get("raw_unit"));
+            rec.insert("raw_unit".into(), u.clone());
+            rec.insert("unit".into(), u);
+        } else if let Some(u) = found
+            .columns
+            .iter()
+            .find(|c| c.name == col)
+            .and_then(|c| c.unit.clone())
+            .or_else(|| match row.get("unit") {
+                Some(ViewCell::Text(t)) => Some(t.clone()),
+                _ => None,
+            })
+        {
+            rec.insert("unit".into(), Value::String(u));
+        }
+        let ptr = format!("/{}", col.replace('~', "~0").replace('/', "~1"));
+        grounding::read_cell(&Value::Object(rec), &[], &ptr)
+    }
+
     fn read_json(&self, scope: &ExecutionScope, a: &ArtifactRef) -> Result<Value, String> {
         if !a.media_type.contains("json") {
             return Err(format!(
@@ -793,6 +945,9 @@ impl AnswerHost<'_> {
             .map_err(|e| format!("is not valid JSON: {e}"))
     }
 }
+
+/// Media type of a dataset bundle's views (`ignis_data::dataset::PARQUET`).
+const PARQUET_MEDIA_TYPE: &str = "application/vnd.apache.parquet";
 
 /// What a pointer must resolve to.
 #[derive(Clone, Copy)]
