@@ -145,6 +145,12 @@ impl ServerHandler for IgnisMcp {
         } else {
             CallToolResult::structured(value.clone())
         };
+        // The result travels twice on purpose: `structuredContent` for clients that read it, and
+        // the same JSON as one text block, which the MCP spec (2025-06-18, "Structured Content")
+        // says a tool returning structured content SHOULD include for clients that do not. A
+        // runtime that hands both to the model pays for it twice; the inline limit
+        // (`INLINE_RESULT_BYTES`) and the Claude Code runtime's `MAX_MCP_OUTPUT_TOKENS` are set for
+        // that worst case.
         out.content = vec![ContentBlock::text(value.to_string())];
         Ok(out.into())
     }

@@ -486,6 +486,7 @@ fn runs_with_o2_at_least_30_percent_match_the_conditions_table_cell_by_cell() {
         }],
         include_unknown: false,
         include_envelopes: false,
+        near: None,
         page_size: None,
         cursor: None,
     };

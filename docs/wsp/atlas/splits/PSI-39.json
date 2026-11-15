@@ -1,0 +1,88 @@
+{
+ "schema": "ignis.atlas.split/1",
+ "investigation_id": "PSI-39",
+ "acronym": "CFI",
+ "rule": "60/20/20 of groups (round half to even), groups shuffled by numpy default_rng(seed)",
+ "seed": 20261107,
+ "group_key": "group_id of the test catalogue (docs/wsp/atlas/SCHEMA.md): the test day or session",
+ "catalogue_level": {
+  "test": 227
+ },
+ "strata": {
+  "all": {
+   "status": "split",
+   "groups": {
+    "train": [
+     "PSI-39:day:2011-09-06",
+     "PSI-39:day:2017-03-09",
+     "PSI-39:day:2017-03-21",
+     "PSI-39:day:2017-04-05",
+     "PSI-39:day:2017-04-12",
+     "PSI-39:day:2017-05-01",
+     "PSI-39:day:2017-05-03",
+     "PSI-39:day:2017-05-05",
+     "PSI-39:day:2017-05-19",
+     "PSI-39:day:2017-05-26",
+     "PSI-39:day:2017-05-31",
+     "PSI-39:day:2017-06-09",
+     "PSI-39:day:2017-06-22",
+     "PSI-39:day:2017-07-03",
+     "PSI-39:day:2017-07-07",
+     "PSI-39:day:2017-07-12",
+     "PSI-39:day:2017-07-19",
+     "PSI-39:day:2017-07-26",
+     "PSI-39:day:2017-07-31",
+     "PSI-39:day:2017-08-09",
+     "PSI-39:day:2017-08-10",
+     "PSI-39:day:2017-08-18",
+     "PSI-39:day:2017-08-21",
+     "PSI-39:day:2017-08-25",
+     "PSI-39:day:2017-08-28",
+     "PSI-39:day:2017-08-29",
+     "PSI-39:day:2017-09-01",
+     "PSI-39:day:2017-09-08",
+     "PSI-39:day:2017-09-11",
+     "PSI-39:day:2017-09-14",
+     "PSI-39:day:2017-09-15"
+    ],
+    "validation": [
+     "PSI-39:day:2017-03-31",
+     "PSI-39:day:2017-05-10",
+     "PSI-39:day:2017-06-28",
+     "PSI-39:day:2017-06-29",
+     "PSI-39:day:2017-07-10",
+     "PSI-39:day:2017-07-14",
+     "PSI-39:day:2017-07-27",
+     "PSI-39:day:2017-08-14",
+     "PSI-39:day:2017-08-16",
+     "PSI-39:day:2017-09-06"
+    ],
+    "test": [
+     "PSI-39:day:2017-03-27",
+     "PSI-39:day:2017-05-15",
+     "PSI-39:day:2017-06-07",
+     "PSI-39:day:2017-06-12",
+     "PSI-39:day:2017-06-26",
+     "PSI-39:day:2017-07-05",
+     "PSI-39:day:2017-07-17",
+     "PSI-39:day:2017-07-21",
+     "PSI-39:day:2017-07-24",
+     "PSI-39:day:2017-08-01"
+    ]
+   },
+   "rows_in_catalogue": {
+    "train": 136,
+    "validation": 53,
+    "test": 38
+   }
+  }
+ },
+ "frozen_on": "2026-11-14",
+ "use": {
+  "train": "outcomes may be read by a model's author",
+  "validation": "read only as an aggregate table from a look registered in docs/wsp/PROTOCOL.md beforehand",
+  "test": "never read by an author or by an agent working for one; scored once by the evaluation lane",
+  "held": "as validation: no outcome is read per test; scored only as an aggregate in a registered look"
+ },
+ "note": "A test that is not in the catalogue yet belongs to the partition of its group id. A group id that is not listed here is held until this file's rule has been applied to it in a new file; this file is not rewritten."
+}

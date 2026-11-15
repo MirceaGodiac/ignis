@@ -718,7 +718,7 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             let range = match (pages, passage) {
                 (Some(p), _) => {
                     let (first, last) = parse_pages(&p)?;
-                    ReadRange::Pages { first, last }
+                    ReadRange::Pages { first, last, char_start: None }
                 }
                 (None, Some(e)) => ReadRange::Passage { evidence_id: EvidenceId::new(e)? },
                 (None, None) => bail!("give --pages or --passage"),

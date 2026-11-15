@@ -1,0 +1,2118 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "batch": "heptane-fresh-blind",
+ "frozen_on": "2026-11-15",
+ "frozen_before": "any frame of these tests was downloaded or opened; no outcome of these tests exists in the project (no NASA series, no test sheet)",
+ "purpose": "blind diameter series for scoring a frozen n-heptane candidate against the adopted release",
+ "rule": "(from RESULTS_HEPTANE_D3.md section 6, re-derived here from the raw text files):\n  * PSI-68 (FLEX-2) day 2013-03-28: E087C01-C04, C06-C09, n-heptane (PSI data record \"Heptane\"),\n    settings: no fibre, no flow; no gas reading that day (ambient carried, see AMBIENT_E087);\n  * PSI-69 (FLEX) points of 2013 named C<day>H<nn>: days 021, 030, 039, 049 (23 points). Configuration\n    from each test's MDCA settings (TP_PARAMETER_FIBER_USAGE_FLAG); ambient from the gas-reading points\n    C<day>R01 (`_Mixture.txt`) of the same and neighbouring days; pressure from the chamber readings.\n  * Fibre-supported points (settings flag Yes: 7 of the 23) are listed but NOT in the measured batch:\n    configuration, decided before any frame (the heptane releases are free-droplet models).",
+ "counts": {
+  "tests": 31,
+  "measured_batch": 24,
+  "fibre_excluded": 7,
+  "measured_batch_bytes": 30264197325
+ },
+ "method": {
+  "tool": "tools/wsp/media/droplet_diameter.py",
+  "tool_sha256": "66bcb46295e3b3f3462f154d3e68ea8a660b456f21a7b023035ebf0d36bc8eb3",
+  "tool_frozen_by": "runs/dev/media/droplet/FREEZE.json (same sha256; validated against NASA's processed diameters on six FLEX train tests; used unchanged, never edited)",
+  "invocation": "droplet_diameter.run(<staged dir>, investigation='FLEX', fov_mm=30.25, sheet_dir=...) via tools/wsp/media/heptane_fresh_measure.py",
+  "pixel_scale": {
+   "rule": "field of view 30.25 mm over the image width in pixels, passed explicitly (fov_mm=30.25); 33.85 px/mm on a 1024 px image, 16.93 on a 512 px binned image",
+   "source": "FLEX HiBMs documented field of view 30.25 mm (TP15 section 3.1.2), verified against NASA's processed diameters on six FLEX train tests (PILOT_REPORT.md); for FLEX-2 the requirements document FLX-REQ-0001 4.1.56/4.1.57 (droplet view 3.0 cm, 30 um per pixel) and the needle-arm width (53.9 px on 47 FLEX-2 tests, 54.4 px on FLEX) (runs/dev/media/droplet/SCALE_FLEX2.md). The 2013 PSI-69 points use the same MDCA/CIR hardware between FLEX-2 days. Not set from any droplet size, rate or expected diameter.",
+   "uncertainty": "1.5 % (1 sigma) on the scale; worst case -7 % (SCALE_FLEX2.md section 3)",
+   "check": "the tool's needle-arm ruler_check is recorded per test; it is a check, never used to rescale"
+  },
+  "time_origin": {
+   "stamp": "AS Igniter Off/Retract Start",
+   "rule": "time_s = camera stamp - timeline 'AS Igniter Off/Retract Start' (as in FREEZE.json time_origin: NASA's processed FLEX t = 0 sits -0.31 to +0.41 s from it)"
+  },
+  "acceptance": {
+   "rule": "FREEZE.json acceptance, unchanged: clock check within 0.3 s, >= 30 usable (ok, soot) frames after deployment + 0.1 s, coverage >= 0.6 of the measured span",
+   "screens": "as flex2_batch_summary.py: 'failed' if the tool saw no droplet in > 95 % of post-deployment frames; flex2_truncation_screen.py truncated or hijacked track; a visual check of the contact sheets by the measurer (fibre or needle seen, track on another object, droplet out of view) can only fail a series, never pass one the rule refused",
+   "exclusions": "by measurement quality only, written with their reason; never by any model output"
+  },
+  "output": "runs/dev/heptane_fresh/series/<test>.json: liquid_diameter observations in m on the stated time base, per-frame tool flags, conditions as frozen here, quality and reasons"
+ },
+ "tests": [
+  {
+   "test_id": "E087C01",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 00:09:01.273000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C01_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 103251.4,
+    "raw_psia": 14.975,
+    "chamber_temp_c": 22.92,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (E087C01_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C01A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C01A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C01_MDCA_Testpoint_Settings.txt",
+     "sha256": "cc8e4e8287f187b57511499c44632646fede00edc7616bebb384a612301e0006"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C01.txt",
+     "sha256": "f3559c32c714540b88e9bf6aaab262f4f4f2f8cf9e42f53a634292b63acfcc3f"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C01_Chamber_Readings.txt",
+     "sha256": "7773370b8d4797706a6eeb3ffaffa67f02fbc480f217ebf93d0e5fb729af52cd"
+    }
+   },
+   "archive_bytes": 1214138676,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C02",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 00:20:37.649000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C02_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 103355.9,
+    "raw_psia": 14.991,
+    "chamber_temp_c": 23.12,
+    "how": "mean FCU_MP_PT16 over the 59 chamber-reading rows in the 60 s before igniter on (E087C02_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C02A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C02A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C02_MDCA_Testpoint_Settings.txt",
+     "sha256": "940beb9c749ccde61e0ec5f2d7c7f6dcfa47247c116cf5913eb059c2c496fe0b"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C02.txt",
+     "sha256": "53dd0af9db5e40e16db64e58fc598a8696f1430a76e5a5d9cb43f358bdc39843"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C02_Chamber_Readings.txt",
+     "sha256": "19842f7005a07688451db35e9ac2fefbc8555d11c3057b6a87d2514463a302ec"
+    }
+   },
+   "archive_bytes": 1253337064,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C03",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 00:28:22.834000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C03_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 103391.6,
+    "raw_psia": 14.996,
+    "chamber_temp_c": 23.24,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (E087C03_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C03A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C03A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C03_MDCA_Testpoint_Settings.txt",
+     "sha256": "20e23e74ec8772ecc155d116dc12c1c3d9604e05396ee43ad89a4359f83f6f4c"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C03.txt",
+     "sha256": "2b36989b6c88dcf02f9c7ef2d6178cf5084c50f3fa716f94c6565301c303e247"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C03_Chamber_Readings.txt",
+     "sha256": "c2934b97a1ecc0428ec4e1eed997507f53c083d161f3ac6b4a8265b1570d053f"
+    }
+   },
+   "archive_bytes": 1207212638,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C04",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 00:35:13.260000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C04_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 103446.3,
+    "raw_psia": 15.004,
+    "chamber_temp_c": 23.35,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (E087C04_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C04A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C04A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C04_MDCA_Testpoint_Settings.txt",
+     "sha256": "65df46c902a14f7dd53e691908dc31fb2813a045185520e52a8fb8bb3c86e801"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C04.txt",
+     "sha256": "d709f86973fb2fc6d968da9f4598cf03bbea36d52eaf7a0f0c4f116619ef27f9"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C04_Chamber_Readings.txt",
+     "sha256": "4ced21213e8439e8dac3f3273490abd44ad538f0c49ff0003bb08bf0e5a10ac9"
+    }
+   },
+   "archive_bytes": 1210079773,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C06",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 01:06:56.824000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C06_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 12000.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 103612.7,
+    "raw_psia": 15.028,
+    "chamber_temp_c": 23.75,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (E087C06_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C06A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C06A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C06_MDCA_Testpoint_Settings.txt",
+     "sha256": "9953f8be51d5506950b691d60dc741ef64b0e099edd5da457b1daacede1516a5"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C06.txt",
+     "sha256": "c576fcbeea5948a459b79ea330cc277e9a7bd39462bc81fb98890d602a583fbb"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C06_Chamber_Readings.txt",
+     "sha256": "410127832772a7bfd922e765ac366bd242778f35a254ae95445dbe899b646bda"
+    }
+   },
+   "archive_bytes": 589755274,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C07",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 01:46:37.690000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C07_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 42000.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 103779.9,
+    "raw_psia": 15.052,
+    "chamber_temp_c": 24.15,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (E087C07_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C07A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C07A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C07_MDCA_Testpoint_Settings.txt",
+     "sha256": "5970ef20aa477f33fb19ad3b69560a2e255c2777a0f30494b4afa7e0fec7d588"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C07.txt",
+     "sha256": "219035447735fe4366e43fb234b79d0101220da2c1fa09d794664fbafd04ad48"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C07_Chamber_Readings.txt",
+     "sha256": "4998923b149ada44eba5bd6b0aa39b9499fc325040415e525dd297789c21475b"
+    }
+   },
+   "archive_bytes": 1792829434,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C08",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 03:19:28.271000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C08_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 50500.0,
+   "igniter_on_ms": 3000.0,
+   "pressure": {
+    "value_pa": 103977.5,
+    "raw_psia": 15.081,
+    "chamber_temp_c": 24.73,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (E087C08_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C08A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C08A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C08_MDCA_Testpoint_Settings.txt",
+     "sha256": "3a8345728ab291e82d36c7ae02520fe2814fbcbf8e4e2137c89f9503fdf43bc9"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C08.txt",
+     "sha256": "b3a686c39336eff1129eac310724f148aa79327b155912256e797cf1762dbad9"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C08_Chamber_Readings.txt",
+     "sha256": "b20cb9061a554da6d9bece4339ddb06d3528f595942fc2285bf3e82ba24cbf37"
+    }
+   },
+   "archive_bytes": 2104025655,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "E087C09",
+   "investigation": "PSI-68",
+   "date": "2013-03-28",
+   "igniter_on_gmt": "2013-03-28 03:42:09.261000",
+   "fuel": "n-heptane",
+   "fuel_how": "PSI data record 'Heptane' (flex2_tests.jsonl)",
+   "configuration": "free droplet",
+   "configuration_how": "E087C09_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 14500.0,
+   "igniter_on_ms": 1500.0,
+   "pressure": {
+    "value_pa": 104031.5,
+    "raw_psia": 15.088,
+    "chamber_temp_c": 24.83,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (E087C09_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "E087C09A.zip",
+   "listing_file": "PSI-68_Raw Data_E087C09A.zip",
+   "ambient": {
+    "x_o2": 0.2113,
+    "x_co2": 0.0,
+    "x_n2": 0.7887,
+    "x_he": 0.0,
+    "grade": "assumed (carried 14 days)",
+    "how": "ASSUMPTION, not a reading: no gas reading on 2013-03-28. Carried from the last reading before it, E073R01 (PSI-68, 2013-03-14 04:52 GMT: O2 0.2113, N2 0.7887, no CO2, no He), 14 days earlier. Support: no test point or reading point of PSI-68 or PSI-69 is recorded between LCTF073 (2013-03-14 09:00) and E087C01 (2013-03-28 00:09); the chamber pressure of the first 2013-03-28 test (14.975 psia at 22.9 C) equals that of the last 2013-03-14 test (15.041 psia at 24.7 C) referred to 22.9 C by the ideal gas law (14.95 psia), i.e. no vent and refill is evident. A refill to the same pressure with another gas cannot be excluded from the files. The O2 fraction carries the consumption of the 2013-03-14 burns (a few tenths of a percent at most) unknown.",
+    "readings": [
+     {
+      "point": "E073R01",
+      "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E073R01_Mixture.txt",
+      "sha256": "d2657dfc0dd5f06f81a418c31acb7636ec84c7b9e6f8152449a3076777599ed3",
+      "gc_time_as_written": "3/14/2013 4:52:00",
+      "x_o2": 0.2113,
+      "x_co2": 0.0,
+      "x_n2": 0.7887000000000001,
+      "x_he": 0.0
+     }
+    ],
+    "evidence": "assumption"
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C09_MDCA_Testpoint_Settings.txt",
+     "sha256": "2d168491aad68a863225d72f804ad4f5096a2d18bccd6019b8e2b9aadf74266f"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C09.txt",
+     "sha256": "fee7c92c799882e1adc57f87fc62c62d8ed4ff17aeed2cde7f760b4e89da57b0"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-68/Raw Data/E087C09_Chamber_Readings.txt",
+     "sha256": "e5aee40c15b78bafbb95add4ee0c2a52333afe375cf2fc011061bf0be230bccb"
+    }
+   },
+   "archive_bytes": 692020922,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C021H02",
+   "investigation": "PSI-69",
+   "date": "2013-01-21",
+   "igniter_on_gmt": "2013-01-21 19:49:16.112000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C021H02_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 103666.1,
+    "raw_psia": 15.036,
+    "chamber_temp_c": 24.85,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C021H02_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C021H02A.zip",
+   "listing_file": "PSI-69_Raw Data_C021H02A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "reading point C021R01 (chamber 16:59 GMT, 2.8 h before the first test; GC 13:14) and C024R01 (GC dated 2013-01-21 20:45, after the last test of the day at 20:43; point run 2013-01-24). Both give O2 0.21, CO2 0.15: the value is the mean of the two.",
+    "readings": [
+     {
+      "point": "C021R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021R01_Mixture.txt",
+      "sha256": "96f2e8d3757302ab40252bf7f8f4fd5ed86a66139a43c2af34deef8b3e5a0d72",
+      "gc_time_as_written": "01/21/2013 13:14:00",
+      "x_o2": 0.20989999999999998,
+      "x_co2": 0.1496,
+      "x_n2": 0.6405,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-21 16:59:27.899846",
+      "chamber_point_mean_psia": 14.998666666666667
+     },
+     {
+      "point": "C024R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C024R01_Mixture.txt",
+      "sha256": "e8c53e141d15a56ecb2a6524d62cd32f93b87e878addf55fd0af387186638bd3",
+      "gc_time_as_written": "01/21/2013 20:45:00",
+      "x_o2": 0.20879999999999999,
+      "x_co2": 0.1502,
+      "x_n2": 0.6401,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-24 18:03:03.441179",
+      "chamber_point_mean_psia": 14.861363636363636
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2093,
+    "x_co2": 0.1499,
+    "x_n2": 0.6403,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H02_MDCA_Testpoint_Settings.txt",
+     "sha256": "4cd655ca826ad7af32985d9a23a62b146debce709054b6bc9c6680c46672510e"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H02.txt",
+     "sha256": "63f2e7e761a1108efb341d6b050af41319ce8ef360d78458d29d0842eec72583"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H02_Chamber_Readings.txt",
+     "sha256": "c7dbce6b693eafff839a998d822f1f0cd481d4d8347e6e9c12cf82c76dedb429"
+    }
+   },
+   "archive_bytes": 1213583131,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C021H03",
+   "investigation": "PSI-69",
+   "date": "2013-01-21",
+   "igniter_on_gmt": "2013-01-21 20:08:36.871000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C021H03_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 34500.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 103683.4,
+    "raw_psia": 15.038,
+    "chamber_temp_c": 24.88,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C021H03_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C021H03A.zip",
+   "listing_file": "PSI-69_Raw Data_C021H03A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "reading point C021R01 (chamber 16:59 GMT, 2.8 h before the first test; GC 13:14) and C024R01 (GC dated 2013-01-21 20:45, after the last test of the day at 20:43; point run 2013-01-24). Both give O2 0.21, CO2 0.15: the value is the mean of the two.",
+    "readings": [
+     {
+      "point": "C021R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021R01_Mixture.txt",
+      "sha256": "96f2e8d3757302ab40252bf7f8f4fd5ed86a66139a43c2af34deef8b3e5a0d72",
+      "gc_time_as_written": "01/21/2013 13:14:00",
+      "x_o2": 0.20989999999999998,
+      "x_co2": 0.1496,
+      "x_n2": 0.6405,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-21 16:59:27.899846",
+      "chamber_point_mean_psia": 14.998666666666667
+     },
+     {
+      "point": "C024R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C024R01_Mixture.txt",
+      "sha256": "e8c53e141d15a56ecb2a6524d62cd32f93b87e878addf55fd0af387186638bd3",
+      "gc_time_as_written": "01/21/2013 20:45:00",
+      "x_o2": 0.20879999999999999,
+      "x_co2": 0.1502,
+      "x_n2": 0.6401,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-24 18:03:03.441179",
+      "chamber_point_mean_psia": 14.861363636363636
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2093,
+    "x_co2": 0.1499,
+    "x_n2": 0.6403,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H03_MDCA_Testpoint_Settings.txt",
+     "sha256": "f39dae257003b57333ba167eaf1e3637568349eb1f166e31ef112c83689f0f37"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H03.txt",
+     "sha256": "7a8b2c50ac53983e82a86a635b3a2329f7aebce4b760dd9b470b49f0d8bc18b5"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H03_Chamber_Readings.txt",
+     "sha256": "b13b3dfdcc504c2b255e6dafb56630ea21210497b2900ef270d1962ee0b28a31"
+    }
+   },
+   "archive_bytes": 1474430988,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C021H04",
+   "investigation": "PSI-69",
+   "date": "2013-01-21",
+   "igniter_on_gmt": "2013-01-21 20:31:58.646000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C021H04_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 103699.4,
+    "raw_psia": 15.04,
+    "chamber_temp_c": 24.94,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C021H04_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C021H04A.zip",
+   "listing_file": "PSI-69_Raw Data_C021H04A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "reading point C021R01 (chamber 16:59 GMT, 2.8 h before the first test; GC 13:14) and C024R01 (GC dated 2013-01-21 20:45, after the last test of the day at 20:43; point run 2013-01-24). Both give O2 0.21, CO2 0.15: the value is the mean of the two.",
+    "readings": [
+     {
+      "point": "C021R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021R01_Mixture.txt",
+      "sha256": "96f2e8d3757302ab40252bf7f8f4fd5ed86a66139a43c2af34deef8b3e5a0d72",
+      "gc_time_as_written": "01/21/2013 13:14:00",
+      "x_o2": 0.20989999999999998,
+      "x_co2": 0.1496,
+      "x_n2": 0.6405,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-21 16:59:27.899846",
+      "chamber_point_mean_psia": 14.998666666666667
+     },
+     {
+      "point": "C024R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C024R01_Mixture.txt",
+      "sha256": "e8c53e141d15a56ecb2a6524d62cd32f93b87e878addf55fd0af387186638bd3",
+      "gc_time_as_written": "01/21/2013 20:45:00",
+      "x_o2": 0.20879999999999999,
+      "x_co2": 0.1502,
+      "x_n2": 0.6401,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-24 18:03:03.441179",
+      "chamber_point_mean_psia": 14.861363636363636
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2093,
+    "x_co2": 0.1499,
+    "x_n2": 0.6403,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H04_MDCA_Testpoint_Settings.txt",
+     "sha256": "2ec208469137b5c262fb2f23f461814c64ccd1f0834539375f0fe8ca9194e926"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H04.txt",
+     "sha256": "cf719103c8943e7ed4887c9732bc4250e45c91a47d0a8710738bd8bf29675701"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H04_Chamber_Readings.txt",
+     "sha256": "1cc5bab5a6a86fb3b123683a4a002178b3b83d9a785dca388c27de67898b2e72"
+    }
+   },
+   "archive_bytes": 1219414711,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C021H05",
+   "investigation": "PSI-69",
+   "date": "2013-01-21",
+   "igniter_on_gmt": "2013-01-21 20:43:43.258000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C021H05_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 22500.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 103739.7,
+    "raw_psia": 15.046,
+    "chamber_temp_c": 24.99,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C021H05_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C021H05A.zip",
+   "listing_file": "PSI-69_Raw Data_C021H05A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "reading point C021R01 (chamber 16:59 GMT, 2.8 h before the first test; GC 13:14) and C024R01 (GC dated 2013-01-21 20:45, after the last test of the day at 20:43; point run 2013-01-24). Both give O2 0.21, CO2 0.15: the value is the mean of the two.",
+    "readings": [
+     {
+      "point": "C021R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021R01_Mixture.txt",
+      "sha256": "96f2e8d3757302ab40252bf7f8f4fd5ed86a66139a43c2af34deef8b3e5a0d72",
+      "gc_time_as_written": "01/21/2013 13:14:00",
+      "x_o2": 0.20989999999999998,
+      "x_co2": 0.1496,
+      "x_n2": 0.6405,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-21 16:59:27.899846",
+      "chamber_point_mean_psia": 14.998666666666667
+     },
+     {
+      "point": "C024R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C024R01_Mixture.txt",
+      "sha256": "e8c53e141d15a56ecb2a6524d62cd32f93b87e878addf55fd0af387186638bd3",
+      "gc_time_as_written": "01/21/2013 20:45:00",
+      "x_o2": 0.20879999999999999,
+      "x_co2": 0.1502,
+      "x_n2": 0.6401,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-24 18:03:03.441179",
+      "chamber_point_mean_psia": 14.861363636363636
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2093,
+    "x_co2": 0.1499,
+    "x_n2": 0.6403,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H05_MDCA_Testpoint_Settings.txt",
+     "sha256": "7494e32396251fc8a38b3fb6f967ec24dfe35992688b38d2327fb540c2f50a84"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H05.txt",
+     "sha256": "85d78ee517f2852d330384a3f7d0fb4d1f354f2ecf924209e60a4fd234d4ab7b"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C021H05_Chamber_Readings.txt",
+     "sha256": "138def80ba08176aee2ecbed89311547541a5856d51f13a09f78438dc361d369"
+    }
+   },
+   "archive_bytes": 1003646076,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C049H03",
+   "investigation": "PSI-69",
+   "date": "2013-02-18",
+   "igniter_on_gmt": "2013-02-18 19:04:39.011000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C049H03_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 3000.0,
+   "pressure": {
+    "value_pa": 308551.3,
+    "raw_psia": 44.752,
+    "chamber_temp_c": 24.05,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C049H03_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C049H03A.zip",
+   "listing_file": "PSI-69_Raw Data_C049H03A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "C049R01 (GC 2013-02-18 15:28, point 17:09, 41 min before the first test) and C052R01 (GC dated 2013-02-18 19:43, two minutes after the last test; point run 2013-02-21) agree: O2 0.21, CO2 0.75. Mean of the two.",
+    "readings": [
+     {
+      "point": "C049R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049R01_Mixture.txt",
+      "sha256": "b5e747a0b8ea033e913ada97573a33b7e76864e9846259d870a493c8c18d8c7c",
+      "gc_time_as_written": "02/18/2013 15:28:00",
+      "x_o2": 0.2119,
+      "x_co2": 0.7493000000000001,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-18 17:09:47.895923",
+      "chamber_point_mean_psia": 44.45234042553192
+     },
+     {
+      "point": "C052R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C052R01_Mixture.txt",
+      "sha256": "baeefdcff457e777f825501f74efe5b7fc4b2f3f6ae466ab9edacebdb04a02f0",
+      "gc_time_as_written": "02/18/2013 19:43",
+      "x_o2": 0.2104,
+      "x_co2": 0.7498,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-21 18:05:49.131846",
+      "chamber_point_mean_psia": 44.196538461538466
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2112,
+    "x_co2": 0.7496,
+    "x_n2": 0.0388,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H03_MDCA_Testpoint_Settings.txt",
+     "sha256": "e53ff3dd857ec57b1ba8eb0b3dc72b3ef7347c033fd263d9f8c70b0421756a13"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H03.txt",
+     "sha256": "fc362cafbc5032d71296615e5714c4526904239732aa030f4ec211a07b3172f1"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H03_Chamber_Readings.txt",
+     "sha256": "ecb623d915889fc9f42407ee1d9628cdb932da31565214cee0a907f30252218d"
+    }
+   },
+   "archive_bytes": 1296405355,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C039H01",
+   "investigation": "PSI-69",
+   "date": "2013-02-08",
+   "igniter_on_gmt": "2013-02-08 21:53:33.817000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C039H01_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 299855.5,
+    "raw_psia": 43.49,
+    "chamber_temp_c": 22.0,
+    "how": "mean FCU_MP_PT16 over the 56 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H01_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H01A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H01A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H01_MDCA_Testpoint_Settings.txt",
+     "sha256": "03e4ea959cc8a2afc7a3589d6ff02c4961795bbd5d3623742ce1295573569d54"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H01.txt",
+     "sha256": "fb8e220520792dbb8fa9a4b92b71226f2661c33e776d62fdaa24ff0ba3fc3889"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H01_Chamber_Readings.txt",
+     "sha256": "c4dab8c85947852dd0531ccb7364752b0e6b89b8df4f438dea23ebc0fe25f475"
+    }
+   },
+   "archive_bytes": 1230205671,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C039H02",
+   "investigation": "PSI-69",
+   "date": "2013-02-08",
+   "igniter_on_gmt": "2013-02-08 22:27:56.007000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C039H02_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 42000.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 300731.5,
+    "raw_psia": 43.617,
+    "chamber_temp_c": 22.7,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H02_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H02A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H02A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H02_MDCA_Testpoint_Settings.txt",
+     "sha256": "ddb715aa1d80c9452b0ca35bc71d4f3c77aac1e8c4cc00cb4593eb1d8308180c"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H02.txt",
+     "sha256": "e339299e331e4376327e975978107ec502d5746047061afe26ac088edcbf85b2"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H02_Chamber_Readings.txt",
+     "sha256": "10a77145c6ed5066943113b98b2c8d03505968fdbd6b52c50c62588bb1b6cac8"
+    }
+   },
+   "archive_bytes": 1776238590,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C039H05",
+   "investigation": "PSI-69",
+   "date": "2013-02-09",
+   "igniter_on_gmt": "2013-02-09 01:54:54.808000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C039H05_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 304757.8,
+    "raw_psia": 44.201,
+    "chamber_temp_c": 24.9,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H05_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H05A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H05A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H05_MDCA_Testpoint_Settings.txt",
+     "sha256": "ebd7fa816e05f24bfda66134db89bed403c576dfeb6e7f6de06b27be5493af38"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H05.txt",
+     "sha256": "657bff3e66be94e40861c0f1558161cadd77eb592a1064b4df09610477dd90d8"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H05_Chamber_Readings.txt",
+     "sha256": "221a29800518a23195e349b60bfa70d50be495174cad7d15c563aa3453a9fa15"
+    }
+   },
+   "archive_bytes": 1240365161,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C039H06",
+   "investigation": "PSI-69",
+   "date": "2013-02-09",
+   "igniter_on_gmt": "2013-02-09 02:02:39.217000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C039H06_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 304799.1,
+    "raw_psia": 44.207,
+    "chamber_temp_c": 24.91,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H06_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H06A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H06A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H06_MDCA_Testpoint_Settings.txt",
+     "sha256": "5f4c86bf461c4f3bb3511a41714feb146a2899d150cbdd62c41368401d134acb"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H06.txt",
+     "sha256": "e571ed57831c8176531388a07008304146bb1d2969bcd7f4635725f9d7f74155"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H06_Chamber_Readings.txt",
+     "sha256": "7c9ddf598b1439fa092f483fb7a43fd1274752cabe033c3740c3ce4e651d24d3"
+    }
+   },
+   "archive_bytes": 1267369617,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H01",
+   "investigation": "PSI-69",
+   "date": "2013-01-30",
+   "igniter_on_gmt": "2013-01-30 20:17:00.634000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H01_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 100601.8,
+    "raw_psia": 14.591,
+    "chamber_temp_c": 22.91,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H01_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H01A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H01A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H01_MDCA_Testpoint_Settings.txt",
+     "sha256": "c7612079317c95bcad8fe833bba3c30f0833e48484280adff175612531dc6f2b"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H01.txt",
+     "sha256": "8660dbc03cdd86dd0bfa0eb6124c1ab9b8b3f64ce39f896b836fe952d0040dd2"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H01_Chamber_Readings.txt",
+     "sha256": "e423efcf90bfbcb5a0c5d163d903a465ac7fd398a509cd04a6a7b8e29b2c603a"
+    }
+   },
+   "archive_bytes": 1204194476,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H02",
+   "investigation": "PSI-69",
+   "date": "2013-01-30",
+   "igniter_on_gmt": "2013-01-30 20:28:40.236000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H02_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 100685.6,
+    "raw_psia": 14.603,
+    "chamber_temp_c": 23.11,
+    "how": "mean FCU_MP_PT16 over the 56 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H02_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H02A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H02A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H02_MDCA_Testpoint_Settings.txt",
+     "sha256": "801e3bd2fadd6fd005da8d116600cb3ce2bf98b148a423f6c631c70c2c2ee288"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H02.txt",
+     "sha256": "bbce82a4213e0715242144f76f7e6b0aea49fc528927e841ea5a49e2e809415d"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H02_Chamber_Readings.txt",
+     "sha256": "be12ec1f10752be637520b6e2e27a292f992e82ed7e873685b47035a960177bc"
+    }
+   },
+   "archive_bytes": 1205855317,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H03",
+   "investigation": "PSI-69",
+   "date": "2013-01-30",
+   "igniter_on_gmt": "2013-01-30 20:39:59.002000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H03_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 100786.8,
+    "raw_psia": 14.618,
+    "chamber_temp_c": 23.29,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H03_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H03A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H03A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H03_MDCA_Testpoint_Settings.txt",
+     "sha256": "fe878b223bbb9fa070fba8d6865007cf859855162f95640c4a7cae0eac1e2d40"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H03.txt",
+     "sha256": "267d121325ba07440033916234694993adb4a6982d44d67169a78b7d1ab08278"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H03_Chamber_Readings.txt",
+     "sha256": "4695f163b93fffd6924f8c8dcae0f3dc003fe99dc6d194344d7d62f10eb90557"
+    }
+   },
+   "archive_bytes": 1211243266,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H04",
+   "investigation": "PSI-69",
+   "date": "2013-01-30",
+   "igniter_on_gmt": "2013-01-30 22:38:35.434000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H04_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 101796.9,
+    "raw_psia": 14.764,
+    "chamber_temp_c": 24.67,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H04_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H04A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H04A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H04_MDCA_Testpoint_Settings.txt",
+     "sha256": "e26bd1f6e23d9debc84489205f250b8307df8664824377c436b2550637cdeddf"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H04.txt",
+     "sha256": "416ce554937f4b9d974575ea787fafab992c3b2d0ccb412741dd551829b6900b"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H04_Chamber_Readings.txt",
+     "sha256": "829ef2d6ca7f04f3b16adc3465c76517e89c62f5c689a143700a35cca86768b7"
+    }
+   },
+   "archive_bytes": 1216069677,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H05",
+   "investigation": "PSI-69",
+   "date": "2013-01-30",
+   "igniter_on_gmt": "2013-01-30 22:57:02.434000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H05_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 101809.0,
+    "raw_psia": 14.766,
+    "chamber_temp_c": 24.78,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H05_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H05A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H05A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H05_MDCA_Testpoint_Settings.txt",
+     "sha256": "17fdd4f9a457609b48c2499a81e61032c7898476d44181982101a22d09751b5e"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H05.txt",
+     "sha256": "eb937e6f5fa3a93bb154c85b56a0b9c696ef4b6180ab1aea2b8442d54ed3cfc7"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H05_Chamber_Readings.txt",
+     "sha256": "46a9c3b7a2924de2ca53a7c382f88a1da700469b85743d646f7be3f4808a8b4d"
+    }
+   },
+   "archive_bytes": 1215083798,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H06",
+   "investigation": "PSI-69",
+   "date": "2013-01-30",
+   "igniter_on_gmt": "2013-01-30 23:48:27.254000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H06_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 101785.0,
+    "raw_psia": 14.763,
+    "chamber_temp_c": 24.95,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H06_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H06A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H06A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H06_MDCA_Testpoint_Settings.txt",
+     "sha256": "cfd2de28c83b3fc36c551cae1445bffc435f6d65e8a9e9ad87b5a5f9398cde72"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H06.txt",
+     "sha256": "ff538e1ef355a6f7dc83b1181575c3800d48ab72fa7c9723a5847012a47b6066"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H06_Chamber_Readings.txt",
+     "sha256": "752ee652bd2cf0c6ebbaaafa4ad8b080fa4952da43ae0544f47c312a230c45ed"
+    }
+   },
+   "archive_bytes": 1211184712,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C030H07",
+   "investigation": "PSI-69",
+   "date": "2013-01-31",
+   "igniter_on_gmt": "2013-01-31 00:15:24.031000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "free droplet",
+   "configuration_how": "PSI-69_Raw Data_C030H07_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=No, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 1300.0,
+   "pressure": {
+    "value_pa": 101837.9,
+    "raw_psia": 14.77,
+    "chamber_temp_c": 25.02,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C030H07_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C030H07A.zip",
+   "listing_file": "PSI-69_Raw Data_C030H07A.zip",
+   "ambient": {
+    "grade": "conflicting",
+    "how": "the two readings disagree on the diluent: C030R01 (point run 19:29 GMT, 48 min before the first test; its GC line is dated 2013-01-25 00:50) gives CO2 0.50, N2 0.29; C031R01 (GC dated 2013-01-31 00:17, two minutes after the last test of the session began; point run 2013-01-31 20:12) gives CO2 0.75, N2 0.04. Chamber pressure is 14.51 psia before and 14.53 psia after, so no venting is evident. O2 0.21 in both. Not resolved: the day is measured but its CO2 fraction is carried as unresolved (both values given).",
+    "readings": [
+     {
+      "point": "C030R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030R01_Mixture.txt",
+      "sha256": "5ff01d27d2b183058c8c601a71ba8e9b2cc7da04f20df03e445e21d9684a0d5a",
+      "gc_time_as_written": "01/25/2013 00:50:00",
+      "x_o2": 0.2094,
+      "x_co2": 0.4997,
+      "x_n2": 0.2895,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-30 19:29:44.299923",
+      "chamber_point_mean_psia": 14.518999999999998
+     },
+     {
+      "point": "C031R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C031R01_Mixture.txt",
+      "sha256": "fb437bdae1c6fad8541743ade3a8ce6a4250d2937388c81fd7064c5d99c31059",
+      "gc_time_as_written": "01/31/2013 00:17:00",
+      "x_o2": 0.2086,
+      "x_co2": 0.7476999999999999,
+      "x_n2": 0.0432,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-01-31 20:12:34.008513",
+      "chamber_point_mean_psia": 14.5394
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.209,
+    "x_co2": null,
+    "x_n2": null,
+    "x_he": 0.0,
+    "x_co2_alternatives": [
+     0.4997,
+     0.7477
+    ],
+    "x_n2_alternatives": [
+     0.2895,
+     0.0432
+    ]
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H07_MDCA_Testpoint_Settings.txt",
+     "sha256": "42a217e5a21b5bd880985a856fba48c9e68706f63be5a1856b76d501c1559571"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H07.txt",
+     "sha256": "e65fdbb21266f543921a88e8104244bc31b992b5615692f24e0f291962792162"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C030H07_Chamber_Readings.txt",
+     "sha256": "a2f1fc5c2304a8f159826df490124eb107cb6b6408065d7f43b8f0b87baf28da"
+    }
+   },
+   "archive_bytes": 1215507343,
+   "in_measured_batch": true
+  },
+  {
+   "test_id": "C049H01",
+   "investigation": "PSI-69",
+   "date": "2013-02-18",
+   "igniter_on_gmt": "2013-02-18 17:50:43.385000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C049H01_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 82000.0,
+   "igniter_on_ms": 3000.0,
+   "pressure": {
+    "value_pa": 307394.9,
+    "raw_psia": 44.584,
+    "chamber_temp_c": 23.11,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C049H01_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C049H01A.zip",
+   "listing_file": "PSI-69_Raw Data_C049H01A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "C049R01 (GC 2013-02-18 15:28, point 17:09, 41 min before the first test) and C052R01 (GC dated 2013-02-18 19:43, two minutes after the last test; point run 2013-02-21) agree: O2 0.21, CO2 0.75. Mean of the two.",
+    "readings": [
+     {
+      "point": "C049R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049R01_Mixture.txt",
+      "sha256": "b5e747a0b8ea033e913ada97573a33b7e76864e9846259d870a493c8c18d8c7c",
+      "gc_time_as_written": "02/18/2013 15:28:00",
+      "x_o2": 0.2119,
+      "x_co2": 0.7493000000000001,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-18 17:09:47.895923",
+      "chamber_point_mean_psia": 44.45234042553192
+     },
+     {
+      "point": "C052R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C052R01_Mixture.txt",
+      "sha256": "baeefdcff457e777f825501f74efe5b7fc4b2f3f6ae466ab9edacebdb04a02f0",
+      "gc_time_as_written": "02/18/2013 19:43",
+      "x_o2": 0.2104,
+      "x_co2": 0.7498,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-21 18:05:49.131846",
+      "chamber_point_mean_psia": 44.196538461538466
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2112,
+    "x_co2": 0.7496,
+    "x_n2": 0.0388,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H01_MDCA_Testpoint_Settings.txt",
+     "sha256": "c5053aed1e4c6263c2f199df05f13c9188d2918570bd9d69b57acfe5cf8b25fd"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H01.txt",
+     "sha256": "6229feecf79193d2cacc53ed3ebc2911742a55b58e26ef7b8c4ac6b9ea5fd40e"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H01_Chamber_Readings.txt",
+     "sha256": "c6395d78c5ff45bf44d06c55cdd184bafbef41c0144cb2400937fff8a4b31d4b"
+    }
+   },
+   "archive_bytes": 3315964944,
+   "in_measured_batch": false
+  },
+  {
+   "test_id": "C049H02",
+   "investigation": "PSI-69",
+   "date": "2013-02-18",
+   "igniter_on_gmt": "2013-02-18 18:05:25.652000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C049H02_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 82000.0,
+   "igniter_on_ms": 3000.0,
+   "pressure": {
+    "value_pa": 307790.4,
+    "raw_psia": 44.641,
+    "chamber_temp_c": 23.34,
+    "how": "mean FCU_MP_PT16 over the 49 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C049H02_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C049H02A.zip",
+   "listing_file": "PSI-69_Raw Data_C049H02A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "C049R01 (GC 2013-02-18 15:28, point 17:09, 41 min before the first test) and C052R01 (GC dated 2013-02-18 19:43, two minutes after the last test; point run 2013-02-21) agree: O2 0.21, CO2 0.75. Mean of the two.",
+    "readings": [
+     {
+      "point": "C049R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049R01_Mixture.txt",
+      "sha256": "b5e747a0b8ea033e913ada97573a33b7e76864e9846259d870a493c8c18d8c7c",
+      "gc_time_as_written": "02/18/2013 15:28:00",
+      "x_o2": 0.2119,
+      "x_co2": 0.7493000000000001,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-18 17:09:47.895923",
+      "chamber_point_mean_psia": 44.45234042553192
+     },
+     {
+      "point": "C052R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C052R01_Mixture.txt",
+      "sha256": "baeefdcff457e777f825501f74efe5b7fc4b2f3f6ae466ab9edacebdb04a02f0",
+      "gc_time_as_written": "02/18/2013 19:43",
+      "x_o2": 0.2104,
+      "x_co2": 0.7498,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-21 18:05:49.131846",
+      "chamber_point_mean_psia": 44.196538461538466
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2112,
+    "x_co2": 0.7496,
+    "x_n2": 0.0388,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H02_MDCA_Testpoint_Settings.txt",
+     "sha256": "681d9828e80f1c8803b3a809f4765d410250804f421ef3948482eadc00bb95fa"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H02.txt",
+     "sha256": "0969d0ed837bd0a6342564b5c7781c9ec434a3ac45e40b42a37872d1e7cdd5c3"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H02_Chamber_Readings.txt",
+     "sha256": "fd60dc54323b1ab6e39febacef191c26e55309a01e5beb8f77d6b7720c8e35e9"
+    }
+   },
+   "archive_bytes": 3334351355,
+   "in_measured_batch": false
+  },
+  {
+   "test_id": "C049H05",
+   "investigation": "PSI-69",
+   "date": "2013-02-18",
+   "igniter_on_gmt": "2013-02-18 19:41:09.436000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C049H05_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 82000.0,
+   "igniter_on_ms": 3000.0,
+   "pressure": {
+    "value_pa": 309015.8,
+    "raw_psia": 44.819,
+    "chamber_temp_c": 24.41,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C049H05_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C049H05A.zip",
+   "listing_file": "PSI-69_Raw Data_C049H05A.zip",
+   "ambient": {
+    "grade": "bracketed",
+    "how": "C049R01 (GC 2013-02-18 15:28, point 17:09, 41 min before the first test) and C052R01 (GC dated 2013-02-18 19:43, two minutes after the last test; point run 2013-02-21) agree: O2 0.21, CO2 0.75. Mean of the two.",
+    "readings": [
+     {
+      "point": "C049R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049R01_Mixture.txt",
+      "sha256": "b5e747a0b8ea033e913ada97573a33b7e76864e9846259d870a493c8c18d8c7c",
+      "gc_time_as_written": "02/18/2013 15:28:00",
+      "x_o2": 0.2119,
+      "x_co2": 0.7493000000000001,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-18 17:09:47.895923",
+      "chamber_point_mean_psia": 44.45234042553192
+     },
+     {
+      "point": "C052R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C052R01_Mixture.txt",
+      "sha256": "baeefdcff457e777f825501f74efe5b7fc4b2f3f6ae466ab9edacebdb04a02f0",
+      "gc_time_as_written": "02/18/2013 19:43",
+      "x_o2": 0.2104,
+      "x_co2": 0.7498,
+      "x_n2": 0.0388,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-21 18:05:49.131846",
+      "chamber_point_mean_psia": 44.196538461538466
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2112,
+    "x_co2": 0.7496,
+    "x_n2": 0.0388,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H05_MDCA_Testpoint_Settings.txt",
+     "sha256": "e9d6030910577f5cf7f7a2d584441644855c53c21860d900df2095682ce0aab4"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H05.txt",
+     "sha256": "2b12ec3e7ea623ee44f43754c91e26afb8dd694d2e57c7c457a0b2289536a126"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C049H05_Chamber_Readings.txt",
+     "sha256": "f55fbf1360dcae28133cbf7d603491170c42ee1ceaa087563d023a404cce905f"
+    }
+   },
+   "archive_bytes": 3473003352,
+   "in_measured_batch": false
+  },
+  {
+   "test_id": "C039H03",
+   "investigation": "PSI-69",
+   "date": "2013-02-08",
+   "igniter_on_gmt": "2013-02-08 23:05:35.798000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C039H03_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 50500.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 301586.2,
+    "raw_psia": 43.741,
+    "chamber_temp_c": 23.35,
+    "how": "mean FCU_MP_PT16 over the 58 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H03_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H03A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H03A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H03_MDCA_Testpoint_Settings.txt",
+     "sha256": "873ce8064de862f4780629c672e1736e4165026e15997a97a8c41f24b9f7b7ee"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H03.txt",
+     "sha256": "b402554476dc69c64ad278f113c7aec3017e4df30ba1963e7214a5f1c84465c8"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H03_Chamber_Readings.txt",
+     "sha256": "32f8e4b753f8f35bbd203436a60d4ba36af38067a12a8a5635daef62439a3c56"
+    }
+   },
+   "archive_bytes": 2102536495,
+   "in_measured_batch": false
+  },
+  {
+   "test_id": "C039H04",
+   "investigation": "PSI-69",
+   "date": "2013-02-08",
+   "igniter_on_gmt": "2013-02-08 23:28:58.215000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C039H04_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 50500.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 302004.9,
+    "raw_psia": 43.802,
+    "chamber_temp_c": 23.67,
+    "how": "mean FCU_MP_PT16 over the 57 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H04_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H04A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H04A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H04_MDCA_Testpoint_Settings.txt",
+     "sha256": "ed452f79326a2e4f346bea48eafba5fe361ae59f5959e59ffbc6fa47dab689e2"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H04.txt",
+     "sha256": "767eb3d47f220e5d18b3dfcd3d7e893250bc95cd0ee0a22f27621d023a922ced"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H04_Chamber_Readings.txt",
+     "sha256": "000fe3407f8c9a5a08eaee7fc82cb2684d81bab94200d3eba924df764f10a5ad"
+    }
+   },
+   "archive_bytes": 2109032625,
+   "in_measured_batch": false
+  },
+  {
+   "test_id": "C039H07",
+   "investigation": "PSI-69",
+   "date": "2013-02-09",
+   "igniter_on_gmt": "2013-02-09 02:20:15.414000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C039H07_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 50500.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 304848.2,
+    "raw_psia": 44.215,
+    "chamber_temp_c": 24.96,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H07_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H07A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H07A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H07_MDCA_Testpoint_Settings.txt",
+     "sha256": "dd457617d81f209d4bf96edecf4a20e00c952403591e0e6f02afcfecb0186dad"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H07.txt",
+     "sha256": "8c1e3a78291a6c6ef964d1f4d6f3b2775f8042a90870db29cd851b1e12ad26e7"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H07_Chamber_Readings.txt",
+     "sha256": "cb12b803b3452aac59e9ac90dec349409b00d70f706995fe262c51c89739422a"
+    }
+   },
+   "archive_bytes": 2177505191,
+   "in_measured_batch": false
+  },
+  {
+   "test_id": "C039H08",
+   "investigation": "PSI-69",
+   "date": "2013-02-09",
+   "igniter_on_gmt": "2013-02-09 02:38:46.218000",
+   "fuel": "n-heptane",
+   "fuel_how": "test-point name C<day>H<nn> (FLEX naming: H = n-heptane; the C-series gas readings record Heptane vapour traces only)",
+   "configuration": "fibre-supported",
+   "configuration_how": "PSI-69_Raw Data_C039H08_MDCA_Testpoint_Settings.txt: TP_PARAMETER_FIBER_USAGE_FLAG=Yes, flow nozzles ('0', '0')",
+   "planned_burn_ms": 28000.0,
+   "igniter_on_ms": 2000.0,
+   "pressure": {
+    "value_pa": 304922.9,
+    "raw_psia": 44.225,
+    "chamber_temp_c": 25.01,
+    "how": "mean FCU_MP_PT16 over the 60 chamber-reading rows in the 60 s before igniter on (PSI-69_Raw Data_C039H08_Chamber_Readings.txt)",
+    "evidence": "original_observation"
+   },
+   "archive": "C039H08A.zip",
+   "listing_file": "PSI-69_Raw Data_C039H08A.zip",
+   "ambient": {
+    "grade": "single reading",
+    "how": "reading point C039R01 (chamber 21:33 GMT, 20 min before the first test, 43.4 psia); its GC line is dated 2013-02-01 03:42 (a week earlier; the 3 atm fill is not the 1 atm gas of 2013-01-31, so it is a fill made after that day). O2 0.2125, CO2 0.4938. No reading after the session.",
+    "readings": [
+     {
+      "point": "C039R01",
+      "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039R01_Mixture.txt",
+      "sha256": "725186ed4440a8376eaeb580220f1c2e59c39022b4d67b9befa1b7b1ce7a128e",
+      "gc_time_as_written": "02/01/2013 03:42",
+      "x_o2": 0.2125,
+      "x_co2": 0.4938,
+      "x_n2": 0.2928,
+      "x_he": 0.0,
+      "chamber_point_start": "2013-02-08 21:33:08.869590",
+      "chamber_point_mean_psia": 43.400888888888886
+     }
+    ],
+    "evidence": "original_observation",
+    "x_o2": 0.2125,
+    "x_co2": 0.4938,
+    "x_n2": 0.2928,
+    "x_he": 0.0
+   },
+   "text_sources": {
+    "settings": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H08_MDCA_Testpoint_Settings.txt",
+     "sha256": "f804851f5f1ceb54d76a207d38214dc851cdd9188f2bcd9092ba08ba1a69a2ab"
+    },
+    "timeline": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H08.txt",
+     "sha256": "634382a3d3394efcda701d35edf5dde6b3fe57103aea058c0ee2b8f01645af0a"
+    },
+    "chamber": {
+     "file": "runs/dev/data_all/raw/PSI-69/Raw Data/PSI-69_Raw Data_C039H08_Chamber_Readings.txt",
+     "sha256": "762d07940d483f16af3f9ab0e3e7c83ba93dfa4e8400b4f323b5e7f486ba71f8"
+    }
+   },
+   "archive_bytes": 1263715312,
+   "in_measured_batch": false
+  }
+ ]
+}

@@ -1,0 +1,108 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "investigation_id": "PSI-68",
+ "frozen_on": "2026-11-15",
+ "rule": "Every single free droplet of a pure fuel that a droplet candidate covers, inside the declared domain of the forward by its measured conditions, with a backlit archive, on a TEST day of PSI-68-days.json. Fixed by conditions and file sizes only. The frames are measured blind into a held folder and scored only in the final run of PROTOCOL 12.5.",
+ "bytes": 15958313541,
+ "tests": [
+  {
+   "test_id": "E061A01",
+   "date": "PSI-68:day:2012-03-01",
+   "partition": "test",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E061A01A.zip",
+   "bytes": 1200028082
+  },
+  {
+   "test_id": "E061A02",
+   "date": "PSI-68:day:2012-03-01",
+   "partition": "test",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E061A02A.zip",
+   "bytes": 1196177729
+  },
+  {
+   "test_id": "E061A04",
+   "date": "PSI-68:day:2012-03-01",
+   "partition": "test",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E061A04A.zip",
+   "bytes": 1196749782
+  },
+  {
+   "test_id": "E065A01",
+   "date": "PSI-68:day:2012-03-05",
+   "partition": "test",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E065A01A.zip",
+   "bytes": 1256075712
+  },
+  {
+   "test_id": "E065A02",
+   "date": "PSI-68:day:2012-03-05",
+   "partition": "test",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E065A02A.zip",
+   "bytes": 982913941
+  },
+  {
+   "test_id": "E065A03",
+   "date": "PSI-68:day:2012-03-05",
+   "partition": "test",
+   "fuel": "n-octane",
+   "candidate": "wsp5/octane/w0-fable",
+   "archive": "E065A03A.zip",
+   "bytes": 980857318
+  },
+  {
+   "test_id": "A132D01",
+   "date": "PSI-68:day:2016-05-11",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A132D01A.zip",
+   "bytes": 1242262099
+  },
+  {
+   "test_id": "A132D02",
+   "date": "PSI-68:day:2016-05-11",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A132D02A.zip",
+   "bytes": 1219407507
+  },
+  {
+   "test_id": "A132D03",
+   "date": "PSI-68:day:2016-05-11",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A132D03A.zip",
+   "bytes": 1997495447
+  },
+  {
+   "test_id": "A132D05",
+   "date": "PSI-68:day:2016-05-11",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A132D05A.zip",
+   "bytes": 1647930806
+  },
+  {
+   "test_id": "A132D07",
+   "date": "PSI-68:day:2016-05-11",
+   "partition": "test",
+   "fuel": "n-decane",
+   "candidate": "wsp5/decane/w0-fable",
+   "archive": "A132D07A.zip",
+   "bytes": 3038415118
+  }
+ ]
+}

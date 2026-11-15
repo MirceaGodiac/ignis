@@ -62,6 +62,47 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "AtmosphereTarget": {
+      "additionalProperties": false,
+      "description": "`ConditionsQuery::near`: a named crew atmosphere, or explicit oxygen and pressure bounds\n(a point when min = max).",
+      "properties": {
+        "atmosphere": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CrewAtmosphere"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "oxygen_max": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "oxygen_min": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pressure_max_pa": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pressure_min_pa": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "ClientRequestId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -159,6 +200,17 @@
           },
           "type": "array"
         },
+        "near": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AtmosphereTarget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Rank the matching rows by how near their ambient oxygen and pressure are to this target,\nnearest first (each row then carries `nearness`). Rows without both values are left out."
+        },
         "page_size": {
           "format": "uint32",
           "minimum": 0,
@@ -181,6 +233,26 @@
         "schema_version"
       ],
       "type": "object"
+    },
+    "CrewAtmosphere": {
+      "description": "A crew atmosphere named by the Flame in Freefall challenge.",
+      "oneOf": [
+        {
+          "const": "moon_base",
+          "description": "Moon base and rovers: oxygen ≥ 30 % at 4.3–10.2 psi (29.6–70.3 kPa).",
+          "type": "string"
+        },
+        {
+          "const": "spacesuit",
+          "description": "Spacesuit: 100 % oxygen at 4.3 psi (29.6 kPa).",
+          "type": "string"
+        },
+        {
+          "const": "iss_earth",
+          "description": "ISS and Earth: 21 % oxygen at 14.7 psi (101.3 kPa).",
+          "type": "string"
+        }
+      ]
     },
     "DatasetId": {
       "minLength": 1,

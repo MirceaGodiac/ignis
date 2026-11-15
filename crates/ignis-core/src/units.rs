@@ -81,3 +81,48 @@ pub fn from_si(value_si: f64, unit: &str) -> Result<f64, UnknownUnit> {
     let x = lookup(unit).ok_or_else(|| UnknownUnit(unit.to_string()))?;
     Ok((value_si - x.offset) / x.factor)
 }
+
+/// The canonical spelling of a unit as passages write it: variants that name one unit on one scale
+/// (`psia`, `µm`, `°C`, `sec`) fold to one symbol. `psig` folds to `psi` too: a passage writing
+/// `psig` does state a psi figure, read against ambient. It is deliberately absent from [`lookup`],
+/// because converting gauge pressure to SI needs the ambient pressure the source assumed.
+pub fn alias(unit: &str) -> &str {
+    match unit.trim() {
+        "psia" | "psig" | "PSI" | "PSIA" | "PSIG" => "psi",
+        "µm" | "μm" | "micron" | "microns" => "um",
+        "°C" | "degC" | "℃" => "C",
+        "sec" | "secs" => "s",
+        "Torr" => "torr",
+        "inch" | "inches" => "in",
+        "m^2" => "m2",
+        "mm^2" => "mm2",
+        "cm^2" => "cm2",
+        "m^2/s" => "m2/s",
+        "mm^2/s" => "mm2/s",
+        "pct" => "%",
+        "SLPM" => "slpm",
+        "SCCM" => "sccm",
+        other => other,
+    }
+}
+
+/// Two spellings name the same unit as written ([`alias`]).
+pub fn same_spelling(a: &str, b: &str) -> bool {
+    alias(a) == alias(b)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn aliases_fold_spellings_of_one_unit_only() {
+        assert!(same_spelling("psia", "psi"));
+        assert!(same_spelling("psig", "psi"));
+        assert!(same_spelling("°C", "C"));
+        assert!(same_spelling("µm", "um"));
+        assert!(!same_spelling("psi", "kPa"));
+        assert!(!same_spelling("mm", "m"));
+        assert!(lookup("psig").is_none(), "gauge pressure needs its ambient");
+    }
+}

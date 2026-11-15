@@ -1,0 +1,115 @@
+{
+ "schema": "ignis.atlas.batch/1",
+ "investigation_id": "PSI-39",
+ "frozen_on": "2026-11-15",
+ "batch": "batch3",
+ "rule": "CFI train days, n-dodecane free droplets without a processed series, with a backlit archive: 2, spread\n    over the diluent (F125A04 air 1 atm, F139A03 He 0.29 1 atm). CFI test days, n-dodecane, never fetched,\n    with an archive: both that exist (F158A03 free, 5 atm, outside the pressure domain; F163A03 support not\n    stated). Held blind.",
+ "split": "docs/wsp/atlas/splits/PSI-39.json",
+ "bytes": 12210838997,
+ "tests": [
+  {
+   "test_id": "F125A06",
+   "flex": "1252",
+   "date": "PSI-39:day:2017-05-05",
+   "partition": "train",
+   "fuel": "n-dodecane",
+   "priority": 4,
+   "support": "free",
+   "archive": "F125A06A.zip",
+   "bytes": 2635113975,
+   "conditions": {
+    "x_o2": 0.21,
+    "x_co2": 0.0,
+    "x_he": 0.0,
+    "pressure_pa": 101325.0
+   },
+   "gates_dodecane": [],
+   "held": false
+  },
+  {
+   "test_id": "F139A03",
+   "flex": "1265",
+   "date": "PSI-39:day:2017-05-19",
+   "partition": "train",
+   "fuel": "n-dodecane",
+   "priority": 4,
+   "support": "free",
+   "archive": "F139A03A.zip",
+   "bytes": 2856813659,
+   "conditions": {
+    "x_o2": 0.21,
+    "x_co2": 0.0,
+    "x_he": 0.29,
+    "pressure_pa": 101325.0
+   },
+   "gates_dodecane": [],
+   "held": false
+  },
+  {
+   "test_id": "F158A03",
+   "flex": "1276",
+   "date": "PSI-39:day:2017-06-07",
+   "partition": "test",
+   "fuel": "n-dodecane",
+   "priority": 4,
+   "support": "free",
+   "archive": "F158A03A.zip",
+   "bytes": 2988281816,
+   "conditions": {
+    "x_o2": 0.21,
+    "x_co2": 0.0,
+    "x_he": 0.59,
+    "pressure_pa": 506625.0
+   },
+   "gates_dodecane": [
+    "c_logp outside [-1.0, 1.5]"
+   ],
+   "held": true
+  },
+  {
+   "test_id": "F163A03",
+   "flex": "1283",
+   "date": "PSI-39:day:2017-06-12",
+   "partition": "test",
+   "fuel": "n-dodecane",
+   "priority": 4,
+   "support": "not stated",
+   "archive": "F163A03A.zip",
+   "bytes": 3730629547,
+   "conditions": {
+    "x_o2": 0.21,
+    "x_co2": 0.0,
+    "x_he": 0.59,
+    "pressure_pa": 101325.0
+   },
+   "gates_dodecane": [
+    "support not stated"
+   ],
+   "held": true
+  }
+ ],
+ "amendments": [
+  {
+   "at": "2026-11-15T10:29:23+02:00",
+   "rule": "F125A04 has no timeline file (catalogue timeline=false), so its frames have no time origin and its series could not pass the acceptance rule; replaced, before any CFI file was fetched, by F125A06 (same day, same conditions, timeline present)",
+   "dropped": [
+    "F125A04"
+   ],
+   "added": [
+    "F125A06"
+   ]
+  },
+  {
+   "at": "2026-11-15T11:29:33+02:00",
+   "by": "measurer, on the owner instruction to close batch 3",
+   "rule": "batch closed before any CFI archive was fetched",
+   "never_fetched": [
+    "F125A06",
+    "F139A03",
+    "F158A03",
+    "F163A03"
+   ],
+   "scale_note": "the CFI scale was pinned in advance from first frames only (SCALE_CFI.md); no CFI series was measured"
+  }
+ ]
+}

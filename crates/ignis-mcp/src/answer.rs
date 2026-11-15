@@ -767,6 +767,7 @@ impl AnswerHost<'_> {
             filters: vec![],
             include_unknown: true,
             include_envelopes: false,
+            near: None,
             page_size: None,
             cursor: None,
         };

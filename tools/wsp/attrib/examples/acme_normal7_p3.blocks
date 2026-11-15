@@ -1,0 +1,6 @@
+# acme_normal.wsp7 P3: three scalars of the two active early-era slots (b0 growth clock, c0 hinge law),
+# steps of 10 %, and a zero step (identity check)
+b0.se.diff.b0 x1.1
+c0.se.tau.b0 x1.1
+b0.ft.log_base x1.1
+b0.se.diff.b0 +0

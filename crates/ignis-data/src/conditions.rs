@@ -762,6 +762,7 @@ fn assemble(
             investigation_id: investigation.into(),
             run,
             cells: vec![],
+            nearness: None,
         },
         contributions,
     }
@@ -1122,6 +1123,59 @@ fn keeps(
     }
 }
 
+/// A row's ambient oxygen and pressure (SI), when both are atmosphere values.
+fn atmosphere_of(row: &ConditionsRow) -> Option<(f64, f64)> {
+    let si = |k: ConditionKey| {
+        row.cells
+            .iter()
+            .find(|c| c.key() == k)
+            .and_then(|c| match c {
+                ConditionCell::Value { value, .. }
+                    if !value
+                        .flags
+                        .iter()
+                        .any(|x| NOT_ATMOSPHERE.contains(&x.as_str())) =>
+                {
+                    value.value_si
+                }
+                _ => None,
+            })
+    };
+    Some((
+        si(ConditionKey::OxygenMoleFraction)?,
+        si(ConditionKey::Pressure)?,
+    ))
+}
+
+/// Signed gap from `x` to [lo, hi]: positive = the target is higher, 0 = inside (with a tolerance
+/// of 0.5 percentage points of oxygen or 1 % of pressure, as on the Conditions page).
+fn gap_to(x: f64, lo: f64, hi: f64, tol: f64) -> f64 {
+    if x + tol < lo {
+        lo - x
+    } else if x - tol > hi {
+        hi - x
+    } else {
+        0.0
+    }
+}
+
+fn nearness(
+    row: &ConditionsRow,
+    (o_lo, o_hi, p_lo, p_hi): (f64, f64, f64, f64),
+) -> Option<ignis_core::contracts::Nearness> {
+    const ATM: f64 = 101_325.0;
+    let (o, p) = atmosphere_of(row)?;
+    let og = gap_to(o, o_lo, o_hi, 0.005);
+    let pg = gap_to(p, p_lo, p_hi, 0.01 * p_hi.max(p_lo));
+    let f = |x: f64| ignis_core::contracts::Finite::new(x).ok();
+    Some(ignis_core::contracts::Nearness {
+        inside: og == 0.0 && pg == 0.0,
+        oxygen_gap: f(og)?,
+        pressure_gap_pa: f(pg)?,
+        distance: f((og * og + (pg / ATM) * (pg / ATM)).sqrt())?,
+    })
+}
+
 /// The atmosphere envelope of visible rows (value cells only, atmosphere values only).
 fn envelope_of_rows(investigation: &str, rows: &[&ConditionsRow]) -> InvestigationEnvelope {
     let built: Vec<Built> = rows
@@ -1210,19 +1264,38 @@ pub fn query(
             matching.push(r);
         }
     }
+    // `near`: rank by distance to the target atmosphere; rows without both values cannot be placed.
+    let mut near: Vec<Option<ignis_core::contracts::Nearness>> = vec![None; matching.len()];
+    if let Some(t) = &q.near {
+        let b = t.bounds()?;
+        let mut ranked: Vec<(&ConditionsRow, ignis_core::contracts::Nearness)> = matching
+            .iter()
+            .filter_map(|r| Some((*r, nearness(r, b)?)))
+            .collect();
+        ranked.sort_by(|a, b| {
+            a.1.distance
+                .get()
+                .total_cmp(&b.1.distance.get())
+                .then_with(|| a.0.investigation_id.cmp(&b.0.investigation_id))
+        });
+        matching = ranked.iter().map(|x| x.0).collect();
+        near = ranked.into_iter().map(|x| Some(x.1)).collect();
+    }
     let offset = offset_of(q.cursor.as_ref())?;
     let size = q.page_size.map_or(DEFAULT_PAGE, |n| n as usize);
     let page: Vec<ConditionsRow> = matching
         .iter()
+        .zip(near.iter())
         .skip(offset)
         .take(size)
-        .map(|r| ConditionsRow {
+        .map(|(r, n)| ConditionsRow {
             investigation_id: r.investigation_id.clone(),
             run: r.run.clone(),
             cells: keys
                 .iter()
                 .filter_map(|k| r.cells.iter().find(|c| c.key() == *k).cloned())
                 .collect(),
+            nearness: n.clone(),
         })
         .collect();
     let next = offset + page.len();

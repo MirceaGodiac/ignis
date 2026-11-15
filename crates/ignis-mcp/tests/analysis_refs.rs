@@ -495,3 +495,85 @@ fn run_lineage_reaching_the_test_partition_is_refused_and_an_unknown_partition_f
     );
     assert_eq!(r.execution_status, ExecutionStatus::Accepted, "{r:?}");
 }
+
+/// A finished run answers its submission with what a computed claim binds: the record, each kept
+/// output by path and digest, and the derivation (the record and exactly the mounted inputs), so
+/// the agent needs no `artifacts_read` of the record first. The outputs travel on the job, once.
+#[test]
+fn a_finished_run_answers_the_outputs_and_the_derivation_to_bind() {
+    let t = setup();
+    let sc = research();
+    let csv =
+        t.h.artifacts
+            .put(
+                &sc,
+                ArtifactDraft {
+                    media_type: "text/csv".into(),
+                    contract: None,
+                    produced_by: Producer::default(),
+                    inputs: vec![],
+                    origin: Origin::SyntheticFixture,
+                },
+                &mut b"run,value\nr1,1.5\n".as_slice(),
+            )
+            .unwrap();
+    let args = call(
+        json!([{"name": "notes.csv", "artifact_id": csv.artifact_id.as_str()}]),
+        "m9-summary",
+    );
+    let r = t.h.host.call(&sc, "analysis_execute", args.clone());
+    assert_eq!(r.execution_status, ExecutionStatus::Accepted, "{r:?}");
+
+    let claimed =
+        t.h.store
+            .claim_job("test", &[ignis_mcp::ANALYSIS_JOB], Duration::from_secs(60))
+            .unwrap()
+            .expect("a queued analysis job");
+    let req: AnalysisExecuteRequest = serde_json::from_value(claimed.input.clone()).unwrap();
+    let outputs =
+        t.sb.execute(
+            &claimed.scope,
+            &req,
+            t.h.artifacts.as_ref(),
+            Some(t.ds.as_ref()),
+            Producer {
+                job_id: Some(claimed.job_id.clone()),
+                ..Default::default()
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+    t.h.store
+        .finish_job(
+            &claimed.job_id,
+            claimed.fence,
+            ignis_research::store::JobOutcome::Succeeded {
+                outputs: outputs.clone(),
+            },
+        )
+        .unwrap();
+    let record: ExecutionRecord = serde_json::from_slice(&t.bytes(&sc, &outputs[0])).unwrap();
+
+    // The idempotent resubmission finds the run finished.
+    let r = t.h.host.call(&sc, "analysis_execute", args);
+    r.validate().unwrap();
+    assert_eq!(r.execution_status, ExecutionStatus::Completed, "{r:?}");
+    assert!(r.artifact_refs.is_empty(), "outputs travel on the job only");
+    assert_eq!(r.job.as_ref().unwrap().outputs, outputs);
+    let v = r.result.unwrap().value;
+    assert_eq!(v["execution_record"], json!(outputs[0].artifact_id));
+    assert_eq!(v["outcome"], serde_json::to_value(&record.outcome).unwrap());
+    let report = record
+        .outputs
+        .iter()
+        .find(|o| o.path == "report.json")
+        .unwrap();
+    assert!(v["outputs"].as_array().unwrap().contains(&json!({
+        "path": "report.json",
+        "artifact_id": report.artifact.artifact_id,
+        "sha256": report.artifact.sha256,
+    })));
+    let d: ValueDerivation = serde_json::from_value(v["derivation"].clone()).unwrap();
+    assert_eq!(d.computation, outputs[0].artifact_id);
+    assert_eq!(d.inputs, vec![csv.artifact_id.clone()]);
+}

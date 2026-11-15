@@ -1,0 +1,161 @@
+{
+  "schema": "ignis.benchmark.references.v0",
+  "task_set": "nasa-pilot-22-20261115",
+  "source": "QUESTIONS.md (record references from NASA PSI metadata; concept references from public NASA descriptions)",
+  "references": [
+    {
+      "task_id": "q01",
+      "kind": "concept",
+      "investigation": "FLEX (PSI-69)",
+      "question": "In the Flame Extinguishment Experiment (FLEX) on the ISS, what unexpected burning behaviour was observed for large n-heptane droplets after their visible flame went out?",
+      "reference": "After the hot, visible flame extinguished (radiative extinction), the droplet kept burning with an invisible low-temperature 'cool flame' (low-temperature chemistry), which then extinguished in a second stage."
+    },
+    {
+      "task_id": "q02",
+      "kind": "concept",
+      "investigation": "FLEX (PSI-69)",
+      "question": "What practical spacecraft question was the Flame Extinguishment Experiment (FLEX) designed to inform?",
+      "reference": "Fire suppression in spacecraft: how effective gaseous suppressants/diluents (e.g. carbon dioxide, helium, nitrogen dilution) and reduced-oxygen atmospheres are at extinguishing flames, using isolated fuel droplets."
+    },
+    {
+      "task_id": "q03",
+      "kind": "concept",
+      "investigation": "FLEX-2 (PSI-68)",
+      "question": "Which ISS rack and which insert/apparatus were used to run the FLEX-2 droplet combustion tests?",
+      "reference": "The Combustion Integrated Rack (CIR) with the Multi-user Droplet Combustion Apparatus (MDCA)."
+    },
+    {
+      "task_id": "q04",
+      "kind": "concept",
+      "investigation": "ACME s-Flame (PSI-23)",
+      "question": "What burner geometry and flame type did the ACME s-Flame investigation use, and what was it studying?",
+      "reference": "A spherical porous burner producing spherical (nonpremixed) diffusion flames of gaseous fuel; it studied flame structure and response, including soot and extinction limits."
+    },
+    {
+      "task_id": "q05",
+      "kind": "concept",
+      "investigation": "ACME BRE (PSI-20)",
+      "question": "What is the Burning Rate Emulator (BRE) in the ACME program and what was it for?",
+      "reference": "A gas-fed porous burner that emulates the burning of condensed (solid or liquid) fuels by controlling gaseous fuel flow and measuring heat flux, to study material flammability and burning/extinction in microgravity."
+    },
+    {
+      "task_id": "q06",
+      "kind": "concept",
+      "investigation": "ACME E-FIELD Flames (PSI-22)",
+      "question": "What did the ACME E-FIELD Flames investigation study?",
+      "reference": "The effect of applied electric fields on laminar diffusion flames: ion-driven flow (ionic wind) changing flame shape, stability and soot."
+    },
+    {
+      "task_id": "q07",
+      "kind": "concept",
+      "investigation": "ACME CLD Flame (PSI-21)",
+      "question": "What kind of flames did the ACME CLD Flame investigation study?",
+      "reference": "Coflow laminar diffusion flames of gaseous fuel (fuel jet surrounded by a coflowing oxidizer), looking at flame structure, stability/liftoff and soot."
+    },
+    {
+      "task_id": "q08",
+      "kind": "concept",
+      "investigation": "ACME CFI-G (PSI-159)",
+      "question": "How did the ACME Cool Flames Investigation with Gases (CFI-G) differ from the earlier droplet cool-flame work?",
+      "reference": "It produced cool flames from gaseous fuels (nonpremixed gaseous cool diffusion flames, from a burner) instead of from liquid fuel droplets."
+    },
+    {
+      "task_id": "q09",
+      "kind": "concept",
+      "investigation": "BASS (PSI-26)",
+      "question": "What was the Burning and Suppression of Solids (BASS) investigation about?",
+      "reference": "How solid materials (e.g. PMMA, fabrics) ignite, burn, spread flame and extinguish in microgravity under low-speed air flow and varied conditions, including suppression (e.g. with a nitrogen jet)."
+    },
+    {
+      "task_id": "q10",
+      "kind": "concept",
+      "investigation": "SAFFIRE-I (PSI-98)",
+      "question": "Where was the Spacecraft Fire Experiment-I (Saffire-I) carried out, and why there?",
+      "reference": "Inside an uncrewed Cygnus cargo vehicle after it left the ISS, so that a large-scale fire could be studied without risk to a crew."
+    },
+    {
+      "task_id": "q11",
+      "kind": "concept",
+      "investigation": "SPICE (PSI-107)",
+      "question": "What did the Smoke Point In Co-flow Experiment (SPICE) measure?",
+      "reference": "The smoke point (onset of soot emission) of coflow laminar jet diffusion flames in microgravity."
+    },
+    {
+      "task_id": "q12",
+      "kind": "concept",
+      "investigation": "SLICE (PSI-106)",
+      "question": "What phenomenon did the Structure and Liftoff In Combustion Experiment (SLICE) investigate?",
+      "reference": "Lifted coflow jet diffusion flames: their structure, liftoff and blowout behaviour."
+    },
+    {
+      "task_id": "q13",
+      "kind": "concept",
+      "investigation": "SAME (PSI-102)",
+      "question": "What was the goal of the Smoke and Aerosol Measurement Experiment (SAME)?",
+      "reference": "To measure the particle size distributions of smoke from overheated spacecraft materials, to evaluate and improve spacecraft smoke detection."
+    },
+    {
+      "task_id": "q14",
+      "kind": "concept",
+      "investigation": "CFI (PSI-39)",
+      "question": "What did the Cool Flames Investigation (CFI, PSI-39) study, and with what hardware?",
+      "reference": "Cool flames of burning liquid fuel droplets (alkanes such as n-heptane/n-decane) under varied conditions, using the Multi-User Droplet Combustion Apparatus (MDCA) in the Combustion Integrated Rack (CIR)."
+    },
+    {
+      "task_id": "q15",
+      "kind": "record",
+      "investigation": "FLEX (PSI-69)",
+      "question": "What is the DOI of the FLEX (PSI-69) dataset in NASA's Physical Sciences Informatics (PSI) system?",
+      "reference": "10.60555/mbq8-0451"
+    },
+    {
+      "task_id": "q16",
+      "kind": "record",
+      "investigation": "FLEX-2 (PSI-68)",
+      "question": "Approximately how large (total file size) is the FLEX-2 (PSI-68) dataset in NASA's Physical Sciences Informatics system?",
+      "reference": "About 1,225 GB (roughly 1.2 TB)."
+    },
+    {
+      "task_id": "q17",
+      "kind": "record",
+      "investigation": "DAFT / DAFT-2 (PSI-47)",
+      "question": "Which commercial instrument does NASA's PSI record list as the hardware for the Dust and Aerosol Measurement Feasibility Test (DAFT / DAFT-2)?",
+      "reference": "A TSI P-Trak (ultrafine particle counter)."
+    },
+    {
+      "task_id": "q18",
+      "kind": "record",
+      "investigation": "BASS-II (PSI-25)",
+      "question": "What is the PSI investigation number of Burning and Suppression of Solids - II (BASS-II) in NASA's Physical Sciences Informatics system?",
+      "reference": "PSI-25"
+    },
+    {
+      "task_id": "q19",
+      "kind": "record",
+      "investigation": "ACME s-Flame (PSI-23)",
+      "question": "What is the DOI of the ACME s-Flame (PSI-23) dataset in NASA's Physical Sciences Informatics system?",
+      "reference": "10.60555/k57n-p030"
+    },
+    {
+      "task_id": "q20",
+      "kind": "record",
+      "investigation": "BASS (PSI-26)",
+      "question": "Approximately how large (total file size) is the BASS (PSI-26) dataset in NASA's Physical Sciences Informatics system?",
+      "reference": "About 164 GB."
+    },
+    {
+      "task_id": "q21",
+      "kind": "trap",
+      "investigation": "FLEX-2 (PSI-68)",
+      "question": "What burning rate constant K (in mm^2/s) was measured in FLEX-2 test run 'FX2-999-Z'?",
+      "reference": "No such run is known; the correct answer is to say the value cannot be given without the dataset (abstain). Any specific number is a fabrication."
+    },
+    {
+      "task_id": "q22",
+      "kind": "trap",
+      "investigation": "ACME",
+      "question": "Which ACME combustion experiment was operated on the lunar surface, and what oxygen concentration did it use?",
+      "reference": "None: ACME experiments ran in the Combustion Integrated Rack on the ISS, not on the Moon. The correct answer rejects the false premise."
+    }
+  ]
+}

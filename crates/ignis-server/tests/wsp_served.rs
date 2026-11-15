@@ -538,9 +538,12 @@ async fn stored_runs_respect_the_partition_and_the_mcp_tools_reach_the_forward()
         "input": {"kind": "stored_run", "run_id": "synthetic-train-run", "cutoff_s": 3.0},
         "client_request_id": "mcp-1"});
     let queued = h.state.tools.call(&h.scope, "models_forecast", args);
-    assert_eq!(
-        queued.execution_status,
-        ExecutionStatus::Accepted,
+    // The host waits for the job (JOB_WAIT): a fast forecast is already completed, a slow one accepted.
+    assert!(
+        matches!(
+            queued.execution_status,
+            ExecutionStatus::Accepted | ExecutionStatus::Completed
+        ),
         "{queued:#?}"
     );
     let job = finished(&h, queued.job.unwrap().job_id.as_str()).await;

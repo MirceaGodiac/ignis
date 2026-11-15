@@ -287,7 +287,11 @@ fn a_scope_without_test_never_receives_test_outcomes() {
         schema_version: EvidenceSchema::V1,
         source_id: source.clone(),
         parse_view_id: None,
-        range: ReadRange::Pages { first: 1, last: 3 },
+        range: ReadRange::Pages {
+            first: 1,
+            last: 3,
+            char_start: None,
+        },
     };
     let read = svc.read(&research(), &pages).unwrap();
     read.validate().unwrap();
@@ -521,7 +525,7 @@ fn a_missing_backend_is_reported_never_silent() {
 #[test]
 fn reads_return_exact_page_text_and_say_how_to_continue() {
     let big: Vec<String> = (0..3)
-        .map(|i| format!("page{i} ") + &"x".repeat(25_000))
+        .map(|i| format!("page{i} ") + &"x".repeat(20_000))
         .collect();
     let specs: Vec<Spec> = big
         .iter()
@@ -546,13 +550,24 @@ fn reads_return_exact_page_text_and_say_how_to_continue() {
                 schema_version: EvidenceSchema::V1,
                 source_id: source.clone(),
                 parse_view_id: None,
-                range: ReadRange::Pages { first: 1, last: 3 },
+                range: ReadRange::Pages {
+                    first: 1,
+                    last: 3,
+                    char_start: None,
+                },
             },
         )
         .unwrap();
     r.validate().unwrap();
     assert!(!r.complete);
-    assert_eq!(r.next, Some(ReadRange::Pages { first: 3, last: 3 }));
+    assert_eq!(
+        r.next,
+        Some(ReadRange::Pages {
+            first: 3,
+            last: 3,
+            char_start: None
+        })
+    );
     assert_eq!(r.segments.len(), 2);
     for s in &r.segments {
         s.locator.validate().unwrap();
@@ -571,10 +586,111 @@ fn reads_return_exact_page_text_and_say_how_to_continue() {
             schema_version: EvidenceSchema::V1,
             source_id: source,
             parse_view_id: Some(ignis_core::contracts::ParseViewId::new("pv-x@0.1").unwrap()),
-            range: ReadRange::Pages { first: 1, last: 1 },
+            range: ReadRange::Pages {
+                first: 1,
+                last: 1,
+                char_start: None,
+            },
         },
     );
     assert_eq!(stale.unwrap_err().code, ErrorCode::NotFound);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A page larger than one response is split at a char boundary; following `next` returns every
+/// char exactly once, and no response exceeds the byte budget (so it stays under the 64 KiB inline
+/// limit of the MCP host).
+#[test]
+fn a_page_larger_than_a_response_continues_without_gaps() {
+    use ignis_evidence::service::READ_BUDGET_BYTES;
+    // Escaped and multi-byte chars make serialized bytes differ from chars.
+    let unit = "Flame \"radius\" r₀ = 3.05 mm — décroissance\n";
+    let page1: String = unit.repeat(4_000);
+    let page2 = "page two".to_string();
+    let specs = [
+        Spec {
+            page: 1,
+            text: &page1,
+            outcome: false,
+            runs: &[],
+            continues: &[],
+        },
+        Spec {
+            page: 2,
+            text: &page2,
+            outcome: false,
+            runs: &[],
+            continues: &[],
+        },
+    ];
+    let dir = tmp("read-split");
+    let db = catalog_with(&dir, &specs, 2);
+    let svc = service(&db, cfg());
+    let source = SourceId::new(format!("sha256:{SHA}")).unwrap();
+    let mut range = ReadRange::Pages {
+        first: 1,
+        last: 2,
+        char_start: None,
+    };
+    let mut read: BTreeMap<i64, String> = BTreeMap::new();
+    let mut responses = 0;
+    loop {
+        let r = svc
+            .read(
+                &research(),
+                &ReadRequest {
+                    response_format: None,
+                    schema_version: EvidenceSchema::V1,
+                    source_id: source.clone(),
+                    parse_view_id: None,
+                    range: range.clone(),
+                },
+            )
+            .unwrap();
+        r.validate().unwrap();
+        responses += 1;
+        let bytes: usize = r
+            .segments
+            .iter()
+            .map(|s| serde_json::to_vec(s).unwrap().len())
+            .sum();
+        assert!(bytes <= READ_BUDGET_BYTES, "{bytes} bytes in one response");
+        assert!(serde_json::to_vec(&r).unwrap().len() <= 64 << 10);
+        for s in &r.segments {
+            let page = s.locator.page.unwrap();
+            let have = read.entry(page).or_default();
+            assert_eq!(
+                s.locator.char_start,
+                Some(have.chars().count() as i64),
+                "a continuation starts where the last one ended"
+            );
+            have.push_str(&s.text);
+            assert_eq!(s.locator.char_end, Some(have.chars().count() as i64));
+        }
+        match r.next {
+            Some(n) => range = n,
+            None => break,
+        }
+    }
+    assert!(responses >= 4, "{responses} responses for a ~190 KB page");
+    // The fixture catalog ends each passage with a newline on its page.
+    assert_eq!(read.get(&1), Some(&format!("{page1}\n")));
+    assert_eq!(read.get(&2), Some(&format!("{page2}\n")));
+    let past = svc.read(
+        &research(),
+        &ReadRequest {
+            response_format: None,
+            schema_version: EvidenceSchema::V1,
+            source_id: source,
+            parse_view_id: None,
+            range: ReadRange::Pages {
+                first: 2,
+                last: 2,
+                char_start: Some(9_999),
+            },
+        },
+    );
+    assert_eq!(past.unwrap_err().code, ErrorCode::InvalidRequest);
     let _ = std::fs::remove_dir_all(dir);
 }
 
@@ -758,7 +874,11 @@ fn a_new_parse_view_leaves_citations_of_the_old_one_resolvable() {
                 schema_version: EvidenceSchema::V2,
                 source_id: source.clone(),
                 parse_view_id: Some(old_view.clone()),
-                range: ReadRange::Pages { first: 1, last: 1 },
+                range: ReadRange::Pages {
+                    first: 1,
+                    last: 1,
+                    char_start: None,
+                },
                 response_format: None,
             },
         )
@@ -772,7 +892,11 @@ fn a_new_parse_view_leaves_citations_of_the_old_one_resolvable() {
             schema_version: EvidenceSchema::V2,
             source_id: source,
             parse_view_id: Some(ParseViewId::new("pv-0000000000000000@never").unwrap()),
-            range: ReadRange::Pages { first: 1, last: 1 },
+            range: ReadRange::Pages {
+                first: 1,
+                last: 1,
+                char_start: None,
+            },
             response_format: None,
         },
     );
