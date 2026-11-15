@@ -536,7 +536,10 @@ impl EvidenceService {
         let mut out = Vec::new();
         let mut kept = 0usize;
         let mut pos = r.lexical_depth;
-        let window = r.lexical_depth.max(100);
+        // Each window re-runs the ranked query (FTS5 + expansion, grouped and sorted in full), so
+        // the window doubles: a page behind many withheld or filtered-out matches (lockbox
+        // investigations) costs O(log n) passes instead of n/100. Same order, same pages.
+        let mut window = r.lexical_depth.max(100);
         loop {
             let batch = {
                 let ret = self.retriever.lock().expect("retriever");
@@ -547,6 +550,7 @@ impl EvidenceService {
                 return Ok((out, false));
             }
             pos += batch.len();
+            window = window.saturating_mul(2);
             for h in batch {
                 if seen.contains(h.chunk_id.as_str()) {
                     continue;
