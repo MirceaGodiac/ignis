@@ -208,22 +208,25 @@ impl Evaluator {
     fn check_bundle(&self, req: &EvaluationRequest, b: &DatasetBundle) -> ServiceResult<()> {
         b.validate()
             .map_err(|e| err(ErrorCode::InvalidRequest, e.to_string()))?;
+        let m = req
+            .model()
+            .map_err(|e| err(ErrorCode::InvalidRequest, e.to_string()))?;
         let digest = b.content_digest();
-        if digest != req.dataset_hash {
+        if &digest != m.dataset_hash {
             return Err(err(
                 ErrorCode::Conflict,
                 format!(
                     "dataset {} has digest {digest}, the request names {}",
-                    req.dataset_id, req.dataset_hash
+                    m.dataset_id, m.dataset_hash
                 ),
             ));
         }
-        if b.split_id != req.split_id {
+        if b.split_id != m.split_id {
             return Err(err(
                 ErrorCode::Conflict,
                 format!(
                     "dataset split {} != request split {}",
-                    b.split_id, req.split_id
+                    b.split_id, m.split_id
                 ),
             ));
         }
@@ -232,7 +235,7 @@ impl Evaluator {
                 ErrorCode::InvalidRequest,
                 format!(
                     "dataset {} does not contain the {:?} partition",
-                    req.dataset_id, req.partition
+                    m.dataset_id, req.partition
                 ),
             ));
         }
@@ -304,10 +307,13 @@ impl Evaluator {
             return Outcome::Failed(format!("artifact forecasts release {}", a.model_release_id));
         }
         // Fail closed: a missing quantity or unit is never scored as the target.
-        if a.quantity != Some(req.target) || a.unit.as_deref() != Some(req.unit.as_str()) {
+        let Ok(spec) = req.model() else {
+            return Outcome::Failed("not a model evaluation".into());
+        };
+        if a.quantity != Some(spec.target) || a.unit.as_deref() != Some(spec.unit) {
             return Outcome::Failed(format!(
                 "artifact forecasts {:?} in {:?}, the protocol scores {:?} in {}",
-                a.quantity, a.unit, req.target, req.unit
+                a.quantity, a.unit, spec.target, spec.unit
             ));
         }
         use ignis_core::contracts::QualificationState as Q;
@@ -338,6 +344,12 @@ impl EvaluationService for Evaluator {
         req.validate()
             .map_err(|e| err(ErrorCode::InvalidRequest, e.to_string()))?;
         self.check_scope(scope, req.partition)?;
+        if req.purpose == EvaluationPurpose::HarnessBenchmark {
+            return Err(err(
+                ErrorCode::Unsupported,
+                "harness benchmark: this evaluator scores models; the harness comparison is scored by T11",
+            ));
+        }
         if req.purpose == EvaluationPurpose::FinalTest {
             return Err(err(
                 ErrorCode::Unsupported,
@@ -347,11 +359,15 @@ impl EvaluationService for Evaluator {
         self.check_protocol(req)?;
 
         // 2. identities
-        let bundle = self.datasets.dataset(scope, &req.dataset_id)?;
+        let model = req
+            .model()
+            .map_err(|e| err(ErrorCode::InvalidRequest, e.to_string()))?;
+        let bundle = self.datasets.dataset(scope, model.dataset_id)?;
         self.check_bundle(req, &bundle)?;
-        let subjects: Vec<&ignis_core::contracts::ModelUnderTest> = std::iter::once(&req.candidate)
-            .chain(req.baselines.iter())
-            .collect();
+        let subjects: Vec<&ignis_core::contracts::ModelUnderTest> =
+            std::iter::once(model.candidate)
+                .chain(req.baselines.iter())
+                .collect();
         let mut seen = BTreeSet::new();
         let mut releases = vec![];
         for m in &subjects {
@@ -551,7 +567,7 @@ impl EvaluationService for Evaluator {
                         group,
                         population: Population::ScoredCases,
                         value,
-                        unit: unit_label(*unit, &req.unit),
+                        unit: unit_label(*unit, model.unit),
                         n,
                     });
                 }
@@ -585,7 +601,9 @@ impl EvaluationService for Evaluator {
             Origin::System
         };
         let mut result = EvaluationResult {
-            schema_version: EvaluationSchema::default(),
+            // Model results stay evaluation.v1 (their wire form and hashes are C0); v2 is for the
+            // benchmark documents (gold tasks, harness comparison).
+            schema_version: EvaluationSchema::V1,
             result_id: EvaluationId::new("pending").expect("static id"),
             request: req.clone(),
             request_hash: req.request_hash(),
@@ -597,6 +615,7 @@ impl EvaluationService for Evaluator {
             })
             .expect("finite ratio"),
             metrics: values,
+            harness: None,
             per_case: None,
             failures,
             verdict: Verdict::NotAssessed,
@@ -676,18 +695,31 @@ impl EvaluationService for Evaluator {
                     ),
                 ));
             }
-            if !subjects.insert(r.request.candidate.release_id.clone()) {
+            let candidate = r
+                .request
+                .model()
+                .map_err(|e| err(ErrorCode::InvalidRequest, e.to_string()))?
+                .candidate;
+            if !subjects.insert(candidate.release_id.clone()) {
                 return Err(err(
                     ErrorCode::InvalidRequest,
-                    format!("candidate {} appears twice", r.request.candidate.release_id),
+                    format!("candidate {} appears twice", candidate.release_id),
                 ));
             }
         }
         Ok(results
             .iter()
             .flat_map(|r| {
-                let c = r.request.candidate.release_id.clone();
-                r.metrics.iter().filter(move |m| m.subject == c).cloned()
+                // Every request here passed the model check above.
+                let c = r
+                    .request
+                    .model()
+                    .map(|m| m.candidate.release_id.clone())
+                    .ok();
+                r.metrics
+                    .iter()
+                    .filter(move |m| Some(&m.subject) == c.as_ref())
+                    .cloned()
             })
             .collect())
     }

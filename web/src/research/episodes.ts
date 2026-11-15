@@ -1,7 +1,7 @@
 // Episode controls and idempotent drafts. Pure module: type-only imports (tested with node --test).
 
 import type { EpisodeStatus } from "../contracts/generated";
-import type { EpisodeAction } from "./serverTypes";
+import type { EpisodeAction } from "../contracts/generated";
 
 export const TERMINAL_STATUSES: EpisodeStatus[] = ["completed", "failed", "cancelled"];
 

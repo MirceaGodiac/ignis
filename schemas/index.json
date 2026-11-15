@@ -82,6 +82,9 @@
     "ModelBuildManifest",
     "ForecastRequest",
     "EvaluationRequest",
-    "EvaluationResult"
+    "EvaluationResult",
+    "GoldTask",
+    "GoldSet",
+    "GoldPromptSet"
   ]
 }
