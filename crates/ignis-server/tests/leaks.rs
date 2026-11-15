@@ -36,6 +36,7 @@ fn router(dir: &Path, internal_routes: bool) -> axum::Router {
         codex: Default::default(),
         mcp_port: 0,
         runner: Default::default(),
+        sources: Default::default(),
         artifact_backend: Default::default(),
         r2: Default::default(),
         access: Default::default(),
@@ -109,6 +110,12 @@ async fn sealed_partitions_are_not_served() {
     };
     assert_eq!(by_id("fixture-flex-1")["outcomes_withheld"], false);
     assert!(by_id("fixture-flex-1")["n_observations"].as_u64().unwrap() > 0);
+    // NASA's names for a run travel with the summary (names and schemes, no locators).
+    for e in list["experiments"].as_array().unwrap() {
+        for a in e["aliases"].as_array().unwrap() {
+            assert_eq!(a.as_object().unwrap().len(), 2, "{a}");
+        }
+    }
     for run in ["fixture-flex-2", "fixture-flex-3"] {
         let e = by_id(run);
         assert_eq!(e["outcomes_withheld"], true);

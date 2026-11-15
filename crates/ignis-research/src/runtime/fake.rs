@@ -12,7 +12,8 @@
 //! - The turn scenario is chosen by words in the user input: `tool`, `approval`, `shell`,
 //!   `permissions`, `opaque`, `hang` (wait for `turn/interrupt`), `fail`; plain text just answers.
 //!   `hang` also persists the items produced so far, so a restart can replay them.
-//! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`.
+//! - Every request method received is appended to `$CODEX_HOME/fake-requests.log`; the
+//!   `developerInstructions` of each `thread/start` / `thread/resume` to `fake-instructions.jsonl`.
 
 use std::collections::HashMap;
 use std::io::{BufRead, Write};
@@ -88,6 +89,20 @@ fn write_schema(dir: &std::path::Path) {
     ];
     for (name, v) in files {
         std::fs::write(dir.join(name), serde_json::to_vec_pretty(&v).unwrap()).unwrap();
+    }
+    // The instruction fields of the thread methods (the real binary writes one file per type).
+    std::fs::create_dir_all(dir.join("v2")).unwrap();
+    for name in ["ThreadStartParams", "ThreadResumeParams"] {
+        let v = json!({"title": name, "type": "object", "properties": {
+            "cwd": {"type": ["string", "null"]},
+            "baseInstructions": {"type": ["string", "null"]},
+            "developerInstructions": {"type": ["string", "null"]},
+        }});
+        std::fs::write(
+            dir.join("v2").join(format!("{name}.json")),
+            serde_json::to_vec_pretty(&v).unwrap(),
+        )
+        .unwrap();
     }
 }
 
@@ -219,6 +234,19 @@ impl Shared {
         *self.interrupts.lock().unwrap().get(turn).unwrap_or(&false)
     }
 
+    /// The instructions a thread method carried, one JSON line per request.
+    fn log_instructions(&self, method: &str, params: &Value) {
+        if let Ok(mut f) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(self.home.join("fake-instructions.jsonl"))
+        {
+            let line = json!({"method": method,
+                              "developerInstructions": params["developerInstructions"]});
+            let _ = writeln!(f, "{line}");
+        }
+    }
+
     fn log_request(&self, method: &str) {
         if let Ok(mut f) = std::fs::OpenOptions::new()
             .create(true)
@@ -326,6 +354,7 @@ fn handle(sh: &Arc<Shared>, method: &str, id: Value, params: Value) {
     let err = |code: i64, text: &str| json!({"id": id, "error": {"code": code, "message": text}});
     match method {
         "thread/start" => {
+            sh.log_instructions(method, &params);
             let tid = sh.id("thr");
             let t = json!({"id": tid, "turns": [], "cwd": params["cwd"], "status": "idle",
                            "sandbox": params["sandbox"], "approvalPolicy": params["approvalPolicy"]});
@@ -335,16 +364,17 @@ fn handle(sh: &Arc<Shared>, method: &str, id: Value, params: Value) {
                 st.save();
             }
             sh.out.send_all(&[
-                ok(json!({"thread": thread_json(&t), "model": "fake", "modelProvider": "fake",
+                ok(json!({"thread": thread_json(&t), "model": "fake", "modelProvider": "fake", "reasoningEffort": "medium",
                           "cwd": params["cwd"], "approvalPolicy": params["approvalPolicy"], "sandbox": {"type": "readOnly"}, "approvalsReviewer": "user"})),
                 json!({"method": "thread/started", "params": {"thread": thread_json(&t)}}),
             ]);
         }
         "thread/resume" => {
+            sh.log_instructions(method, &params);
             let tid = params["threadId"].as_str().unwrap_or("");
             let t = sh.store.lock().unwrap().threads.get(tid).cloned();
             match t {
-                Some(t) => sh.out.send(ok(json!({"thread": t, "model": "fake", "modelProvider": "fake",
+                Some(t) => sh.out.send(ok(json!({"thread": t, "model": "fake", "modelProvider": "fake", "reasoningEffort": "medium",
                     "cwd": params["cwd"], "approvalPolicy": "on-request", "sandbox": {"type": "readOnly"}, "approvalsReviewer": "user"}))),
                 None => sh.out.send(err(-32600, "no such thread")),
             }
@@ -482,6 +512,41 @@ fn run_turn(sh: &Arc<Shared>, tid: &str, turn: &str, text: &str) {
                 base(json!({"item": done, "completedAtMs": 0})),
             ),
         ]);
+    }
+    if has("refusal") {
+        // A host refusal travels as an MCP error result: the item is `failed`, has no error message
+        // and keeps the IGNIS `ToolResult` (as structured content, or only as text content).
+        for structured in [true, false] {
+            let call = sh.id("call");
+            let started = json!({"type": "mcpToolCall", "id": call, "server": "ignis", "tool": "answer_submit",
+                                 "status": "inProgress", "arguments": {}});
+            let refused = json!({
+                "schema_version": "tools.v1", "call_id": call, "tool": "answer_submit",
+                "execution_status": "refused", "scientific_status": "not_assessed",
+                "artifact_refs": [], "origin": "synthetic_fixture",
+                "error": {"code": "invalid_request", "retry": {"kind": "never"},
+                          "message": "answer refused: 1 problem(s). unknown_evidence: claim c1 cites ev-fake"}
+            });
+            let mut done = started.clone();
+            done["status"] = json!("failed");
+            done["error"] = Value::Null;
+            done["result"] = if structured {
+                json!({"content": [{"type": "text", "text": refused.to_string()}], "structuredContent": refused})
+            } else {
+                json!({"content": [{"type": "text", "text": refused.to_string()}]})
+            };
+            persist_item(&done);
+            sh.out.send_all(&[
+                n(
+                    "item/started",
+                    base(json!({"item": started, "startedAtMs": 0})),
+                ),
+                n(
+                    "item/completed",
+                    base(json!({"item": done, "completedAtMs": 0})),
+                ),
+            ]);
+        }
     }
     for (word, method, extra) in [
         (

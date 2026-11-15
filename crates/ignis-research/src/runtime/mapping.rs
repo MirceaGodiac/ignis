@@ -48,7 +48,7 @@ pub enum Mapped {
     ToolFinished {
         call_id: ToolCallId,
         tool: String,
-        /// `structuredContent` (or `content`) of a completed call.
+        /// `structuredContent` (or `content`) of the call's result, also when it failed.
         value: Option<Value>,
         /// Message of a failed call.
         error: Option<String>,
@@ -207,10 +207,12 @@ pub fn map_item(turn: Option<&str>, item: &Value, completed: bool) -> Vec<Mapped
                         .cloned()
                         .unwrap_or(Value::Null)
                 });
+                // A failed call keeps its result: an IGNIS refusal is a `ToolResult` carried in an
+                // MCP error result, and its reason must reach the log (the recorder decides).
                 out.push(Mapped::ToolFinished {
                     call_id,
                     tool,
-                    value: if failed { None } else { value },
+                    value,
                     error: failed.then(|| {
                         item.pointer("/error/message")
                             .and_then(Value::as_str)

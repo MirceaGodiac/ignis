@@ -948,6 +948,36 @@ fn atomic_write(p: &Path, bytes: &[u8]) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// The parsed conditions table, kept while its file is unchanged (same length and modification time).
+/// The table is a file built offline (`ignis data conditions`, about 5 MB); parsing it on every request
+/// cost most of a request's time. A rebuilt file is read again on the next request.
+fn cached_table(p: &Path) -> ServiceResult<Arc<ConditionsTable>> {
+    type Key = (u64, Option<std::time::SystemTime>);
+    static TABLE: std::sync::Mutex<Option<(PathBuf, Key, Arc<ConditionsTable>)>> =
+        std::sync::Mutex::new(None);
+    let meta = std::fs::metadata(p).map_err(|_| {
+        err(
+            ErrorCode::CapabilityUnavailable,
+            format!("{} is not built; run `ignis data conditions`", p.display()),
+        )
+    })?;
+    let key: Key = (meta.len(), meta.modified().ok());
+    let mut slot = TABLE.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((path, k, t)) = slot.as_ref() {
+        if path == p && *k == key {
+            return Ok(t.clone());
+        }
+    }
+    let text = std::fs::read_to_string(p)
+        .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+    let table: Arc<ConditionsTable> = Arc::new(
+        serde_json::from_str(&text)
+            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?,
+    );
+    *slot = Some((p.to_path_buf(), key, table.clone()));
+    Ok(table)
+}
+
 impl DatasetService for DatasetStore {
     fn dataset(&self, scope: &ExecutionScope, id: &DatasetId) -> ServiceResult<DatasetBundle> {
         scope
@@ -992,14 +1022,7 @@ impl DatasetService for DatasetStore {
             .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
         scope.require(Capability::ReadData)?;
         let p = crate::conditions::table_path();
-        let text = std::fs::read_to_string(&p).map_err(|_| {
-            err(
-                ErrorCode::CapabilityUnavailable,
-                format!("{} is not built; run `ignis data conditions`", p.display()),
-            )
-        })?;
-        let full: ConditionsTable = serde_json::from_str(&text)
-            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?;
+        let full = cached_table(&p)?;
         let splits: Vec<Split> = crate::cohort::split_files()
             .iter()
             .map(|f| {
@@ -1014,6 +1037,132 @@ impl DatasetService for DatasetStore {
             })
         };
         crate::conditions::query(&full, q, visible).map_err(|e| err(ErrorCode::InvalidRequest, e))
+    }
+
+    /// Digest over the conditions table bytes and every frozen split file (name and bytes), the
+    /// inputs that decide both the cells and which runs a scope sees.
+    fn conditions_snapshot(&self, scope: &ExecutionScope) -> ServiceResult<Digest> {
+        scope
+            .validate()
+            .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
+        scope.require(Capability::ReadData)?;
+        let p = crate::conditions::table_path();
+        let read = |p: &Path| {
+            std::fs::read(p).map_err(|e| {
+                err(
+                    ErrorCode::CapabilityUnavailable,
+                    format!("{}: {e}", p.display()),
+                )
+            })
+        };
+        let mut parts = vec![format!("conditions_table {}", Digest::of_bytes(&read(&p)?))];
+        for f in crate::cohort::split_files() {
+            let name = f
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            parts.push(format!("split {name} {}", Digest::of_bytes(&read(&f)?)));
+        }
+        Ok(Digest::of_bytes(
+            parts
+                .join(
+                    "
+",
+                )
+                .as_bytes(),
+        ))
+    }
+
+    /// Bundles the scope may read: a bundle refused for a partition is not listed; the evaluator
+    /// root is listed for evaluation scopes only. A bundle that fails to load fails the listing.
+    fn datasets(&self, scope: &ExecutionScope) -> ServiceResult<Vec<DatasetBundle>> {
+        scope
+            .validate()
+            .map_err(|e| err(ErrorCode::ScopeDenied, e.to_string()))?;
+        scope.require(Capability::ReadData)?;
+        let ids = |root: &Path| -> ServiceResult<Vec<String>> {
+            let mut v = Vec::new();
+            if root.exists() {
+                let rd = std::fs::read_dir(root)
+                    .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", root.display())))?;
+                for e in rd {
+                    let p = e
+                        .map_err(|e| err(ErrorCode::Internal, e.to_string()))?
+                        .path();
+                    if p.is_file() && p.extension().is_some_and(|x| x == "json") {
+                        v.push(p.file_stem().unwrap().to_string_lossy().to_string());
+                    }
+                }
+            }
+            Ok(v)
+        };
+        let mut all = ids(&self.builder_root)?;
+        if scope.role == ScopeRole::Evaluation {
+            all.extend(ids(&self.evaluator_root)?);
+        }
+        all.sort();
+        all.dedup();
+        let mut out = Vec::new();
+        for id in all {
+            let id = DatasetId::new(&id).map_err(|e| err(ErrorCode::Internal, e.to_string()))?;
+            match self.dataset(scope, &id) {
+                Ok(b) => out.push(b),
+                Err(e) if e.code == ErrorCode::ScopeDenied => {}
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(out)
+    }
+
+    /// The view's bytes, streamed from the content-addressed file (its length is checked against
+    /// the `ArtifactRef`; the digest travels with the ref for the reader to verify).
+    fn open_view(
+        &self,
+        scope: &ExecutionScope,
+        id: &DatasetId,
+        view: &str,
+        offset: u64,
+        len: Option<u64>,
+    ) -> ServiceResult<(ArtifactRef, Box<dyn std::io::Read + Send>)> {
+        use std::io::{Read, Seek, SeekFrom};
+        let b = self.dataset(scope, id)?;
+        let v = b.views.iter().find(|v| v.name == view).ok_or_else(|| {
+            let names: Vec<&str> = b.views.iter().map(|v| v.name.as_str()).collect();
+            err(
+                ErrorCode::NotFound,
+                format!(
+                    "{id} has no view {view}; its views are {}",
+                    names.join(", ")
+                ),
+            )
+        })?;
+        let (p, _) = Self::artifact_paths(
+            self.root(b.audience),
+            &v.artifact.sha256,
+            &v.artifact.media_type,
+        );
+        let mut f = std::fs::File::open(&p)
+            .map_err(|e| err(ErrorCode::SourceMissing, format!("{}: {e}", p.display())))?;
+        let size = f
+            .metadata()
+            .map_err(|e| err(ErrorCode::Internal, format!("{}: {e}", p.display())))?
+            .len();
+        if size != v.artifact.byte_length {
+            return Err(err(
+                ErrorCode::Internal,
+                format!(
+                    "{}: {size} bytes, {} declares {}",
+                    p.display(),
+                    v.artifact.artifact_id,
+                    v.artifact.byte_length
+                ),
+            ));
+        }
+        f.seek(SeekFrom::Start(offset.min(size)))
+            .map_err(|e| err(ErrorCode::Internal, e.to_string()))?;
+        let take = len.unwrap_or(u64::MAX);
+        Ok((v.artifact.clone(), Box::new(f.take(take))))
     }
 }
 
