@@ -23,6 +23,7 @@ import { SourceOriginal, httpUrl } from "./SourceOriginal";
 import { MODE_TEXT as ORIGINAL_MODE_TEXT, OriginalBody } from "../views/Original";
 import { OpenOriginal } from "./OpenOriginal";
 import { runSources } from "./runSources";
+import { JsonView } from "./JsonView";
 
 const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation", original: "NASA original" };
 
@@ -619,7 +620,7 @@ function ArtifactItem({ artifact, caption }: { artifact: ArtifactRef; caption?: 
         </summary>
         {q.isPending && artifact.media_type.includes("json") && <p className="muted">Loading…</p>}
         {q.error && <ErrorNote error={q.error} title="The payload is not available here" />}
-        {q.data != null && <pre className="json">{JSON.stringify(q.data, null, 2)}</pre>}
+        {q.data != null && <JsonView value={q.data} />}
       </details>
     </>
   );
@@ -688,7 +689,7 @@ function Payload({ payload, onArtifact, title = "Result" }: { payload: InlinePay
           ))}
         </dl>
       ) : (
-        <pre className="json">{JSON.stringify(v, null, 2)}</pre>
+        <JsonView value={v} />
       )}
     </div>
   );
