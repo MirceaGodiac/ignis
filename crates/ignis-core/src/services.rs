@@ -8,14 +8,14 @@
 //! threads, and long calls become jobs. The `ExecutionScope` is always a separate argument derived
 //! by the host; implementations must check it and must not accept a scope from request bodies.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::Read;
 
 use crate::contracts::{
-    AnalysisArtifact, ArtifactId, ArtifactRef, Author, ConditionsQuery, ConditionsTable,
-    DatasetBundle, DatasetId, Digest, EntityRef, EpisodeId, ErrorCode, ErrorEnvelope,
-    EvaluationRequest, EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope,
-    ExternalSourceCandidate, ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest,
+    AnalysisArtifact, ArtifactId, ArtifactRef, Author, ColumnSpec, ConditionsQuery,
+    ConditionsTable, DatasetBundle, DatasetId, Digest, EntityRef, EpisodeId, ErrorCode,
+    ErrorEnvelope, EvaluationRequest, EvaluationResult, EvidenceId, EvidenceRef, ExecutionScope,
+    ExternalSourceCandidate, ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest, KeyValue,
     MetricValue, ModelRelease, Origin, OutlineRequest, Partition, Producer, ReadRequest,
     ReadResult, ReleaseId, RetryPolicy, RunId, SearchPage, SearchRequest, SourceAccess, SourceId,
     SourceLabel, SourceOutline, WebFetchRequest, WebSearchPage, WebSearchRequest, WikiPatch,
@@ -170,6 +170,55 @@ pub trait DatasetService: Send + Sync {
     ) -> ServiceResult<(ArtifactRef, Box<dyn Read + Send>)> {
         not_provided("dataset_view_bytes")
     }
+
+    /// Rows of one bundle view that match `q.keys` (identity columns, never a row index), read from
+    /// the view whose artifact has digest `q.view_sha256` (the pinned snapshot), after the same
+    /// scope checks as [`DatasetService::dataset`]. Streams the view and stops after `q.limit`
+    /// matches (`truncated` says more exist). An unknown key or column fails closed and names the
+    /// permitted ones. Used to ground a number cited from a view's cell (M7b).
+    fn view_rows(&self, _scope: &ExecutionScope, _q: &ViewRowsQuery) -> ServiceResult<ViewRows> {
+        not_provided("dataset_view_rows")
+    }
+}
+
+/// A key-predicate read of one dataset view ([`DatasetService::view_rows`]).
+#[derive(Debug, Clone, PartialEq)]
+pub struct ViewRowsQuery {
+    /// Digest of the view's Parquet artifact: the snapshot the reader pinned.
+    pub view_sha256: Digest,
+    /// `column == value`, all must hold; at least one, on identity columns (run id, condition,
+    /// time, flag, locator), never on a measured value.
+    pub keys: Vec<(String, KeyValue)>,
+    /// Columns to return (besides the keys).
+    pub columns: Vec<String>,
+    /// Also return the unit columns the view has (`unit_si`, `raw_unit`, `unit`), so a value
+    /// comes back with the unit the view states for it in the same scan.
+    pub with_unit_columns: bool,
+    /// Most rows returned.
+    pub limit: usize,
+}
+
+/// One cell read by [`DatasetService::view_rows`], as stored.
+#[derive(Debug, Clone, PartialEq)]
+pub enum ViewCell {
+    Null,
+    Bool(bool),
+    Number(f64),
+    Text(String),
+}
+
+/// What [`DatasetService::view_rows`] found.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ViewRows {
+    pub dataset_id: DatasetId,
+    pub view: String,
+    pub artifact: ArtifactRef,
+    /// The view's column specs (roles, SI units) for the columns returned.
+    pub columns: Vec<ColumnSpec>,
+    /// Each matching row: key and requested columns by name.
+    pub rows: Vec<BTreeMap<String, ViewCell>>,
+    /// More rows matched than `limit`.
+    pub truncated: bool,
 }
 
 /// Model releases and strict forecasts (Iancu).
