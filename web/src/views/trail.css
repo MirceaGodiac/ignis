@@ -10,9 +10,13 @@
 .trail-sum { color: var(--ink-2); font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .trail-total { color: var(--ink-3); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .trail-headrow { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; min-width: 0; }
-/* "1 step did not run": opens that step in the side panel */
-.trail-problem { min-height: 26px; margin: 0; padding: 2px 8px; border: 0; border-radius: 8px; background: none; cursor: pointer; text-align: left; transition: background 140ms; }
-.trail-problem:hover { background: var(--hover); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+/* "1 step did not run": muted, part of the same quiet line (a dot, not a red word); it opens that
+   step in the side panel, where the step says why. */
+.trail-head, .trail-sum { min-width: 0; }
+.trail-skipped { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 13px; font-weight: 400; white-space: nowrap; }
+.trail-skipped::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+.trail-problem { min-height: 26px; margin: 0; padding: 2px 8px; border: 0; border-radius: 8px; background: none; cursor: pointer; text-align: left; transition: background 140ms, color 140ms; }
+.trail-problem:hover { background: var(--hover); color: var(--ink-2); }
 .trail-head .chev { width: 13px; height: 13px; flex: none; color: var(--ink-3); transition: transform 160ms var(--ease); }
 .trail-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
 

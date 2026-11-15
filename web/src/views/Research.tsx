@@ -521,7 +521,9 @@ function AnswerLoader({ a, pageSynthetic, fallback = null }: { a: AnswerState; p
   if (a.artifact.contract !== "ResearchAnswer")
     return (
       <>
-        <Gap title="The answer is not rendered">Its artifact has contract {a.artifact.contract ?? "none"}.</Gap>
+        <Gap title="The answer is not rendered">
+          <span title={`contract ${a.artifact.contract ?? "none"}`}>It was stored in a form this page does not show.</span>
+        </Gap>
         {said}
       </>
     );
@@ -579,9 +581,9 @@ function stopText(s: Stop): { text: string; detail: string | null; kind: StepKin
     }
     case "job": {
       const fc = s.jobKind === "models_forecast";
-      const what = fc ? "The forecast" : `The ${words(s.jobKind)} job`;
+      const what = fc ? "The forecast" : s.jobKind === "analysis_execute" ? "The analysis" : `The ${words(s.jobKind)} job`;
       const st = stepState(s);
-      return { text: st === "ok" ? `${what} finished` : st === "running" ? `${what} is running` : `${what} ${words(s.status)}`, detail: fc ? "model output" : null, kind: fc ? "model" : "compute" };
+      return { text: st === "ok" ? `${what} finished` : st === "running" ? `${what} is running` : `${what} ${words(s.status)}`, detail: null, kind: fc ? "model" : "compute" };
     }
     case "approval":
       return { text: `Asked you to approve: ${s.action}`, detail: null, kind: "other" };
@@ -750,11 +752,11 @@ function RouteSummary({ stops, turn, working }: { stops: Stop[]; turn: Turn; wor
               {summary}
               {total && <span className="trail-total"> · {total}</span>}
             </span>
-            {problems > 0 && firstBad < 0 && <span className="trail-state tone-bad">{problemText}</span>}
+            {problems > 0 && firstBad < 0 && <span className="trail-skipped">{problemText}</span>}
             <IconChevron className="chev" aria-hidden="true" />
           </button>
           {problems > 0 && firstBad >= 0 && (
-            <button className="trail-problem trail-state tone-bad" onClick={openProblem}>
+            <button className="trail-problem trail-skipped" onClick={openProblem}>
               {problemText}
             </button>
           )}

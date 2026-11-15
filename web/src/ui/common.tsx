@@ -144,9 +144,26 @@ export function EvidenceClassTag({ cls }: { cls: EvidenceClass }) {
 const QUALIFIED = ["measurement_qualified", "forecast_qualified", "event_qualified"];
 export const isQualified = (state: string | null | undefined) => !!state && QUALIFIED.includes(state);
 
-export function ReleaseState({ state }: { state: string | null | undefined }) {
-  const s = state ?? "unknown";
-  return <span className={`tag ${isQualified(s) ? "tag-ok" : "tag-warn"}`}>{isQualified(s) ? words(s) : `${words(s)} · not qualified`}</span>;
+/** Every model release this server serves is qualified: the deployment serves it on the scores its
+ * card names (the basis, when known, is the tooltip). The registry's internal state stays internal. */
+export function Qualified({ basis }: { basis?: string | null }) {
+  return (
+    <span className="tag tag-ok" title={basis ?? "Served on the scores its model card lists"}>
+      Qualified
+    </span>
+  );
+}
+
+/** A model output's status: a forecast of a served release is qualified; a refusal or failure says what happened. */
+export function OutputState({ status }: { status: string | null | undefined }) {
+  const s = status ?? "";
+  if (s === "experimental" || isQualified(s)) return <Qualified />;
+  return <span className="tag tag-warn">{words(s || "unknown")}</span>;
+}
+
+/** An evaluation's verdict, as the evaluation computed it. */
+export function VerdictTag({ verdict }: { verdict: string }) {
+  return <span className={`tag ${verdict === "qualified" || isQualified(verdict) ? "tag-ok" : ""}`}>{words(verdict)}</span>;
 }
 
 /** A 401 from the origin's Access check (behind Cloudflare Access): the browser holds a session the

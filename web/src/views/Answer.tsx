@@ -15,22 +15,27 @@ import { useCompare } from "../shell/compare";
 import { go } from "../shell/router";
 import { IconArrow, IconBack, IconCheck, IconChevron, IconCopy, IconInfo, IconThread } from "../shell/icons";
 import { leadSentence } from "../research/noteText";
-import { EvidenceClassTag, fmtBytes, OriginMark, shortId } from "../ui/common";
+import { EvidenceClassTag, fmtBytes, OriginMark } from "../ui/common";
 import { LinkedViews } from "../shell/linked";
 import { ViewBlock } from "./AnswerViews";
+import { sourceTitle } from "./turns";
+import { displayUnit, fmtNum, fullNum, scaled } from "../research/chartRows";
 
 export function locatorText(e: EvidenceRef): string {
   const l = e.locator;
-  if (!l) return "metadata only (source bytes not obtained)";
+  if (!l) return "catalogue record; the original was not retrieved";
   switch (locatorKind(l)) {
     case "page":
       return pageCaption(l);
-    case "table":
-      return `${l.path ?? "table"}${l.row != null ? `, row ${l.row}` : ""}${l.column ? `, column ${l.column}` : ""}`;
+    case "table": {
+      // The file name, not its path in the store.
+      const file = l.path ? l.path.split(/[\\/]/).pop() : null;
+      return `${file || "Table"}${l.row != null ? `, row ${l.row}` : ""}${l.column ? `, column ${l.column}` : ""}`;
+    }
     case "video":
-      return `frame ${l.frame ?? "?"} at ${l.pts_s ?? "?"} s`;
+      return l.pts_s != null ? `video at ${(+l.pts_s).toFixed(1)} s${l.frame != null ? ` (frame ${l.frame})` : ""}` : `video frame ${l.frame ?? "?"}`;
     default:
-      return "locator without position";
+      return "no position given";
   }
 }
 
@@ -109,14 +114,14 @@ export function AnswerView({ client, answer, pageSynthetic }: { client: Research
                 />
               </div>
             );
-          if (b.type === "view") return <ViewBlock key={i} view={b.view} caption={b.caption} answer={answer} client={client} claimKeys={(b.claim_ids ?? []).map(keyOf)} />;
+          if (b.type === "view") return <ViewBlock key={i} view={b.view} caption={b.caption} answer={answer} client={client} claimKeys={(b.claim_ids ?? []).map(keyOf)} srcNo={srcNo} />;
           fig++;
           const a = artifacts.get(b.artifact_id);
           return a ? (
             <FigureBlock key={i} n={fig} artifact={a} caption={b.caption ?? undefined} pageSynthetic={pageSynthetic} />
           ) : (
             <p key={i} className="note note-gap small">
-              Figure {fig}: artifact {b.artifact_id} is cited but not listed in the answer.
+              <span title={b.artifact_id}>Figure {fig} is cited but its result is not part of the answer.</span>
             </p>
           );
         })}
@@ -147,20 +152,26 @@ function Cite({ claim, evidence, srcNo, onEnter, onLeave }: { claim: Claim; evid
   const first = sup[0];
   let label: string;
   let cls = "cite";
+  // What a claim is when it has no source passage: a quiet inline mark (glyph and a short word),
+  // not a pill; the card on hover says the rest.
+  let glyph: string | null = null;
   if (!first) {
     if (claim.kind === "background") {
       label = "model knowledge";
-      cls += " cite-background";
+      cls += " cite-kind cite-background";
+      glyph = "g-background";
     } else if (claim.kind === "interpretation") {
       label = "interpretation";
-      cls += " cite-interp";
+      cls += " cite-kind cite-interp";
+      glyph = "g-interpretation";
     } else return null;
   } else if (first.kind === "evidence") {
     const e = evidence.get(first.evidence_id);
     label = e ? `${srcNo.get(e.source_id) ?? "?"} · ${placeShort(e)}` : "?";
   } else {
     label = "computed";
-    cls += " cite-computed";
+    cls += " cite-kind cite-computed";
+    glyph = "g-computed";
   }
   const more = sup.length > 1 ? ` +${sup.length - 1}` : "";
   const open = () => {
@@ -176,8 +187,9 @@ function Cite({ claim, evidence, srcNo, onEnter, onLeave }: { claim: Claim; evid
       onMouseLeave={onLeave}
       onFocus={(e) => onEnter(claim, e.currentTarget)}
       onBlur={onLeave}
-      aria-label={`Citation ${label}${more}`}
+      aria-label={glyph ? `${label[0].toUpperCase()}${label.slice(1)}${more}: show details` : `Citation ${label}${more}`}
     >
+      {glyph && <span className={`glyph ${glyph}`} aria-hidden="true" />}
       {label}
       {more}
     </button>
@@ -217,10 +229,12 @@ function CiteCard({
   return (
     <div ref={ref} className="cite-card" style={pos} role="tooltip" onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <div className="cite-card-head">
-        <span className="src-no">{e ? srcNo.get(e.source_id) : "ƒ"}</span>
+        <span className="src-no">{e ? srcNo.get(e.source_id) : <span className={`glyph ${s ? "g-computed" : claim.kind === "background" ? "g-background" : "g-interpretation"}`} aria-hidden="true" />}</span>
         <span className="t">
-          <b>{e ? `Source ${srcNo.get(e.source_id)}` : s ? "Computed value" : claim.kind === "background" ? "Model knowledge" : "Interpretation"}</b>
-          <span>{e ? locatorText(e) : s?.kind === "artifact_value" ? <code>{shortId(s.artifact_id)}{s.pointer}</code> : claim.kind === "background" ? "not from the NASA corpus; unverified by IGNIS" : "no source is cited"}</span>
+          <b>{e ? sourceTitle(e.source_id) ?? `Source ${srcNo.get(e.source_id)}` : s ? "Computed value" : claim.kind === "background" ? "Model knowledge" : "Interpretation"}</b>
+          <span title={s?.kind === "artifact_value" ? `${s.artifact_id}${s.pointer}` : undefined}>
+            {e ? locatorText(e) : s?.kind === "artifact_value" ? "read from a result IGNIS computed" : claim.kind === "background" ? "not from the NASA corpus; unverified by IGNIS" : "the agent's own reading; no source is cited"}
+          </span>
         </span>
         {sup.length > 1 && (
           <span className="pager">
@@ -283,7 +297,9 @@ function SourcesRow({ answer, srcNo }: { answer: ResearchAnswer; srcNo: Map<stri
             <li key={id}>
               <span className="src-no">{srcNo.get(id)}</span>
               <span className="t">
-                <code>{shortId(id, 28)}</code>
+                <span className="src-name" title={id}>
+                  {sourceTitle(id) ?? `Source ${srcNo.get(id)}`}
+                </span>
                 <span className="places">
                   {evs.map((e) => (
                     <button key={e.evidence_id} className="linkish" onClick={() => panel.open({ kind: "evidence", evidence: e })}>
@@ -409,20 +425,25 @@ export function ArtifactValue({ client, support }: { client: ResearchClient; sup
   const q = useQuery({ queryKey: [client.mode, "artifact-value", artifact_id, pointer], queryFn: () => client.readArtifactValue(artifact_id, pointer), retry: false });
   const unit = useQuery({ queryKey: [client.mode, "artifact-value", artifact_id, "/unit"], queryFn: () => client.readArtifactValue(artifact_id, "/unit"), enabled: q.isSuccess, retry: false });
   const unitText = typeof unit.data?.value === "string" ? unit.data.value : null;
+  const v = q.data?.value;
+  // A number reads in the unit that fits it (3.4e-3 m as 3.4 mm), the stored value in its tooltip.
+  const shown = typeof v === "number" && unitText ? displayUnit(unitText, [v]) : null;
+  const text = typeof v === "number" ? fmtNum(shown ? scaled(v, shown.factor) : v) : typeof v === "string" ? v : JSON.stringify(v);
+  const exact = typeof v === "number" ? `${fullNum(v) ?? v}${unitText ? ` ${unitText}` : ""}` : undefined;
   return (
     <p>
       {q.isPending ? (
         <span className="muted">Reading…</span>
       ) : q.error ? (
-        <span className="muted">
-          Not readable here ({q.error instanceof ApiError ? q.error.envelope.code : "error"}). <code>{shortId(artifact_id)}{pointer}</code>
+        <span className="muted" title={`${artifact_id}${pointer} · ${q.error instanceof ApiError ? q.error.envelope.code : "error"}`}>
+          The value cannot be read here.
         </span>
       ) : (
         <>
-          <b className="num" style={{ fontSize: 18, fontWeight: 500 }}>
-            {JSON.stringify(q.data.value)}
+          <b className="num" style={{ fontSize: 18, fontWeight: 500 }} title={exact}>
+            {text}
           </b>{" "}
-          {unitText}
+          {shown ? (shown.unit === "1" ? null : shown.unit) : unitText}
           {q.data.partial && <span className="muted"> · preview</span>}
         </>
       )}
@@ -430,25 +451,34 @@ export function ArtifactValue({ client, support }: { client: ResearchClient; sup
   );
 }
 
+/** What a cited result is, in a reader's words (the contract name stays in the tooltip). */
+const FIGURE_KIND: Record<string, string> = {
+  ConditionsTable: "Test conditions",
+  DatasetBundle: "Dataset",
+  ExecutionRecord: "Analysis",
+  EvaluationResult: "Evaluation",
+  VisualObservationBundle: "Video contours",
+};
+
 function FigureBlock({ n, artifact, caption, pageSynthetic }: { n: number; artifact: ArtifactRef; caption?: string; pageSynthetic: boolean }) {
   const panel = usePanel();
   const isModel = artifact.contract === "AnalysisArtifact";
+  // What the figure is, for a reader; its contract, size and producing release are in the tooltip.
+  const tech = [artifact.contract ?? artifact.media_type, fmtBytes(artifact.byte_length), artifact.produced_by?.release_id ? `release ${artifact.produced_by.release_id}` : null, artifact.artifact_id].filter(Boolean).join(" · ");
   return (
     <figure className="figure-block">
       <figcaption>
-        <b>Figure {n}.</b> {caption ?? "Artifact without a caption."}
+        <b>Figure {n}.</b> {caption ?? "A result without a caption."}
       </figcaption>
-      <div className="figure-meta">
+      <div className="figure-meta" title={tech}>
         {isModel ? (
           <span className="tag tag-flame">
             <span className="glyph g-predicted" aria-hidden="true" /> Model output
           </span>
         ) : (
-          <span className="tag">{artifact.contract ?? artifact.media_type}</span>
+          <span className="tag">{FIGURE_KIND[artifact.contract ?? ""] ?? "Result"}</span>
         )}
         <OriginMark origin={artifact.origin} pageSynthetic={pageSynthetic} />
-        <span>{fmtBytes(artifact.byte_length)}</span>
-        {artifact.produced_by?.release_id && <span>release {shortId(artifact.produced_by.release_id, 16)}</span>}
         {(artifact.inputs ?? []).map((i) =>
           i.kind === "run" ? (
             <button key={String(i.id)} className="linkish" onClick={() => panel.open({ kind: "run", id: String(i.id) })}>

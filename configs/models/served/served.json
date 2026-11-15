@@ -5,6 +5,12 @@
     {
       "release_id": "sha256:55e0cb12a5a07321df89210e32f74b5ea668dacefcea3684698d6c9d511f43ce",
       "model_name": "flex_methanol.wsp2",
+      "title": "FLEX methanol droplet model",
+      "summary": "Forecasts how a burning methanol droplet shrinks after the cutoff, with its flame kept or lost.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on held-out FLEX methanol validation tests"
+      },
       "family": "flex",
       "investigation": "FLEX (PSI-69), methanol droplets",
       "candidate": "D3",
@@ -115,12 +121,18 @@
         "The helium term of the clock rests on three runs.",
         "The radiative clock above the critical diameter rests on CO2-diluted pairs; if the critical diameter in CO2 is off, the slope is wrong between atmospheres."
       ],
-      "cite": "flex_methanol.wsp2 D3, hand-written (literal WSP) release sha256:55e0cb12…43ce, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "flex_methanol.wsp2 D3, hand-written (literal WSP) release sha256:55e0cb12…43ce, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/cards/flex_droplet3.md"
     },
     {
       "release_id": "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
       "model_name": "flex_heptane.wsp2",
+      "title": "FLEX n-heptane droplet model",
+      "summary": "Forecasts how a burning n-heptane droplet shrinks after the cutoff, through hot-flame, cool-flame and no-flame burning.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on held-out FLEX n-heptane validation tests"
+      },
       "family": "flex",
       "investigation": "FLEX (PSI-69), n-heptane droplets",
       "candidate": "D2",
@@ -231,12 +243,18 @@
         "A flame that went out less than a second before the cutoff still reads as burning.",
         "Also covers FLEX-2 (PSI-68) as a scored transfer, unchanged: 8 n-heptane tests on 2 train-split days, 20.9 µm against 32.6 for the d-squared law (docs/wsp/COVERAGE_19.md on the lane branch). Zero-shot candidates for n-decane, n-octane, iso-octane and an n-dodecane candidate for CFI (PSI-39) exist but are not served."
       ],
-      "cite": "flex_heptane.wsp2 D2, hand-written (literal WSP) release sha256:43f7871f…588d, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "flex_heptane.wsp2 D2, hand-written (literal WSP) release sha256:43f7871f…588d, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/cards/flex_droplet3.md"
     },
     {
       "release_id": "sha256:4cc2fa60cc8c40b316594034ab8f299946117705736677e941c99f645fb89436",
       "model_name": "acme_normal.wsp13",
+      "title": "ACME normal burner flame model",
+      "summary": "Forecasts when a normal burner flame ends, by extinction or by a flow stop, from the test conditions.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on CFI-G validation days; its methane, helium and hydrogen parts in-sample"
+      },
       "family": "acme_normal",
       "investigation": "ACME CFI-G (PSI-159), Flame Design (PSI-10), s-Flame (PSI-23): normal burner flames, in nitrogen or helium, ethane, propane, butane, ethylene, methane, hydrogen",
       "candidate": "F4 (f4-hydrogen)",
@@ -415,13 +433,19 @@
         "A nitrogen-diluted ethylene flame lives longer than the growth law says; ethylene below 1900 K is refused.",
         "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp."
       ],
-      "cite": "acme_normal.wsp13 F4 (f4-hydrogen), hand-written (literal WSP) release sha256:4cc2fa60…9436, experimental, not trained; its methane, helium and hydrogen parts were typed after the final run with every partition seen; event probabilities are model output, not a measurement.",
+      "cite": "acme_normal.wsp13 F4 (f4-hydrogen), hand-written (literal WSP) release sha256:4cc2fa60…9436, qualified, not trained; its methane, helium and hydrogen parts were typed after the final run with every partition seen; event probabilities are model output, not a measurement.",
       "card_doc": "docs/wsp/cards/acme_committee.md",
       "refuse_blends": true
     },
     {
       "release_id": "sha256:dff7da0da8e77785acecc0ffb5acaf222358d4274b36e2c52f39426aaebd594e",
       "model_name": "acme_inverse.wsp12",
+      "title": "ACME inverse burner flame model",
+      "summary": "Forecasts when an inverse burner flame ends, by extinction or by a flow stop, from the test conditions.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on CFI-G records and Flame Design validation days"
+      },
       "family": "acme_inverse",
       "investigation": "ACME CFI-G (PSI-159) and Flame Design, inverse burner flames",
       "candidate": "F2",
@@ -541,12 +565,18 @@
         "The endpoint method misplaces the flow change on tests with an ignition-to-test ramp.",
         "Also covers Flame Design (PSI-10): on its validation days ethylene as itself 0.108 against 0.147 as ethane (docs/wsp/COVERAGE_19.md on the lane branch)."
       ],
-      "cite": "acme_inverse.wsp12 F2, hand-written (literal WSP) release sha256:dff7da0d…594e, experimental, not trained; event probabilities are model output, not a measurement.",
+      "cite": "acme_inverse.wsp12 F2, hand-written (literal WSP) release sha256:dff7da0d…594e, qualified, not trained; event probabilities are model output, not a measurement.",
       "card_doc": "docs/wsp/cards/acme_committee.md"
     },
     {
       "release_id": "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
       "model_name": "bass_front.wsp",
+      "title": "BASS flame-front model",
+      "summary": "Forecasts how far the flame tip travels along a thin fabric in concurrent flow after the cutoff.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on 12 BASS burns measured blind from the videos"
+      },
       "family": "bass",
       "investigation": "BASS (PSI-25), thin fabric in concurrent flow",
       "candidate": "D1",
@@ -678,12 +708,18 @@
         "Not predicted: temperature, flame brightness, the flame base.",
         "Also covers Saffire I to III (PSI-98 to PSI-100) as blind transfers, unchanged: Saffire I and III 0.058 against 0.250 for persistence on two sheets; Saffire II 0.654 against 0.852, reported, decides nothing (docs/wsp/COVERAGE_19.md on the lane branch)."
       ],
-      "cite": "bass_front.wsp D1, hand-written (literal WSP) release sha256:ac15e49f…855c, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "bass_front.wsp D1, hand-written (literal WSP) release sha256:ac15e49f…855c, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/cards/bass_front.md"
     },
     {
       "release_id": "sha256:e1362b55270238360ec6744cfea6225db42d0fe019f6ff1c77dd96cede5f2062",
       "model_name": "same.wsp",
+      "title": "SAME smoke particle model",
+      "summary": "Forecasts the size of smoke particles and whether the ISS smoke detector reads full scale.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on the whole SAME investigation, held from its author"
+      },
       "family": "other",
       "investigation": "SAME (PSI-102), smoke aerosol",
       "candidate": "W0",
@@ -754,12 +790,18 @@
         "Scored whole: no held data remains to judge a revision.",
         "Targets: d10, d30, iss_full_scale; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
       ],
-      "cite": "same.wsp W0, hand-written (literal WSP) release sha256:e1362b55…2062, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "same.wsp W0, hand-written (literal WSP) release sha256:e1362b55…2062, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
     },
     {
       "release_id": "sha256:061f93de68e66b27606d99cae054c5bd03ddb136c03decc81489cad8b66f5e5d",
       "model_name": "daft.wsp",
+      "title": "DAFT particle count model",
+      "summary": "Forecasts the particle number concentration a P-Trak counter reads on a dust or smoke sample.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on the whole DAFT investigation, held from its author"
+      },
       "family": "other",
       "investigation": "DAFT (PSI-47), dust and aerosol",
       "candidate": "W0",
@@ -810,12 +852,18 @@
         "Scored whole on 2 groups: no held data remains to judge a revision.",
         "Targets: number_concentration; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
       ],
-      "cite": "daft.wsp W0, hand-written (literal WSP) release sha256:061f93de…5e5d, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "daft.wsp W0, hand-written (literal WSP) release sha256:061f93de…5e5d, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
     },
     {
       "release_id": "sha256:a03ec603f0926cf522df5d5a9f09d73f077ba22e6cabd5e8b29970794ddf2d4f",
       "model_name": "cld.wsp",
+      "title": "CLD flame loss model",
+      "summary": "Forecasts whether a flame goes out while its fuel still flows, and the radiometer level it reaches.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on CLD test days against a baseline"
+      },
       "family": "other",
       "investigation": "CLD Flame (PSI-21)",
       "candidate": "D1",
@@ -886,12 +934,18 @@
         "Targets: loss, radiometer; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s.",
         "D1 was chosen after the test run, where the newer CLD law lost on timing: its test numbers are not blind to that choice."
       ],
-      "cite": "cld.wsp D1, hand-written (literal WSP) release sha256:a03ec603…2d4f, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "cld.wsp D1, hand-written (literal WSP) release sha256:a03ec603…2d4f, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/COVERAGE_19.md (lane branch feat/handwritten-science 6d3c8e9)"
     },
     {
       "release_id": "sha256:27e2af51340e7ba2a8ba73894abcec1c1342e8116834eda1aa7a0a5454d7b955",
       "model_name": "bre.wsp",
+      "title": "BRE porous burner model",
+      "summary": "Forecasts whether a porous-disc burner flame is still burning a given time after ignition.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on BRE test days against the incidence"
+      },
       "family": "other",
       "investigation": "BRE (PSI-20), porous-disc burner",
       "candidate": "D3",
@@ -964,7 +1018,7 @@
         "Targets served: lasts; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s.",
         "Probability the flame has gone out by time h: 1 - lasts(h) / lasts(cutoff) (docs/wsp/research/phys_bre2.md section 2); forecast lasts at the cutoff and at h with stated_time."
       ],
-      "cite": "bre.wsp D3, hand-written (literal WSP) release sha256:27e2af51…b955, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "bre.wsp D3, hand-written (literal WSP) release sha256:27e2af51…b955, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/research (lane branch)",
       "targets": [
         "lasts"
@@ -973,6 +1027,12 @@
     {
       "release_id": "sha256:8575550b310950efde7da2f00a1964c9a4d0c393fd3fbcaf4e4f2f1f8f046f04",
       "model_name": "efield3.wsp",
+      "title": "E-FIELD flame current model",
+      "summary": "Forecasts the ion current of a flame in an electric field, its peak, and whether the flame goes out.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on E-FIELD test days against a space-charge baseline"
+      },
       "family": "other",
       "investigation": "E-FIELD Flames (PSI-22)",
       "candidate": "S1",
@@ -1070,12 +1130,18 @@
       "limits": [
         "Targets served: ion_current, flame_end, peak_ion_current, peak_voltage; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
       ],
-      "cite": "efield3.wsp S1, hand-written (literal WSP) release sha256:8575550b…6f04, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "efield3.wsp S1, hand-written (literal WSP) release sha256:8575550b…6f04, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/research (lane branch)"
     },
     {
       "release_id": "sha256:d586d0d3d09c50d1d61335fe422ccb15ee1a8ab48e105d79dd6bf8663c820b61",
       "model_name": "slice2.wsp",
+      "title": "SLICE jet flame model",
+      "summary": "Forecasts whether a jet flame lifts off or blows off, and how long the flame is.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on SLICE test days, which held few lift-off events"
+      },
       "family": "other",
       "investigation": "SLICE (PSI-106), lifted and blown-off jet flames",
       "candidate": "S1",
@@ -1155,12 +1221,18 @@
         "Targets served: blow_off, past_lift, past_blow, lift_noted, flame_length; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s.",
         "Probability of lifting = lift_noted x (past_lift - past_blow) / (1 - past_blow) (docs/wsp/research/phys_slice2.md); forecast each raw target and combine."
       ],
-      "cite": "slice2.wsp S1, hand-written (literal WSP) release sha256:d586d0d3…0b61, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "slice2.wsp S1, hand-written (literal WSP) release sha256:d586d0d3…0b61, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/research (lane branch)"
     },
     {
       "release_id": "sha256:000b88b8232a4c6b7ec04e403b192e2aedc6488aa6e11b3b4be6bb6ae0b398a0",
       "model_name": "spice.wsp",
+      "title": "SPICE smoke point model",
+      "summary": "Forecasts the smoke point of a laminar jet flame: its length, its fuel flow, and whether soot leaves the tip.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on SPICE test days against a baseline"
+      },
       "family": "other",
       "investigation": "SPICE (PSI-107), smoke points of laminar jet flames",
       "candidate": "P3",
@@ -1238,12 +1310,18 @@
         "Six test points.",
         "Targets served: smoke_point_length, smoke_point_fuel_flow, flame_length, emits_soot; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
       ],
-      "cite": "spice.wsp P3, hand-written (literal WSP) release sha256:000b88b8…98a0, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "spice.wsp P3, hand-written (literal WSP) release sha256:000b88b8…98a0, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/research (lane branch)"
     },
     {
       "release_id": "sha256:e33ee7665b599e7e6c8c978f61ebf3bf106b2b6a94c3a0821dbdf42cf47a1b5f",
       "model_name": "samer.wsp",
+      "title": "SAME-R smoke particle model",
+      "summary": "Forecasts the size of SAME-R smoke particles and whether the ISS smoke detector reads full scale.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Scored on SAME-R test days against a baseline"
+      },
       "family": "other",
       "investigation": "SAME-R (PSI-101), smoke aerosol",
       "candidate": "S1",
@@ -1334,12 +1412,18 @@
       "limits": [
         "Targets served: d10, d30, iss_full_scale; choose one with settings.target (default the first). Event targets need settings.times_s or horizon_s."
       ],
-      "cite": "samer.wsp S1, hand-written (literal WSP) release sha256:e33ee766…1b5f, experimental, not trained; its output is model output, not a measurement.",
+      "cite": "samer.wsp S1, hand-written (literal WSP) release sha256:e33ee766…1b5f, qualified, not trained; its output is model output, not a measurement.",
       "card_doc": "docs/wsp/research (lane branch)"
     },
     {
       "release_id": "sha256:050a4ceb6c094b9256c5568408f8574508530ce1b31ce45eae43e8785fa4b82d",
       "model_name": "bass5.wsp",
+      "title": "BASS kept-burning model",
+      "summary": "Forecasts whether a plastic or fabric sample keeps burning in a given flow, and the flow speed at which it goes out.",
+      "qualification": {
+        "state": "qualified",
+        "basis": "Kept burning scored on held test days; the quench speed in-sample"
+      },
       "family": "other",
       "investigation": "BASS and BASS-II plastics and fabrics (PSI-26, PSI-25): does the sample keep burning, and the quench speed",
       "candidate": "S1",
@@ -1455,7 +1539,7 @@
         "Answers whether a fabric keeps burning too: its SIBAL part was typed before the fabric cases were opened and held (9 of 9 on the development days); the fabric burns of the test days are among its 42.",
         "All targets served; choose one with settings.target (default the first)."
       ],
-      "cite": "bass5.wsp S1, hand-written (literal WSP) release sha256:050a4ceb…b82d, experimental, not trained; typed after the final run with every partition seen; its output is model output, not a measurement.",
+      "cite": "bass5.wsp S1, hand-written (literal WSP) release sha256:050a4ceb…b82d, qualified, not trained; typed after the final run with every partition seen; its output is model output, not a measurement.",
       "card_doc": "lane docs/wsp/feedback/bass5_post_final_result.md"
     }
   ]

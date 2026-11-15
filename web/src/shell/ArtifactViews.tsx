@@ -5,7 +5,8 @@ import { Fragment } from "react";
 import type { AnalysisArtifact, AnswerRefusal, ArtifactRef, DatasetBundle, EvaluationResult, ExecutionRecord, ModelRelease, VisualObservationBundle } from "../contracts/generated";
 import { ContourVideo } from "./ContourVideo";
 import { checkSummary, columnUnit, durationS, evaluationSummary, exposureRows, fmtMetric, limitRows, outcomeText, UNCERTAINTY_TEXT, type TypedArtifact } from "../research/artifactViews";
-import { Caution, Gap, ReleaseState, fmtBytes, shortId, words } from "../ui/common";
+import { Caution, Gap, OutputState, VerdictTag, fmtBytes, shortId, words } from "../ui/common";
+import { modelTitle, useServedCard } from "./models";
 import { usePanel } from "./inspector";
 import { useReleases } from "./queries";
 
@@ -39,10 +40,11 @@ function ArtifactLink({ artifact, label }: { artifact: ArtifactRef; label: strin
 function ReleaseLink({ id }: { id: string }) {
   const panel = usePanel();
   const release = useReleases().data?.find((r) => r.id === id);
+  const card = useServedCard(id);
   if (!release) return <code title={id}>{shortId(id, 22)}</code>;
   return (
-    <button className="linkish" onClick={() => panel.push({ kind: "release", release })} title={id}>
-      {release.model_name}
+    <button className="linkish" onClick={() => panel.push({ kind: "release", release })} title={`${release.model_name} · ${id}`}>
+      {modelTitle(release.model_name, card)}
     </button>
   );
 }
@@ -223,7 +225,7 @@ function EvaluationResultView({ r }: { r: EvaluationResult }) {
     <>
       <div className="panel-sec">
         <div className="toolbar">
-          <ReleaseState state={r.verdict} />
+          <VerdictTag verdict={r.verdict} />
           <span className="muted small">{words(r.request.purpose)}</span>
         </div>
         <dl className="kv">
@@ -333,7 +335,7 @@ function AnalysisArtifactView({ a }: { a: AnalysisArtifact }) {
         <dd>{words(a.kind)}</dd>
         <dt>status</dt>
         <dd>
-          <ReleaseState state={a.status} />
+          <OutputState status={a.status} />
         </dd>
         <dt>support</dt>
         <dd>
@@ -366,7 +368,7 @@ function AnalysisArtifactView({ a }: { a: AnalysisArtifact }) {
 
 // ---------------------------------------------------------------- ModelRelease construction
 
-/** How a release was built and checked. Build checks say the release is well formed; only an EvaluationResult qualifies it. */
+/** How a release was built and checked (the technical details of a model). */
 export function ReleaseConstruction({ release }: { release: ModelRelease }) {
   const m = release.construction;
   const tensors = release.tensors ?? [];
@@ -387,7 +389,7 @@ export function ReleaseConstruction({ release }: { release: ModelRelease }) {
           <dt>method</dt>
           <dd>{words(m.construction_method)}</dd>
           <dt>uncertainty</dt>
-          <dd>{m.uncertainty_kind === "calibrated_prediction" ? UNCERTAINTY_TEXT[m.uncertainty_kind] : <span className="tag tag-warn">{UNCERTAINTY_TEXT[m.uncertainty_kind]}</span>}</dd>
+          <dd>{UNCERTAINTY_TEXT[m.uncertainty_kind]}</dd>
           {m.author && <Row k="author" v={`${m.author.provider} · ${m.author.model_id}${m.author.effort ? ` · ${m.author.effort}` : ""}`} />}
           <dt>forward</dt>
           <dd>
@@ -407,7 +409,7 @@ export function ReleaseConstruction({ release }: { release: ModelRelease }) {
             {c.detail && <span className="muted small">{c.detail}</span>}
           </div>
         ))}
-        <p className="muted small">Checks say the release is well formed. Only an evaluation result can qualify its predictions.</p>
+        <p className="muted small">The checks confirm the release is well formed.</p>
       </div>
       <div className="panel-sec">
         <h3>What the author saw</h3>
