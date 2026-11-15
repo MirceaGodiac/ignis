@@ -25,7 +25,7 @@ use ignis_core::contracts::{
     ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode,
     InlinePayload, JobLookup, JobRef, Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef,
     ResponseFormat, RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor,
-    ToolResult, ToolsSchema,
+    ToolResult, ToolsSchema, WebFetchRequest, WebSearchRequest,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -76,7 +76,28 @@ pub struct ToolServices {
     /// The DatasetService can answer `conditions_query` (its conditions table is built). Without
     /// it the tool is not registered and capability status says why.
     pub conditions: bool,
+    /// Web discovery (`web_search`, `web_fetch`) the KnowledgeService serves. Off by default:
+    /// nothing networked runs unless the deployment opts in.
+    pub web: WebTools,
 }
+
+/// Which web discovery tools the deployment enabled (`IGNIS_ENABLE_WEB`).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum WebTools {
+    #[default]
+    Disabled,
+    /// `web_fetch` only: no search provider is configured.
+    FetchOnly,
+    SearchAndFetch,
+}
+
+/// Why the web tools are absent when the deployment did not enable them.
+pub const WEB_DISABLED: &str =
+    "web discovery disabled in this deployment (set IGNIS_ENABLE_WEB=1; network access)";
+
+/// Why `web_search` is absent when web discovery is on without a provider.
+pub const WEB_SEARCH_NO_PROVIDER: &str =
+    "no web search provider configured (set PARALLEL_API_KEY with IGNIS_ENABLE_WEB=1)";
 
 /// Why `conditions_query` is absent while datasets are configured.
 pub const CONDITIONS_NOT_BUILT: &str =
@@ -120,10 +141,18 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                     Some("isolated runner not configured or failed preflight")
                 }
                 "wiki_patch" => Some("wiki service not implemented"),
+                "web_search" | "web_fetch" if services.knowledge.is_none() => {
+                    Some("KnowledgeService not configured")
+                }
+                "web_search" | "web_fetch" if services.web == WebTools::Disabled => {
+                    Some(WEB_DISABLED)
+                }
+                "web_search" if services.web == WebTools::FetchOnly => Some(WEB_SEARCH_NO_PROVIDER),
+                "web_search" | "web_fetch" => None,
                 "sources_search" | "sources_read" | "sources_outline" | "datasets_inspect"
                 | "conditions_query" | "models_inspect" | "models_forecast"
                 | "analysis_execute" | "artifacts_read" | "jobs_get" | "answer_submit" => None,
-                // graph_neighbors, wiki_read, web_search, web_fetch: their
+                // graph_neighbors, wiki_read: their
                 // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
@@ -357,6 +386,16 @@ impl ToolHost {
                 let req: OutlineRequest = decode(contract, args)?;
                 checked(req.validate())?;
                 value(self.knowledge()?.outline(scope, &req))
+            }
+            "web_search" => {
+                let req: WebSearchRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                value(self.knowledge()?.web_search(scope, &req))
+            }
+            "web_fetch" => {
+                let req: WebFetchRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                value(self.knowledge()?.web_fetch(scope, &req))
             }
             "datasets_inspect" => {
                 let req: DatasetRef = decode(contract, args)?;

@@ -31,6 +31,7 @@ pub mod service;
 pub mod sira;
 #[cfg(feature = "pdf")]
 pub mod verify;
+pub mod web;
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -86,6 +87,9 @@ pub enum CorpusCmd {
 pub enum EvidenceCmd {
     #[command(subcommand)]
     Corpus(CorpusCmd),
+    /// Web discovery (R4): `search`, `fetch` into a snapshot, read a `snapshot` back.
+    #[command(subcommand)]
+    Web(web::cli::WebCmd),
     /// Parse PDFs (page texts, char spans, bboxes, captions) and upsert their parse views into the catalog.
     Ingest {
         /// a PDF or a directory of PDFs (NTRS `<stem>.json` sidecars are read)
@@ -443,6 +447,8 @@ fn ingest_one(
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
         EvidenceCmd::Corpus(c) => run_corpus(c),
+        // the CLI composition root opens the artifact store and calls `web::cli::run`
+        EvidenceCmd::Web(_) => bail!("`ignis evidence web` runs through the `ignis` binary"),
         EvidenceCmd::ImportView {
             view,
             pdf,

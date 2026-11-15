@@ -274,6 +274,8 @@ pub struct EvidenceService {
         std::collections::HashMap<(String, String), ignis_core::contracts::GeneratedText>,
     >,
     orders: Mutex<VecDeque<(String, Arc<Ranked>)>>,
+    /// Web discovery (R4), attached by the composition root only when the deployment enables it.
+    web: Option<Arc<crate::web::WebDiscovery>>,
     /// record API spend in the cost ledger (`runs/`); off in tests
     pub ledger: bool,
 }
@@ -321,6 +323,7 @@ impl EvidenceService {
             summaries_path: db.with_file_name(SUMMARIES_FILE),
             summaries: std::sync::OnceLock::new(),
             orders: Mutex::new(VecDeque::new()),
+            web: None,
             ledger: true,
         })
     }
@@ -341,6 +344,25 @@ impl EvidenceService {
     }
 
     /// Run without network access to the embedding/rerank provider (declared as unavailable).
+    /// Serve `web_search` / `web_fetch` through `web` (off unless attached).
+    pub fn with_web(mut self, web: Arc<crate::web::WebDiscovery>) -> Self {
+        self.web = Some(web);
+        self
+    }
+
+    fn web(&self, tool: &str) -> ServiceResult<&crate::web::WebDiscovery> {
+        self.web.as_deref().ok_or_else(|| {
+            ErrorEnvelope::new(
+                ErrorCode::CapabilityUnavailable,
+                format!(
+                    "{tool}: web discovery is disabled in this deployment (set {}=1)",
+                    crate::web::ENABLE_ENV
+                ),
+                RetryPolicy::AfterUserAction,
+            )
+        })
+    }
+
     pub fn offline(self) -> Self {
         self.retriever.lock().expect("retriever").api_key = None;
         self
@@ -1228,6 +1250,22 @@ impl KnowledgeService for EvidenceService {
             ));
         }
         self.evidence_ref(&c, true)
+    }
+
+    fn web_search(
+        &self,
+        scope: &ExecutionScope,
+        req: &ignis_core::contracts::WebSearchRequest,
+    ) -> ServiceResult<ignis_core::contracts::WebSearchPage> {
+        self.web("web_search")?.search(scope, req)
+    }
+
+    fn web_fetch(
+        &self,
+        scope: &ExecutionScope,
+        req: &ignis_core::contracts::WebFetchRequest,
+    ) -> ServiceResult<ignis_core::contracts::ExternalSourceCandidate> {
+        self.web("web_fetch")?.fetch(scope, req)
     }
 }
 
