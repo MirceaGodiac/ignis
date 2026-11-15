@@ -1,7 +1,8 @@
 // T8 `series_comparison`: observed, computed and predicted series on one time axis. Observed values
 // are points, computed lines are dashed, predictions are lines with their band. Hovering sets the
 // answer's linked time; a time set elsewhere (the video) draws a cursor line here.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useScheme } from "../shell/theme";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 import type { Series } from "../research/viewSpec";
@@ -37,14 +38,7 @@ export function SeriesChart({ series, id, height = 260 }: { series: Series[]; id
   linked.current = time && time.origin === origin && time.by !== id ? time.t : null;
   const setRef = useRef(setTime);
   setRef.current = setTime;
-  const [scheme, setScheme] = useState(() => (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-  useEffect(() => {
-    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
-    if (!mq) return;
-    const on = () => setScheme(mq.matches ? "dark" : "light");
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
+  const scheme = useScheme();
 
   useEffect(() => {
     const el = host.current!;

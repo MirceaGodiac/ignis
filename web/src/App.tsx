@@ -2,19 +2,18 @@
 import { useEffect, useState } from "react";
 import { CompareProvider, useCompare } from "./shell/compare";
 import { CommandMenu } from "./shell/CommandMenu";
-import { DataProvider, useData } from "./shell/data";
+import { DataProvider } from "./shell/data";
 import { PanelProvider, usePanel } from "./shell/inspector";
 import { Panel } from "./shell/Panel";
-import { href, useRoute, VIEW_TITLE } from "./shell/router";
+import { go, href, useRoute, VIEW_SECTION, VIEW_TITLE } from "./shell/router";
 import { Original } from "./views/Original";
 import { Sidebar } from "./shell/Sidebar";
-import { IconChevron, IconSearch } from "./shell/icons";
+import { IconChevron } from "./shell/icons";
 import { useEpisodes } from "./shell/queries";
 import { Compare } from "./views/Compare";
 import { Home } from "./views/Home";
 import { Lab } from "./views/Lab";
-import { MapView } from "./views/MapView";
-import { Conditions } from "./views/Conditions";
+import { ConditionsPage } from "./views/Conditions";
 import { Models } from "./views/Models";
 import { Research } from "./views/Research";
 import { Runs } from "./views/Runs";
@@ -34,7 +33,7 @@ export function App() {
 
 function Shell() {
   const route = useRoute();
-  const { synthetic, health } = useData();
+
   const panel = usePanel();
   const cmp = useCompare();
   const episodes = useEpisodes();
@@ -51,6 +50,12 @@ function Shell() {
     return () => window.removeEventListener("keydown", on);
   }, []);
 
+  // Old links: the atmosphere map is a tab of Conditions; the conditions runs table is the Runs page.
+  useEffect(() => {
+    if (route.view === "map") go("conditions", null, { tab: "map" });
+    else if (route.view === "conditions" && route.params.get("tab") === "runs") go("runs", null, { habitat: route.params.get("habitat") ?? undefined });
+  }, [route.view, route.params]);
+
   // A new view starts with a closed side panel; the panel belongs to what was selected on it.
   const { close } = panel;
   useEffect(() => close(), [route.view, route.id, close]);
@@ -64,12 +69,18 @@ function Shell() {
     <div className={`shell${panel.current ? " has-panel" : ""}`}>
       <Sidebar route={route} compareCount={cmp.ids.length} onCommand={() => setCmd(true)} />
       <main className="main" id="main">
-        {route.view !== "home" && (
+        {route.view !== "home" && !(route.view === "research" && route.id) && (
           <header className="topbar">
             <nav className="crumbs" aria-label="Breadcrumb">
+              {VIEW_SECTION[route.view] && (
+                <>
+                  <span>{VIEW_SECTION[route.view]}</span>
+                  <IconChevron width={12} height={12} />
+                </>
+              )}
               {route.view === "research" && route.id ? (
                 <a href={href("research")} className="here">
-                  Investigations
+                  Questions
                 </a>
               ) : route.view === "lab" && route.id ? (
                 <>
@@ -82,31 +93,12 @@ function Shell() {
               )}
             </nav>
             <span className="spacer" />
-            {synthetic && (
-              <span className="pill-synth" title="Development fixtures: generated data, not NASA results">
-                Synthetic data
-              </span>
-            )}
-            <button className="search-btn" onClick={() => setCmd(true)}>
-              <IconSearch width={14} height={14} /> <span className="lbl">Search</span> <kbd>Ctrl K</kbd>
-            </button>
           </header>
         )}
-        {health.error && !health.data && route.view !== "research" && route.view !== "home" && (
-          <div className="view" style={{ paddingBottom: 0 }}>
-            <div className="note note-refusal" role="status">
-              <b>The IGNIS server is not reachable</b>
-              <p>
-                Start it with <code>cargo run -p ignis-cli -- serve --dev</code>.
-              </p>
-            </div>
-          </div>
-        )}
         {route.view === "home" && <Home />}
-        {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} tab={route.params.get("tab")} />}
-        {route.view === "map" && <MapView />}
-        {route.view === "conditions" && <Conditions />}
-        {route.view === "runs" && <Runs initialFamily={route.params.get("family")} />}
+        {route.view === "research" && <Research episodeId={route.id} newQuestion={route.params.get("q")} wantNew={route.params.get("new") === "1"} />}
+        {route.view === "conditions" && <ConditionsPage habitat={route.params.get("habitat")} inv={route.params.get("inv")} tab={route.params.get("tab") === "map" ? "map" : "habitats"} />}
+        {route.view === "runs" && <Runs key={route.params.toString()} initialFamily={route.params.get("family")} initialHabitat={route.params.get("habitat")} initialInv={route.params.get("inv")} />}
         {route.view === "compare" && <Compare />}
         {route.view === "lab" && <Lab runId={route.id} />}
         {route.view === "sources" && <Sources key={route.params.get("q") ?? ""} initial={route.params.get("q")} />}

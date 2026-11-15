@@ -1,7 +1,8 @@
 // Observed points vs model quantile bands vs revealed continuation, in one uPlot instance.
 // The uPlot instance is created once; data changes call setData and the cutoff line is drawn from a
 // ref in a draw hook, so moving the cutoff never re-renders React per pixel.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useScheme } from "../shell/theme";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 
@@ -59,14 +60,7 @@ export function ForecastChart(props: Props) {
   cutoff.current = props.cutoff;
 
   // The colours are read from CSS tokens at build time, so a scheme change rebuilds the plot.
-  const [scheme, setScheme] = useState(() => (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-  useEffect(() => {
-    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
-    if (!mq) return;
-    const on = () => setScheme(mq.matches ? "dark" : "light");
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
+  const scheme = useScheme();
 
   // (Re)build only when the series structure changes (number of quantile levels) or the scheme.
   useEffect(() => {
