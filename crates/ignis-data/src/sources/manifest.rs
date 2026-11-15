@@ -176,6 +176,27 @@ pub fn write_manifest(investigation: &str, records: &[Source]) -> anyhow::Result
     Ok(p)
 }
 
+/// Rewrite the manifest with exactly `records` (sorted like `write_manifest`). Only for removing
+/// records proven redundant; additions go through the merging `write_manifest`.
+pub fn replace_manifest(investigation: &str, records: &[Source]) -> anyhow::Result<PathBuf> {
+    let key = |s: &Source| {
+        (
+            s.file_name.clone().unwrap_or_default(),
+            s.file_version.clone().unwrap_or_default(),
+        )
+    };
+    let mut sorted: Vec<&Source> = records.iter().collect();
+    sorted.sort_by_key(|s| key(s));
+    let p = manifest_path(investigation);
+    let mut body = String::new();
+    for s in sorted {
+        body.push_str(&serde_json::to_string(s)?);
+        body.push('\n');
+    }
+    std::fs::write(&p, body)?;
+    Ok(p)
+}
+
 /// Identity of the source state a cohort was built from (ids, versions, rights).
 pub fn manifest_hash(investigations: &[&str]) -> anyhow::Result<String> {
     let mut invs: Vec<&str> = investigations.to_vec();

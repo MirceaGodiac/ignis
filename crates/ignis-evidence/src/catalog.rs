@@ -27,8 +27,16 @@ use unicode_normalization::UnicodeNormalization;
 
 use crate::records::{locator_json, Chunk, Finding, Publication};
 
-/// 2: parse-view page texts (`pages`) and `asset_locations`.
-pub const CATALOG_VERSION: i64 = 2;
+/// 2: parse-view page texts (`pages`) and `asset_locations`. 3: several parse views per
+/// publication (`pages.parse_view_id`); search covers the active one.
+pub const CATALOG_VERSION: i64 = 3;
+
+/// SQL condition: chunk `c` belongs to the active view of publication `p` (chunk ids start with
+/// their view id, `pv-<sha16>@<parser_version>:`).
+/// Ids without the `pv-` prefix are legacy single-view chunks and count as active.
+pub const ACTIVE_VIEW: &str = "(substr(c.id, 1, 3) <> 'pv-' OR \
+     substr(c.id, 1, length('pv-' || substr(p.id, 5) || '@' || p.parser_version) + 1) \
+     = 'pv-' || substr(p.id, 5) || '@' || p.parser_version || ':')";
 pub const DDL: &str = include_str!("../../../schemas/evidence_catalog.sql");
 
 pub fn root() -> PathBuf {
@@ -54,6 +62,7 @@ pub fn connect(path: &Path, readonly: bool) -> Result<Connection> {
             std::fs::create_dir_all(d)?;
         }
         let con = Connection::open(path)?;
+        migrate_pages_v3(&con)?;
         con.execute_batch(DDL)?;
         con.execute(
             "INSERT OR REPLACE INTO meta(key, value) VALUES ('catalog_version', ?1)",
@@ -87,6 +96,37 @@ pub fn connect(path: &Path, readonly: bool) -> Result<Connection> {
     Ok(con)
 }
 
+/// Catalogs before v3 kept one page text per (publication, page): move them under the view that
+/// was active (`publications.parser_version`), so their citations keep resolving.
+fn migrate_pages_v3(con: &Connection) -> Result<()> {
+    let has_pages: bool = con.query_row(
+        "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'pages'",
+        [],
+        |r| r.get::<_, i64>(0),
+    )? > 0;
+    if !has_pages {
+        return Ok(());
+    }
+    let has_view: bool = con.query_row(
+        "SELECT count(*) FROM pragma_table_info('pages') WHERE name = 'parse_view_id'",
+        [],
+        |r| r.get::<_, i64>(0),
+    )? > 0;
+    if has_view {
+        return Ok(());
+    }
+    con.execute_batch(
+        "BEGIN; \
+         CREATE TABLE pages_v3 (publication_id TEXT NOT NULL REFERENCES publications(id) ON DELETE CASCADE, \
+           parse_view_id TEXT NOT NULL, page INTEGER NOT NULL, text TEXT NOT NULL, \
+           PRIMARY KEY (publication_id, parse_view_id, page)); \
+         INSERT INTO pages_v3 SELECT g.publication_id, 'pv-' || substr(g.publication_id, 5) || '@' || p.parser_version, \
+           g.page, g.text FROM pages g JOIN publications p ON p.id = g.publication_id; \
+         DROP TABLE pages; ALTER TABLE pages_v3 RENAME TO pages; COMMIT;",
+    )?;
+    Ok(())
+}
+
 /// Index/query normalization: NFKC (splits ligatures, folds compatibility forms).
 pub fn normalize(text: &str) -> String {
     text.nfkc().collect()
@@ -103,10 +143,25 @@ pub fn upsert_publication(
     chunks: &[Chunk],
 ) -> Result<usize> {
     let tx = con.transaction()?;
-    tx.execute("DELETE FROM chunks WHERE publication_id = ?1", [&p.id])?;
-    tx.execute("DELETE FROM publications WHERE id = ?1", [&p.id])?;
+    // Only this view's chunks are replaced; other views of the publication stay (their citations
+    // resolve). The row is updated in place: deleting it would cascade to every view.
+    let prefix = format!(
+        "{}:",
+        crate::records::parse_view_id(&p.id, &p.parser_version)
+    );
     tx.execute(
-        "INSERT INTO publications VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18)",
+        "DELETE FROM chunks WHERE publication_id = ?1 AND substr(id, 1, length(?2)) = ?2",
+        params![p.id, prefix],
+    )?;
+    tx.execute(
+        "INSERT INTO publications VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18) \
+         ON CONFLICT(id) DO UPDATE SET source_sha256=excluded.source_sha256, title=excluded.title, \
+         authors_json=excluded.authors_json, year=excluded.year, ntrs_id=excluded.ntrs_id, doi=excluded.doi, \
+         canonical_url=excluded.canonical_url, investigation_ids_json=excluded.investigation_ids_json, \
+         families_json=excluded.families_json, file_name=excluded.file_name, n_pages=excluded.n_pages, \
+         rights_status=excluded.rights_status, license=excluded.license, \
+         describes_runs_json=excluded.describes_runs_json, outcome_bearing=excluded.outcome_bearing, \
+         ingested_at=excluded.ingested_at, parser_version=excluded.parser_version",
         params![
             p.id, p.source_sha256, p.title, js(&p.authors), p.year, p.ntrs_id, p.doi, p.canonical_url,
             js(&p.investigation_ids), js(&p.families), p.file_name, p.n_pages, p.rights_status, p.license,
@@ -155,12 +210,17 @@ pub fn upsert_parse_view(
 ) -> Result<usize> {
     let n = upsert_publication(con, p, chunks)?;
     let tx = con.transaction()?;
-    tx.execute("DELETE FROM pages WHERE publication_id = ?1", [&p.id])?;
+    let view = crate::records::parse_view_id(&p.id, &p.parser_version);
+    tx.execute(
+        "DELETE FROM pages WHERE publication_id = ?1 AND parse_view_id = ?2",
+        params![p.id, view],
+    )?;
     {
-        let mut st =
-            tx.prepare("INSERT INTO pages(publication_id, page, text) VALUES (?1, ?2, ?3)")?;
+        let mut st = tx.prepare(
+            "INSERT INTO pages(publication_id, parse_view_id, page, text) VALUES (?1, ?2, ?3, ?4)",
+        )?;
         for (i, t) in pages.iter().enumerate() {
-            st.execute(params![p.id, (i + 1) as i64, t])?;
+            st.execute(params![p.id, view, (i + 1) as i64, t])?;
         }
     }
     if let Some(r) = rel_path {
@@ -210,14 +270,16 @@ pub fn publications(con: &Connection) -> Result<Vec<Publication>> {
 pub fn page_texts(
     con: &Connection,
     publication_id: &str,
+    view: &str,
     first: i64,
     last: i64,
 ) -> Result<Vec<(i64, String)>> {
     let mut st = con.prepare(
-        "SELECT page, text FROM pages WHERE publication_id = ?1 AND page BETWEEN ?2 AND ?3 ORDER BY page",
+        "SELECT page, text FROM pages WHERE publication_id = ?1 AND parse_view_id = ?2 \
+         AND page BETWEEN ?3 AND ?4 ORDER BY page",
     )?;
     let rows = st
-        .query_map(params![publication_id, first, last], |r| {
+        .query_map(params![publication_id, view, first, last], |r| {
             Ok((r.get(0)?, r.get(1)?))
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
@@ -225,17 +287,118 @@ pub fn page_texts(
 }
 
 /// Ids of the chunks of `publication_id` on `page`, in reading order.
-pub fn chunk_ids_on_page(con: &Connection, publication_id: &str, page: i64) -> Result<Vec<String>> {
+pub fn chunk_ids_on_page(
+    con: &Connection,
+    publication_id: &str,
+    view: &str,
+    page: i64,
+) -> Result<Vec<String>> {
     let mut st = con.prepare(
-        "SELECT id FROM chunks WHERE publication_id = ?1 AND page = ?2 ORDER BY ordinal",
+        "SELECT id FROM chunks WHERE publication_id = ?1 AND page = ?2 \
+         AND substr(id, 1, length(?3)) = ?3 ORDER BY ordinal",
     )?;
     let rows = st
-        .query_map(params![publication_id, page], |r| r.get(0))?
+        .query_map(params![publication_id, page, format!("{view}:")], |r| {
+            r.get(0)
+        })?
+        .collect::<rusqlite::Result<Vec<String>>>()?;
+    Ok(rows)
+}
+
+/// The parse views of a publication that are stored (any of them can be read).
+/// The parser version of the publication's active view, if the publication is stored.
+pub fn active_parser(con: &Connection, publication_id: &str) -> Result<Option<String>> {
+    use rusqlite::OptionalExtension;
+    Ok(con
+        .query_row(
+            "SELECT parser_version FROM publications WHERE id = ?1",
+            [publication_id],
+            |r| r.get(0),
+        )
+        .optional()?)
+}
+
+/// Store a parse view **without** making it active: its chunks and page texts are written (they
+/// read and resolve like any stored view), the publication row and its active view stay as they are.
+pub fn add_inactive_view(
+    con: &mut Connection,
+    p: &Publication,
+    chunks: &[Chunk],
+    pages: &[String],
+) -> Result<usize> {
+    anyhow::ensure!(
+        active_parser(con, &p.id)?.is_some(),
+        "{}: no stored publication to add an inactive view to",
+        p.id
+    );
+    let view = crate::records::parse_view_id(&p.id, &p.parser_version);
+    let prefix = format!("{view}:");
+    let tx = con.transaction()?;
+    tx.execute(
+        "DELETE FROM chunks WHERE publication_id = ?1 AND substr(id, 1, length(?2)) = ?2",
+        params![p.id, prefix],
+    )?;
+    tx.execute(
+        "DELETE FROM pages WHERE publication_id = ?1 AND parse_view_id = ?2",
+        params![p.id, view],
+    )?;
+    {
+        let mut st = tx.prepare(
+            "INSERT INTO chunks(id, publication_id, ordinal, kind, page, char_start, char_end, section, text, text_norm, \
+             context_json, locator_json, describes_runs_json, outcome_bearing, evidence_class, continues_runs_json) \
+             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16)",
+        )?;
+        for c in chunks {
+            st.execute(params![
+                c.id,
+                c.publication_id,
+                c.ordinal,
+                c.kind,
+                c.page,
+                c.char_start,
+                c.char_end,
+                c.section,
+                c.text,
+                normalize(&c.text),
+                c.context.to_string(),
+                locator_json(&c.locator),
+                js(&c.describes_runs),
+                c.outcome_bearing as i64,
+                c.evidence_class,
+                js(&c.continues_runs)
+            ])?;
+        }
+        let mut st = tx.prepare(
+            "INSERT INTO pages(publication_id, parse_view_id, page, text) VALUES (?1, ?2, ?3, ?4)",
+        )?;
+        for (i, t) in pages.iter().enumerate() {
+            st.execute(params![p.id, view, (i + 1) as i64, t])?;
+        }
+    }
+    tx.commit()?;
+    Ok(chunks.len())
+}
+
+pub fn views(con: &Connection, publication_id: &str) -> Result<Vec<String>> {
+    let mut st = con.prepare(
+        "SELECT DISTINCT parse_view_id FROM pages WHERE publication_id = ?1 ORDER BY parse_view_id",
+    )?;
+    let rows = st
+        .query_map([publication_id], |r| r.get(0))?
         .collect::<rusqlite::Result<Vec<String>>>()?;
     Ok(rows)
 }
 
 /// Where this host keeps the bytes of `sha256`, if recorded at ingest.
+/// Where the bytes of `sha256` are kept on this host (a cache hint; readers verify the hash).
+pub fn record_location(con: &Connection, sha256: &str, rel_path: &str) -> Result<()> {
+    con.execute(
+        "INSERT OR REPLACE INTO asset_locations(sha256, rel_path) VALUES (?1, ?2)",
+        params![sha256, rel_path],
+    )?;
+    Ok(())
+}
+
 pub fn asset_location(con: &Connection, sha256: &str) -> Result<Option<String>> {
     use rusqlite::OptionalExtension;
     Ok(con
@@ -485,9 +648,7 @@ pub fn lexical_expanded(
         args.push(SqlValue::Text(phrase));
     }
     let sql = format!(
-        "SELECT c.id, SUM(u.s) AS score FROM ({}) u JOIN chunks c ON c.rowid = u.rid \
-         JOIN publications p ON p.id = c.publication_id WHERE 1=1{where_} \
-         GROUP BY c.id ORDER BY score ASC, c.id ASC LIMIT ? OFFSET ?",
+        "SELECT c.id, SUM(u.s) AS score FROM ({}) u JOIN chunks c ON c.rowid = u.rid          JOIN publications p ON p.id = c.publication_id WHERE {ACTIVE_VIEW}{where_}          GROUP BY c.id ORDER BY score ASC, c.id ASC LIMIT ? OFFSET ?",
         parts.join(" UNION ALL ")
     );
     args.extend(fargs);
@@ -515,7 +676,7 @@ pub fn allowed_ids(con: &Connection, filters: &Filters) -> Result<Option<HashSet
         return Ok(None);
     }
     let (where_, args) = filters.sql();
-    let mut st = con.prepare(&format!("SELECT c.id FROM chunks c JOIN publications p ON p.id = c.publication_id WHERE 1=1{where_}"))?;
+    let mut st = con.prepare(&format!("SELECT c.id FROM chunks c JOIN publications p ON p.id = c.publication_id WHERE {ACTIVE_VIEW}{where_}"))?;
     let ids = st
         .query_map(params_from_iter(args), |r| r.get::<_, String>(0))?
         .collect::<rusqlite::Result<HashSet<_>>>()?;
@@ -558,9 +719,12 @@ pub fn get_chunks(con: &Connection, ids: &[String]) -> Result<HashMap<String, Va
     Ok(out)
 }
 
-/// `(chunk_id, text)` for every chunk, in catalog order.
+/// `(chunk_id, text)` for every chunk of an active view, in catalog order.
 pub fn all_chunk_texts(con: &Connection) -> Result<Vec<(String, String)>> {
-    let mut st = con.prepare("SELECT c.id, c.text FROM chunks c JOIN publications p ON p.id = c.publication_id ORDER BY c.rowid")?;
+    let mut st = con.prepare(&format!(
+        "SELECT c.id, c.text FROM chunks c JOIN publications p ON p.id = c.publication_id \
+         WHERE {ACTIVE_VIEW} ORDER BY c.rowid"
+    ))?;
     let rows = st
         .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
         .collect::<rusqlite::Result<Vec<_>>>()?;
