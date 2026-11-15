@@ -1,0 +1,20 @@
+{
+  "schema": "ignis.harness.tasks.v0",
+  "task_set": "synthetic-dev-pilot",
+  "origin": "synthetic_fixture",
+  "partition": "dev",
+  "tasks": [
+    {
+      "task_id": "dev-search-usage",
+      "question": "Synthetic fixture task (not a gold question): search the corpus with a tool, then report usage."
+    },
+    {
+      "task_id": "dev-explain",
+      "question": "Synthetic fixture task (not a gold question): explain the computation, then run it."
+    },
+    {
+      "task_id": "dev-plain",
+      "question": "Synthetic fixture task (not a gold question): answer in one line."
+    }
+  ]
+}
