@@ -3,7 +3,8 @@
 //! sessions as files in `CLAUDE_CONFIG_DIR`, and acts on keywords in the prompt:
 //! `tool` (one IGNIS tool call), `explain` (a message, then a call it introduces, with arguments
 //! larger than an event inlines), `slow` (runs 30 s), `limit` (plan limit result), `crash` (exits
-//! without a result). It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log`.
+//! without a result). It appends its argv to `<CLAUDE_CONFIG_DIR>/argv.log` and the text of
+//! `--append-system-prompt-file` to `<CLAUDE_CONFIG_DIR>/system-prompts.jsonl`.
 
 use std::io::{Read, Write};
 use std::path::PathBuf;
@@ -55,11 +56,34 @@ fn main() {
         _ => fail("exactly one of --session-id / --resume"),
     };
     std::fs::write(cfg.join("sessions").join(&session), b"").unwrap();
+    // Like the real CLI: a missing file fails the run; the text read is logged for the tests.
+    if let Some(file) = flag("--append-system-prompt-file") {
+        match std::fs::read_to_string(&file) {
+            Ok(text) => {
+                let mut f = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(cfg.join("system-prompts.jsonl"))
+                    .unwrap();
+                writeln!(
+                    f,
+                    "{}",
+                    serde_json::json!({"session": session, "append": text})
+                )
+                .unwrap();
+            }
+            Err(_) => {
+                fail(&format!(
+                    "Error: Append system prompt file not found: {file}"
+                ));
+            }
+        }
+    }
     let mut prompt = String::new();
     std::io::stdin().read_to_string(&mut prompt).unwrap();
 
     emit(
-        serde_json::json!({"type":"system","subtype":"init","session_id":session,"mcp_servers":[]}),
+        serde_json::json!({"type":"system","subtype":"init","session_id":session,"mcp_servers":[],"model":"fake-claude-model"}),
     );
     if prompt.contains("crash") {
         fail("Invalid API key · Please run /login");

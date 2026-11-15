@@ -53,3 +53,5 @@ http-body-util = "0.1"
 # The S3 stand-in shared with ignis-research's tests.
 ignis-research = { path = "../ignis-research" }
 tower = { workspace = true }
+# M11 route tests drive the real DatasetStore (bundles, view bytes, conditions over a frozen split).
+ignis-data = { path = "../ignis-data" }

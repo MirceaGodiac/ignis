@@ -606,3 +606,155 @@ fn a_signed_in_login_home_is_shared_and_required() {
         }
     }
 }
+
+/// Reasons of the episode's `-> Running` status changes, in order (where turn notes go).
+fn running_reasons(evs: &[ResearchEvent]) -> Vec<String> {
+    evs.iter()
+        .filter_map(|e| match &e.body {
+            EventBody::StatusChanged { to, reason, .. } if *to == EpisodeStatus::Running => {
+                Some(reason.clone().unwrap_or_default())
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// `developerInstructions` of every thread method the workspace's app-server received.
+fn instructions(dir: &std::path::Path, ws: &str) -> Vec<(String, Option<String>)> {
+    let want = ignis_core::hashing::sha256_hex(ws.as_bytes());
+    let file = dir
+        .join("codex")
+        .join(format!("ws-{}", &want[..16]))
+        .join("fake-instructions.jsonl");
+    std::fs::read_to_string(file)
+        .unwrap_or_default()
+        .lines()
+        .map(|l| {
+            let v: serde_json::Value = serde_json::from_str(l).unwrap();
+            (
+                v["method"].as_str().unwrap().to_string(),
+                v["developerInstructions"].as_str().map(str::to_string),
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn the_harness_bundle_reaches_every_thread_and_is_pinned_on_the_episode() {
+    use ignis_research::runtime::{HarnessBundle, HarnessSource};
+    let dir = tempfile::tempdir().unwrap();
+    let tools: Vec<String> = vec!["sources_search".into(), "answer_submit".into()];
+    let h1 = HarnessBundle::embedded(&tools);
+    let with = |b: &HarnessBundle| {
+        let mut cfg = config(dir.path());
+        cfg.harness = Some(b.clone());
+        Harness::with_config(dir.path(), cfg)
+    };
+    let sc = scope("ws-h", false);
+    let (ep, build) = {
+        let h = with(&h1);
+        let ep = h.episode(&sc, "harness");
+        h.say(&sc, &ep, "first question");
+        let evs = h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+        check_event_log(&evs).unwrap();
+        // Visible in the log: the first turn says which bundle the runtime was started with.
+        let reasons = running_reasons(&evs);
+        assert!(
+            reasons[0].contains(&format!("harness {} injected", h1.short())),
+            "{reasons:?}"
+        );
+        let rec = h.store.episode(&sc, &ep).unwrap();
+        assert_eq!(rec.schema_version, ResearchSchema::V2);
+        rec.validate().unwrap();
+        let pin = rec.pins.harness.expect("harness pin");
+        assert_eq!(&pin.digest, h1.digest());
+        assert_eq!(pin.label, "h1");
+        assert_eq!(pin.model, "fake", "the model the runtime answered with");
+        assert_eq!(pin.effort.as_deref(), Some("medium"));
+        assert_eq!(pin.runtime_build, h.bridge.manifest().runtime_build_id);
+        let sent = instructions(dir.path(), "ws-h");
+        assert_eq!(sent.len(), 1);
+        assert_eq!(sent[0].0, "thread/start");
+        assert_eq!(sent[0].1.as_deref(), Some(h1.text()));
+        h.bridge.shutdown();
+        (ep, pin.runtime_build)
+    };
+
+    // A new host process resumes the thread with the same bytes; the pin does not move.
+    {
+        let h = with(&h1);
+        h.say(&sc, &ep, "second question");
+        let evs = h.wait(&sc, &ep, "second answer", |e| completed_texts(e).len() == 2);
+        h.wait_status(&sc, &ep, EpisodeStatus::Completed);
+        let reasons = running_reasons(&evs);
+        assert!(!reasons[1].contains("harness"), "{reasons:?}");
+        let sent = instructions(dir.path(), "ws-h");
+        assert_eq!(sent[1].0, "thread/resume");
+        assert_eq!(
+            sent[1].1.as_deref(),
+            Some(h1.text()),
+            "byte-identical prefix"
+        );
+        let pin = h.store.episode(&sc, &ep).unwrap().pins.harness.unwrap();
+        assert_eq!(&pin.digest, h1.digest());
+        assert_eq!(pin.runtime_build, build);
+        h.bridge.shutdown();
+    }
+
+    // A host with another bundle: Codex applies it on resume, and the switch is said in the log.
+    let mut src = HarnessSource::embedded();
+    src.investigator
+        .push_str("\nAn extra rule for this variant.\n");
+    let h2 = HarnessBundle::render("h2", &src, &tools).unwrap();
+    let h = with(&h2);
+    h.say(&sc, &ep, "third question");
+    let evs = h.wait(&sc, &ep, "third answer", |e| completed_texts(e).len() == 3);
+    let reasons = running_reasons(&evs);
+    assert!(
+        reasons[2].contains(&format!(
+            "harness switched from {} to {}",
+            h1.short(),
+            h2.short()
+        )),
+        "{reasons:?}"
+    );
+    assert_eq!(
+        instructions(dir.path(), "ws-h")[2].1.as_deref(),
+        Some(h2.text())
+    );
+    let pin = h.store.episode(&sc, &ep).unwrap().pins.harness.unwrap();
+    assert_eq!(&pin.digest, h2.digest());
+    assert_eq!(pin.label, "h2");
+}
+
+/// The cached prefix is the same bytes for episodes of different workspaces and scopes: nothing
+/// episode-, scope- or time-specific enters it.
+#[test]
+fn the_harness_prefix_is_byte_identical_across_episodes_and_scopes() {
+    use ignis_research::runtime::HarnessBundle;
+    let dir = tempfile::tempdir().unwrap();
+    let bundle = HarnessBundle::embedded(&["sources_search".into(), "answer_submit".into()]);
+    let mut cfg = config(dir.path());
+    cfg.harness = Some(bundle.clone());
+    let h = Harness::with_config(dir.path(), cfg);
+    let (a, b) = (scope("ws-p1", false), scope("ws-p2", true));
+    let (ea, eb) = (h.episode(&a, "goal-a"), h.episode(&b, "goal-b"));
+    h.say(&a, &ea, "a question about flames");
+    h.say(&b, &eb, "a different question");
+    h.wait_status(&a, &ea, EpisodeStatus::Completed);
+    h.wait_status(&b, &eb, EpisodeStatus::Completed);
+    let sa = instructions(dir.path(), "ws-p1");
+    let sb = instructions(dir.path(), "ws-p2");
+    assert_eq!(sa[0].1.as_deref(), Some(bundle.text()));
+    assert_eq!(sa[0].1, sb[0].1, "byte-identical prefix");
+    let pin = |sc: &ExecutionScope, ep: &EpisodeId| {
+        h.store
+            .episode(sc, ep)
+            .unwrap()
+            .pins
+            .harness
+            .unwrap()
+            .digest
+    };
+    assert_eq!(pin(&a, &ea), pin(&b, &eb));
+}
