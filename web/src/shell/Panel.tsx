@@ -9,7 +9,8 @@ import { asRefusal } from "../hooks";
 import { bboxStyle, locatorKind, pageCaption, sliceSpan } from "../research/units";
 import { fmtNum } from "../format";
 import { ArtifactValue, EvidenceSummary, locatorText, placeShort } from "../views/Answer";
-import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, RefusalNote, ReleaseState, shortId, Synthetic, words } from "../ui/common";
+import { CLAIM_LABEL, ClaimGlyph, ErrorNote, EvidenceClassTag, fmtBytes, Gap, OriginMark, Qualified, RefusalNote, shortId, Synthetic, words } from "../ui/common";
+import { builtParagraph, inputWords, scoreParts, modelTitle, readerLimits, useServedCard, writtenBy } from "./models";
 import { useCompare } from "./compare";
 import { INVESTIGATIONS } from "../data/investigations";
 import { CONDITION_GROUPS, conditionLabel, conditionRows, gapText, humanKey, type ConditionRow } from "../research/runConditions";
@@ -28,7 +29,7 @@ import { OpenOriginal } from "./OpenOriginal";
 import { runSources } from "./runSources";
 import { JsonView } from "./JsonView";
 
-const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model release", sources: "Sources", investigation: "Investigation", original: "NASA original" };
+const TITLE: Record<PanelItem["kind"], string> = { run: "Run", evidence: "Source", claim: "Claim", artifact: "Figure", step: "Step", release: "Model", sources: "Sources", investigation: "Investigation", original: "NASA original" };
 
 /** The panel heading of a step: what kind of work it was; the sentence below says exactly what. */
 const STEP_TITLE: Record<string, string> = { search: "Search", read: "Reading", data: "Test conditions", model: "Model", compute: "Analysis", web: "Web" };
@@ -44,7 +45,7 @@ function itemTitle(i: PanelItem): string {
     case "step":
       return STEP_TITLE[TOOL_KIND[i.call.tool] ?? ""] ?? TOOL_LABEL[i.call.tool] ?? words(i.call.tool);
     case "release":
-      return i.release.model_name;
+      return "Model";
     case "investigation":
       return INVESTIGATIONS.get(i.id)?.acronym ?? i.id;
     case "original":
@@ -309,6 +310,12 @@ function RunOriginals({ record, investigation }: { record: unknown; investigatio
 }
 
 /** A label, then the value with its unit in a muted tone; a long label keeps one line and gives way to the value. */
+/** A model that can forecast this run: its plain name and its qualified state. */
+function RunModelRow({ id, modelName }: { id: string; modelName: string }) {
+  const card = useServedCard(id);
+  return <SpecRow label={modelTitle(modelName, card)} value={<Qualified basis={card?.qualification.basis} />} />;
+}
+
 function SpecRow({ label, value, unit, note }: { label: string; value: ReactNode; unit?: string; note?: string | null }) {
   return (
     <div className="spec-row">
@@ -396,7 +403,7 @@ function RunItem({ id }: { id: string }) {
           <h3>Models</h3>
           <dl className="spec">
             {releases.map((r) => (
-              <SpecRow key={r.id} label={r.model_name} value={<ReleaseState state={r.state} />} />
+              <RunModelRow key={r.id} id={r.id} modelName={r.model_name} />
             ))}
           </dl>
         </div>
@@ -1112,20 +1119,137 @@ function StepItem({ item }: { item: Extract<PanelItem, { kind: "step" }> }) {
 
 // ---------------------------------------------------------------- release
 
+/** A model, as a researcher reads it: what it forecasts, what it reads, how it was built and how it
+ * scored. Ids, features, construction and build checks wait behind "Technical details". */
 function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }) {
   const { synthetic } = useData();
   const r = item.release;
+  const card = useServedCard(r.id);
   const trained = r.trained_on === "not_trained" ? "hand-written (literal weights)" : r.trained_on === "synthetic" ? "synthetic data" : r.trained_on;
+  const limits = card ? readerLimits(card) : [];
   return (
     <>
-      <div className="toolbar">
-        <ReleaseState state={r.state} />
-        {r.construction && <OriginMark origin={r.construction.origin} pageSynthetic={synthetic} />}
+      <div className="model-head">
+        <p className="model-name">{modelTitle(r.model_name, card)}</p>
+        <div className="model-tags">
+          <Qualified basis={card?.qualification.basis} />
+          {r.construction && <OriginMark origin={r.construction.origin} pageSynthetic={synthetic} />}
+        </div>
+        {card && <p className="model-sum">{card.summary}</p>}
+        <p className="model-by">
+          <span className="glyph g-predicted" aria-hidden="true" /> {writtenBy(r)}
+        </p>
       </div>
-      {!["measurement_qualified", "forecast_qualified", "event_qualified"].includes(r.state ?? "") && (
-        <p style={{ fontSize: 13 }}>No evaluation supports this release's predictions: show its outputs as experimental model output only.</p>
+
+      {card && card.scores.length > 0 && (
+        <div className="panel-sec">
+          <h3>How it scored</h3>
+          <ul className="model-scores">
+            {card.scores.map((s) => {
+              const p = scoreParts(s);
+              return (
+                <li key={s.metric}>
+                  <span className="model-score-v">
+                    <b className="num">{p.value}</b>
+                    {p.vs && <span className="muted"> vs {p.vs}</span>}
+                  </span>
+                  <span className="model-score-m">{s.metric}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="muted small">Lower is better. {card.qualification.basis}.</p>
+        </div>
       )}
-      <dl className="kv">
+
+      {card && (
+        <div className="panel-sec">
+          <h3>What it reads</h3>
+          <ul className="model-inputs">
+            {card.inputs.map((i) => (
+              <li key={i.name}>{inputWords(i.note, i.name)}</li>
+            ))}
+          </ul>
+          <p className="small muted">{card.stored_runs ? "It forecasts a stored NASA run directly, or conditions you type in the forecast lab." : "You type its conditions in the forecast lab."}</p>
+        </div>
+      )}
+
+      <div className="panel-sec">
+        <h3>How it was built</h3>
+        <p className="model-para">{builtParagraph(card, r)}</p>
+      </div>
+
+      {limits.length > 0 && (
+        <div className="panel-sec">
+          <h3>Where it stops</h3>
+          <ul className="model-limits">
+            {limits.map((l) => (
+              <li key={l}>{l}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <details className="step-tech">
+        <summary>
+          Technical details <IconChevron className="chev" aria-hidden="true" />
+        </summary>
+        <div className="step-tech-body">
+          <dl className="kv">
+            <dt>Model</dt>
+            <dd>
+              <code>
+                {r.model_name}
+                {card ? ` ${card.candidate}` : ""}
+              </code>
+            </dd>
+            {card && (
+              <>
+                <dt>Investigation</dt>
+                <dd>{card.investigation}</dd>
+                <dt>Authorship</dt>
+                <dd>
+                  {card.authorship === "zero_shot" ? "Zero-shot" : "Data-informed"}: {card.authorship_note}
+                </dd>
+                <dt>Forecasts</dt>
+                <dd>{card.forecasts}</dd>
+                <dt>Inputs</dt>
+                <dd>{card.inputs_note}</dd>
+                <dt>Cite as</dt>
+                <dd>{card.cite}</dd>
+                {card.card_doc && (
+                  <>
+                    <dt>Model card</dt>
+                    <dd>
+                      <code>{card.card_doc}</code>
+                    </dd>
+                  </>
+                )}
+              </>
+            )}
+          </dl>
+          {card && card.limits.length > limits.length && (
+            <ul className="model-limits small">
+              {card.limits
+                .filter((l) => !limits.includes(l))
+                .map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+            </ul>
+          )}
+          <dl className="kv">
+            {card && card.scores.length > 0 && (
+              <>
+                <dt>Scores from</dt>
+                <dd>
+                  {[...new Set(card.scores.map((s) => s.source))].map((s) => (
+                    <code key={s} style={{ display: "block" }}>
+                      {s}
+                    </code>
+                  ))}
+                </dd>
+              </>
+            )}
         <dt>Family</dt>
         <dd>{FAMILY_LABEL[r.family] ?? r.family}</dd>
         <dt>Trained on</dt>
@@ -1140,8 +1264,10 @@ function ReleaseItem({ item }: { item: Extract<PanelItem, { kind: "release" }> }
         <dd>
           <code>{r.id}</code>
         </dd>
-      </dl>
-      <ReleaseConstruction release={r} />
+          </dl>
+          <ReleaseConstruction release={r} />
+        </div>
+      </details>
     </>
   );
 }

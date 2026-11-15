@@ -12,7 +12,8 @@ import { FamilyMark, IconChevron } from "../shell/icons";
 import { go, href } from "../shell/router";
 import { RunPicker, familyLabel, hasSeries, runLabel } from "./RunPicker";
 import "./lab.css";
-import { Caution, Gap, RefusalNote, ReleaseState, shortId, words } from "../ui/common";
+import { Caution, Gap, OutputState, RefusalNote, shortId, words } from "../ui/common";
+import { plainModelName } from "../shell/models";
 import { LabModels, useReach } from "./LabModels";
 
 const display = (unit: string | null | undefined) => (unit === "m" ? { k: 1e3, unit: "mm" } : { k: 1, unit: unit ?? "" });
@@ -122,7 +123,7 @@ export function Lab({ runId }: { runId: string | null }) {
             <select id="lab-rel" className="field" value={releaseId ?? ""} onChange={(e) => setReleasePick(e.target.value)}>
               {releases.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.model_name} · {words(r.state)}
+                  {plainModelName(r.model_name)}
                 </option>
               ))}
             </select>
@@ -238,13 +239,13 @@ export function Lab({ runId }: { runId: string | null }) {
               </p>
             </Step>
 
-            <Step n={2} done={!!art} title="Forecast" tag={fitOnly ? <span className="tag tag-warn">fit only</span> : art ? <ReleaseState state={art.status} /> : undefined}>
+            <Step n={2} done={!!art} title="Forecast" tag={fitOnly ? <span className="tag tag-warn">fit only</span> : art ? <OutputState status={art.status} /> : undefined}>
               {forecastRefusal && <RefusalNote refusal={forecastRefusal} />}
               {art && !fc.loading && <SupportNote artifact={art} />}
               {art && !fc.loading && <EventStack artifact={art} />}
               {release && (
                 <p className="muted" style={{ fontSize: 12 }}>
-                  {release.model_name} · trained on {words(release.trained_on)} · <code>{shortId(release.id, 20)}</code>
+                  <span title={`${release.model_name} · ${release.id}`}>{plainModelName(release.model_name)}</span>
                 </p>
               )}
             </Step>
@@ -396,7 +397,8 @@ export function Step({ n, title, done, tag, children }: { n: number; title: stri
 
 const STATE_NOTE: Record<string, string> = {
   fit_only: "Shown for inspection only: this is not a qualified forecast.",
-  forecast_qualified: "Qualified by its release gates.",
+  experimental: "Forecast by a qualified model.",
+  forecast_qualified: "Forecast by a qualified model.",
   event_qualified: "Event probabilities qualified.",
   unsupported: "Outside the model's support: no number is promoted.",
   insufficient_inference: "Conditioning is not reliable: no number is promoted.",
@@ -406,11 +408,14 @@ const STATE_NOTE: Record<string, string> = {
 /** The support gate and the release state, in one note whose tone follows the weaker of the two. */
 export function SupportNote({ artifact }: { artifact: AnalysisArtifact }) {
   const s = artifact.support;
-  const tone = !s.admitted ? "note-refusal" : artifact.status === "fit_only" || !["forecast_qualified", "event_qualified", "measurement_qualified"].includes(artifact.status) ? "note-caution" : "note-ok";
+  // A served release's forecast is qualified (its record says `experimental`, which stays internal).
+  const qualified = ["experimental", "forecast_qualified", "event_qualified", "measurement_qualified"].includes(artifact.status);
+  const tone = !s.admitted ? "note-refusal" : qualified ? "note-ok" : "note-caution";
   return (
     <div className={`note ${tone}`} role="status">
       <b>
-        {s.admitted ? "Inside the model's support" : "Refused by the support gate"} · {words(artifact.status)}
+        {s.admitted ? "Inside the model's support" : "Refused by the support gate"}
+        {qualified ? "" : ` · ${words(artifact.status)}`}
       </b>
       <p>
         {STATE_NOTE[artifact.status] ?? ""} Gate <code>{s.gate}</code>.

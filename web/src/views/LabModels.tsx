@@ -1,6 +1,6 @@
 // Hand-written models in the forecast lab: the releases the research server serves (/api/v1), each
-// with what it is (hand-written, experimental, zero-shot or data-informed), what it reads and what
-// its authors reported. A forecast runs the release's strict forward on a stored run of the train
+// with its plain name, what it forecasts, what it reads and how it scored (every served model is
+// qualified). A forecast runs the release's strict forward on a stored run of the train
 // partition or on conditions typed here; a typed scenario is a synthetic input, never a NASA run.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
@@ -8,40 +8,11 @@ import type { AnalysisArtifact, EndpointRecord, JobRef, ModelCard, ModelInput, S
 import { call, type ExperimentDetail, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
 import { ForecastChart, type Bands, type ChartPoint } from "../components/ForecastChart";
 import { useData } from "../shell/data";
-import { Caution, Gap, words } from "../ui/common";
+import { builtParagraph, readerLimits, scoreParts, useModelCards, v1, V1Error, writtenBy } from "../shell/models";
+import { useReleases } from "../shell/queries";
+import { Caution, Gap, Qualified, words } from "../ui/common";
 import { EventStack, SupportNote } from "./Lab";
 import { familyLabel, hasSeries, runLabel } from "./RunPicker";
-
-interface Envelope {
-  code: string;
-  message: string;
-}
-
-class V1Error extends Error {
-  constructor(public envelope: Envelope) {
-    super(`${envelope.code}: ${envelope.message}`);
-  }
-}
-
-async function v1<T>(base: string, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(base + path, {
-    method: body === undefined ? "GET" : "POST",
-    headers: body === undefined ? undefined : { "content-type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
-  });
-  let j: unknown = null;
-  try {
-    j = await res.json();
-  } catch {
-    /* not JSON */
-  }
-  if (!res.ok && res.status !== 202) {
-    const e = j as Partial<Envelope> | null;
-    throw new V1Error(e && typeof e.code === "string" ? (e as Envelope) : { code: `http_${res.status}`, message: "the server answered without an error envelope" });
-  }
-  return j as T;
-}
 
 const authorshipLabel = (c: ModelCard) => (c.authorship === "zero_shot" ? "zero-shot" : "data-informed");
 const display = (unit: string) => (unit === "m" ? { k: 1e3, unit: "mm" } : { k: 1, unit });
@@ -87,16 +58,6 @@ export function fit(card: ModelCard, run: ExperimentSummary): { score: number; w
   } else if (fuel && /droplets|fabric|plastics/.test(inv)) score -= 1;
   if (card.stored_runs) score += 1;
   return { score, why };
-}
-
-/** The served hand-written releases, and the v1 base they are served from (null when none is). */
-export function useModelCards() {
-  const { researchMode, caps } = useData();
-  const base = researchMode === "live" ? "/api/v1" : researchMode === "fixtures" ? "/api/fixtures/v1" : null;
-  // Only the live server says whether the model families are switched on; fixtures always serve theirs.
-  const modelsCap = researchMode === "live" ? caps.data?.models : undefined;
-  const cards = useQuery({ queryKey: [researchMode, "model-cards"], queryFn: () => v1<ModelCard[]>(base!, "/model-cards"), enabled: !!base && modelsCap?.available !== false, retry: false });
-  return { base, modelsCap, cards };
 }
 
 /** The runs a release may read here: the train partition of its split (validation and test stay sealed). */
@@ -295,10 +256,7 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
           chosen && (
             <div className="mc-line">
               <span className="muted">Model</span>
-              <b title={chosen.c.investigation}>{shortName(chosen.c)}</b>
-              <code className="mc-slug">
-                {chosen.c.model_name} {chosen.c.candidate}
-              </code>
+              <b title={`${chosen.c.model_name} ${chosen.c.candidate}`}>{chosen.c.title}</b>
               <button className="btn btn-s btn-quiet" aria-expanded={false} onClick={() => setListFor(key)}>
                 Change
               </button>
@@ -330,6 +288,8 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
 function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }: { card: ModelCard; base: string; legacy: "registry" | "fixtures"; run: ExperimentSummary | null; pickRun: (id: string) => void; allRuns: ExperimentSummary[]; tables: Tables }) {
   // A law release (conditions only, several declared targets): every target that applies to the sample is forecast.
   const law = card.inputs.every((i) => i.kind === "condition") ? lawTargets(card) : [];
+  const release = useReleases().data?.find((r) => r.id === card.release_id) ?? null;
+  const limits = readerLimits(card);
   const row = fixed ? tableRow(tables.get(card.model_name), fixed) : null;
   const targets = law.filter((t) => !row || t.applies === null || t.applies === row.coverage);
   const obsInput = card.inputs.find((i) => i.kind === "observation");
@@ -516,16 +476,11 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
     <div className="fc">
       <div className="fc-model">
         <div className="fc-model-name">
-          <span className="fc-model-full">{card.investigation}</span>
+          <span className="fc-model-full">{card.summary}</span>
           <span className="fc-model-meta">
-            <span className="muted">
-              {card.model_name} {card.candidate}
-            </span>
-            <span className="tag tag-warn" title="Not qualified by evaluation: read it as an experimental model output">
-              experimental
-            </span>
-            <span className="tag" title="Literal weights an author model typed; nothing was fitted">
-              hand-written · {authorshipLabel(card)}
+            <Qualified basis={card.qualification.basis} />
+            <span className="muted" title={`${card.model_name} ${card.candidate} · ${authorshipLabel(card)}`}>
+              {writtenBy(release)}
             </span>
           </span>
         </div>
@@ -541,36 +496,62 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns, tables }
         )}
       </div>
       <details className="fc-about">
-        <summary>What this model forecasts, its scores and limits</summary>
-        <p>{card.forecasts}</p>
-        <p className="muted">{card.authorship_note}</p>
+        <summary>About this model</summary>
+        <p>{builtParagraph(card, release)}</p>
         {card.scores.length > 0 && (
           <>
-            <h4>Reported development scores</h4>
+            <h4>How it scored</h4>
             <ul>
               {card.scores.map((s) => (
                 <li key={s.metric}>
-                  {s.metric}: <b className="num">{s.value}</b>
-                  {s.comparison ? ` (${s.comparison})` : ""} <span className="muted">· {s.source}</span>
+                  <b className="num">{scoreParts(s).value}</b>
+                  {scoreParts(s).vs ? ` vs ${scoreParts(s).vs}` : ""} <span className="muted">· {s.metric}</span>
                 </li>
               ))}
             </ul>
           </>
         )}
-        {card.limits.length > 0 && (
+        {limits.length > 0 && (
           <>
-            <h4>Limits</h4>
+            <h4>Where it stops</h4>
             <ul>
-              {card.limits.map((l) => (
+              {limits.map((l) => (
                 <li key={l}>{l}</li>
               ))}
             </ul>
           </>
         )}
-        <p className="muted">
-          Inputs: {card.inputs_note} Cite as: {card.cite}
-          {card.card_doc ? ` Model card: ${card.card_doc}.` : ""}
-        </p>
+        <details className="fc-tech">
+          <summary>Technical details</summary>
+          <p>
+            <code>
+              {card.model_name} {card.candidate}
+            </code>{" "}
+            · <code title={card.release_id}>{card.release_id.slice(0, 19)}…</code>
+          </p>
+          <p>{card.forecasts}</p>
+          <p className="muted">{card.authorship_note}</p>
+          <p className="muted">
+            Inputs: {card.inputs_note} Cite as: {card.cite}
+            {card.card_doc ? ` Model card: ${card.card_doc}.` : ""}
+          </p>
+          {card.limits.length > limits.length && (
+            <ul>
+              {card.limits
+                .filter((l) => !limits.includes(l))
+                .map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+            </ul>
+          )}
+          <ul>
+            {[...new Set(card.scores.map((s) => s.source))].map((src) => (
+              <li key={src} className="muted">
+                Scores from {src}
+              </li>
+            ))}
+          </ul>
+        </details>
       </details>
 
       {mode === "stored" && fixed && split.isLoading && <p className="muted">Checking which runs this model may read…</p>}
@@ -1104,36 +1085,6 @@ function RowsEditor({ id, labelledBy, cols, value, onChange }: { id: string; lab
   );
 }
 
-/** A short human name from the investigation: the part before its colon, without the PSI numbers in brackets. */
-export function shortName(c: ModelCard): string {
-  const inv = c.investigation.trim();
-  const colon = inv.indexOf(":");
-  let head = (colon > 0 ? inv.slice(0, colon) : inv).split(/;\s/)[0];
-  head = head.replace(/\s*\([^)]*\)/g, "").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
-  const bare = head.replace(/^PSI-\d+,\s*/, "");
-  if (bare) head = bare;
-  if (!head) return inv;
-  return head.length > 56 ? head.slice(0, 54).replace(/[\s,]+\S*$/, "") + "…" : head;
-}
-
-/** What a model forecasts, in one short line: its first question for a law release, else the first sentence without its mechanics. */
-function shortForecast(c: ModelCard): string {
-  const plain = (s: string) => s.replace(/\s*\([^)]*\)/g, "").replace(/\s{2,}/g, " ").trim();
-  const law = c.inputs.every((i) => i.kind === "condition") ? lawTargets(c) : [];
-  if (law.length) {
-    // The first target that says something on its own ("as slice" does not), raw names read as words.
-    const lead = law.find((t) => t.description.length >= 20) ?? law[0];
-    const q = plain(lawQuestion(lead)).replace(/_/g, " ");
-    return law.length > 1 ? `${q}, and ${law.length - 1} more answer${law.length > 2 ? "s" : ""}` : q;
-  }
-  let s = c.forecasts.replace(/^Generic law forward[^.]*\.\s*/, "");
-  const dot = s.search(/\.\s/);
-  if (dot > 0) s = s.slice(0, dot);
-  return plain(s)
-    .replace(/,?\s+from (its|the) (conditions|test)\b.*$/, "")
-    .replace(/\.$/, "");
-}
-
 /** The served models grouped by what they forecast. */
 const MODEL_GROUPS: { label: string; families: string[] }[] = [
   { label: "FLEX droplets", families: ["flex"] },
@@ -1189,7 +1140,7 @@ function ModelChooser({
             {g.items.map((c) => {
               const on = c.release_id === selected;
               return (
-                <label key={c.release_id} className={`mc-opt${on ? " on" : ""}`} title={c.investigation}>
+                <label key={c.release_id} className={`mc-opt${on ? " on" : ""}`} title={`${c.investigation} · ${c.model_name} ${c.candidate}`}>
                   <input
                     type="radio"
                     name="hw-model"
@@ -1203,14 +1154,11 @@ function ModelChooser({
                   />
                   <span className="mc-dot" aria-hidden="true" />
                   <span className="mc-main">
-                    <b>{shortName(c)}</b>
-                    <span className="mc-what">{shortForecast(c)}</span>
+                    <b>{c.title}</b>
+                    <span className="mc-what">{c.summary}</span>
                   </span>
                   <span className="mc-side">
                     {c.release_id === best && <span className="tag">best fit</span>}
-                    <code className="mc-slug">
-                      {c.model_name} {c.candidate}
-                    </code>
                   </span>
                 </label>
               );

@@ -216,8 +216,10 @@ after a `conditions_query` with `near: {"atmosphere": "moon_base"}` and those ke
   statistically significant difference is not by itself scientifically important.
 - Do not invent a new quantity or metric unless the program that computed it defines it in the
   cited artifact.
-- Model output is a prediction of a release in its qualification state (`experimental` is not
-  validated); never present it as a measurement. Follow the `model-qualification` skill. When a
+- Model output is a prediction of a served release. Every served release is qualified: call it
+  qualified, on the basis its card states, and never write "experimental" or "not qualified" (that
+  is the registry's internal construction state). A qualified forecast is still a prediction; never
+  present it as a measurement. Follow the `model-qualification` skill. When a
   forward refuses an input, the refusal and its reason are the answer for that input; never
   substitute a number.
 - A microgravity extinction or flammability limit from PSI is not a NASA-STD-6001B Test 1 result

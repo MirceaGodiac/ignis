@@ -237,6 +237,22 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 3px 6px; border-radius: 5px; bor
 .run-id { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; margin-right: 2px; }
 .run-sub { font-size: 13.5px; color: var(--ink-2); }
 .run-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+/* ---- model panel (Panel.tsx ReleaseItem): a plain name, what it forecasts, who wrote it; scores and inputs below */
+.model-head { display: grid; gap: 8px; }
+.model-name { font-size: 20px; font-weight: 500; letter-spacing: -0.018em; line-height: 1.25; color: var(--ink); text-wrap: balance; }
+.model-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.model-sum { font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 60ch; }
+.model-by { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); }
+.model-para { font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.model-scores { list-style: none; margin: 0; padding: 0; display: grid; }
+.model-scores li { display: grid; gap: 2px; padding: 8px 0; }
+.model-scores li + li { border-top: 1px solid var(--rule); }
+.model-score-v { font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.model-score-v b { font-weight: 600; }
+.model-score-m { font-size: 12.5px; line-height: 1.45; color: var(--ink-3); }
+.model-inputs, .model-limits { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.model-inputs li::marker, .model-limits li::marker { color: var(--ink-3); }
+.model-limits li::first-letter, .fc-about li::first-letter { text-transform: uppercase; }
 .spec { margin: 0; display: grid; }
 .spec-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-height: 34px; padding: 7px 0; font-size: 13px; line-height: 1.4; }
 .spec-row + .spec-row { border-top: 1px solid var(--rule); }
@@ -311,6 +327,17 @@ kbd { font: 500 11px/1 var(--font-ui); padding: 3px 6px; border-radius: 5px; bor
 .tbl tbody tr.clickable { cursor: pointer; }
 .tbl tbody tr.clickable:hover { background: var(--hover); }
 .tbl tbody tr[aria-selected="true"] { background: var(--flame-wash); }
+/* Models (views/Models.tsx): a plain name with its one-line summary; the basis wraps, the score aligns right */
+.models-tbl td { height: auto; padding-top: 12px; padding-bottom: 12px; vertical-align: top; }
+.models-name { display: grid; gap: 3px; min-width: 220px; max-width: 56ch; white-space: normal; }
+.models-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.models-title b { font-size: 14px; font-weight: 500; color: var(--ink); }
+.models-sum { font-size: 12.5px; line-height: 1.5; color: var(--ink-3); }
+.models-tbl td.models-basis { white-space: normal; width: 30%; min-width: 160px; color: var(--ink-2); line-height: 1.5; }
+.models-score { font-variant-numeric: tabular-nums; }
+.models-score b { display: block; font-weight: 600; color: var(--ink); }
+.models-score .muted { display: block; font-size: 12px; }
+.tbl tbody tr.clickable:focus-visible { outline: 2px solid var(--flame); outline-offset: -2px; }
 .tbl .sort { border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; gap: 4px; }
 .tbl .sort.on { color: var(--ink); }
 .tbl td.dim, .dim { color: var(--ink-3); }
