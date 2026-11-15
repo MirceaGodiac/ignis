@@ -114,3 +114,28 @@ CREATE TABLE IF NOT EXISTS embedding_sets (
   created_at        TEXT NOT NULL,
   provider          TEXT NOT NULL DEFAULT 'local'   -- 'deepinfra'; vectors of different provider/model/dim are never mixed
 );
+
+-- Document-side expansion (LANES_V2 R12b, SIRA): per chunk, vocabulary a reader would type that the
+-- text may lack (concepts, synonyms, abbreviations, phrasings, instruments, materials), generated
+-- offline per page and DF-filtered (crates/ignis-evidence/src/enrich.rs). Indexed in its own FTS5
+-- table with the same tokenizer, rowid = chunks.rowid, and scored as a separate column with its
+-- own weight. Never shown as a snippet, quote or citation. The pack it came from is recorded in
+-- meta('expansion').
+CREATE VIRTUAL TABLE IF NOT EXISTS expansion_fts USING fts5(
+  terms,
+  tokenize='porter unicode61 remove_diacritics 2'
+);
+CREATE TRIGGER IF NOT EXISTS chunks_ad_expansion AFTER DELETE ON chunks BEGIN
+  DELETE FROM expansion_fts WHERE rowid = old.rowid;
+END;
+
+-- Corpus statistics (the term table of SIRA, after Corpus's nationalterms): for every indexed term
+-- (porter-stemmed, as FTS5 stores it), the chunks and publications holding it and its instances,
+-- over the chunk text only. Rebuilt by `ignis evidence terms build`; meta('term_stats') holds the
+-- totals and the catalog generation it was built on, so a stale table is never read.
+CREATE TABLE IF NOT EXISTS term_stats (
+  term         TEXT PRIMARY KEY,
+  chunks       INTEGER NOT NULL,
+  publications INTEGER NOT NULL,
+  instances    INTEGER NOT NULL
+);
