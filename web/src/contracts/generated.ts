@@ -1155,6 +1155,11 @@ export type SearchMode1 = "hybrid" | "lexical" | "dense";
  */
 export type ReadRange =
   | {
+      /**
+       * Where reading starts in page `first`, in Unicode scalars from the page start: set by a
+       * `next` that continues a page too large for one response. Absent means the page start.
+       */
+      char_start?: number | null;
       first: number;
       kind: "pages";
       last: number;
