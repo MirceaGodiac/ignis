@@ -10,7 +10,7 @@ import { href, type Route } from "./router";
 const ACTIVE: EpisodeStatus[] = ["ready", "running", "waiting_tools", "waiting_approval", "waiting_user"];
 const dotFor = (s: EpisodeStatus) => (ACTIVE.includes(s) ? (s.startsWith("waiting") ? "dot dot-bad" : "dot dot-run") : s === "completed" ? "dot dot-ok" : "dot dot-off");
 const LIMIT = 30;
-const UNDO_MS = 6000;
+const UNDO_MS = 3000;
 
 export function ChatList({ episodes, route, onNavigate }: { episodes: ResearchEpisode[]; route: Route; onNavigate: () => void }) {
   const [prefs, update] = useChatPrefs();
@@ -118,6 +118,9 @@ function ChatRow({ episode: e, title, current, pinned, renamed, editing, menuOpe
   const ref = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLButtonElement>(null);
   const [up, setUp] = useState(false);
+  // Focus moves into the menu only when it was opened from the keyboard; after a mouse click it stays
+  // on "…" (a focused item can otherwise draw a text caret, e.g. with Chrome's caret browsing).
+  const byKeyboard = useRef(false);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -133,7 +136,7 @@ function ChatRow({ episode: e, title, current, pinned, renamed, editing, menuOpe
     const m = ref.current?.querySelector<HTMLElement>(".chat-menu");
     const box = ref.current?.closest<HTMLElement>(".side-scroll") ?? document.documentElement;
     if (m) setUp(m.getBoundingClientRect().bottom > Math.min(box.getBoundingClientRect().bottom, window.innerHeight));
-    ref.current?.querySelector<HTMLButtonElement>('[role="menuitem"]')?.focus();
+    if (byKeyboard.current) ref.current?.querySelector<HTMLButtonElement>('[role="menuitem"]')?.focus();
     return () => {
       window.removeEventListener("mousedown", away);
       window.removeEventListener("keydown", key);
@@ -183,7 +186,10 @@ function ChatRow({ episode: e, title, current, pinned, renamed, editing, menuOpe
         </a>
       )}
       {!editing && (
-        <button ref={moreRef} className="chat-more-btn" aria-label={`Options for ${title}`} aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => onMenu(!menuOpen)}>
+        <button ref={moreRef} className="chat-more-btn" aria-label={`Options for ${title}`} aria-haspopup="menu" aria-expanded={menuOpen} onClick={(ev) => {
+            byKeyboard.current = ev.detail === 0;
+            onMenu(!menuOpen);
+          }}>
           <IconMore />
         </button>
       )}
