@@ -16,12 +16,12 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 
 use super::common::{
     check_id, ensure, opaque_id, ArtifactRef, ContractError, CorpusSnapshotId, Digest, EntityRef,
-    EpisodeId, EvidenceId, Finite, LinkId, Origin, PageCursor, ParseViewId, RunId, SourceId,
-    Timestamp, WikiPageId,
+    EpisodeId, EvidenceId, Finite, LinkId, Origin, PageCursor, ParseViewId, RunId, ScopeId,
+    SourceId, Timestamp, WikiPageId,
 };
 use super::{
-    Derivation, EvidenceClass, Family, Method, Partition, Quantity, Resolution, Rights,
-    RightsStatus, SourceKind, SourceLocator,
+    Derivation, EvidenceClass, Family, Measured, Method, Partition, Quantity, RawValue, Resolution,
+    Rights, RightsStatus, SourceKind, SourceLocator,
 };
 
 /// Wire tag of the knowledge documents. Wave K1 writes `evidence.v2`; `evidence.v1` (C0) documents
@@ -837,6 +837,9 @@ pub enum Relation {
     /// A possible identity found by similarity or a label. Never an exact identity: its resolution
     /// is never `resolved`.
     SameAsCandidate,
+    /// `from` is a part of `to`: a run (or test point) of an investigation, a file of an
+    /// investigation's archive, a passage, table or caption of a source.
+    PartOf,
 }
 
 impl Relation {
@@ -864,6 +867,11 @@ pub struct ProvenanceLink {
     pub evidence: Vec<EvidenceId>,
     pub resolution: Resolution,
     pub method: Derivation,
+    /// The original value the link was read from (a conditions cell, a metadata field): raw value,
+    /// raw unit, SI value and the locator of the cell. Absent when the link comes from a whole
+    /// record or a passage (then `evidence` / `method.inputs` say where).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<Measured>,
     pub origin: Origin,
 }
 
@@ -913,11 +921,34 @@ impl ProvenanceLink {
             Relation::PredictedBy => {
                 matches!(self.to, GraphNode::Entity(EntityRef::Release(_)))
             }
+            Relation::PartOf => {
+                self.to.is_concept(K::Investigation)
+                    || matches!(self.to, GraphNode::Entity(EntityRef::Source(_)))
+            }
             _ => true,
         };
         ensure(to_ok, c, || {
             format!("{:?} does not point at {:?}", self.relation, self.to)
-        })
+        })?;
+        if let Some(v) = &self.value {
+            self.schema_version.require_v2(c, "a link value")?;
+            let l = v.locator.as_ref().ok_or_else(|| {
+                ContractError::new(c, "a link value keeps the locator of its original")
+            })?;
+            l.validate()?;
+            ensure(v.raw_value.is_some(), c, || {
+                "a link value keeps its raw value".into()
+            })?;
+            ensure(v.value_si.is_none_or(f64::is_finite), c, || {
+                "a link value's SI value is finite".into()
+            })?;
+            ensure(
+                v.value_si.is_none() || matches!(v.raw_value, Some(RawValue::Number(_))),
+                c,
+                || "an SI value comes from a raw number".into(),
+            )?;
+        }
+        Ok(())
     }
 }
 
@@ -942,7 +973,7 @@ pub enum DirectionFilter {
 
 /// `graph_neighbors`: the typed neighbours of one node, paged. For joins and filters ("runs that
 /// share MDCA"), not community summaries.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GraphNeighborsRequest {
     pub schema_version: EvidenceSchema,
@@ -955,6 +986,13 @@ pub struct GraphNeighborsRequest {
     /// Defaults to the snapshot pinned by the scope/episode.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub corpus_snapshot: Option<CorpusSnapshotId>,
+    /// Keep only links whose `value` has an SI value at or above this (e.g. the O2 mole fraction
+    /// of a `has_condition` link). Links without an SI value never match a bound; the page counts
+    /// them in `without_value`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value_min_si: Option<Finite>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value_max_si: Option<Finite>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub page_size: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -967,7 +1005,20 @@ impl GraphNeighborsRequest {
         self.schema_version.require_v2(c, c)?;
         ensure(self.page_size != Some(0), c, || {
             "page_size must be positive".into()
-        })
+        })?;
+        ensure(
+            match (self.value_min_si, self.value_max_si) {
+                (Some(a), Some(b)) => a.get() <= b.get(),
+                _ => true,
+            },
+            c,
+            || "value_min_si is above value_max_si".into(),
+        )
+    }
+
+    /// True when the request bounds link values.
+    pub fn bounds_values(&self) -> bool {
+        self.value_min_si.is_some() || self.value_max_si.is_some()
     }
 }
 
@@ -990,6 +1041,10 @@ pub struct GraphNeighborsPage {
     /// Exact total, or absent when not counted.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub total_count: Option<u64>,
+    /// With a value bound: the links of this node and relations that the bound left out because
+    /// they carry no SI value (a missing, not-applicable or categorical cell), over every page.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub without_value: Option<u64>,
     pub origin: Origin,
 }
 
@@ -1357,6 +1412,10 @@ pub struct WikiEntry {
     /// the author). A reader needs every one of them: summarizing does not launder a restriction.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub requires_partitions: BTreeSet<Partition>,
+    /// The page revision that last added or revised this item: its `author`, `episode_id` and
+    /// `scope_id` are the item's provenance (host-derived, never from the patch).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub written_in: Option<u64>,
 }
 
 /// An immutable wiki revision: the full item list after `ops`, content-addressed by
@@ -1379,6 +1438,9 @@ pub struct WikiRevision {
     pub author: Author,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub episode_id: Option<EpisodeId>,
+    /// The execution scope that wrote this revision (host-derived).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scope_id: Option<ScopeId>,
     pub created_at: Timestamp,
     pub origin: Origin,
 }
@@ -1402,6 +1464,27 @@ impl WikiRevision {
             ensure(ids.insert(&e.item_id), c, || {
                 format!("item {} listed twice", e.item_id)
             })?;
+            ensure(
+                e.written_in
+                    .is_none_or(|w| (1..=self.revision).contains(&w)),
+                c,
+                || format!("item {} written in a revision after this one", e.item_id),
+            )?;
+        }
+        for op in &self.ops {
+            if let WikiOp::Add { item } | WikiOp::Revise { item } = op {
+                let e = self.items.iter().find(|e| e.item_id == item.item_id);
+                ensure(
+                    e.is_some_and(|e| e.written_in.is_none_or(|w| w == self.revision)),
+                    c,
+                    || {
+                        format!(
+                            "item {} written by this revision is missing or misdated",
+                            item.item_id
+                        )
+                    },
+                )?;
+            }
         }
         let expected = Self::digest_of(&self.title, &self.items);
         ensure(self.content_digest == expected, c, || {

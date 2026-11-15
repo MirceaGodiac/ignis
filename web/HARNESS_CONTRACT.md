@@ -63,7 +63,7 @@ the UI today, how the UI uses it, and what the UI needs next. It changes no cont
 | P3 | `Claim.confidence?` + `Claim.checked_by?` (relevance/support judge result, e.g. Jev) | `research.rs` `Claim` | Shows which citations passed the support check |
 | P4 | `SourceLabel { family, doc_type, investigation, runs[], conditions[], method: semantic, model_id, confidence }` | `evidence.rs` | Classifier output (e.g. Muse Spark) as typed, reviewable labels |
 | P5 | Entity graph read (`graph_neighbors(entity) → EntityRef[] + relation`) | new tool, `evidence.rs` | PPR / multi-hop retrieval and "related" navigation in the side panel |
-| P6 | Move `CreateEpisode`, `PostMessage`, `Capabilities`, `ToolStatus` into `ignis-core` | `research.rs` | Removes the temporary mirrors in `web/src/research/serverTypes.ts` |
+| P6 | Move `CreateEpisode`, `PostMessage`, `Capabilities`, `ToolStatus` into `ignis-core` | `research.rs` | **Done:** K1.7 (#31) moved them into `ignis-core`; the UI reads them from `generated.ts` and `serverTypes.ts` is deleted (T6) |
 | P7 | Original bytes of a source, without IGNIS storing them | **Planned:** `LANES_V2.md` M12 (`GET /api/v1/sources/{id}/content`) returning K1.18 `SourceAccess` (`direct` / `proxy` / `link_out`) | T7 PDF.js at the `SourceLocator` bbox and BASS video stream PSI originals from NASA S3 and NTRS through the Worker proxy. Until M12 lands, the viewer shows parsed page text with a CSS box |
 
 T7 contract coverage (which view shows each contract, or why none does) is checked in code:

@@ -67,9 +67,13 @@ Three Lane B tasks need a model to read the documents:
    guessed from file names, only for stratifying), in a seeded, reproducible order. **Every label
    field is empty.** An existing file is never overwritten.
 2. **A person labels the rows:** `doc_type`, `families`, `investigation_ids`, `runs`,
-   `labelled_by`, `labelled_at`. Code never fills them. Rows without `labelled_by` are not scored.
+   `conditions_mentioned`, `labelled_by`, `labelled_at`. Code never fills them. Rows without
+   `labelled_by` are not scored. The selected set and a labelling page
+   (`data/labels/gold/labelling_sheet.html`: outline, PDF link, closed values, rules, export) are in
+   `data/labels/gold/` (see its README).
 3. `ignis evidence gold-eval --gold <file> [--labels <catalog dir>/source_labels.jsonl]` reports:
-   - document-type accuracy, investigation-set exact-match accuracy and family F1;
+   - document-type accuracy, investigation-set exact-match accuracy, and F1 for families, run
+     mentions and conditions;
    - the same over resolved labels only;
    - a confusion table.
 

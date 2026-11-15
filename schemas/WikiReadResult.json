@@ -318,6 +318,11 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ScopeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
     "SourceId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -354,6 +359,15 @@
         },
         "text": {
           "type": "string"
+        },
+        "written_in": {
+          "description": "The page revision that last added or revised this item: its `author`, `episode_id` and\n`scope_id` are the item's provenance (host-derived, never from the patch).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
@@ -617,6 +631,17 @@
         },
         "schema_version": {
           "$ref": "#/$defs/EvidenceSchema"
+        },
+        "scope_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScopeId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The execution scope that wrote this revision (host-derived)."
         },
         "title": {
           "type": "string"

@@ -90,8 +90,86 @@
         },
         "origin": "synthetic_fixture"
       }
+    },
+    {
+      "direction": "outgoing",
+      "link": {
+        "schema_version": "evidence.v2",
+        "link_id": "fixture-link-o2",
+        "from": {
+          "kind": "run",
+          "id": "fixture-run-01"
+        },
+        "to": {
+          "concept": "condition",
+          "id": "cond:oxygen_mole_fraction"
+        },
+        "relation": "has_condition",
+        "evidence": [],
+        "resolution": "resolved",
+        "method": {
+          "method": "deterministic",
+          "method_id": "fixture-conditions-table",
+          "method_version": "0",
+          "inputs": [],
+          "agent": null,
+          "notes": "Synthetic fixture: read from one cell of the conditions table."
+        },
+        "value": {
+          "raw_value": 30.0,
+          "raw_unit": "%",
+          "value_si": 0.3,
+          "unit_si": "1",
+          "uncertainty_si": null,
+          "uncertainty_reason": null,
+          "evidence_class": "original_observation",
+          "locator": {
+            "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "path": "fixture_experimental_table.csv",
+            "row": 3,
+            "column": "O2 (%)",
+            "page": null,
+            "frame": null,
+            "pts_s": null,
+            "char_start": null,
+            "char_end": null
+          },
+          "derivation": null,
+          "resolution": "resolved",
+          "flags": []
+        },
+        "origin": "synthetic_fixture"
+      }
+    },
+    {
+      "direction": "outgoing",
+      "link": {
+        "schema_version": "evidence.v2",
+        "link_id": "fixture-link-part-of",
+        "from": {
+          "kind": "run",
+          "id": "fixture-run-01"
+        },
+        "to": {
+          "concept": "investigation",
+          "id": "fixture-investigation"
+        },
+        "relation": "part_of",
+        "evidence": [],
+        "resolution": "resolved",
+        "method": {
+          "method": "deterministic",
+          "method_id": "fixture-conditions-table",
+          "method_version": "0",
+          "inputs": [],
+          "agent": null,
+          "notes": null
+        },
+        "origin": "synthetic_fixture"
+      }
     }
   ],
   "next_cursor": "fixture-cursor-graph-02",
-  "origin": "synthetic_fixture"
+  "origin": "synthetic_fixture",
+  "without_value": 0
 }

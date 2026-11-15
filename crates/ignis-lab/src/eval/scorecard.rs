@@ -55,6 +55,14 @@ pub fn render(r: &EvaluationResult) -> String {
     let q = &r.request;
     let mut s = String::new();
     let _ = writeln!(s, "# Scorecard `{}`\n", r.result_id);
+    // This card is the model scorecard; a harness comparison (T11) has its own view.
+    let model = match q.model() {
+        Ok(m) => m,
+        Err(e) => {
+            let _ = writeln!(s, "Not a model evaluation: {e}");
+            return s;
+        }
+    };
     if r.origin == Origin::SyntheticFixture {
         let _ = writeln!(
             s,
@@ -72,22 +80,22 @@ pub fn render(r: &EvaluationResult) -> String {
         "| Protocol | `{}@{}`, {frozen} |",
         q.protocol.protocol_id, q.protocol.version
     );
-    let _ = writeln!(s, "| Target | {} in {} |", wire(&q.target), q.unit);
+    let _ = writeln!(s, "| Target | {} in {} |", wire(&model.target), model.unit);
     let _ = writeln!(
         s,
         "| Dataset | `{}` (`{}`) |",
-        q.dataset_id,
-        short(q.dataset_hash.as_str())
+        model.dataset_id,
+        short(model.dataset_hash.as_str())
     );
     let _ = writeln!(
         s,
         "| Split / partition | `{}` / {} |",
-        q.split_id,
+        model.split_id,
         wire(&q.partition)
     );
     let cut: Vec<String> = q.cutoffs_s.iter().map(|c| format!("{}", c.get())).collect();
     let _ = writeln!(s, "| Cutoffs (s) | {} |", cut.join(", "));
-    let _ = writeln!(s, "| Candidate | `{}` |", q.candidate.release_id);
+    let _ = writeln!(s, "| Candidate | `{}` |", model.candidate.release_id);
     for b in &q.baselines {
         let _ = writeln!(s, "| Baseline | `{}` |", b.release_id);
     }
@@ -116,7 +124,7 @@ pub fn render(r: &EvaluationResult) -> String {
     // subject -> metric rows
     let mut by_subject: BTreeMap<(bool, String), Vec<&MetricValue>> = BTreeMap::new();
     for m in &r.metrics {
-        let is_baseline = m.subject != q.candidate.release_id;
+        let is_baseline = m.subject != model.candidate.release_id;
         by_subject
             .entry((is_baseline, m.subject.to_string()))
             .or_default()

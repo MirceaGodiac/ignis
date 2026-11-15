@@ -328,6 +328,11 @@
           "const": "same_as_candidate",
           "description": "A possible identity found by similarity or a label. Never an exact identity: its resolution\nis never `resolved`.",
           "type": "string"
+        },
+        {
+          "const": "part_of",
+          "description": "`from` is a part of `to`: a run (or test point) of an investigation, a file of an\ninvestigation's archive, a passage, table or caption of a source.",
+          "type": "string"
         }
       ]
     },
@@ -402,6 +407,19 @@
     },
     "schema_version": {
       "$ref": "#/$defs/EvidenceSchema"
+    },
+    "value_max_si": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "value_min_si": {
+      "description": "Keep only links whose `value` has an SI value at or above this (e.g. the O2 mole fraction\nof a `has_condition` link). Links without an SI value never match a bound; the page counts\nthem in `without_value`.",
+      "type": [
+        "number",
+        "null"
+      ]
     }
   },
   "required": [

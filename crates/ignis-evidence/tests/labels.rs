@@ -8,8 +8,8 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use ignis_core::contracts::{
-    Capability, DocType, ExecutionScope, Family, OffsetUnit, Partition, PrincipalId, Resolution,
-    ScopeId, ScopeRole, SourceId, SourceLocator, WorkspaceId,
+    Capability, DocType, ExecutionScope, Family, OffsetUnit, Partition, PrincipalId, Quantity,
+    Resolution, ScopeId, ScopeRole, SourceId, SourceLocator, WorkspaceId,
 };
 use ignis_core::services::KnowledgeService;
 use ignis_evidence::labels::{self, GoldRow};
@@ -345,16 +345,23 @@ fn the_eval_scores_a_labeller_against_person_labelled_rows() {
         families: fam.iter().copied().collect(),
         investigation_ids: [inv.to_string()].into(),
         runs: vec![],
+        conditions_mentioned: Default::default(),
         labelled_by: Some("test-fixture".into()),
         labelled_at: None,
         notes: String::new(),
     };
     let mut unfilled = row(3, DocType::Presentation, "PSI-39", &[]);
     unfilled.labelled_by = None;
+    // Every label carries the run `T{1}` and the condition `pressure` (see `Fake`).
+    let mut one = row(1, DocType::TechnicalReport, "PSI-68", &[]);
+    one.runs = vec![" t{1} ".into()];
+    one.conditions_mentioned = [Quantity::Pressure].into();
+    let mut four = row(4, DocType::JournalArticle, "PSI-107", &[Family::Other]);
+    four.conditions_mentioned = [Quantity::Pressure, Quantity::Temperature].into();
     let gold = vec![
-        row(1, DocType::TechnicalReport, "PSI-68", &[]),
+        one,
         row(2, DocType::RequirementsDocument, "PSI-39", &[]),
-        row(4, DocType::JournalArticle, "PSI-107", &[Family::Other]),
+        four,
         unfilled,
     ];
     let s = labels::gold_eval(&gold, &built.labels).unwrap();
@@ -369,6 +376,16 @@ fn the_eval_scores_a_labeller_against_person_labelled_rows() {
     );
     assert_eq!(s.investigation_accuracy, Some(1.0));
     assert_eq!(s.family_f1, Some(0.0), "one gold family, none predicted");
+    assert_eq!(
+        s.runs_f1,
+        Some(0.5),
+        "doc 1's run matches after normalising; docs 2 and 4 name a run the gold lacks"
+    );
+    assert_eq!(
+        s.conditions_f1,
+        Some(2.0 / 3.0),
+        "2 matched, 1 extra (doc 2), 1 missed (doc 4's temperature)"
+    );
     assert_eq!(
         (s.resolved_scored, s.resolved_doc_type_accuracy),
         (2, Some(0.5))

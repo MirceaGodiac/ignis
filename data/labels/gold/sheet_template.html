@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R8 gold labelling</title>
+<style>
+:root{--bg:#fbfbfa;--fg:#1d1d1b;--mute:#6b6b66;--line:#deddd8;--card:#fff;--accent:#1f5fbf;--ok:#2e7d32;--warn:#b26a00;--chip:#f0efea}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161615;--fg:#e9e8e4;--mute:#9a9992;--line:#34342f;--card:#1e1e1c;--accent:#7fb0ff;--ok:#7cc480;--warn:#e0a54a;--chip:#2a2a27}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:8px 0}
+h2{font-size:15px;margin:0}
+details.rules{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:10px 0}
+details.rules summary{cursor:pointer;font-weight:600}
+.rules dt{font-weight:600;margin-top:6px}
+.rules dd{margin:0 0 0 14px;color:var(--fg)}
+code{background:var(--chip);padding:0 4px;border-radius:4px;font-size:12.5px}
+.bar{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar input[type=text]{width:180px}
+button,select,input[type=text]{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+button{cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.progress{color:var(--mute)}
+.doc{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:12px 0}
+.doc.done{border-left:4px solid var(--ok)}
+.head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.meta{color:var(--mute);font-size:12.5px;margin-top:2px;word-break:break-all}
+.meta a{color:var(--accent)}
+.grid{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;margin-top:10px;align-items:start}
+.grid label.k{color:var(--mute);padding-top:4px}
+.opts{display:flex;flex-wrap:wrap;gap:4px 12px}
+.opts label{white-space:nowrap}
+.grid input[type=text]{width:100%}
+details.outline{margin-top:8px}
+details.outline summary{cursor:pointer;color:var(--mute)}
+.outline ol{list-style:none;margin:6px 0 0;padding:0;max-height:320px;overflow:auto;font-size:12.5px}
+.outline li span{color:var(--mute)}
+.warn{color:var(--warn);font-size:12.5px}
+@media (max-width:640px){.grid{grid-template-columns:1fr}.grid label.k{padding-top:0}}
+</style>
+</head>
+<body>
+<main>
+<h1>R8 gold set: label by hand</h1>
+<p>Each card is one document of the stratified gold set (<code>gold_template.jsonl</code>). Fill the fields from the document itself, tick <b>done</b>, and export. Nothing here was filled or suggested by a model; the stratum shown is a file-name guess used only to pick the set, never a label. Your work is kept in this browser (localStorage) until you export.</p>
+
+<details class="rules" open>
+<summary>Fields, closed values and rules</summary>
+<dl>
+<dt>doc_type (one)</dt>
+<dd><code>technical_report</code> NASA TP/TM/CR or equivalent agency report · <code>journal_article</code> · <code>conference_paper</code> · <code>presentation</code> · <code>thesis</code> · <code>requirements_document</code> science requirements (SRD), test matrices · <code>engineering_document</code> hardware design, interface, verification · <code>operations_document</code> operations, procedures, timelines · <code>data_description</code> readme, data dictionary, file description · <code>data_table</code> experimental table or measurement file presented as a document · <code>outreach</code> · <code>other</code></dd>
+<dt>families (any)</dt>
+<dd><code>flex</code> · <code>acme_normal</code> · <code>acme_inverse</code> · <code>bass</code> · <code>other</code>. The experiment families the document is about; empty when none is clear.</dd>
+<dt>investigation_ids (any)</dt>
+<dd>PSI accessions the document is <i>about</i>, e.g. <code>PSI-69</code>, comma-separated; empty when none is clear. "Stored under" is only where the file sits: a document can be about another investigation, several, or none.</dd>
+<dt>runs (any)</dt>
+<dd>Run or test identifiers the document names, as written (e.g. <code>FLEX-039</code>, <code>19115A1</code>), comma-separated. Mentions, not resolved identities. Scored case- and whitespace-insensitively.</dd>
+<dt>conditions_mentioned (any)</dt>
+<dd><code>pressure</code> · <code>mole_fraction</code> · <code>temperature</code> · <code>flow_velocity</code> · <code>gravity_level</code> · <code>mass_flow</code> · <code>volume_flow</code> · <code>std_volume_flow</code>. Experimental conditions the document states.</dd>
+<dt>Rules (the same the model is given)</dt>
+<dd>Use only what the document shows; when unsure, <code>other</code> and empty lists. Never infer an accession from the topic alone. Read as much of the PDF as you need (the model sees only the outline and a few pages; the gold label is the truth about the whole document). Put edge cases and your reasoning in <b>notes</b>. Do not look at model labels for these documents before you finish.</dd>
+<dt>When you are done</dt>
+<dd>Export, save the file as <code>data/labels/gold/gold_labels.jsonl</code> (never over the template), commit it, then score a labeller with <code>ignis evidence gold-eval --gold data/labels/gold/gold_labels.jsonl --labels &lt;catalog dir&gt;/source_labels.jsonl</code>. Only rows marked done (with your name) are scored.</dd>
+</dl>
+</details>
+
+<div class="bar">
+<label>Labelled by <input type="text" id="who" placeholder="your name"></label>
+<label><input type="checkbox" id="hideDone"> hide done</label>
+<button class="primary" id="export">Export gold_labels.jsonl</button>
+<label><button id="importBtn" type="button">Import JSONL…</button><input type="file" id="importFile" accept=".jsonl,.json,.txt" hidden></label>
+<span class="progress" id="progress"></span>
+</div>
+<div id="docs"></div>
+</main>
+<script>
+const DOCS = /*DOCS*/[];
+const DOC_TYPES = ["technical_report","journal_article","conference_paper","presentation","thesis","requirements_document","engineering_document","operations_document","data_description","data_table","outreach","other"];
+const FAMILIES = ["flex","acme_normal","acme_inverse","bass","other"];
+const CONDITIONS = ["pressure","mole_fraction","temperature","flow_velocity","gravity_level","mass_flow","volume_flow","std_volume_flow"];
+const KEY = "ignis-r8-gold-v1";
+
+let store = {};
+try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { store = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };
+const blank = () => ({doc_type: null, families: [], investigation_ids: [], runs: [], conditions_mentioned: [], labelled_by: null, labelled_at: null, notes: "", done: false});
+const get = id => (store.docs ||= {})[id] ||= blank();
+const list = s => s.split(",").map(x => x.trim()).filter(Boolean);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const who = document.getElementById("who");
+who.value = store.who || "";
+who.addEventListener("input", () => { store.who = who.value.trim(); save(); });
+
+function warnings(s) {
+  const w = [];
+  if (s.done && !s.doc_type) w.push("done needs a doc_type");
+  const bad = s.investigation_ids.filter(x => !/^PSI-\d+$/.test(x));
+  if (bad.length) w.push("not a PSI accession: " + bad.join(", "));
+  return w;
+}
+
+function render() {
+  const root = document.getElementById("docs");
+  root.innerHTML = "";
+  for (const d of DOCS) {
+    const r = d.row, s = get(r.source_id);
+    const el = document.createElement("section");
+    el.className = "doc" + (s.done ? " done" : "");
+    el.dataset.id = r.source_id;
+    const outline = d.outline.map(n => `<li style="padding-left:${n.d * 16}px">${esc(n.t)} <span>p. ${n.p0}${n.p1 !== n.p0 ? "–" + n.p1 : ""}</span></li>`).join("");
+    el.innerHTML = `
+      <div class="head">
+        <div><h2>${r.n ?? ""}${esc(d.title || r.file_name)}</h2>
+          <div class="meta">${esc(r.file_name)} · ${r.n_pages} pages · stored under ${esc(d.stored_under.join(", ") || "—")} · view ${esc(d.view)} · stratum ${esc(r.stratum_investigation)} / ${esc(r.stratum_kind)}</div>
+          <div class="meta">${d.pdf_rel ? `<a href="${encodeURI(d.pdf_rel)}" target="_blank" rel="noopener">open PDF</a> · ` : ""}<code>${esc(r.source_id)}</code></div></div>
+        <label><input type="checkbox" data-f="done" ${s.done ? "checked" : ""}> <b>done</b></label>
+      </div>
+      <div class="grid">
+        <label class="k">doc_type</label>
+        <select data-f="doc_type"><option value="">—</option>${DOC_TYPES.map(t => `<option ${s.doc_type === t ? "selected" : ""}>${t}</option>`).join("")}</select>
+        <label class="k">families</label>
+        <div class="opts">${FAMILIES.map(f => `<label><input type="checkbox" data-set="families" value="${f}" ${s.families.includes(f) ? "checked" : ""}> ${f}</label>`).join("")}</div>
+        <label class="k">investigation_ids</label>
+        <input type="text" data-list="investigation_ids" placeholder="PSI-69, PSI-107" value="${esc(s.investigation_ids.join(", "))}">
+        <label class="k">runs</label>
+        <input type="text" data-list="runs" placeholder="as written, comma-separated" value="${esc(s.runs.join(", "))}">
+        <label class="k">conditions_mentioned</label>
+        <div class="opts">${CONDITIONS.map(f => `<label><input type="checkbox" data-set="conditions_mentioned" value="${f}" ${s.conditions_mentioned.includes(f) ? "checked" : ""}> ${f}</label>`).join("")}</div>
+        <label class="k">notes</label>
+        <input type="text" data-f="notes" value="${esc(s.notes)}">
+      </div>
+      <div class="warn">${warnings(s).map(esc).join(" · ")}</div>
+      <details class="outline"><summary>Outline (${esc(d.outline_method)}, ${d.outline.length} sections)</summary><ol>${outline}</ol></details>`;
+    root.appendChild(el);
+  }
+  applyFilter();
+  progress();
+}
+
+function progress() {
+  const n = DOCS.filter(d => get(d.row.source_id).done).length;
+  document.getElementById("progress").textContent = `${n} / ${DOCS.length} done`;
+}
+function applyFilter() {
+  const hide = document.getElementById("hideDone").checked;
+  for (const el of document.querySelectorAll(".doc")) el.hidden = hide && get(el.dataset.id).done;
+}
+document.getElementById("hideDone").addEventListener("change", applyFilter);
+
+document.getElementById("docs").addEventListener("change", e => {
+  const card = e.target.closest(".doc"); if (!card) return;
+  const s = get(card.dataset.id), t = e.target;
+  if (t.dataset.f === "done") {
+    s.done = t.checked;
+    s.labelled_at = t.checked ? new Date().toISOString().replace(/\.\d+Z$/, "Z") : null;
+  } else if (t.dataset.f === "doc_type") s.doc_type = t.value || null;
+  else if (t.dataset.f === "notes") s.notes = t.value;
+  else if (t.dataset.set) {
+    const v = new Set(s[t.dataset.set]); t.checked ? v.add(t.value) : v.delete(t.value);
+    s[t.dataset.set] = [...v].sort();
+  } else if (t.dataset.list) {
+    s[t.dataset.list] = list(t.value).map(x => t.dataset.list === "investigation_ids" ? x.toUpperCase() : x);
+  }
+  save();
+  card.classList.toggle("done", s.done);
+  card.querySelector(".warn").textContent = warnings(s).join(" · ");
+  progress();
+});
+
+document.getElementById("export").addEventListener("click", () => {
+  const name = (store.who || "").trim();
+  const done = DOCS.filter(d => get(d.row.source_id).done);
+  if (done.length && !name) { alert("Enter your name in \"Labelled by\" first."); return; }
+  const missing = done.filter(d => !get(d.row.source_id).doc_type);
+  if (missing.length) { alert(`${missing.length} done row(s) have no doc_type.`); return; }
+  const lines = DOCS.map(d => {
+    const r = d.row, s = get(r.source_id);
+    return JSON.stringify({
+      source_id: r.source_id, file_name: r.file_name, n_pages: r.n_pages,
+      stratum_investigation: r.stratum_investigation, stratum_kind: r.stratum_kind,
+      doc_type: s.doc_type, families: s.families, investigation_ids: [...new Set(s.investigation_ids)].sort(),
+      runs: s.runs, conditions_mentioned: s.conditions_mentioned,
+      labelled_by: s.done ? name : null, labelled_at: s.done ? s.labelled_at : null, notes: s.notes,
+    });
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], {type: "application/x-ndjson"}));
+  a.download = "gold_labels.jsonl";
+  a.click();
+});
+
+document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const known = new Set(DOCS.map(d => d.row.source_id));
+  let n = 0;
+  for (const line of (await f.text()).split("\n")) {
+    if (!line.trim()) continue;
+    const r = JSON.parse(line);
+    if (!known.has(r.source_id)) continue;
+    Object.assign(get(r.source_id), {
+      doc_type: r.doc_type ?? null, families: r.families || [], investigation_ids: r.investigation_ids || [],
+      runs: r.runs || [], conditions_mentioned: r.conditions_mentioned || [], notes: r.notes || "",
+      labelled_at: r.labelled_at ?? null, done: !!r.labelled_by,
+    });
+    if (r.labelled_by && !store.who) { store.who = r.labelled_by; who.value = r.labelled_by; }
+    n++;
+  }
+  save(); render(); alert(`Imported ${n} row(s).`);
+});
+
+DOCS.forEach((d, i) => d.row.n = (i + 1) + ". ");
+render();
+</script>
+</body>
+</html>

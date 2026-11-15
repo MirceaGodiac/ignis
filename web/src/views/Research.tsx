@@ -7,7 +7,7 @@ import type { EvidenceRef, ResearchAnswer, ResearchEpisode } from "../contracts/
 import { FIXTURES } from "../research/fixtures";
 import { availableActions, DraftKey, TERMINAL_STATUSES } from "../research/episodes";
 import { emptyState, type AnswerState, type EpisodeState } from "../research/eventLog";
-import type { EpisodeAction, HostDecision } from "../research/serverTypes";
+import type { EpisodeAction, HostDecision } from "../contracts/generated";
 import { followEpisode, type StreamNotice } from "../research/stream";
 import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";

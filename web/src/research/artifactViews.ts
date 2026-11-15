@@ -76,6 +76,10 @@ export const CONTRACT_COVERAGE = {
   WorkspaceMetrics: { notShown: "Response of GET /api/v1/metrics; no UI yet" },
   MessageAccepted: { notShown: "Response: shown as the message in the thread" },
   ApprovalAccepted: { notShown: "Response: shown as the approval's new state in the thread" },
+  // ---- K1-evaluation (evaluation.v2): evaluator documents
+  GoldTask: { notShown: "Evaluator document: the benchmark view is T10; never shown with answers to a builder" },
+  GoldSet: { notShown: "Evaluator document: the benchmark view is T10" },
+  GoldPromptSet: { notShown: "Runner input for a builder's harness run (M10); no answers to show" },
   // ---- requests and references: shown inside the object they produce or name
   AnswerSubmission: { notShown: "Request: shown through the ResearchAnswer it becomes" },
   CreateEpisode: { notShown: "Request: shown through the ResearchEpisode it creates" },

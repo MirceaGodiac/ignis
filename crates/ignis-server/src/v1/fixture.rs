@@ -382,6 +382,7 @@ impl Fixture {
                 models_disabled: false,
                 conditions: false,
                 web: Default::default(),
+                wiki: false,
             },
             known,
         })

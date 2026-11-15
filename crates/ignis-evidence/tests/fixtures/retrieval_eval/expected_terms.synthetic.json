@@ -1,0 +1,24 @@
+{
+  "synthetic-retrieval-02": [
+    {
+      "term": "SF6",
+      "importance": "high"
+    }
+  ],
+  "synthetic-retrieval-03": [
+    {
+      "term": "MEC",
+      "importance": "high"
+    },
+    {
+      "term": "CO2 suppressant",
+      "importance": "medium"
+    }
+  ],
+  "synthetic-retrieval-05": [
+    {
+      "term": "LOI",
+      "importance": "high"
+    }
+  ]
+}
