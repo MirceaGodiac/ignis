@@ -1,0 +1,37 @@
+{
+  "$defs": {
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/SkillText",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Result of `skills_read`: the full text of one skill of a harness bundle. The skills are served\non demand instead of riding in the cached instruction prefix; the bundle digest\n(`HarnessRef.digest`) covers these exact bytes, so a trace that pins the digest pins the skill\ntext the agent read.",
+  "properties": {
+    "body": {
+      "description": "The SKILL.md body after its frontmatter, trimmed, line endings `\\n`.",
+      "type": "string"
+    },
+    "description": {
+      "description": "The one-line description the skill index shows.",
+      "type": "string"
+    },
+    "harness_digest": {
+      "$ref": "#/$defs/Digest",
+      "description": "Digest of the harness bundle the skill belongs to."
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "description",
+    "body",
+    "harness_digest"
+  ],
+  "title": "SkillText",
+  "type": "object"
+}

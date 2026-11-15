@@ -1,0 +1,17 @@
+{
+  "$id": "ignis/2.1.0/SkillRef",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Argument of `skills_read`: one skill of the harness bundle the episode is pinned to, by the\nname the instruction prefix's skill index lists.",
+  "properties": {
+    "name": {
+      "description": "Skill name, e.g. `source-grounding`.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "SkillRef",
+  "type": "object"
+}

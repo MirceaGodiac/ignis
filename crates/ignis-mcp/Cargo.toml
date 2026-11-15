@@ -31,6 +31,8 @@ rmcp = { version = "=3.10.0", default-features = false, features = ["server", "t
 
 [dev-dependencies]
 tempfile = "3"
+# The slimmed tool input schemas must still accept every call the contract accepts (tests/schemas.rs).
+jsonschema = { version = "0.61.2", default-features = false }
 # A real DatasetStore (and an R2b sensor bundle) behind the dataset-view grounding test.
 ignis-data = { path = "../ignis-data" }
 # The real wiki store behind the wiki_read/wiki_patch tool tests.

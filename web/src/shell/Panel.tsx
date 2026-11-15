@@ -468,6 +468,7 @@ const KIND_NOTE: Record<string, string> = {
   computed: "A value IGNIS computed. It points to the artifact field that holds it.",
   predicted: "A model prediction. It points into an analysis artifact; it is not a measurement.",
   interpretation: "The agent's reading of the evidence. It may cite anything or nothing.",
+  background: "Stated from the model's own knowledge, not retrieved or computed in this episode. Not from the NASA corpus; IGNIS did not verify it, including any number in it.",
 };
 
 const VERDICT_TONE: Record<string, string> = { supported: "tag-ok", partially_supported: "tag-warn", not_supported: "tag-bad", unverifiable: "tag-line" };
@@ -489,7 +490,7 @@ function ClaimItem({ item }: { item: Extract<PanelItem, { kind: "claim" }> }) {
       </div>
       <div className="panel-sec">
         <h3>Support</h3>
-        {(claim.support ?? []).length === 0 && <Gap title="No support">{claim.kind === "interpretation" ? "This is the agent's interpretation only." : "Treat this claim as unverified."}</Gap>}
+        {(claim.support ?? []).length === 0 && <Gap title="No support">{claim.kind === "interpretation" ? "This is the agent's interpretation only." : claim.kind === "background" ? "Model knowledge, not from the NASA corpus: no source is cited and IGNIS did not verify it." : "Treat this claim as unverified."}</Gap>}
         {(claim.support ?? []).map((s, i) =>
           s.kind === "evidence" ? (
             ev.get(s.evidence_id) ? (

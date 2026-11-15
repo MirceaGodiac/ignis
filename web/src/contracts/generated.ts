@@ -759,7 +759,7 @@ export type SupportVerdict = ("supported" | "partially_supported" | "not_support
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ClaimKind".
  */
-export type ClaimKind = "source_reports" | "observed" | "computed" | "predicted" | "interpretation";
+export type ClaimKind = "source_reports" | "observed" | "computed" | "predicted" | "interpretation" | "background";
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ClaimSupport".
@@ -902,6 +902,10 @@ export type AnswerProblemKind =
   | "ungrounded_derivation"
   | "invalid_structure";
 /**
+ * Digest of the harness bundle the skill belongs to.
+ */
+export type Digest6 = string;
+/**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "PageCursor".
  */
@@ -926,7 +930,7 @@ export type AnalysisLanguage = "python";
 /**
  * Image id (`sha256:` of the image config), pinned by the host.
  */
-export type Digest6 = string;
+export type Digest7 = string;
 /**
  * Isolation the runner actually provided. Recorded on every execution and in capability status;
  * never inferred from configuration alone (the preflight probe proves it).
@@ -944,7 +948,7 @@ export type RunnerIsolation = "gvisor" | "container";
  */
 export type ResolvedInput =
   | {
-      bundle_digest: Digest7;
+      bundle_digest: Digest8;
       columns: ColumnSpec[];
       dataset_id: DatasetId;
       kind: "dataset_view";
@@ -963,12 +967,12 @@ export type ResolvedInput =
       kind: "conditions";
       query: ConditionsQuery;
       row_count: number;
-      snapshot: Digest8;
+      snapshot: Digest9;
     };
 /**
  * [`super::DatasetBundle::content_digest`] of the bundle the view belongs to.
  */
-export type Digest7 = string;
+export type Digest8 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ColumnRole".
@@ -978,7 +982,7 @@ export type ColumnRole =
 /**
  * `conditions_snapshot` of the data the table was answered from.
  */
-export type Digest8 = string;
+export type Digest9 = string;
 /**
  * Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and
  * anything computed from them) can never be presented as NASA results or qualify a model.
@@ -1309,7 +1313,7 @@ export type AuthorKind = "agent" | "human";
 /**
  * [`WikiRevision::digest_of`] of `title` and `items`.
  */
-export type Digest9 = string;
+export type Digest10 = string;
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "WikiReadBody".
@@ -1672,7 +1676,7 @@ export type GoldTopic =
 /**
  * The `set_hash` of the dev set the prompts come from.
  */
-export type Digest10 = string;
+export type Digest11 = string;
 /**
  * What a `Source.id` hashes: the fetched bytes, a listing entry (url+size+provider checksum, not yet
  * fetched) or a provider metadata record (access-gated). Only `Bytes` proves content identity.
@@ -1751,6 +1755,8 @@ export interface IgnisContracts {
   DatasetRef?: DatasetRef;
   ReleaseRef?: ReleaseRef;
   JobLookup?: JobLookup;
+  SkillRef?: SkillRef;
+  SkillText?: SkillText;
   AnalysisExecuteRequest?: AnalysisExecuteRequest;
   ExecutionRecord?: ExecutionRecord;
   AnswerSubmission?: AnswerSubmission;
@@ -2788,7 +2794,8 @@ export interface ToolDescriptor {
 }
 /**
  * The answer of a turn: text blocks bound to claims, claims bound to evidence or artifact values,
- * limitations, and the releases used.
+ * limitations, and the releases used. What the model states from its own knowledge is a
+ * `background` claim, labelled as such and never bound as data.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "ResearchAnswer".
@@ -3057,6 +3064,40 @@ export interface JobLookup {
   job_id: JobId;
 }
 /**
+ * Argument of `skills_read`: one skill of the harness bundle the episode is pinned to, by the
+ * name the instruction prefix's skill index lists.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SkillRef".
+ */
+export interface SkillRef {
+  /**
+   * Skill name, e.g. `source-grounding`.
+   */
+  name: string;
+}
+/**
+ * Result of `skills_read`: the full text of one skill of a harness bundle. The skills are served
+ * on demand instead of riding in the cached instruction prefix; the bundle digest
+ * (`HarnessRef.digest`) covers these exact bytes, so a trace that pins the digest pins the skill
+ * text the agent read.
+ *
+ * This interface was referenced by `IgnisContracts`'s JSON-Schema
+ * via the `definition` "SkillText".
+ */
+export interface SkillText {
+  /**
+   * The SKILL.md body after its frontmatter, trimmed, line endings `\n`.
+   */
+  body: string;
+  /**
+   * The one-line description the skill index shows.
+   */
+  description: string;
+  harness_digest: Digest6;
+  name: string;
+}
+/**
  * Argument of `analysis_execute`: a program run once in the isolated runner (no network, read-only
  * root, separate uid, no host secrets). Its stdout, stderr and the regular files it writes under
  * `/out` become artifacts of an [`ExecutionRecord`].
@@ -3192,7 +3233,7 @@ export interface ExecutionRecord {
  * via the `definition` "RunnerEnvironment".
  */
 export interface RunnerEnvironment {
-  image_id: Digest6;
+  image_id: Digest7;
   /**
    * Interpreter version reported by the image during preflight.
    */
@@ -3324,7 +3365,8 @@ export interface CapturedStream {
  * What the agent submits through `answer_submit` (K1.3). It names evidence, artifacts and releases
  * only by id: the host resolves them against what tool results returned in this episode and the
  * episode's pins, builds the `ResearchAnswer` (ids, timestamps, origin, full references) and stores
- * it. The agent cannot write a support check or a reference the host did not issue.
+ * it. The agent cannot write a support check or a reference the host did not issue. The answer is
+ * not limited to retrieved material: what the model knows itself goes in `background` claims.
  *
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
  * via the `definition` "AnswerSubmission".
@@ -4316,7 +4358,7 @@ export interface WikiItem {
  */
 export interface WikiRevision {
   author: Author;
-  content_digest: Digest9;
+  content_digest: Digest10;
   created_at: Timestamp;
   episode_id?: EpisodeId | null;
   items: WikiEntry[];
@@ -5447,7 +5489,7 @@ export interface GoldPromptSet {
   origin: Origin;
   prompts: GoldPrompt[];
   schema_version: EvaluationSchema;
-  set_hash: Digest10;
+  set_hash: Digest11;
   set_id: GoldSetId;
 }
 /**

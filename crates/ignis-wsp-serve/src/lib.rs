@@ -633,7 +633,10 @@ impl<S: PrefixSource> ModelService for ServedModels<S> {
             return Err(envelope(
                 ErrorCode::CapabilityUnavailable,
                 format!(
-                    "{} reads typed conditions only (no stored run of this investigation                      carries its features): admit a scenario and forecast its input_hash",
+                    "{} reads typed conditions only (no stored run of this investigation \
+                     carries its features): it forecasts only the input_hash of a scenario a \
+                     person admitted in the forecast lab (POST /api/v1/models/{{id}}/scenarios); \
+                     without one, report the release and the inputs it needs instead of a number",
                     release.model_name
                 ),
             ));

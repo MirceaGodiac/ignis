@@ -303,8 +303,14 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
 fn the_harness_bundle_is_appended_identically_every_turn_and_pinned() {
     use ignis_research::runtime::{HarnessBundle, HarnessSource};
     let dir = tempfile::tempdir().unwrap();
-    let tools: Vec<String> = vec!["sources_search".into(), "answer_submit".into()];
+    // As served: skills on demand, so the appended prefix carries the skill index, not the texts.
+    let tools: Vec<String> = vec![
+        "sources_search".into(),
+        "answer_submit".into(),
+        "skills_read".into(),
+    ];
     let h1 = HarnessBundle::embedded(&tools);
+    assert!(h1.text().contains("`skills_read`") && !h1.text().contains("<skill "));
     let with = |b: &HarnessBundle| {
         let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
         let artifacts = Arc::new(LocalArtifactStore::open(dir.path().join("artifacts")).unwrap());
@@ -546,6 +552,6 @@ fn a_turn_s_usage_and_reported_cost_are_recorded_and_measured() {
     );
     assert_eq!(
         cost.price_list.as_deref(),
-        Some("ignis-llm-prices@2026-11-15")
+        Some("ignis-llm-prices@2026-11-15b")
     );
 }

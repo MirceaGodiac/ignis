@@ -143,9 +143,13 @@ function Cite({ claim, evidence, srcNo, onEnter, onLeave }: { claim: Claim; evid
   let label: string;
   let cls = "cite";
   if (!first) {
-    if (claim.kind !== "interpretation") return null;
-    label = "interpretation";
-    cls += " cite-interp";
+    if (claim.kind === "background") {
+      label = "model knowledge";
+      cls += " cite-background";
+    } else if (claim.kind === "interpretation") {
+      label = "interpretation";
+      cls += " cite-interp";
+    } else return null;
   } else if (first.kind === "evidence") {
     const e = evidence.get(first.evidence_id);
     label = e ? `${srcNo.get(e.source_id) ?? "?"} · ${placeShort(e)}` : "?";
@@ -210,8 +214,8 @@ function CiteCard({
       <div className="cite-card-head">
         <span className="src-no">{e ? srcNo.get(e.source_id) : "ƒ"}</span>
         <span className="t">
-          <b>{e ? `Source ${srcNo.get(e.source_id)}` : s ? "Computed value" : "Interpretation"}</b>
-          <span>{e ? locatorText(e) : s?.kind === "artifact_value" ? <code>{shortId(s.artifact_id)}{s.pointer}</code> : "no source is cited"}</span>
+          <b>{e ? `Source ${srcNo.get(e.source_id)}` : s ? "Computed value" : claim.kind === "background" ? "Model knowledge" : "Interpretation"}</b>
+          <span>{e ? locatorText(e) : s?.kind === "artifact_value" ? <code>{shortId(s.artifact_id)}{s.pointer}</code> : claim.kind === "background" ? "not from the NASA corpus; unverified by IGNIS" : "no source is cited"}</span>
         </span>
         {sup.length > 1 && (
           <span className="pager">
@@ -324,7 +328,7 @@ export const draftFollowUp = (text: string) => window.dispatchEvent(new CustomEv
 function NextSteps({ answer, keyOf }: { answer: ResearchAnswer; keyOf: (id: string) => string }) {
   const cmp = useCompare();
   const runs = [...new Set((answer.artifacts ?? []).flatMap((a) => (a.inputs ?? []).filter((i) => i.kind === "run").map((i) => String(i.id))))];
-  const unsupported = (answer.claims ?? []).filter((c) => c.kind !== "interpretation" && (c.support ?? []).length === 0);
+  const unsupported = (answer.claims ?? []).filter((c) => c.kind !== "interpretation" && c.kind !== "background" && (c.support ?? []).length === 0);
   const steps: { label: string; run: () => void }[] = [];
   for (const r of runs.slice(0, 2)) steps.push({ label: `Forecast ${r} from its first seconds`, run: () => go("lab", r) });
   if (runs.length >= 2)
@@ -336,6 +340,8 @@ function NextSteps({ answer, keyOf }: { answer: ResearchAnswer; keyOf: (id: stri
       },
     });
   for (const l of answer.limitations ?? []) steps.push({ label: l, run: () => draftFollowUp(`Can you resolve this limitation: ${l}`) });
+  if ((answer.claims ?? []).some((c) => c.kind === "background"))
+    steps.push({ label: "Check the model-knowledge claims in the corpus", run: () => draftFollowUp("Some claims come from the model's own knowledge. Look for NASA corpus sources or data that confirm or contradict them.") });
   for (const c of unsupported.slice(0, 2)) steps.push({ label: `Find support for claim ${keyOf(c.claim_id)}`, run: () => draftFollowUp(`Claim ${keyOf(c.claim_id)} has no support. Find a source or computation for it, or withdraw it.`) });
   if (answer.status === "partial" || answer.status === "insufficient_evidence")
     steps.push({ label: "Which evidence is missing?", run: () => draftFollowUp("Which data or sources are missing to make this answer complete, and where could they come from?") });

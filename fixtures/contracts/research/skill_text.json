@@ -1,0 +1,6 @@
+{
+  "name": "source-grounding",
+  "description": "Synthetic fixture: answer documentary questions from the IGNIS corpus with claims bound to retrieved evidence.",
+  "body": "# Source grounding\n\nSynthetic fixture: the body of a skill as `skills_read` serves it, the SKILL.md text after its frontmatter.",
+  "harness_digest": "sha256:0f0e0d0c0b0a09080706050403020100f0e0d0c0b0a09080706050403020100f"
+}
