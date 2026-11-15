@@ -673,17 +673,45 @@ pub fn lexical_expanded(
     offset: usize,
     limit: usize,
 ) -> Result<Vec<LexHit>> {
+    lexical_weighted(
+        con,
+        query,
+        expressions,
+        crate::sira::DOC_EXPANSION_WEIGHT,
+        filters,
+        offset,
+        limit,
+    )
+}
+
+/// [`lexical_expanded`] with the document-expansion weight `doc_weight` as an argument (the τ/w
+/// sweep of `ignis evidence retrieval-eval`). `doc_weight = 0` leaves `expansion_fts` out of the
+/// query altogether, so a chunk matched only by its expansion is not returned: plain BM25.
+pub fn lexical_weighted(
+    con: &Connection,
+    query: &str,
+    expressions: &[(String, f64)],
+    doc_weight: f64,
+    filters: &Filters,
+    offset: usize,
+    limit: usize,
+) -> Result<Vec<LexHit>> {
     let (where_, fargs) = filters.sql();
     let q = fts_query(query)?;
     let mut parts = vec![
-        "SELECT rowid AS rid, bm25(chunks_fts) AS s FROM chunks_fts WHERE chunks_fts MATCH ?".to_string(),
-        "SELECT rowid AS rid, ? * bm25(expansion_fts) AS s FROM expansion_fts WHERE expansion_fts MATCH ?".to_string(),
+        "SELECT rowid AS rid, bm25(chunks_fts) AS s FROM chunks_fts WHERE chunks_fts MATCH ?"
+            .to_string(),
     ];
-    let mut args = vec![
-        SqlValue::Text(q.clone()),
-        SqlValue::Real(crate::sira::DOC_EXPANSION_WEIGHT),
-        SqlValue::Text(q),
-    ];
+    let mut args = vec![SqlValue::Text(q.clone())];
+    if doc_weight != 0.0 {
+        parts.push("SELECT rowid AS rid, ? * bm25(expansion_fts) AS s FROM expansion_fts WHERE expansion_fts MATCH ?".to_string());
+        args.push(SqlValue::Real(doc_weight));
+        args.push(SqlValue::Text(q));
+    } else {
+        // keep the union compound: SQLite would flatten a single SELECT into the outer SUM(),
+        // where bm25() may not be called
+        parts.push("SELECT rowid AS rid, 0.0 AS s FROM chunks_fts WHERE 0".to_string());
+    }
     for (e, w) in expressions {
         let Ok(phrase) = crate::sira::phrase_query(e) else {
             continue;

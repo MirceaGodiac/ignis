@@ -651,7 +651,7 @@ pub fn plausible(key: ConditionKey, si: f64) -> bool {
 
 /// Flags whose values describe something other than the test atmosphere (kept on the row, left
 /// out of the envelope).
-const NOT_ATMOSPHERE: [&str; 1] = ["oxidizer_stream:burner"];
+pub const NOT_ATMOSPHERE: [&str; 1] = ["oxidizer_stream:burner"];
 
 /// A cell that must hold, or a `missing` cell carrying the reason it does not.
 fn checked(c: Contribution) -> Contribution {

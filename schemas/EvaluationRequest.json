@@ -5,6 +5,21 @@
       "pattern": "^\\S+$",
       "type": "string"
     },
+    "ClusterBy": {
+      "description": "How tasks are grouped for the cluster bootstrap of paired deltas.",
+      "oneOf": [
+        {
+          "const": "task_cluster",
+          "description": "The task's `cluster` field (study or run group).",
+          "type": "string"
+        },
+        {
+          "const": "task",
+          "description": "Each task its own cluster.",
+          "type": "string"
+        }
+      ]
+    },
     "DatasetId": {
       "minLength": 1,
       "pattern": "^\\S+$",
@@ -30,15 +45,29 @@
           "const": "final_test",
           "description": "The lockbox run on the frozen protocol. Results are not shown to authors as feedback.",
           "type": "string"
+        },
+        {
+          "const": "harness_benchmark",
+          "description": "v2: harness variants compared on a gold set (H0/H1 and ablations). Not a model evaluation:\nit never qualifies a release.",
+          "type": "string"
         }
       ]
     },
     "EvaluationSchema": {
-      "description": "Wire tag of evaluation requests and results.",
-      "enum": [
-        "evaluation.v1"
-      ],
-      "type": "string"
+      "description": "Wire tag of gold tasks, evaluation requests and results. Wave K1 writes `evaluation.v2`;\n`evaluation.v1` (C0) documents are still read and keep their `request_hash`, because a document\nis re-serialized with the tag it was read with and v1 documents never carry a v2 field. A v2\naddition (a gold task or set, a harness benchmark) is refused under the v1 tag.",
+      "oneOf": [
+        {
+          "enum": [
+            "evaluation.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evaluation.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
     },
     "ForecastSettings": {
       "additionalProperties": false,
@@ -99,11 +128,119 @@
       },
       "type": "object"
     },
+    "GoldSetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "GoldSetRef": {
+      "additionalProperties": false,
+      "description": "The gold set a benchmark runs on, pinned by digest.",
+      "properties": {
+        "set_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "set_id": {
+          "$ref": "#/$defs/GoldSetId"
+        },
+        "split": {
+          "$ref": "#/$defs/GoldSplit"
+        },
+        "task_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "set_id",
+        "set_hash",
+        "split",
+        "task_count"
+      ],
+      "type": "object"
+    },
+    "GoldSplit": {
+      "description": "Which half of the gold tasks: the dev set shared with the builders, or the private hold-out kept\nin the evaluator vault, run once on a frozen protocol (LAB-Bench style).",
+      "enum": [
+        "dev",
+        "holdout"
+      ],
+      "type": "string"
+    },
+    "HarnessBenchmark": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline": {
+          "description": "The arm deltas are measured against (H0).",
+          "type": "string"
+        },
+        "cluster_by": {
+          "$ref": "#/$defs/ClusterBy"
+        },
+        "gold_set": {
+          "$ref": "#/$defs/GoldSetRef"
+        },
+        "repetitions": {
+          "description": "Runs per task and arm (seeds); deltas are paired on (task, repetition).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "variants": {
+          "description": "One arm measures a harness; two or more compare harnesses. All arms share the runtime\nbuild, model and effort, so only the harness differs.",
+          "items": {
+            "$ref": "#/$defs/HarnessVariant"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "gold_set",
+        "variants",
+        "baseline",
+        "repetitions",
+        "cluster_by"
+      ],
+      "type": "object"
+    },
+    "HarnessVariant": {
+      "additionalProperties": false,
+      "description": "One harness arm. Refers to the harness bundle by digest (research.v2 `HarnessRef`), never by\nembedding it.",
+      "properties": {
+        "effort": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "harness_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "model": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Short name (`h0`, `h1`, `h1-no-wiki`); unique in the benchmark.",
+          "type": "string"
+        },
+        "runtime_build": {
+          "$ref": "#/$defs/RuntimeBuildId"
+        }
+      },
+      "required": [
+        "name",
+        "harness_digest",
+        "runtime_build",
+        "model"
+      ],
+      "type": "object"
+    },
     "MetricSpec": {
       "additionalProperties": false,
       "properties": {
         "metric": {
-          "description": "Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`).",
+          "description": "Scorer id in `ignis-lab/src/eval` (e.g. `crps`, `pinball`, `interval_coverage`, `brier_ipcw`;\nfor a harness benchmark e.g. `accuracy`, `precision`, `citation_support`, `check_pass`).",
           "type": "string"
         },
         "version": {
@@ -169,7 +306,7 @@
               "type": "null"
             }
           ],
-          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test."
+          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test\nand for anything that touches the hold-out."
         },
         "protocol_id": {
           "type": "string"
@@ -217,6 +354,11 @@
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"
+    },
+    "RuntimeBuildId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
     }
   },
   "$id": "ignis/2.1.0/EvaluationRequest",
@@ -231,7 +373,14 @@
       "type": "array"
     },
     "candidate": {
-      "$ref": "#/$defs/ModelUnderTest"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelUnderTest"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "client_request_id": {
       "anyOf": [
@@ -244,18 +393,43 @@
       ]
     },
     "cutoffs_s": {
-      "description": "Prefix cutoffs in seconds since the dataset's time origin, strictly increasing.",
+      "description": "Prefix cutoffs in seconds since the dataset's time origin, strictly increasing. Model\npurposes only (empty for a harness benchmark).",
       "items": {
         "type": "number"
       },
       "type": "array"
     },
     "dataset_hash": {
-      "$ref": "#/$defs/Digest",
-      "description": "`DatasetBundle::content_digest` of the bundle evaluated."
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Digest"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "`DatasetBundle::content_digest` of the bundle evaluated. Model purposes only."
     },
     "dataset_id": {
-      "$ref": "#/$defs/DatasetId"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DatasetId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "harness": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HarnessBenchmark"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "v2, harness benchmark only."
     },
     "metrics": {
       "items": {
@@ -264,7 +438,8 @@
       "type": "array"
     },
     "partition": {
-      "$ref": "#/$defs/Partition"
+      "$ref": "#/$defs/Partition",
+      "description": "For a harness benchmark: `validation` on a dev set, `test` on the hold-out."
     },
     "protocol": {
       "$ref": "#/$defs/ProtocolRef"
@@ -279,14 +454,28 @@
       "$ref": "#/$defs/EvaluationSchema"
     },
     "split_id": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "target": {
-      "$ref": "#/$defs/Quantity"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Quantity"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Model purposes only (absent for a harness benchmark)."
     },
     "unit": {
-      "description": "SI unit of the target; must equal `target`'s.",
-      "type": "string"
+      "description": "SI unit of the target; must equal `target`'s. Model purposes only.",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
@@ -294,14 +483,7 @@
     "request_id",
     "purpose",
     "protocol",
-    "target",
-    "unit",
-    "dataset_id",
-    "dataset_hash",
-    "split_id",
     "partition",
-    "candidate",
-    "cutoffs_s",
     "metrics"
   ],
   "title": "EvaluationRequest",

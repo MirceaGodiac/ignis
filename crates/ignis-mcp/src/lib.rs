@@ -21,6 +21,6 @@ pub mod tools;
 
 pub use http::{router, IgnisMcp};
 pub use tools::{
-    catalog, CommitHook, ToolAvailability, ToolHost, ToolServices, ANALYSIS_JOB,
-    CONDITIONS_NOT_BUILT, FORECAST_JOB, MODELS_DISABLED,
+    catalog, CommitHook, ToolAvailability, ToolHost, ToolServices, WebTools, ANALYSIS_JOB,
+    CONDITIONS_NOT_BUILT, FORECAST_JOB, MODELS_DISABLED, WEB_DISABLED, WEB_SEARCH_NO_PROVIDER,
 };

@@ -88,16 +88,17 @@ impl Protocol {
         if r.frozen_hash.as_ref() != Some(&self.frozen_hash()) {
             diff.push("frozen_hash".into());
         }
-        if req.target != self.target {
+        // Absent fields (a harness benchmark) never match a frozen model protocol.
+        if req.target != Some(self.target) {
             diff.push("target".into());
         }
-        if req.unit != self.unit {
+        if req.unit.as_deref() != Some(self.unit.as_str()) {
             diff.push("unit".into());
         }
-        if req.dataset_hash != self.dataset_hash {
+        if req.dataset_hash.as_ref() != Some(&self.dataset_hash) {
             diff.push("dataset_hash".into());
         }
-        if req.split_id != self.split_id {
+        if req.split_id.as_deref() != Some(self.split_id.as_str()) {
             diff.push("split_id".into());
         }
         if req.partition != self.partition {

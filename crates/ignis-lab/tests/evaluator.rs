@@ -321,7 +321,10 @@ fn baselines_are_scored_on_the_same_cases_with_the_same_estimators() {
             .unwrap()
             .clone()
     };
-    let (c, b) = (crps(req.candidate.release_id.as_str()), crps(BASELINE));
+    let (c, b) = (
+        crps(req.candidate.as_ref().unwrap().release_id.as_str()),
+        crps(BASELINE),
+    );
     assert_eq!((c.n, b.n), (3, 3));
     assert!(
         b.value.unwrap().get() > c.value.unwrap().get(),
@@ -353,7 +356,7 @@ fn the_estimate_equals_the_cli_aggregate_on_the_same_cases() {
             })
             .collect();
         (
-            m.artifact(request().candidate.release_id.as_str(), run, c),
+            m.artifact(request().candidate.unwrap().release_id.as_str(), run, c),
             json!({"cutoff_s": c, "observations": obs}),
             run,
             g,
@@ -445,7 +448,7 @@ fn refusals_happen_before_any_forecast() {
     );
 
     let mut other_data = request();
-    other_data.dataset_hash = ignis_core::contracts::Digest::of_bytes(b"other");
+    other_data.dataset_hash = Some(ignis_core::contracts::Digest::of_bytes(b"other"));
     assert_eq!(
         code(e.evaluate(&eval_scope(&[Partition::Validation]), &other_data)),
         ErrorCode::Conflict
@@ -459,7 +462,7 @@ fn refusals_happen_before_any_forecast() {
     );
 
     let mut forward = request();
-    forward.candidate.forward_hash =
+    forward.candidate.as_mut().unwrap().forward_hash =
         Some(ignis_core::contracts::Digest::of_bytes(b"another forward"));
     assert_eq!(
         code(e.evaluate(&eval_scope(&[Partition::Validation]), &forward)),
@@ -581,14 +584,14 @@ fn compare_refuses_results_that_are_not_like_for_like() {
     let scope = eval_scope(&[Partition::Validation]);
     let a = e.evaluate(&scope, &request()).unwrap();
     let mut other = request();
-    other.candidate.release_id = ReleaseId::new(BASELINE).unwrap();
-    other.candidate.forward_hash = None;
+    other.candidate.as_mut().unwrap().release_id = ReleaseId::new(BASELINE).unwrap();
+    other.candidate.as_mut().unwrap().forward_hash = None;
     let b = e.evaluate(&scope, &other).unwrap();
     let rows = e.compare(&scope, &[a.clone(), b.clone()]).unwrap();
     assert!(rows.iter().any(|m| m.subject.as_str() == BASELINE));
     assert!(rows
         .iter()
-        .any(|m| m.subject == a.request.candidate.release_id));
+        .any(|m| Some(&m.subject) == a.request.candidate.as_ref().map(|c| &c.release_id)));
 
     let mut fewer = request();
     fewer.cutoffs_s.pop();

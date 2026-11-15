@@ -34,3 +34,7 @@ mupdf = { version = "0.8", default-features = false, features = ["base14-fonts"]
 ureq = "3"
 
 [dev-dependencies]
+# web discovery tests (R4): the real artifact store and the MCP tool dispatcher, offline
+ignis-research = { path = "../ignis-research" }
+ignis-mcp = { path = "../ignis-mcp" }
+tempfile = "3"
