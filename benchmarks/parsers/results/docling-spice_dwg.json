@@ -1,0 +1,23 @@
+{
+ "parser": "docling",
+ "items": [
+  {
+   "id": "spice-ocr",
+   "kind": "passage",
+   "basis": "visual",
+   "found": true,
+   "iou": 0.21,
+   "coverage": 0.258,
+   "spill": 0.49
+  }
+ ],
+ "perf": {
+  "spice_dwg": {
+   "pages": 2,
+   "wall_s": 10.53,
+   "cpu_s": 11.65,
+   "units": 2
+  }
+ },
+ "peak_rss_mb": 6201
+}
