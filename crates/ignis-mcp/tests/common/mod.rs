@@ -4,11 +4,11 @@
 #![allow(dead_code)]
 
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use ignis_core::contracts::*;
-use ignis_core::services::{KnowledgeService, ModelService, ServiceResult};
+use ignis_core::services::{DatasetService, KnowledgeService, ModelService, ServiceResult};
 use ignis_mcp::{ToolHost, ToolServices};
 use ignis_research::{LocalArtifactStore, ResearchStore};
 use serde::de::DeserializeOwned;
@@ -34,12 +34,28 @@ pub struct FakeKnowledge {
     pub calls: Mutex<Vec<ExecutionScope>>,
     /// Hits repeated into the page (to make a large result).
     pub repeat: AtomicUsize,
+    /// Replaces the quote of every hit (a passage that states numbers).
+    pub quote: Mutex<Option<String>>,
+    /// Hits carry no quote, as the real search returns them.
+    pub quote_less: AtomicBool,
+    /// The passage text `resolve_evidence` returns for a fixture hit (none: not found).
+    pub passage: Mutex<Option<String>>,
 }
 
 impl KnowledgeService for FakeKnowledge {
     fn search(&self, scope: &ExecutionScope, _: &SearchRequest) -> ServiceResult<SearchPage> {
         self.calls.lock().unwrap().push(scope.clone());
         let mut page: SearchPage = fixture("evidence/search_page.json");
+        if let Some(q) = self.quote.lock().unwrap().clone() {
+            for h in &mut page.hits {
+                h.evidence.quote = Some(q.clone());
+            }
+        }
+        if self.quote_less.load(Ordering::SeqCst) {
+            for h in &mut page.hits {
+                h.evidence.quote = None;
+            }
+        }
         let n = self.repeat.load(Ordering::SeqCst);
         if n > 1 {
             let hits = page.hits.clone();
@@ -52,11 +68,45 @@ impl KnowledgeService for FakeKnowledge {
         Ok(fixture("evidence/read_result.json"))
     }
     fn resolve_evidence(&self, _: &ExecutionScope, id: &EvidenceId) -> ServiceResult<EvidenceRef> {
+        let page: SearchPage = fixture("evidence/search_page.json");
+        let hit = page
+            .hits
+            .into_iter()
+            .find(|h| &h.evidence.evidence_id == id);
+        if let (Some(h), Some(text)) = (hit, self.passage.lock().unwrap().clone()) {
+            return Ok(EvidenceRef {
+                quote: Some(text),
+                ..h.evidence
+            });
+        }
         Err(ErrorEnvelope::new(
             ErrorCode::NotFound,
             format!("{id}"),
             RetryPolicy::Never,
         ))
+    }
+}
+
+/// Datasets and conditions from the C0/K1 fixtures; records the queries it answered.
+#[derive(Default)]
+pub struct FakeDatasets {
+    pub queries: Mutex<Vec<(ExecutionScope, ConditionsQuery)>>,
+}
+
+impl DatasetService for FakeDatasets {
+    fn dataset(&self, _: &ExecutionScope, _: &DatasetId) -> ServiceResult<DatasetBundle> {
+        Ok(fixture("data/dataset_bundle.json"))
+    }
+    fn conditions(
+        &self,
+        scope: &ExecutionScope,
+        q: &ConditionsQuery,
+    ) -> ServiceResult<ConditionsTable> {
+        self.queries
+            .lock()
+            .unwrap()
+            .push((scope.clone(), q.clone()));
+        Ok(fixture("data/conditions_table.json"))
     }
 }
 
@@ -99,6 +149,19 @@ pub fn host() -> Host {
 
 /// [`host`] with an analysis runner (a sandbox that passed preflight).
 pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host {
+    host_full(sandbox, None)
+}
+
+/// [`host`] with a DatasetService.
+pub fn host_with_datasets(datasets: Arc<FakeDatasets>) -> Host {
+    host_full(None, Some(datasets as Arc<dyn DatasetService>))
+}
+
+/// A host with an optional runner and any DatasetService.
+pub fn host_full(
+    sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>,
+    datasets: Option<Arc<dyn DatasetService>>,
+) -> Host {
     let dir = tempfile::tempdir().unwrap();
     let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
     let artifacts = Arc::new(LocalArtifactStore::open(dir.path().join("artifacts")).unwrap());
@@ -108,10 +171,11 @@ pub fn host_with(sandbox: Option<Arc<ignis_research::sandbox::Sandbox>>) -> Host
     let host = Arc::new(ToolHost::new(
         ToolServices {
             knowledge: Some(knowledge.clone()),
-            datasets: None,
+            datasets,
             models: Some(Arc::new(FakeModels)),
             sandbox,
             models_disabled: false,
+            conditions: true,
         },
         store.clone(),
         artifacts.clone(),

@@ -12,16 +12,23 @@
 //! and `resolve` print the contract documents (`SearchPage`, `ReadResult`, `EvidenceRef`) of the same
 //! service the HTTP API and MCP tools use. The API key is read only from `DEEPINFRA_API_KEY`.
 
+pub mod attribution;
 pub mod catalog;
+pub mod combined;
 pub mod corpus;
 pub mod deepinfra;
 pub mod dense;
+pub mod docling_view;
 pub mod firewall;
+pub mod labels;
+pub mod llm_pass;
+pub mod outline;
 #[cfg(feature = "pdf")]
 pub mod pdf;
 pub mod records;
 pub mod search;
 pub mod service;
+pub mod sira;
 #[cfg(feature = "pdf")]
 pub mod verify;
 
@@ -89,6 +96,38 @@ pub enum EvidenceCmd {
         #[arg(long)]
         investigation: Vec<String>,
     },
+    /// Import a Docling parse view (`sidecar/docling/ignis_docling.py` output) of a PDF as its active
+    /// view; other views of the PDF stay stored, so their citations still resolve. Refused if the PDF
+    /// bytes differ from the view's source hash or the view has failed pages.
+    ImportView {
+        /// the view JSON (Docling or PDFium)
+        view: PathBuf,
+        /// the PDF the view was made from (its bytes are hashed against the view)
+        #[arg(long)]
+        pdf: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// investigation ids to attach (the storage location adds its own)
+        #[arg(long)]
+        investigation: Vec<String>,
+    },
+    /// Import every view under a directory (`<root>/**/<inv>/<stem>.{pdfium,docling}.json`) whose
+    /// PDF is found under `--pdf-root` as `<inv>/<file_name>`. PDFium views go first, so a Docling
+    /// view of the same PDF ends active. A view already stored is skipped (incremental); a refused
+    /// view is reported and the others still import.
+    ImportViews {
+        /// directories of views (repeatable), e.g. data/views/pdfium-5.15.2 data/views/docling-2.150.1
+        #[arg(required = true)]
+        roots: Vec<PathBuf>,
+        /// where the PDFs are, as `<inv>/<file name>`
+        #[arg(long)]
+        pdf_root: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// re-import views already stored
+        #[arg(long)]
+        force: bool,
+    },
     /// Re-derive every stored parse view from the original bytes (hash, page texts, chunk spans, locators).
     Verify {
         #[arg(long)]
@@ -131,6 +170,9 @@ pub enum EvidenceCmd {
         /// declare the provider unavailable (no network); degradation is reported
         #[arg(long)]
         offline: bool,
+        /// SIRA query expansion: a term or phrase a relevant passage would contain (repeatable)
+        #[arg(long = "expect")]
+        expect: Vec<String>,
     },
     /// Read a source through the KnowledgeService; prints a ReadResult.
     Read {
@@ -151,11 +193,159 @@ pub enum EvidenceCmd {
         #[arg(long)]
         db: Option<PathBuf>,
     },
+    /// SIRA document expansion (R12b): load a page-card pack (pages.jsonl + MANIFEST.json, keyed by
+    /// NASA file sha256 and page) into the expansion index; raises outcome_bearing where the pack
+    /// protects a page, never lowers it; then rebuilds the term statistics.
+    Enrich {
+        /// the pack directory (e.g. /srv/ignis/data/enrichment/docs-v1)
+        pack: PathBuf,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// DF ceiling: expansion words held by more than this share of chunks are dropped
+        #[arg(long, default_value_t = sira::DEFAULT_TAU)]
+        tau: f64,
+    },
+    /// Corpus statistics: rebuild the term table (`--build`), or show how many chunks hold each
+    /// expression and the query finalizer's choice among them.
+    Terms {
+        expressions: Vec<String>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        build: bool,
+    },
+    /// Section outlines (R7b) from the active parse views: one source's tree as JSON, or with
+    /// `--all` a report of every publication (method, sections, depth) written as JSONL.
+    Outline {
+        /// Source ids (`sha256:<pdf>`); none with `--all`.
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        /// Levels to print below the document.
+        #[arg(long)]
+        depth: Option<u32>,
+        /// Report path for `--all` (default `<catalog dir>/outline_report.jsonl`).
+        #[arg(long)]
+        report: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// Section summaries (R7b): build the requests and print the cost estimate; with `--execute`,
+    /// call the model (`claude -p`) and append answers to `<catalog dir>/outline_summaries.jsonl`,
+    /// which `sources_outline` attaches as generated text. Spend needs the user's approval.
+    OutlineSummaries {
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        /// Summarise parents too (their pages repeat their children's).
+        #[arg(long)]
+        parents: bool,
+        #[arg(long, default_value = "haiku")]
+        model: String,
+        /// Price per million input / output tokens for the estimate (USD).
+        #[arg(long, default_value_t = 1.0)]
+        usd_per_mtok_in: f64,
+        #[arg(long, default_value_t = 5.0)]
+        usd_per_mtok_out: f64,
+        /// Where the requests are written for review.
+        #[arg(long)]
+        requests: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        execute: bool,
+    },
+    /// Document labels (R8), two passes per document: build the requests and print the cost
+    /// estimate; with `--execute`, run the missing passes (`claude -p`) into
+    /// `<catalog dir>/label_answers.jsonl`. Then (always) combine the answers present into
+    /// `<catalog dir>/source_labels.jsonl` (SourceLabel JSONL) and print the counts.
+    Labels {
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        #[arg(long, default_value = "haiku")]
+        model: String,
+        #[arg(long, default_value_t = 1.0)]
+        usd_per_mtok_in: f64,
+        #[arg(long, default_value_t = 5.0)]
+        usd_per_mtok_out: f64,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        execute: bool,
+    },
+    /// Gold set (R8): select about N documents stratified across investigations and kinds and
+    /// write them as a labelling template with EMPTY labels (a person fills them in).
+    GoldSelect {
+        #[arg(long, default_value_t = 100)]
+        n: usize,
+        #[arg(long, default_value_t = 2026)]
+        seed: u64,
+        /// Default `data/labels/gold/gold_template.jsonl`; an existing file is never overwritten.
+        #[arg(long)]
+        out: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// Score a labeller's SourceLabel JSONL against the person-labelled rows of a gold file.
+    GoldEval {
+        #[arg(long)]
+        gold: PathBuf,
+        /// Default `<catalog dir>/source_labels.jsonl`.
+        #[arg(long)]
+        labels: Option<PathBuf>,
+        #[arg(long)]
+        db: Option<PathBuf>,
+    },
+    /// The combined model pass (R7b summaries + R8 label pass a + R12b expansion vocabulary), one
+    /// call per leaf section: requests + cost estimate; `--execute` runs it and splits the answers
+    /// into `outline_summaries.jsonl`, `label_answers.jsonl` and an expansion pack
+    /// (`<catalog dir>/expansion-llm/`, load with `ignis evidence enrich`). Needs approved spend.
+    LlmPass {
+        sources: Vec<String>,
+        #[arg(long)]
+        all: bool,
+        #[arg(long, default_value = "haiku")]
+        model: String,
+        #[arg(long, default_value_t = 1.0)]
+        usd_per_mtok_in: f64,
+        #[arg(long, default_value_t = 5.0)]
+        usd_per_mtok_out: f64,
+        #[arg(long)]
+        db: Option<PathBuf>,
+        #[arg(long)]
+        execute: bool,
+    },
     /// Dependency-graph check: protected scientific crates must not depend on ignis-evidence.
     Firewall {
         #[arg(long, default_value = "Cargo.toml")]
         manifest: PathBuf,
     },
+}
+
+/// The publications named by source id (`sha256:<hex>` or the bare hex), or every one with `all`.
+fn select_pubs(
+    con: &rusqlite::Connection,
+    sources: &[String],
+    all: bool,
+) -> Result<Vec<records::Publication>> {
+    let pubs = catalog::publications(con)?;
+    if all {
+        return Ok(pubs);
+    }
+    if sources.is_empty() {
+        bail!("name sources (sha256:<pdf>) or pass --all");
+    }
+    sources
+        .iter()
+        .map(|s| {
+            let sha = s.trim_start_matches("sha256:");
+            pubs.iter()
+                .find(|p| p.source_sha256 == sha)
+                .cloned()
+                .ok_or_else(|| anyhow::anyhow!("{s} is not in the catalog"))
+        })
+        .collect()
 }
 
 fn print(v: &Value) -> Result<()> {
@@ -253,6 +443,35 @@ fn ingest_one(
 pub fn run(cmd: EvidenceCmd) -> Result<()> {
     match cmd {
         EvidenceCmd::Corpus(c) => run_corpus(c),
+        EvidenceCmd::ImportView {
+            view,
+            pdf,
+            db,
+            investigation,
+        } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let v: docling_view::DoclingView = serde_json::from_str(&std::fs::read_to_string(&view)?)?;
+            let bytes = std::fs::read(&pdf)?;
+            let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
+            let iv = docling_view::import(&v, &pdf, &bytes, &rp, &investigation)?;
+            let mut con = catalog::connect(&db, false)?;
+            let n = docling_view::store(&mut con, &iv)?;
+            catalog::record_location(&con, &iv.publication.source_sha256, &pdf.display().to_string())?;
+            print(&json!({"db": db.display().to_string(), "publication_id": iv.publication.id,
+                "parse_view_id": records::parse_view_id(&iv.publication.id, &iv.publication.parser_version),
+                "active": catalog::active_parser(&con, &iv.publication.id)?,
+                "chunks": n, "views": catalog::views(&con, &iv.publication.id)?}))
+        }
+        EvidenceCmd::ImportViews {
+            roots,
+            pdf_root,
+            db,
+            force,
+        } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let rp = attribution::RunPatterns::load(&attribution::RunPatterns::default_path())?;
+            print(&import_views(&roots, &pdf_root, &db, &rp, force)?)
+        }
         #[cfg(not(feature = "pdf"))]
         EvidenceCmd::Ingest { .. } | EvidenceCmd::Verify { .. } => anyhow::bail!(
             "PDF ingest/verify needs the `pdf` feature (MuPDF): cargo build -p ignis-cli --features pdf \
@@ -291,6 +510,18 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                     continue;
                 };
                 let bytes = std::fs::read(&rel).with_context(|| format!("read {rel}"))?;
+                if p.parser_version.starts_with("docling-") || p.parser_version.starts_with("pdfium-") {
+                    // Sidecar views: spans, line boxes and page bounds are checked at import
+                    // (`docling_view::import`); here the stored bytes must still be the view's source.
+                    let ok = ignis_core::hashing::sha256_hex(&bytes) == p.source_sha256;
+                    if !ok {
+                        failed += 1;
+                    }
+                    out.push(json!({"publication_id": p.id, "source_id": format!("sha256:{}", p.source_sha256),
+                        "parse_view_id": records::parse_view_id(&p.id, &p.parser_version),
+                        "bytes_match": ok, "check": "source hash; spans and boxes checked at import", "passed": ok}));
+                    continue;
+                }
                 let r = verify::verify_view(&con, &p, &bytes)?;
                 if !r.passed() {
                     failed += 1;
@@ -361,7 +592,7 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
             job.finish(out.clone());
             print(&out)
         }
-        EvidenceCmd::Search { query, db, mode, page_size, cursor, family, investigation, source, offline } => {
+        EvidenceCmd::Search { query, db, mode, page_size, cursor, family, investigation, source, offline, expect } => {
             let svc = open_service(db, offline)?;
             let mode: SearchMode = serde_json::from_value(json!(mode)).context("--mode hybrid|lexical|dense")?;
             let families = family
@@ -370,7 +601,11 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 .collect::<Result<Vec<_>>>()?;
             let req = SearchRequest {
                 response_format: None,
-                schema_version: EvidenceSchema::V1,
+                schema_version: if expect.is_empty() { EvidenceSchema::V1 } else { EvidenceSchema::V2 },
+                expected_terms: expect
+                    .iter()
+                    .map(|t| ignis_core::contracts::ExpectedTerm { term: t.clone(), importance: None })
+                    .collect(),
                 query,
                 mode,
                 filters: SearchFilters {
@@ -401,6 +636,157 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
         EvidenceCmd::Resolve { evidence_id, db } => {
             let svc = open_service(db, true)?;
             emit(svc.resolve_evidence(&local_research_scope(), &EvidenceId::new(evidence_id)?))
+        }
+        EvidenceCmd::Enrich { pack, db, tau } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let mut con = catalog::connect(&db, false)?;
+            let expansion = sira::enrich(&mut con, &pack, tau)?;
+            let terms = sira::build_term_stats(&mut con)?;
+            print(&json!({"db": db.display().to_string(), "expansion": expansion, "term_stats": terms}))
+        }
+        EvidenceCmd::Terms { expressions, db, build } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let mut con = catalog::connect(&db, !build)?;
+            let built = if build { Some(sira::build_term_stats(&mut con)?) } else { None };
+            let proposals: Vec<(String, f64)> = expressions.iter().map(|e| (e.clone(), 1.0)).collect();
+            let choice = sira::select_expressions(&con, &proposals)?;
+            print(&json!({"db": db.display().to_string(), "built": built, "expressions": choice}))
+        }
+        EvidenceCmd::Outline { sources, all, depth, report, db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let mut lines = Vec::new();
+            let mut by_method = std::collections::BTreeMap::<&str, usize>::new();
+            for p in &pubs {
+                let chunks = outline::load_chunks(&con, &p.id)?;
+                let (heads, method) = outline::headings(&chunks);
+                let title = p.title.clone().or_else(|| p.file_name.clone()).unwrap_or_default();
+                let roots = outline::build(&heads, p.n_pages, &title)?;
+                *by_method.entry(method.as_str()).or_default() += 1;
+                if all {
+                    lines.push(json!({"source_id": format!("sha256:{}", p.source_sha256), "file": p.file_name,
+                        "pages": p.n_pages, "method": method.as_str(), "sections": outline::count(&roots),
+                        "top_level": roots.len()}));
+                } else {
+                    let nodes = outline::select(roots, None, depth).unwrap_or_default();
+                    print(&json!({"source_id": format!("sha256:{}", p.source_sha256), "method": method.as_str(), "nodes": nodes}))?;
+                }
+            }
+            if all {
+                let path = report.unwrap_or_else(|| db.with_file_name("outline_report.jsonl"));
+                let mut text = String::new();
+                for l in &lines {
+                    text.push_str(&l.to_string());
+                    text.push('\n');
+                }
+                std::fs::write(&path, text)?;
+                print(&json!({"publications": pubs.len(), "by_method": by_method, "report": path.display().to_string()}))?;
+            }
+            Ok(())
+        }
+        EvidenceCmd::OutlineSummaries { sources, all, parents, model, usd_per_mtok_in, usd_per_mtok_out, requests, db, execute } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let reqs = outline::summary_requests(&con, &pubs, !parents)?;
+            let req_path = requests.unwrap_or_else(|| db.with_file_name("outline_summary_requests.jsonl"));
+            llm_pass::write_requests(&req_path, &reqs)?;
+            let est = llm_pass::estimate(&reqs, usd_per_mtok_in, usd_per_mtok_out);
+            let out = db.with_file_name(service::SUMMARIES_FILE);
+            print(&json!({"publications": pubs.len(), "requests_file": req_path.display().to_string(),
+                "estimate": est, "model": model, "answers": out.display().to_string(),
+                "status": if execute { "running" } else { "dry run: nothing was sent to a model; add --execute after the spend is approved" }}))?;
+            if execute {
+                let r = llm_pass::run(&reqs, &llm_pass::ClaudeCli::new(&model), &out, 5)?;
+                print(&serde_json::to_value(&r)?)?;
+            }
+            Ok(())
+        }
+        EvidenceCmd::Labels { sources, all, model, usd_per_mtok_in, usd_per_mtok_out, db, execute } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let reqs = labels::label_requests(&con, &pubs)?;
+            let answers_path = db.with_file_name(service::LABEL_ANSWERS_FILE);
+            let done: BTreeSet<String> = llm_pass::read_answers(&answers_path)?.into_iter().map(|a| a.custom_id).collect();
+            let todo: Vec<llm_pass::Request> = reqs.iter().filter(|r| !done.contains(&r.custom_id)).cloned().collect();
+            let req_path = db.with_file_name("label_requests.jsonl");
+            llm_pass::write_requests(&req_path, &todo)?;
+            print(&json!({"publications": pubs.len(), "passes_to_run": todo.len(), "passes_done": reqs.len() - todo.len(),
+                "requests_file": req_path.display().to_string(), "model": model,
+                "estimate": llm_pass::estimate(&todo, usd_per_mtok_in, usd_per_mtok_out),
+                "status": if execute { "running" } else { "dry run: nothing was sent to a model; add --execute after the spend is approved" }}))?;
+            if execute {
+                let r = llm_pass::run(&todo, &llm_pass::ClaudeCli::new(&model), &answers_path, 5)?;
+                print(&serde_json::to_value(&r)?)?;
+            }
+            let built = labels::build_labels(&llm_pass::read_answers(&answers_path)?)?;
+            let out = db.with_file_name(service::LABELS_FILE);
+            let mut text = String::new();
+            for l in &built.labels {
+                text.push_str(&serde_json::to_string(l)?);
+                text.push('\n');
+            }
+            std::fs::write(&out, text)?;
+            print(&json!({"labels": out.display().to_string(), "counts": built.counts, "problems": built.problems}))
+        }
+        EvidenceCmd::GoldSelect { n, seed, out, db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = catalog::publications(&con)?;
+            let rows = labels::gold_select(&pubs, n, seed);
+            let out = out.unwrap_or_else(|| PathBuf::from("data/labels/gold/gold_template.jsonl"));
+            if out.exists() {
+                bail!("{} exists: a gold file may hold labels written by a person; choose another --out", out.display());
+            }
+            if let Some(d) = out.parent() {
+                std::fs::create_dir_all(d)?;
+            }
+            let mut text = String::new();
+            for r in &rows {
+                text.push_str(&serde_json::to_string(r)?);
+                text.push('\n');
+            }
+            std::fs::write(&out, text)?;
+            let mut strata = std::collections::BTreeMap::<String, usize>::new();
+            for r in &rows {
+                *strata.entry(format!("{} / {}", r.stratum_investigation, r.stratum_kind)).or_default() += 1;
+            }
+            print(&json!({"template": out.display().to_string(), "documents": rows.len(), "of": pubs.len(), "seed": seed, "strata": strata,
+                "next": "a person fills doc_type, families, investigation_ids, runs, labelled_by, labelled_at; then `ignis evidence gold-eval --gold <file>`"}))
+        }
+        EvidenceCmd::GoldEval { gold, labels: labels_path, db } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let labels_path = labels_path.unwrap_or_else(|| db.with_file_name(service::LABELS_FILE));
+            let g = labels::read_gold(&gold)?;
+            let l = labels::read_labels(&labels_path)?;
+            print(&labels::to_value(&labels::gold_eval(&g, &l)?))
+        }
+        EvidenceCmd::LlmPass { sources, all, model, usd_per_mtok_in, usd_per_mtok_out, db, execute } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let con = catalog::connect(&db, true)?;
+            let pubs = select_pubs(&con, &sources, all)?;
+            let reqs = combined::combined_requests(&con, &pubs)?;
+            let req_path = db.with_file_name("combined_requests.jsonl");
+            llm_pass::write_requests(&req_path, &reqs)?;
+            let answers = db.with_file_name("combined_answers.jsonl");
+            print(&json!({"publications": pubs.len(), "requests_file": req_path.display().to_string(), "model": model,
+                "estimate": llm_pass::estimate(&reqs, usd_per_mtok_in, usd_per_mtok_out),
+                "then": "label pass b: `ignis evidence labels --all --execute` (runs only the missing passes)",
+                "status": if execute { "running" } else { "dry run: nothing was sent to a model; add --execute after the spend is approved" }}))?;
+            if execute {
+                let r = llm_pass::run(&reqs, &llm_pass::ClaudeCli::new(&model), &answers, 5)?;
+                print(&serde_json::to_value(&r)?)?;
+                let s = combined::split(
+                    &llm_pass::read_answers(&answers)?,
+                    &db.with_file_name(service::SUMMARIES_FILE),
+                    &db.with_file_name("expansion-llm"),
+                    &db.with_file_name(service::LABEL_ANSWERS_FILE),
+                )?;
+                print(&serde_json::to_value(&s)?)?;
+            }
+            Ok(())
         }
         EvidenceCmd::Firewall { manifest } => {
             let protected = firewall::protected_from_config(&ignis_core::resources::configs_dir().join("evidence").join("firewall.toml"))?;
@@ -514,6 +900,89 @@ fn run_corpus(cmd: CorpusCmd) -> Result<()> {
                 "members": snap.members.len(), "embedding_set": snap.embedding_set}))
         }
     }
+}
+
+/// Batch form of `import-view` (see [`EvidenceCmd::ImportViews`]).
+pub fn import_views(
+    roots: &[PathBuf],
+    pdf_root: &std::path::Path,
+    db: &std::path::Path,
+    rp: &attribution::RunPatterns,
+    force: bool,
+) -> Result<Value> {
+    fn walk(dir: &std::path::Path, ext: &str, out: &mut Vec<PathBuf>) -> Result<()> {
+        for e in std::fs::read_dir(dir).with_context(|| format!("read {}", dir.display()))? {
+            let p = e?.path();
+            if p.is_dir() {
+                walk(&p, ext, out)?;
+            } else if p.to_string_lossy().ends_with(ext) {
+                out.push(p);
+            }
+        }
+        Ok(())
+    }
+    let mut views = Vec::new();
+    for ext in [".pdfium.json", ".docling.json"] {
+        let mut v = Vec::new();
+        for r in roots {
+            walk(r, ext, &mut v)?;
+        }
+        v.sort();
+        views.extend(v);
+    }
+    let mut con = catalog::connect(db, false)?;
+    let t = std::time::Instant::now();
+    let (mut imported, mut skipped, mut chunks) = (0usize, 0usize, 0usize);
+    let mut refused = Vec::new();
+    for (i, path) in views.iter().enumerate() {
+        let mut one = || -> Result<Option<usize>> {
+            let v: docling_view::DoclingView =
+                serde_json::from_str(&std::fs::read_to_string(path)?)?;
+            let pub_id = format!("pub-{}", &v.source.sha256[..16.min(v.source.sha256.len())]);
+            let view_id = records::parse_view_id(&pub_id, &docling_view::parser_version(&v));
+            if !force && catalog::views(&con, &pub_id)?.contains(&view_id) {
+                return Ok(None);
+            }
+            let inv = path
+                .parent()
+                .and_then(|p| p.file_name())
+                .context("a view sits in its investigation's directory")?;
+            let pdf = pdf_root.join(inv).join(&v.source.file_name);
+            let bytes = std::fs::read(&pdf).with_context(|| format!("read {}", pdf.display()))?;
+            let iv = docling_view::import(&v, &pdf, &bytes, rp, &[])?;
+            let n = docling_view::store(&mut con, &iv)?;
+            catalog::record_location(
+                &con,
+                &iv.publication.source_sha256,
+                &pdf.display().to_string(),
+            )?;
+            Ok(Some(n))
+        };
+        match one() {
+            Ok(Some(n)) => {
+                imported += 1;
+                chunks += n;
+            }
+            Ok(None) => skipped += 1,
+            Err(e) => {
+                refused.push(json!({"view": path.display().to_string(), "error": format!("{e:#}")}))
+            }
+        }
+        if (i + 1) % 100 == 0 {
+            eprintln!(
+                "import-views: {}/{} ({imported} imported, {skipped} already stored, {} refused) {:.0} s",
+                i + 1,
+                views.len(),
+                refused.len(),
+                t.elapsed().as_secs_f64()
+            );
+        }
+    }
+    Ok(
+        json!({"db": db.display().to_string(), "views": views.len(), "imported": imported,
+        "already_stored": skipped, "chunks": chunks, "refused": refused,
+        "seconds": t.elapsed().as_secs_f64()}),
+    )
 }
 
 #[cfg(feature = "pdf")]

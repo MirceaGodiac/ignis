@@ -1,0 +1,30 @@
+{
+  "schema_version": "evidence.v2",
+  "source_id": "sha256:a9585e18f0f87f9c8c3c75e8603342ce19b4c72944ebd69dd91e1e89a910cc16",
+  "size_bytes": 1504000,
+  "init_bytes": 376,
+  "video_pid": 256,
+  "codec": "h264",
+  "end_pts_s": 95443.717,
+  "coverage": "sampled",
+  "keyframes": [
+    {
+      "offset": 376,
+      "length": 37600,
+      "pts_s": 95433.717
+    },
+    {
+      "offset": 601600,
+      "length": 37600,
+      "pts_s": 95437.717
+    },
+    {
+      "offset": 1203200,
+      "length": 37600,
+      "pts_s": 95441.717
+    }
+  ],
+  "bytes_read": 412360,
+  "indexer": "ignis-data/media.ts/1",
+  "origin": "synthetic_fixture"
+}

@@ -234,7 +234,14 @@ fn handle(
                 tool_call_id: None,
                 release_id: None,
             };
-            sandbox.execute(&job.scope, &req, v.artifacts.as_ref(), producer, cancel)
+            sandbox.execute(
+                &job.scope,
+                &req,
+                v.artifacts.as_ref(),
+                v.services.datasets.as_deref(),
+                producer,
+                cancel,
+            )
         }
         FORECAST => {
             let models = v.services.models.clone().ok_or_else(|| {

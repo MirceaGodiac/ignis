@@ -15,6 +15,8 @@
 mod api;
 mod evidence;
 pub mod fixture;
+pub mod harness_run;
+pub mod observe;
 pub mod ops;
 mod refusal;
 mod state;
@@ -144,6 +146,11 @@ pub struct ServeArgs {
     /// says why. The legacy `/api` lab routes (fitted baselines) are not affected.
     #[arg(long, env = "IGNIS_ENABLE_MODELS")]
     pub enable_models: bool,
+    /// What `answer_submit` does with a number that does not resolve to its reference (M7b):
+    /// `log` stores the answer and records the problems in its grounding report; `enforce` refuses
+    /// it. Starts as `log` until the grounding outcomes have been reviewed on real turns.
+    #[arg(long, env = "IGNIS_ANSWER_GROUNDING", default_value = "log", value_parser = parse_grounding)]
+    pub answer_grounding: ignis_core::contracts::GroundingMode,
     /// Largest single upload accepted by `/api/v1/uploads` (a storage budget, not a result limit).
     #[arg(long, env = "IGNIS_MAX_UPLOAD_BYTES", default_value_t = 2 << 30)]
     pub max_upload_bytes: u64,
@@ -160,6 +167,13 @@ pub struct ServeArgs {
     /// Isolated analysis runner (`analysis_execute`); unset image = not configured.
     #[command(flatten)]
     pub runner: v1::sandbox::RunnerArgs,
+    /// Source access without copies (`/api/v1/sources/{id}/content`, M12).
+    #[command(flatten)]
+    pub sources: v1::sources::SourceArgs,
+    /// Versioned LLM price list of the cost metrics (M5); unset = the list built into the binary
+    /// (`configs/pricing/llm_prices.toml`). A model it does not list is reported unpriced.
+    #[arg(long, env = "IGNIS_PRICE_LIST")]
+    pub price_list: Option<PathBuf>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -221,6 +235,11 @@ fn origin(
 
 /// Apply `--enable-models`: when off, no `ModelService` reaches `/api/v1` or the tools, and the
 /// catalog reports the model tools as disabled rather than unconfigured.
+fn parse_grounding(s: &str) -> Result<ignis_core::contracts::GroundingMode, String> {
+    serde_json::from_value(serde_json::Value::String(s.into()))
+        .map_err(|_| format!("{s:?} is not a grounding mode (log, enforce)"))
+}
+
 fn model_gate(s: v1::ResearchServices, enabled: bool) -> v1::ResearchServices {
     if enabled {
         return s;
@@ -246,6 +265,16 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     args.root = std::fs::canonicalize(&args.root)
         .map(strip_verbatim)
         .unwrap_or(args.root.clone());
+    if let Some(path) = &args.price_list {
+        // A bad price list stops the server at start, like a bad state directory.
+        let list = ignis_research::metrics::PriceList::load(&args.root.join(path))
+            .and_then(|l| {
+                let id = l.id();
+                ignis_research::metrics::install_prices(l).map(|()| id)
+            })
+            .unwrap_or_else(|e| panic!("price list: {e}"));
+        tracing::info!(price_list = %list, "cost metrics price list");
+    }
     let pool = Arc::new(ignis_core::batch::bounded_pool(args.compute_threads));
     let access = access_verifier(&args);
     let artifacts = args.root.join(&args.artifacts);
@@ -367,6 +396,9 @@ pub fn app(mut args: ServeArgs, services: Services) -> Router {
     };
     app.route("/livez", axum::routing::get(|| async { "ok" }))
         .layer(TraceLayer::new_for_http())
+        // JSON shrinks about tenfold (the run list is 1.4 MB, a conditions page 1.9 MB). The default
+        // predicate leaves event streams, images and small bodies alone.
+        .layer(tower_http::compression::CompressionLayer::new())
         .layer(tower::limit::ConcurrencyLimitLayer::new(256))
 }
 
@@ -444,7 +476,8 @@ fn v1_instance(
                 Arc::new(move || wake.notify_one()),
             )
             // `answer_submit` appends `answer.completed`: wake the episode's SSE readers.
-            .with_commit_hook(Arc::new(move |ep, seq| h.notify(ep, seq))),
+            .with_commit_hook(Arc::new(move |ep, seq| h.notify(ep, seq)))
+            .with_grounding(args.answer_grounding),
         )
     };
     let attachment = mcp.map(|m| m.mount(name, tools.clone()));
@@ -475,6 +508,14 @@ fn v1_instance(
         runner_report,
         mcp_url,
         artifact_backend: args.artifact_backend,
+        // Real NASA sources only on the registry instance; the C0 fixture has none to open.
+        sources: (origin == ignis_core::contracts::Origin::System).then(|| {
+            Arc::new(v1::sources::SourceDelivery::new(
+                &args.sources,
+                &args.root,
+                origin,
+            ))
+        }),
     })
 }
 

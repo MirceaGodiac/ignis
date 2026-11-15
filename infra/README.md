@@ -234,6 +234,8 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 
 ## Release and rollback
 
+Normally done by the VM itself: see [Automatic deploys](#automatic-deploys). By hand:
+
 1. Build the new image on the VM (step 6); re-run step 7 if ingest or bundle code changed — the manifest names commit, toolchain, Codex hash, base digests.
 2. Back up first: `systemctl start ignis-backup` (and wait for "pushed").
 3. Database migrations: `ResearchStore::open` migrates on start. Test it on a copy first:
@@ -243,6 +245,79 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 5. Rollback: restore the previous `IGNIS_IMAGE` and restart. A code rollback does **not** undo a
    schema migration: if the new release migrated the store and the old one cannot read it, stop,
    `mv /srv/ignis/state /srv/ignis/state.failed`, restore the pre-release snapshot, restart.
+
+## Automatic deploys
+
+The VM pulls its own releases: `ignis-autodeploy.timer` runs `ignis-autodeploy.service` every
+5 minutes, which runs [`scripts/autodeploy.sh`](scripts/autodeploy.sh) (installed as
+`/usr/local/sbin/ignis-autodeploy`). When the tip of `main` differs from the commit the running
+image was built from (its `org.opencontainers.image.revision` label), it does the
+[Release](#release-and-rollback) steps itself, each one fail-closed:
+
+1. `git fetch` from GitHub with a **read-only deploy key** held on the VM (`/etc/ignis/deploy_key`,
+   root 0600, github.com host key pinned in `/etc/ignis/github_known_hosts`). No other GitHub
+   credential exists on the VM, and nothing is pushed anywhere.
+2. Build in a worktree of its own (`/var/lib/ignis-deploy/build`), so the serving checkout
+   (`/opt/ignis-deploy`, which `ignis.service` runs compose from) does not move yet:
+   `fetch-codex.sh` when `PINNED_CODEX_VERSION` changed, then `build-server.sh` (the existing
+   `/opt/ignis-cli/claude` is reused; refresh it by hand with `fetch-claude.sh`). Manifests are kept
+   in `/var/lib/ignis-deploy/releases/`. If the Docker disk has less than `MIN_FREE_GB` free, it
+   prunes dangling images and week-old build cache first, and stops if that is not enough.
+3. Backup: `systemctl start ignis-backup` (pushed to R2; the local copy is the rollback point).
+4. Smoke test of the **new** image against that snapshot: `ignis state restore` into a scratch
+   directory on the data disk, then `ignis serve` on it with no network (no model call, no R2
+   write), local auth on loopback, the real `ignis.env` otherwise. The store must open (and
+   migrate), `/livez` and `/api/v1/capabilities` must answer; the tool list goes to the journal.
+5. Drain: waits until the live store has no running turn (`runtime_turns` starting/running) and no
+   running job, up to `DRAIN_TIMEOUT` (30 min); if still busy, the deploy is postponed to the next
+   timer run (nothing is cut off). A turn that starts in the seconds between this check and the
+   restart is interrupted; the server's restart recovery handles it as for any restart.
+6. Switch: `IGNIS_IMAGE` in `/etc/ignis/release.env`, check out the commit in `/opt/ignis-deploy`,
+   `systemctl restart ignis`. Healthy means: the `ignis` container runs the new image and passes
+   its healthcheck, `/livez` answers inside it, `cloudflared` runs, and the journal since the
+   restart has no `KnowledgeService/DatasetService not configured`. (`/api/v1/capabilities` of the
+   live server needs the Access tokens, so it is checked in the smoke test on the same image and
+   from a signed-in browser.)
+7. On failure: the previous `release.env` and checkout are put back and `ignis` restarted. If the
+   old image cannot open the store (the new one migrated it; e.g. schema 4 on a schema-3 binary), the
+   state directory is moved aside to `/srv/ignis/state.failed-<time>` (not deleted) and the
+   pre-release snapshot of step 3 is restored. A failed commit is not retried by the timer until
+   `main` moves.
+8. After a good deploy: the deploy script and the units in `deploy/systemd/` are reinstalled from
+   the deployed commit when they changed, and `ignis-server` images other than the running and the
+   previous one are removed.
+
+Every attempt appends a line to `/var/lib/ignis-deploy/deploys.jsonl` (commit, outcome, build
+seconds, restart-to-healthy seconds, total seconds); the log is `journalctl -u ignis-autodeploy`.
+Runs never overlap (a lock in `/var/lib/ignis-deploy`).
+
+**By hand** (as root; same lock and checks):
+
+```bash
+sudo ignis-autodeploy --force             # redeploy the tip of main now
+sudo ignis-autodeploy --commit <sha>      # a specific commit on main
+sudo ignis-autodeploy --rollback          # previous image + checkout back (no store restore)
+sudo ignis-autodeploy --drill-rollback    # deploy, then roll back as if the checks failed
+echo "data job until 23:00 (raul)" | sudo tee /etc/ignis/autodeploy.hold   # pause the timer
+sudo rm /etc/ignis/autodeploy.hold                                          # resume
+tail -n 5 /var/lib/ignis-deploy/deploys.jsonl
+```
+
+Long data jobs that are not server turns or jobs (e.g. `build-data.sh`, which runs its own
+containers) are not seen by the drain step; they keep running across a restart, but put a hold
+file while one depends on the server.
+
+**Setup** (once, on the VM, from a checkout that has these files):
+
+1. `sudo infra/scripts/autodeploy-setup.sh` creates the deploy key, pins github.com's host key
+   (checked against GitHub's published fingerprint), writes `/etc/ignis/autodeploy.env`
+   (`REMOTE`, `BRANCH`, `DRAIN_TIMEOUT`, `MIN_FREE_GB`; no secrets) and installs the script and the
+   units. It prints the **public** key.
+2. A repository admin adds that public key on GitHub: *Settings → Deploy keys → Add deploy key*,
+   **Allow write access unticked**. Re-run the setup script: it must print `GitHub access: ok`.
+3. `sudo infra/scripts/autodeploy-setup.sh --enable` starts the timer.
+
+To revoke: delete the deploy key on GitHub and `/etc/ignis/deploy_key*` on the VM.
 
 ## Backup and restore
 
@@ -276,7 +351,8 @@ plugin, gVisor. Commands use `gcloud` from an administrator's machine; set the p
 | gVisor | **verified** on the GCE VM (2026-11-14): `verify-gvisor.sh` passes; `runsc` 4.19.0-gvisor kernel; runner preflight reports `isolation=Gvisor` |
 | Domain, Cloudflare zone, tunnel, Access apps, Worker, R2, GCE VM | **provisioned** (2026-11-14): `ignis-ardealu.app` (bought on Cloudflare Registrar: the Space Apps domain offer failed with "Exceptions Occurred"), UI on the apex, origin on `origin.ignis-ardealu.app`, VM `ignis-origin` in `europe-west3-a` |
 | Access login methods | Google, Cloudflare account, one-time PIN on the UI app (Google added 2026-11-14: OAuth client "Cloudflare Access" in `ignis-spaceapps-ardealu`, Testing mode, PKCE). Cloudflare's IdP test returned the expected identity; the allowlist (policy *team*) is unchanged |
-| RPO/RTO | not measured (one backup pushed to R2: 386 files in 73 s; no restore drill yet) |
+| Automatic deploys | **installed and enabled** on the VM (2026-11-14): deployed `69eeade` (M7, `answer_submit` live). Measured: cold build 477 s; warm deploy 159 s and 131 s end to end (build 16 s, backup 80–95 s, smoke 7 s, restart to healthy 12–35 s). `--drill-rollback` from schema 4 back to the schema-3 image: crash detected, state moved aside, pre-release snapshot restored, old image healthy (outage about 2 min) |
+| RPO/RTO | **local drill only** (2026-11-15, see [Local restore drill](#local-restore-drill-2026-11-15)): RTO 4.5–7.0 s for a 43 MB, 20-file snapshot; RPO = time since the last snapshot (≤ 1 h with the hourly timer). **VM drill still pending** (one backup pushed to R2 from the VM: 386 files in 73 s; never restored there) |
 
 ### Live verification on the deployed stack (2026-11-14)
 
@@ -296,5 +372,51 @@ server), model `gpt-6.1-terra`, models (FLEX/ACME/BASS) disabled. What was run a
 | Shell request | not refused: the model ran `uname`/`cat /etc/passwd` through `analysis_execute`, so the output came from the gVisor runner (container `/etc/passwd`, gVisor kernel), not the host. No approval prompt was exercised |
 | Backup | `ignis-backup` pushed `backups/state-…/` to R2 |
 
-Not done: refused approval (no prompt was triggered), restore drill (RTO), a turn interrupted by
-the restart (the restart ran between turns).
+Not done: refused approval (no prompt was triggered; it needs a live runtime turn, still
+pending), restore drill on the VM (a local drill was run, below), a turn interrupted by the restart
+(the restart ran between turns).
+
+### Local restore drill (2026-11-15)
+
+This drill ran on a development machine (Windows 11, debug build of `main` at `cf9edf2`). It
+didn't touch the VM or any live state. It's the procedure from [Backup and restore](#backup-and-restore),
+run against a scratch state directory that a real server populated. The script is
+[`infra/scripts/restore-drill-local.sh`](scripts/restore-drill-local.sh). It needs
+`target/debug/ignis` and `target/debug/ignis-server-fake-codex`, and does this:
+
+1. Start `ignis serve --dev --auth local --state-dir target/drill/state-a --codex-bin <fake codex>`
+   on loopback. Populate it with 6 episodes, each one completed tool-calling turn on the fake Codex
+   runtime, and 4 uploaded CSV artifacts (1 KiB, 1 MiB, 8 MiB, 32 MiB) in the local artifact store.
+2. Take a live backup while A keeps serving: `ignis state backup --state-dir target/drill/state-a --out target/drill/snap`,
+   then `ignis state verify target/drill/snap`.
+3. Write one more episode after the backup, inside the RPO window.
+4. `ignis state restore target/drill/snap --target target/drill/state-b` (verifies every hash and
+   size, runs `PRAGMA integrity_check`). Start a second instance on `state-b` and poll `/livez`
+   until it's ready.
+5. Check the restored instance:
+   - every backed-up episode's event log, read over SSE from seq 0 to `last_seq`, is byte-identical
+     on A and B, with contiguous seqs and a count equal to `last_seq`;
+   - every artifact `GET /api/v1/artifacts/{id}` from B has the uploaded file's sha256;
+   - the post-backup episode is 404 on B.
+
+Reproduce: `cargo build -p ignis-cli -p ignis-server --bins && bash infra/scripts/restore-drill-local.sh`
+
+| Run | Snapshot | Live backup | Restore | Start to healthy | **RTO** (restore + start) | Replay check | Post-backup write on B |
+|---|---|---|---|---|---|---|---|
+| 1 | 20 files, 43.3 MB | 4.91 s | 4.90 s | 2.10 s | **6.99 s** | 6 logs, 44 events identical; 4 artifacts identical | absent (404), written 6.6 s after the backup |
+| 2 | 20 files, 43.3 MB | 3.17 s | 3.66 s | 0.85 s | **4.52 s** | 6 logs, 42 events identical; 4 artifacts identical | absent (404), 5.8 s after |
+| 3 | 20 files, 43.3 MB | 3.44 s | 3.03 s | 1.69 s | **4.72 s** | 6 logs, 42 events identical; 4 artifacts identical | absent (404), 7.2 s after |
+
+What these numbers mean:
+
+- **RPO.** A snapshot is a point in time, so anything written after it is lost on restore, as the
+  post-backup episode shows. The RPO is the time since the last snapshot: at most the
+  `ignis-backup.timer` interval (1 h) plus the time to push it to R2. R2 artifacts aren't in the
+  snapshot (immutable, content-addressed), so on the VM they are not part of that window.
+- **RTO.** The local figure covers restoring from a local snapshot directory and starting the server.
+  On the VM, a restore also includes `--pull` from R2 (the push of a 386-file snapshot took 73 s
+  there) and the container start. Nobody has measured that yet; it's the pending VM drill.
+- **Not covered.** No turn was writing while the snapshot was taken (the server was up and holding
+  the store open). Snapshots under writes are covered offline by
+  `crates/ignis-research/tests/backup.rs`. The "refused approval exercised live" check needs a live
+  runtime turn and is still pending.

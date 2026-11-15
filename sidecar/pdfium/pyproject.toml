@@ -1,0 +1,7 @@
+[project]
+name = "ignis-pdfium"
+version = "0.1.0"
+description = "IGNIS PDFium text-layer parse views (ignis.pdfium_view.v1), R7a"
+requires-python = ">=3.10"
+# Changing this pin is a new parser version, hence a new parse view.
+dependencies = ["pypdfium2==5.15.2"]

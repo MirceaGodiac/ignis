@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "CostBasis": {
+      "description": "Where a cost figure comes from.",
+      "oneOf": [
+        {
+          "const": "provider_reported",
+          "description": "The provider or runtime reported the cost of these calls.",
+          "type": "string"
+        },
+        {
+          "const": "price_list",
+          "description": "Measured tokens multiplied by a dated price list (named in `price_list`).",
+          "type": "string"
+        }
+      ]
+    },
+    "CostFigure": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "basis": {
+          "$ref": "#/$defs/CostBasis"
+        },
+        "currency": {
+          "description": "ISO 4217 code, e.g. `USD`.",
+          "type": "string"
+        },
+        "price_list": {
+          "description": "Identity of the price list (provider page and date); present exactly for `price_list`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "amount",
+        "currency",
+        "basis"
+      ],
+      "type": "object"
+    },
+    "UsageAccounting": {
+      "description": "How the counts of a [`UsageReport`] add up.",
+      "oneOf": [
+        {
+          "const": "increment",
+          "description": "The tokens of the calls since the previous report (Claude Code: one report per turn and\nmodel). A turn's usage is the sum of its increments.",
+          "type": "string"
+        },
+        {
+          "const": "thread_total",
+          "description": "The running total of the runtime thread so far (Codex). A turn's usage is its last total\nminus the last total before it; a total lower than the previous one starts a new thread.",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$id": "ignis/2.1.0/UsageReport",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Token usage as one runtime notification reported it (M5). Input counts include the cached\npart; output counts include reasoning. A count the runtime did not report stays absent.",
+  "properties": {
+    "accounting": {
+      "$ref": "#/$defs/UsageAccounting"
+    },
+    "cache_write_tokens": {
+      "description": "Of `input_tokens`, written to the provider's prompt cache (priced apart by some providers).",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "cached_input_tokens": {
+      "description": "Of `input_tokens`, read from the provider's prompt cache.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "input_tokens": {
+      "description": "Every input token, cache reads and cache writes included.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "model": {
+      "description": "Model id as the runtime reported it; absent when the notification does not name it (Codex),\nin which case the episode's harness pin names the model.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "output_tokens": {
+      "description": "Every output token, reasoning included.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "reasoning_tokens": {
+      "description": "Of `output_tokens`, spent on reasoning.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "reported_cost": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CostFigure"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "What the runtime said these calls cost (`provider_reported`), when it says. IGNIS's own\nfigures come from a price list; this is kept next to them, never mixed in."
+    }
+  },
+  "required": [
+    "accounting",
+    "input_tokens",
+    "output_tokens"
+  ],
+  "title": "UsageReport",
+  "type": "object"
+}

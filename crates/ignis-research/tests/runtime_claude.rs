@@ -9,7 +9,8 @@ use std::sync::{Arc, Once};
 use common::*;
 use ignis_core::contracts::*;
 use ignis_research::runtime::{
-    claude_preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, StopReason,
+    claude_preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, McpAttachment, McpGrants,
+    StopReason,
 };
 use ignis_research::store::EpisodeAction;
 use ignis_research::{LocalArtifactStore, ResearchStore};
@@ -36,22 +37,32 @@ fn config(dir: &Path) -> ClaudeConfig {
 
 struct H {
     store: Arc<ResearchStore>,
+    artifacts: Arc<LocalArtifactStore>,
     bridge: ClaudeBridge,
 }
 
 fn harness(dir: &Path) -> H {
+    harness_with(dir, |_| {})
+}
+
+fn harness_with(dir: &Path, tune: impl FnOnce(&mut ClaudeConfig)) -> H {
     let store = Arc::new(ResearchStore::open(dir.join("state.sqlite")).unwrap());
     let artifacts = Arc::new(LocalArtifactStore::open(dir.join("artifacts")).unwrap());
-    let cfg = config(dir);
+    let mut cfg = config(dir);
+    tune(&mut cfg);
     let manifest = claude_preflight(&cfg).expect("preflight of the fake");
     let bridge = ClaudeBridge::new(
         cfg,
         manifest,
         store.clone(),
-        artifacts,
+        artifacts.clone(),
         Arc::new(|_: &EpisodeId, _| {}),
     );
-    H { store, bridge }
+    H {
+        store,
+        artifacts,
+        bridge,
+    }
 }
 
 impl H {
@@ -117,6 +128,18 @@ fn reason(evs: &[ResearchEvent]) -> String {
             _ => None,
         })
         .unwrap_or_default()
+}
+
+#[test]
+fn a_tool_call_records_its_arguments_and_the_message_that_introduced_it() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness(dir.path());
+    let sc = scope("ws-c", false);
+    let ep = h.episode(&sc, "explain");
+    h.say(&sc, &ep, "explain then compute");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    check_event_log(&evs).unwrap();
+    assert_explained_call(&evs, h.artifacts.as_ref(), &sc, &[]);
 }
 
 #[test]
@@ -246,10 +269,16 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     let mut cfg = ClaudeConfig::new(bin, dir.path().join("claude"));
     cfg.pass_env = vec![];
     cfg.login_home = Some(login);
+    cfg.harness = Some(ignis_research::runtime::HarnessBundle::embedded(&[]));
+    // With IGNIS_LIVE_CLAUDE_DELEGATION set, also the subagent flags (`--tools Agent --agents …`).
+    if std::env::var_os("IGNIS_LIVE_CLAUDE_DELEGATION").is_some() {
+        delegating(&mut cfg);
+    }
     let manifest = claude_preflight(&cfg).expect("preflight of the real binary");
     println!("build: {}", manifest.runtime_build_id);
     let h = H {
         store: store.clone(),
+        artifacts: artifacts.clone(),
         bridge: ClaudeBridge::new(
             cfg,
             manifest,
@@ -267,5 +296,256 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     assert!(
         !why.contains("unknown option") && !why.contains("error: "),
         "{why}"
+    );
+}
+
+#[test]
+fn the_harness_bundle_is_appended_identically_every_turn_and_pinned() {
+    use ignis_research::runtime::{HarnessBundle, HarnessSource};
+    let dir = tempfile::tempdir().unwrap();
+    let tools: Vec<String> = vec!["sources_search".into(), "answer_submit".into()];
+    let h1 = HarnessBundle::embedded(&tools);
+    let with = |b: &HarnessBundle| {
+        let store = Arc::new(ResearchStore::open(dir.path().join("state.sqlite")).unwrap());
+        let artifacts = Arc::new(LocalArtifactStore::open(dir.path().join("artifacts")).unwrap());
+        let mut cfg = config(dir.path());
+        cfg.harness = Some(b.clone());
+        let manifest = claude_preflight(&cfg).unwrap();
+        H {
+            store: store.clone(),
+            artifacts: artifacts.clone(),
+            bridge: ClaudeBridge::new(
+                cfg,
+                manifest,
+                store,
+                artifacts,
+                Arc::new(|_: &EpisodeId, _| {}),
+            ),
+        }
+    };
+    let running = |evs: &[ResearchEvent]| -> Vec<String> {
+        evs.iter()
+            .filter_map(|e| match &e.body {
+                EventBody::StatusChanged { to, reason, .. } if *to == EpisodeStatus::Running => {
+                    Some(reason.clone().unwrap_or_default())
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    let sc = scope("ws-hc", false);
+    let h = with(&h1);
+    let ep = h.episode(&sc, "harness");
+    h.say(&sc, &ep, "first question");
+    h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    h.say(&sc, &ep, "second question");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 2);
+    check_event_log(&evs).unwrap();
+    let reasons = running(&evs);
+    assert!(
+        reasons[0].contains(&format!("harness {} injected", h1.short())),
+        "{reasons:?}"
+    );
+    assert!(!reasons[1].contains("harness"), "{reasons:?}");
+    let rec = h.store.episode(&sc, &ep).unwrap();
+    rec.validate().unwrap();
+    let pin = rec.pins.harness.expect("harness pin");
+    assert_eq!(&pin.digest, h1.digest());
+    assert_eq!(
+        pin.model, "fake-claude-model",
+        "the model Claude Code reported"
+    );
+    assert_eq!(pin.runtime_build, h.bridge.manifest().runtime_build_id);
+    // Both turns got exactly the bundle's bytes.
+    let cfg_dir = std::fs::read_dir(dir.path().join("claude"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path()
+        .join("config");
+    let logged: Vec<serde_json::Value> =
+        std::fs::read_to_string(cfg_dir.join("system-prompts.jsonl"))
+            .unwrap()
+            .lines()
+            .map(|l| serde_json::from_str(l).unwrap())
+            .collect();
+    assert_eq!(logged.len(), 2);
+    assert!(logged.iter().all(|v| v["append"] == h1.text()));
+    let argv = std::fs::read_to_string(cfg_dir.join("argv.log")).unwrap();
+    assert!(argv.contains("--exclude-dynamic-system-prompt-sections"));
+    drop(h);
+
+    // Another bundle on the host: the resumed session keeps the prompt it started with, so the
+    // pin stays and the log says why; a new episode starts with the new bundle.
+    let mut src = HarnessSource::embedded();
+    src.investigator.push_str(
+        "
+An extra rule for this variant.
+",
+    );
+    let h2 = HarnessBundle::render("h2", &src, &tools).unwrap();
+    let h = with(&h2);
+    h.say(&sc, &ep, "third question");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 3);
+    let reasons = running(&evs);
+    assert!(
+        reasons[2].contains(&format!("stays on {}", h1.short())),
+        "{reasons:?}"
+    );
+    let pin = h.store.episode(&sc, &ep).unwrap().pins.harness.unwrap();
+    assert_eq!(&pin.digest, h1.digest());
+    let ep2 = h.episode(&sc, "fresh");
+    h.say(&sc, &ep2, "a question");
+    h.idle(&sc, &ep2, EpisodeStatus::Completed, 1);
+    let pin = h.store.episode(&sc, &ep2).unwrap().pins.harness.unwrap();
+    assert_eq!(&pin.digest, h2.digest());
+}
+
+/// The IGNIS MCP server as the bridge sees it (nothing listens: the fake never connects).
+fn delegating(cfg: &mut ClaudeConfig) {
+    cfg.delegation = true;
+    cfg.mcp = Some(McpAttachment {
+        url: "http://127.0.0.1:9/mcp".into(),
+        grants: McpGrants::new(),
+        enabled_tools: vec!["sources_search".into(), "answer_submit".into()],
+        approved_tools: vec!["sources_search".into(), "answer_submit".into()],
+    });
+}
+
+fn argv(dir: &Path) -> Vec<Vec<String>> {
+    let ws = std::fs::read_dir(dir.join("claude"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    std::fs::read_to_string(ws.join("config").join("argv.log"))
+        .unwrap()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect()
+}
+
+#[test]
+fn a_delegated_subtask_runs_in_the_parent_episode_and_cannot_delegate_again() {
+    let dir = tempfile::tempdir().unwrap();
+    let off = harness(&dir.path().join("off"));
+    let h = harness_with(dir.path(), delegating);
+    // Delegation is part of the runtime build: the two arms of an ablation never share an id.
+    assert_ne!(
+        h.bridge.manifest().runtime_build_id,
+        off.bridge.manifest().runtime_build_id
+    );
+
+    let sc = scope("ws-d", false);
+    let ep = h.episode(&sc, "delegate");
+    h.say(&sc, &ep, "delegate the aggregation");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    check_event_log(&evs).unwrap();
+
+    // The child got exactly one subagent: IGNIS tools only, never answer_submit or a subagent tool.
+    let args = &argv(dir.path())[0];
+    let flag = |f: &str| {
+        let i = args.iter().position(|a| a == f).unwrap();
+        args[i + 1].clone()
+    };
+    assert_eq!(flag("--tools"), "Agent");
+    let agents: serde_json::Value = serde_json::from_str(&flag("--agents")).unwrap();
+    let defs = agents.as_object().unwrap();
+    assert_eq!(defs.len(), 1);
+    let tools = &defs["ignis-subinvestigator"]["tools"];
+    assert_eq!(tools, &serde_json::json!(["mcp__ignis__sources_search"]));
+    assert!(flag("--allowedTools").split(',').any(|t| t == "Agent"));
+
+    // The subagent's IGNIS call and the subagent call itself are in the parent episode's log;
+    // the subagent's text is archived, never an assistant message of the episode.
+    let started: Vec<String> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::ToolStarted { tool, .. } => Some(tool.clone()),
+            _ => None,
+        })
+        .collect();
+    assert!(started.contains(&"claude.Agent".to_string()), "{started:?}");
+    assert!(
+        started.contains(&"sources_search".to_string()),
+        "{started:?}"
+    );
+    let finished = kinds(&evs).iter().filter(|k| *k == "tool.finished").count();
+    assert_eq!(finished, 2, "{:#?}", kinds(&evs));
+    let texts = completed_texts(&evs);
+    assert!(!texts.iter().any(|t| t.starts_with("Sub:")), "{texts:?}");
+    assert!(texts.contains(&"Delegating the aggregation.".to_string()));
+
+    // A subagent that tries to delegate again: the host stops the turn and says why.
+    let ep2 = h.episode(&sc, "nested");
+    h.say(&sc, &ep2, "nested delegation");
+    let evs = h.idle(&sc, &ep2, EpisodeStatus::Failed, 1);
+    check_event_log(&evs).unwrap();
+    assert!(reason(&evs).contains("depth 1"), "{}", reason(&evs));
+}
+
+#[test]
+fn a_turn_s_usage_and_reported_cost_are_recorded_and_measured() {
+    let dir = tempfile::tempdir().unwrap();
+    let h = harness(dir.path());
+    let sc = scope("ws-u", false);
+    let ep = h.episode(&sc, "usage");
+    h.say(&sc, &ep, "search with a tool and report usage");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    check_event_log(&evs).unwrap();
+    let usage: Vec<_> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::UsageReported { usage } => Some((usage.clone(), e.causation.clone())),
+            _ => None,
+        })
+        .collect();
+    let [(u, c)] = &usage[..] else {
+        panic!("{usage:?}")
+    };
+    // Anthropic counts cache reads and writes apart from input; the report folds them in.
+    assert_eq!(u.accounting, UsageAccounting::Increment);
+    assert_eq!(u.model.as_deref(), Some("claude-opus-5-5"));
+    assert_eq!(u.input_tokens, 200 + 6000 + 1800);
+    assert_eq!(
+        (u.cached_input_tokens, u.cache_write_tokens),
+        (Some(6000), Some(1800))
+    );
+    assert_eq!(u.output_tokens, 500);
+    let reported = u.reported_cost.as_ref().unwrap();
+    assert_eq!(reported.basis, CostBasis::ProviderReported);
+    assert!(c.runtime_turn_id.is_some());
+
+    // The metrics price it from the price list (not from the reported cost).
+    let m = ignis_research::metrics::measure_episode(
+        &h.store,
+        &sc,
+        &ep,
+        &ignis_research::metrics::PriceList::builtin(),
+    )
+    .unwrap()
+    .metrics;
+    m.validate().unwrap();
+    assert_eq!(m.turns.len(), 1);
+    assert_eq!(m.turns[0].tool_calls, 1);
+    assert_eq!(m.tools[0].tool, "sources_search");
+    assert_eq!(m.tools[0].latency.as_ref().unwrap().samples, 1);
+    let pct = m.tokens.cache_hit_pct.unwrap().get();
+    assert!((pct - 75.0).abs() < 1e-9, "{pct}");
+    let CostStatus::Priced { cost } = &m.questions[0].cost else {
+        panic!("{:?}", m.questions[0].cost)
+    };
+    // 200 × 4 + 6000 × 0.20 + 1800 × 5 + 500 × 20, per million tokens.
+    let want = (200.0 * 4.0 + 6000.0 * 0.20 + 1800.0 * 5.0 + 500.0 * 20.0) / 1e6;
+    assert!(
+        (cost.amount.get() - want).abs() < 1e-12,
+        "{}",
+        cost.amount.get()
+    );
+    assert_eq!(
+        cost.price_list.as_deref(),
+        Some("ignis-llm-prices@2026-11-15")
     );
 }

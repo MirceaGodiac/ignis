@@ -7,15 +7,20 @@
 //! |---|---|
 //! | `item/agentMessage/delta` | `message.delta` (never the only copy) |
 //! | `item/completed` `agentMessage` | `message.completed` |
-//! | `item/started` / `item/completed` `mcpToolCall` | `tool.started` / `tool.finished` |
+//! | `item/started` / `item/completed` `mcpToolCall` | `tool.started` (with its arguments) / `tool.finished` |
+//! | `agentMessage` right before an `mcpToolCall` in the same turn | also `step.rationale` of that call ([`Preamble`]) |
 //! | `item/*` `userMessage` | nothing (IGNIS recorded `message.user` itself) |
 //! | `item/completed` of any other item type | `runtime.opaque` (method `item/completed`) |
 //! | `turn/completed` | `episode.status_changed` (completed / waiting_user / paused / cancelled / failed) |
+//! | `thread/tokenUsage/updated` | `usage.reported` (`thread_total`; a malformed one stays opaque) |
 //!
 //! Every record that can be seen twice (live, then again in a thread replayed after a restart)
 //! carries a mark, so it is appended once. Deltas are live-only and unmarked.
 
-use ignis_core::contracts::{Causation, EpisodeStatus, EventBody, MessageId, ToolCallId};
+use ignis_core::contracts::{
+    Causation, EpisodeStatus, EventBody, MessageId, RationaleSource, ToolCallId, UsageAccounting,
+    UsageReport,
+};
 use serde_json::Value;
 
 use super::preflight::LIVE;
@@ -37,6 +42,16 @@ pub enum StopReason {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Mapped {
     Record(RuntimeRecord),
+    /// A tool call started; the bridge records `tool.started` with its arguments (secret-like
+    /// members redacted, large arguments archived as an artifact behind a partial preview).
+    ToolStarted {
+        call_id: ToolCallId,
+        tool: String,
+        /// The arguments as the runtime reported them (absent when it reported none).
+        arguments: Option<Value>,
+        causation: Causation,
+        mark: String,
+    },
     /// Archive `payload` as an artifact and record `runtime.opaque` pointing at it.
     Opaque {
         method: String,
@@ -48,7 +63,7 @@ pub enum Mapped {
     ToolFinished {
         call_id: ToolCallId,
         tool: String,
-        /// `structuredContent` (or `content`) of a completed call.
+        /// `structuredContent` (or `content`) of the call's result, also when it failed.
         value: Option<Value>,
         /// Message of a failed call.
         error: Option<String>,
@@ -85,6 +100,96 @@ fn record(mark: Option<String>, causation: Causation, body: EventBody) -> Mapped
         causation,
         change: RuntimeChange::Event(body),
     })
+}
+
+/// Links the model's own message to the tool call it introduces, as a `step.rationale`.
+///
+/// What a runtime exposes as the model's explanation of a step is the text it wrote for the user
+/// right before calling a tool (Claude's text block before a `tool_use`, Codex's `agentMessage`
+/// item before an `mcpToolCall`). That text, unchanged, becomes the rationale of the first call it
+/// precedes; a call with no such message has none. Reasoning items (hidden or summarized thinking)
+/// are never used, and nothing is generated. One per turn; replays use a fresh one per turn and get
+/// the same marks.
+#[derive(Debug, Default)]
+pub struct Preamble {
+    last: Option<String>,
+    /// Calls already seen (Codex reports a call again when it completes).
+    seen: std::collections::HashSet<ToolCallId>,
+    /// Calls started in this turn and not finished yet, in start order.
+    open: Vec<(ToolCallId, String, Causation)>,
+}
+
+/// Error of a call the runtime abandoned: the turn ended without a result for it (seen live with
+/// Codex: two slow `sources_search` calls past its tool timeout never completed, and the log kept
+/// them running forever).
+pub const ABANDONED: &str = "the runtime ended the turn without returning this call's result (abandoned or timed out by the agent runtime); the call may have kept running on the host";
+
+impl Preamble {
+    /// Pass `mapped` through, inserting the rationale record before each call a message precedes.
+    pub fn link(&mut self, mapped: Vec<Mapped>) -> Vec<Mapped> {
+        let mut out = Vec::with_capacity(mapped.len());
+        for m in mapped {
+            match &m {
+                Mapped::Record(RuntimeRecord {
+                    change: RuntimeChange::Event(EventBody::AssistantMessage { text, .. }),
+                    ..
+                }) => {
+                    self.last = Some(text.clone()).filter(|t| !t.trim().is_empty());
+                }
+                Mapped::ToolStarted {
+                    call_id,
+                    causation,
+                    mark,
+                    tool,
+                    ..
+                } => {
+                    if !self.open.iter().any(|(c, _, _)| c == call_id)
+                        && !self.seen.contains(call_id)
+                    {
+                        self.open
+                            .push((call_id.clone(), tool.clone(), causation.clone()));
+                    }
+                    if !self.seen.insert(call_id.clone()) {
+                        // Already linked (or not) when first seen.
+                    } else if let Some(text) = self.last.take() {
+                        out.push(record(
+                            Some(format!("{mark}:rationale")),
+                            causation.clone(),
+                            EventBody::StepRationale {
+                                call_id: Some(call_id.clone()),
+                                text,
+                                source: RationaleSource::ModelExplanation,
+                            },
+                        ));
+                    }
+                }
+                Mapped::ToolFinished { call_id, .. } => {
+                    self.open.retain(|(c, _, _)| c != call_id);
+                }
+                Mapped::Record(RuntimeRecord {
+                    change: RuntimeChange::Status { .. },
+                    ..
+                }) => {
+                    self.last = None;
+                    // The turn is over: a call still open never gets a result from the runtime.
+                    for (call_id, tool, causation) in std::mem::take(&mut self.open) {
+                        let mark = format!("item:{call_id}:abandoned");
+                        out.push(Mapped::ToolFinished {
+                            call_id,
+                            tool,
+                            value: None,
+                            error: Some(ABANDONED.to_string()),
+                            causation,
+                            mark,
+                        });
+                    }
+                }
+                _ => {}
+            }
+            out.push(m);
+        }
+        out
+    }
 }
 
 fn tool_name(item: &Value) -> String {
@@ -127,11 +232,38 @@ pub fn map_notification(method: &str, params: &Value, stop: Option<StopReason>) 
             Some(t) => map_turn_completed(t, stop),
             None => opaque(method, params),
         },
+        "thread/tokenUsage/updated" => {
+            match params.pointer("/tokenUsage/total").and_then(codex_usage) {
+                Some(usage) => vec![record(
+                    None,
+                    causation(turn, None),
+                    EventBody::UsageReported { usage },
+                )],
+                None => opaque(method, params),
+            }
+        }
         // Known, but carry no event: the turn start is recorded by IGNIS before `turn/start` is sent,
         // and server-request resolution is handled by the bridge's approval bookkeeping.
         "turn/started" | "thread/started" | "serverRequest/resolved" => vec![],
         _ => opaque(method, params),
     }
+}
+
+/// The running thread total of a Codex `TokenUsageBreakdown` (input includes the cached part,
+/// output includes reasoning). `None` when a required count is missing or inconsistent.
+fn codex_usage(total: &Value) -> Option<UsageReport> {
+    let n = |k: &str| total.get(k).and_then(Value::as_u64);
+    let usage = UsageReport {
+        accounting: UsageAccounting::ThreadTotal,
+        model: None,
+        input_tokens: n("inputTokens")?,
+        cached_input_tokens: n("cachedInputTokens"),
+        cache_write_tokens: None,
+        output_tokens: n("outputTokens")?,
+        reasoning_tokens: n("reasoningOutputTokens"),
+        reported_cost: None,
+    };
+    usage.validate().is_ok().then_some(usage)
 }
 
 fn opaque(method: &str, params: &Value) -> Vec<Mapped> {
@@ -188,15 +320,13 @@ pub fn map_item(turn: Option<&str>, item: &Value, completed: bool) -> Vec<Mapped
                     ..c
                 }
             };
-            let mut out = vec![record(
-                Some(started_mark),
-                tool_call(c.clone()),
-                EventBody::ToolStarted {
-                    arguments: None,
-                    call_id: call_id.clone(),
-                    tool: tool.clone(),
-                },
-            )];
+            let mut out = vec![Mapped::ToolStarted {
+                call_id: call_id.clone(),
+                tool: tool.clone(),
+                arguments: item.get("arguments").filter(|a| !a.is_null()).cloned(),
+                causation: tool_call(c.clone()),
+                mark: started_mark,
+            }];
             let status = s(item, "status").unwrap_or("");
             if done && status != "inProgress" {
                 let failed = status == "failed" || item.get("error").is_some_and(|e| !e.is_null());
@@ -207,10 +337,12 @@ pub fn map_item(turn: Option<&str>, item: &Value, completed: bool) -> Vec<Mapped
                         .cloned()
                         .unwrap_or(Value::Null)
                 });
+                // A failed call keeps its result: an IGNIS refusal is a `ToolResult` carried in an
+                // MCP error result, and its reason must reach the log (the recorder decides).
                 out.push(Mapped::ToolFinished {
                     call_id,
                     tool,
-                    value: if failed { None } else { value },
+                    value,
                     error: failed.then(|| {
                         item.pointer("/error/message")
                             .and_then(Value::as_str)
@@ -317,6 +449,40 @@ mod tests {
     }
 
     #[test]
+    fn codex_token_usage_is_a_thread_total_and_a_malformed_one_stays_opaque() {
+        let p = json!({"threadId": "t", "turnId": "u", "tokenUsage": {
+            "total": {"totalTokens": 130, "inputTokens": 100, "cachedInputTokens": 60,
+                      "outputTokens": 30, "reasoningOutputTokens": 12},
+            "last": {"inputTokens": 1, "outputTokens": 1}}});
+        let out = map_notification("thread/tokenUsage/updated", &p, None);
+        let [Mapped::Record(r)] = &out[..] else {
+            panic!("{out:?}")
+        };
+        let RuntimeChange::Event(EventBody::UsageReported { usage }) = &r.change else {
+            panic!()
+        };
+        assert_eq!(usage.accounting, UsageAccounting::ThreadTotal);
+        assert_eq!(
+            (usage.input_tokens, usage.cached_input_tokens),
+            (100, Some(60))
+        );
+        assert_eq!(
+            (usage.output_tokens, usage.reasoning_tokens),
+            (30, Some(12))
+        );
+        assert_eq!(r.causation.runtime_turn_id.as_deref(), Some("u"));
+        // No output count, or more cached than input: not interpreted.
+        for total in [
+            json!({"inputTokens": 10}),
+            json!({"inputTokens": 1, "cachedInputTokens": 2, "outputTokens": 0}),
+        ] {
+            let p = json!({"threadId": "t", "tokenUsage": {"total": total}});
+            let out = map_notification("thread/tokenUsage/updated", &p, None);
+            assert!(matches!(&out[..], [Mapped::Opaque { .. }]), "{out:?}");
+        }
+    }
+
+    #[test]
     fn a_failed_turn_is_never_reported_as_success() {
         let t = json!({"id": "u", "status": "failed", "error": {"message": "model refused"}, "items": []});
         let out = map_turn_completed(&t, None);
@@ -324,6 +490,52 @@ mod tests {
         assert!(
             matches!(&r.change, RuntimeChange::Status { to: EpisodeStatus::Failed, reason: Some(m), .. } if m.contains("model refused"))
         );
+    }
+
+    #[test]
+    fn a_call_the_runtime_abandons_is_closed_when_the_turn_ends() {
+        // Two calls start; one completes; the turn ends without the other (Codex past its tool
+        // timeout). The log must not keep the second one running forever.
+        let started = |id: &str| {
+            json!({"type": "mcpToolCall", "id": id, "server": "ignis", "tool": "sources_search",
+                   "status": "inProgress", "arguments": {"query": "q"}})
+        };
+        let done = json!({"type": "mcpToolCall", "id": "call-a", "server": "ignis", "tool": "sources_search",
+                          "status": "completed", "arguments": {"query": "q"},
+                          "result": {"content": [], "structuredContent": {"x": 1}}});
+        let mut p = Preamble::default();
+        let mut out = Vec::new();
+        out.extend(p.link(map_item(Some("u"), &started("call-a"), false)));
+        out.extend(p.link(map_item(Some("u"), &started("call-b"), false)));
+        out.extend(p.link(map_item(Some("u"), &done, true)));
+        let end = json!({"id": "u", "status": "completed", "items": []});
+        out.extend(p.link(map_turn_completed(&end, None)));
+        let finished: Vec<_> = out
+            .iter()
+            .filter_map(|m| match m {
+                Mapped::ToolFinished {
+                    call_id,
+                    error,
+                    mark,
+                    ..
+                } => Some((call_id.as_str().to_string(), error.clone(), mark.clone())),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(finished.len(), 2, "{out:?}");
+        assert_eq!(finished[0].0, "call-a");
+        assert_eq!(finished[0].1, None);
+        assert_eq!(finished[1].0, "call-b");
+        assert_eq!(finished[1].1.as_deref(), Some(ABANDONED));
+        assert_eq!(finished[1].2, "item:call-b:abandoned");
+        // The closing record comes before the turn's status change.
+        assert!(matches!(
+            out.last(),
+            Some(Mapped::Record(RuntimeRecord {
+                change: RuntimeChange::Status { .. },
+                ..
+            }))
+        ));
     }
 
     #[test]
