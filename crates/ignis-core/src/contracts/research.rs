@@ -1416,7 +1416,7 @@ impl ClaimValue {
             }
             ValueSource::EvidenceQuote { .. } => {
                 ensure(self.value.is_some(), c, || {
-                    "a quoted number is stated (value and unit): the host finds it in the quote"
+                    "an evidence_quote value must state `value` and `unit` (the number as written in the quote); the host checks that it appears in the quoted text"
                         .into()
                 })?;
                 return ensure(self.derivation.is_none(), c, || {
