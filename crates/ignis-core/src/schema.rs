@@ -77,6 +77,8 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<OutlineRequest>("OutlineRequest"),
         one::<SourceOutline>("SourceOutline"),
         one::<SourceAccess>("SourceAccess"),
+        one::<MediaKeyframeIndex>("MediaKeyframeIndex"),
+        one::<ArchiveListing>("ArchiveListing"),
         one::<ProvenanceLink>("ProvenanceLink"),
         one::<GraphNeighborsRequest>("GraphNeighborsRequest"),
         one::<GraphNeighborsPage>("GraphNeighborsPage"),
