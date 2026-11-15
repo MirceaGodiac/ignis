@@ -3,7 +3,7 @@
 // its authors reported. A forecast runs the release's strict forward on a stored run of the train
 // partition or on conditions typed here; a typed scenario is a synthetic input, never a NASA run.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import type { AnalysisArtifact, EndpointRecord, JobRef, ModelCard, ModelInput, ScenarioAdmitted, ToolResult } from "../contracts/generated";
 import { call, type ExperimentDetail, type ExperimentList, type ExperimentSummary, type ObservationsAtCutoff } from "../api";
 import { ForecastChart, type Bands, type ChartPoint } from "../components/ForecastChart";
@@ -85,20 +85,94 @@ export function fit(card: ModelCard, run: ExperimentSummary): { score: number; w
     score += 2;
     why.push(`written for ${words(run.fuel_or_material!)}`);
   } else if (fuel && /droplets|fabric|plastics/.test(inv)) score -= 1;
-  if (card.stored_runs) {
-    score += 1;
-    why.push("reads the stored run directly");
-  }
+  if (card.stored_runs) score += 1;
   return { score, why };
 }
 
-export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | null; pickRun: (id: string) => void; runs: ExperimentSummary[] }) {
-  const { researchMode, origin, caps } = useData();
+/** The served hand-written releases, and the v1 base they are served from (null when none is). */
+export function useModelCards() {
+  const { researchMode, caps } = useData();
   const base = researchMode === "live" ? "/api/v1" : researchMode === "fixtures" ? "/api/fixtures/v1" : null;
   // Only the live server says whether the model families are switched on; fixtures always serve theirs.
   const modelsCap = researchMode === "live" ? caps.data?.models : undefined;
   const cards = useQuery({ queryKey: [researchMode, "model-cards"], queryFn: () => v1<ModelCard[]>(base!, "/model-cards"), enabled: !!base && modelsCap?.available !== false, retry: false });
+  return { base, modelsCap, cards };
+}
+
+/** The runs a release may read here: the train partition of its split (validation and test stay sealed). */
+const trainOf = async (base: string, legacy: "registry" | "fixtures", releaseId: string) => {
+  const r = await v1<{ split_id: string }>(base, `/models/${encodeURIComponent(releaseId)}`);
+  return call<ExperimentList>(legacy, `/experiments?split=${encodeURIComponent(r.split_id)}&partition=train`);
+};
+const trainQuery = (base: string | null, legacy: "registry" | "fixtures", releaseId: string, enabled = true) => ({
+  queryKey: [legacy, "hw-split", releaseId],
+  queryFn: () => trainOf(base!, legacy, releaseId),
+  enabled: !!base && enabled,
+  retry: false,
+  staleTime: 300_000,
+});
+
+/**
+ * What a served model can do with each run: forecast it from the stored record ("ready"), forecast it
+ * from its conditions filled in for the user ("conditions"), forecast it only with values the user
+ * types because the record lacks some ("typed"), nothing because the run is sealed for evaluation
+ * ("sealed"), or nothing because no model is written for its family ("none").
+ */
+export type Reach = "ready" | "conditions" | "typed" | "sealed" | "none";
+export function useReach(runs: ExperimentSummary[]): Map<string, Reach> | null {
+  const { origin } = useData();
+  const { base, cards } = useModelCards();
+  const stored = (cards.data ?? []).filter((c) => c.stored_runs);
+  const trains = useQueries({ queries: stored.map((c) => trainQuery(base, origin, c.release_id)) });
+  if (!base || cards.isError) return null;
+  if (!cards.data || trains.some((t) => t.isLoading)) return null;
+  const readable = stored.map((c, k) => ({ c, ids: new Set((trains[k].data?.experiments ?? []).map((x) => x.id)), needsSeries: c.inputs.some((i) => i.kind === "observation") }));
+  const typed = cards.data.filter((c) => !c.stored_runs);
+  const storedFamilies = new Set(stored.map((c) => c.family));
+  const m = new Map<string, Reach>();
+  for (const r of runs) {
+    const ready = readable.some(({ c, ids, needsSeries }) => c.family === r.family && ids.has(r.id) && (!needsSeries || hasSeries(r)));
+    const mine = typed.filter((c) => c.family === r.family);
+    // "conditions" only when the record fills every required input; otherwise the user types the rest.
+    const complete = mine.some((c) => {
+      const v = fromRun(c, r);
+      return c.inputs.every((i) => !i.required || v[i.name] !== undefined);
+    });
+    m.set(r.id, ready ? "ready" : complete ? "conditions" : mine.length ? "typed" : storedFamilies.has(r.family) ? "sealed" : "none");
+  }
+  return m;
+}
+
+/** A model's inputs filled from what the NASA record holds for a run; anything it lacks stays empty. */
+function fromRun(card: ModelCard, r: ExperimentSummary): Record<string, string> {
+  const v: Record<string, string> = {};
+  const num = (x: number) => String(+x.toPrecision(6));
+  for (const i of card.inputs) {
+    const cell = r.conditions?.[i.name];
+    if (i.kind === "condition") {
+      if (i.text) {
+        if (/fuel|species|material/.test(i.name) && r.fuel_or_material) v[i.name] = r.fuel_or_material;
+      } else if (cell?.value_si != null) v[i.name] = num(cell.value_si);
+      else if (i.name === "width" && r.fuel_or_material) {
+        // BASS names the sample by its width ("100 micron PMMA film   2 cm wide").
+        const w = r.fuel_or_material.match(/([\d.]+)\s*(mm|cm)\s+wide/i);
+        if (w) v[i.name] = num(Number(w[1]) * (w[2].toLowerCase() === "cm" ? 0.01 : 0.001));
+      }
+    } else if (i.kind === "control" && cell?.value_si != null) v[i.name] = `0, , ${num(cell.value_si)}`;
+    else if (i.kind === "test_date") {
+      const d = r.session_id?.match(/\d{4}-\d{2}-\d{2}/);
+      if (d) v[i.name] = d[0];
+    }
+  }
+  return v;
+}
+
+export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | null; pickRun: (id: string) => void; runs: ExperimentSummary[] }) {
+  const { origin } = useData();
+  const { base, modelsCap, cards } = useModelCards();
   const [pickByRun, setPickByRun] = useState<Record<string, string>>({});
+  // With no run picked, the panel stays closed until the user asks to type conditions.
+  const [typing, setTyping] = useState(false);
   const ranked = useMemo(() => {
     const all = cards.data ?? [];
     if (!run) return all.map((c) => ({ c, score: 0, why: [] as string[] }));
@@ -112,41 +186,11 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
   const card = chosen?.c ?? null;
 
   if (!base) return null;
+  const open = !!run || typing;
+  const label = (c: ModelCard) => `${c.investigation} (${c.model_name} ${c.candidate})`;
   return (
-    <section className="sheet" aria-labelledby="hw-h" style={{ marginTop: 16 }}>
-      <div className="sheet-head">
-        <h2 id="hw-h">
-          Model and forecast
-        </h2>
-        {ranked.length > 0 && (
-          <>
-            <label className="sr-only" htmlFor="hw-model">
-              Model
-            </label>
-            <select id="hw-model" className="field" value={manual && ranked.some((x) => x.c.release_id === manual) ? manual : ""} onChange={(e) => setPickByRun((m) => ({ ...m, [key]: e.target.value }))}>
-              <option value="">{auto ? `Automatic: ${auto.c.model_name} ${auto.c.candidate}` : "Choose a model"}</option>
-              {run && fitting.length > 0 && (
-                <optgroup label="Fits this run">
-                  {fitting.map(({ c }) => (
-                    <option key={c.release_id} value={c.release_id}>
-                      {c.model_name} {c.candidate} · {c.investigation}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-              <optgroup label={run && fitting.length ? "Other models (typed conditions)" : "All served models"}>
-                {ranked
-                  .filter((x) => !(run && x.score >= 0))
-                  .map(({ c }) => (
-                    <option key={c.release_id} value={c.release_id}>
-                      {c.model_name} {c.candidate} · {c.investigation}
-                    </option>
-                  ))}
-              </optgroup>
-            </select>
-          </>
-        )}
-      </div>
+    <section className="sheet lab-models" aria-labelledby="hw-h">
+      <h2 id="hw-h">Model and forecast</h2>
       {modelsCap && !modelsCap.available && (
         <Gap title="The prediction models are switched off on this server">
           {modelsCap.detail}. The hand-written releases exist; the deployment has to start with <code>IGNIS_ENABLE_MODELS=true</code> to serve them.
@@ -155,25 +199,63 @@ export function LabModels({ run, pickRun, runs }: { run: ExperimentSummary | nul
       {cards.error && <Gap title="Hand-written models are not served here">{cards.error instanceof V1Error ? cards.error.envelope.message : String(cards.error)}</Gap>}
       {cards.isLoading && <p className="muted">Loading the served models…</p>}
       {cards.data && cards.data.length === 0 && <Gap title="No model is served">This deployment lists no hand-written release.</Gap>}
-      {!run && ranked.length > 0 && (
-        <p className="muted lab-why">Pick a run above and the model that fits it is chosen for you, or choose any model in the menu and type its conditions.</p>
+
+      {!open && ranked.length > 0 && (
+        <div className="lab-start">
+          <p className="muted">Pick a run above and the model written for it is chosen for you.</p>
+          <button className="btn btn-s" onClick={() => setTyping(true)}>
+            Forecast from conditions you type instead
+          </button>
+        </div>
       )}
-      {chosen && (
+
+      {open && ranked.length > 0 && (
+        <div className="lab-model-row">
+          <label htmlFor="hw-model">Model</label>
+          <select id="hw-model" className="field" value={manual && ranked.some((x) => x.c.release_id === manual) ? manual : ""} onChange={(e) => setPickByRun((m) => ({ ...m, [key]: e.target.value }))}>
+            <option value="">{auto ? (run ? `Best fit: ${label(auto.c)}` : label(auto.c)) : "Choose a model"}</option>
+            {run && fitting.length > 0 && (
+              <optgroup label="Written for this run's family">
+                {fitting.map(({ c }) => (
+                  <option key={c.release_id} value={c.release_id}>
+                    {label(c)}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            <optgroup label={run && fitting.length ? "Other models (you type the conditions)" : "All served models"}>
+              {ranked
+                .filter((x) => !(run && x.score >= 0) && x !== (run ? null : auto))
+                .map(({ c }) => (
+                  <option key={c.release_id} value={c.release_id}>
+                    {label(c)}
+                  </option>
+                ))}
+            </optgroup>
+          </select>
+          {!run && (
+            <button className="btn btn-s btn-quiet" onClick={() => setTyping(false)}>
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
+      {open && chosen && run && (
         <p className="muted lab-why">
-          {!manual && run ? (
+          {!manual ? (
             <>
-              <b>Chosen automatically</b>: {chosen.why.join(", ")}.
-              {fitting.length > 1 && ` ${fitting.length - 1} other model${fitting.length > 2 ? "s" : ""} also fit${fitting.length > 2 ? "" : "s"}; switch in the menu.`}
+              Chosen automatically: {chosen.why.join(", ")}.
+              {fitting.length > 1 && ` ${fitting.length - 1} other model${fitting.length > 2 ? "s" : ""} also fit${fitting.length > 2 ? "" : "s"}.`}
             </>
-          ) : run && chosen.score < 0 ? (
-            <>This model was not written for {familyLabel(run.family)} runs; it takes typed conditions only.</>
+          ) : chosen.score < 0 ? (
+            <>This model was not written for {familyLabel(run.family)} runs: you type its conditions.</>
           ) : null}
         </p>
       )}
       {run && cards.data && cards.data.length > 0 && !fitting.length && !manual && (
         <Gap title={`No served model is written for ${familyLabel(run.family)} runs`}>Choose another run, or pick a model in the menu and type its conditions.</Gap>
       )}
-      {card && (!run || chosen!.score >= 0 || manual) && (
+      {open && card && (!run || chosen!.score >= 0 || manual) && (
         <ModelPanel key={`${card.release_id}|${run?.id ?? ""}`} card={card} base={base} legacy={origin} run={run && chosen!.score >= 0 ? run : null} pickRun={pickRun} allRuns={runs} />
       )}
     </section>
@@ -184,14 +266,17 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
   const obsInput = card.inputs.find((i) => i.kind === "observation");
   const unit = obsInput?.unit_si ?? "";
   const d = display(unit);
-  const [mode, setMode] = useState<Mode>(card.stored_runs ? "stored" : "typed");
-  const [values, setValues] = useState<Record<string, string>>({});
+  // Without a run the panel only opens to type conditions; with one, a model that reads stored runs reads it.
+  const [mode, setMode] = useState<Mode>(card.stored_runs && fixed ? "stored" : "typed");
+  // Typed conditions start from what the NASA record holds for the run picked above.
+  const recorded = useMemo(() => (fixed ? fromRun(card, fixed) : {}), [card, fixed]);
+  const [values, setValues] = useState<Record<string, string>>(recorded);
   const set = (k: string, v: string) => setValues((m) => ({ ...m, [k]: v }));
   // A run picked above fixes the input; the cutoff starts at 40 % of its recorded series.
   const series = fixed?.quantities.find((q) => q.quantity === obsInput?.name);
   const extent = series ? series.archive_t_max_s : null;
   const [cutoff, setCutoff] = useState(() => (extent != null && extent > 0 ? String(+(extent * 0.4).toPrecision(3)) : fixed ? "3" : ""));
-  const [run, setRun] = useState(fixed?.id ?? "");
+  const run = fixed?.id ?? "";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [art, setArt] = useState<AnalysisArtifact | null>(null);
@@ -199,16 +284,7 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
   const seq = useRef(0);
 
   // Stored runs offered: the train partition of the release's split (the research scope reads train only).
-  const split = useQuery({
-    queryKey: [legacy, "hw-split", card.release_id],
-    queryFn: async () => {
-      const r = await v1<{ split_id: string }>(base, `/models/${encodeURIComponent(card.release_id)}`);
-      return call<ExperimentList>(legacy, `/experiments?split=${encodeURIComponent(r.split_id)}&partition=train`);
-    },
-    enabled: card.stored_runs && mode === "stored",
-    retry: false,
-    staleTime: 300_000,
-  });
+  const split = useQuery(trainQuery(base, legacy, card.release_id, card.stored_runs && !!fixed));
   const runs = split.data?.experiments ?? [];
 
   const fillExamples = () => {
@@ -353,28 +429,28 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
       <div className="fc-model">
         <div className="fc-model-name">
           <b>{card.investigation}</b>
-          <span className="muted">
-            {card.model_name} {card.candidate}
+          <span className="fc-model-meta">
+            <span className="muted">
+              {card.model_name} {card.candidate}
+            </span>
+            <span className="tag tag-warn" title="Not qualified by evaluation: read it as an experimental model output">
+              experimental
+            </span>
+            <span className="tag" title="Literal weights an author model typed; nothing was fitted">
+              hand-written · {authorshipLabel(card)}
+            </span>
           </span>
         </div>
-        <span className="tag tag-warn" title="Not qualified by evaluation: read it as an experimental model output">
-          experimental
-        </span>
-        <span className="tag" title="Literal weights an author model typed; nothing was fitted">
-          hand-written · {authorshipLabel(card)}
-        </span>
-        <span className="fc-model-actions">
-          {card.stored_runs && mode === "typed" && (
-            <button className="linkish" onClick={() => setMode("stored")}>
-              {fixed ? "Use the selected run" : "Use a stored run"}
+        {fixed && card.stored_runs && (
+          <span className="fc-model-actions seg" role="group" aria-label="Model input">
+            <button aria-pressed={mode === "stored"} onClick={() => setMode("stored")}>
+              The NASA run
             </button>
-          )}
-          {mode === "stored" && (
-            <button className="linkish" onClick={() => setMode("typed")}>
-              Enter your own conditions
+            <button aria-pressed={mode === "typed"} onClick={() => setMode("typed")}>
+              Conditions I type
             </button>
-          )}
-        </span>
+          </span>
+        )}
       </div>
       <details className="fc-about">
         <summary>What this model forecasts, its scores and limits</summary>
@@ -412,9 +488,8 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
       {mode === "stored" && fixed && split.isLoading && <p className="muted">Checking which runs this model may read…</p>}
       {mode === "stored" && fixed && split.error && <Gap title="The model's runs could not be listed">{String((split.error as Error).message ?? split.error)}</Gap>}
       {mode === "stored" && fixed && split.data && !inTrain && (
-        <Caution title="This model cannot read this run here">
-          Only runs from the model's training set are fed to it in this deployment (validation and test runs stay sealed for evaluation).{" "}
-          {trainWithData.length > 0 ? "Runs it can read:" : "None of its training runs has a recorded series in IGNIS yet: enter your own conditions instead."}
+        <Caution title="This run is sealed for evaluation">
+          The model reads only its training runs here, so it cannot be fed this one. {trainWithData.length > 0 ? "Pick one it can read:" : "None of its training runs has a recorded series in IGNIS yet."}
         </Caution>
       )}
       {mode === "stored" && fixed && split.data && !inTrain && trainWithData.length > 0 && (
@@ -427,42 +502,40 @@ function ModelPanel({ card, base, legacy, run: fixed, pickRun, allRuns }: { card
         </div>
       )}
 
-      {mode === "stored" && !fixed && (
-        <div className="fc-row">
-          <label htmlFor="hw-run">Run</label>
-          <select id="hw-run" className="field" value={run} onChange={(e) => setRun(e.target.value)}>
-            <option value="">{split.isLoading ? "Loading runs…" : runs.length ? "Choose a training run" : "No stored runs in this data source"}</option>
-            {runs.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.id}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
       {mode === "typed" && (
         <div className="fc-typed">
-          <Caution title="Your conditions are a synthetic input, not a NASA run">The forecast is model output for the values you enter.</Caution>
-          <button className="btn btn-s btn-quiet" style={{ justifySelf: "start" }} onClick={fillExamples}>
-            Fill example values
-          </button>
-          <dl className="kv fc-inputs">
+          <Caution title={fixed ? `Conditions from ${runLabel(fixed)}, entered as your own input` : "Your conditions are a synthetic input, not a NASA run"}>
+            {fixed ? "Values the NASA record holds are filled in; complete the rest. The forecast is model output for these values, not a reading of the run." : "The forecast is model output for the values you enter."}
+          </Caution>
+          <dl className="fc-inputs">
             {card.inputs.map((i) => (
-              <InputField key={i.name} input={i} value={values[i.name] ?? ""} onChange={(v) => set(i.name, v)} />
+              <InputField
+                key={i.name}
+                input={i}
+                value={values[i.name] ?? ""}
+                onChange={(v) => set(i.name, v)}
+                source={fixed ? (recorded[i.name] !== undefined && recorded[i.name] === values[i.name] ? "record" : !(values[i.name] ?? "").trim() && i.required ? "missing" : null) : null}
+              />
             ))}
           </dl>
+          <button className="btn btn-s btn-quiet" style={{ justifySelf: "start" }} onClick={fillExamples}>
+            {fixed ? "Replace with example values" : "Fill example values"}
+          </button>
         </div>
       )}
 
-      {!slide && (
+      {!slide && !(mode === "stored" && fixed && !inTrain) && (
         <div className="fc-row">
-          <label htmlFor="hw-cutoff">{obsInput ? "The model sees the first" : "Forecast from t ="}</label>
+          <label htmlFor="hw-cutoff">{obsInput ? "The model sees the first" : "Start the forecast at"}</label>
           <input id="hw-cutoff" className="field num fc-num" type="number" min={0} step="any" value={cutoff} onChange={(e) => setCutoff(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void forecast()} />
           <span>s</span>
-          <button className="btn btn-s btn-primary" disabled={busy || (mode === "stored" && !!fixed && !inTrain)} onClick={forecast}>
-            {busy ? "Forecasting…" : "Forecast"}
-          </button>
+          {auto ? (
+            busy && <span className="muted fc-busy">Forecasting…</span>
+          ) : (
+            <button className="btn btn-s btn-primary" disabled={busy} onClick={forecast}>
+              {busy ? "Forecasting…" : "Forecast"}
+            </button>
+          )}
         </div>
       )}
 
@@ -675,28 +748,57 @@ function RecordedEnd({ endpoint: e }: { endpoint: EndpointRecord }) {
   );
 }
 
-function InputField({ input, value, onChange }: { input: ModelInput; value: string; onChange: (v: string) => void }) {
+/** A readable label from the input's note ("oxygen mole fraction"), the raw name kept as a hint. */
+function inputLabel(input: ModelInput): { label: string; rest: string } {
+  const note = (input.note ?? "").trim();
+  // The label is the note up to its first colon or semicolon; a long parenthetical moves to the hint.
+  const stop = note.search(/[:;]\s/);
+  let head = (stop > 0 ? note.slice(0, stop) : note).trim();
+  const rest: string[] = [];
+  head = head.replace(/\s*\(([^)]{11,})\)/g, (_, inner: string) => (rest.push(inner), "")).trim();
+  if (stop > 0) rest.push(note.slice(stop + 1).trim());
+  if (!head || head.length > 60) return { label: words(input.name), rest: note };
+  return { label: head[0].toUpperCase() + head.slice(1), rest: rest.filter(Boolean).join("; ") };
+}
+
+function InputField({ input, value, onChange, source }: { input: ModelInput; value: string; onChange: (v: string) => void; source: "record" | "missing" | null }) {
   const multi = input.kind === "observation" || input.kind === "control";
   const id = `hw-in-${input.name}`;
+  const { label, rest } = inputLabel(input);
+  const unit = !input.text && input.unit_si && input.unit_si !== "1" ? input.unit_si : null;
+  const example = input.example !== undefined && input.example !== null && !multi ? fmtExample(input.example) : "";
   return (
-    <>
+    <div className={`fc-in${source ? ` fc-in-${source}` : ""}`}>
       <dt>
         <label htmlFor={id}>
-          {input.name}
-          {input.required ? "" : " (optional)"}
+          {label}
+          {unit && <span className="muted"> [{unit}]</span>}
+          {!input.required && <span className="muted"> · optional</span>}
         </label>
+        <code className="fc-in-name">{input.name}</code>
       </dt>
       <dd>
         {multi ? (
-          <textarea id={id} className="field num" rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={input.kind === "control" ? "start s, end s, value per line" : `t s, value [${input.unit_si}] per line`} />
+          <textarea
+            id={id}
+            className="field num"
+            rows={3}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={input.kind === "control" ? "one stage per line: start s, end s (empty = open), value" : `one point per line: t s, value${unit ? ` [${unit}]` : ""}`}
+          />
         ) : (
-          <input id={id} className="field" value={value} onChange={(e) => onChange(e.target.value)} placeholder={input.text ? "text" : input.kind === "test_date" ? "YYYY-MM-DD" : input.unit_si} />
+          <input id={id} className="field num" value={value} onChange={(e) => onChange(e.target.value)} placeholder={input.kind === "test_date" ? "YYYY-MM-DD" : example ? `e.g. ${example}` : input.text ? "text" : ""} />
         )}
-        <span className="muted" style={{ fontSize: 12, display: "block" }}>
-          {input.note}
-          {!input.text && input.unit_si !== "1" ? ` [${input.unit_si}]` : ""}
-        </span>
+        {(rest || source) && (
+          <span className="muted fc-in-note">
+            {source === "record" && <span className="fc-in-src">from the NASA record</span>}
+            {source === "missing" && <span className="fc-in-src">not in the NASA record: enter it</span>}
+            {source && rest ? " · " : ""}
+            {rest}
+          </span>
+        )}
       </dd>
-    </>
+    </div>
   );
 }
