@@ -823,14 +823,21 @@ async fn each_failure_outcome_is_distinct_and_never_a_url() {
         "the reason names the upstream status: {body}"
     );
 
-    // NASA answers 404 for a file the manifests know: gone, a corpus-integrity problem. Not
-    // retryable, and neither `not_found` (unknown id) nor `upstream_unavailable` (outage).
-    let g = geode_answering(Answer::Status(404));
-    let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
-    let (st, _, body) = get(&r, &path).await;
-    assert_eq!(st, StatusCode::NOT_FOUND);
-    assert_eq!(outcome(&body), ("source_missing".into(), "never".into()));
-    assert!(body.contains("corpus integrity"), "{body}");
+    // NASA answers 404 or 410 for a file the manifests know: gone, a corpus-integrity problem.
+    // Not retryable, and neither `not_found` (unknown id) nor `upstream_unavailable` (outage).
+    for status in [404, 410] {
+        let g = geode_answering(Answer::Status(status));
+        let r = router(dir.path(), source_args(&g.url, Some(PUBLIC)));
+        let (st, _, body) = get(&r, &path).await;
+        assert_eq!(st, StatusCode::GONE);
+        assert_eq!(outcome(&body), ("source_gone".into(), "never".into()));
+        assert!(body.contains("corpus integrity"), "{body}");
+        assert!(body.contains(&format!("geode {status}")), "{body}");
+        serde_json::from_str::<ErrorEnvelope>(&body)
+            .unwrap()
+            .validate()
+            .unwrap();
+    }
 
     // Upstream timeout: unavailable with a retry hint.
     let g = geode_answering(Answer::Hang);

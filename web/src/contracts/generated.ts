@@ -390,6 +390,7 @@ export type ErrorCode =
       | "internal"
     )
   | "source_missing"
+  | "source_gone"
   | "capability_unavailable";
 /**
  * What a caller may do after an error. `reconcile` means the effect is uncertain: inspect state
