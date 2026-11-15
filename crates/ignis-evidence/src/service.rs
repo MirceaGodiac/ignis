@@ -29,12 +29,14 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::Context;
 use ignis_core::contracts::{
-    BackendReport, BackendStatus, Capability, CorpusSnapshotId, ErrorCode, ErrorEnvelope,
-    EvidenceClass, EvidenceId, EvidenceRef, EvidenceSchema, ExecutionScope, Family, Finite,
-    OffsetUnit, Origin, OutlineRequest, PageCursor, ParseViewId, Partition, ReadRange, ReadRequest,
-    ReadResult, ReadSegment, RetrievalBackend, RetrievalScore, RetryPolicy, ScoreKind, SearchHit,
-    SearchMode, SearchPage, SearchRequest, SourceId, SourceKind, SourceLocator, SourceOutline,
-    Split,
+    Author, BackendReport, BackendStatus, Capability, CorpusSnapshotId, EdgeDirection, EntityRef,
+    EpisodeId, ErrorCode, ErrorEnvelope, EvidenceClass, EvidenceId, EvidenceRef, EvidenceSchema,
+    ExecutionScope, Family, Finite, GraphNeighbor, GraphNeighborsPage, GraphNeighborsRequest,
+    GraphNode, OffsetUnit, Origin, OutlineRequest, PageCursor, ParseViewId, Partition,
+    ProvenanceLink, ReadRange, ReadRequest, ReadResult, ReadSegment, RetrievalBackend,
+    RetrievalScore, RetryPolicy, ScoreKind, SearchHit, SearchMode, SearchPage, SearchRequest,
+    SourceId, SourceKind, SourceLocator, SourceOutline, Split, WikiPatch, WikiReadRequest,
+    WikiReadResult, WikiRevision,
 };
 use ignis_core::hashing::{canonical_json, sha256_hex};
 use ignis_core::services::{KnowledgeService, ServiceResult};
@@ -56,6 +58,8 @@ pub const LABELS_FILE: &str = "source_labels.jsonl";
 
 /// Requested page size when the request names none.
 pub const DEFAULT_PAGE_SIZE: u32 = 10;
+/// `graph_neighbors` page size when the request names none.
+pub const GRAPH_PAGE_SIZE: u32 = 50;
 /// Characters of page text per read response (more pages follow with `next`).
 pub const READ_BUDGET_CHARS: usize = 60_000;
 /// Searches whose ranked order is kept for paging (memory budget).
@@ -195,6 +199,19 @@ impl Lockbox {
             })
     }
 
+    /// Report aliases (`alias:flex:FLEX-020`) → run ids, as loaded.
+    pub fn aliases(&self) -> &HashMap<String, String> {
+        &self.alias_to_run
+    }
+
+    /// True when `run` belongs to a partition in `sealed`.
+    pub fn run_sealed(&self, sealed: &BTreeSet<Partition>, run: &str) -> bool {
+        let run = self.alias_to_run.get(run).map_or(run, String::as_str);
+        self.run_partition
+            .get(run)
+            .is_some_and(|p| sealed.contains(p))
+    }
+
     /// Stable digest of what a scope cannot see (part of the cursor and cache key).
     fn sealed_key(sealed: &BTreeSet<Partition>) -> String {
         format!("{sealed:?}")
@@ -274,8 +291,14 @@ pub struct EvidenceService {
         std::collections::HashMap<(String, String), ignis_core::contracts::GeneratedText>,
     >,
     orders: Mutex<VecDeque<(String, Arc<Ranked>)>>,
+    /// Web discovery (R4), attached by the composition root only when the deployment enables it.
+    web: Option<Arc<crate::web::WebDiscovery>>,
+    /// The combustion graph built next to the catalog (`ignis evidence graph build`), opened per call.
+    graph_path: std::path::PathBuf,
     /// record API spend in the cost ledger (`runs/`); off in tests
     pub ledger: bool,
+    /// The research wiki (R4), when the composition root attached one.
+    wiki: Option<crate::wiki::WikiStore>,
 }
 
 /// Decoded search cursor (`c1.<hex json>`).
@@ -321,7 +344,10 @@ impl EvidenceService {
             summaries_path: db.with_file_name(SUMMARIES_FILE),
             summaries: std::sync::OnceLock::new(),
             orders: Mutex::new(VecDeque::new()),
+            web: None,
+            graph_path: crate::graph::path_for(db),
             ledger: true,
+            wiki: None,
         })
     }
 
@@ -340,7 +366,45 @@ impl EvidenceService {
         EvidenceService::open(&catalog::default_db(), cfg, lockbox)
     }
 
+    /// Serve `wiki_read`/`wiki_patch` from `store` (absent: the wiki tools are not registered).
+    pub fn with_wiki(mut self, store: crate::wiki::WikiStore) -> Self {
+        self.wiki = Some(store);
+        self
+    }
+
+    pub fn has_wiki(&self) -> bool {
+        self.wiki.is_some()
+    }
+
+    fn wiki(&self) -> ServiceResult<&crate::wiki::WikiStore> {
+        self.wiki.as_ref().ok_or_else(|| {
+            err(
+                ErrorCode::CapabilityUnavailable,
+                "no wiki store is attached to this KnowledgeService",
+            )
+        })
+    }
+
     /// Run without network access to the embedding/rerank provider (declared as unavailable).
+    /// Serve `web_search` / `web_fetch` through `web` (off unless attached).
+    pub fn with_web(mut self, web: Arc<crate::web::WebDiscovery>) -> Self {
+        self.web = Some(web);
+        self
+    }
+
+    fn web(&self, tool: &str) -> ServiceResult<&crate::web::WebDiscovery> {
+        self.web.as_deref().ok_or_else(|| {
+            ErrorEnvelope::new(
+                ErrorCode::CapabilityUnavailable,
+                format!(
+                    "{tool}: web discovery is disabled in this deployment (set {}=1)",
+                    crate::web::ENABLE_ENV
+                ),
+                RetryPolicy::AfterUserAction,
+            )
+        })
+    }
+
     pub fn offline(self) -> Self {
         self.retriever.lock().expect("retriever").api_key = None;
         self
@@ -348,6 +412,35 @@ impl EvidenceService {
 
     pub fn snapshot(&self) -> &CorpusSnapshot {
         &self.snapshot
+    }
+
+    pub fn lockbox(&self) -> &Lockbox {
+        &self.lockbox
+    }
+
+    /// Whether the scope may see a graph link: no endpoint is a run of a sealed partition, and no
+    /// passage it touches (endpoint or evidence) is withheld. An evidence id that is not a chunk of
+    /// the catalog is withheld (fail closed).
+    fn link_visible(&self, sealed: &BTreeSet<Partition>, l: &ProvenanceLink) -> bool {
+        if sealed.is_empty() {
+            return true;
+        }
+        let chunk_ok = |e: &EvidenceId| match self.chunk(e.as_str()) {
+            Ok(Some(c)) => !self.withheld(sealed, &c),
+            _ => false,
+        };
+        for n in [&l.from, &l.to] {
+            match n {
+                GraphNode::Entity(EntityRef::Run(r))
+                    if self.lockbox.run_sealed(sealed, r.as_str()) =>
+                {
+                    return false
+                }
+                GraphNode::Entity(EntityRef::Evidence(e)) if !chunk_ok(e) => return false,
+                _ => {}
+            }
+        }
+        l.evidence.iter().all(chunk_ok)
     }
 
     fn snapshot_id(&self) -> CorpusSnapshotId {
@@ -376,6 +469,16 @@ impl EvidenceService {
             ));
         }
         Ok(())
+    }
+
+    /// True when the lockbox withholds this chunk from `scope`, or the chunk is not in the catalog.
+    /// The retrieval evaluation (`retrieval_eval`) ranks with the same rule the search applies.
+    pub fn withholds_chunk(&self, scope: &ExecutionScope, chunk_id: &str) -> anyhow::Result<bool> {
+        let sealed = self.lockbox.sealed(scope);
+        Ok(match self.chunk(chunk_id)? {
+            Some(c) => self.withheld(&sealed, &c),
+            None => true,
+        })
     }
 
     fn chunk(&self, id: &str) -> anyhow::Result<Option<ChunkRow>> {
@@ -947,6 +1050,156 @@ impl KnowledgeService for EvidenceService {
         Ok(page)
     }
 
+    /// Typed neighbours of one node in the combustion graph (R9b, [`crate::graph`]), paged in the
+    /// graph's read order with a keyset cursor. Links the scope's lockbox hides are skipped before
+    /// paging, so pages, `total_count` and `without_value` never count them.
+    fn graph_neighbors(
+        &self,
+        scope: &ExecutionScope,
+        req: &GraphNeighborsRequest,
+    ) -> ServiceResult<GraphNeighborsPage> {
+        self.check_scope(scope)?;
+        req.validate()?;
+        if let Some(s) = &req.corpus_snapshot {
+            self.check_snapshot(s)?;
+        }
+        let store = crate::graph::Store::open(&self.graph_path)
+            .map_err(internal)?
+            .ok_or_else(|| {
+                ErrorEnvelope::new(
+                    ErrorCode::CapabilityUnavailable,
+                    "the combustion graph is not built in this deployment (run `ignis evidence graph build`)",
+                    RetryPolicy::AfterUserAction,
+                )
+            })?;
+        if store.corpus_snapshot != self.snapshot.snapshot_id {
+            return Err(ErrorEnvelope::new(
+                ErrorCode::Conflict,
+                format!(
+                    "the graph was built from corpus snapshot {} but {} is served; rebuild it (`ignis evidence graph build`)",
+                    store.corpus_snapshot, self.snapshot.snapshot_id
+                ),
+                RetryPolicy::AfterUserAction,
+            ));
+        }
+        let sealed = self.lockbox.sealed(scope);
+        let mut relations = req.relations.clone();
+        relations.sort_by_key(|r| crate::graph::relation_name(*r));
+        relations.dedup();
+        let digest = sha256_hex(
+            canonical_json(&json!({
+                "graph": store.build_id, "node": req.node, "relations": relations,
+                "direction": req.direction, "min": req.value_min_si, "max": req.value_max_si,
+                "sealed": Lockbox::sealed_key(&sealed),
+            }))
+            .as_bytes(),
+        )[..32]
+            .to_string();
+        let after = match &req.cursor {
+            None => 0,
+            Some(c) => {
+                let (q, after) = decode_graph_cursor(c)
+                    .ok_or_else(|| err(ErrorCode::InvalidRequest, "malformed cursor"))?;
+                if q != digest {
+                    return Err(err(
+                        ErrorCode::InvalidRequest,
+                        "the cursor belongs to another graph request or build (node, relations, direction, bounds, scope or graph differ)",
+                    ));
+                }
+                after
+            }
+        };
+        let key = crate::graph::node_key(&req.node);
+        let scan = crate::graph::Scan {
+            node_key: &key,
+            direction: req.direction,
+            relations: &relations,
+            min_si: req.value_min_si.map(|f| f.get()),
+            max_si: req.value_max_si.map(|f| f.get()),
+            without_value: false,
+        };
+        let page_size = req.page_size.unwrap_or(GRAPH_PAGE_SIZE) as usize;
+        let batch = page_size.saturating_add(1).max(64);
+        let mut picked: Vec<crate::graph::Row> = Vec::new();
+        let mut cursor = after;
+        let mut exhausted = false;
+        while picked.len() <= page_size {
+            let rows = store.scan(&scan, cursor, batch).map_err(internal)?;
+            let n = rows.len();
+            for r in rows {
+                cursor = r.seq;
+                if self.link_visible(&sealed, &r.link) {
+                    picked.push(r);
+                    if picked.len() > page_size {
+                        break;
+                    }
+                }
+            }
+            if n < batch && picked.len() <= page_size {
+                exhausted = true;
+                break;
+            }
+        }
+        let more = picked.len() > page_size;
+        picked.truncate(page_size);
+        let next_cursor = more.then(|| {
+            let last = picked.last().map_or(after, |r| r.seq);
+            encode_graph_cursor(&digest, last)
+        });
+        let total_count = if sealed.is_empty() {
+            Some(store.count(&scan).map_err(internal)?)
+        } else if after == 0 && exhausted {
+            Some(picked.len() as u64)
+        } else {
+            None
+        };
+        let without_value = if req.bounds_values() {
+            let gaps = crate::graph::Scan {
+                without_value: true,
+                ..scan
+            };
+            let mut n = 0u64;
+            let mut at = 0;
+            loop {
+                let rows = store.scan(&gaps, at, 512).map_err(internal)?;
+                let len = rows.len();
+                for r in rows {
+                    at = r.seq;
+                    n += u64::from(self.link_visible(&sealed, &r.link));
+                }
+                if len < 512 {
+                    break;
+                }
+            }
+            Some(n)
+        } else {
+            None
+        };
+        let neighbors = picked
+            .into_iter()
+            .map(|r| GraphNeighbor {
+                direction: if r.link.from == req.node {
+                    EdgeDirection::Outgoing
+                } else {
+                    EdgeDirection::Incoming
+                },
+                link: r.link,
+            })
+            .collect();
+        let page = GraphNeighborsPage {
+            schema_version: EvidenceSchema::V2,
+            corpus_snapshot: self.snapshot_id(),
+            node: req.node.clone(),
+            neighbors,
+            next_cursor,
+            total_count,
+            without_value,
+            origin: store.origin,
+        };
+        page.validate()?;
+        Ok(page)
+    }
+
     /// Every label of one source (R8 `source_labels.jsonl` next to the catalog), conflicts
     /// included. Labels describe a document; they never resolve run identities.
     fn labels(
@@ -1206,6 +1459,27 @@ impl KnowledgeService for EvidenceService {
         Ok(r)
     }
 
+    fn wiki_read(
+        &self,
+        scope: &ExecutionScope,
+        req: &WikiReadRequest,
+    ) -> ServiceResult<WikiReadResult> {
+        self.wiki()?.read(scope, req)
+    }
+
+    /// Evidence an item cites must resolve under the writing scope (lockbox included).
+    fn wiki_patch(
+        &self,
+        scope: &ExecutionScope,
+        author: &Author,
+        episode: Option<&EpisodeId>,
+        patch: &WikiPatch,
+    ) -> ServiceResult<WikiRevision> {
+        self.wiki()?.patch(scope, author, episode, patch, &|id| {
+            self.resolve_evidence(scope, id).map(drop)
+        })
+    }
+
     fn resolve_evidence(
         &self,
         scope: &ExecutionScope,
@@ -1229,6 +1503,34 @@ impl KnowledgeService for EvidenceService {
         }
         self.evidence_ref(&c, true)
     }
+
+    fn web_search(
+        &self,
+        scope: &ExecutionScope,
+        req: &ignis_core::contracts::WebSearchRequest,
+    ) -> ServiceResult<ignis_core::contracts::WebSearchPage> {
+        self.web("web_search")?.search(scope, req)
+    }
+
+    fn web_fetch(
+        &self,
+        scope: &ExecutionScope,
+        req: &ignis_core::contracts::WebFetchRequest,
+    ) -> ServiceResult<ignis_core::contracts::ExternalSourceCandidate> {
+        self.web("web_fetch")?.fetch(scope, req)
+    }
+}
+
+/// Graph cursor `g1.<hex json>`: the request digest and the last read position.
+fn encode_graph_cursor(digest: &str, after: i64) -> PageCursor {
+    let j = json!({"q": digest, "a": after});
+    PageCursor::new(format!("g1.{}", hex::encode(j.to_string()))).expect("hex has no spaces")
+}
+
+fn decode_graph_cursor(c: &PageCursor) -> Option<(String, i64)> {
+    let h = c.as_str().strip_prefix("g1.")?;
+    let j: Value = serde_json::from_slice(&hex::decode(h).ok()?).ok()?;
+    Some((j["q"].as_str()?.to_string(), j["a"].as_i64()?))
 }
 
 /// Group a page's withheld state for reports (used by the CLI `corpus` report).

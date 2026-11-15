@@ -1,0 +1,832 @@
+{
+  "$defs": {
+    "AnswerKey": {
+      "description": "The answer key. Never part of what an agent under test receives (`GoldPrompt`).",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "choices": {
+              "description": "The choices shown, without the \"insufficient evidence\" option, which is always added.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "correct": {
+              "description": "0-based index of the right choice; absent when \"insufficient evidence\" is the right answer.",
+              "format": "uint32",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "kind": {
+              "const": "documentary",
+              "type": "string"
+            },
+            "support": {
+              "default": [],
+              "description": "Where the right choice is supported (required when one is right).",
+              "items": {
+                "$ref": "#/$defs/GoldEvidence"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "choices"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "accepted": {
+              "description": "Locators that support the statement; a cited locator is scored against these.",
+              "items": {
+                "$ref": "#/$defs/GoldEvidence"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "const": "citation",
+              "type": "string"
+            },
+            "statement": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "statement",
+            "accepted"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "check": {
+              "$ref": "#/$defs/ArtifactRef",
+              "description": "The check program (run by the evaluator in the isolated runner)."
+            },
+            "expected": {
+              "items": {
+                "$ref": "#/$defs/ExpectedValue"
+              },
+              "type": "array"
+            },
+            "inputs": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ArtifactRef"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "const": "analytical",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "check",
+            "expected"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "predictive",
+              "type": "string"
+            },
+            "protocol": {
+              "$ref": "#/$defs/ProtocolRef",
+              "description": "The frozen evaluator protocol that scores it (targets, groups, cutoffs)."
+            },
+            "target": {
+              "$ref": "#/$defs/Quantity"
+            }
+          },
+          "required": [
+            "kind",
+            "protocol",
+            "target"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "ArtifactId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference to immutable bytes in the artifact store. Never a filesystem path or a URL: a download\nlink is resolved through the access service, may expire, and does not change the artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "byte_length": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract": {
+          "description": "Exported contract type of the content when it is a JSON/JSONL contract document\n(`\"AnalysisArtifact\"`, `\"ResearchAnswer\"`, ...). Consumers dispatch on it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "inputs": {
+          "description": "Entities this artifact was computed from (lineage, not access grants).",
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "media_type": {
+          "description": "IANA media type, e.g. `application/json`, `application/vnd.apache.parquet`, `image/png`.",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "produced_by": {
+          "$ref": "#/$defs/Producer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "media_type",
+        "byte_length",
+        "origin",
+        "created_at"
+      ],
+      "type": "object"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "EntityRef": {
+      "description": "A typed reference to any IGNIS entity, used for lineage and provenance links.",
+      "oneOf": [
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SourceId"
+            },
+            "kind": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            "kind": {
+              "const": "evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "kind": {
+              "const": "run",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ObservationId"
+            },
+            "kind": {
+              "const": "observation",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/DatasetId"
+            },
+            "kind": {
+              "const": "dataset",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "kind": {
+              "const": "artifact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            "kind": {
+              "const": "release",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPageId"
+            },
+            "kind": {
+              "const": "wiki_page",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            "kind": {
+              "const": "episode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "EvaluationSchema": {
+      "description": "Wire tag of gold tasks, evaluation requests and results. Wave K1 writes `evaluation.v2`;\n`evaluation.v1` (C0) documents are still read and keep their `request_hash`, because a document\nis re-serialized with the tag it was read with and v1 documents never carry a v2 field. A v2\naddition (a gold task or set, a harness benchmark) is refused under the v1 tag.",
+      "oneOf": [
+        {
+          "enum": [
+            "evaluation.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "evaluation.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "EvidenceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ExpectedValue": {
+      "additionalProperties": false,
+      "description": "One number an executable check must reproduce, in SI, with an explicit tolerance.",
+      "properties": {
+        "abs_tol": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "rel_tol": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value_si": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "value_si",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "GoldEvidence": {
+      "additionalProperties": false,
+      "description": "A place in a source that supports an answer. Gold evidence is fixed by the task author, not\nreturned by an episode, so it names the source and locator directly.",
+      "properties": {
+        "locator": {
+          "$ref": "#/$defs/SourceLocator"
+        },
+        "source_id": {
+          "$ref": "#/$defs/SourceId"
+        }
+      },
+      "required": [
+        "source_id",
+        "locator"
+      ],
+      "type": "object"
+    },
+    "GoldSplit": {
+      "description": "Which half of the gold tasks: the dev set shared with the builders, or the private hold-out kept\nin the evaluator vault, run once on a frozen protocol (LAB-Bench style).",
+      "enum": [
+        "dev",
+        "holdout"
+      ],
+      "type": "string"
+    },
+    "GoldTaskClass": {
+      "description": "How a task is answered and scored (`LANES_V2.md` §6, T10).",
+      "oneOf": [
+        {
+          "const": "documentary",
+          "description": "Multiple choice with an \"insufficient evidence\" option (LitQA2 format); scored on accuracy\nand on precision, so abstaining counts.",
+          "type": "string"
+        },
+        {
+          "const": "citation",
+          "description": "A statement to support: scored on whether the cited locator supports it (ALCE/FACT style).",
+          "type": "string"
+        },
+        {
+          "const": "analytical",
+          "description": "A computation with an executable check (ScienceAgentBench/BixBench style).",
+          "type": "string"
+        },
+        {
+          "const": "predictive",
+          "description": "Only through the frozen evaluator protocol; the task carries no answer of its own.",
+          "type": "string"
+        }
+      ]
+    },
+    "GoldTaskId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "GoldTopic": {
+      "description": "What the task is about (master design §24.2), so a pilot covers every kind.",
+      "enum": [
+        "definitions_protocols",
+        "tables_figures",
+        "synthesis",
+        "computation",
+        "models_diagnostics",
+        "persistent_research"
+      ],
+      "type": "string"
+    },
+    "JobId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ObservationId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "OffsetUnit": {
+      "description": "Unit of `SourceLocator.char_start/char_end`. A Unicode-scalar offset is not a byte offset.",
+      "enum": [
+        "utf8_byte",
+        "unicode_scalar",
+        "utf16_code_unit"
+      ],
+      "type": "string"
+    },
+    "Origin": {
+      "description": "Who produced a payload. `synthetic_fixture` marks hand-made contract examples; such payloads (and\nanything computed from them) can never be presented as NASA results or qualify a model.\nProduced-by-the-system payloads are `system` even when their *data* is synthetic (that is\n`EvidenceClass::Synthetic` / `TrainedOn::Synthetic`).",
+      "enum": [
+        "system",
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "Producer": {
+      "additionalProperties": false,
+      "description": "What produced an artifact (all optional: an ingestion artifact has no episode).",
+      "properties": {
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EpisodeId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "job_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolCallId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ProtocolRef": {
+      "additionalProperties": false,
+      "properties": {
+        "frozen_hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Digest of the frozen protocol (targets, groups, metrics, cutoffs). Required for a final test\nand for anything that touches the hold-out."
+        },
+        "protocol_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocol_id",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Quantity": {
+      "oneOf": [
+        {
+          "enum": [
+            "liquid_diameter",
+            "visible_flame_diameter",
+            "uv_flame_diameter",
+            "droplet_position",
+            "pressure",
+            "mole_fraction",
+            "temperature",
+            "mass_flow",
+            "volume_flow",
+            "std_volume_flow",
+            "front_contour",
+            "front_position",
+            "spread_rate",
+            "flow_velocity",
+            "gravity_level"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "phase_end_time",
+          "description": "Time at which the modelled phase ends, seconds since the time origin: the target of event\nmodels (ACME). Their artifacts are event partitions and carry no quantity of their own.",
+          "type": "string"
+        }
+      ]
+    },
+    "ReleaseId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RetrievalKind": {
+      "description": "Retrieval sub-set of the benchmark (decides R10 upgrades); absent for tasks outside it.",
+      "enum": [
+        "single_hop",
+        "multi_hop",
+        "figure"
+      ],
+      "type": "string"
+    },
+    "RunId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where a value or passage sits inside one asset. A single locator type serves observations,\nchunks, calibrations and evidence references.\n\nConventions fixed in C0 and checked by [`SourceLocator::validate`]:\n* `asset_sha256` is the bare 64-hex digest of the asset bytes.\n* `page` is the **physical** 1-based page index; the printed label goes in `page_label`.\n* `char_start`/`char_end` are half-open offsets into the text of `parse_view_id`, counted in\n  `offset_unit`. Offsets without a parse view and unit are legacy and not citable.\n* `bbox` is `[x0, y0, x1, y1]` in fractions of the displayed page (after its /Rotate), origin\n  top-left, x right, y down.\n* `table_id` scopes `row`/`column` to a table inside the asset (CSV rows otherwise).\n\nFields added in 2.1.0 are omitted when absent, so the serialized form of older locators, and\ntherefore every prefix `input_hash` that embeds them, is unchanged.",
+      "properties": {
+        "asset_sha256": {
+          "type": "string"
+        },
+        "bbox": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "char_end": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "char_start": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "column": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frame": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OffsetUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parse_view_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pts_s": {
+          "default": null,
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "table_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset_sha256"
+      ],
+      "type": "object"
+    },
+    "Timestamp": {
+      "format": "date-time",
+      "pattern": "Z$",
+      "type": "string"
+    },
+    "ToolCallId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "WikiPageId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    }
+  },
+  "$id": "ignis/2.1.0/GoldTask",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "answer": {
+      "$ref": "#/$defs/AnswerKey"
+    },
+    "authored_by": {
+      "type": "string"
+    },
+    "class": {
+      "$ref": "#/$defs/GoldTaskClass"
+    },
+    "cluster": {
+      "description": "Cluster for paired statistics (cluster bootstrap): tasks that share a study or run group\nshare a cluster, because they are not independent.",
+      "type": "string"
+    },
+    "created_at": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "investigations": {
+      "description": "Investigations the task is about (PSI ids); at least one.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "question": {
+      "type": "string"
+    },
+    "retrieval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RetrievalKind"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reviewed_by": {
+      "default": [],
+      "description": "Independent reviewers of the key (e.g. citations reviewed by the knowledge lane).",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/EvaluationSchema"
+    },
+    "split": {
+      "$ref": "#/$defs/GoldSplit"
+    },
+    "task_id": {
+      "$ref": "#/$defs/GoldTaskId"
+    },
+    "topic": {
+      "$ref": "#/$defs/GoldTopic"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "class",
+    "topic",
+    "split",
+    "question",
+    "investigations",
+    "cluster",
+    "answer",
+    "authored_by",
+    "origin",
+    "created_at"
+  ],
+  "title": "GoldTask",
+  "type": "object"
+}

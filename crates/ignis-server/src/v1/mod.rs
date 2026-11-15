@@ -68,6 +68,7 @@ const REPLAY_BATCH: usize = 500;
 /// Domain services the composition root injects into `/api/v1` and the MCP tools (each optional
 /// until its lane delivers it). One type for both: the tools and the routes call the same services.
 pub use ignis_mcp::ToolServices as ResearchServices;
+pub use ignis_mcp::WebTools;
 
 /// Wakes SSE readers after commits (outbox after commit). The database stays the authority.
 #[derive(Default)]

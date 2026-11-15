@@ -10,6 +10,8 @@ import { useData } from "../shell/data";
 import { usePanel } from "../shell/inspector";
 import { FamilyMark, IconChevron } from "../shell/icons";
 import { go, href } from "../shell/router";
+import { RunPicker, familyLabel, hasSeries, runLabel } from "./RunPicker";
+import "./lab.css";
 import { Caution, Gap, RefusalNote, ReleaseState, shortId, words } from "../ui/common";
 import { LabModels } from "./LabModels";
 
@@ -96,59 +98,84 @@ export function Lab({ runId }: { runId: string | null }) {
 
   const runs = experiments.data?.experiments ?? [];
 
+  const summary = runs.find((x) => x.id === runId) ?? detail.data?.summary ?? null;
+  const [picking, setPicking] = useState(false);
+  const pick = (id: string) => {
+    setPicking(false);
+    go("lab", id);
+  };
+  const legacy = releases.length > 0;
+
   return (
     <div className="view">
       <div className="view-head">
-        <h1>{runId ? `Forecast from the first ${cutoff.toPrecision(3)} s` : "Forecast lab"}</h1>
-        <div className="toolbar">
-          <label className="sr-only" htmlFor="lab-run">
-            Run
-          </label>
-          <select id="lab-run" className="field" value={runId ?? ""} onChange={(e) => go("lab", e.target.value)}>
-            <option value="" disabled>
-              Choose a run
-            </option>
-            {runs.map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.id} · {x.family.replace("_", " ")}
-              </option>
-            ))}
-          </select>
-          <label className="sr-only" htmlFor="lab-rel">
-            Model release
-          </label>
-          <select id="lab-rel" className="field" value={releaseId ?? ""} onChange={(e) => setReleasePick(e.target.value)} disabled={!releases.length}>
-            {!releases.length && <option value="">No release for this family</option>}
-            {releases.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.model_name} · {words(r.state)}
-              </option>
-            ))}
-          </select>
+        <div>
+          <h1>Forecast lab</h1>
+          <p className="muted lab-sub">Give a model the beginning of a NASA run (or conditions you type), read its forecast with uncertainty, and compare it with what was recorded.</p>
         </div>
+        {legacy && (
+          <div className="toolbar">
+            <label className="sr-only" htmlFor="lab-rel">
+              Model release
+            </label>
+            <select id="lab-rel" className="field" value={releaseId ?? ""} onChange={(e) => setReleasePick(e.target.value)}>
+              {releases.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.model_name} · {words(r.state)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
-      {!runId && (
-        <div className="empty">
-          <b>Choose a run to forecast</b>
-          <p>Runs in a validation partition can be sealed and revealed. FLEX droplet runs have a model release in this data source.</p>
-          <div className="toolbar">
-            {runs
-              .filter((r) => r.family === "flex")
-              .slice(0, 6)
-              .map((r) => (
-                <a key={r.id} className="btn btn-s" href={href("lab", r.id)}>
-                  <FamilyMark family={r.family} size={9} /> {r.id}
-                </a>
-              ))}
-          </div>
+      <section className="sheet lab-what" aria-labelledby="what-h">
+        <div className="sheet-head">
+          <h2 id="what-h">
+            What to forecast
+          </h2>
+          {runId && (
+            <button className="btn btn-s" onClick={() => setPicking((p) => !p)} aria-expanded={picking}>
+              {picking ? "Close" : "Change run"}
+            </button>
+          )}
         </div>
-      )}
+        {runId && summary && !picking && (
+          <div className="lab-run">
+            <FamilyMark family={summary.family} size={10} />
+            <div>
+              <b>{runLabel(summary)}</b>{" "}
+              <button className="linkish" onClick={() => panel.open({ kind: "run", id: runId })}>
+                <code>{runId}</code>
+              </button>
+              <p className="muted" style={{ fontSize: 12.5 }}>
+                {familyLabel(summary.family)}
+                {hasSeries(summary)
+                  ? ` · ${summary.n_observations} recorded points (${summary.quantities.map((x) => words(x.quantity)).join(", ")})`
+                  : " · conditions only: no measured time series in IGNIS yet"}
+                {partition && ` · ${partition} partition`}
+              </p>
+            </div>
+          </div>
+        )}
+        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} />}
+        {!runId && (
+          <p className="muted" style={{ fontSize: 12.5 }}>
+            No NASA run fits your question?{" "}
+            <a href="#hw-h" onClick={(e) => (e.preventDefault(), document.getElementById("hw-h")?.scrollIntoView({ behavior: "smooth" }))}>
+              Forecast from conditions you type
+            </a>{" "}
+            with one of the hand-written models below.
+          </p>
+        )}
+      </section>
 
       {runId && detail.error && <RefusalNote refusal={asRefusal(detail.error)!} next="Choose another run, or switch the data source in the sidebar." />}
 
-      {runId && detail.data && (
-        <div className="lab">
+      <LabModels run={runId ? summary : null} pickRun={pick} runs={runs} />
+
+      {runId && detail.data && legacy && (
+        <div className="lab" style={{ marginTop: 16 }}>
           <section className="sheet" aria-labelledby="chart-h">
             <div className="sheet-head">
               <h2 id="chart-h">
@@ -350,8 +377,6 @@ export function Lab({ runId }: { runId: string | null }) {
           </div>
         </div>
       )}
-
-      <LabModels />
     </div>
   );
 }
