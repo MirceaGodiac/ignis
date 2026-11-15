@@ -36,6 +36,17 @@ run() {
 
 run sources inspect PSI-69 PSI-159 PSI-25 PSI-26
 run sources samples
+# Records and the conditions table first: they read only the NASA sample files, so a problem in
+# the evidence-corpus steps below cannot leave the Conditions page stale.
+run data ingest
+# The conditions table (Conditions page, atmosphere map, conditions_query) reads the four families'
+# records and the experimental tables of these investigations (`SPECS` in
+# crates/ignis-data/src/conditions.rs; a missing one stops `data conditions` with its file name).
+# Small CSVs (~1 MB in all); a file already present at the listed version is not fetched again.
+for inv in PSI-10 PSI-20 PSI-21 PSI-22 PSI-23 PSI-39 PSI-47 PSI-68 PSI-98 PSI-99 PSI-100 PSI-101 PSI-102 PSI-106 PSI-107; do
+  run sources fetch "$inv" --pattern '_Experimental table_' --execute
+done
+run data conditions
 run evidence corpus fetch --execute
 run evidence corpus status
 run evidence corpus ingest
@@ -49,15 +60,6 @@ if [ ${#views[@]} -gt 0 ] && [ -d "$base/data/raw/samples" ]; then
 fi
 run evidence verify
 run evidence corpus snapshot
-run data ingest
-# The conditions table (Conditions page, atmosphere map, conditions_query) reads the four families'
-# records and the experimental tables of these investigations (`SPECS` in
-# crates/ignis-data/src/conditions.rs; a missing one stops `data conditions` with its file name).
-# Small CSVs (~1 MB in all); a file already present at the listed version is not fetched again.
-for inv in PSI-10 PSI-20 PSI-21 PSI-22 PSI-23 PSI-39 PSI-47 PSI-68 PSI-98 PSI-99 PSI-100 PSI-101 PSI-102 PSI-106 PSI-107; do
-  run sources fetch "$inv" --pattern '_Experimental table_' --execute
-done
-run data conditions
 for family in flex acme_normal acme_inverse; do
   run data bundle "$family"
   run data bundle "$family" --partitions train
