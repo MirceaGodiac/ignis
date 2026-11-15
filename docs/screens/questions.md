@@ -20,7 +20,7 @@ from Home.
 ## Layout
 
 1. **Heading** "Questions", subtitle "Every question you asked, by day."
-2. **Starting note**: while a question from `?q=` is being created, "Starting "<question>"...". If
+2. **Starting note**: while a question from `?q=` is being created, "Starting "`<question>`"...". If
    creation fails, an error note "The question was not sent" with the server's code and message.
 3. **Search** field "Search your questions": filters by words in the goal (case-insensitive).
 4. **Filter chips** (each with a count): **All**, **Answered** (`completed`), **In progress**

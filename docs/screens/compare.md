@@ -7,7 +7,7 @@
 ## Route
 
 `#/compare`. No parameters: the runs come from the shared selection (up to 8), which the Runs
-checkboxes, the run side panel (**Add to compare**) and the answer's *Compare <runs>* follow-up set.
+checkboxes, the run side panel (**Add to compare**) and the answer's *Compare `<runs>`* follow-up set.
 Rail: *Models > Compare* (the badge counts the selection).
 
 ## Purpose
@@ -25,9 +25,9 @@ a numeric comparison of that quantity across these runs is permitted, and of whi
    selected run when there is one, and **Open the run index**.
 3. **Verdict note**:
    - *Conditions only*: "Choose a quantity to check a numeric comparison" with the server's note.
-   - Permitted: "Numeric comparison of <quantity> is permitted" with the comparison kind tag and
+   - Permitted: "Numeric comparison of `<quantity>` is permitted" with the comparison kind tag and
      note.
-   - Refused: one refusal note per reason ("Numeric comparison of <quantity> refused", code,
+   - Refused: one refusal note per reason ("Numeric comparison of `<quantity>` refused", code,
      reason, "Pick runs of one family with the same measured quantity.").
 4. **Table** "Conditions side by side (SI)":
    - Header: one column per run with its family mark, its id (opens the Run side panel item), a
@@ -35,7 +35,7 @@ a numeric comparison of that quantity across these runs is permitted, and of whi
      **Comparable**.
    - Rows: *family*, *investigation id*, *fuel or material*, *configuration*, *gravity* (in g0), then
      one row per condition key: the SI value with its unit, the resolution in words when there is no
-     SI value, or "not recorded". The *Comparable* cell is **yes** or **no: <reason>**.
+     SI value, or "not recorded". The *Comparable* cell is **yes** or **no: `<reason>`**.
 
 ## Data
 

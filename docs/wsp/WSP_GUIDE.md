@@ -526,7 +526,7 @@ flowchart TD
   MAT --> FX[fixture check:<br/>finite forward on a<br/>synthetic prefix]
   FX --> REC[ModelRelease +<br/>ModelBuildManifest]
   REC -->|check_construction| ID["id = sha256 of canonical JSON<br/>(record without id, created_at)"]
-  ID --> REG[(registry<br/>models/&lt;hex&gt;/release.json<br/>params.npz)]
+  ID --> REG[("registry<br/>models/&lt;hex&gt;/release.json<br/>params.npz")]
 ```
 
 ### 8.1 Order of construction

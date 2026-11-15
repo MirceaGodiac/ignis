@@ -55,16 +55,22 @@ burning speed of the diluted fuel in air. The flame base is a premixed kernel ca
 0.66 of the coflow speed and leaving the rim at 1.4 times the burning speed
 (`docs/wsp/research/phys_cld_w0.md`, sections 0 and 1.1 to 1.4):
 
-$$\Phi = \frac{0.66\,U_{co}}{1.4\,S_L(x_{fuel})},\qquad \text{lifted above } 1$$
+```math
+\Phi = \frac{0.66\,U_{co}}{1.4\,S_L(x_{fuel})},\qquad \text{lifted above } 1
+```
 
 Dilution lowers `S_L` steeply through the adiabatic temperature (section 1.3):
 
-$$S_L(x) = S_{L0}\,\exp\!\left(-\frac{T_a}{2}\left(\frac{1}{T_{ad}(x)} - \frac{1}{T_{ad}(1)}\right)\right)$$
+```math
+S_L(x) = S_{L0}\,\exp\!\left(-\frac{T_a}{2}\left(\frac{1}{T_{ad}(x)} - \frac{1}{T_{ad}(1)}\right)\right)
+```
 
 with `S_L0` 0.38 m/s (methane), 0.68 m/s (ethylene). The script ramps toward its most severe point;
 with the ramp uniform in `ln Phi` over the window, the blow-off clock is log-logistic with median
 
-$$\ln\tau_b = \ln W + \ln\Phi_c - \ln\Phi_{final},\qquad P(\text{lost by } t) = 1 - \frac{1}{\left(1 + (t/\tau_b)^{3.4}\right)\left(1 + (t/\tau_o)^{0.5}\right)}$$
+```math
+\ln\tau_b = \ln W + \ln\Phi_c - \ln\Phi_{final},\qquad P(\text{lost by } t) = 1 - \frac{1}{\left(1 + (t/\tau_b)^{3.4}\right)\left(1 + (t/\tau_o)^{0.5}\right)}
+```
 
 where W0 set the loss threshold `Phi_c` = 2.5 for both fuels and D1 lowers it to 1.7 for methane (a
 methane jet has no stable lifted flame, since methane diffuses faster than momentum), keeping 2.5 for
@@ -73,7 +79,9 @@ ethylene (`docs/wsp/research/phys_cld_d1.md`, step 1). The small clock `tau_o`
 
 The radiometer reads the radiant power of the flame (section 1.5):
 
-$$V = c_V\,\chi\,Q_{fuel},\qquad \chi = 0.05 + \chi_{soot}\,x^{2.5}\ (\chi_{soot}\ 0.15\ \text{methane},\ 0.35\ \text{ethylene})$$
+```math
+V = c_V\,\chi\,Q_{fuel},\qquad \chi = 0.05 + \chi_{soot}\,x^{2.5}\ (\chi_{soot}\ 0.15\ \text{methane},\ 0.35\ \text{ethylene})
+```
 
 with D1's volt scale `c_V` = 0.39 V/W (W0: 0.5).
 

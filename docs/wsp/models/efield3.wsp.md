@@ -65,27 +65,31 @@ development cases (docs/wsp/research/phys_efield_study.md, sections 1 and 2) kep
 picture and found what the zero-shot law lacked: the polarity of the mesh decides the ceiling, the rise
 above 1 kV goes as $V^{1.4}$, and burner and coflow decide when the flame goes out.
 
-With $z_c = \ln(N_C/10^{19}\,\mathrm{s^{-1}})$, $z_x = \ln x_\mathrm{fuel}$, $z_v = \ln(V/3\,\mathrm{kV})$,
-$z_m = \ln(V_\mathrm{max}/5\,\mathrm{kV})$, $z_w = \ln(\mathrm{window}/100\,\mathrm{s})$, $e$ ethylene,
+With $`z_c = \ln(N_C/10^{19}\,\mathrm{s^{-1}})`$, $z_x = \ln x_\mathrm{fuel}$, $`z_v = \ln(V/3\,\mathrm{kV})`$,
+$`z_m = \ln(V_\mathrm{max}/5\,\mathrm{kV})`$, $`z_w = \ln(\mathrm{window}/100\,\mathrm{s})`$, $e$ ethylene,
 $p$ mesh positive, $g$ gas-jet, $s$ still coflow burner, $q$ strong coflow:
 
 **Rising branch** (tensors `ion_current.median.b0`, `.skip`, hinge unit 2). Quadratic below 1 kV
 ($G$ = 0.25 µA/kV², 2.46 times with the mesh positive), $V^{1.4}$ above; the gas-jet tube, closer to the
 mesh, 1.4 times higher:
 
-$$\ln a = \ln(1.164\,\mu\mathrm{A}) + 1.4\,z_v + 0.9\,p + 0.35\,g - 0.6\,\mathrm{relu}\big(\ln(1\,\mathrm{kV}/V)\big)$$
+```math
+\ln a = \ln(1.164\,\mu\mathrm{A}) + 1.4\,z_v + 0.9\,p + 0.35\,g - 0.6\,\mathrm{relu}\big(\ln(1\,\mathrm{kV}/V)\big)
+```
 
 **Ceilings**, each a hinge that subtracts the excess of $\ln a$ over it and is switched on or off by an
 indicator with weight ±20, so no hinge sits inside another:
 
-- mesh negative (unit 0): $\ln A = \ln(1.28\,\mu\mathrm{A}) + z_c + 0.4\,z_x + 1.10\,e$ (0.8e-6 ion pairs
+- mesh negative (unit 0): $`\ln A = \ln(1.28\,\mu\mathrm{A}) + z_c + 0.4\,z_x + 1.10\,e`$ (0.8e-6 ion pairs
   per carbon, $x^{0.4}$, ethylene three times);
-- mesh positive, coflow burner with weak coflow (unit 1): $\ln B = \ln(0.5\,\mu\mathrm{A}) + 0.25\,z_c + 0.95\,e$,
-  0.3 times that in still gas ($+1.2\,s$), off for the gas-jet and for a strong coflow;
+- mesh positive, coflow burner with weak coflow (unit 1): $`\ln B = \ln(0.5\,\mu\mathrm{A}) + 0.25\,z_c + 0.95\,e`$,
+  0.3 times that in still gas ($`+1.2\,s`$), off for the gas-jet and for a strong coflow;
 - mesh positive, gas-jet (unit 3): 0.45 µA methane, 2.6 µA ethylene, independent of flow;
 - mesh positive with a real coflow (unit 4): the negative-mesh ceiling times 0.52.
 
-$$\ln I = \ln a - \sum_k \mathrm{relu}(\ln a - \ln C_k \pm 20\,\text{indicators}),\qquad \sigma_{\ln} = 0.45$$
+```math
+\ln I = \ln a - \sum_k \mathrm{relu}(\ln a - \ln C_k \pm 20\,\text{indicators}),\qquad \sigma_{\ln} = 0.45
+```
 
 The physics of the positive ceiling (study 1.2): with the mesh positive the ion wind blows against the
 fuel jet and presses the flame on to the tube, so the ceiling is a property of the pressed flame, not of
@@ -96,18 +100,18 @@ gas the pressed flame starves.
 $S_c(t) = 1/(1+(t/\tau_c)^{k_c})$, $S = \prod_c S_c$ (the law forward of
 docs/wsp/research/law_forward.md, section 2.3):
 
-- `blowoff` (gas-jet, methane, mesh negative): $\tau = \mathrm{window}\cdot 7.3\,\mathrm{kV}/V_\mathrm{max}$,
-  shape 12; every other flame keeps $\tau = \mathrm{window}\cdot 60\,\mathrm{kV}/V_\mathrm{max}$;
+- `blowoff` (gas-jet, methane, mesh negative): $`\tau = \mathrm{window}\cdot 7.3\,\mathrm{kV}/V_\mathrm{max}`$,
+  shape 12; every other flame keeps $`\tau = \mathrm{window}\cdot 60\,\mathrm{kV}/V_\mathrm{max}`$;
 - `press` (gas-jet, methane, mesh positive): 7.0 kV, shape 4 (the pressed flame fails over a wide range of voltage);
 - `other` (a flame on the coflow burner in still gas starves): median 45 s with the mesh positive,
   600 s with the mesh negative, 3000 s for every other flame; shape 1.5.
 
 **Secondary targets** (unchanged from W0, phys_efield_w0.md section 3):
-$\ln I_\mathrm{peak} = \ln(2.40\,\mu\mathrm{A}) + z_c + z_x$ and
-$\ln V_\mathrm{sat} = \ln(3.90\,\mathrm{kV}) + 0.5\,z_c + 0.5\,z_x - 0.203\,p$.
+$`\ln I_\mathrm{peak} = \ln(2.40\,\mu\mathrm{A}) + z_c + z_x`$ and
+$`\ln V_\mathrm{sat} = \ln(3.90\,\mathrm{kV}) + 0.5\,z_c + 0.5\,z_x - 0.203\,p`$.
 
 Every target goes through the one network of the law forward,
-$N(z) = b_0 + \mathrm{skip}\cdot z + \sum_{j<8} w_{2,j}\,\mathrm{relu}(b_{1,j} + W_{1,j}\cdot z)$, with a
+$`N(z) = b_0 + \mathrm{skip}\cdot z + \sum_{j\lt8} w_{2,j}\,\mathrm{relu}(b_{1,j} + W_{1,j}\cdot z)`$, with a
 log-normal core plus a fixed wider tail for positive targets.
 
 Full derivations: [docs/research/FORMULAS.md](../../research/FORMULAS.md), section efield3.wsp.
@@ -283,7 +287,7 @@ current, 0.055 against 0.133 on flame out in the window.
 | Step | Release | Candidate | What it changed | Outcome |
 |---|---|---|---|---|
 | efield root | `sha256:ba9789c6…3a32` | `configs/models/law/efield/root` | neutral root, no claim | lineage root |
-| W0 | `sha256:73f91b55…86a9` | `configs/models/law/efield/w0-fable` | zero-shot law of phys_efield_w0.md section 7.4: $\min(I_\mathrm{sat}, GV^2)$ with a $1/V$ fall, yield 1.5e-6 per carbon, $x^{1.0}$; blow-off when $V_\mathrm{ext} = 20\,\mathrm{kV}\,x^{1.5}$ lies below saturation | blind look 13.2; beat the constant, not the space-charge baseline on t1 |
+| W0 | `sha256:73f91b55…86a9` | `configs/models/law/efield/w0-fable` | zero-shot law of phys_efield_w0.md section 7.4: $\min(I_\mathrm{sat}, GV^2)$ with a $1/V$ fall, yield 1.5e-6 per carbon, $x^{1.0}$; blow-off when $`V_\mathrm{ext} = 20\,\mathrm{kV}\,x^{1.5}`$ lies below saturation | blind look 13.2; beat the constant, not the space-charge baseline on t1 |
 | efield2 s1 | `sha256:cf5459b5…d8c5` | `configs/models/law/efield2/s1-fable` | second law (13.4): `has_coflow` input, four damped numbers | not kept: t1 0.7206 against 0.6592 (efield2_second_law_result.md) |
 | E1 | `sha256:dbb4bd64…73b0` | `configs/models/law/efield/e1-fable` | 13.6 study: two ceilings switched by polarity, $V^{1.4}$, no fall, width 0.45; 31 elements written | kept: t1 0.2530, 15 of 15 days; flame out unchanged |
 | efield3 root | `sha256:f78c2ece…efd8` | `configs/models/law/efield3/root` | neutral root of the new declaration (three indicators, three causes) | parent of S1 |

@@ -57,7 +57,9 @@ is drawn into an aging chamber, and Brownian coagulation at conserved mass grows
 volume linearly in time (`docs/wsp/research/phys_samer_w0.md`, sections 1.3 to
 1.5):
 
-$$D_{30}^3 = D_n^3 + \frac{6K}{\pi}\,\phi\,t,\qquad N(t) = \frac{N_0}{1 + K N_0 t},\qquad d_{10} = D_{30}\,e^{-\ln^2\sigma_g}$$
+```math
+D_{30}^3 = D_n^3 + \frac{6K}{\pi}\,\phi\,t,\qquad N(t) = \frac{N_0}{1 + K N_0 t},\qquad d_{10} = D_{30}\,e^{-\ln^2\sigma_g}
+```
 
 The study of the development rows confirmed the coagulation law to 10 % (`K` = 5.0 to 5.7e-16 m3/s
 measured on the large smokes against 6.0e-16 typed) and changed the amounts
@@ -66,9 +68,13 @@ aging with about the same number of particles (3.4e6 per cm3 at 8.1 cm/s), that 
 flow, the size is therefore set by the mass of smoke, the smokes are broader than typed so the count
 mean grows faster, and the detector follows the mass of smoke. S1's law:
 
-$$\ln d_{10} = \mathrm{level}[m] + 0.20\,\frac{T - T_{\mathrm{ref}}}{50\ \mathrm{K}} + f(U) + \text{no-flow terms} + 0.30\,\ln\frac{t_h}{60\ \mathrm{s}} + 0.55\,\mathrm{softplus}(y)$$
+```math
+\ln d_{10} = \mathrm{level}[m] + 0.20\,\frac{T - T_{\mathrm{ref}}}{50\ \mathrm{K}} + f(U) + \text{no-flow terms} + 0.30\,\ln\frac{t_h}{60\ \mathrm{s}} + 0.55\,\mathrm{softplus}(y)
+```
 
-$$y = \ln\frac{t}{450\ \mathrm{s}} + 0.30\,\frac{U - 8.1\ \mathrm{cm/s}}{1\ \mathrm{cm/s}} + 0.30\,[U = 0]$$
+```math
+y = \ln\frac{t}{450\ \mathrm{s}} + 0.30\,\frac{U - 8.1\ \mathrm{cm/s}}{1\ \mathrm{cm/s}} + 0.30\,[U = 0]
+```
 
 with `f(U) = 0.25 ln(8.1 cm/s / max(U, 2 cm/s))` from W0, and `d30` aging with the exponent 1/3.
 

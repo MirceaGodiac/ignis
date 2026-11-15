@@ -93,7 +93,7 @@ sequenceDiagram
     S->>St: append message.user
     S->>B: kick(scope, episode)
     B->>St: pin_episode (harness pin, note)
-    B->>St: begin_turn (status running, reason "runtime turn started; harness h1 sha256:… injected")
+    B->>St: begin_turn (status running, reason "runtime turn started#59; harness h1 sha256:… injected")
     B->>RT: turn input = the pending user messages
     loop model/tool loop (owned by the runtime)
         RT-->>B: items, deltas, tool calls, usage

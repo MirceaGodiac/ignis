@@ -47,14 +47,18 @@ counts it (the zeroth moment); the photometer reads scattered light that, for a 
 distribution, is proportional to mass. The two readings are tied by the mean mass of a particle
 (`docs/wsp/research/phys_daft_w0.md`, sections 0 and 1.1):
 
-$$N = \frac{c}{m_p} = \frac{6\,c}{\pi\,\rho\,D_{30}^3}$$
+```math
+N = \frac{c}{m_p} = \frac{6\,c}{\pi\,\rho\,D_{30}^3}
+```
 
 so the forecast is a statement about `D30` for each kind of air. In orbit nothing settles and the
 dust does not coagulate (coagulation number about 2e-3), so cabin air is a source against the HEPA
 filter loop, `N = S / (eta Q)`, and a dust bag keeps a constant `N/c`. The law (section 3), with
 `x = max(DustTrak reading, 1e-9 kg/m3)`:
 
-$$\ln N = \begin{cases}\ln(5.0\times10^{4}) & \text{filtered air, ln-sd 1.5}\\ \ln(1.5\times10^{6}) + 0.30\,\ln(x / 3\times10^{-9}) & \text{cabin, ln-sd 1.5}\\ \ln(8.0\times10^{6}) + 0.50\,\ln(x / 3\times10^{-8}) & \text{Velcro, ln-sd 1.5}\\ \ln(9.0\times10^{8}) + 0.95\,\ln(x / 10^{-6}) & \text{bag, ln-sd 0.9}\end{cases}$$
+```math
+\ln N = \begin{cases}\ln(5.0\times10^{4}) & \text{filtered air, ln-sd 1.5}\\ \ln(1.5\times10^{6}) + 0.30\,\ln(x / 3\times10^{-9}) & \text{cabin, ln-sd 1.5}\\ \ln(8.0\times10^{6}) + 0.50\,\ln(x / 3\times10^{-8}) & \text{Velcro, ln-sd 1.5}\\ \ln(9.0\times10^{8}) + 0.95\,\ln(x / 10^{-6}) & \text{bag, ln-sd 0.9}\end{cases}
+```
 
 with `N` in 1/m3 and 15 % of the weight in a component 2.5 times wider. The bag value is 900 per cm3
 for each mg/m3 read: the fine tail of Arizona road dust below the 2.5 um inlet cut, `D30` about

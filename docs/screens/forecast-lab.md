@@ -12,7 +12,7 @@
 | `#/lab/<run id>` | the lab on one run; the breadcrumb shows the run's label |
 
 Rail: *Models > Forecast lab*. The run side panel's **Forecast** button and the answer's *Forecast
-<run> from its first seconds* follow-up open `#/lab/<run id>`.
+`<run>` from its first seconds* follow-up open `#/lab/<run id>`.
 
 ## Purpose
 
@@ -31,7 +31,7 @@ chosen for you; move the cutoff and the forecast follows. Two kinds of release a
 
 "Forecast lab" and the subtitle "Give a model the beginning of a NASA run (or conditions you type),
 read its forecast with uncertainty, and compare it with what was recorded." When the run has fitted
-releases, a **Model release** select lists them ("<model> · <state>").
+releases, a **Model release** select lists them ("`<model>` · `<state>`").
 
 ### What to forecast
 
@@ -61,12 +61,12 @@ releases, a **Model release** select lists them ("<model> · <state>").
 - Without a run: "Pick a run above and the model written for it is chosen for you." and **Forecast
   from conditions you type instead** (then **<- Back to picking a run**).
 - **Model chooser** (open while nothing is chosen, or on **Change**): radio list grouped as
-  *Written for <family> runs* first, then *FLEX droplets*, *ACME burner flames*, *BASS solids*,
+  *Written for `<family>` runs* first, then *FLEX droplets*, *ACME burner flames*, *BASS solids*,
   *Other NASA investigations* (suffixed "(you type the conditions)" when a run is picked). Each
   option shows a short name, what it forecasts in one line, the model slug, and a **best fit** tag.
   A click picks and closes; **Done** closes.
-- **Model line** once chosen: "Model <name> <slug>" and **Change**, then "Chosen automatically:
-  <reasons>." (for example "same family (FLEX), written for n-heptane") and how many other models
+- **Model line** once chosen: "Model `<name>` `<slug>`" and **Change**, then "Chosen automatically:
+  `<reasons>`." (for example "same family (FLEX), written for n-heptane") and how many other models
   also fit.
 - **Model panel**:
   - Name (the card's investigation), slug, tags **experimental** and **hand-written · zero-shot** or
@@ -86,9 +86,9 @@ releases, a **Model release** select lists them ("<model> · <state>").
   - **Cutoff** field ("The model sees the first N s", or "Start the forecast at N s") and
     **Forecast**, when the forecast is not automatic.
   - **The forecast**:
-    - A sentence: "Seeing the first N s, the model expects the <quantity> to be <median> <unit> at
-      <t> s (<p>% range <lo>-<hi> <unit>)." For an event model: "Probability of each outcome by
-      <t> s (model output):" with an outcome bar and legend (*still burning*, *extinguished*, *hot
+    - A sentence: "Seeing the first N s, the model expects the `<quantity>` to be `<median>` `<unit>` at
+      `<t>` s (`<p>`% range `<lo>`-`<hi>` `<unit>`)." For an event model: "Probability of each outcome by
+      `<t>` s (model output):" with an outcome bar and legend (*still burning*, *extinguished*, *hot
       flame ends*, *cool flame*, *droplet disrupted*, *stopped by the test script*, *flow stopped*,
       *unresolved*).
     - **Recorded**: how the run actually ended in NASA's record (event time, interval, scheduled
@@ -109,7 +109,7 @@ releases, a **Model release** select lists them ("<model> · <state>").
     number for it." with the support note when the support gate refuses.
 - Service notes: "The prediction models are switched off on this server" (with the capability
   detail; the deployment needs `IGNIS_ENABLE_MODELS=true`), "Hand-written models are not served
-  here", "No model is served", "No served model is written for <family> runs".
+  here", "No model is served", "No served model is written for `<family>` runs".
 
 ### Fitted releases: chart and steps
 
@@ -154,7 +154,7 @@ Shown when the run's record lists releases (`ExperimentDetail.releases`).
 | Hand-written forecast | `POST /api/v1/analyses` (`release_id`, `input` = `stored_run` or `prefix`, optional `settings.target`), poll `GET /api/v1/jobs/{id}` every 400 ms, then `GET /api/v1/artifacts/{id}` → `AnalysisArtifact` |
 | Fitted forecast | `POST /api/forecast` (`run_id`, `cutoff_s`, `model_release_id`, `wait_ms: 1500`), poll `GET /api/jobs/{id}` every 600 ms → `ForecastOutcome` |
 | Candidates, seal, reveal | `POST /api/acquisition`, `/api/seal`, `/api/reveal` with `analysis_id` |
-| Partition of a run (fitted) | `GET /api/experiments?split=<split>&partition=train|validation|test` |
+| Partition of a run (fitted) | `GET /api/experiments?split=<split>&partition=train\|validation\|test` |
 | Lane input table | `web/public/data/bass5_inputs.json` for `bass5.wsp` |
 
 Client-side:

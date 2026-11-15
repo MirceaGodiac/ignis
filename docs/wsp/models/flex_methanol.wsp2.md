@@ -31,9 +31,9 @@ State `experimental`, `trained_on = not_trained`, uncertainty kind `assumed_nois
 
 The forward turns these into features (`configs/models/flex/wsp2/methanol/spec.json`):
 $c_{O2} = (x_{O2} - 0.21)/0.05$, $c_{CO2} = x_{CO2}/0.20$, $c_{He} = x_{He}/0.20$,
-$c_{\log p} = \ln(p / 10^5\,\mathrm{Pa})$ and $c_{\log D0} = \ln(D_0 / 2\,\mathrm{mm})$. Here $D_0$ comes from
+$`c_{\log p} = \ln(p / 10^5\,\mathrm{Pa})`$ and $`c_{\log D0} = \ln(D_0 / 2\,\mathrm{mm})`$. Here $D_0$ comes from
 the head window of the prefix, carried back to $t = 0$. It also uses burn progress $w = 1 - D^2/D_0^2$ and the
-diffusion clock $s = t \cdot 1\,\mathrm{mm^2/s} / D_0^2$. The prefix adds the encoder features `e_late`,
+diffusion clock $`s = t \cdot 1\,\mathrm{mm^2/s} / D_0^2`$. The prefix adds the encoder features `e_late`,
 `e_early`, `r_late`, `r_end`, `g_span`, `g_count` and `g_progress`.
 
 **Target.** One quantity, `liquid_diameter` (m): the measured liquid diameter at times after the cutoff, as
@@ -67,27 +67,29 @@ sections 1.1, 1.4, 1.5 and 1.6).
 
 Every law is a small hinge network typed by hand:
 
-$$N(x) = b_0 + \mathrm{skip}\cdot x + \sum_j w_2[j]\,\mathrm{relu}\big(b_1[j] + W_1[j,:]\cdot x\big)$$
+```math
+N(x) = b_0 + \mathrm{skip}\cdot x + \sum_j w_2[j]\,\mathrm{relu}\big(b_1[j] + W_1[j,:]\cdot x\big)
+```
 
-- **Hot flame** (`rate.*`): $\dfrac{dD^2}{dt} = -K_h$, with $\ln(K_h / 1\,\mathrm{mm^2/s}) = N_{rate}(c, w, s) + b + s_z z$.
+- **Hot flame** (`rate.*`): $\dfrac{dD^2}{dt} = -K_h$, with $`\ln(K_h / 1\,\mathrm{mm^2/s}) = N_{rate}(c, w, s) + b + s_z z`$.
   The $b$ term is the run's own rate offset read from the prefix. The $s_z z$ term is a scenario node
-  (`num.z_*`), with $s_z = \sqrt{s_{floor}^2 + (1 - \mathrm{gain})\,s_{pop}^2}$ (`unc.*`, `droplet3.rs`).
-- **Critical diameter and class** (`crit.*`, `class.*`): $\ln(D_{crit}/2\,\mathrm{mm}) = N_{crit}(c_{O2}, c_{CO2}, c_{He}, c_{\log p})$.
-  The supercriticality is $x_{exc} = \ln(D_0/D_{crit})$, and $P(\text{radiative}) = \sigma(\kappa\,x_{exc} + \text{bias})$.
+  (`num.z_*`), with $`s_z = \sqrt{s_{floor}^2 + (1 - \mathrm{gain})\,s_{pop}^2}`$ (`unc.*`, `droplet3.rs`).
+- **Critical diameter and class** (`crit.*`, `class.*`): $`\ln(D_{crit}/2\,\mathrm{mm}) = N_{crit}(c_{O2}, c_{CO2}, c_{He}, c_{\log p})`$.
+  The supercriticality is $x_{exc} = \ln(D_0/D_{crit})$, and $`P(\text{radiative}) = \sigma(\kappa\,x_{exc} + \text{bias})`$.
 - **Diffusive extinction** (`diff.*`), the water limit. The flame goes out at progress $W$ with the Gompertz
-  hazard $\Lambda_D(w) = \ln 2\,\big(e^{a_D (w - w_D)} - e^{-a_D w_D}\big)$, where $w_D = \sigma(N_{diff}(c, x_{exc}))$
-  and $a_D$ = `diff.sharp`. The physics dossier puts the liquid at about 30 % water when $D/D_0 \approx 0.47$–$0.51$,
+  hazard $`\Lambda_D(w) = \ln 2\,\big(e^{a_D (w - w_D)} - e^{-a_D w_D}\big)`$, where $w_D = \sigma(N_{diff}(c, x_{exc}))$
+  and $a_D$ = `diff.sharp`. The physics dossier puts the liquid at about 30 % water when $D/D_0 \approx 0.47$–$`0.51`$,
   which is where flame-out is measured (`phys_flex_methanol.md` 1.4).
-- **Radiative extinction** (`rad.*`): $\Lambda_R(s) = \ln 2\,\big(e^{a_R (s/s_R - 1)} - e^{-a_R}\big)$, with
+- **Radiative extinction** (`rad.*`): $`\Lambda_R(s) = \ln 2\,\big(e^{a_R (s/s_R - 1)} - e^{-a_R}\big)`$, with
   $s_R = \exp(N_{rad}(c, x_{exc}))$ and $a_R$ = `rad.sharp`. The radiative-loss criterion is
-  $\chi > \chi_c = (T_{f0} - T_{ext})/(T_{f0} - T_\infty)$ (`phys_flex_methanol.md` 1.5).
+  $\chi \gt\chi_c = (T_{f0} - T_{ext})/(T_{f0} - T_\infty)$ (`phys_flex_methanol.md` 1.5).
 - **No flame** (`post.*`). Over a step $\Delta t$, $D^2$ falls by $k_{inf} r^m \Delta t + k_{hot} r^h \tau_e (1 - e^{-\Delta t/\tau_e})$,
-  where $\tau_e = \tau_0 r^n$ and $r = (D_e / 2\,\mathrm{mm})^2$. In D3's edits file the rate form reads
+  where $\tau_e = \tau_0 r^n$ and $`r = (D_e / 2\,\mathrm{mm})^2`$. In D3's edits file the rate form reads
   $d(D^2)/dt = -[k_{inf} r^m + k_{hot} r^h e^{-t/\tau_e}]$.
 - **Prefix encoder and state filter** (`enc.*`, `filt.*`, `gate.*`). The level at the cutoff is the mean $D^2$ of
   the last end window, carried to the cutoff along the end rate. The run offset is
-  $b = \mathrm{gain}\cdot$(clamped mix of the mid-to-tail and head-to-mid log-rate innovations), with
-  $\mathrm{gain} = \sigma(\text{enc.gain\_b} + \text{enc.gain\_w}\cdot(g_{span}, g_{count}, g_{progress}))$. The state
+  $`b = \mathrm{gain}\cdot`$(clamped mix of the mid-to-tail and head-to-mid log-rate innovations), with
+  $`\mathrm{gain} = \sigma(\text{enc.gain_b} + \text{enc.gain_w}\cdot(g_{span}, g_{count}, g_{progress}))`$. The state
   probabilities at the cutoff are the laws' prior multiplied by $(N(r_{end}; \mu_{state}, sd_{state}) + l_{floor})^g$.
   A physical validity gate first drops diameters that later frames contradict, because a droplet does not grow
   (spec `notes`).
@@ -162,7 +164,7 @@ of `diff` and `rad` it is $(c, x_{exc})$, and of `crit` it is $(c_{O2}, c_{CO2},
 | `diff.sharp` | [] (1/1) | 14.0 | Gompertz sharpness $a_D$ |
 | `rad.b0` | [] (1/0) | 0.0 | $s_R$ = 1.0 at the critical diameter |
 | `rad.skip` | [6] (6/1) | [0, 0, −0.22, 0, 0, 0] | −0.22 per 20 % He: helium raises gas diffusivity, so transients run faster on the clock |
-| `rad.W1`, `rad.b1`, `rad.w2` | [8,6], [8], [8] (64/3) | W1(0,5) 1; b1[0] −0.05; w2[0] −3.8 | $\ln s_R = -3.8\,(x_{exc} - 0.05)$ above the threshold |
+| `rad.W1`, `rad.b1`, `rad.w2` | [8,6], [8], [8] (64/3) | W1(0,5) 1; b1[0] −0.05; w2[0] −3.8 | $`\ln s_R = -3.8\,(x_{exc} - 0.05)`$ above the threshold |
 | `rad.sharp` | [] (1/1) | 5.0 | Gompertz sharpness $a_R$: quartiles of $s/s_R$ at 0.83 and 1.15 |
 | `post.k_inf`, `post.size_exp` | [] (2/2) | 1.5e−8 m²/s, 0.72 | long-time evaporation $k_{inf} r^m$ |
 | `post.k_hot`, `post.hot_exp` | [] (2/2) | 1.3e−7 m²/s, 0.45 | heat shed by the unlit droplet, amplitude ∝ $r^{0.45}$ |

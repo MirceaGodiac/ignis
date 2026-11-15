@@ -124,7 +124,7 @@ anywhere, or by the Search button.
 [`shell/Panel.tsx`](../../web/src/shell/Panel.tsx), [`shell/inspector.tsx`](../../web/src/shell/inspector.tsx).
 
 The panel opens on the right when you select something on a page. It keeps a trail: a link inside the
-panel pushes a new item, and the **Back** arrow (tooltip "Back to <previous>") returns. **Close**
+panel pushes a new item, and the **Back** arrow (tooltip "Back to `<previous>`") returns. **Close**
 (the X, or Escape) closes it and returns focus to the control that opened it. Changing page closes
 it. Item kinds:
 

@@ -64,24 +64,34 @@ flows in cm/s.
 
 Features of every law network (`speed`, `over`, `burn`, `quench`):
 
-$$u = \frac{U}{5\ \mathrm{cm/s}} - 1,\qquad c_{O_2} = \frac{X_{O_2}-0.19}{0.02},\qquad c_w = \ln\frac{W}{W_\mathrm{ref}}$$
+```math
+u = \frac{U}{5\ \mathrm{cm/s}} - 1,\qquad c_{O_2} = \frac{X_{O_2}-0.19}{0.02},\qquad c_w = \ln\frac{W}{W_\mathrm{ref}}
+```
 
-$$N(c) = b_0 + \mathrm{skip}\cdot c + \sum_j w_2[j]\,\mathrm{relu}\big(b_1[j] + W_1[j,:]\cdot c\big)$$
+```math
+N(c) = b_0 + \mathrm{skip}\cdot c + \sum_j w_2[j]\,\mathrm{relu}\big(b_1[j] + W_1[j,:]\cdot c\big)
+```
 
 **Spread rate** (`speed.*`). Theory and every numerical model give a steady concurrent spread
 linear in flow and close to linear in oxygen (docs/wsp/research/lit_flame_spread.md,
-"Laws a hand-written front model should contain"). The front advances as $dx/dt = E\,v$ with
+"Laws a hand-written front model should contain"). The front advances as $`dx/dt = E\,v`$ with
 
-$$v = \max(N_\mathrm{speed}, v_\mathrm{min})\left(\frac{X_{O_2}}{0.19}\right)^{1.5}\left(\frac{W}{W_\mathrm{ref}}\right)^{-1},\qquad N_\mathrm{speed} = 0.0535 + 0.032\,u = 0.0215 + 0.0064\,U$$
+```math
+v = \max(N_\mathrm{speed}, v_\mathrm{min})\left(\frac{X_{O_2}}{0.19}\right)^{1.5}\left(\frac{W}{W_\mathrm{ref}}\right)^{-1},\qquad N_\mathrm{speed} = 0.0535 + 0.032\,u = 0.0215 + 0.0064\,U
+```
 
 in sample widths per second, and follows a change of flow at once.
 
 **Overhang** (`over.*`). The visible tip is ahead of the front by $h$, which relaxes to its steady
 value within `over.tau_s` = 2 s:
 
-$$h_{ss} = \max(N_\mathrm{over}, 0)\left(\frac{X_{O_2}}{0.19}\right)^{3}\left(\frac{W}{W_\mathrm{ref}}\right)^{-1},\quad N_\mathrm{over} = 0.325 + 0.325\,u = 0.065\,U,\qquad h \leftarrow h_{ss} + (h - h_{ss})\,e^{-\Delta t/\tau}$$
+```math
+h_{ss} = \max(N_\mathrm{over}, 0)\left(\frac{X_{O_2}}{0.19}\right)^{3}\left(\frac{W}{W_\mathrm{ref}}\right)^{-1},\quad N_\mathrm{over} = 0.325 + 0.325\,u = 0.065\,U,\qquad h \leftarrow h_{ss} + (h - h_{ss})\,e^{-\Delta t/\tau}
+```
 
-$$\mathrm{tip}(t) = x(t) + h(t)$$
+```math
+\mathrm{tip}(t) = x(t) + h(t)
+```
 
 A step down in flow pulls the tip back while the front goes on, as the three tracked train burns
 show (docs/wsp/feedback/bass_train_measurement.md).
@@ -89,30 +99,38 @@ show (docs/wsp/feedback/bass_train_measurement.md).
 **Base** (`burn.*`). The base repeats the front one burn-through time later, so after a step down
 it keeps the old speed for that long and the flame shortens from both ends:
 
-$$\mathrm{base}(t) = x(t - \tau_b),\qquad \tau_b = e^{N_\mathrm{burn}} = e^{1.84} = 6.3\ \mathrm{s}$$
+```math
+\mathrm{base}(t) = x(t - \tau_b),\qquad \tau_b = e^{N_\mathrm{burn}} = e^{1.84} = 6.3\ \mathrm{s}
+```
 
 **Run offset from the prefix** (`enc.*`). The run's own speed is read as the advance seen over the
 advance the law gives under the same flow history, from the tip (corrected for the modelled
 overhang) and from the base, mixed 0.8 and 0.2. It is trusted by a gain:
 
-$$E = \exp\big(\mathrm{clamp}(g\,\hat e,\ -0.7,\ 0.7)\big),\qquad g = \sigma\Big(-2.3 + 2.5\ln\frac{\mathrm{span}}{10\ \mathrm{s}} + 3.5\,\mathrm{settled}\Big)$$
+```math
+E = \exp\big(\mathrm{clamp}(g\,\hat e,\ -0.7,\ 0.7)\big),\qquad g = \sigma\Big(-2.3 + 2.5\ln\frac{\mathrm{span}}{10\ \mathrm{s}} + 3.5\,\mathrm{settled}\Big)
+```
 
 where `settled` grows from 0 to 1 over the 10 s after the last change of flow.
 
 **Quench hazard** (`quench.*`). A published boundary for a thin fuel (tissue paper), moved up by 3 %
 oxygen to where the one train burn that never spread puts it:
 
-$$\lambda = \exp\Big(-7 + 2.5\,\mathrm{relu}\big(U_q - U\big) + 12\,\mathrm{relu}\big(-0.9 - c_{O_2}\big)\Big),\qquad U_q = 2.27 - 1.33\,c_{O_2}\ \mathrm{cm/s}$$
+```math
+\lambda = \exp\Big(-7 + 2.5\,\mathrm{relu}\big(U_q - U\big) + 12\,\mathrm{relu}\big(-0.9 - c_{O_2}\big)\Big),\qquad U_q = 2.27 - 1.33\,c_{O_2}\ \mathrm{cm/s}
+```
 
-$$P(\text{quenched by } t) = 1 - \exp\Big(-\int_{t_c}^{t}\lambda\,dt\Big)$$
+```math
+P(\text{quenched by } t) = 1 - \exp\Big(-\int_{t_c}^{t}\lambda\,dt\Big)
+```
 
 The first relu term is the deficit below the quench velocity in cm/s; the second switches on below
 17.2 % oxygen at any flow.
 
 **Spread of the forecast** (`unc.*`, assumed noise). The relative sd of $\ln E$ is
-$\sqrt{g\,s_\mathrm{floor}^2 + (1-g)\,s_\mathrm{pop}^2 + (s_{far,0}\,c_{O_2})^2 + (s_{far,1}\,c_w)^2}$;
+$`\sqrt{g\,s_\mathrm{floor}^2 + (1-g)\,s_\mathrm{pop}^2 + (s_{far,0}\,c_{O_2})^2 + (s_{far,1}\,c_w)^2}`$;
 the sd of the tip at a lead is
-$\sqrt{\sigma_w^2 + (s\,E\,\mathrm{advance})^2 + (r_\mathrm{over}\,\Delta h)^2 + d_w^2\,\mathrm{lead}}$,
+$`\sqrt{\sigma_w^2 + (s\,E\,\mathrm{advance})^2 + (r_\mathrm{over}\,\Delta h)^2 + d_w^2\,\mathrm{lead}}`$,
 with Gaussian quantiles cut at the end of the sample when its length is known (`front.rs`, spec notes).
 
 Full derivations: [docs/research/FORMULAS.md](../../research/FORMULAS.md), section bass_front.wsp.

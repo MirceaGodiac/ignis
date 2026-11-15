@@ -59,7 +59,9 @@ The release is a committee: ten complete member models, a weight vector per era 
 readings of the script's planned stop. Its forecast is the weighted mean of the members' event tables
 (`committee4.rs`, rules of `committee3.rs`):
 
-$$P(t)=\sum_k o_k\sum_i w_i\,P_{i,k}(t),\qquad w_i=(1-p_{\rm late})\,\hat w^{\rm early}_i+p_{\rm late}\,\hat w^{\rm late}_i$$
+```math
+P(t)=\sum_k o_k\sum_i w_i\,P_{i,k}(t),\qquad w_i=(1-p_{\rm late})\,\hat w^{\rm early}_i+p_{\rm late}\,\hat w^{\rm late}_i
+```
 
 with $o$ the normalised `script.offset_w`, the members run once per offset node with a scheduled stop at
 `programmed_stop + script.offset_s[k]` (only when the planned stop is given; otherwise one pass with `mix.w_*`),
@@ -70,27 +72,35 @@ committee forecast is formed twice and mixed, $P=(1-w_b)P_{\rm first}+w_bP_{\rm 
 Each member reads the fuel row and the diluent row (`fuel2.rs`). With a Lewis number of oxygen different from one
 (helium), the sheet temperature is
 
-$$T_1=T_0+(T_{ad}-T_0)\,\frac{1-(1-Z_{st})^{1/Le}}{Z_{st}},\qquad T_0=298.15\ \mathrm{K}$$
+```math
+T_1=T_0+(T_{ad}-T_0)\,\frac{1-(1-Z_{st})^{1/Le}}{Z_{st}},\qquad T_0=298.15\ \mathrm{K}
+```
 
 and a fuel is refused when $T_1$ < `fuel.tad_min_k` (`dil.le_o2`, `fuel.tad_min_k`, `phys.t_stream_k`).
 
 **Growth members (b0 to b3, `flame9.rs`).** The flame grows by far-field diffusion towards its quasi-steady radius
 and goes out when the fuel flux at the sheet falls to a critical flux (Kim et al. 2023; Irace et al.):
 
-$$r_{ss}=\frac{\dot m_{tot}}{4\pi\rho D\,L},\quad r_{ext}=\sqrt{\frac{\dot m_R}{4\pi\dot m''_{cr}}},\quad \Phi=\Big(\frac{r_{ss}}{r_{ext}}\Big)^2,\quad R(\Phi)=\frac{r_{ext}^2}{4D\,\mathrm{erfcinv}(\Phi^{-1/2})^2}$$
+```math
+r_{ss}=\frac{\dot m_{tot}}{4\pi\rho D\,L},\quad r_{ext}=\sqrt{\frac{\dot m_R}{4\pi\dot m''_{cr}}},\quad \Phi=\Big(\frac{r_{ss}}{r_{ext}}\Big)^2,\quad R(\Phi)=\frac{r_{ext}^2}{4D\,\mathrm{erfcinv}(\Phi^{-1/2})^2}
+```
 
-$$\ln\dot m''_{cr}=N^*_{se}(\text{se.flux};c)-\text{fuel.s}+\text{dil.dflux}-\text{fuel.gz}\,\max(0,Z_{st}-\text{fuel.zst0}),\qquad \ln D=N^*_{se}(\text{se.diff};c)+\ln \text{dil.d\_far}$$
+```math
+\ln\dot m''_{cr}=N^*_{se}(\text{se.flux};c)-\text{fuel.s}+\text{dil.dflux}-\text{fuel.gz}\,\max(0,Z_{st}-\text{fuel.zst0}),\qquad \ln D=N^*_{se}(\text{se.diff};c)+\ln \text{dil.d_far}
+```
 
 with $\Phi\le1$ a held flame, a spread on $\ln\Phi$ (`se.sigma_phi`, 15 nodes), a weak class at ignition
 $p_{weak}=\sigma(N_{flash}(c))$ and an establishment floor (`se.floor_s`). F4's methane step and hydrogen row act
 through `fuel.s` (the critical flux: methane 0.18 → 0.33 g m⁻² s⁻¹, hydrogen 0.027), and the helium row through
-`dil.dflux` (+1.15, the energy balance $\dot m''_{cr}=\rho D\,Y_F L/(\Theta\ell^*)$ at the helium flame's sheet
+`dil.dflux` (+1.15, the energy balance $`\dot m''_{cr}=\rho D\,Y_F L/(\Theta\ell^*)`$ at the helium flame's sheet
 temperature, `phys_sflame_f4.md` M-a).
 
 **Hinge members (a0, a1, `flame8.rs`; c0 to c3, `flame10.rs`).** The radiative life is a hinge law in the reduced
 flow, $T=\text{floor}+R$ with $R$ log-logistic of median $\tau_R$,
 
-$$\ln\tau_R=N^*_{se}(\text{se.tau};\,c\ \text{with}\ c_{logm}+\text{fuel.s}+\text{dil.dlogm})+\text{dil.dlnr}$$
+```math
+\ln\tau_R=N^*_{se}(\text{se.tau};\,c\ \text{with}\ c_{logm}+\text{fuel.s}+\text{dil.dlogm})+\text{dil.dlnr}
+```
 
 so methane's `fuel.s` (1.0) moves its flames off the two low-flow hinges (M-b), and helium enters as a thermal
 equivalent of a nitrogen flame at about 9 % less oxygen (`dil.dlogm` +0.6, `dil.dlnr` −0.75, M-c).
@@ -98,7 +108,9 @@ equivalent of a nitrogen flame at about 9 % less oxygen (`dil.dlogm` +0.6, `dil.
 **Burner heating (b and c members).** The burner warms towards an equilibrium and the flow is cut when it crosses
 the limit of the test's setting:
 
-$$T_b(t)=T_0+\Delta T\,(1-e^{-t/\tau_b}),\qquad \ln\Delta T=N^*_{ft}(\text{bt.rise};b)+\kappa_{exp}\,\ln(1+\textstyle\sum_i x_i(k_{rel,i}-1))+\ln\frac{T_1-T_b}{T_{ref}-T_b}$$
+```math
+T_b(t)=T_0+\Delta T\,(1-e^{-t/\tau_b}),\qquad \ln\Delta T=N^*_{ft}(\text{bt.rise};b)+\kappa_{exp}\,\ln(1+\textstyle\sum_i x_i(k_{rel,i}-1))+\ln\frac{T_1-T_b}{T_{ref}-T_b}
+```
 
 with the limit `bt.limit_c[l] + (burner_limit_c − bt.limit_script_c)` (`bt.*`, `fuel.k_rel`, `dil.k_rel`). Hydrogen
 (conductivity 7.0 times nitrogen) and helium (5.8) heat the burner faster through the conductivity term.
