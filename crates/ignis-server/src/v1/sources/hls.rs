@@ -3,134 +3,56 @@
 //! CFI-G `.ts` recordings (15–996 MB) play from S3 with mpegts.js but cannot seek (no duration, no
 //! index). hls.js on a byte-range playlist seeks, provided every segment starts on a keyframe
 //! (measured 2026-11-14: even-byte segments fail on seek with a buffer-append error). The keyframe
-//! index (byte offset ↔ PTS of each IDR) is task R11 (Raul); until it lands, [`KeyframeIndex`] is
-//! the server-internal shape this builder reads, and the only index files are test fixtures. When
-//! R11 ships its contract in `ignis-core`, this module reads that type instead.
+//! index is R11's [`MediaKeyframeIndex`] (`ignis sources media keyframes`): for each keyframe the
+//! byte offset of the TS packet that starts its PES, its length (the access unit) and its PTS.
 //!
-//! RFC 8216 rules the playlist follows:
+//! RFC 8216 rules the playlists follow:
 //! * §4.3.2.2 `EXT-X-BYTERANGE` always carries its explicit `@offset`, so no segment depends on the
 //!   previous entry.
 //! * §3.2 a TS segment must contain a PAT and PMT or have an `EXT-X-MAP`. A range cut at a
-//!   mid-file keyframe usually has neither, so the playlist declares the file's leading PAT+PMT
-//!   packets (`init_bytes` of the index, whole 188-byte packets) as the media initialization
-//!   section, `#EXT-X-MAP:URI=…,BYTERANGE="<init_bytes>@0"`. `EXT-X-MAP` in a playlist that is not
-//!   I-frames-only needs `#EXT-X-VERSION:6` (§4.3.1.2), so the playlist is version 6. The
-//!   alternative, cutting only where a PAT precedes the IDR, depends on the muxer repeating its
-//!   PAT and is not used.
-//! * §3 media segments start at keyframe-index offsets (an IDR), `#EXTINF` is the PTS difference
-//!   between the segment's first keyframe and the next segment's, and `#EXT-X-TARGETDURATION` is
-//!   the ceiling of the longest `#EXTINF`.
-//! * Segments are contiguous: from the end of the init section to the last whole packet, with
-//!   no gap or overlap. Every range is a whole number of 188-byte packets and starts on a packet
-//!   (sync byte `0x47`). A partial trailing packet (a truncated recording) is left out.
+//!   mid-file keyframe usually has neither, so the playlists declare the file's leading packets up
+//!   to the first PMT (`init_bytes`, whole 188-byte packets) as the media initialization section,
+//!   `#EXT-X-MAP:URI=…,BYTERANGE="<init_bytes>@0"`. `EXT-X-MAP` needs `#EXT-X-VERSION:6` in a
+//!   media playlist and `5` in an I-frames-only one (§4.3.1.2).
+//! * §3 media segments start at keyframe offsets, `#EXTINF` is the PTS difference between the
+//!   segment's first keyframe and the next segment's, and `#EXT-X-TARGETDURATION` is the ceiling
+//!   of the longest `#EXTINF`.
+//! * Media segments are contiguous: from the end of the init section to the last whole packet,
+//!   with no gap or overlap. Every range is a whole number of 188-byte packets and starts on a
+//!   packet. A partial trailing packet (a truncated recording) is left out.
+//! * §4.3.3.6 the I-frames-only playlist lists one range per indexed keyframe: exactly its access
+//!   unit (`offset`, `length`), never the init section and never the rest of the GOP, with
+//!   `#EXTINF` the time to the next keyframe (§4.3.2.1 for I-frame playlists). The master playlist
+//!   (§4.3.4.3) references it with `EXT-X-I-FRAME-STREAM-INF`.
 //!
-//! No `EXT-X-I-FRAMES-ONLY` playlist: it needs each IDR's byte length, which the index does not
-//! carry (a range up to the next keyframe would be the whole GOP, so scrubbing would not get any
-//! cheaper).
-//!
-//! The playlist is a delivery detail: every range is the same signed URL, so the bytes stream from
-//! S3 to the browser and none pass through IGNIS.
+//! The playlists are a delivery detail: every range is the same signed URL, so the bytes stream
+//! from S3 to the browser and none pass through IGNIS.
 
 use std::fmt::Write as _;
 
-use ignis_core::contracts::SourceId;
-use serde::Deserialize;
+use ignis_core::contracts::{MediaKeyframeIndex, SourceId};
 
-/// MPEG-TS packet size: a range boundary that is not a packet boundary cannot be demuxed.
-pub const TS_PACKET: u64 = 188;
+pub use ignis_core::contracts::TS_PACKET_BYTES as TS_PACKET;
 
 /// Segment length hls.js was measured to seek with (8 s segments, LANES_V2 §10).
 pub const DEFAULT_TARGET_S: f64 = 8.0;
 
-/// One IDR frame of the recording.
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Keyframe {
-    /// Byte offset of the TS packet that starts the keyframe's PES.
-    pub offset: u64,
-    /// Presentation time in seconds (33-bit wraps already unwrapped by the indexer).
-    pub pts_s: f64,
-}
-
-/// Keyframe index of one `.ts` source version.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct KeyframeIndex {
-    pub source_id: SourceId,
-    /// Size of the indexed object; must equal the catalog's size, or the index is stale.
-    pub size_bytes: u64,
-    /// Length of the leading PAT + PMT packets (whole packets): the initialization section.
-    pub init_bytes: u64,
-    /// Presentation time where the last frame ends (last PTS + one frame duration).
-    pub end_pts_s: f64,
-    pub keyframes: Vec<Keyframe>,
-    /// Where the index came from (`synthetic_fixture` for the test files).
-    #[serde(default)]
-    pub note: Option<String>,
-}
-
-impl KeyframeIndex {
-    /// End of the last whole packet.
-    pub fn media_end(&self) -> u64 {
-        self.size_bytes - self.size_bytes % TS_PACKET
+/// The contract rules plus the binding to this source version.
+pub fn check(
+    index: &MediaKeyframeIndex,
+    expected: &SourceId,
+    size_bytes: u64,
+) -> Result<(), String> {
+    if &index.source_id != expected {
+        return Err(format!("index is for {}, not {expected}", index.source_id));
     }
-
-    /// PTS span the media segments cover.
-    pub fn duration_s(&self) -> f64 {
-        self.keyframes
-            .first()
-            .map_or(0.0, |k| self.end_pts_s - k.pts_s)
+    if index.size_bytes != size_bytes {
+        return Err(format!(
+            "index covers {} bytes, the source has {size_bytes}: stale index",
+            index.size_bytes
+        ));
     }
-
-    /// Every rule a playable playlist depends on; a violation refuses the playlist (fail closed).
-    pub fn validate(&self, expected: &SourceId, size_bytes: u64) -> Result<(), String> {
-        if &self.source_id != expected {
-            return Err(format!("index is for {}, not {expected}", self.source_id));
-        }
-        if self.size_bytes != size_bytes {
-            return Err(format!(
-                "index covers {} bytes, the source has {size_bytes}: stale index",
-                self.size_bytes
-            ));
-        }
-        let (Some(first), Some(last)) = (self.keyframes.first(), self.keyframes.last()) else {
-            return Err("index has no keyframes".into());
-        };
-        if self.init_bytes == 0 || self.init_bytes % TS_PACKET != 0 {
-            return Err(format!(
-                "init_bytes {} is not a whole number of {TS_PACKET}-byte packets",
-                self.init_bytes
-            ));
-        }
-        if first.offset < self.init_bytes {
-            return Err("the first keyframe lies inside the PAT/PMT init section".into());
-        }
-        for (i, k) in self.keyframes.iter().enumerate() {
-            if !k.pts_s.is_finite() {
-                return Err(format!("keyframe {i}: PTS is not finite"));
-            }
-            if k.offset % TS_PACKET != 0 {
-                return Err(format!(
-                    "keyframe {i}: offset {} is not on a {TS_PACKET}-byte packet boundary",
-                    k.offset
-                ));
-            }
-            if k.offset >= self.media_end() {
-                return Err(format!("keyframe {i}: offset {} is past the end", k.offset));
-            }
-            if let Some(p) = i.checked_sub(1).map(|j| self.keyframes[j]) {
-                if k.offset <= p.offset || k.pts_s <= p.pts_s {
-                    return Err(format!(
-                        "keyframe {i}: offsets and PTS must both increase strictly"
-                    ));
-                }
-            }
-        }
-        if !(self.end_pts_s.is_finite() && self.end_pts_s > last.pts_s) {
-            return Err("end_pts_s must be after the last keyframe".into());
-        }
-        Ok(())
-    }
+    index.validate().map_err(|e| e.reason)
 }
 
 /// One media segment: `[offset, offset + length)` of the object, `duration_s` long.
@@ -144,14 +66,15 @@ pub struct Segment {
 /// Keyframe-aligned media segments of about `target_s` seconds, contiguous from the end of the
 /// init section to the last whole packet. Every segment after the first starts at a keyframe;
 /// the first starts right after the init section (at the first keyframe when nothing lies
-/// between). The index must have passed [`KeyframeIndex::validate`].
-pub fn segments(index: &KeyframeIndex, target_s: f64) -> Vec<Segment> {
+/// between). The index must have passed [`check`].
+pub fn segments(index: &MediaKeyframeIndex, target_s: f64) -> Vec<Segment> {
     let kf = &index.keyframes;
+    let pts = |i: usize| kf[i].pts_s.get();
     // Start keyframes: greedy, a new segment at the first keyframe at least `target_s` after the
     // current start (a GOP longer than the target becomes its own, longer segment).
     let mut starts = vec![0usize];
-    for (i, k) in kf.iter().enumerate().skip(1) {
-        if k.pts_s - kf[*starts.last().unwrap()].pts_s >= target_s {
+    for i in 1..kf.len() {
+        if pts(i) - pts(*starts.last().unwrap()) >= target_s {
             starts.push(i);
         }
     }
@@ -165,37 +88,47 @@ pub fn segments(index: &KeyframeIndex, target_s: f64) -> Vec<Segment> {
                 kf[i].offset
             };
             let (end, end_pts) = match starts.get(n + 1) {
-                Some(&j) => (kf[j].offset, kf[j].pts_s),
-                None => (index.media_end(), index.end_pts_s),
+                Some(&j) => (kf[j].offset, pts(j)),
+                None => (index.media_end(), index.end_pts_s.get()),
             };
             Segment {
                 offset: begin,
                 length: end - begin,
-                duration_s: end_pts - kf[i].pts_s,
+                duration_s: end_pts - pts(i),
             }
         })
         .collect()
 }
 
-/// The VOD media playlist. `url` is the signed URL of the object; it must be one line without
-/// whitespace or quotes (it is also the quoted `EXT-X-MAP` URI).
-pub fn playlist(index: &KeyframeIndex, url: &str, target_s: f64) -> Result<String, String> {
+fn check_url(url: &str) -> Result<(), String> {
     if url
         .chars()
         .any(|c| c.is_control() || c.is_whitespace() || c == '"')
     {
         return Err("segment URL must be one line without whitespace or quotes".into());
     }
-    let segs = segments(index, target_s);
-    let longest = segs.iter().map(|s| s.duration_s).fold(0.0, f64::max);
-    let mut m = String::with_capacity(segs.len() * (url.len() + 64) + url.len() + 300);
-    m.push_str("#EXTM3U\n#EXT-X-VERSION:6\n#EXT-X-PLAYLIST-TYPE:VOD\n");
+    Ok(())
+}
+
+fn header(m: &mut String, version: u8, longest: f64) {
+    let _ = writeln!(m, "#EXTM3U\n#EXT-X-VERSION:{version}");
+    m.push_str("#EXT-X-PLAYLIST-TYPE:VOD\n");
     let _ = writeln!(
         m,
         "#EXT-X-TARGETDURATION:{}",
         longest.ceil().max(1.0) as u64
     );
     m.push_str("#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-INDEPENDENT-SEGMENTS\n");
+}
+
+/// The VOD media playlist. `url` is the signed URL of the object; it must be one line without
+/// whitespace or quotes (it is also the quoted `EXT-X-MAP` URI).
+pub fn playlist(index: &MediaKeyframeIndex, url: &str, target_s: f64) -> Result<String, String> {
+    check_url(url)?;
+    let segs = segments(index, target_s);
+    let longest = segs.iter().map(|s| s.duration_s).fold(0.0, f64::max);
+    let mut m = String::with_capacity(segs.len() * (url.len() + 64) + url.len() + 300);
+    header(&mut m, 6, longest);
     let _ = writeln!(
         m,
         "#EXT-X-MAP:URI=\"{url}\",BYTERANGE=\"{}@0\"",
@@ -209,5 +142,78 @@ pub fn playlist(index: &KeyframeIndex, url: &str, target_s: f64) -> Result<Strin
         );
     }
     m.push_str("#EXT-X-ENDLIST\n");
+    Ok(m)
+}
+
+/// The I-frames-only playlist: one range per indexed keyframe, exactly its access unit.
+pub fn iframes_playlist(index: &MediaKeyframeIndex, url: &str) -> Result<String, String> {
+    check_url(url)?;
+    let kf = &index.keyframes;
+    let dur = |i: usize| {
+        kf.get(i + 1)
+            .map_or(index.end_pts_s.get(), |n| n.pts_s.get())
+            - kf[i].pts_s.get()
+    };
+    let longest = (0..kf.len()).map(dur).fold(0.0, f64::max);
+    let mut m = String::with_capacity(kf.len() * (url.len() + 64) + url.len() + 300);
+    header(&mut m, 5, longest);
+    m.push_str("#EXT-X-I-FRAMES-ONLY\n");
+    let _ = writeln!(
+        m,
+        "#EXT-X-MAP:URI=\"{url}\",BYTERANGE=\"{}@0\"",
+        index.init_bytes
+    );
+    for (i, k) in kf.iter().enumerate() {
+        let _ = writeln!(
+            m,
+            "#EXTINF:{:.6},\n#EXT-X-BYTERANGE:{}@{}\n{url}",
+            dur(i),
+            k.length,
+            k.offset
+        );
+    }
+    m.push_str("#EXT-X-ENDLIST\n");
+    Ok(m)
+}
+
+/// Peak bit rate of the media segments and of the I-frame ranges (bits per second), for the
+/// master playlist's `BANDWIDTH` (§4.3.4.2: the peak segment bit rate).
+pub fn bandwidths(index: &MediaKeyframeIndex, target_s: f64) -> (u64, u64) {
+    let peak = |bytes: u64, s: f64| if s > 0.0 { bytes as f64 * 8.0 / s } else { 0.0 };
+    let media = segments(index, target_s)
+        .iter()
+        .map(|s| peak(s.length, s.duration_s))
+        .fold(0.0, f64::max);
+    let kf = &index.keyframes;
+    let iframes = kf
+        .iter()
+        .enumerate()
+        .map(|(i, k)| {
+            let next = kf
+                .get(i + 1)
+                .map_or(index.end_pts_s.get(), |n| n.pts_s.get());
+            peak(k.length, next - k.pts_s.get())
+        })
+        .fold(0.0, f64::max);
+    (media.ceil().max(1.0) as u64, iframes.ceil().max(1.0) as u64)
+}
+
+/// The master playlist: the media playlist as the one variant and the I-frame playlist for
+/// scrubbing. Both URIs are IGNIS API URLs (no whitespace or quotes).
+pub fn master_playlist(
+    index: &MediaKeyframeIndex,
+    media_uri: &str,
+    iframes_uri: &str,
+    target_s: f64,
+) -> Result<String, String> {
+    check_url(media_uri)?;
+    check_url(iframes_uri)?;
+    let (media, iframes) = bandwidths(index, target_s);
+    let mut m = String::from("#EXTM3U\n#EXT-X-VERSION:6\n#EXT-X-INDEPENDENT-SEGMENTS\n");
+    let _ = writeln!(m, "#EXT-X-STREAM-INF:BANDWIDTH={media}\n{media_uri}");
+    let _ = writeln!(
+        m,
+        "#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH={iframes},URI=\"{iframes_uri}\""
+    );
     Ok(m)
 }

@@ -1,133 +1,170 @@
 {
+ "schema_version": "evidence.v2",
  "source_id": "sha256:a9585e18f0f87f9c8c3c75e8603342ce19b4c72944ebd69dd91e1e89a910cc16",
  "size_bytes": 14767400,
  "init_bytes": 376,
+ "video_pid": 256,
+ "codec": "h264",
  "end_pts_s": 63.462,
+ "coverage": "all",
  "keyframes": [
   {
    "offset": 376,
+   "length": 37600,
    "pts_s": 1.4
   },
   {
    "offset": 476204,
+   "length": 37600,
    "pts_s": 3.402
   },
   {
    "offset": 952596,
+   "length": 37600,
    "pts_s": 5.404
   },
   {
    "offset": 1428988,
+   "length": 37600,
    "pts_s": 7.406
   },
   {
    "offset": 1905380,
+   "length": 37600,
    "pts_s": 9.408
   },
   {
    "offset": 2381772,
+   "length": 37600,
    "pts_s": 11.41
   },
   {
    "offset": 2858164,
+   "length": 37600,
    "pts_s": 13.412
   },
   {
    "offset": 3334556,
+   "length": 37600,
    "pts_s": 15.414
   },
   {
    "offset": 3810760,
+   "length": 37600,
    "pts_s": 17.416
   },
   {
    "offset": 4287152,
+   "length": 37600,
    "pts_s": 19.418
   },
   {
    "offset": 4763544,
+   "length": 37600,
    "pts_s": 21.42
   },
   {
    "offset": 5239936,
+   "length": 37600,
    "pts_s": 23.422
   },
   {
    "offset": 5716328,
+   "length": 37600,
    "pts_s": 25.424
   },
   {
    "offset": 6192720,
+   "length": 37600,
    "pts_s": 27.426
   },
   {
    "offset": 6669112,
+   "length": 37600,
    "pts_s": 29.428
   },
   {
    "offset": 7145504,
+   "length": 37600,
    "pts_s": 31.43
   },
   {
    "offset": 7621708,
+   "length": 37600,
    "pts_s": 33.432
   },
   {
    "offset": 8098100,
+   "length": 37600,
    "pts_s": 35.434
   },
   {
    "offset": 8574492,
+   "length": 37600,
    "pts_s": 37.436
   },
   {
    "offset": 9050884,
+   "length": 37600,
    "pts_s": 39.438
   },
   {
    "offset": 9527276,
+   "length": 37600,
    "pts_s": 41.44
   },
   {
    "offset": 10003668,
+   "length": 37600,
    "pts_s": 43.442
   },
   {
    "offset": 10480060,
+   "length": 37600,
    "pts_s": 45.444
   },
   {
    "offset": 10956452,
+   "length": 37600,
    "pts_s": 47.446
   },
   {
    "offset": 11432656,
+   "length": 37600,
    "pts_s": 49.448
   },
   {
    "offset": 11909048,
+   "length": 37600,
    "pts_s": 51.45
   },
   {
    "offset": 12385440,
+   "length": 37600,
    "pts_s": 53.452
   },
   {
    "offset": 12861832,
+   "length": 37600,
    "pts_s": 55.454
   },
   {
    "offset": 13338224,
+   "length": 37600,
    "pts_s": 57.456
   },
   {
    "offset": 13814616,
+   "length": 37600,
    "pts_s": 59.458
   },
   {
    "offset": 14291008,
+   "length": 37600,
    "pts_s": 61.46
   }
  ],
- "note": "synthetic_fixture: PAT+PMT in the first two packets, evenly spaced packet-aligned keyframe offsets and 2.002 s GOPs; not measured from the file (R11 pending)"
+ "bytes_read": 0,
+ "indexer": "synthetic fixture: PAT+PMT in the first two packets, evenly spaced packet-aligned keyframes, 2.002 s GOPs, 200-packet I-frames; not measured from the file",
+ "origin": "synthetic_fixture"
 }

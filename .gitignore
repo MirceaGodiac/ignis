@@ -16,6 +16,8 @@ web/dist/
 data/raw/
 data/cache/
 data/work/
+# R11 media indexes and caches (keyframe indexes, ZIP directories, frames): derived, rebuilt where the server runs
+data/media/
 artifacts/
 runs/
 holdout/

@@ -13,6 +13,7 @@ pub mod conditions;
 pub mod dataset;
 pub mod dossier;
 pub mod families;
+pub mod media;
 pub mod npyrng;
 pub mod paths;
 pub mod review;
