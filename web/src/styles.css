@@ -78,6 +78,10 @@
 /* ------------------------------------------------------------------ base */
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
+/* App chrome is not selectable (no stray selection or caret when clicking around); the content a
+   researcher copies stays selectable: messages, answers, quotes, passages, PDF text, detail values, fields. */
+body { -webkit-user-select: none; user-select: none; }
+:is(input, textarea, [contenteditable], pre, code, .msg-user, .msg-agent, .answer-text, .quote, .src-hit-quote, .kv dd) { -webkit-user-select: text; user-select: text; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 400 14px/1.55 var(--font-ui); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; letter-spacing: -0.006em; }
 ::selection { background: color-mix(in srgb, var(--flame) 22%, transparent); }
 :focus-visible { outline: 2px solid color-mix(in srgb, var(--flame) 70%, transparent); outline-offset: 2px; border-radius: 6px; }
