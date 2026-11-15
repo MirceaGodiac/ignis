@@ -140,7 +140,10 @@ unavailable.
 1. `investigator.md`, trimmed, line endings normalized to `\n`;
 2. `## IGNIS tools`: generated from `tool_catalog()`, restricted to the tools this runtime is attached
    to, in name order, each as ``- `name` (effect `…`, idempotent, may return a job): summary
-   Arguments: `Input`; result: `Output`.`` If no tools are attached, a paragraph says so;
+   Arguments: `Input`; result: `Output`.`` (`ToolDescriptions::Full`, Codex: 0.169 always defers MCP
+   tool definitions, so this is where its model reads them). For Claude Code, which sends every MCP
+   definition with each request, the section is an index (`ToolDescriptions::Index`): ``- `name`
+   (traits)`` only, so no description is sent twice. If no tools are attached, a paragraph says so;
 3. `## Skills`: when `skills_read` is attached, a one-line index (`- `name`: description`) and the
    instruction to read a skill before the first tool call of that kind. Otherwise every skill is
    inlined as a `<skill name="…">` block.
@@ -166,7 +169,8 @@ The digest changes whenever any instruction text, any skill, or the set of attac
 **Delivery.** Codex receives the prefix as `developerInstructions` on `thread/start` and
 `thread/resume`; its coding-agent base instructions are replaced by `runtime/codex_base.md` through
 `model_instructions_file` ([preflight.rs](../crates/ignis-research/src/runtime/preflight.rs)). Claude
-Code receives it with `--append-system-prompt-file`, from a file named by the digest.
+Code receives it with `--append-system-prompt-file`, from a file named by the digest. What each
+request costs, and what the runtimes add around the prefix: [research/HARNESS_COST.md](research/HARNESS_COST.md).
 
 `skills_read` serves skill text only from the bundle the episode is pinned to (`HarnessShelf`); a
 host that does not hold that digest refuses with `capability_unavailable`.

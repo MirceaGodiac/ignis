@@ -160,7 +160,7 @@ export function Lab({ runId }: { runId: string | null }) {
             </div>
           </div>
         )}
-        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} reach={reaches?.reach ?? null} heldOut={reaches?.heldOut} />}
+        {(!runId || picking) && <RunPicker runs={runs} value={runId} onPick={pick} loading={experiments.isLoading} autoFocus={picking} reach={reaches} />}
       </section>
 
       {runId && detail.error && <RefusalNote refusal={asRefusal(detail.error)!} next="Choose another run, or switch the data source in the sidebar." />}

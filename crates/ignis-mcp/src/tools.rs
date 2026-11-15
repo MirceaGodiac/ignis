@@ -723,7 +723,8 @@ impl ToolHost {
                 return Ok(job);
             }
             std::thread::sleep(pause.min(left));
-            pause = (pause * 2).min(Duration::from_millis(500));
+            // A finished job is seen within 200 ms (one store read per pause).
+            pause = (pause * 2).min(Duration::from_millis(200));
             job = self.store.job(scope, &job.job_id)?;
             if job.status.is_terminal() {
                 return Ok(job);
