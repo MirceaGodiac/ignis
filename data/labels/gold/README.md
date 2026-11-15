@@ -1,13 +1,13 @@
 # R8 gold set
 
 The set of documents that measures the R8 document labeller (`SourceLabel`) before its labels are
-used. A person labels it; code never fills a label.
+used. It was labelled by a model, not a person (see "Who labelled the gold set"); code never fills a label.
 
 | File | What |
 |---|---|
 | `gold_template.jsonl` | 100 documents chosen by `ignis evidence gold-select --n 100 --seed 2026`, all label fields empty. Never edit it. |
 | `labelling_sheet.html` | The same 100 documents with their file name, title, storage folder, page count, a link to the PDF and the section outline (R7b). The page lets you fill the fields and exports `gold_labels.jsonl`. It shows no model output. |
-| `gold_labels.jsonl` | (to come) the labelled rows, exported from the sheet and committed by the labeller. |
+| `gold_labels.jsonl` | The 100 labelled rows, written by Claude Sonnet 5.5 (see below). Every row has `labelled_by = "model:claude-sonnet-5-5"`, which is what marks it done for `gold-eval`. |
 | `build_sheet.py`, `sheet_template.html` | Rebuild the sheet from the template and a catalog. |
 
 ## Selection
@@ -46,3 +46,28 @@ used. A person labels it; code never fills a label.
    - F1 for families, runs and conditions;
    - the same over resolved labels only;
    - a confusion table.
+
+## Who labelled the gold set
+
+**This gold set was labelled by a model, not by a person.** At Raul's request, Claude Sonnet 5.5
+(`claude-sonnet-5-5`, medium effort) labelled all 100 rows on 2026-11-15. It read each document in
+the local parse views (Docling where available, otherwise PDFium: title, headings, front pages,
+tables and keyword searches over the whole text) and applied the rules at the top of
+`labelling_sheet.html`. Every row carries `labelled_by = "model:claude-sonnet-5-5"` and an
+RFC 3339 `labelled_at`; a person did not review the rows.
+
+- Accuracy measured against this file means **agreement with Claude Sonnet 5.5**, not correctness
+  against a human reading. Sonnet's own mistakes are in the reference.
+- **Do not score Sonnet 5.5 as a candidate labeller on this set**: its agreement with itself says
+  nothing. Other labellers and rules-based baselines can be scored.
+- Judgement calls are in each row's `notes` (all 100 rows have one). The main conventions:
+  - The storage folder is accepted as the investigation when the content is consistent with it;
+    the note says when the text itself names no accession.
+  - SAME documents stored under PSI-101 (SAME Re-flight) list PSI-101 and PSI-102.
+  - `families` uses `other` for experiments that are not FLEX, ACME normal/inverse or BASS
+    (SAFFIRE, SAME, SLICE, SPICE, DAFT, ACME BRE and CFI-G). ACME documents about the whole
+    facility, or several experiments, have empty families.
+  - Documents with no extractable text (image-only drawings, test notes) were labelled from the
+    file name and storage folder, low confidence, and say so in `notes`.
+  - `conditions_mentioned` is a judgement from keyword searches and reading the stated settings;
+    it is the least reliable field.
