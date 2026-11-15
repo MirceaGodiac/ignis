@@ -26,6 +26,7 @@ pub mod llm_pass;
 pub mod outline;
 #[cfg(feature = "pdf")]
 pub mod pdf;
+pub mod psi_record;
 pub mod records;
 pub mod retrieval_eval;
 pub mod search;
@@ -73,6 +74,20 @@ pub enum CorpusCmd {
     Ingest {
         #[arg(long)]
         db: Option<PathBuf>,
+    },
+    /// Index each flight investigation's PSI record (DOI, version, licence, hardware, investigators,
+    /// dates, objectives, file counts and sizes) as a citable source, from the saved metadata
+    /// (`data/manifests/<inv>.investigation.json`, `.listing.jsonl`, `data/raw/samples/_meta`).
+    /// Offline; re-running replaces a changed record and keeps an unchanged one.
+    Records {
+        #[arg(long)]
+        db: Option<PathBuf>,
+        /// investigations (default: the 19 flight investigations)
+        #[arg(long)]
+        investigation: Vec<String>,
+        /// where the record bytes and records.jsonl go (default: data/work/evidence/psi_records)
+        #[arg(long)]
+        out: Option<PathBuf>,
     },
     /// Per publication: passages, and how many the local research scope (train + validation) cannot read.
     Lockbox {
@@ -603,6 +618,14 @@ pub fn run(cmd: EvidenceCmd) -> Result<()> {
                 };
                 let path = catalog::resolve_location(&rel);
                 let bytes = std::fs::read(&path).with_context(|| format!("read {} (recorded as {rel})", path.display()))?;
+                if psi_record::is_record(&p) {
+                    let v = psi_record::verify(&con, &p, &bytes)?;
+                    if v["passed"] != json!(true) {
+                        failed += 1;
+                    }
+                    out.push(v);
+                    continue;
+                }
                 if p.parser_version.starts_with("docling-") || p.parser_version.starts_with("pdfium-") {
                     // Sidecar views: spans, line boxes and page bounds are checked at import
                     // (`docling_view::import`); here the stored bytes must still be the view's source.
@@ -994,6 +1017,21 @@ fn run_corpus(cmd: CorpusCmd) -> Result<()> {
                 out.push(v);
             }
             print(&json!({"db": db.display().to_string(), "ingested": out}))
+        }
+        CorpusCmd::Records { db, investigation, out } => {
+            let db = db.unwrap_or_else(catalog::default_db);
+            let invs: Vec<String> = if investigation.is_empty() {
+                ignis_data::sources::storage::FLIGHTS.iter().map(|f| f.accession.to_string()).collect()
+            } else {
+                investigation
+            };
+            let invs: Vec<&str> = invs.iter().map(String::as_str).collect();
+            let out = out.unwrap_or_else(psi_record::default_dir);
+            let mut con = catalog::connect(&db, false)?;
+            let rows = psi_record::ingest(&mut con, &invs, &ignis_data::paths::manifests(), &ignis_data::paths::meta(), &out)?;
+            let skipped = rows.iter().filter(|r| r.get("skipped").is_some()).count();
+            print(&json!({"db": db.display().to_string(), "out": out.display().to_string(),
+                "records": rows.len() - skipped, "skipped": skipped, "investigations": rows}))
         }
         CorpusCmd::Lockbox { db } => {
             let svc = open_service(db, true)?;
