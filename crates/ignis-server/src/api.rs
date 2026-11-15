@@ -428,6 +428,9 @@ async fn get_experiment(State(o): S, Path(id): Path<String>) -> ApiResult<Json<V
         .get(&id)
         .ok_or_else(|| Refusal::not_found("run_not_found", format!("run {id}")))?;
     let fams: BTreeSet<Family> = o.list_releases().0.iter().map(|r| r.family).collect();
+    // Outcomes (control history, how the run ended) only for runs whose every partition this
+    // scope may read; a validation or test run gets null, never a hint of its duration.
+    let outcomes = outcomes_allowed(&o, &reg, &id);
     let releases: Vec<Value> = o
         .list_releases()
         .0
@@ -439,10 +442,12 @@ async fn get_experiment(State(o): S, Path(id): Path<String>) -> ApiResult<Json<V
         "data_origin": origin_value(&o),
         "record": r,
         "summary": experiment_summary(&o, r, &fams),
-        "control_history": if outcomes_allowed(&o, &reg, &id) { json!(reg.controls.get(&id)) } else { Value::Null },
+        "control_history": if outcomes { json!(reg.controls.get(&id)) } else { Value::Null },
+        "endpoint": if outcomes { json!(reg.endpoints.get(&id)) } else { Value::Null },
         "releases": releases,
-        "note": "Observation values are served per cutoff (/experiments/{id}/observations); the continuation and the \
-                 endpoint record are only served by /reveal after a sealed prediction.",
+        "note": "Observation values are served per cutoff (/experiments/{id}/observations). The endpoint record is \
+                 served here only for runs whose outcomes this scope reads (train); for validation runs the \
+                 continuation and the endpoint open through /reveal after a sealed prediction.",
     })))
 }
 
