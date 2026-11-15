@@ -9,7 +9,8 @@ use std::sync::{Arc, Once};
 use common::*;
 use ignis_core::contracts::*;
 use ignis_research::runtime::{
-    claude_preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, StopReason,
+    claude_preflight, AgentRuntime, ClaudeBridge, ClaudeConfig, McpAttachment, McpGrants,
+    StopReason,
 };
 use ignis_research::store::EpisodeAction;
 use ignis_research::{LocalArtifactStore, ResearchStore};
@@ -41,9 +42,14 @@ struct H {
 }
 
 fn harness(dir: &Path) -> H {
+    harness_with(dir, |_| {})
+}
+
+fn harness_with(dir: &Path, tune: impl FnOnce(&mut ClaudeConfig)) -> H {
     let store = Arc::new(ResearchStore::open(dir.join("state.sqlite")).unwrap());
     let artifacts = Arc::new(LocalArtifactStore::open(dir.join("artifacts")).unwrap());
-    let cfg = config(dir);
+    let mut cfg = config(dir);
+    tune(&mut cfg);
     let manifest = claude_preflight(&cfg).expect("preflight of the fake");
     let bridge = ClaudeBridge::new(
         cfg,
@@ -264,6 +270,10 @@ fn live_binary_accepts_the_flags_and_reports_a_missing_sign_in() {
     cfg.pass_env = vec![];
     cfg.login_home = Some(login);
     cfg.harness = Some(ignis_research::runtime::HarnessBundle::embedded(&[]));
+    // With IGNIS_LIVE_CLAUDE_DELEGATION set, also the subagent flags (`--tools Agent --agents …`).
+    if std::env::var_os("IGNIS_LIVE_CLAUDE_DELEGATION").is_some() {
+        delegating(&mut cfg);
+    }
     let manifest = claude_preflight(&cfg).expect("preflight of the real binary");
     println!("build: {}", manifest.runtime_build_id);
     let h = H {
@@ -390,6 +400,90 @@ An extra rule for this variant.
     h.idle(&sc, &ep2, EpisodeStatus::Completed, 1);
     let pin = h.store.episode(&sc, &ep2).unwrap().pins.harness.unwrap();
     assert_eq!(&pin.digest, h2.digest());
+}
+
+/// The IGNIS MCP server as the bridge sees it (nothing listens: the fake never connects).
+fn delegating(cfg: &mut ClaudeConfig) {
+    cfg.delegation = true;
+    cfg.mcp = Some(McpAttachment {
+        url: "http://127.0.0.1:9/mcp".into(),
+        grants: McpGrants::new(),
+        enabled_tools: vec!["sources_search".into(), "answer_submit".into()],
+        approved_tools: vec!["sources_search".into(), "answer_submit".into()],
+    });
+}
+
+fn argv(dir: &Path) -> Vec<Vec<String>> {
+    let ws = std::fs::read_dir(dir.join("claude"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    std::fs::read_to_string(ws.join("config").join("argv.log"))
+        .unwrap()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect()
+}
+
+#[test]
+fn a_delegated_subtask_runs_in_the_parent_episode_and_cannot_delegate_again() {
+    let dir = tempfile::tempdir().unwrap();
+    let off = harness(&dir.path().join("off"));
+    let h = harness_with(dir.path(), delegating);
+    // Delegation is part of the runtime build: the two arms of an ablation never share an id.
+    assert_ne!(
+        h.bridge.manifest().runtime_build_id,
+        off.bridge.manifest().runtime_build_id
+    );
+
+    let sc = scope("ws-d", false);
+    let ep = h.episode(&sc, "delegate");
+    h.say(&sc, &ep, "delegate the aggregation");
+    let evs = h.idle(&sc, &ep, EpisodeStatus::Completed, 1);
+    check_event_log(&evs).unwrap();
+
+    // The child got exactly one subagent: IGNIS tools only, never answer_submit or a subagent tool.
+    let args = &argv(dir.path())[0];
+    let flag = |f: &str| {
+        let i = args.iter().position(|a| a == f).unwrap();
+        args[i + 1].clone()
+    };
+    assert_eq!(flag("--tools"), "Agent");
+    let agents: serde_json::Value = serde_json::from_str(&flag("--agents")).unwrap();
+    let defs = agents.as_object().unwrap();
+    assert_eq!(defs.len(), 1);
+    let tools = &defs["ignis-subinvestigator"]["tools"];
+    assert_eq!(tools, &serde_json::json!(["mcp__ignis__sources_search"]));
+    assert!(flag("--allowedTools").split(',').any(|t| t == "Agent"));
+
+    // The subagent's IGNIS call and the subagent call itself are in the parent episode's log;
+    // the subagent's text is archived, never an assistant message of the episode.
+    let started: Vec<String> = evs
+        .iter()
+        .filter_map(|e| match &e.body {
+            EventBody::ToolStarted { tool, .. } => Some(tool.clone()),
+            _ => None,
+        })
+        .collect();
+    assert!(started.contains(&"claude.Agent".to_string()), "{started:?}");
+    assert!(
+        started.contains(&"sources_search".to_string()),
+        "{started:?}"
+    );
+    let finished = kinds(&evs).iter().filter(|k| *k == "tool.finished").count();
+    assert_eq!(finished, 2, "{:#?}", kinds(&evs));
+    let texts = completed_texts(&evs);
+    assert!(!texts.iter().any(|t| t.starts_with("Sub:")), "{texts:?}");
+    assert!(texts.contains(&"Delegating the aggregation.".to_string()));
+
+    // A subagent that tries to delegate again: the host stops the turn and says why.
+    let ep2 = h.episode(&sc, "nested");
+    h.say(&sc, &ep2, "nested delegation");
+    let evs = h.idle(&sc, &ep2, EpisodeStatus::Failed, 1);
+    check_event_log(&evs).unwrap();
+    assert!(reason(&evs).contains("depth 1"), "{}", reason(&evs));
 }
 
 #[test]

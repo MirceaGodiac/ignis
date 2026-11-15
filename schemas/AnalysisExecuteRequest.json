@@ -2,10 +2,40 @@
   "$defs": {
     "AnalysisInput": {
       "additionalProperties": false,
-      "description": "One input of an analysis: an artifact of the caller's workspace, mounted read-only at\n`/in/<name>`. Only artifacts reach the runner; it never sees the host filesystem or other stores.",
+      "description": "One input of an analysis, named by reference and mounted read-only at `/in/<name>`. Exactly one\nof `artifact_id`, `dataset_view` or `conditions` is set. The host resolves the reference under\nthe caller's scope (every partition check applies, also to the lineage of an artifact), copies\nthe bytes and verifies their digest; the request never carries the data itself. The runner never\nsees the host filesystem or other stores. `/job/inputs.json` lists the mounted inputs\n([`MountedInput`]) for the program.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/ArtifactId"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "An artifact of the caller's workspace (e.g. the output of an earlier analysis)."
+        },
+        "conditions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConditionsQuery"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The complete answer of a `conditions_query` (every page), as one `ConditionsTable` JSON\ndocument; `cursor` must be absent."
+        },
+        "dataset_view": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DatasetViewRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One columnar view (Parquet) of a curated dataset, as `datasets_inspect` lists it."
         },
         "name": {
           "description": "File name under `/in` (`[A-Za-z0-9._-]`, not starting with `.`).",
@@ -13,8 +43,7 @@
         }
       },
       "required": [
-        "name",
-        "artifact_id"
+        "name"
       ],
       "type": "object"
     },
@@ -34,6 +63,169 @@
       "type": "string"
     },
     "ClientRequestId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "ConditionFilter": {
+      "additionalProperties": false,
+      "description": "A filter on one key. A filter keeps rows whose cell is a value inside it; rows whose cell is\nmissing or conflicting are kept only with `ConditionsQuery::include_unknown`.",
+      "properties": {
+        "any_of": {
+          "description": "Categorical keys.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "key": {
+          "$ref": "#/$defs/ConditionKey"
+        },
+        "max_si": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "min_si": {
+          "description": "Numeric keys, SI.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "ConditionKey": {
+      "description": "A condition the challenge and the graph join on. Numeric keys are stored in the SI unit of their\n[`Quantity`]; the others are categorical text (`n-heptane`, `flat sheet`, `CIR/MDCA`). The\ncatalog is closed: a new key is a contract change.",
+      "enum": [
+        "oxygen_mole_fraction",
+        "pressure",
+        "flow_velocity",
+        "gravity_level",
+        "ambient_temperature",
+        "fuel",
+        "diluent",
+        "sample_geometry",
+        "hardware",
+        "diagnostics"
+      ],
+      "type": "string"
+    },
+    "ConditionsQuery": {
+      "additionalProperties": false,
+      "description": "`conditions_query`: per-run conditions and, on request, each investigation's tested envelope.",
+      "properties": {
+        "cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PageCursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filters": {
+          "items": {
+            "$ref": "#/$defs/ConditionFilter"
+          },
+          "type": "array"
+        },
+        "include_envelopes": {
+          "default": false,
+          "type": "boolean"
+        },
+        "include_unknown": {
+          "default": false,
+          "type": "boolean"
+        },
+        "investigation_ids": {
+          "description": "Empty = every investigation.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "keys": {
+          "description": "Columns; empty = every key.",
+          "items": {
+            "$ref": "#/$defs/ConditionKey"
+          },
+          "type": "array"
+        },
+        "page_size": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "run_ids": {
+          "items": {
+            "$ref": "#/$defs/RunId"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/DatasetSchema"
+        }
+      },
+      "required": [
+        "schema_version"
+      ],
+      "type": "object"
+    },
+    "DatasetId": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "DatasetSchema": {
+      "description": "Wire tag of dataset, visual observation and conditions documents. Wave K1 writes `dataset.v2`;\n`dataset.v1` (C0) documents are still read, and keep their content digests because a\ndocument is re-serialized with the tag it was read with. New document types require v2.",
+      "oneOf": [
+        {
+          "enum": [
+            "dataset.v2"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "dataset.v1",
+          "description": "C0. Still read; new documents are written as v2.",
+          "type": "string"
+        }
+      ]
+    },
+    "DatasetViewRef": {
+      "additionalProperties": false,
+      "description": "A view of a dataset bundle by name.",
+      "properties": {
+        "dataset_id": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "view": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "view"
+      ],
+      "type": "object"
+    },
+    "PageCursor": {
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "type": "string"
+    },
+    "RunId": {
       "minLength": 1,
       "pattern": "^\\S+$",
       "type": "string"

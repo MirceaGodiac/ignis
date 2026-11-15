@@ -365,6 +365,13 @@ impl ToolHost {
                 let req: AnalysisExecuteRequest = decode(contract, args)?;
                 checked(req.validate())?;
                 self.sandbox()?;
+                // Refuse a reference the scope cannot read (partition, lineage) before queueing.
+                ignis_research::sandbox::check_inputs(
+                    scope,
+                    &req,
+                    self.artifacts.as_ref(),
+                    self.services.datasets.as_deref(),
+                )?;
                 let job = self.submit_analysis(scope, &req, call_id)?;
                 Ok(Outcome::Job(job))
             }

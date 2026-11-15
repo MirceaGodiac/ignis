@@ -96,6 +96,7 @@ fn analysis_execute_runs_in_the_runner_as_a_job_of_the_callers_workspace() {
             &claimed.scope,
             &req,
             h.artifacts.as_ref(),
+            None,
             Producer {
                 job_id: Some(claimed.job_id.clone()),
                 ..Default::default()
