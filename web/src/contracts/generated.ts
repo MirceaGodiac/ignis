@@ -1232,7 +1232,8 @@ export type Relation =
   | "describes_run"
   | "disputes"
   | "supersedes"
-  | "same_as_candidate";
+  | "same_as_candidate"
+  | "part_of";
 export type DirectionFilter = "outgoing" | "incoming" | "both";
 /**
  * Which side of the requested node an edge sits on.
@@ -4047,6 +4048,12 @@ export interface ProvenanceLink {
   resolution: Resolution4;
   schema_version: EvidenceSchema;
   to: GraphNode;
+  /**
+   * The original value the link was read from (a conditions cell, a metadata field): raw value,
+   * raw unit, SI value and the locator of the cell. Absent when the link comes from a whole
+   * record or a passage (then `evidence` / `method.inputs` say where).
+   */
+  value?: Measured | null;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -4077,6 +4084,13 @@ export interface GraphNeighborsRequest {
    */
   relations?: Relation[];
   schema_version: EvidenceSchema;
+  value_max_si?: number | null;
+  /**
+   * Keep only links whose `value` has an SI value at or above this (e.g. the O2 mole fraction
+   * of a `has_condition` link). Links without an SI value never match a bound; the page counts
+   * them in `without_value`.
+   */
+  value_min_si?: number | null;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema
@@ -4093,6 +4107,11 @@ export interface GraphNeighborsPage {
    * Exact total, or absent when not counted.
    */
   total_count?: number | null;
+  /**
+   * With a value bound: the links of this node and relations that the bound left out because
+   * they carry no SI value (a missing, not-applicable or categorical cell), over every page.
+   */
+  without_value?: number | null;
 }
 /**
  * This interface was referenced by `IgnisContracts`'s JSON-Schema

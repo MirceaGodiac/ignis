@@ -22,10 +22,10 @@ use std::sync::Arc;
 use ignis_core::contracts::{
     tool_catalog, AnalysisExecuteRequest, AnswerSubmission, ArtifactReadRequest, ArtifactRef,
     Causation, ClientRequestId, ConditionsQuery, DatasetRef, EntityRef, EpisodeId, ErrorCode,
-    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest, GroundingMode,
-    InlinePayload, JobLookup, JobRef, Origin, OutlineRequest, Producer, ReadRequest, ReleaseRef,
-    ResponseFormat, RetryPolicy, ScientificStatus, SearchRequest, ToolCallId, ToolDescriptor,
-    ToolResult, ToolsSchema,
+    ErrorEnvelope, EvidenceRef, ExecutionScope, ExecutionStatus, ForecastRequest,
+    GraphNeighborsRequest, GroundingMode, InlinePayload, JobLookup, JobRef, Origin, OutlineRequest,
+    Producer, ReadRequest, ReleaseRef, ResponseFormat, RetryPolicy, ScientificStatus,
+    SearchRequest, ToolCallId, ToolDescriptor, ToolResult, ToolsSchema,
 };
 use ignis_core::services::{
     ArtifactDraft, ArtifactStore, DatasetService, KnowledgeService, ModelService, ServiceResult,
@@ -101,7 +101,7 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
         .into_iter()
         .map(|d| {
             let unavailable = match d.name.as_str() {
-                "sources_search" | "sources_read" | "sources_outline"
+                "sources_search" | "sources_read" | "sources_outline" | "graph_neighbors"
                     if services.knowledge.is_none() =>
                 {
                     Some("KnowledgeService not configured")
@@ -120,10 +120,11 @@ pub fn catalog(services: &ToolServices) -> Vec<ToolAvailability> {
                     Some("isolated runner not configured or failed preflight")
                 }
                 "wiki_patch" => Some("wiki service not implemented"),
-                "sources_search" | "sources_read" | "sources_outline" | "datasets_inspect"
-                | "conditions_query" | "models_inspect" | "models_forecast"
-                | "analysis_execute" | "artifacts_read" | "jobs_get" | "answer_submit" => None,
-                // graph_neighbors, wiki_read, web_search, web_fetch: their
+                "sources_search" | "sources_read" | "sources_outline" | "graph_neighbors"
+                | "datasets_inspect" | "conditions_query" | "models_inspect"
+                | "models_forecast" | "analysis_execute" | "artifacts_read" | "jobs_get"
+                | "answer_submit" => None,
+                // wiki_read, web_search, web_fetch: their
                 // KnowledgeService methods are not implemented on main yet (trait defaults).
                 _ => Some("no adapter for this tool"),
             };
@@ -357,6 +358,11 @@ impl ToolHost {
                 let req: OutlineRequest = decode(contract, args)?;
                 checked(req.validate())?;
                 value(self.knowledge()?.outline(scope, &req))
+            }
+            "graph_neighbors" => {
+                let req: GraphNeighborsRequest = decode(contract, args)?;
+                checked(req.validate())?;
+                value(self.knowledge()?.graph_neighbors(scope, &req))
             }
             "datasets_inspect" => {
                 let req: DatasetRef = decode(contract, args)?;
