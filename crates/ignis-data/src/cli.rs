@@ -1134,13 +1134,21 @@ pub fn run_data(cmd: DataCmd) -> anyhow::Result<()> {
         } => {
             let store = crate::dataset::DatasetStore::default_roots();
             let many = investigations.len() > 1;
+            let mut failed = Vec::new();
             for inv in &investigations {
                 let dir = match &raw {
                     Some(r) if many => r.join(inv),
                     Some(r) => r.clone(),
                     None => paths::raw(Some(inv)),
                 };
-                let b = crate::sensors::build_investigation(inv, &dir, &store)?;
+                let b = match crate::sensors::build_investigation(inv, &dir, &store) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("{inv}: FAILED {e:#}");
+                        failed.push(inv.clone());
+                        continue;
+                    }
+                };
                 println!(
                     "{} -> {}: {} files read, {} skipped, {} sample rows; statuses {}",
                     inv,
@@ -1154,6 +1162,7 @@ pub fn run_data(cmd: DataCmd) -> anyhow::Result<()> {
                     println!("  skipped {f}: {why}");
                 }
             }
+            anyhow::ensure!(failed.is_empty(), "not built: {}", failed.join(", "));
         }
         DataCmd::Bundles => {
             use ignis_core::services::DatasetService;
