@@ -30,7 +30,7 @@ interface Props {
   onPick: (id: string) => void;
   loading?: boolean;
   autoFocus?: boolean;
-  /** What a served model can do with each run, with a short reason for some; null while it is being worked out or when no model is served. */
+  /** What a served model can do with each run, with a short reason for some and the held-out runs; null while it is being worked out or when no model is served. */
   reach: Reaches | null;
 }
 
@@ -38,6 +38,7 @@ const REACH_ORDER: Record<Reach, number> = { ready: 0, conditions: 1, typed: 2, 
 
 export function RunPicker({ runs, value, onPick, loading, autoFocus, reach: reaches }: Props) {
   const reach = reaches?.reach ?? null;
+  const heldOut = reaches?.heldOut;
   const [q, setQ] = useState("");
   const [family, setFamily] = useState<string>("all");
   const [onlyReady, setOnlyData] = useState(true);
@@ -116,6 +117,11 @@ export function RunPicker({ runs, value, onPick, loading, autoFocus, reach: reac
               <span className="runpick-main">
                 <b>{runLabel(r)}</b>
                 <code>{r.id}</code>
+                {heldOut?.has(r.id) && (
+                  <span className="muted runpick-part" title="Validation or test run: the model was written without reading it">
+                    held out
+                  </span>
+                )}
                 {reaches?.why.get(r.id) && <small className="runpick-why muted">{reaches.why.get(r.id)}</small>}
               </span>
               <ReachTag r={r} reach={reach?.get(r.id) ?? null} why={reaches?.why.get(r.id) ?? null} />

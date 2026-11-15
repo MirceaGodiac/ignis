@@ -18,8 +18,9 @@ use crate::contracts::{
     ExternalSourceCandidate, ForecastRequest, GraphNeighborsPage, GraphNeighborsRequest, KeyValue,
     MetricValue, ModelCard, ModelRelease, Origin, OutlineRequest, Partition, Producer, ReadRequest,
     ReadResult, ReleaseId, RetryPolicy, RunId, ScenarioAdmitted, ScenarioRequest, SearchPage,
-    SearchRequest, SourceAccess, SourceId, SourceLabel, SourceOutline, WebFetchRequest,
-    WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest, WikiReadResult, WikiRevision,
+    SearchRequest, SourceAccess, SourceId, SourceLabel, SourceOutline, StoredRunList,
+    WebFetchRequest, WebSearchPage, WebSearchRequest, WikiPatch, WikiReadRequest, WikiReadResult,
+    WikiRevision,
 };
 
 pub type ServiceResult<T> = Result<T, ErrorEnvelope>;
@@ -253,6 +254,25 @@ pub trait ModelService: Send + Sync {
     /// tools (`models_inspect`, `models_forecast`), so an agent knows the releases and their inputs.
     fn tool_note(&self) -> Option<String> {
         None
+    }
+
+    /// The stored runs of the release's frozen split that `scope` may forecast with it: the
+    /// partitions `scope` grants, plus those the deployment opened for the release
+    /// (`ModelCard::open_partitions`) when `scope` is a research scope. Each run carries its
+    /// partition.
+    fn stored_runs(
+        &self,
+        _scope: &ExecutionScope,
+        _id: &ReleaseId,
+    ) -> ServiceResult<StoredRunList> {
+        not_provided("stored run lists")
+    }
+
+    /// Partitions this deployment opened to research scopes, by frozen split id (the union over
+    /// the served releases of that split). The host uses it to serve the outcomes of those runs
+    /// (recorded series, endpoints) beside their forecasts. Default: none.
+    fn opened_splits(&self) -> BTreeMap<String, BTreeSet<Partition>> {
+        BTreeMap::new()
     }
 }
 

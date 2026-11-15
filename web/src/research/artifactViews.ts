@@ -100,6 +100,7 @@ export const CONTRACT_COVERAGE = {
   ModelCard: { notShown: "Shown by the forecast lab (hand-written models), never stored as an artifact" },
   ScenarioRequest: { notShown: "Request: typed in the forecast lab; shown through its AnalysisArtifact" },
   ScenarioAdmitted: { notShown: "Response: an input_hash the forecast lab forecasts" },
+  StoredRunList: { notShown: "Response: the runs the forecast lab offers a release, each with its partition" },
   EvaluationRequest: { notShown: "Request: shown inside its EvaluationResult" },
   JobLookup: { notShown: "Request: shown through the job it names" },
   DatasetRef: { notShown: "Reference: shown through its DatasetBundle" },

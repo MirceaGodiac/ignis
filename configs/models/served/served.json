@@ -122,7 +122,13 @@
         "The radiative clock above the critical diameter rests on CO2-diluted pairs; if the critical diameter in CO2 is off, the slope is wrong between atmospheres."
       ],
       "cite": "flex_methanol.wsp2 D3, hand-written (literal WSP) release sha256:55e0cb12…43ce, qualified, not trained; its output is model output, not a measurement.",
-      "card_doc": "docs/wsp/cards/flex_droplet3.md"
+      "card_doc": "docs/wsp/cards/flex_droplet3.md",
+      "open_partitions": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "open_reason": "final test spent 15 Nov 2026 (PROTOCOL 12.11): the sealed test partition of this split was scored once in the final run (docs/wsp/RESULTS_FINAL.md) and validation was already used for selection, so a forecast on these runs contaminates no evaluation"
     },
     {
       "release_id": "sha256:43f7871f778040550291789ca97e319729675a9dd0df9c9529525c1805ad588d",
@@ -244,7 +250,13 @@
         "Also covers FLEX-2 (PSI-68) as a scored transfer, unchanged: 8 n-heptane tests on 2 train-split days, 20.9 µm against 32.6 for the d-squared law (docs/wsp/COVERAGE_19.md on the lane branch). Zero-shot candidates for n-decane, n-octane, iso-octane and an n-dodecane candidate for CFI (PSI-39) exist but are not served."
       ],
       "cite": "flex_heptane.wsp2 D2, hand-written (literal WSP) release sha256:43f7871f…588d, qualified, not trained; its output is model output, not a measurement.",
-      "card_doc": "docs/wsp/cards/flex_droplet3.md"
+      "card_doc": "docs/wsp/cards/flex_droplet3.md",
+      "open_partitions": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "open_reason": "final test spent 15 Nov 2026 (PROTOCOL 12.11): the sealed test partition of this split was scored once in the final run (docs/wsp/RESULTS_FINAL.md) and validation was already used for selection, so a forecast on these runs contaminates no evaluation"
     },
     {
       "release_id": "sha256:4cc2fa60cc8c40b316594034ab8f299946117705736677e941c99f645fb89436",
@@ -435,7 +447,13 @@
       ],
       "cite": "acme_normal.wsp13 F4 (f4-hydrogen), hand-written (literal WSP) release sha256:4cc2fa60…9436, qualified, not trained; its methane, helium and hydrogen parts were typed after the final run with every partition seen; event probabilities are model output, not a measurement.",
       "card_doc": "docs/wsp/cards/acme_committee.md",
-      "refuse_blends": true
+      "refuse_blends": true,
+      "open_partitions": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "open_reason": "final test spent 15 Nov 2026 (PROTOCOL 12.11): the sealed test partition of this split was scored once in the final run (docs/wsp/RESULTS_FINAL.md) and validation was already used for selection, so a forecast on these runs contaminates no evaluation"
     },
     {
       "release_id": "sha256:dff7da0da8e77785acecc0ffb5acaf222358d4274b36e2c52f39426aaebd594e",
@@ -566,7 +584,13 @@
         "Also covers Flame Design (PSI-10): on its validation days ethylene as itself 0.108 against 0.147 as ethane (docs/wsp/COVERAGE_19.md on the lane branch)."
       ],
       "cite": "acme_inverse.wsp12 F2, hand-written (literal WSP) release sha256:dff7da0d…594e, qualified, not trained; event probabilities are model output, not a measurement.",
-      "card_doc": "docs/wsp/cards/acme_committee.md"
+      "card_doc": "docs/wsp/cards/acme_committee.md",
+      "open_partitions": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "open_reason": "final test spent 15 Nov 2026 (PROTOCOL 12.11): the sealed test partition of this split was scored once in the final run (docs/wsp/RESULTS_FINAL.md) and validation was already used for selection, so a forecast on these runs contaminates no evaluation"
     },
     {
       "release_id": "sha256:ac15e49f1cb60d4b4679bcdff82a07c18a4a501454428e35ac86e935e168855c",
@@ -709,7 +733,13 @@
         "Also covers Saffire I to III (PSI-98 to PSI-100) as blind transfers, unchanged: Saffire I and III 0.058 against 0.250 for persistence on two sheets; Saffire II 0.654 against 0.852, reported, decides nothing (docs/wsp/COVERAGE_19.md on the lane branch)."
       ],
       "cite": "bass_front.wsp D1, hand-written (literal WSP) release sha256:ac15e49f…855c, qualified, not trained; its output is model output, not a measurement.",
-      "card_doc": "docs/wsp/cards/bass_front.md"
+      "card_doc": "docs/wsp/cards/bass_front.md",
+      "open_partitions": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "open_reason": "final test spent 15 Nov 2026 (PROTOCOL 12.11): the sealed test partition of this split was scored once in the final run (docs/wsp/RESULTS_FINAL.md) and validation was already used for selection, so a forecast on these runs contaminates no evaluation"
     },
     {
       "release_id": "sha256:e1362b55270238360ec6744cfea6225db42d0fe019f6ff1c77dd96cede5f2062",

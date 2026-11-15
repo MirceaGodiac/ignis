@@ -108,6 +108,7 @@ pub fn all() -> Vec<(String, serde_json::Value)> {
         one::<ModelCard>("ModelCard"),
         one::<ScenarioRequest>("ScenarioRequest"),
         one::<ScenarioAdmitted>("ScenarioAdmitted"),
+        one::<StoredRunList>("StoredRunList"),
         // C0: evaluation (evaluation.v1)
         one::<EvaluationRequest>("EvaluationRequest"),
         one::<EvaluationResult>("EvaluationResult"),

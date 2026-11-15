@@ -67,6 +67,14 @@ pub struct Origin {
     /// Scope of the unauthenticated legacy routes: outcomes of the training partition only.
     /// Validation outcomes are opened through seal → reveal; test never in this runtime.
     pub public_scope: ignis_core::contracts::ExecutionScope,
+    /// Partitions of frozen splits the deployment opened to research for its served releases
+    /// (split id -> partitions; `ModelService::opened_splits`, from the served list with its
+    /// reason). Outcomes of a run every one of whose partitions is granted or opened are served
+    /// like train outcomes, so the lab can show what a held-out run recorded beside its forecast.
+    pub opened: std::collections::BTreeMap<
+        String,
+        std::collections::BTreeSet<ignis_core::contracts::Partition>,
+    >,
     /// `/seal`, `/reveal`, `/admin/reload` served (always for the synthetic fixture origin).
     pub internal_routes: bool,
     /// Every reveal attempt, granted or refused (registry: `runs/evaluation/reveal_log.jsonl`).

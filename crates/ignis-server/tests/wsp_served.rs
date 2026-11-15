@@ -50,15 +50,53 @@ fn stored() -> MemoryPrefixes {
 
 struct Harness {
     _dir: tempfile::TempDir,
+    _served: Option<tempfile::TempDir>,
     state: Arc<V1>,
     router: axum::Router,
     scope: ExecutionScope,
 }
 
-fn harness() -> Harness {
+fn copy_dir(from: &std::path::Path, to: &std::path::Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for e in std::fs::read_dir(from).unwrap() {
+        let e = e.unwrap();
+        let target = to.join(e.file_name());
+        if e.file_type().unwrap().is_dir() {
+            copy_dir(&e.path(), &target);
+        } else {
+            std::fs::copy(e.path(), target).unwrap();
+        }
+    }
+}
+
+/// The committed served list as a deployment that opened nothing: every `open_partitions` and
+/// `open_reason` removed, so each release forecasts train runs only (the default).
+fn sealed_served_dir() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
-    let models: Arc<dyn ModelService> =
-        Arc::new(ServedModels::open(served_dir(), stored()).unwrap());
+    copy_dir(&served_dir(), dir.path());
+    let path = dir.path().join("served.json");
+    let mut list: Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    for e in list["releases"].as_array_mut().unwrap() {
+        let e = e.as_object_mut().unwrap();
+        e.remove("open_partitions");
+        e.remove("open_reason");
+    }
+    std::fs::write(&path, list.to_string()).unwrap();
+    dir
+}
+
+fn harness() -> Harness {
+    harness_at(served_dir(), None)
+}
+
+fn sealed_harness() -> Harness {
+    let served = sealed_served_dir();
+    harness_at(served.path().to_path_buf(), Some(served))
+}
+
+fn harness_at(served: PathBuf, keep: Option<tempfile::TempDir>) -> Harness {
+    let dir = tempfile::tempdir().unwrap();
+    let models: Arc<dyn ModelService> = Arc::new(ServedModels::open(served, stored()).unwrap());
     let services = ToolServices {
         models: Some(models),
         ..Default::default()
@@ -110,6 +148,7 @@ fn harness() -> Harness {
     let router = v1::build(state.clone());
     Harness {
         _dir: dir,
+        _served: keep,
         state,
         router,
         scope: research_scope("local", false),
@@ -560,15 +599,89 @@ async fn stored_runs_respect_the_partition_and_the_mcp_tools_reach_the_forward()
     );
     assert_eq!(read.result.unwrap().value, json!("model_output"));
 
-    // A test-partition run is refused before its prefix is built: a failed job, no artifact.
+    // The committed list opens the test partition of FLEX methanol (its final test was spent):
+    // the run list carries both runs with their partitions, and a test run is forecast, through
+    // the route and through the agent's tool alike.
+    let (st, list) = http(&h, "GET", &format!("/models/{FLEX_METHANOL}/runs"), None).await;
+    assert_eq!(st, StatusCode::OK, "{list}");
+    let list: StoredRunList = serde_json::from_value(list).unwrap();
+    assert_eq!(
+        list.open_partitions,
+        [Partition::Train, Partition::Validation, Partition::Test].into()
+    );
+    assert!(list.open_reason.as_deref().unwrap().contains("12.11"));
+    let runs: Vec<(&str, Partition, bool)> = list
+        .runs
+        .iter()
+        .map(|r| (r.run_id.as_str(), r.partition, r.held_out))
+        .collect();
+    assert_eq!(
+        runs,
+        [
+            ("synthetic-test-run", Partition::Test, true),
+            ("synthetic-train-run", Partition::Train, false)
+        ]
+    );
+    let held = forecast_http(
+        &h,
+        FLEX_METHANOL,
+        json!({"kind": "stored_run", "run_id": "synthetic-test-run", "cutoff_s": 3.0}),
+        "test-open",
+    )
+    .await;
+    assert!(held.support.admitted, "{:?}", held.support);
     let args = json!({"schema_version": "wsp.v1", "release_id": FLEX_METHANOL,
         "input": {"kind": "stored_run", "run_id": "synthetic-test-run", "cutoff_s": 3.0},
         "client_request_id": "mcp-test"});
     let queued = h.state.tools.call(&h.scope, "models_forecast", args);
     let job = finished(&h, queued.job.unwrap().job_id.as_str()).await;
+    assert_eq!(job.status, JobStatus::Succeeded, "{job:#?}");
+
+    // An authoring scope keeps its own grant: the opening is for research scopes.
+    let mut author = h.scope.clone();
+    author.role = ScopeRole::Authoring;
+    author.capabilities.remove(&Capability::ExecuteCode);
+    let m = h.state.services.models.clone().unwrap();
+    let req: ForecastRequest = serde_json::from_value(json!({"schema_version": "wsp.v1",
+        "release_id": FLEX_METHANOL,
+        "input": {"kind": "stored_run", "run_id": "synthetic-test-run", "cutoff_s": 3.0}}))
+    .unwrap();
+    assert_eq!(
+        m.forecast(&author, &req).unwrap_err().code,
+        ErrorCode::ScopeDenied
+    );
+    let runs = m
+        .stored_runs(&author, &ReleaseId::new(FLEX_METHANOL).unwrap())
+        .unwrap();
+    assert!(runs.runs.iter().all(|r| r.partition == Partition::Train));
+
+    // A deployment that opened nothing: the test run is refused before its prefix is built (a
+    // failed job, no artifact), and only the train run is listed.
+    let sealed = sealed_harness();
+    let args = json!({"schema_version": "wsp.v1", "release_id": FLEX_METHANOL,
+        "input": {"kind": "stored_run", "run_id": "synthetic-test-run", "cutoff_s": 3.0},
+        "client_request_id": "mcp-test-sealed"});
+    let queued = sealed
+        .state
+        .tools
+        .call(&sealed.scope, "models_forecast", args);
+    let job = finished(&sealed, queued.job.unwrap().job_id.as_str()).await;
     assert_eq!(job.status, JobStatus::Failed);
     assert_eq!(job.error.unwrap().code, ErrorCode::ScopeDenied);
     assert!(job.outputs.is_empty());
+    let (st, list) = http(
+        &sealed,
+        "GET",
+        &format!("/models/{FLEX_METHANOL}/runs"),
+        None,
+    )
+    .await;
+    assert_eq!(st, StatusCode::OK, "{list}");
+    let list: StoredRunList = serde_json::from_value(list).unwrap();
+    assert_eq!(list.open_partitions, [Partition::Train].into());
+    assert!(list.open_reason.is_none());
+    assert_eq!(list.runs.len(), 1);
+    assert_eq!(list.runs[0].run_id.as_str(), "synthetic-train-run");
 
     // An agent cannot forecast an input hash nobody admitted.
     let args = json!({"schema_version": "wsp.v1", "release_id": FLEX_METHANOL,
